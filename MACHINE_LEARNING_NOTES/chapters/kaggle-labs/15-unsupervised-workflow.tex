@@ -1,0 +1,22 @@
+\section{Kaggle implementation: an unsupervised workflow without labels}
+\label{sec:kaggle-mall-unsupervised}
+
+\begin{kaggleproject}{Mall Customers --- scaling, repeated clustering, and internal evidence}
+\kagglesource{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customer Segmentation Data}
+\textbf{Question.} Without a target column, how can we compare candidate values of $k$ using compactness and silhouette structure?
+\end{kaggleproject}
+
+The script scales age, annual income, and spending score, then reports K-means inertia and silhouette score for several candidate cluster counts. Neither quantity is a ground-truth accuracy measure; both are internal evidence about the representation and partition.
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 4A is about evidence without labels. Decide what would count as useful evidence before looking at the reported inertia and silhouette values.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab14-mall_unsupervised_workflow.py}
+
+
+\begin{labdeliverable}
+Submit the scaled feature definition, inertia and silhouette evidence across candidate $k$, your chosen candidate partition, one visualization, and a decision memo stating what additional domain or stability evidence is required before treating the groups as meaningful customer segments.
+\end{labdeliverable}

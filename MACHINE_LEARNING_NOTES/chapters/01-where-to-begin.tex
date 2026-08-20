@@ -1,0 +1,240 @@
+\chapter{Where to Begin}
+\label{ch:orientation}
+
+\chapterguide%
+  {No previous machine-learning knowledge is required.}
+  {name the parts of a machine-learning problem, explain the full workflow, distinguish the main learning settings, and describe what a model must do to be useful.}
+
+Machine learning is a way of building computer systems that learn patterns from examples. Instead of writing one rule for every possible situation, we show the system data and let an algorithm find a useful rule.
+
+\begin{intuition}
+Imagine teaching someone to estimate house prices. You could give them thousands of fixed rules, or you could show them many houses with their final prices and let them discover patterns. Machine learning follows the second approach.
+\end{intuition}
+
+\section{The five parts of a machine-learning problem}
+
+Every beginner should be able to identify these five parts before choosing an algorithm.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Part & Meaning \\
+\midrule
+Observation & One example or row, such as one house, patient, customer, or email. \\
+Feature & An input used to make a prediction, such as floor area, age, or word count. \\
+Target & The answer the model should learn to predict, such as price or spam/not spam. \\
+Model & A mathematical rule that turns features into a prediction. \\
+Metric & A number used to judge whether the model is useful on unseen data. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.14\linewidth}X X X >{\bfseries}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+House & Area & Bedrooms & Distance to center & Sale price \\
+\midrule
+A & 90 m$^2$ & 2 & 8 km & \textdollar 220,000 \\
+B & 140 m$^2$ & 3 & 4 km & \textdollar 360,000 \\
+C & 110 m$^2$ & 2 & 12 km & \textdollar 245,000 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Picture this table whenever the vocabulary feels abstract. Each house is an \term{observation}. The three middle columns are \term{features} known before the sale. The final column is the \term{target}. Training means using many completed rows to learn a rule; prediction means applying that rule to a new row whose sale-price cell is still blank.
+
+\begin{workedexample}
+Suppose each row describes one house. Floor area, number of bedrooms, and distance to the city center are features. Sale price is the target. A regression model learns a rule that maps the three features to an estimated price. Mean absolute error could be the metric.
+\end{workedexample}
+
+\section{Parameters, hyperparameters, loss, and metrics}
+
+These terms sound similar but have different jobs.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.2\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Term & Who chooses it? & Example \cr
+\midrule
+Parameter & Learned from training data & A regression coefficient or a tree split \cr
+Hyperparameter & Chosen before or during model selection & Number of neighbors, tree depth, regularization strength \cr
+Loss & Used by the training process to measure wrongness & Squared error, cross-entropy \cr
+Metric & Used to report practical performance & Accuracy, recall, MAE, RMSE \cr
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+A loss and a metric can be the same, but they do not have to be. Training may use a smooth mathematical loss while the final report uses a metric that matches the real-world goal.
+
+\section{The complete workflow}
+
+A reliable project follows a repeatable sequence.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.45cm and 0.55cm,
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.35cm,minimum height=0.9cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+]
+\node[box] (a) {1. Define the problem};
+\node[box,right=of a] (b) {2. Understand the data};
+\node[box,right=of b] (c) {3. Split correctly};
+\node[box,right=of c] (d) {4. Prepare the features};
+\node[box,below=0.65cm of d] (e) {5. Build a baseline};
+\node[box,left=of e] (f) {6. Train and tune models};
+\node[box,left=of f] (g) {7. Evaluate fairly};
+\node[box,left=of g] (h) {8. Explain and monitor};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e); \draw[arr] (e) -- (f); \draw[arr] (f) -- (g); \draw[arr] (g) -- (h);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mlsteps}
+  \item \term{Define the decision.} State what must be predicted, who will use the result, and what a wrong prediction costs.
+  \item \term{Understand and validate the data.} Identify rows, keys, features, targets, units, missing values, timing, and possible bias. Apply only fixed, target-blind corrections at this stage.
+  \item \term{Split the data.} Create training, validation, and test data in a way that matches future use.
+  \item \term{Prepare the features.} Learn imputation, category encoding, scaling, and other data-dependent transformations from training data inside a pipeline.
+  \item \term{Build a baseline.} Start with a simple rule, such as predicting the average or most common class.
+  \item \term{Train and tune.} Fit candidate models on training data and choose settings with validation data.
+  \item \term{Evaluate once on the test set.} Use the untouched test data for the final estimate.
+  \item \term{Explain, deploy, and monitor.} Document limitations and check whether the data or performance changes over time.
+\end{mlsteps}
+
+The two information-boundary rules in this workflow are developed once in \secref{sec:data-leakage} and \secref{sec:data-splits}: learned preprocessing uses training data, and the final test set stays outside model selection.
+
+\section{The main learning settings}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Learning setting & How it works \\
+\midrule
+Supervised learning & Each training row includes the correct target. Use it for regression and classification. \\
+Unsupervised learning & No target is supplied. Use it to find groups, simpler structure, unusual cases, or item relationships. \\
+Semi-supervised learning & A small set is labeled and a larger set is unlabeled. The unlabeled data may help when labels are expensive. \\
+Reinforcement learning & An agent chooses actions and learns from rewards received over time. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Supervised and unsupervised learning form the core of this guide. Semi-supervised and reinforcement learning are introduced later using classical methods only.
+
+\begin{intuition}
+Two related terms appear often in modern machine learning. \term{Self-supervised learning} creates a target from the data itself --- for example, predicting a hidden word or missing image region --- and is widely used to learn reusable representations before a downstream task. \term{Active learning} is a limited-label strategy in which the learner chooses which unlabeled examples should be sent to a human for labeling. The expanded field map before Chapter~1 shows where both fit.
+\end{intuition}
+
+\section{Four learning settings, side by side}
+
+The four settings above are easier to remember as a picture. What changes between them is simply \emph{what feedback the computer receives}.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.42cm and 0.55cm,
+  hd/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=1.5mm,minimum width=3.35cm,minimum height=0.62cm,align=center,font=\small\bfseries},
+  bx/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=3.35cm,minimum height=1.5cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[hd] (h1) {Supervised};
+\node[hd,right=of h1] (h2) {Semi-supervised};
+\node[hd,right=of h2] (h3) {Unsupervised};
+\node[hd,right=of h3] (h4) {Reinforcement};
+\node[bx,below=0.28cm of h1] (b1) {You are given the\\answer for every example.\\[0.25em]\textbf{``This email is spam.''}\\[0.25em]Goal: copy the mapping};
+\node[bx,below=0.28cm of h2] (b2) {You are given answers\\for only some examples.\\[0.25em]\textbf{``A few emails are labeled.''}\\[0.25em]Goal: learn from both sets};
+\node[bx,below=0.28cm of h3] (b3) {You are given no answers\\at all, only the examples.\\[0.25em]\textbf{``Here are 10\,000 emails.''}\\[0.25em]Goal: find the structure};
+\node[bx,below=0.28cm of h4] (b4) {You are given a score\\after you act.\\[0.25em]\textbf{``That move lost you 3 points.''}\\[0.25em]Goal: act better next time};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Supervised learning is studying with the answer key beside you. Semi-supervised learning is having an answer key for only a few questions and using those answers to make sense of the rest. Unsupervised learning is being handed a shuffled box of photographs and asked to sort them into piles that make sense -- nobody tells you what the piles should be. Reinforcement learning is learning a video game: no one explains the rules, but the score goes up or down after every move.
+\end{analogy}
+
+\section{Generalization: the real goal}
+
+A model \term{generalizes} when it performs well on new examples from the same kind of situation. Training performance alone cannot prove generalization because a model may simply memorize details in the training set.
+
+\begin{intuition}
+A student who memorizes the exact answers in a practice booklet may score perfectly during practice and still fail a new exam. A useful model learns the pattern behind the examples, not just the examples themselves.
+\end{intuition}
+
+Three outcomes are common:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Outcome & Model behavior \\
+\midrule
+Underfitting & The model is too simple and performs poorly on both training and unseen data. \\
+Good fit & The model captures useful structure and performs similarly on training and unseen data. \\
+Overfitting & The model performs very well on training data but poorly on unseen data. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{What a wrong prediction costs}
+
+Before choosing any algorithm, write down what happens when the model is wrong. The two directions of error are almost never equally bad.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.21\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Problem & \normalfont\bfseries\leavevmode\color{MLNavy}Cost of a false alarm & \normalfont\bfseries\leavevmode\color{MLNavy}Cost of a miss \\
+\midrule
+Spam filter & A real email is hidden -- irritating, occasionally serious & A spam email arrives -- mildly annoying \\
+Disease screening & An unnecessary follow-up test -- costly and stressful & An untreated illness -- potentially fatal \\
+Fraud detection & A legitimate card is blocked -- an angry customer & Money is lost -- direct financial damage \\
+Movie recommendation & A poor suggestion -- ignored & A good movie not shown -- invisible loss \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{intuition}
+This table is why accuracy alone can be a weak metric, and why \chapref{ch:evaluation} develops precision, recall, ranking, and thresholds. The algorithm cannot know that a missed cancer matters more than a wasted blood test. The evaluation objective must encode that judgment.
+\end{intuition}
+
+\begin{tryit}
+Pick something a computer decides about you: which movies you are shown, whether a message goes to junk mail, whether a bank approves a payment. Write down the five parts -- observation, feature, target, model, metric -- and then the cost of each direction of error.
+\end{tryit}
+
+\section{What to learn first}
+
+Follow the book's learning path rather than trying to memorize the entire field map at once:
+
+\begin{enumerate}
+  \item Learn the vocabulary and the end-to-end workflow in this chapter.
+  \item Understand the software-toolkit roles and computational vocabulary in \chapref{ch:python}.
+  \item Audit and prepare data safely in \chapref{ch:data}.
+  \item Use \chapref{ch:learning} to choose the learning branch from the feedback available.
+  \item Learn the shared statistical and geometric vocabulary in \chapref{ch:foundations}, focusing first on the concepts immediately reused by later models.
+  \item Complete Stage 3A first: supervised workflow, evaluation, and model selection; then Stage 3B changes one supervised model family at a time.
+  \item Reset the objective in Stage 4A and learn unsupervised evaluation; then Stage 4B studies clustering, representation, and anomaly detection.
+  \item Finish with limited-label and reward-based learning in Stage 5, then use the Epilogue to choose a modern direction.
+\end{enumerate}
+
+\begin{keyidea}
+A machine-learning project is not only an algorithm. It is a complete process that begins with a real problem and ends with a fair evaluation on unseen data.
+\end{keyidea}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What are the observation, features, target, model, and metric in a problem that predicts whether a loan payment will be late?
+  \item Why is a learned model parameter different from a hyperparameter chosen during model selection?
+  \item Why can excellent training performance still be evidence of a poor machine-learning system?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A dataset contains observations, features, and sometimes a target.
+  \item Parameters are learned; hyperparameters are chosen and validated.
+  \item The standard workflow is problem definition, data preparation, baseline, training, validation, final testing, and monitoring.
+  \item The real objective is generalization, not perfect training performance.
+\end{itemize}
+\end{chapterrecap}

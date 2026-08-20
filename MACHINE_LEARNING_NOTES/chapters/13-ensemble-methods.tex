@@ -1,0 +1,351 @@
+\chapter{Ensemble Methods}
+\label{ch:ensembles}
+
+\chapterguide%
+  {Decision trees from \chapref{ch:decision-trees} and the bias--variance/model-selection ideas from \chapref{ch:training}. The variance framework is referenced rather than retaught.}
+  {Explain why combining models works, train bagged trees, Random Forests, and Extra Trees, follow AdaBoost's reweighting and gradient boosting's residual-fitting step by step, use voting/stacking without leakage, and inspect ensemble behavior without confusing explanation with causation.}
+
+No single model is right all the time --- but different models tend to be wrong in \emph{different} ways. An \term{ensemble} exploits this by training many models and combining their predictions, so that individual mistakes partly cancel. Random forests and gradient-boosted trees are particularly strong general-purpose candidates for tabular data, though no family dominates every dataset or operational constraint.
+
+\begin{firstread}
+Core path: understand why averaging helps, then learn bagging, random forests, and gradient boosting. Voting and stacking are useful extensions after those three ideas are clear.
+\end{firstread}
+
+\section{Why averaging helps}
+
+This is the ensemble-specific application of the variance side of \secref{sec:bias-variance}; the general bias--variance trade-off remains defined there.
+
+Suppose $B$ models each make predictions with the same error variance $\sigma^2$. If their errors were completely independent, the variance of their average would be $\sigma^2/B$ --- averaging 100 models would slash the noise a hundredfold. Real models trained on the same data are correlated, and with average pairwise correlation $\rho$ the variance of the average is approximately
+\[
+  \rho\,\sigma^2+\frac{(1-\rho)}{B}\,\sigma^2 .
+\]
+Reading the formula: the second term melts away as the ensemble grows, but the first does not. Adding models is cheap variance reduction, yet the floor is set by how \emph{correlated} the models are --- so ensemble design is really diversity engineering. The two great families differ in how they create that diversity: \term{bagging} trains models independently on perturbed data, and \term{boosting} trains them sequentially, each one targeting the current ensemble's mistakes.
+
+\begin{intuition}
+Ask one expert and you get their blind spots. Ask a hundred experts who all read the same newspaper and you get the newspaper's blind spots. Ask a hundred experts with genuinely different experiences and the errors wash out --- crowd wisdom needs disagreement, not just headcount.
+\end{intuition}
+
+\section{Bagging: bootstrap aggregating}
+
+Bagging manufactures diversity by giving every model a slightly different view of the data. A \term{bootstrap sample} is created by drawing $n$ observations from the training set \emph{with replacement}: some observations appear twice or more, and each model misses about $37\%$ of the data entirely (the chance an observation is never drawn is ${(1-1/n)}^n\approx e^{-1}\approx 0.37$). A common base learner is a deep decision tree, chosen because its instability gives averaging something to reduce. One learner is trained on each sample, and predictions are combined by voting (classification) or averaging (regression).
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=2pt, align=center,
+              minimum height=2.2em, minimum width=6.4em, inner sep=3pt, fill=gray!10},
+  arr/.style={-{Stealth[length=2mm]}, thick}
+]
+\node[box] (data) {training data\\($n$ observations)};
+\node[box, right=1.05cm of data, yshift=1.35cm] (s1) {bootstrap\\sample 1};
+\node[box, right=1.05cm of data] (s2) {bootstrap\\sample 2};
+\node[box, right=1.05cm of data, yshift=-1.35cm] (s3) {bootstrap\\sample $B$};
+\node[box, right=1.05cm of s1] (t1) {tree 1};
+\node[box, right=1.05cm of s2] (t2) {tree 2};
+\node[box, right=1.05cm of s3] (t3) {tree $B$};
+\node[box, right=1.05cm of t2] (agg) {vote /\\average};
+\draw[arr] (data) -- (s1);
+\draw[arr] (data) -- (s2);
+\draw[arr] (data) -- (s3);
+\draw[arr] (s1) -- (t1);
+\draw[arr] (s2) -- (t2);
+\draw[arr] (s3) -- (t3);
+\draw[arr] (t1) -- (agg);
+\draw[arr] (t2) -- (agg);
+\draw[arr] (t3) -- (agg);
+\node at ($(s2)!0.5!(s3)$) {$\vdots$};
+\node at ($(t2)!0.5!(t3)$) {$\vdots$};
+\end{tikzpicture}
+\end{mlfigure}
+
+A useful internal estimate is available because each tree never saw its \term{out-of-bag (OOB)} observations: every row can be predicted by trees that skipped it. OOB performance can guide early development, but repeated choices based on it make it another validation signal; it does not replace a final untouched test.
+
+\section{Random forests}
+\label{sec:random-forest}
+
+A \term{random forest} is bagging plus one more dose of randomness: at every split of every tree, only a random subset of the features is considered. $\sqrt{p}$ is a common classification starting point; regression implementations and applications use choices ranging from a fraction of the features to all $p$, so validate the setting. Without feature subsampling, one dominant feature may headline the top of every tree, making the trees --- and their errors --- highly correlated; forcing splits to explore other features can \emph{decorrelate} the trees, which the averaging formula rewards directly.
+
+Practical profile:
+
+\begin{itemize}
+  \item \term{Key hyperparameters:} the number of trees $B$ (more usually stabilizes the Monte Carlo average until gains plateau), the number of features tried per split, and tree depth or minimum leaf size.
+  \item \term{Little tuning required:} sensible defaults perform well, which makes random forests the standard ``strong model with ten minutes of effort'' on tabular data.
+  \item \term{Extras:} OOB error estimates and feature-importance rankings come nearly free; apply the importance caveat from \secref{sec:tree-feature-importance}.
+  \item \term{Costs:} the model is large, slower to predict than a single tree, and no longer readable as rules.
+\end{itemize}
+
+\subsection{Extra Trees: randomize the split thresholds too}
+\label{sec:extra-trees}
+
+\term{Extremely Randomized Trees} (Extra Trees) are a close relative of Random Forests. Both build many decorrelated trees, but Extra Trees randomize candidate split thresholds more aggressively; some formulations also differ in whether each tree uses bootstrap samples or the full training sample. That extra randomness can reduce variance and training cost while adding some bias.
+
+
+Compare Extra Trees with Random Forest under the same folds and metric. Neither is universally better; the useful lesson is that both trade individual-tree strength for diversity across the ensemble.
+
+\section{Boosting: learning from mistakes}
+
+Boosting takes the opposite route to diversity: train simple models \emph{in sequence}, each one concentrating on what the ensemble so far gets wrong, and add them up. Where bagging reduces variance by averaging fully grown trees, boosting reduces \emph{bias} by stacking many \term{weak learners} --- typically shallow trees, even one-split ``stumps'' --- into a single strong one.
+
+\begin{mltable}
+\begin{tabular}{@{}p{0.26\linewidth}p{0.31\linewidth}p{0.31\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+ & Bagging / random forest & Boosting \\
+\midrule
+Training & Parallel, independent & Sequential, each model depends on the last \\
+Base models & Fully grown, low-bias, high-variance trees & Shallow, high-bias, low-variance trees \\
+Main effect & Reduces variance & Reduces bias (and variance via shrinkage) \\
+Overfitting risk & Low; robust to noise & Real; needs a learning rate and early stopping \\
+Tuning effort & Small & Moderate to large \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+\subsection{AdaBoost: reweight the hard cases}
+\label{sec:adaboost}
+
+AdaBoost, the first practical boosting algorithm, keeps a weight on every training observation and turns up the weight on whatever the current ensemble misclassifies:
+
+\begin{enumerate}
+  \item Start with equal weights $w_i=1/n$.
+  \item Fit a weak learner $h_m$ to the weighted data and compute its weighted error rate $\varepsilon_m$.
+  \item Give the learner a say proportional to its quality:
+  \[
+    \alpha_m=\tfrac{1}{2}\ln\frac{1-\varepsilon_m}{\varepsilon_m}.
+  \]
+  \item Multiply the weights of misclassified observations by $e^{\alpha_m}$ and of correct ones by $e^{-\alpha_m}$, then renormalize --- the next learner will stare hardest at the mistakes.
+  \item After $M$ rounds, predict with the weighted vote $\operatorname{sign}\!\left(\sum_m\alpha_m h_m(\bm{x})\right)$.
+\end{enumerate}
+
+The formula for $\alpha_m$ behaves exactly as intuition demands: a learner with $\varepsilon_m=0.3$ earns $\alpha_m=\tfrac{1}{2}\ln(7/3)\approx 0.42$ and its mistakes get their weights multiplied by $e^{0.42}\approx 1.5$; a coin-flip learner ($\varepsilon_m=0.5$) earns no vote at all. The escalating focus on hard cases is AdaBoost's power and its weakness --- persistently mislabeled observations attract ever more attention, so AdaBoost is sensitive to label noise.
+
+\subsection{Gradient boosting: fit the residuals}
+\label{sec:gradient-boosting}
+
+Gradient boosting generalizes the idea to any differentiable loss. After $m-1$ rounds the ensemble is $F_{m-1}$; the next small tree $h_m$ is fitted to the \emph{negative gradient} of the loss at the current predictions --- which, for squared error, is simply the residuals $y_i-F_{m-1}(\bm{x}_i)$ --- and added with a small step:
+\[
+  F_m(\bm{x})
+  =F_{m-1}(\bm{x})+\nu\,h_m(\bm{x}),
+  \qquad 0<\nu\leq 1.
+\]
+The \term{learning rate} $\nu$ shrinks each tree's contribution. Smaller values usually need more trees and sometimes improve generalization, but the interaction is data-dependent; choose the pair with validation or early stopping.
+
+\begin{workedexample}
+Targets $y=(3,5,8,10)$. Round 0 predicts the mean: $F_0=6.5$ for everyone, residuals $(-3.5,-1.5,1.5,3.5)$. A one-split stump fitted to the residuals separates the first two observations from the last two and predicts their residual means, $-2.5$ and $+2.5$. With $\nu=0.5$,
+\[
+  F_1=(6.5-1.25,\;6.5-1.25,\;6.5+1.25,\;6.5+1.25)
+  =(5.25,\,5.25,\,7.75,\,7.75),
+\]
+and the residuals shrink to $(-2.25,-0.25,0.25,2.25)$. Each round nibbles away at what remains unexplained; a hundred small corrections later, the ensemble traces the data closely.
+\end{workedexample}
+
+\begin{intuition}
+Gradient boosting is a committee formed one member at a time, where each new member's only job is to fix the committee's current mistakes --- and is deliberately given a quiet voice ($\nu$) so no single member can dominate. AdaBoost is the special case where ``fix the mistakes'' means ``re-argue the misclassified cases,'' arising from a particular (exponential) loss.
+\end{intuition}
+
+\subsection{Modern gradient-boosting libraries}
+
+Three refinements of gradient boosting dominate practical work; all keep the algorithm above and add engineering and regularization:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.46\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Library & Distinctive approach & Practical strength \\
+\midrule
+XGBoost & Adds explicit regularization of tree size and leaf values to the objective and uses second-derivative information for better splits. & Popularized the modern toolkit, including early stopping and column subsampling. \\
+LightGBM & Grows trees leaf-wise instead of level-wise and buckets feature values into histograms. & Extremely fast on large datasets. \\
+CatBoost & Handles categorical features natively with target statistics computed in a careful order to avoid leakage. & Notably strong when the data contains many categorical columns. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The hyperparameters that matter most, in rough order: number of trees (via early stopping), learning rate, tree depth or leaf count, and the row/column subsampling fractions.
+
+\section{Bagging and boosting, side by side}
+\label{sec:bagging-vs-boosting}
+
+Both build many small models, but they differ in one decisive way: bagging builds them independently and in parallel, while boosting builds them in a chain where each one repairs the last.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.3cm and 0.55cm,
+  t/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.2mm,minimum width=1.45cm,minimum height=0.55cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  tb/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.2mm,minimum width=1.45cm,minimum height=0.55cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  d/.style={draw=MLMuted,fill=MLPaleGray,rounded corners=1.2mm,minimum width=1.1cm,minimum height=0.5cm,align=center,font=\tiny\color{MLNavy}},
+  agg/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,minimum height=1.9cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  result/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=1.2mm,minimum width=1.15cm,minimum height=0.55cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal},
+  arro/.style={-{Stealth[length=1.8mm]},thick,draw=MLOrange}
+]
+% ---- bagging ----
+\node[font=\small\bfseries\color{MLNavy}] (hb) at (0,2.55) {Bagging: parallel and independent};
+\node[d] (d1) at (-1.3,1.85) {sample 1};
+\node[d] (d2) at (-1.3,1.15) {sample 2};
+\node[d] (d3) at (-1.3,0.45) {sample 3};
+\node[t] (t1) at (0.55,1.85) {tree 1};
+\node[t] (t2) at (0.55,1.15) {tree 2};
+\node[t] (t3) at (0.55,0.45) {tree 3};
+\node[agg] (av) at (2.5,1.15) {average\\or vote};
+\draw[arr] (d1)--(t1); \draw[arr] (d2)--(t2); \draw[arr] (d3)--(t3);
+\draw[arr] (t1)--(av); \draw[arr] (t2)--(av); \draw[arr] (t3)--(av);
+\node[font=\scriptsize\itshape\color{MLMuted}] at (0.6,-0.2) {reduces variance};
+% ---- boosting ----
+\node[font=\small\bfseries\color{MLNavy}] (hs) at (8.85,2.55) {Boosting: sequential and corrective};
+\node[tb] (b1) at (5.75,1.45) {tree 1};
+\node[tb] (b2) at (8.05,1.45) {tree 2};
+\node[tb] (b3) at (10.35,1.45) {tree 3};
+\node[result] (sum) at (12.15,1.45) {weighted\\sum};
+\draw[arro] (b1.east)--(b2.west);
+\draw[arro] (b2.east)--(b3.west);
+\draw[arro] (b3.east)--(sum.west);
+\node[font=\tiny\color{MLRed},align=center] at (6.90,0.88)
+  {fit remaining\\errors};
+\node[font=\tiny\color{MLRed},align=center] at (9.20,0.88)
+  {fit remaining\\errors};
+\node[font=\scriptsize\itshape\color{MLMuted}] at (8.85,-0.2) {reduces bias};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Bagging is asking a hundred people to guess the number of sweets in a jar and taking the average -- individual errors cancel out. Boosting is a relay of tutors: the first teaches the class, the second focuses only on the students who failed, the third on those who still fail. Averaging fixes noise; relaying fixes ignorance.
+\end{analogy}
+
+\begin{keyidea}
+Bagging commonly averages high-variance, fairly deep trees; boosting commonly adds shallow trees that correct the current residual structure. These are strong starting patterns, not laws. Depth, leaf size, learning rate, and number of rounds interact and should be validated together.
+\end{keyidea}
+
+
+\section{Voting and stacking}
+
+Ensembles can also mix \emph{different} algorithms. \term{Voting} simply combines finished models --- by majority label (hard voting) or by averaging predicted probabilities (soft voting, usually better). \term{Stacking} goes further: the base models' predictions become the input features of a second-level \term{meta-model} that learns how much to trust each base model, and when.
+
+Stacking hides a leakage trap: if the meta-model is trained on predictions the base models made \emph{on their own training data}, it learns to trust overfitted outputs. The fix is to feed it \term{out-of-fold} predictions --- each base model's predictions on data it did not train on, produced via cross-validation --- and to keep the meta-model simple (logistic or linear regression is typical).
+
+\section{Practical ensemble workflow}
+
+\begin{itemize}
+  \item Want a strong tabular model with minimal fuss? \term{Random forest}.
+  \item Chasing the best accuracy and willing to tune? \term{Gradient boosting} with early stopping.
+  \item Noisy labels? Prefer forests over AdaBoost-style boosting, or lower the boosting learning rate and depth.
+  \item Need every last drop for a competition or a critical system? Stack diverse models --- but only with out-of-fold discipline, and only if the added complexity is worth maintaining.
+\end{itemize}
+
+\begin{keyidea}
+Ensembles turn the weakness of trees --- instability --- into strength. Bagging and random forests average many varied trees to reduce variance; boosting adds dependent trees one correction at a time. Together, tree ensembles remain among the strongest general-purpose classical methods for tabular data, but validation, latency, interpretability, and maintenance still decide whether they are appropriate.
+\end{keyidea}
+
+\begin{modelcard}{Tree Ensembles - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+ & Random forest & Gradient boosting \cr
+\midrule
+Core idea & Average many varied trees & Add shallow trees sequentially to repair errors \cr
+Usually strong for & Reliable general-purpose tabular prediction & High predictive accuracy on structured/tabular data \cr
+Main controls & Number of trees, sampled features, depth, leaf size & Number of trees, learning rate, depth, subsampling \cr
+Main risks & Large models, less transparent than one tree & Overfitting through too many rounds, sensitive tuning, slower training \cr
+\bottomrule
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\subsection{Controls worth tuning}
+
+Random forests are usually forgiving: start with enough trees for stable averages, then control individual-tree complexity with depth, leaf size, and the number of features considered at each split. Gradient boosting is more sensitive because learning rate and number of rounds trade off directly. The table below is a practical starting range, not a universal recipe.
+
+
+\begin{pitfall}
+The built-in early-stopping split must respect the deployment structure. A random validation fraction is inappropriate when rows are ordered in time or grouped by person, site, or device. In those settings, use a library interface that accepts a correctly separated validation set, or tune the round count with an explicit structure-preserving validation scheme.
+\end{pitfall}
+
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}\ttfamily}p{0.21\linewidth}p{0.16\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Setting & \normalfont\bfseries\leavevmode\color{MLNavy}Try & \normalfont\bfseries\leavevmode\color{MLNavy}Effect \\
+\midrule
+learning\_rate & 0.01--0.1 & Smaller learns more carefully; needs more trees. \\
+n\_estimators & 300--2000 & With early stopping, set it generously. \\
+max\_depth & 3--8 & Deeper catches interactions but overfits sooner. \\
+subsample & 0.6--1.0 & Row sampling; adds randomness, fights overfitting. \\
+colsample\_bytree & 0.6--1.0 & Column sampling; same idea, per feature. \\
+reg\_lambda & 0--10 & Extra penalty on leaf values. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\subsection{When combining model families helps}
+
+
+\begin{intuition}
+Soft voting averages probabilities and treats every model as equally trustworthy. Stacking trains a small extra model to learn \emph{which} base model to believe in which situation -- perhaps the forest is reliable for common cases and the linear model for the extremes. Stacking is stronger, but it needs enough data to train that extra layer without overfitting.
+\end{intuition}
+
+\begin{pitfall}
+Ensemble gains require members that are individually useful and not perfectly redundant. Averaging several already-large random forests trained in the same way often adds little, because each is itself an average of similar trees. When voting or stacking, compare genuinely different views---for example, a linear model and a tree ensemble---and keep the combination only if validation shows a worthwhile gain.
+\end{pitfall}
+
+\section{Inspecting ensemble predictions}
+\label{sec:ensemble-interpretability}
+
+Permutation importance is introduced with trees in \secref{sec:tree-feature-importance}; it applies to fitted ensembles as well. Two additional inspection tools are partial dependence and SHAP. Treat both as descriptions of model behavior, not evidence that changing a feature will cause the real-world outcome to change.
+
+
+Permutation importance asks how much the fitted model suffers when one feature is broken. Correlated features can mask one another. Partial dependence varies one feature while averaging predictions over the others; with strongly correlated inputs, that can create combinations that are rare or impossible in the real data.
+
+\subsection{Optional: SHAP for local explanations}
+
+\term{SHAP} (SHapley Additive exPlanations) decomposes a prediction relative to a reference output:
+\[
+  \hat{y}_i = \mathbb{E}[\hat{y}] + \sum_{j=1}^{p}\phi_{ij}.
+\]
+The contribution $\phi_{ij}$ explains how this fitted model's output for row $i$ differs from its reference output. Correlated features can split attribution between one another, so explanation stability should be checked rather than assumed.
+
+
+Apply the association-versus-causation distinction from \secref{sec:correlation}: an explanation can reveal what the model used without proving what would happen under an intervention.
+
+\section{Ensemble comparison at a glance}
+
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.25\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & What changes from one tree & Main reason to try it \\
+\midrule
+Bagging & Bootstrap many trees and average/vote & Reduce variance and make a high-variance learner more stable \\
+Random Forest & Bagging plus random feature subsets at splits & Make the trees less correlated, so averaging helps more \\
+AdaBoost & Train weak learners sequentially with emphasis on previous errors & Reduce bias by focusing later learners on difficult cases \\
+Soft voting & Average probabilities from different model families & Combine complementary decision rules rather than many copies of one rule \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+
+\begin{tryit}
+Compare a single tree, a random forest, and a gradient-boosting model with the same cross-validation splits. Record mean validation score, descriptive fold spread, fit time, and prediction time. Decide whether any gain justifies the added cost, then evaluate the locked choice on the test set once.
+\end{tryit}
+
+\input{chapters/kaggle-labs/13-ensembles}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item How does bagging reduce variance, and how does boosting differ in the way later learners are constructed?
+  \item Why does a random forest consider only a subset of features at many splits?
+  \item Why must predictions used to train a stacking meta-model be out-of-fold rather than fitted predictions from the same rows?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Ensembles combine several models to reduce error.
+  \item Bagging trains models on bootstrap samples and averages their predictions.
+  \item Random forests add feature randomness to make trees less correlated.
+  \item Boosting builds models sequentially, concentrating on current errors or residuals.
+  \item Learning rate and number of boosting rounds should be tuned together with validation data.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,21 @@
+\section{Kaggle lab: compare supervised baselines fairly}
+\label{sec:kaggle-titanic-supervised}
+
+\begin{kaggleproject}{Titanic --- linear versus nonlinear classification}
+\kagglesource{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset}
+\textbf{File.} \texttt{all\_datasets/titanic\_dataset/Titanic-Dataset.csv}\\
+\textbf{Target.} \texttt{Survived}.\\
+\textbf{Question.} With the same features, development split, preprocessing, and metrics, how do logistic regression and a random forest compare?\\
+\textbf{Before running.} Predict which model is more flexible and why a single validation split is not enough to declare a universal winner.
+
+\begin{labmode}
+Stage 3A is still workflow-focused. Use the reference pipeline, but you are responsible for adding and interpreting the no-skill baseline.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab05-titanic_supervised_baseline.py}
+
+\begin{tryit}
+Add a \texttt{DummyClassifier(strategy="most\_frequent")} as a true no-skill baseline. Then explain what additional value logistic regression and the random forest provide over that reference.
+\end{tryit}
+\end{kaggleproject}
+

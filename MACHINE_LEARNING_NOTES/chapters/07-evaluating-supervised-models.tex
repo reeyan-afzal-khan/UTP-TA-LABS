@@ -1,0 +1,549 @@
+\chapter{Evaluating Supervised Models}
+\label{ch:evaluation}
+
+\chapterguide%
+  {\chapref{ch:data} and \chapref{ch:statistics}: honest holdouts, target types, averages, spread, and sampling uncertainty.}
+  {design a reliable supervised-learning evaluation, choose regression, classification, ranking, and probability metrics, use cross-validation, analyze uncertainty, and diagnose errors by subgroup.}
+
+In supervised learning, evaluation compares predictions with known outcomes, but the score is meaningful only when the split and metric match future use. Model evaluation should match the real purpose of the system. A metric is useful only when it reflects the consequences of the model's mistakes. Reliable evaluation also requires an appropriate data split, a meaningful baseline, and careful comparison across models.
+
+\begin{firstread}
+Core path: the first five sections. Begin with consequences, choose a realistic split and baseline, learn the main regression/classification metrics, understand thresholds, then learn cross-validation. The chapter marks the remaining material as a second pass.
+\end{firstread}
+
+\section{Evaluation begins with the real objective}
+
+Before choosing a metric, identify the decision the model will support. A hospital screening model, a search engine, and a demand forecast have different costs of error even if all produce numerical scores.
+
+A useful evaluation plan states:
+
+\begin{itemize}
+  \item the unit being predicted and the population of interest;
+  \item how the data split imitates future use;
+  \item the baseline that must be beaten;
+  \item the primary metric used for model selection;
+  \item secondary metrics and subgroup checks;
+  \item acceptable failure rates and operational constraints.
+\end{itemize}
+
+Choosing many metrics after seeing the test results encourages selective reporting. Define the primary metric before final evaluation whenever possible.
+
+
+\section{Regression metrics}
+\label{sec:regression-metrics}
+
+For true values $y_i$ and predictions $\hat{y}_i$, mean squared error and root mean squared error are
+\[
+  \operatorname{MSE}
+  =\frac{1}{n}\sum_{i=1}^{n}{(y_i-\hat{y}_i)}^2,
+  \qquad
+  \operatorname{RMSE}=\sqrt{\operatorname{MSE}}.
+\]
+MSE strongly penalizes large errors. RMSE is easier to interpret because it uses the same units as the target.
+
+
+\begin{workedexample}
+Five delivery times, in minutes. Four predictions are nearly right; one is badly wrong.
+
+\begin{mltable}\small
+\begin{tabular}{lccccc}
+\toprule
+\rowcolor{MLPaleBlue!92}
+True $y$            & 10 & 12 & 14 & 16 & 48 \\
+Predicted $\hat{y}$ & 11 & 13 & 13 & 15 & 20 \\
+Error $y-\hat{y}$   & $-1$ & $-1$ & $+1$ & $+1$ & $+28$ \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+The absolute errors are $1,1,1,1,28$, so
+\[
+  \operatorname{MAE}=\frac{1+1+1+1+28}{5}=\frac{32}{5}=6.4,
+  \qquad
+  \operatorname{MedAE}=1.
+\]
+Squaring first gives $1,1,1,1,784$, so
+\[
+  \operatorname{MSE}=\frac{788}{5}=157.6,
+  \qquad
+  \operatorname{RMSE}=\sqrt{157.6}\approx 12.55.
+\]
+For $R^2$, the mean of the true values is $\bar{y}=100/5=20$, and
+\[
+  \sum{(y_i-\bar{y})}^2=100+64+36+16+784=1000,
+  \qquad
+  R^2=1-\frac{788}{1000}=0.212.
+\]
+
+Read the three error numbers together. \textbf{MedAE $=1$} says the typical prediction is off by one minute. \textbf{MAE $=6.4$} says the average miss is six minutes. \textbf{RMSE $\approx12.55$} is almost twice the MAE. A single row is doing all of that damage: it contributes $784$ of the $788$ squared error, which is $99.5\%$ of the total. Whenever RMSE is much larger than MAE, go and look at the worst few rows before you touch the model.
+\end{workedexample}
+
+\begin{pitfall}
+Do not discretize a continuous target into ``low/medium/high'' merely so that you can compute a confusion matrix. That changes the estimand: a regression problem about numerical error becomes a classification problem about thresholded categories. If those categories are genuinely the decision you care about, define them before modeling and train/evaluate that classification task directly. Otherwise keep the continuous target and use regression metrics.
+\end{pitfall}
+
+\section{Additional regression metrics}
+
+Mean absolute error is
+\[
+  \operatorname{MAE}
+  =\frac{1}{n}\sum_{i=1}^{n}|y_i-\hat{y}_i|.
+\]
+MAE weights errors linearly and is usually less sensitive to extreme mistakes than RMSE\@. Median absolute error is even more robust and describes a typical error.
+
+Mean absolute percentage error is
+\[
+  \operatorname{MAPE}
+  =\frac{100}{n}\sum_{i=1}^{n}
+  \left|\frac{y_i-\hat{y}_i}{y_i}\right|.
+\]
+It is easy to express as a percentage but becomes undefined or unstable when true values are zero or near zero. It can also penalize overprediction and underprediction asymmetrically.
+
+For asymmetric real-world costs, a custom loss or quantile loss may be more appropriate. Quantile regression can estimate an interval of plausible outcomes rather than only a conditional mean.
+
+
+\section{Classification metrics: start with the confusion matrix}
+\label{sec:classification-metrics}
+
+Almost every classification metric is a different way of reading the same four boxes.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize]
+% Axis titles and class labels
+\node[font=\small\bfseries\color{MLNavy}] at (5.225,4.95) {Predicted class};
+\node[font=\small\bfseries\color{MLNavy},rotate=90] at (1.00,2.50) {Actual class};
+\node[draw=MLBlue!35,fill=MLPaleBlue,rounded corners=1mm,
+      minimum width=3.10cm,minimum height=0.48cm,text=MLNavy]
+  at (3.55,4.50) {Positive};
+\node[draw=MLBlue!35,fill=MLPaleBlue,rounded corners=1mm,
+      minimum width=3.10cm,minimum height=0.48cm,text=MLNavy]
+  at (6.90,4.50) {Negative};
+\node[draw=MLBlue!35,fill=MLPaleBlue,rounded corners=1mm,
+      minimum width=1.50cm,minimum height=0.48cm,text=MLNavy,rotate=90]
+  at (1.65,3.40) {Positive};
+\node[draw=MLBlue!35,fill=MLPaleBlue,rounded corners=1mm,
+      minimum width=1.50cm,minimum height=0.48cm,text=MLNavy,rotate=90]
+  at (1.65,1.60) {Negative};
+
+% Confusion-matrix cells
+\filldraw[fill=MLPaleTeal,draw=MLGreen,rounded corners=1mm]
+  (2.00,2.65) rectangle (5.10,4.15);
+\filldraw[fill=MLPaleRed,draw=MLRed,rounded corners=1mm]
+  (5.35,2.65) rectangle (8.45,4.15);
+\filldraw[fill=MLPaleRed,draw=MLRed,rounded corners=1mm]
+  (2.00,0.85) rectangle (5.10,2.35);
+\filldraw[fill=MLPaleTeal,draw=MLGreen,rounded corners=1mm]
+  (5.35,0.85) rectangle (8.45,2.35);
+
+\node[align=center,text=MLNavy] at (3.55,3.40)
+  {\textbf{True positive (TP)}\\caught it};
+\node[align=center,text=MLNavy] at (6.90,3.40)
+  {\textbf{False negative (FN)}\\missed it};
+\node[align=center,text=MLNavy] at (3.55,1.60)
+  {\textbf{False positive (FP)}\\false alarm};
+\node[align=center,text=MLNavy] at (6.90,1.60)
+  {\textbf{True negative (TN)}\\correctly ignored};
+
+% Metric callouts connected to the entries they use
+\node[draw=MLOrange,fill=MLPaleOrange,rounded corners=1mm,
+      align=left,text width=3.25cm,minimum height=1.15cm,text=MLNavy]
+  (recall) at (10.95,3.40)
+  {\textbf{Recall} reads across the actual-positive row: $TP+FN$.};
+\draw[MLOrange,thick] (8.67,2.65)--(8.67,4.15);
+\draw[MLOrange,thick] (8.55,2.65)--(8.67,2.65)
+                           (8.55,4.15)--(8.67,4.15);
+\draw[-{Stealth[length=1.8mm]},MLOrange,thick]
+  (8.67,3.40)--(recall.west);
+
+\node[draw=MLBlue,fill=MLPaleBlue,rounded corners=1mm,
+      align=left,text width=3.25cm,minimum height=1.15cm,text=MLNavy]
+  (precision) at (10.95,1.45)
+  {\textbf{Precision} reads down the predicted-positive column: $TP+FP$.};
+\draw[MLBlue,thick] (2.00,0.63)--(5.10,0.63);
+\draw[MLBlue,thick] (2.00,0.63)--(2.00,0.75)
+                         (5.10,0.63)--(5.10,0.75);
+\draw[-{Stealth[length=1.8mm]},MLBlue,thick]
+  (3.55,0.63)--(3.55,0.42)--(8.85,0.42)--(8.85,1.45)--(precision.west);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Precision is ``when the alarm sounds, how often is there a real fire?''. Recall is ``of all the real fires, how often did the alarm sound?''. An alarm wired to go off constantly has perfect recall and usually poor precision. A disconnected alarm has zero recall and \emph{undefined} precision because it never predicts positive. The useful operating point depends on false-alarm cost, missed-fire cost, and response capacity.
+\end{analogy}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Metric & \normalfont\bfseries\leavevmode\color{MLNavy}Formula & \normalfont\bfseries\leavevmode\color{MLNavy}Answers the question \\
+\midrule
+Accuracy & $\dfrac{TP+TN}{\text{all}}$ & How often is the model right overall? \\[0.5em]
+Precision & $\dfrac{TP}{TP+FP}$ & When it says yes, is it right? \\[0.5em]
+Recall & $\dfrac{TP}{TP+FN}$ & Does it find the ones that matter? \\[0.5em]
+F1 & $2\cdot\dfrac{P\cdot R}{P+R}$ & One number balancing the two \\[0.5em]
+Specificity & $\dfrac{TN}{TN+FP}$ & Does it leave the negatives alone? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Confusion-matrix conventions differ across textbooks and software. Never memorize a corner position; read the axis labels and identify which dimension is actual class and which is predicted class.
+\end{pitfall}
+
+\begin{workedexample}
+A spam filter is run on $1{,}000$ emails. $100$ of them really are spam. The filter flags $80$ emails, and $60$ of those flags are correct. That fixes all four cells:
+\[
+  TP=60,\qquad FP=80-60=20,\qquad FN=100-60=40,\qquad TN=900-20=880.
+\]
+(Check the total: $60+20+40+880=1000$.) Now every metric is arithmetic:
+\[
+  \text{Accuracy}=\frac{60+880}{1000}=0.940,
+  \qquad
+  \text{Precision}=\frac{60}{80}=0.750,
+  \qquad
+  \text{Recall}=\frac{60}{100}=0.600,
+\]
+\[
+  F_1=2\cdot\frac{0.750\times 0.600}{0.750+0.600}
+     =\frac{0.900}{1.350}\approx 0.667.
+\]
+
+Now compare against the dumbest possible rule. ``Never flag anything'' gets $900/1000=90\%$ accuracy. Our model scores $94\%$ --- four points better than a rule that catches no spam at all, while quietly letting $40$ spam emails through. Accuracy hid that; recall did not.
+\end{workedexample}
+
+\section{Additional confusion-matrix measures}
+
+In addition to precision and recall, useful classification measures include
+\[
+  \text{Specificity}=\frac{TN}{TN+FP},
+  \qquad
+  \text{False-positive rate}=\frac{FP}{FP+TN}.
+\]
+Balanced accuracy averages recall for the positive and negative classes:
+\[
+  \text{Balanced accuracy}
+  =\frac{1}{2}
+  (\text{Recall}+\text{Specificity}).
+\]
+It is more informative than ordinary accuracy when classes are imbalanced.
+
+The Matthews correlation coefficient (MCC) summarizes the entire confusion matrix in one number:
+\[
+  \operatorname{MCC}
+  =\frac{TP\cdot TN-FP\cdot FN}
+  {\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}.
+\]
+It ranges from $-1$ to $1$; values near $0$ indicate little association between prediction and truth, and its use of all four cells can make it informative under imbalance.
+
+\begin{workedexample}
+Continuing the spam filter ($TP=60$, $FP=20$, $FN=40$, $TN=880$):
+\[
+  \text{Specificity}=\frac{880}{900}\approx 0.978,
+  \qquad
+  \text{Balanced accuracy}=\frac{0.600+0.978}{2}\approx 0.789.
+\]
+Ordinary accuracy said $0.940$; balanced accuracy says $0.789$. The gap is the imbalance. Accuracy is dominated by the $900$ easy negatives, while balanced accuracy gives the $100$ spam emails equal say.
+
+MCC uses all four cells at once. The numerator is
+\[
+  TP\cdot TN-FP\cdot FN=60(880)-20(40)=52{,}800-800=52{,}000,
+\]
+and the denominator is
+\[
+  \sqrt{(80)(100)(900)(920)}=\sqrt{6{,}624{,}000{,}000}\approx 81{,}388,
+\]
+so $\operatorname{MCC}\approx 52{,}000/81{,}388\approx 0.639$.
+
+Three numbers, one model: $0.940$, $0.789$, $0.639$. None is wrong. They answer different questions, and reporting only the first would be the misleading choice.
+\end{workedexample}
+
+For multiclass problems, metrics can be averaged in different ways; \term{macro averaging} gives every class equal weight, \term{micro averaging} pools all decisions and therefore gives common classes more influence, and \term{weighted averaging} weights each class by its frequency.
+
+
+\section{Thresholds, ROC curves, and precision-recall curves}
+
+A probability model becomes a hard classifier only after a threshold is chosen. Lowering the threshold usually increases recall and false positives; raising it usually increases precision and false negatives.
+
+The receiver operating characteristic (ROC) curve plots true-positive rate against false-positive rate across thresholds. ROC AUC is the probability that a randomly chosen positive example receives a higher score than a randomly chosen negative example.
+
+
+No area metric determines the operating threshold. Select a threshold or ranked cutoff with out-of-fold/validation predictions and application costs or capacity, then assess the locked rule once on test data.
+
+% === VISUAL ADDITION: threshold-operating-point ===
+\subsection{Thresholds move the operating point}
+
+Suppose the model has already produced these six scores. Changing the threshold does not retrain the model; it only changes which scored cases become positive decisions.
+
+\begin{mlfigure}
+\begin{tikzpicture}[x=10.0cm,y=1cm,font=\scriptsize]
+  \draw[-{Stealth[length=2mm]},MLMuted] (0,0) -- (1.02,0)
+    node[right] {predicted probability};
+  \foreach \x/\lab in {0/0,0.2/.2,0.4/.4,0.6/.6,0.8/.8,1/1}
+    \draw[MLMuted] (\x,0.06)--(\x,-0.06) node[below=2pt] {\lab};
+
+  % scored cases
+  \fill[MLBlue] (0.18,0.48) circle (2.7pt);
+  \draw[MLOrange,very thick] (0.32,0.48) circle (3.0pt);
+  \fill[MLBlue] (0.41,0.48) circle (2.7pt);
+  \draw[MLOrange,very thick] (0.46,0.48) circle (3.0pt);
+  \fill[MLBlue] (0.64,0.48) circle (2.7pt);
+  \draw[MLOrange,very thick] (0.84,0.48) circle (3.0pt);
+
+  \node[anchor=west,text=MLBlue] at (0.03,1.10) {$\bullet$ actually negative};
+  \node[anchor=west,text=MLOrange] at (0.34,1.10) {$\circ$ actually positive};
+
+  \draw[MLNavy,very thick] (0.50,-0.28)--(0.50,0.92);
+  \node[align=left,text=MLNavy,anchor=west] at (0.54,-0.48)
+    {threshold $0.50$\\flags 2 cases};
+
+  \draw[MLRed,very thick,dashed] (0.30,-0.48)--(0.30,0.92);
+  \node[align=center,text=MLRed] at (0.15,-1.05)
+    {lower to $0.30$\\catches more positives\\but also more negatives};
+
+  \draw[-{Stealth[length=1.8mm]},MLRed,thick] (0.48,-0.18)--(0.32,-0.18);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+Lower threshold $\Rightarrow$ more predicted positives: recall usually rises and false positives usually rise. Higher threshold $\Rightarrow$ fewer predicted positives: precision may rise, but more real positives can be missed. Choose the operating point from validation evidence and real costs or capacity.
+\end{keyidea}
+% === END VISUAL ADDITION ===
+
+\subsection{Capacity and cost metrics}
+\label{sec:capacity-metrics}
+
+When only $k$ cases can be reviewed, rank all eligible cases and report
+\[
+\operatorname{precision@}k=\frac{\text{positives in top }k}{k},
+\qquad
+\operatorname{recall@}k=\frac{\text{positives in top }k}{\text{all positives}},
+\]
+\[
+\operatorname{lift@}k=
+\frac{\operatorname{precision@}k}{\text{positive prevalence}}.
+\]
+If false positives and false negatives have defensible monetary or utility costs, report the total expected or realized cost at the proposed operating point. Do not optimize a threshold metric when deployment actually takes a fixed-size ranked batch.
+
+\begin{workedexample}
+A retention team can phone $5$ customers this week. The model scores $20$ eligible customers; sorting them from highest to lowest score gives this sequence of true outcomes, where $1$ means the customer really did churn:
+\begin{center}\ttfamily\small
+1\quad 1\quad 0\quad 1\quad 0\ \ \vrule\ \ 0\quad 0\quad 1\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0\quad 0
+\end{center}
+The bar marks the capacity cutoff at $k=5$. There are $4$ churners in the batch of $20$, so the prevalence is $4/20=0.20$. Of the top five, three churned:
+\[
+  \operatorname{precision@}5=\frac{3}{5}=0.60,
+  \qquad
+  \operatorname{recall@}5=\frac{3}{4}=0.75,
+  \qquad
+  \operatorname{lift@}5=\frac{0.60}{0.20}=3.0.
+\]
+Read \emph{lift} as the payoff for ranking: phoning five customers at random would reach $0.20\times5=1$ churner on average, and the model reached three. Note that no threshold was chosen anywhere in that calculation. The team's constraint is five calls, not a probability of $0.5$, so the model's job is to sort the batch, not to label it.
+\end{workedexample}
+
+
+\begin{pitfall}
+A high predicted churn risk does not mean a customer is highly persuadable. Precision@300 measures predictive ranking; it cannot prove that contacting those 300 customers causes additional retention. Causal intervention effects require a design such as a randomized experiment.
+\end{pitfall}
+
+\begin{mlfigure}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.5cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={ROC curve},
+  xlabel={False positive rate}, ylabel={True positive rate},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.97,0.05)},anchor=south east}
+]
+\addplot[MLBlue,very thick,domain=0:1,samples=60]{x^0.087}; \addlegendentry{illustrative high AUC}
+\addplot[MLTeal,very thick,domain=0:1,samples=60]{x^0.389}; \addlegendentry{illustrative moderate AUC}
+\addplot[MLMuted,thick,dashed,domain=0:1]{x};               \addlegendentry{random (0.50)}
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.5cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Precision-recall curve},
+  xlabel={Recall}, ylabel={Precision},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0, xmax=1, ymin=0, ymax=1.02,
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.03,0.05)},anchor=south west}
+]
+\addplot[MLBlue,very thick,domain=0.02:1,samples=60]{0.97-0.55*x^2.6}; \addlegendentry{good}
+\addplot[MLTeal,very thick,domain=0.02:1,samples=60]{0.80-0.65*x^1.5}; \addlegendentry{fair}
+\addplot[MLMuted,thick,dashed,domain=0:1]{0.08};                        \addlegendentry{random (= class rate)}
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+When positives are rare and positive alerts drive action, inspect the precision-recall curve and the intended operating region. ROC AUC remains a valid ranking measure, but it can look strong while precision at a usable threshold is poor because the negative population is large. Report both only when each answers a stated question.
+\end{keyidea}
+
+\section{Cross-validation}
+\label{sec:cross-validation}
+
+In $k$-fold cross-validation, the training data is divided into $k$ folds. The model trains on $k-1$ folds and validates on the remaining fold, repeating until every fold has been used for validation. The fold scores estimate variation across data subsets.
+
+% === VISUAL ADDITION: cross-validation-folds ===
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize]
+\node[font=\small\bfseries\color{MLNavy},anchor=west] at (0,3.55)
+  {Five-fold cross-validation stays inside the development data};
+
+\foreach \r/\yy/\lab in {0/2.85/1,1/2.33/2,2/1.81/3,3/1.29/4,4/0.77/5}{
+  \node[anchor=east,text=MLMuted] at (0.85,\yy) {round \lab};
+  \foreach \c/\xx in {0/1.05,1/2.43,2/3.81,3/5.19,4/6.57}{
+    \pgfmathtruncatemacro{\isvalid}{\c==\r}
+    \ifnum\isvalid=1
+      \filldraw[fill=MLPaleOrange,draw=MLOrange,rounded corners=0.7mm]
+        (\xx,\yy-0.20) rectangle (\xx+1.23,\yy+0.20);
+      \node[text=MLOrange] at (\xx+0.615,\yy) {validate};
+    \else
+      \filldraw[fill=MLPaleBlue,draw=MLBlue!65,rounded corners=0.7mm]
+        (\xx,\yy-0.20) rectangle (\xx+1.23,\yy+0.20);
+      \node[text=MLBlue] at (\xx+0.615,\yy) {train};
+    \fi
+  }
+}
+
+\draw[MLRed,very thick,rounded corners=1mm] (8.45,0.45) rectangle (11.2,2.95);
+\node[align=center,font=\small\bfseries\color{MLRed}] at (9.825,2.10)
+  {Untouched\\test set};
+\node[align=center,text=MLMuted] at (9.825,1.15)
+  {not a sixth fold\\not used for tuning};
+\draw[-{Stealth[length=2mm]},MLTeal,thick] (7.95,1.70)--(8.32,1.70);
+\node[align=center,text=MLTeal] at (6.25,0.05)
+  {average the five validation scores, choose the model, then evaluate the locked choice once};
+\end{tikzpicture}
+\end{mlfigure}
+% === END VISUAL ADDITION ===
+
+Cross-validation must preserve the data structure:
+
+\begin{itemize}
+  \item stratify folds for imbalanced classification;
+  \item keep related observations in the same group fold;
+  \item use forward or rolling validation for time series;
+  \item fit preprocessing and feature selection separately inside each training fold.
+\end{itemize}
+
+After selecting a model and hyperparameters, refit on the allowed training data and evaluate once on the untouched test set.
+
+\subsection{Choose the cross-validation splitter that matches the data}
+
+
+\begin{keyidea}
+The splitter is part of the evaluation design. Use the same structure for every candidate model so the comparison changes the model, not the meaning of the validation task.
+\end{keyidea}
+
+\begin{secondpass}
+The core first-pass material is now complete: objective, regression metrics, confusion-matrix metrics, thresholds, and cross-validation. The remaining sections add probability quality, repeated-experiment uncertainty, subgroup analysis, and distribution shift. Return to them when the application requires that extra precision.
+\end{secondpass}
+
+\section{Evaluating probabilities}
+
+Some applications need accurate probabilities, not merely correct rankings. Binary log loss is
+\[
+  -\frac{1}{n}\sum_{i=1}^{n}
+  [y_i\log p_i+(1-y_i)\log(1-p_i)].
+\]
+The Brier score is the mean squared probability error:
+\[
+  \operatorname{Brier}
+  =\frac{1}{n}\sum_{i=1}^{n}{(p_i-y_i)}^2.
+\]
+
+\begin{workedexample}
+Four predictions, with the per-row cost under each score. Log loss charges $-\log p$ when $y=1$ and $-\log(1-p)$ when $y=0$; Brier charges ${(p-y)}^2$ either way.
+
+\begin{mltable}\small
+\begin{tabular}{cccc}
+\toprule
+\rowcolor{MLPaleBlue!92}
+True $y$ & Predicted $p$ & Log loss & Brier \\
+\midrule
+1 & 0.90 & $-\ln 0.90 = 0.105$ & $0.01$ \\
+1 & 0.60 & $-\ln 0.60 = 0.511$ & $0.16$ \\
+0 & 0.30 & $-\ln 0.70 = 0.357$ & $0.09$ \\
+0 & 0.05 & $-\ln 0.95 = 0.051$ & $0.0025$ \\
+\midrule
+\multicolumn{2}{r}{mean} & $0.256$ & $0.0656$ \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+Now add one confidently wrong row: the true answer is $1$ and the model said $0.02$. Its Brier cost is ${(0.02-1)}^2=0.960$. Its log loss cost is $-\ln 0.02 = 3.912$.
+
+Look at what each metric can charge for a single row. Brier is capped: the worst any one row can cost is $1.0$, so this disaster costs $0.960$ out of a possible $1.0$. Log loss has no ceiling at all --- as $p\to 0$ with $y=1$, the cost runs to infinity, and $3.912$ is already about eight times the worst of the other four rows. Push the prediction to $p=0.001$ and Brier barely moves to $0.998$, while log loss leaps to $6.9$.
+
+That is the practical difference. If being confidently wrong is a catastrophe in your application, log loss encodes that and Brier does not.
+\end{workedexample}
+
+
+\section{Uncertainty and repeated experiments}
+
+A reported metric is an estimate, not a permanent property of a model. It varies with the sampled observations, training randomness, and hyperparameters. Useful practices include confidence intervals, bootstrap resampling, repeated cross-validation, and multiple training seeds.
+
+When comparing two models on the same test cases, paired differences are more informative than comparing two unrelated averages. A tiny improvement may not be practically important even if it is statistically detectable.
+
+\section{Error and subgroup analysis}
+
+Aggregate metrics can hide systematic failures. Inspect errors by class, target range, data source, time period, device type, location, and relevant demographic or operational groups.
+
+Error analysis asks:
+
+\begin{itemize}
+  \item Which examples have the largest or most costly errors?
+  \item Are labels ambiguous, delayed, or incorrect?
+  \item Are failures concentrated in rare or underrepresented groups?
+  \item Does performance degrade as data becomes older or differs from training data?
+  \item Are confident mistakes more common than uncertain mistakes?
+\end{itemize}
+
+The purpose is not only to describe failure but to decide whether better data, features, labels, thresholds, or modeling assumptions are needed.
+
+\section{Evaluation under distribution shift}
+
+Independent and identically distributed test data may not represent deployment. Covariate shift changes the input distribution, label shift changes class frequencies, and concept drift changes the relationship between features and targets.
+
+Stress tests can evaluate missing features, corrupted inputs, rare groups, seasonal changes, and plausible worst cases. Once deployed, input statistics, prediction distributions, calibration, and delayed outcomes should be monitored. A model that was valid at launch can become unreliable as the environment changes.
+
+\begin{keyidea}
+No single metric proves that a model is useful. Reliable evaluation combines a realistic split, a relevant baseline, task-specific metrics, uncertainty, subgroup analysis, and examination of actual errors.
+\end{keyidea}
+
+\begin{modelcard}{Evaluation - Practical Checklist}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+Objective & Define the real decision and the cost of each kind of error. \cr
+Split & Match future use; respect time, groups, location, and repeated observations. \cr
+Baseline & Compare with a simple rule using the same data and metric. \cr
+Uncertainty & Use cross-validation, repeated splits, or confidence intervals where appropriate. \cr
+Diagnosis & Inspect errors, subgroups, calibration, threshold behavior, and distribution shift. \cr
+Final report & State the data period, metric definition, uncertainty, limitations, and untouched test result. \cr
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/07-evaluation}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Describe a situation where recall should matter more than precision, and another where precision should matter more than recall.
+  \item What usually happens to recall and false positives when a classification threshold is lowered?
+  \item Why must the cross-validation splitter preserve groups, time order, or class balance when those structures matter to deployment?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The correct metric depends on the practical objective and error costs.
+  \item Regression metrics measure error size in different ways; classification metrics summarize different confusion-matrix trade-offs.
+  \item Thresholds change precision and recall without retraining the probability model.
+  \item Cross-validation compares models across multiple development splits while preserving the structure of the data.
+  \item Calibration, subgroup analysis, uncertainty, and distribution shift are part of evaluation, not optional extras.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,199 @@
+\section{Optional optimization depth}
+\begin{optionaltopic}
+This section is a second-pass reference. It is not required before the classical model chapters. Return here when you study neural networks or when optimization behavior itself becomes the problem you need to diagnose.
+\end{optionaltopic}
+
+\subsection{Gradient descent mechanics}
+
+Training often means finding parameters $\bm{\theta}$ that minimize a loss function $J(\bm{\theta})$. Gradient descent updates one parameter according to
+\[
+  \theta_j\leftarrow\theta_j-\alpha
+  \frac{\partial J}{\partial\theta_j}.
+\]
+Read this as: ``new setting equals old setting minus step size times slope.'' The derivative supplies the slope and therefore the direction; the learning rate decides how boldly to move.
+
+The learning rate $\alpha$ controls the step size. A value that is too small learns slowly; a value that is too large can make training unstable.
+
+\begin{workedexample}
+Minimize $J(w)={(w-4)}^2$, whose answer is obviously $w=4$. The derivative is $J'(w)=2(w-4)$, so the update rule is
+\[
+  w \leftarrow w-\alpha\cdot 2(w-4).
+\]
+Start at $w=0$ every time and change only $\alpha$.
+
+\textbf{$\alpha=0.1$ (sensible).} The rule simplifies to $w\leftarrow 0.8w+0.8$:
+\[
+  0 \;\to\; 0.80 \;\to\; 1.44 \;\to\; 1.95 \;\to\; 2.36 \;\to\;\cdots\;\to\; 4.
+\]
+Check the first step by hand: the gradient at $w=0$ is $2(0-4)=-8$, and $w=0-0.1(-8)=0.8$. Each step closes $20\%$ of the remaining distance, so after $n$ steps $w=4-4{(0.8)}^n$. Steady, and it never overshoots.
+
+\textbf{$\alpha=0.6$ (too large, but survivable).} Now $w\leftarrow-0.2w+4.8$:
+\[
+  0 \;\to\; 4.80 \;\to\; 3.84 \;\to\; 4.03 \;\to\; 3.99 \;\to\;\cdots\;\to\; 4.
+\]
+It jumps straight past the answer on step one and then bounces from side to side, closing in. This still works, but you would see the loss zig-zag rather than fall smoothly.
+
+\textbf{$\alpha=1.1$ (too large).} Now $w\leftarrow-1.2w+8.8$:
+\[
+  0 \;\to\; 8.80 \;\to\; -1.76 \;\to\; 10.91 \;\to\; -4.29 \;\to\;\cdots
+\]
+Each overshoot is larger than the last. The multiplier on $w$ is $-1.2$, and because $|-1.2|>1$ the distance from the answer grows by $20\%$ every step. This is divergence, and no amount of extra epochs will rescue it.
+
+The lesson generalizes: for this loss, any $\alpha<1$ converges, $\alpha$ between $0.5$ and $1$ oscillates on the way, and $\alpha>1$ diverges. Real losses do not hand you that number, which is why the learning rate is tuned.
+\end{workedexample}
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth, height=5.5cm,
+  axis lines=left,
+  xlabel={parameter $\theta$}, ylabel={loss $J(\theta)$},
+  ticks=none, domain=-2.1:2.1, samples=80, ymin=-0.3, clip=false
+]
+\addplot[thick] {x^2};
+\draw[-{Stealth[length=1.8mm]}, thick, gray] (axis cs:-1.9,3.61) -- (axis cs:-1.33,1.769);
+\draw[-{Stealth[length=1.8mm]}, thick, gray] (axis cs:-1.33,1.769) -- (axis cs:-0.93,0.865);
+\draw[-{Stealth[length=1.8mm]}, thick, gray] (axis cs:-0.93,0.865) -- (axis cs:-0.65,0.423);
+\draw[-{Stealth[length=1.8mm]}, thick, gray] (axis cs:-0.65,0.423) -- (axis cs:-0.45,0.203);
+\draw[-{Stealth[length=1.8mm]}, thick, gray] (axis cs:-0.45,0.203) -- (axis cs:-0.31,0.096);
+\fill (axis cs:-1.9,3.61) circle (1.6pt);
+\fill (axis cs:-1.33,1.769) circle (1.6pt);
+\fill (axis cs:-0.93,0.865) circle (1.6pt);
+\fill (axis cs:-0.65,0.423) circle (1.6pt);
+\fill (axis cs:-0.45,0.203) circle (1.6pt);
+\fill (axis cs:-0.31,0.096) circle (1.6pt);
+\node[font=\small] at (axis cs:-1.7,3.7) {start};
+\fill (axis cs:0,0) circle (1.8pt);
+\node[font=\small, below] at (axis cs:0,-0.05) {minimum};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Picture standing on a foggy hillside and wanting to reach the valley floor. You cannot see far, but you can feel which way the ground slopes under your feet. Gradient descent takes a small step downhill, checks the slope again, and repeats. The learning rate is your stride length: too short and the walk takes forever, too long and you overshoot the valley and stumble up the far side.
+\end{intuition}
+
+\subsection{Learning rate: three outcomes}
+
+The learning rate is the single most important number in gradient-based training, and its three failure modes are easy to recognize once you have seen them.
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=4.8cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}},
+  title={Loss over training steps},
+  xlabel={Step}, ylabel={Loss},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  legend style={font=\scriptsize,draw=none,fill=none,at={(0.98,0.96)},anchor=north east},
+  xmin=0, xmax=50, ymin=0, ymax=10, domain=0:50, samples=120
+]
+\addplot[MLMuted,very thick]{9.4 - 0.075*x};             \addlegendentry{too small: crawls}
+\addplot[MLGreen,very thick]{0.4 + 9*exp(-x/7)};         \addlegendentry{just right}
+\addplot[MLOrange,very thick]{2.2 + 5*exp(-x/16)*abs(cos(deg(x/1.6)))}; \addlegendentry{a bit large: bounces}
+\addplot[MLRed,very thick,dashed,domain=0:22]{1.2*exp(x/6.5)}; \addlegendentry{far too large: diverges}
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Learning rate is stride length when walking downhill in fog. Tiny steps get you there eventually, if you have all day. Sensible steps get you there quickly. Steps that are slightly too big have you bouncing between the two sides of the valley, never quite reaching the bottom. Steps that are far too big launch you over the opposite ridge and further from the valley than when you started.
+\end{analogy}
+
+\begin{keyidea}
+A rapidly rising or non-finite loss often indicates an excessive learning rate, but it can also reveal unscaled features, bad gradients, numerical overflow, or corrupt data. Lowering the rate is a useful diagnostic; inspect inputs and implementation as well.
+\end{keyidea}
+
+\subsection{Gradient descent, written out}
+
+
+Three learning rates, three completely different stories, one line of arithmetic. Now the same idea on real data with many parameters:
+
+
+Implementing it once removes the mystery permanently.
+
+
+\subsection{Batch, stochastic, and mini-batch}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Variant & \normalfont\bfseries\leavevmode\color{MLNavy}Rows per update & \normalfont\bfseries\leavevmode\color{MLNavy}Character \\
+\midrule
+Batch & All of them & Smooth, slow, needs all data in memory \\
+Stochastic & One & Very noisy, very fast per step, can escape shallow traps \\
+Mini-batch & 32--512 & Common for large-scale and neural optimization; size is a tunable trade-off \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+
+\subsection{Momentum and adaptive optimization}
+
+Momentum accumulates a velocity,
+\[
+  \bm{v}_t=\beta\bm{v}_{t-1}
+  +\nabla J(\bm{\theta}_t),
+  \qquad
+  \bm{\theta}_{t+1}=\bm{\theta}_t-\alpha\bm{v}_t.
+\]
+It smooths oscillations and accelerates progress when gradients point consistently in one direction.
+
+Adaptive methods such as Adam maintain moving averages of both the gradient and its elementwise square. With gradient $\bm{g}_t=\nabla J(\bm{\theta}_t)$,
+\[
+  \bm{m}_t=\beta_1\bm{m}_{t-1}+(1-\beta_1)\bm{g}_t,
+  \qquad
+  \bm{v}_t=\beta_2\bm{v}_{t-1}+(1-\beta_2)\bm{g}_t^{2},
+\]
+followed by bias correction and the parameter update
+\[
+  \hat{\bm{m}}_t=\frac{\bm{m}_t}{1-\beta_1^t},
+  \qquad
+  \hat{\bm{v}}_t=\frac{\bm{v}_t}{1-\beta_2^t},
+  \qquad
+  \bm{\theta}_{t+1}
+  =\bm{\theta}_t
+  -\alpha\,
+  \frac{\hat{\bm{m}}_t}{\sqrt{\hat{\bm{v}}_t}+\epsilon}.
+\]
+Typical defaults are $\beta_1=0.9$, $\beta_2=0.999$, and $\epsilon=10^{-8}$. Dividing by $\sqrt{\hat{\bm{v}}_t}$ gives each parameter its own effective step size: parameters with consistently large gradients take smaller steps, and rarely updated parameters take larger ones.
+
+\begin{intuition}
+Adam is momentum plus a personal speed limit for every parameter. The first average ($\bm{m}$) remembers which direction the gradient has been pushing, like a rolling ball. The second average ($\bm{v}$) remembers how violent the gradient has been, and slows down exactly the parameters that have been jumpy while letting quiet ones move faster.
+\end{intuition}
+
+\begin{workedexample}
+Do the very first Adam step by hand. Use the defaults $\beta_1=0.9$, $\beta_2=0.999$, $\alpha=0.001$, $\epsilon=10^{-8}$, starting from $m_0=v_0=0$, with a gradient of $g_1=0.5$.
+
+\begin{mlsteps}
+  \item $m_1=0.9(0)+0.1(0.5)=0.05$ and $v_1=0.999(0)+0.001{(0.5)}^2=0.00025$.
+  \item Bias-correct. At $t=1$ the divisors are $1-\beta_1^1=0.1$ and $1-\beta_2^1=0.001$, giving
+  $\hat{m}_1=0.05/0.1=0.5$ and $\hat{v}_1=0.00025/0.001=0.25$.
+  \item Step: $\alpha\,\hat{m}_1/(\sqrt{\hat{v}_1}+\epsilon)=0.001\times 0.5/0.5=0.001$.
+\end{mlsteps}
+
+Now repeat the whole thing with a gradient a hundred times larger, $g_1=50$. Then $m_1=5$, $v_1=2.5$, $\hat{m}_1=50$, $\hat{v}_1=2500$, and the step is $0.001\times 50/50=0.001$ --- \emph{identical}.
+
+That is the point of the $\sqrt{\hat{v}}$ divisor, and it explains why Adam is so forgiving in practice. Plain gradient descent with $\alpha=0.001$ would have taken a step of $0.0005$ in the first case and $0.05$ in the second, so the same learning rate would be far too timid for one problem and far too aggressive for the other. Adam normalizes the gradient by its own recent size, so the first step is $\alpha$ whatever the units of your loss happen to be.
+
+The flip side is worth knowing: because the step size is roughly $\alpha$ regardless of the gradient, Adam does not slow down near a minimum the way plain gradient descent does. That is why a learning-rate schedule still matters.
+\end{workedexample}
+
+Adam is convenient and fast, but optimizer defaults are not universally optimal. The optimizer, learning rate, weight decay, and batch size should be treated as interacting choices.
+
+\subsection{Learning rates and schedules}
+
+The learning rate is often the most important optimization hyperparameter. Warning signs include:
+
+\begin{itemize}
+  \item loss decreases extremely slowly: the rate may be too small;
+  \item loss oscillates or diverges: the rate may be too large;
+  \item early progress stops: a lower rate may be needed later in training.
+\end{itemize}
+
+Schedules may reduce the rate after a fixed number of epochs, after validation performance plateaus, according to cosine decay, or through warm-up followed by decay. Learning-rate curves should be recorded with the experiment.
+
+\begin{secondpass}
+Optional optimizer check: explain why a learning rate can be too small or too large, why momentum can smooth noisy updates, and why Adam's adaptive normalization does not remove the need to monitor or schedule the learning rate.
+\end{secondpass}

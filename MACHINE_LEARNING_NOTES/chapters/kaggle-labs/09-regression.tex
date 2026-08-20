@@ -1,0 +1,48 @@
+\section{Kaggle lab: linear and ridge regression}
+\label{sec:kaggle-insurance-regression}
+
+\begin{kaggleproject}{Medical Cost Personal Data --- ordinary least squares versus ridge}
+\kagglesource{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Datasets}
+\textbf{Target.} \texttt{charges}.\\
+\textbf{Question.} How do ordinary least squares and an $L_2$-regularized linear model compare under exactly the same preprocessing and development-validation rows?\\
+\textbf{Before running.} Predict what an actual-versus-predicted plot and a residual plot might reveal that MAE alone cannot.
+
+\begin{labmode}
+Stage 3B begins here. Build the preprocessing/model comparison in your notebook from the task specification before consulting the complete reference script; use the script afterward to check your procedure.
+\end{labmode}
+
+\textbf{Part A --- define one preprocessing and development split.}
+
+\lstinputlisting[style=mlpython,firstline=1,lastline=32]{all_experiments/lab08-insurance_regression.py}
+
+\textbf{Part B --- fit OLS and ridge under the identical procedure.}
+
+\lstinputlisting[style=mlpython,firstline=34,lastline=47]{all_experiments/lab08-insurance_regression.py}
+
+\textbf{Part C --- inspect the locked ridge model with validation diagnostics.}
+
+\lstinputlisting[style=mlpython,firstline=49,lastline=69]{all_experiments/lab08-insurance_regression.py}
+
+\begin{tryit}
+Create a \texttt{bmi\_smoker} interaction feature. Refit both models and compare metrics and residual structure. Explain why feature engineering can let a linear model represent a relationship that was not linear in the original columns.
+\end{tryit}
+\end{kaggleproject}
+
+\subsection{Transfer lab: time-aware regression on bike demand}
+
+\begin{kaggleproject}{Bike Sharing --- chronological validation and leakage audit}
+\kagglesource{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing Dataset}
+\textbf{File.} \texttt{all\_datasets/bike\_sharing\_dataset/day.csv}\\
+\textbf{Target.} \texttt{cnt}, daily rental count.\\
+\textbf{Question.} How does the workflow change when rows are ordered in time and some columns directly add up to the target?
+
+\lstinputlisting[style=mlpython]{all_experiments/lab08-bike_sharing_time_split.py}
+
+\begin{debugtask}
+The dataset contains \texttt{casual}, \texttt{registered}, and \texttt{cnt}. Verify their relationship. Explain why using \texttt{casual} and \texttt{registered} to predict \texttt{cnt} would be target leakage for the intended forecast, even though those columns are genuine data rather than obvious target copies.
+\end{debugtask}
+\end{kaggleproject}
+
+\begin{labdeliverable}
+Submit: (1) an OLS-versus-ridge table under identical preprocessing and validation rows; (2) an actual-versus-predicted or residual plot with interpretation; (3) the \texttt{bmi\_smoker} interaction comparison; and (4) for Bike Sharing, the chronological development split plus a written explanation of why \texttt{casual} and \texttt{registered} leak the target \texttt{cnt} for the stated forecast.
+\end{labdeliverable}

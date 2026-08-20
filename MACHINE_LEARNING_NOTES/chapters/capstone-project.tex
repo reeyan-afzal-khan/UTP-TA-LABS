@@ -1,0 +1,60 @@
+\chapter*{Capstone Project: From Raw Data to Defensible Evidence}
+\phantomsection
+\addcontentsline{toc}{chapter}{Capstone Project}
+\markboth{Capstone Project}{}
+
+The capstone is not a Kaggle-score contest. It is evidence that you can carry an unfamiliar problem from raw files to a defensible conclusion while respecting data quality, information boundaries, validation, and uncertainty.
+
+\begin{coursechoice}
+Choose a small public dataset that is not the main dataset from your favorite earlier lab. You may use one of the course transfer datasets or propose another dataset with a manageable download size. Keep the original download in its own folder under \texttt{all\_datasets/} and keep all analysis in one or more notebooks under \texttt{all\_experiments/}.
+\end{coursechoice}
+
+\section*{Required capstone sequence}
+
+\begin{enumerate}
+  \item \textbf{Problem contract.} State the observation unit, target or unsupervised objective, prediction/use moment, population, success metric, and cost of mistakes.
+  \item \textbf{Data provenance and audit.} Document files, columns, units, missingness, duplicates, impossible values, suspicious identifiers, and any cleaning decisions.
+  \item \textbf{Validation design.} Choose random, stratified, grouped, or chronological splitting based on how future data will arrive. Reserve a final test set when the task is supervised.
+  \item \textbf{Baseline.} Establish a no-skill or simple domain baseline before trying complex models.
+  \item \textbf{Leakage-safe preprocessing.} Put learned transformations inside pipelines or inside the training folds of the validation procedure.
+  \item \textbf{Model comparison.} Compare at least three appropriate model families. Include one simple interpretable model.
+  \item \textbf{Model development.} Tune hyperparameters on development data only. Use feature selection or resampling only when justified, and validate the complete procedure.
+  \item \textbf{Visual diagnostics.} Include plots that expose errors, residual structure, thresholds, learning curves, feature behavior, clusters, or score distributions as appropriate.
+  \item \textbf{Error and subgroup analysis.} Inspect where the method fails rather than reporting only an average metric.
+  \item \textbf{Final evaluation.} Evaluate once on untouched supervised test data, or present multiple forms of unsupervised evidence when no answer key exists.
+  \item \textbf{Interpretation limits.} Separate predictive association from causal claims and state what the experiment cannot establish.
+  \item \textbf{Reproducibility.} Record data paths, package requirements, random seeds, notebook order, and the final configuration.
+\end{enumerate}
+
+\section*{Required learning-signal extension}
+
+Add \emph{one} extension that changes the question rather than merely changing the model:
+\begin{itemize}
+  \item an unsupervised representation or clustering analysis that complements a supervised capstone;
+  \item an anomaly-ranking analysis with a realistic review threshold;
+  \item a limited-label simulation comparing full supervision with scarce labels;
+  \item or, when the project is naturally sequential, a small reinforcement-learning formulation separate from the static-data analysis.
+\end{itemize}
+
+Do not force reinforcement learning onto a static tabular problem merely to tick a box. The capstone should demonstrate that you know \emph{when} a learning paradigm fits, not that every paradigm can be applied to every dataset.
+
+\begin{keyidea}
+A strong capstone is easy to audit. A reader should be able to tell what you knew at each stage, which data influenced each decision, why the final method was selected, and where the result may fail.
+\end{keyidea}
+
+\section*{Submission package}
+
+Submit a compact, auditable project package rather than a collection of disconnected screenshots:
+
+\begin{itemize}
+  \item \textbf{Notebook(s):} one main \texttt{.ipynb} notebook, or a clearly numbered sequence, containing the analysis, plots, results, and interpretation.
+  \item \textbf{Short project note:} a concise README or report stating the problem contract, data source, prediction/use moment, primary metric, selected procedure, final conclusion, and main limitations.
+  \item \textbf{Reproducibility record:} \texttt{requirements.txt}, random seeds, expected dataset paths, and the order in which notebooks should be run.
+  \item \textbf{Data provenance:} the public source link, the exact downloaded files used, and any deterministic cleaning rules. Follow the dataset license and course submission rules when deciding whether the raw data itself should be redistributed.
+  \item \textbf{Evidence table:} one final table separating development/validation evidence from the single final supervised test result, or separating the different forms of unsupervised evidence when no test labels exist.
+\end{itemize}
+
+\begin{keyidea}
+The capstone should make the information boundary visible. Development results may influence the design; the final supervised test result must not influence development decisions. If the test score makes you want to change the model, record that idea as future work rather than reopening model selection.
+\end{keyidea}
+

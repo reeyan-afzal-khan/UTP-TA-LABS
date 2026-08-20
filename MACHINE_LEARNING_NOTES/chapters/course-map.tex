@@ -1,0 +1,40 @@
+\chapter*{Course Map: Learn One Branch at a Time}
+\addcontentsline{toc}{chapter}{Course Map: Learn One Branch at a Time}
+\markboth{Course Map}{ }
+
+Before the detailed Machine-Learning Map, use this one-page route to answer only one question: \emph{what should I learn next?} The full field taxonomy appears after Chapter~1, once the basic vocabulary has been introduced.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=10.9cm,minimum height=0.82cm,align=center,font=\scriptsize\color{MLNavy}},
+  branch/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=5.05cm,minimum height=1.55cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal,shorten >=1pt},
+  flow/.style={thick,draw=MLTeal,line cap=round,line join=round},
+  junction/.style={circle,fill=MLTeal,inner sep=1.2pt}
+]
+\node[stage] (a) at (0,4.65) {\textbf{Stages 1--2: Orientation and shared foundations}\\Frame the problem, prepare data safely, and learn the mathematics needed to reason about models.};
+\node[branch] (s1) at (-3.0,2.35) {\textbf{Stage 3A: Supervised workflow}\\Define a target, establish a baseline, validate honestly, and select with evidence.};
+\node[branch] (s2) at (-3.0,0.15) {\textbf{Stage 3B: Supervised model families}\\Compare assumptions and failure modes before choosing the simplest adequate method.};
+\node[branch] (u1) at (3.0,2.35) {\textbf{Stage 4A: Unsupervised workflow}\\State the structure you seek and evaluate it without pretending an answer key exists.};
+\node[branch] (u2) at (3.0,0.15) {\textbf{Stage 4B: Unsupervised model families}\\Choose methods for grouping, representation, or unusual-case detection.};
+\node[stage] (c) at (0,-2.0) {\textbf{Stage 5: Other learning signals}\\Learn from scarce labels or rewards, then integrate the full workflow in the capstone.};
+\coordinate (split) at ($(a.south)+(0,-0.48)$);
+\draw[flow] (a.south) -- (split);
+\draw[flow] (s1.north |- split) -- (u1.north |- split);
+\node[junction] at (split) {};
+\draw[arr] (s1.north |- split) -- (s1.north);
+\draw[arr] (u1.north |- split) -- (u1.north);
+\draw[arr] (s1) -- (s2);
+\draw[arr] (u1) -- (u2);
+\coordinate (merge) at ($(c.north)+(0,0.45)$);
+\draw[flow] (s2.south) -- (s2.south |- merge);
+\draw[flow] (u2.south) -- (u2.south |- merge);
+\draw[flow] (s2.south |- merge) -- (u2.south |- merge);
+\node[junction] at (merge) {};
+\draw[arr] (merge) -- (c.north);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+Do not memorize the map. Use it as a routing rule. First learn the workflow for a learning signal; only then compare model families within that workflow. The capstone asks you to choose and defend the route yourself.
+\end{keyidea}

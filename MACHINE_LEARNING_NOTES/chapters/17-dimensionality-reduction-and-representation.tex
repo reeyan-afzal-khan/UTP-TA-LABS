@@ -1,0 +1,265 @@
+\chapter{Dimensionality Reduction and Representation}
+\label{ch:dimred}
+
+\chapterguide%
+  {\chapref{ch:unsupervised}, dot products and projections from \chapref{ch:foundations}, and scaling from \chapref{ch:data}. Eigenvectors and eigenvalues are re-introduced from scratch here.}
+  {Run PCA step by step, decide how many components to keep, interpret what is gained and lost, and use t-SNE and UMAP for visualization without over-reading their pictures.}
+
+Real datasets often carry many redundant or weakly informative features: sensors that echo one another, survey questions that ask similar things, or thousands of pixels describing a handful of shapes. Dimensionality reduction is the classical form of representation learning developed in this book: it compresses data into fewer variables while preserving a stated property, such as variance or local neighborhoods. Possible payoffs include visualization, denoising, faster downstream models, and relief from the distance problems discussed in \chapref{ch:knn-nb}.
+
+\begin{firstread}
+Core path: PCA, explained variance, component choice, and the fact that compression loses information. Treat t-SNE and UMAP as second-pass visualization methods; they answer a different question from PCA.
+\end{firstread}
+
+\section{The idea: find better axes}
+
+A cloud of correlated points does not use its dimensions efficiently --- most of the action happens along a few directions. Principal component analysis (PCA) rotates the coordinate system to point along those directions.
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth, height=6.2cm,
+  axis lines=middle,
+  xlabel={$x_1$}, ylabel={$x_2$},
+  ticks=none, xmin=-2.9, xmax=2.9, ymin=-2.7, ymax=2.7,
+  clip=false
+]
+\addplot[only marks, mark=*, mark size=1.6pt] coordinates {
+  (-2,-1.6) (-1.4,-1.1) (-0.6,-0.2) (0,0.3) (0.7,0.4)
+  (1.3,1.2) (2,1.7) (-0.2,-0.5) (1.7,1.9) (-1.8,-2.0)
+};
+\draw[-{Stealth[length=2.4mm]}, very thick]
+  (axis cs:0,0) -- (axis cs:2.0,1.6)
+  node[right, font=\small] {PC1: most variance};
+\draw[-{Stealth[length=2.4mm]}, thick]
+  (axis cs:0,0) -- (axis cs:-0.64,0.8)
+  node[above, font=\small] {PC2};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Think of photographing a school of fish. From most angles the school looks like a blob, but from one particular angle its long axis lines up with the frame and one photo captures almost everything. PCA finds that best camera angle: the first principal component is the direction along which the data is most spread out, the second is the most-spread direction perpendicular to the first, and so on.
+\end{intuition}
+
+% === VISUAL ADDITION: pca-rotate-project ===
+\subsection{PCA as rotate, then project}
+
+The first component is not merely an arrow drawn on the old graph. It becomes a new coordinate axis, and every observation receives a new number: its position along that axis.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize,scale=0.86]
+\def\cloud{
+  (-1.7,-1.35),(-1.25,-0.85),(-0.8,-0.72),(-0.25,-0.05),
+  (0.25,0.18),(0.7,0.48),(1.15,1.02),(1.65,1.28)
+}
+% original
+\begin{scope}
+  \draw[-{Stealth[length=1.8mm]},MLMuted] (-2.0,0) -- (2.05,0) node[right] {$x_1$};
+  \draw[-{Stealth[length=1.8mm]},MLMuted] (0,-1.75) -- (0,1.75) node[above] {$x_2$};
+  \foreach \p in \cloud \fill[MLBlue] \p circle (2.2pt);
+  \node[font=\small\bfseries\color{MLNavy}] at (0,2.15) {1. Original coordinates};
+\end{scope}
+
+% rotated direction
+\begin{scope}[xshift=5.15cm]
+  \draw[MLMuted!45] (-2.0,0) -- (2.0,0);
+  \draw[MLMuted!45] (0,-1.75) -- (0,1.75);
+  \foreach \p in \cloud \fill[MLBlue] \p circle (2.2pt);
+  \draw[-{Stealth[length=2mm]},MLTeal,very thick] (-1.75,-1.35) -- (1.82,1.40)
+    node[right,font=\scriptsize] {PC1};
+  \draw[-{Stealth[length=2mm]},MLOrange,thick] (0.75,-0.98) -- (-0.75,0.98)
+    node[above,font=\scriptsize] {PC2};
+  \node[font=\small\bfseries\color{MLNavy}] at (0,2.15) {2. Rotate to principal axes};
+\end{scope}
+
+% projected 1d
+\begin{scope}[xshift=10.25cm]
+  \draw[-{Stealth[length=1.8mm]},MLTeal,very thick] (-2.0,0) -- (2.05,0) node[right] {PC1 score};
+  \foreach \x in {-1.72,-1.22,-0.86,-0.22,0.28,0.72,1.20,1.68}
+    \fill[MLBlue] (\x,0) circle (2.3pt);
+  \draw[MLMuted,dashed] (-2.0,0.65) -- (2.0,0.65);
+  \node[align=center,text=MLMuted] at (0,1.03) {PC2 discarded};
+  \node[font=\small\bfseries\color{MLNavy}] at (0,2.15) {3. Project to one dimension};
+  \node[align=center,text=MLGreen] at (0,-0.72) {two columns become\\one component score};
+\end{scope}
+\end{tikzpicture}
+\end{mlfigure}
+% === END VISUAL ADDITION ===
+
+\section{PCA step by step}
+
+\begin{enumerate}
+  \item \term{Center} the data by subtracting each feature's training mean. Decide separately whether to standardize: do so when equal standardized variation should carry equal weight, but retain original units when their variance is scientifically meaningful.
+  \item Compute the sample covariance matrix
+  \[
+    S=\frac{1}{n-1}X^{\mathsf T}X
+  \]
+  for the centered matrix $X$.
+  \item Find its eigenvectors and eigenvalues: for centered data matrix $X$,
+  \[
+    S\bm{v}=\lambda\,\bm{v}.
+  \]
+  Each eigenvector $\bm{v}$ is a component direction; its eigenvalue $\lambda$ measures the variance captured along it.
+  \item \term{Sort} components by eigenvalue and keep the top $k$.
+  \item \term{Project}: the new features (\term{scores}) are the dot products of each observation with the kept components.
+\end{enumerate}
+
+The proportion of variance explained by component $j$ is
+\[
+  \frac{\lambda_j}{\sum_{k}\lambda_k},
+\]
+which reports how much of the dataset's total variance lies along each new axis. The predictive-value caveat is stated once in \secref{sec:pca-limitations}. Because the components are eigenvectors of a symmetric matrix, they are mutually perpendicular, and their scores are uncorrelated in the fitted sample. The singular value decomposition introduced in \chapref{ch:linear-algebra} computes the same directions directly from the centered data matrix, which is how software commonly implements PCA.
+
+\begin{workedexample}
+Take five centered points that lie exactly on a line: $(-2,-2)$, $(-1,-1)$, $(0,0)$, $(1,1)$, $(2,2)$. Each feature has variance $10/4=2.5$ and their covariance is also $2.5$, so the covariance matrix is
+$\begin{bsmallmatrix}2.5 & 2.5\\ 2.5 & 2.5\end{bsmallmatrix}$
+with eigenvalues $\lambda_1=5$ and $\lambda_2=0$. The first component is $\bm{v}_1=(1,1)/\sqrt{2}$, and it explains $5/(5+0)=100\%$ of the variance. Projecting gives one score per point --- $-2.83, -1.41, 0, 1.41, 2.83$ --- so two columns of data have been compressed to one with \emph{no loss at all}. Real data is never this tidy, but the mechanism is identical: keep the big-$\lambda$ directions, drop the small ones, lose only what the small ones carried.
+\end{workedexample}
+
+\section{Explained variance: the compression budget}
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.80\linewidth, height=5.4cm,
+  axis lines=left,
+  xlabel={component}, ylabel={\% variance explained},
+  xtick={1,2,3,4,5,6},
+  ymin=0, ymax=50, clip=false
+]
+\addplot[thick, mark=*, mark size=1.7pt] coordinates
+  {(1,45) (2,25) (3,12) (4,8) (5,6) (6,4)};
+\draw[dashed] (axis cs:3.5,0) -- (axis cs:3.5,45);
+\node[font=\small, align=left, anchor=west] at (axis cs:3.7,36)
+  {scree ``elbow'': later components\\add little; keep the first 2--3};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+Three complementary rules: use a cumulative-variance target when the application can justify one; look for an elbow in the \term{scree plot}; or, when PCA feeds a supervised model, treat $k$ as a hyperparameter and let training-fold validation decide. Under squared reconstruction loss, retaining the top $k$ components gives the best rank-$k$ linear reconstruction, and the discarded eigenvalues quantify the average variance lost.
+
+\subsection{What PCA cannot promise}
+\label{sec:pca-limitations}
+
+\begin{itemize}
+  \item It is \term{linear}: a spiral or a curved sheet of data has structure PCA cannot straighten out.
+  \item It is \term{scale-sensitive}: changing units changes the covariance matrix. Standardize when that influence is arbitrary, not as an automatic rule.
+  \item \term{Variance is not predictive importance}: the directions that vary most are not necessarily the ones that predict a target --- a low-variance component can carry crucial signal. (\chapref{ch:classification}'s LDA is a supervised method that seeks class-separating directions instead.)
+  \item \term{Components resist interpretation}: each is a weighted blend of all original features, so ``component 3 increased'' rarely means anything to a domain expert without inspecting its weights.
+\end{itemize}
+
+\begin{pitfall}
+Using PCA to \emph{plot} clusters is not the same as clustering on the PCA coordinates. If $K$-means is fitted on four scaled features and the result is then projected to two principal components for a picture, the assignments came from four-dimensional geometry. Fitting $K$-means on only the two PCA columns is a different model that intentionally discards some variance.
+\end{pitfall}
+
+\section{Choosing the component count in practice}
+
+PCA gives you as many components as you like, ordered by how much variance each captures.
+
+\begin{mlfigure}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.3cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Variance per component},
+  xlabel={Component}, ylabel={Share of variance},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  ybar, bar width=7pt, ymin=0, ymax=0.5, xmin=0.3, xmax=10.7
+]
+\addplot[fill=MLPaleBlue,draw=MLBlue] coordinates
+  {(1,0.42)(2,0.23)(3,0.13)(4,0.08)(5,0.05)(6,0.035)(7,0.02)(8,0.015)(9,0.008)(10,0.002)};
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.3cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Cumulative variance kept},
+  xlabel={Number of components}, ylabel={Total kept},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  ymin=0, ymax=1.05, xmin=0.5, xmax=10.5
+]
+\addplot[MLTeal,very thick,mark=*,mark size=1.4pt] coordinates
+  {(1,0.42)(2,0.65)(3,0.78)(4,0.86)(5,0.91)(6,0.945)(7,0.965)(8,0.98)(9,0.988)(10,0.99)};
+\draw[MLRed,thick,dashed] (axis cs:0.5,0.9) -- (axis cs:10.5,0.9);
+\draw[MLRed,thick,dashed] (axis cs:5,0) -- (axis cs:5,0.9);
+\node[font=\scriptsize\color{MLRed},anchor=west] at (axis cs:5.3,0.55) {5 components hold 91\%};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+PCA is like photographing a chair. Photograph it from directly above and you see a confusing square. Photograph it from the side and it is instantly recognizable -- same object, better angle. PCA searches for the angle from which the data varies the most, then the next best angle at right angles to that, and so on. The scree plot tells you how many angles you actually need before the rest is just dust.
+\end{analogy}
+
+
+\section{t-SNE and UMAP: maps for the eye}
+\label{sec:tsne-umap}
+
+PCA preserves global variance; sometimes the goal is instead a two-dimensional \emph{map} in which similar observations sit together --- to eyeball cluster structure in document word-counts, customer measurements, or product features. Two nonlinear methods dominate this niche.
+
+\term{t-SNE} converts distances into neighbor probabilities and arranges points in 2-D so that neighborhoods are preserved: points close in the original space stay close on the map. Its main hyperparameter, \term{perplexity}, roughly sets the neighborhood size being honored (typical values 5--50).
+
+\term{UMAP} pursues the same goal with different mathematics; it is much faster, tends to preserve somewhat more of the global arrangement, and --- unlike classic t-SNE --- can place \emph{new} points onto an existing map.
+
+Both need cautious reading:
+
+\begin{itemize}
+  \item cluster sizes, empty gaps, and distances between separated groups can be artifacts; even apparent neighborhoods should be checked against original-space distances;
+  \item different random seeds and hyperparameters can produce visibly different maps, so check that the story survives a few reruns;
+  \item a map can suggest questions but cannot demonstrate that discrete clusters exist; confirm any claimed grouping with stability, held-out information, and domain evidence;
+  \item for ordinary predictive preprocessing, PCA is the simpler default because it has an explicit out-of-sample projection. Nonlinear embeddings need a justified validation design.
+\end{itemize}
+
+\begin{mltable}
+\begin{tabular}{@{}p{0.3\linewidth}p{0.27\linewidth}p{0.31\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+ & PCA & t-SNE / UMAP \\
+\midrule
+Preserves & global variance, linear structure & local neighborhoods \\
+Deterministic? & yes & no (seed-dependent) \\
+Handles new points & yes (a projection) & UMAP yes; t-SNE awkwardly \\
+Best use & preprocessing, compression, denoising & exploratory visualization \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+Note the family distinction: PCA, t-SNE, and UMAP perform \term{feature extraction} --- they build new variables. \term{Feature selection} (\secref{sec:feature-selection}) instead keeps a subset of the original variables, often retaining more direct interpretability.
+
+\begin{keyidea}
+Dimensionality reduction trades a little information for a lot of manageability. PCA makes the trade with an exact receipt --- the discarded eigenvalues are the price paid --- while t-SNE and UMAP make beautiful maps whose distances must not be over-read. Reduce to work; visualize to explore; and never mistake the picture for the data.
+\end{keyidea}
+
+\begin{modelcard}{Dimensionality Reduction - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+PCA is best for & Compressing correlated numerical features, denoising, visualization, and faster downstream modeling. \cr
+Preprocessing & Center features; standardize when unit scales are arbitrary and equal standardized influence is intended. \cr
+Main control & Number of components, chosen by explained variance and downstream validation. \cr
+Visualization tools & t-SNE and UMAP can create useful two-dimensional maps of local neighborhoods. \cr
+Watch for & Loss of interpretability, information loss, leakage from fitting on all data, and over-interpreting visual clusters. \cr
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/17-pca}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What does PCA optimize when it chooses its first principal component?
+  \item Why can standardization change which PCA directions appear most important?
+  \item Why should distances and apparent cluster sizes in a t-SNE or UMAP plot not be interpreted as exact properties of the original high-dimensional data?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Dimensionality reduction replaces many features with fewer informative coordinates.
+  \item PCA finds orthogonal directions that capture maximum variance.
+  \item Explained-variance ratios help choose how many components to retain.
+  \item PCA is linear and may not preserve class separation or nonlinear structure.
+  \item t-SNE and UMAP are mainly visualization tools; apparent cluster sizes and distances require caution.
+\end{itemize}
+\end{chapterrecap}

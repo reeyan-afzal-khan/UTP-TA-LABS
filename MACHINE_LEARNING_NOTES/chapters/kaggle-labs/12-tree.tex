@@ -1,0 +1,32 @@
+\section{Kaggle implementation: an interpretable decision tree}
+\label{sec:kaggle-titanic-tree}
+
+\begin{kaggleproject}{Titanic --- constrain tree depth and inspect learned rules}
+\kagglesource{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset}
+\textbf{Question.} What rules does a shallow decision tree learn, and how does constraining depth change the bias--variance tradeoff?
+\end{kaggleproject}
+
+The code deliberately limits \texttt{max\_depth} and \texttt{min\_samples\_leaf}, then prints the top of the fitted tree as text. This makes the model auditable enough for a teaching example while still using the full preprocessing pipeline.
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 3B: choose a constrained tree configuration and define what evidence would count as overfitting before opening the reference implementation.
+\end{labmode}
+
+\textbf{Part A --- fit a constrained tree and measure the train--validation gap.}
+
+\lstinputlisting[style=mlpython,firstline=1,lastline=41]{all_experiments/lab11-titanic_tree.py}
+
+\textbf{Part B --- inspect and visualize only the readable top of the fitted tree.}
+
+\lstinputlisting[style=mlpython,firstline=42,lastline=62]{all_experiments/lab11-titanic_tree.py}
+
+
+\begin{debugtask}
+Set \texttt{max\_depth=None} and \texttt{min\_samples\_leaf=1}. Compare training and validation accuracy with the constrained tree. Identify the symptom of overfitting from the train--validation gap rather than repeatedly probing a final test set.
+\end{debugtask}
+
+\begin{labdeliverable}
+Submit the constrained tree's top learned rules, a table comparing constrained and unconstrained tree training/validation performance, and a short diagnosis of overfitting based on the train--validation gap rather than test score alone.
+\end{labdeliverable}

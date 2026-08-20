@@ -1,0 +1,157 @@
+\chapter{How Machine Learning Works}
+\label{ch:learning}
+
+\chapterguide%
+  {\chapref{ch:data}: a trustworthy table, a clear observation unit, and a split that matches the real prediction setting.}
+  {separate learning settings by their feedback signal, explain what an algorithm is trying to learn in each setting, distinguish model fitting from evaluation, and identify which mathematical ideas you actually need next.}
+
+Up to this point, the book has deliberately avoided committing to one kind of machine-learning problem. You now know how to represent data and prepare it safely. Before studying a large block of mathematics, first identify the learning signal and the kind of structure a model must learn. That context tells you why later ideas such as probability, distance, dot products, and gradients matter: \emph{what feedback is available, and what structure are we trying to learn?}
+
+\begin{keyidea}
+A machine-learning algorithm extracts useful structure from data. What counts as ``useful'' changes with the feedback signal. With targets, the structure should predict those targets. Without targets, the structure must be judged by stability, geometry, reconstruction, density, downstream usefulness, or domain meaning. With rewards, the structure must support good decisions over time.
+\end{keyidea}
+
+\section{Start with the learning signal}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  q/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=3.2cm,minimum height=0.9cm,align=center,font=\bfseries\small},
+  bx/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.0cm,align=center,font=\small\color{MLNavy}},
+  leaf/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=2.8cm,minimum height=1.2cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
+]
+\node[q] (s) at (0,3.6) {What feedback do we have?};
+\node[bx] (full) at (-5.1,1.8) {Targets for examples};
+\node[bx] (few) at (-1.7,1.8) {Only some targets};
+\node[bx] (none) at (1.7,1.8) {No external target};
+\node[bx] (reward) at (5.1,1.8) {Rewards after actions};
+\node[leaf] (sup) at (-5.1,-0.2) {\textbf{Supervised}\\learn $X\rightarrow y$};
+\node[leaf] (semi) at (-1.7,-0.2) {\textbf{Limited-label}\\combine labeled and unlabeled data};
+\node[leaf] (unsup) at (1.7,-0.2) {\textbf{Unsupervised}\\discover structure in $X$};
+\node[leaf] (rl) at (5.1,-0.2) {\textbf{Reinforcement}\\learn behavior from interaction};
+\draw[arr] (s.south) -- (0,2.75); \draw[draw=MLMuted,thick] (-5.1,2.75)--(5.1,2.75);
+\foreach \x in {-5.1,-1.7,1.7,5.1} {\draw[arr] (\x,2.75)--(\x,2.3);}
+\draw[arr] (full)--(sup); \draw[arr] (few)--(semi); \draw[arr] (none)--(unsup); \draw[arr] (reward)--(rl);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.21\linewidth}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Setting & Given & What is learned? & Typical question \\
+\midrule
+Supervised & $X$ and target $y$ & A mapping from features to a target & ``What value or class should I predict?'' \\
+Unsupervised & $X$ only & Structure, representation, density, or unusualness in the features & ``What patterns are present when no answer key is supplied?'' \\
+Semi-supervised / active & $X$ plus some labels & A predictive mapping that also uses unlabeled structure or selectively requests labels & ``How can scarce labels be used efficiently?'' \\
+Reinforcement & States, actions, rewards, transitions & A policy or value rule for sequential decisions & ``Which action leads to good long-term outcomes?'' \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{The common skeleton}
+
+Despite the different learning signals, most projects share a small backbone:
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.3cm,
+  bx/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=2.65cm,minimum height=0.76cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[bx] (a) {Define the question};
+\node[bx,right=of a] (b) {Prepare the data};
+\node[bx,right=of b] (c) {Fit the learning rule};
+\node[bx,right=of c] (d) {Evaluate the result};
+\node[bx,right=of d] (e) {Use and monitor};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\end{tikzpicture}
+\end{mlfigure}
+
+The details inside the boxes change. Supervised learning can compare predictions with known targets. Unsupervised learning often has no single correct answer and therefore needs several kinds of evidence. Reinforcement learning evaluates behavior across trajectories rather than independent labeled rows.
+
+\section{What changes between supervised and unsupervised learning}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Question & Supervised learning & Unsupervised learning \\
+\midrule
+What data are fitted? & Features $X$ plus target $y$ & Features $X$ only \\
+What guides fitting? & A loss comparing predictions with known answers & An objective such as compact clusters, reconstruction, variance preservation, density, or local isolation \\
+What is the output? & Prediction rule, score, or probability & Groups, coordinates, components, density model, anomaly score, or discovered pattern \\
+What is a baseline? & Mean/median/majority or a domain rule & Simple geometry or domain reference, random/naive partition, reconstruction reference, or stability comparison depending on the task \\
+What does ``good'' mean? & Strong performance on realistic unseen labeled data & Structure that is stable, meaningful, useful downstream, or supported by appropriate internal/external criteria \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Do not force supervised language onto every problem. A cluster does not automatically have a ``correct class,'' a PCA component is not a prediction, and an anomaly score is not automatically a probability of fraud. First identify the learning objective; only then choose an evaluation method.
+\end{pitfall}
+
+\section{A first look at optimization: improve the objective step by step}
+\label{sec:gradient-descent}
+
+Some models can be fitted by a direct formula; many others are trained iteratively. The common idea is to define an objective $J(\bm{\theta})$ and update the parameters in a direction that reduces it. For gradient descent,
+\[
+  \bm{\theta}\leftarrow\bm{\theta}-\alpha\nabla J(\bm{\theta}),
+\]
+where $\nabla J$ points in the direction of steepest increase and the learning rate $\alpha$ controls the step size.
+
+\begin{intuition}
+Imagine walking downhill in fog. The local slope tells you which direction descends; the learning rate is your stride length. Tiny steps are safe but slow, sensible steps make steady progress, and steps that are too large can overshoot and diverge.
+\end{intuition}
+
+\begin{workedexample}
+For $J(w)=(w-4)^2$, the minimum is at $w=4$ and $J'(w)=2(w-4)$. Starting from $w=0$ with $\alpha=0.1$ gives $w\leftarrow0-0.1(-8)=0.8$ on the first step. Repeating the update moves $w$ toward $4$. You do not need the full calculus derivation yet; Chapter~\ref{ch:foundations} explains what gradients mean geometrically.
+\end{workedexample}
+
+\begin{keyidea}
+Optimization is part of \emph{fitting}, not evaluation. A training loss can fall perfectly while generalization remains poor. Later chapters therefore separate ``did the optimizer fit the training objective?'' from ``does the fitted procedure work on realistic unseen data?''
+\end{keyidea}
+
+\section{The path through the rest of the book}
+
+The book now branches cleanly.
+
+\begin{description}[leftmargin=1.55in,style=nextline]
+  \item[Stage 3A: supervised workflow] Learn the prediction objective, baselines, evaluation, and model-selection discipline before comparing algorithms.
+  \item[Stage 3B: supervised model families] Hold that workflow fixed while changing one family at a time from linear models through SVMs.
+  \item[Stage 4A: unsupervised workflow] Reset the objective: no target is supplied during fitting, so evidence must come from geometry, stability, usefulness, or external meaning.
+  \item[Stage 4B: unsupervised model families] Apply that workflow to clustering, representation learning, and anomaly detection.
+  \item[Stage 5: other signals] Change the amount or type of feedback: limited labels in semi-supervised/active learning, then rewards from interaction in reinforcement learning.
+\end{description}
+
+\begin{keyidea}
+The field map tells you where ideas belong. The learning path tells you what to learn next. Do not try to memorize the whole field at once: learn one workflow, then change one axis at a time.
+\end{keyidea}
+
+\section{Now learn only the mathematics that the workflow needs}
+
+The next chapter supplies a shared mathematical toolkit. Read it with a purpose rather than as a prerequisite exam. On the first pass, focus on center and spread, probability intuition, vectors and matrix shapes, dot products, distance, scaling, and gradient direction. Return to confidence intervals, distribution families, matrix inverses, and decomposition details when a later model gives you a reason to use them.
+
+\begin{firstread}
+\textbf{First-pass contract.} You do not need to master every derivation before continuing. Your first goal is recognition: when a later chapter says ``standardize before measuring distance,'' ``optimize a loss,'' or ``project onto a component,'' you should know which mathematical idea is being reused and where to review it.
+\end{firstread}
+
+\input{chapters/kaggle-labs/04-learning-loop}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What feedback signal separates supervised, unsupervised, limited-label, and reinforcement-learning problems?
+  \item Why can two learning settings share data preparation and monitoring practices while requiring different fitting objectives?
+  \item What is the difference between reducing a training objective and demonstrating generalization?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Learning settings are separated first by the feedback available, not by algorithm names.
+  \item Supervised learning learns a target mapping; unsupervised learning learns structure without a supplied target; limited-label methods mix labeled and unlabeled evidence; reinforcement learning learns from rewards.
+  \item Data preparation, representation, evaluation discipline, and monitoring remain shared foundations even though the fitting objective changes.
+  \item Stage 3 first establishes the supervised workflow and then compares supervised model families; Stage 4 mirrors that structure for unsupervised learning.
+\end{itemize}
+\end{chapterrecap}

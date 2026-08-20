@@ -1,0 +1,26 @@
+\section{Kaggle implementation: K-means versus DBSCAN}
+\label{sec:kaggle-mall-clustering}
+
+\begin{kaggleproject}{Mall Customers --- forced partitions versus density-based noise}
+\kagglesource{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customer Segmentation Data}
+\textbf{Question.} How does a method that assigns every row to one of $k$ clusters differ from a density method that can mark rows as noise?
+\end{kaggleproject}
+
+The program compares K-means with DBSCAN on the same standardized representation, reports silhouette evidence where meaningful, and summarizes the K-means segments in the original units.
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 4B: choose which diagnostics and original-unit summaries you need before consulting the complete comparison script.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab15-mall_clustering.py}
+
+
+\begin{tryit}
+Vary DBSCAN's \texttt{eps} while keeping \texttt{min\_samples} fixed. Track the number of clusters and noise points. Explain why tuning DBSCAN only to maximize silhouette can still produce a segmentation that is operationally useless.
+\end{tryit}
+
+\begin{labdeliverable}
+Submit one notebook comparing K-means and DBSCAN on the same standardized representation. Include cluster/noise counts, silhouette evidence where valid, an original-unit K-means profile table, and an \texttt{eps} sensitivity table showing how DBSCAN's cluster/noise structure changes. End with one paragraph on which result is more operationally interpretable and why.
+\end{labdeliverable}

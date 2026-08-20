@@ -1,0 +1,40 @@
+\section{Kaggle implementation: PCA on handwritten digits}
+\label{sec:kaggle-digit-pca}
+
+\begin{kaggleproject}{Optical Digits --- retain 95\% variance before logistic classification}
+\kagglesource{https://www.kaggle.com/datasets/yadavhim/optical-recognition-of-handwritten-digits}{Optical Recognition of Handwritten Digits}
+\textbf{Question.} How many principal components are required to preserve 95\% of the pixel variance, and how well does a linear classifier perform in that reduced representation?
+\end{kaggleproject}
+
+Each digit is represented as an $8\times8$ image, giving 64 integer pixel-intensity features with values from 0 to 16. The dataset already provides separate training and test files, \texttt{optdigits.tra} and \texttt{optdigits.tes}. The official test file is therefore treated as a genuine final holdout. The script first splits the official training file into fit and development-validation rows, compares the 90\%, 95\%, and 99\% compression budgets there, and keeps the course's prespecified 95\% rule. Only then does it refit the full-feature baseline and the locked PCA pipeline on all official training rows and evaluate both once on the official test file. The point is to measure what compression buys and costs without letting the test set choose the representation.
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 4B: define the non-PCA baseline, development-validation comparison, and locked compression rule before the official test file is opened. The reference code should confirm your experiment, not determine the question.
+\end{labmode}
+
+\textbf{Part A --- preserve the official test boundary and create development validation.}
+
+\lstinputlisting[style=mlpython,firstline=1,lastline=26]{all_experiments/lab16-digit_pca.py}
+
+\textbf{Part B --- compare compression budgets only on development validation data.}
+
+\lstinputlisting[style=mlpython,firstline=28,lastline=50]{all_experiments/lab16-digit_pca.py}
+
+\textbf{Part C --- lock the 95\% rule, refit, and open the official test once.}
+
+\lstinputlisting[style=mlpython,firstline=52,lastline=71]{all_experiments/lab16-digit_pca.py}
+
+\textbf{Part D --- visualize the locked representation after evaluation.}
+
+\lstinputlisting[style=mlpython,firstline=73,lastline=91]{all_experiments/lab16-digit_pca.py}
+
+
+\begin{tryit}
+Compare \texttt{n\_components=0.90}, \texttt{0.95}, and \texttt{0.99} on the development validation split. Record the number of components and validation accuracy. Do not choose among them from the official test file; the final test is opened only after the compression policy is locked.
+\end{tryit}
+
+\begin{labdeliverable}
+Submit a full-feature development baseline, a validation table for 90\%, 95\%, and 99\% retained variance showing components retained and validation accuracy, the locked 95\% rule, and one final official-test comparison between the full-feature baseline and the locked PCA-to-logistic pipeline. Explain the compression--performance trade-off rather than using the test set for representation selection.
+\end{labdeliverable}

@@ -1,0 +1,210 @@
+\chapter{Semi-Supervised and Active Learning}
+\label{ch:semi-supervised}
+
+\chapterguide%
+  {Supervised learning, validation, classification probabilities, and similarity measures.}
+  {explain why unlabeled data may help, follow pseudo-labeling and graph-based methods, describe active learning, and recognize when these methods can reinforce mistakes.}
+
+Stages 3 and 4 showed the two clean endpoints: targets for the supervised branch and no supplied targets for the unsupervised branch. Real projects often sit between them. In ordinary supervised learning, every training row has a target label. In many real projects, raw examples are plentiful but labels are expensive. A doctor may need to label scans, an engineer may need to inspect machine failures, or a legal expert may need to categorize documents.
+
+\term{Semi-supervised learning} uses a small labeled dataset together with a larger unlabeled dataset. \term{Active learning} asks a human to label the examples that would be most useful.
+
+\begin{firstread}
+Think of a box of photographs where only a few have names written on the back. Semi-supervised learning uses the named photos for meaning and the unnamed photos for structure. Active learning chooses which unnamed photo would be most useful to ask a person about next.
+\end{firstread}
+
+\section{The data setting}
+
+Let
+\[
+  \mathcal{D}_L=\{(\bm{x}_i,y_i)\}_{i=1}^{n_L}
+\]
+be the labeled data and
+\[
+  \mathcal{D}_U=\{\bm{x}_j\}_{j=1}^{n_U}
+\]
+be the unlabeled data, usually with $n_U\gg n_L$.
+
+Unlabeled data can show where observations are concentrated, which examples are similar, and where natural groups may exist. It cannot by itself reveal the meaning of a class label.
+
+\begin{intuition}
+Imagine a map with only a few towns named. The unnamed dots still show where settlements are clustered. The labeled towns provide meaning; the unlabeled dots provide structure.
+\end{intuition}
+
+\section{When unlabeled data can help}
+
+Semi-supervised methods rely on assumptions such as:
+
+\begin{itemize}
+  \item nearby observations are likely to share a label;
+  \item observations in the same dense region are likely to share a label;
+  \item the decision boundary should pass through low-density areas rather than cutting through a cluster.
+\end{itemize}
+
+These assumptions may be wrong. Two nearby customers can have different outcomes, or a cluster can contain several classes. Unlabeled data helps only when its structure relates to the target.
+
+\section{Self-training and pseudo-labeling}
+
+Self-training is the simplest semi-supervised approach.
+
+\begin{mlsteps}
+  \item Train a supervised model on the labeled data.
+  \item Predict labels and probabilities for the unlabeled data.
+  \item Keep only predictions with confidence above a strict threshold.
+  \item Add those pseudo-labeled examples to the training set, usually with lower weight.
+  \item Retrain the model and repeat for a limited number of rounds.
+\end{mlsteps}
+
+\begin{workedexample}
+A classifier has 1,000 labeled messages and 20,000 unlabeled messages. It assigns 1,500 unlabeled messages a predicted class probability above 0.98. Those high-confidence predictions are added as temporary labels. The model is retrained, but final evaluation still uses a genuinely labeled validation and test set.
+\end{workedexample}
+
+\begin{pitfall}
+A confidently wrong model can teach itself the wrong answer. Pseudo-labeling should use conservative thresholds, class-balance checks, limited rounds, and validation against human labels.
+\end{pitfall}
+
+\section{Graph-based label propagation}
+
+A graph-based method treats each observation as a node. Similar observations are joined by stronger edges. Labels then spread from labeled nodes to nearby unlabeled nodes.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node/.style={circle,draw=MLMuted,minimum size=6mm,inner sep=0pt},
+  labA/.style={node,fill=MLBlue!35,draw=MLBlue},
+  labB/.style={node,fill=MLOrange!35,draw=MLOrange},
+  unlab/.style={node,fill=white},
+  edge/.style={draw=MLMuted!60,thick}
+]
+\node[labA] (a1) at (0,1.2) {A};
+\node[unlab] (a2) at (1.1,1.7) {};
+\node[unlab] (a3) at (1.5,0.7) {};
+\node[unlab] (a4) at (2.5,1.4) {};
+\node[labB] (b1) at (5.2,1.2) {B};
+\node[unlab] (b2) at (4.1,1.7) {};
+\node[unlab] (b3) at (3.8,0.65) {};
+\node[unlab] (b4) at (5.7,0.25) {};
+\draw[edge] (a1)--(a2)--(a4)--(a3)--(a1);
+\draw[edge] (a2)--(a3);
+\draw[edge] (b1)--(b2)--(b3)--(b1);
+\draw[edge] (b1)--(b4)--(b3);
+\draw[dashed,MLMuted!45] (a4)--(b3);
+\end{tikzpicture}
+\end{mlfigure}
+
+This works well when similarity is meaningful and clusters line up with classes. It can fail when the graph connects unlike observations or when feature scaling is poor.
+
+\section{Co-training}
+
+Co-training uses two different views of the same observation. For example, a webpage may have text content and link information. Two models are trained separately; each adds high-confidence labels for the other.
+
+The method is most plausible when both views contain useful information and make partly independent errors. It is not appropriate when the two views are nearly identical.
+
+\section{Active learning}
+
+Active learning spends a labeling budget carefully. Instead of labeling random examples, the model selects examples expected to teach it the most.
+
+Common selection strategies include:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Selection strategy & Which examples it chooses \\
+\midrule
+Uncertainty sampling & Examples whose predicted probabilities are closest to a tie. \\
+Query by disagreement & Examples on which several models disagree. \\
+Diversity sampling & Uncertain examples that also cover different regions of the feature space. \\
+Expected impact & Examples whose labels are estimated to improve the model most or reduce decision cost. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.55cm,
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.35cm,minimum height=0.82cm,align=center,font=\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[box] (train) {Train model};
+\node[box,right=of train] (select) {Select useful\\unlabeled cases};
+\node[box,right=of select] (label) {Human labels\\the cases};
+\node[box,right=of label] (add) {Add to labeled\\training set};
+\draw[arr] (train)--(select);\draw[arr] (select)--(label);\draw[arr] (label)--(add);
+\draw[arr] (add.south) to[bend left=28] (train.south);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{The active learning loop, drawn}
+
+Active learning inverts the usual arrangement. Instead of being handed labels, the model asks for the ones it most needs.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=1.05cm and 1.35cm,
+  st/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=5.25cm,minimum height=1.0cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  hum/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,minimum width=5.25cm,minimum height=1.0cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+]
+\node[st] (train) {1. Train using the labels you have};
+\node[st,right=of train] (score) {2. Score every unlabeled example};
+\node[st,below=of score] (pick) {3. Select the most uncertain examples};
+\node[hum,below=of train] (ask) {4. Ask a human to label those examples};
+\draw[arr] (train) -- (score);
+\draw[arr] (score) -- (pick);
+\draw[arr] (pick) -- (ask);
+\draw[arr] (ask) -- (train);
+\node[font=\scriptsize\itshape\color{MLMuted},align=center] at ($(train)!0.5!(pick)$) {repeat until the budget runs out};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+A student revising for an exam has limited time. The inefficient approach is to reread the whole textbook. The efficient approach is to attempt practice questions, notice which topics produce hesitation, and study only those. Active learning is a model doing exactly that: spending its scarce labeling budget on the examples that confuse it most.
+\end{analogy}
+
+\section{A safe practical workflow}
+
+\begin{mlsteps}
+  \item Create fixed, human-labeled validation and test sets before using unlabeled data.
+  \item Train a supervised baseline using only the labeled training set.
+  \item Inspect whether similarity or cluster structure appears connected to the target.
+  \item Add one semi-supervised or active-learning method at a time.
+  \item Compare against the labeled-only baseline using the same evaluation protocol.
+  \item Review performance by class and subgroup, not only overall average performance.
+  \item Keep a record of which labels came from humans and which came from the model.
+\end{mlsteps}
+
+\begin{modelcard}{Semi-Supervised and Active Learning - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+Best when & Human labels are expensive, unlabeled examples are plentiful, and feature-space structure relates to the target. \cr
+Start with & A supervised baseline and a fixed human-labeled validation/test set. \cr
+Main controls & Confidence threshold, number of pseudo-labeling rounds, graph similarity, labeling budget, query strategy. \cr
+Main risks & Confirmation bias, class imbalance, poor similarity measures, sampling only unusual cases, changing labeling standards. \cr
+\end{tabularx}
+\end{modelcard}
+
+\begin{keyidea}
+Unlabeled data provides structure, not truth. Human labels remain the source of meaning and the basis of fair evaluation.
+\end{keyidea}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/19-limited-labels}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why can pseudo-labeling reinforce mistakes even when the model is highly confident?
+  \item What does an active-learning query strategy try to spend the labeling budget on?
+  \item Why must final validation and test labels come from a genuine labeling source rather than from the model itself?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Semi-supervised learning combines a small labeled set with a larger unlabeled set.
+  \item Pseudo-labeling adds only high-confidence model predictions and must be checked for error reinforcement.
+  \item Graph methods spread labels through similarity connections.
+  \item Active learning asks humans to label examples that are uncertain, disputed, diverse, or high impact.
+  \item Final validation and testing must use genuine human labels.
+\end{itemize}
+\end{chapterrecap}

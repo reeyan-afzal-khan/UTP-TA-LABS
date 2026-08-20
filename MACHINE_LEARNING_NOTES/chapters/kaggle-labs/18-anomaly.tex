@@ -1,0 +1,26 @@
+\section{Kaggle implementation: anomaly ranking on small fraud data}
+\label{sec:kaggle-credit-anomaly}
+
+\begin{kaggleproject}{Credit-card transactions --- Isolation Forest without label-aware fitting}
+\kagglesource{https://www.kaggle.com/datasets/miadul/credit-card-fraud-detection-dataset}{Credit Card Fraud Detection Dataset}
+\textbf{Question.} Can an unsupervised anomaly score rank rare fraudulent transactions above ordinary transactions even though \texttt{is\_fraud} is not supplied to \texttt{fit}?
+\end{kaggleproject}
+
+This public dataset contains 10,000 transactions and is only a few hundred kilobytes, making it much easier to keep beside the course notebooks than the commonly used 150 MB credit-card dataset. The Isolation Forest fits only on transaction-behavior features; the fraud label is held back from training and used afterward to evaluate the anomaly ranking with ROC AUC, average precision, and a concrete top-$k$ review budget. Average precision is also compared with fraud prevalence so the ranking gain is interpreted relative to the no-skill precision level.
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 4B: decide the review budget and ranking metrics before fitting. The held-back fraud labels are for evaluation only, not for fitting the anomaly detector.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab17-credit_card_anomaly.py}
+
+
+\begin{pitfall}
+An anomaly detector finds observations that are unusual under its representation; unusual does not automatically mean fraudulent, defective, malicious, or important. The semantic meaning comes from external validation.
+\end{pitfall}
+
+\begin{labdeliverable}
+Submit fraud prevalence, ROC AUC, average precision, the ratio of average precision to prevalence, and precision among the top-ranked review budget you choose. Include one ranked-case table and explain why anomaly score, fraud probability, and semantic proof of fraud are different claims.
+\end{labdeliverable}

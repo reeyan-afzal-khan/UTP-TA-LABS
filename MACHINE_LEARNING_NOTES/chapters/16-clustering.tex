@@ -1,0 +1,411 @@
+\chapter{Clustering}
+\label{ch:clustering}
+
+\chapterguide%
+  {\chapref{ch:unsupervised}, feature scaling, vectors, distances, and the Gaussian distribution from \chapref{ch:foundations}.}
+  {distinguish hard from soft clustering, run $K$-means by hand, choose and justify cluster structure, and compare $K$-means, fuzzy $C$-means, Gaussian mixtures, hierarchical clustering, and DBSCAN under the Stage 4A evaluation workflow.}
+
+Stage 4A already established what changes when no target is supplied and how unsupervised evidence should be judged. Stage 4B now holds that workflow fixed while changing the model family. We begin with \term{clustering}: methods that propose a grouping, hierarchy, density partition, or soft membership structure for observations.
+
+The central question is no longer ``what is unsupervised learning?'' but \textbf{what notion of a group does this clustering method assume?} $K$-means prefers compact center-based groups; hierarchical methods expose nested structure; DBSCAN defines groups through density connectivity and can leave points as noise; mixture models assign probabilistic memberships. The quantitative score is therefore evidence about a chosen structure, not an answer key.
+
+Without labels there is no single correct output to compare against, so results must be judged by a combination of quantitative scores, stability checks, visualization, and domain knowledge. The Stage 4A warning applies throughout this chapter: internal metrics can compare candidate structures, but they do not prove that a cluster is meaningful for the application.
+
+Clustering asks: do the observations form useful, stable groups --- customer segments, document topics, cell types? For distance-based clustering, reuse the scaling decision from \secref{sec:scaling}; original units may be retained when they intentionally encode domain priorities.
+
+\begin{firstread}
+Core path: understand $K$-means, scaling, cluster evaluation, and DBSCAN. Treat Gaussian mixtures, fuzzy $C$-means, and hierarchical clustering as additional cluster shapes to learn after the two core ideas are comfortable.
+\end{firstread}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.34\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Assignment style & Meaning & Examples \\
+\midrule
+Hard clustering & Every row receives one cluster label. The memberships are mutually exclusive in the final partition. & $K$-means, $K$-medoids, DBSCAN, agglomerative clustering \\
+Soft clustering & Every row can have partial membership in several groups, usually summarized by a vector of membership degrees or component responsibilities. & Fuzzy $C$-means, Gaussian mixture models \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Hard and soft are about the \emph{form of the assignment}, not about whether an algorithm is better. If customers can genuinely sit between segments, a membership vector may preserve useful ambiguity that a single label throws away.
+
+\section{$K$-means}
+\label{sec:kmeans}
+
+$K$-means divides observations into $K$ groups by minimizing squared distances from group centers:
+\[
+  \argmin_{S_1,\ldots,S_K}
+  \sum_{j=1}^{K}\sum_{\bm{x}_i\in S_j}
+  \|\bm{x}_i-\bm{\mu}_j\|_2^2 .
+\]
+
+In plain language, the formula says: choose $K$ centers, assign every row to a center, and move the centers until the rows are as close as possible to the center of their own group.
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=0.85, font=\small]
+\foreach \p in {(0.4,0.6),(0.9,1.1),(0.2,1.3),(1.1,0.5),(0.7,1.6),(1.4,1.2)}
+  \fill \p circle (2.2pt);
+\node[cross out, draw, thick, minimum size=6pt] at (0.78,1.05) {};
+\node at (0.78,2.1) {cluster 1};
+\foreach \p in {(4.1,0.4),(4.7,0.9),(5.2,0.3),(4.5,1.4),(5.4,1.0),(4.0,1.1)}
+  \fill[gray!60] \p circle (2.2pt);
+\node[cross out, draw, thick, minimum size=6pt] at (4.65,0.85) {};
+\node at (4.65,2.1) {cluster 2};
+\foreach \p in {(2.2,3.3),(2.8,3.9),(3.3,3.2),(2.5,4.3),(3.5,3.9),(2.0,3.9)}
+  \fill[gray!35] \p circle (2.2pt);
+\node[cross out, draw, thick, minimum size=6pt] at (2.72,3.75) {};
+\node at (4.7,3.75) {cluster 3};
+\node[align=left] at (7.6,2.2) {$\times$ = cluster center $\bm{\mu}_j$\\(the mean of its points)};
+\end{tikzpicture}
+\end{mlfigure}
+
+The algorithm (Lloyd's algorithm) alternates between two steps until nothing changes:
+
+\begin{enumerate}
+  \item \term{Assign}: send each observation to its nearest center.
+  \item \term{Update}: move each center to the mean of the observations assigned to it.
+% === VISUAL ADDITION: kmeans-four-frame ===
+\subsection{$K$-means as a four-frame loop}
+
+The two instructions above become easier to remember as a repeated picture: choose centers, assign points, move centers, and repeat until the assignments stop changing.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize,scale=0.78]
+\def\pts{
+  (0.45,0.60),(0.75,1.05),(1.15,0.75),(0.9,1.45),(1.45,1.25),
+  (2.75,0.70),(3.15,1.00),(3.45,0.62),(3.05,1.55),(3.62,1.35)
+}
+
+% panel 1
+\begin{scope}
+  \draw[MLMuted!60] (0,0) rectangle (4.05,2.25);
+  \foreach \p in \pts \fill[MLMuted] \p circle (2.1pt);
+  \node[cross out,draw=MLBlue,very thick,minimum size=7pt] at (1.9,0.35) {};
+  \node[cross out,draw=MLOrange,very thick,minimum size=7pt] at (2.15,1.95) {};
+  \node[font=\scriptsize\bfseries\color{MLNavy}] at (2.03,2.58) {1. Initialize};
+  \node[align=center,text=MLMuted] at (2.03,-0.35) {start with two centers};
+\end{scope}
+
+% panel 2
+\begin{scope}[xshift=4.75cm]
+  \draw[MLMuted!60] (0,0) rectangle (4.05,2.25);
+  \foreach \p in {(0.45,0.60),(0.75,1.05),(1.15,0.75),(0.9,1.45),(1.45,1.25)}
+    \fill[MLBlue] \p circle (2.1pt);
+  \foreach \p in {(2.75,0.70),(3.15,1.00),(3.45,0.62),(3.05,1.55),(3.62,1.35)}
+    \fill[MLOrange] \p circle (2.1pt);
+  \node[cross out,draw=MLBlue,very thick,minimum size=7pt] at (1.9,0.35) {};
+  \node[cross out,draw=MLOrange,very thick,minimum size=7pt] at (2.15,1.95) {};
+  \node[font=\scriptsize\bfseries\color{MLNavy}] at (2.03,2.58) {2. Assign};
+  \node[align=center,text=MLMuted] at (2.03,-0.35) {nearest center wins};
+\end{scope}
+
+% panel 3
+\begin{scope}[xshift=9.50cm]
+  \draw[MLMuted!60] (0,0) rectangle (4.05,2.25);
+  \foreach \p in {(0.45,0.60),(0.75,1.05),(1.15,0.75),(0.9,1.45),(1.45,1.25)}
+    \fill[MLBlue] \p circle (2.1pt);
+  \foreach \p in {(2.75,0.70),(3.15,1.00),(3.45,0.62),(3.05,1.55),(3.62,1.35)}
+    \fill[MLOrange] \p circle (2.1pt);
+  \draw[-{Stealth[length=1.7mm]},MLBlue,thick] (1.9,0.35) -- (0.95,1.02);
+  \draw[-{Stealth[length=1.7mm]},MLOrange,thick] (2.15,1.95) -- (3.20,1.04);
+  \node[cross out,draw=MLBlue,very thick,minimum size=7pt] at (0.95,1.02) {};
+  \node[cross out,draw=MLOrange,very thick,minimum size=7pt] at (3.20,1.04) {};
+  \node[font=\scriptsize\bfseries\color{MLNavy}] at (2.03,2.58) {3. Update};
+  \node[align=center,text=MLMuted] at (2.03,-0.35) {centers move to means};
+\end{scope}
+
+% panel 4, second row centered
+\begin{scope}[xshift=4.75cm,yshift=-3.45cm]
+  \draw[MLMuted!60] (0,0) rectangle (4.05,2.25);
+  \foreach \p in {(0.45,0.60),(0.75,1.05),(1.15,0.75),(0.9,1.45),(1.45,1.25)}
+    \fill[MLBlue] \p circle (2.1pt);
+  \foreach \p in {(2.75,0.70),(3.15,1.00),(3.45,0.62),(3.05,1.55),(3.62,1.35)}
+    \fill[MLOrange] \p circle (2.1pt);
+  \node[cross out,draw=MLBlue,very thick,minimum size=7pt] at (0.95,1.02) {};
+  \node[cross out,draw=MLOrange,very thick,minimum size=7pt] at (3.20,1.04) {};
+  \node[font=\scriptsize\bfseries\color{MLNavy}] at (2.03,2.58) {4. Repeat};
+  \node[align=center,text=MLGreen] at (2.03,-0.35) {stop when nothing changes};
+\end{scope}
+
+\draw[-{Stealth[length=1.8mm]},MLTeal,thick] (4.15,1.15) -- (4.62,1.15);
+\draw[-{Stealth[length=1.8mm]},MLTeal,thick] (8.90,1.15) -- (9.37,1.15);
+\draw[-{Stealth[length=1.8mm]},MLTeal,thick] (11.52,-0.35) .. controls (11.2,-1.6) and (8.2,-1.6) .. (7.0,-1.2);
+\end{tikzpicture}
+\end{mlfigure}
+% === END VISUAL ADDITION ===
+
+\end{enumerate}
+
+\begin{workedexample}
+Cluster the one-dimensional points $\{1,2,3,10,11,12\}$ with $K=2$, starting from centers $c_1=1$ and $c_2=12$.
+\emph{Assign:} points $1,2,3$ are nearer $c_1$; points $10,11,12$ are nearer $c_2$.
+\emph{Update:} $c_1=(1+2+3)/3=2$ and $c_2=(10+11+12)/3=11$.
+\emph{Assign again:} nothing moves (e.g.\ point 3 is at distance 1 from $c_1$ and 8 from $c_2$), so the algorithm stops. The objective is $(1+0+1)+(1+0+1)=4$, and the two obvious groups have been found in one round.
+\end{workedexample}
+
+Each assignment/update step cannot increase the objective, so with a consistent rule for distance ties, Lloyd's $K$-means algorithm reaches a stable solution after finitely many distinct assignments. That solution need not be globally best and depends on the starting centers. Standard practice is the \term{$k$-means++} initialization, which picks starting centers that are spread out, combined with several random restarts, keeping the run with the lowest objective. For very large datasets, \term{mini-batch $K$-means} updates centers from small random batches and trades a little accuracy for a lot of speed.
+
+$K$-means implicitly assumes clusters are compact, roughly spherical, and similar in size; it struggles with elongated or irregular shapes, very different cluster sizes, and outliers (a single far-away point drags its center toward it).
+
+\section{Choosing $K$: the elbow and the silhouette}
+
+Clustering has no correct answer to check against, so choosing the number of clusters relies on two diagnostics rather than one.
+
+\begin{mlfigure}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.3cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Elbow: within-cluster distance},
+  xlabel={$K$}, ylabel={Inertia},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0.5, xmax=9.5, ymin=0
+]
+\addplot[MLBlue,very thick,mark=*,mark size=1.5pt] coordinates
+  {(1,980)(2,520)(3,290)(4,205)(5,178)(6,160)(7,146)(8,135)(9,126)};
+\draw[MLRed,thick,dashed] (axis cs:4,0) -- (axis cs:4,980);
+\node[font=\scriptsize\color{MLRed},anchor=west] at (axis cs:4.3,760) {the bend};
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.3cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Silhouette: separation quality},
+  xlabel={$K$}, ylabel={Score},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0.5, xmax=9.5, ymin=0, ymax=0.8
+]
+\addplot[MLTeal,very thick,mark=square*,mark size=1.5pt] coordinates
+  {(2,0.42)(3,0.51)(4,0.63)(5,0.55)(6,0.48)(7,0.41)(8,0.36)(9,0.31)};
+\draw[MLRed,thick,dashed] (axis cs:4,0) -- (axis cs:4,0.8);
+\node[font=\scriptsize\color{MLRed},anchor=west] at (axis cs:4.3,0.72) {the peak};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Inertia always falls as $K$ rises -- give every point its own cluster and it reaches zero -- so you cannot simply minimize it. Look for a bend after which extra clusters buy little. The silhouette has a maximum, but it also embeds a preference for compact, separated groups. Agreement between diagnostics supports a candidate $K$; it does not establish that the groups are stable or useful.
+\end{intuition}
+
+\section{Lloyd's algorithm and initialization}
+
+Lloyd's algorithm alternates between two operations: assign each observation to its nearest center, then replace each center with the mean of the observations currently assigned to that cluster. Each iteration cannot increase the within-cluster sum of squares, so the procedure eventually stops changing.
+
+The important limitation is that the objective is not globally convex in all cluster centers at once. Different initial centers can therefore lead to different local optima. A poor start may produce a clustering with substantially larger inertia than a better start even when the same value of $K$ is used.
+
+The practical principle is simple: use multiple initializations and compare their final objective values and assignments. If the same $K$ repeatedly produces very different solutions, that instability is evidence that the proposed cluster structure is weak or ambiguous rather than a detail to hide.
+
+\begin{keyidea}
+Never interpret one random initialization as definitive. Stability across sensible initializations or resamples is part of the evidence for a useful clustering.
+\end{keyidea}
+
+\subsection{$K$-medoids}
+
+$K$-medoids is $K$-means' robust sibling: each cluster is represented by an actual observation (its \term{medoid}) rather than a mean, and any distance function may be used. Medoids resist outliers (a far point cannot drag a medoid the way it drags a mean) and make sense for data where averaging is meaningless --- at a higher computational price.
+
+\section{Gaussian mixture models}
+
+A Gaussian mixture model (GMM) is a probabilistic relative of $K$-means. It assumes the data was generated from $K$ Gaussian components with mixing weights $\pi_k$:
+\[
+  p(\bm{x})
+  =\sum_{k=1}^{K}
+  \pi_k\,
+  \mathcal{N}(\bm{x}\given\bm{\mu}_k,\Sigma_k),
+  \qquad
+  \sum_{k=1}^{K}\pi_k=1 .
+\]
+Instead of hard assignments, each observation receives a \term{responsibility}: the posterior probability that component $k$ generated it,
+\[
+  \gamma_{ik}
+  =\frac{\pi_k\,\mathcal{N}(\bm{x}_i\given\bm{\mu}_k,\Sigma_k)}
+        {\sum_{j=1}^{K}\pi_j\,\mathcal{N}(\bm{x}_i\given\bm{\mu}_j,\Sigma_j)} .
+\]
+The \term{expectation-maximization (EM)} algorithm alternates between an E-step, which computes the responsibilities with the current parameters, and an M-step, which re-estimates $\pi_k$, $\bm{\mu}_k$, and $\Sigma_k$ as responsibility-weighted averages. Each cycle increases the data log-likelihood until convergence.
+
+\begin{intuition}
+EM solves a chicken-and-egg problem. If we knew which cluster each point belonged to, estimating the cluster shapes would be easy; if we knew the cluster shapes, assigning points would be easy. Since we know neither, EM alternates: guess the memberships, refit the shapes, re-guess the memberships, and repeat until the answer stops changing. $K$-means does the same dance with hard yes/no assignments.
+\end{intuition}
+
+What the extra machinery buys, compared with $K$-means: \emph{soft} memberships (``62\% component 1, 38\% component 2''), \emph{elliptical} components of different shapes and sizes through the covariance matrices $\Sigma_k$, and a probability density that can also support anomaly scoring (\chapref{ch:anomaly}). These probabilities are conditional on the mixture assumptions; they are not proof that a real-world entity literally belongs to a group with that probability.
+
+\section{Fuzzy $C$-means: soft distance-based clustering}
+
+\term{Fuzzy $C$-means} (FCM) keeps the centroid idea of $K$-means but replaces a one-hot assignment with membership degrees $u_{ik}\in[0,1]$ that sum to 1 across clusters for each observation. A common objective is
+\[
+  \sum_i\sum_{k=1}^{K} u_{ik}^{m}\,\|\bm{x}_i-\bm{c}_k\|_2^2,
+\]
+where $m>1$ is the \term{fuzziness parameter}. Larger $m$ produces softer memberships; $m=2$ is a common teaching default.
+
+The algorithm alternates between two updates:
+\begin{enumerate}
+  \item recompute each centroid as a membership-weighted mean;
+  \item recompute each observation's memberships from its relative distances to all centroids.
+\end{enumerate}
+The iterations stop when memberships or centers change by less than a chosen tolerance.
+
+\begin{intuition}
+$K$-means asks, ``Which center is closest?'' FCM asks, ``How strongly does each center describe this point?'' A boundary case might be 0.52 in cluster A and 0.45 in cluster B instead of being forced to pretend it is unambiguously A.
+\end{intuition}
+
+\begin{pitfall}
+FCM membership values are not automatically calibrated probabilities. They are distance-based degrees determined by the chosen scale, number of clusters, and fuzziness parameter. Gaussian-mixture responsibilities have a probabilistic model underneath them; FCM memberships do not make the same generative claim.
+\end{pitfall}
+
+\section{Hierarchical clustering}
+\label{sec:hierarchical-clustering}
+
+Hierarchical clustering builds a whole family of clusterings at once, organized as a tree called a \term{dendrogram}. The common \term{agglomerative} version starts with every observation in its own cluster and repeatedly merges the two closest clusters until one remains.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Direction & Start & Repeated operation \\
+\midrule
+Agglomerative (bottom-up) & One cluster per observation & Merge the closest clusters until one hierarchy remains \\
+Divisive (top-down) & One cluster containing all observations & Split a current cluster into smaller groups until a stopping rule is reached \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Agglomerative clustering is far more common in general-purpose software because the merge sequence is straightforward to compute and visualize. Divisive methods work in the opposite direction and need an explicit rule for which cluster to split and how to split it; a practical divisive strategy can use two very dissimilar observations as seeds for a two-way partition, then recurse.
+
+\begin{workedexample}
+Cluster the points $\{1,2,4,8\}$ on a number line with single linkage. The closest pair is $\{1\}$ and $\{2\}$ (distance 1) --- merge them. The closest pair is now $\{1,2\}$ and $\{4\}$ (distance $|4-2|=2$) --- merge. Finally $\{1,2,4\}$ meets $\{8\}$ at distance $|8-4|=4$. The dendrogram records each merge at the height of its distance:
+\end{workedexample}
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\small, y=0.66cm, x=1.15cm]
+\draw[-{Stealth[length=2mm]},MLMuted,thick] (-0.7,0) -- (-0.7,4.6);
+\node[rotate=90,font=\scriptsize\color{MLMuted}] at (-1.55,2.3)
+  {Merge distance};
+\foreach \y in {1,2,4} {
+  \draw[MLMuted] (-0.78,\y) -- (-0.62,\y);
+  \node[anchor=east,font=\scriptsize\color{MLMuted}] at (-0.90,\y) {\y};
+}
+\node[below=2pt,font=\scriptsize] at (0,0) {1};
+\node[below=2pt,font=\scriptsize] at (1,0) {2};
+\node[below=2pt,font=\scriptsize] at (2,0) {4};
+\node[below=2pt,font=\scriptsize] at (3,0) {8};
+\draw[thick] (0,0) -- (0,1) -- (1,1) -- (1,0);
+\draw[thick] (0.5,1) -- (0.5,2) -- (2,2) -- (2,0);
+\draw[thick] (1.25,2) -- (1.25,4) -- (3,4) -- (3,0);
+\draw[MLRed,thick,dashed] (-0.4,3) -- (3.30,3);
+\node[anchor=west,align=left,font=\scriptsize\color{MLRed},
+      fill=white,rounded corners=0.5mm,inner sep=2pt]
+  at (3.42,3) {cut here\\$\rightarrow$ 2 clusters};
+\end{tikzpicture}
+\end{mlfigure}
+
+Cutting the dendrogram at any height produces a clustering, so the number of clusters is chosen \emph{after} seeing the whole merge history --- a genuine advantage when $K$ is unclear. The meaning of ``closest clusters'' is set by the \term{linkage} rule:
+
+\begin{itemize}
+  \item \term{single linkage} uses the closest pair of observations --- follows chains, finds elongated clusters, sensitive to noise bridges;
+  \item \term{complete linkage} uses the farthest pair --- compact, similar-diameter clusters;
+  \item \term{average linkage} uses the average pairwise distance --- a middle ground;
+  \item \term{Ward linkage} merges whichever pair least increases within-cluster variance --- behaves most like $K$-means and is a common default.
+\end{itemize}
+
+The price of the full merge history is computation: pairwise distances make the method expensive for large datasets, and it offers no built-in way to assign brand-new observations to existing clusters.
+
+\section{DBSCAN: clustering by density}
+\label{sec:dbscan}
+
+DBSCAN defines clusters as regions where points are packed densely, using two hyperparameters: a neighborhood radius $\varepsilon$ and a minimum count \term{minPts}. Every point gets one of three roles:
+
+\begin{description}[leftmargin=1.05in,style=nextline]
+  \item[Core point] Has at least minPts points within distance $\varepsilon$ --- it sits in a dense region.
+  \item[Border point] Is within $\varepsilon$ of a core point but is not dense enough itself --- the edge of a cluster.
+  \item[Noise point] Neither --- it belongs to no cluster at all.
+\end{description}
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=1.5, font=\small]
+\foreach \p in {(1.0,1.0),(1.35,1.15),(0.8,1.4),(1.2,0.7),(1.55,0.8),(0.65,0.85),(1.05,1.45),(1.5,1.35)}
+  \fill \p circle (1.6pt);
+\fill (1.9,1.5) circle (1.6pt);
+\fill (3.4,0.7) circle (1.6pt);
+\draw (1.0,1.0) circle (0.55);
+\draw[-{Stealth[length=1.6mm]}] (1.0,1.0) -- (0.611,0.611)
+  node[below left=-2pt] {$\varepsilon$};
+\draw[dashed] (1.9,1.5) circle (0.55);
+\draw[dashed] (3.4,0.7) circle (0.55);
+\node[align=center, below] at (1.0,0.32) {core point:\\$\geq$ minPts neighbors};
+\node[align=center, above] at (2.15,2.08) {border point: sparse itself,\\but near a core point};
+\node[align=center, below] at (3.4,0.02) {noise point};
+\end{tikzpicture}
+\end{mlfigure}
+
+A cluster is then grown outward: start from any core point, absorb everything within $\varepsilon$, and keep expanding through core points until the density runs out; border points join the cluster that reached them, and noise stays unlabeled. The consequences are exactly DBSCAN's selling points --- it discovers clusters of arbitrary shape, needs no $K$ in advance, and labels outliers explicitly --- and its weaknesses: a single $(\varepsilon,\text{minPts})$ pair cannot fit clusters of very different densities, and in high dimensions distance itself becomes uninformative. A common way to choose $\varepsilon$ is to plot each point's distance to its $k$-th nearest neighbor, sorted, and take the elbow.
+
+\section{Which clustering method?}
+
+\begin{mltable}
+\begin{tabular}{@{}p{0.16\linewidth}p{0.12\linewidth}p{0.21\linewidth}p{0.14\linewidth}p{0.22\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Needs $K$? & Cluster shapes & Outliers & Notable trait \\
+\midrule
+$K$-means & yes & compact, spherical & distort means & fast, scalable, simple \\
+GMM & yes & elliptical & distort fits & soft memberships, density \\
+Hierarchical & no (cut later) & depends on linkage & can distort merges & full dendrogram of groupings \\
+DBSCAN & no & arbitrary & labeled as noise & density-based, finds outliers \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+$K$-means and GMM also assign new observations naturally (nearest center; highest responsibility); hierarchical clustering and DBSCAN have no built-in rule for unseen points, so a small classifier trained on the cluster labels often fills that gap in practice.
+
+\section{Evaluating a clustering}
+
+The \term{silhouette coefficient} for observation $i$ compares cohesion with separation:
+\[
+  s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}},
+\]
+where $a(i)$ is its average distance to its own cluster and $b(i)$ is the smallest average distance to another cluster. Values near $1$ indicate a point nestled deep in its own cluster; values near $0$ sit between clusters; negative values suggest a probable misassignment. Averaging $s(i)$ over the data scores a whole clustering and can compare different $K$.
+
+When reference labels happen to exist (for validation only), agreement measures such as the \term{adjusted Rand index} compare the discovered clusters with the labeled groups while correcting for chance.
+
+\begin{keyidea}
+No internal score can prove that clusters are \emph{meaningful}. A trustworthy clustering earns its keep three ways: reasonable scores, stability under resampling and reasonable parameter changes, and an interpretation a domain expert recognizes. Treat every clustering as a hypothesis about the data, not a fact extracted from it.
+\end{keyidea}
+
+\begin{modelcard}{Clustering - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.2\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Good for & Main caution \cr
+\midrule
+$K$-means & Compact, roughly spherical clusters; large numeric datasets & Requires $K$, scaling, and sensitivity to initialization/outliers \cr
+Gaussian mixture & Overlapping elliptical clusters and soft membership & Distribution assumptions and local optima \cr
+Hierarchical & Dendrograms and nested group structure & Distance/linkage choices and cost on large data \cr
+DBSCAN & Irregular shapes and explicit noise points & Density parameters and varying-density clusters \cr
+\bottomrule
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/16-clustering}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What kind of cluster geometry does \(K\)-means favor, and why can scaling change the resulting partition?
+  \item Why can a high silhouette score fail to prove that a segmentation is useful in the application?
+  \item What does DBSCAN do with observations that do not belong to a sufficiently dense region?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Clustering searches for groups without target labels.
+  \item $K$-means alternates between assigning points and updating centroids.
+  \item Fuzzy $C$-means gives distance-based soft memberships; Gaussian mixtures give model-based component responsibilities.
+  \item Hierarchical clustering can build groups bottom-up by merging or top-down by splitting, and a dendrogram records the hierarchy.
+  \item DBSCAN finds dense regions and labels isolated points as noise.
+  \item A clustering must be evaluated for stability, separation, and usefulness in the real application.
+\end{itemize}
+\end{chapterrecap}

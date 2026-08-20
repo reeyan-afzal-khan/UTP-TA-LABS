@@ -1,0 +1,557 @@
+\chapter{Statistics, Geometry, and Similarity}
+\label{ch:foundations}
+\label{ch:statistics}
+\label{ch:linear-algebra}
+
+\chapterguide%
+  {\chapref{ch:data}, \chapref{ch:learning}, and comfort with arithmetic, fractions, powers, and basic algebra.}
+  {use the minimum statistical and geometric vocabulary needed by later models, recognize when scale or uncertainty changes an analysis, and know which second-pass topics can safely wait until a later chapter requires them.}
+
+Machine learning repeatedly asks two kinds of questions about data: \emph{what does this collection look like?} and \emph{how are these observations related?} Statistics answers the first with center, spread, probability, and association. Geometry and linear algebra answer the second with vectors, distances, dot products, and transformations. Keeping them together gives the shared vocabulary needed by both supervised and unsupervised learning, but this chapter is deliberately layered: the first pass gives you enough mathematics to continue; the second pass deepens ideas when you have a concrete reason to return.
+
+\begin{firstread}
+\textbf{First pass --- learn these now:} mean versus median, spread and quantiles, probability intuition, correlation versus causation, vectors, matrix shapes, dot products, norms, Euclidean distance, cosine similarity, feature scaling, and the idea that a gradient points uphill. These concepts recur immediately in the model chapters.
+\end{firstread}
+
+\begin{secondpass}
+\textbf{Return later when needed:} standard errors and confidence intervals, the bootstrap, detailed probability distributions, Bayes' theorem algebra, matrix inverses, eigenvectors/SVD, and curvature. They are valuable, but none should block a beginner from reaching the first models.
+\end{secondpass}
+
+\section*{Part A: Describe data with statistics and probability}
+\section{Describe a distribution with center and spread}
+
+A \term{distribution} describes which values occur and how often they occur. Two questions come first:
+
+\begin{enumerate}
+  \item Where is the center?
+  \item How spread out are the values?
+\end{enumerate}
+
+\subsection{Mean and median}
+
+For values $x_1,\ldots,x_N$, the population mean is
+\[
+  \mu=\frac{1}{N}\sum_{i=1}^{N}x_i.
+\]
+The capital sigma $\sum$ means ``add the values.'' The formula therefore says exactly what an ordinary average does: add all $N$ values and divide by $N$.
+
+The sample mean is usually written $\bar{x}$ and uses the same calculation on a sample.
+
+The \term{median} is the middle value after sorting. It is less affected by extreme values.
+
+\begin{workedexample}
+For $30,32,35,38,500$, the mean is $127$, while the median is $35$. The mean answers ``what would everyone receive if the total were shared equally?'' The median answers ``what value sits in the middle?'' The median better represents a typical income in this strongly skewed example.
+\end{workedexample}
+
+\subsection{Variance and standard deviation}
+
+Variance measures average squared distance from the mean:
+\[
+  \sigma^2=\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2.
+\]
+The standard deviation is
+\[
+  \sigma=\sqrt{\sigma^2}.
+\]
+Standard deviation is easier to interpret because it uses the original unit.
+
+\begin{workedexample}
+For $2,4,6$, the mean is $4$. The distances from the mean are $-2,0,2$. Squaring gives $4,0,4$, so the population variance is $8/3\approx2.67$ and the standard deviation is about $1.63$.
+\end{workedexample}
+
+\subsection{Quantiles and the interquartile range}
+
+A quantile is a cut point in sorted data. The first quartile $Q_1$ has about 25\% of values below it, and the third quartile $Q_3$ has about 75\% below it. The interquartile range is
+\[
+  \operatorname{IQR}=Q_3-Q_1.
+\]
+It measures the width of the middle half of the data and is resistant to extreme values.
+
+\begin{keyidea}
+Use the mean and standard deviation for roughly symmetric data without severe outliers. Use the median and IQR when the distribution is skewed or contains extreme values.
+\end{keyidea}
+
+\section{Mean versus median, drawn}
+
+The mean and median agree on symmetric data and disagree sharply on skewed data. That disagreement is itself a useful diagnostic.
+
+\begin{mlfigure}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.2cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Symmetric: they agree},
+  xlabel={Value}, ylabel={How many},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  ybar, bar width=7pt, ymin=0, ymax=20, xmin=0, xmax=9
+]
+\addplot[fill=MLPaleBlue,draw=MLBlue] coordinates {(1,2)(2,6)(3,12)(4,17)(5,12)(6,6)(7,2)};
+\draw[MLRed,very thick,dashed] (axis cs:4,0) -- (axis cs:4,19);
+\node[font=\scriptsize\color{MLRed}] at (axis cs:6.5,17) {mean = median};
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.2cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLNavy}}, title={Skewed: they split apart},
+  xlabel={Value}, ylabel={How many},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  ybar, bar width=7pt, ymin=0, ymax=20, xmin=0, xmax=9
+]
+\addplot[fill=MLPaleOrange,draw=MLOrange] coordinates {(1,18)(2,13)(3,8)(4,5)(5,3)(6,2)(7,1)};
+\draw[MLTeal,very thick,dashed] (axis cs:2,0) -- (axis cs:2,19);
+\draw[MLRed,very thick,dashed] (axis cs:2.8,0) -- (axis cs:2.8,19);
+\node[font=\scriptsize\color{MLTeal}] at (axis cs:5.6,17) {median};
+\node[font=\scriptsize\color{MLRed}] at (axis cs:5.6,13.5) {mean (pulled right)};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Put ten ordinary people in a room and the mean and median income are similar. Now let a billionaire walk in. The median barely moves -- there is still an ordinary person in the middle -- but the mean leaps to something no one in the room actually earns. The median is stubborn; the mean is easily dragged.
+\end{analogy}
+
+\begin{keyidea}
+If the mean is far above the median, the data has a long right tail. That can motivate a log transform or robust scaler. In \chapref{ch:evaluation}, the same idea reappears when MAE and RMSE react differently to extreme prediction errors.
+\end{keyidea}
+
+\section{The normal distribution}
+
+The normal distribution is the familiar bell-shaped curve. It is controlled by a mean $\mu$ and standard deviation $\sigma$:
+\[
+  f(x)=\frac{1}{\sigma\sqrt{2\pi}}
+  \exp\!\left[-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2\right].
+\]
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth,height=5.3cm,axis lines=left,
+  xlabel={value},ylabel={density},ytick=\empty,
+  xtick={-2,-1,0,1,2},
+  xticklabels={$\mu-2\sigma$,$\mu-\sigma$,$\mu$,$\mu+\sigma$,$\mu+2\sigma$},
+  domain=-3.2:3.2,samples=140,ymin=0,ymax=0.45,clip=false
+]
+\addplot[very thick,MLBlue] {exp(-x^2/2)/sqrt(2*pi)};
+\draw[dashed,MLMuted] (axis cs:0,0)--(axis cs:0,0.399);
+\draw[{Stealth}-{Stealth},thick,MLTeal] (axis cs:-1,0.24)--(axis cs:1,0.24)
+ node[midway,above,font=\small] {about 68\%};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+Many measurement errors and averages are approximately normal, but real data should not be assumed normal without inspection.
+
+\begin{intuition}
+The mean moves the bell left or right. The standard deviation controls its width. A small standard deviation creates a narrow bell; a large one creates a wide bell.
+\end{intuition}
+
+\section{Population, sample, and sampling bias}
+
+A \term{population} is the full group we want to understand. A \term{sample} is the smaller group actually observed. We calculate a statistic from the sample to estimate an unknown population parameter.
+
+For a sample of size $n$, the common sample variance is
+\[
+  s^2=\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar{x})^2.
+\]
+The denominator $n-1$ corrects the tendency to underestimate population variance when deviations are measured around the sample mean.
+
+\begin{pitfall}
+A large sample is not automatically a good sample. If the sample systematically excludes part of the population, collecting more of the same biased data gives a more precise answer to the wrong question.
+\end{pitfall}
+
+\section{Standard error and confidence intervals}
+
+Standard deviation describes variation among individual observations. \term{Standard error} describes uncertainty in an estimate. For a sample mean,
+\[
+  \operatorname{SE}(\bar{x})=\frac{s}{\sqrt{n}}.
+\]
+Larger samples reduce standard error, but the improvement follows $1/\sqrt{n}$. To cut standard error in half, we need about four times as much data.
+
+For independent observations from the same distribution with finite variance, the central limit theorem says that sample means become approximately normally distributed as the sample size grows. The approximation may be poor for small samples, very heavy tails, or dependent observations. Under suitable conditions it supports an approximate confidence interval:
+\[
+  \bar{x}\pm z_{1-\alpha/2}\frac{s}{\sqrt{n}}.
+\]
+
+A 95\% confidence procedure produces intervals that contain the true parameter in about 95\% of repeated samples, assuming the method's conditions are satisfied.
+
+\subsection{The bootstrap}
+
+When an estimator has no convenient standard-error formula, the \term{bootstrap} repeatedly samples rows \emph{with replacement} from the observed sample and recalculates the estimator. The resulting distribution describes sensitivity to sampling variation.
+
+\begin{mlsteps}
+  \item Draw $n$ rows with replacement from the $n$ observed rows.
+  \item Recalculate the statistic, such as a median or a difference in model loss.
+  \item Repeat many times and use suitable quantiles as an interval.
+\end{mlsteps}
+
+This ordinary row bootstrap assumes the rows are exchangeable. Time series, groups, repeated measurements, and paired model predictions require a structure-preserving procedure. A bootstrap interval is only as valid as its sampling design.
+
+\section{Probability basics}
+
+A probability lies between 0 and 1. For events $A$ and $B$:
+
+\begin{itemize}
+  \item $P(A)$ is the probability of $A$.
+  \item $P(A\cap B)$ is the probability that both occur.
+  \item $P(A\cup B)$ is the probability that at least one occurs.
+  \item $P(A\given B)$ is the probability of $A$ when $B$ is known.
+\end{itemize}
+
+The multiplication rule is
+\[
+  P(A\cap B)=P(A)P(B\given A).
+\]
+Events are independent when knowing one does not change the probability of the other:
+\[
+  P(A\cap B)=P(A)P(B).
+\]
+
+\section{Bayes' theorem}
+
+Bayes' theorem reverses a conditional probability:
+\[
+  P(A\given B)=\frac{P(B\given A)P(A)}{P(B)}.
+\]
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Prior] $P(A)$: belief before seeing new evidence.
+  \item[Likelihood] $P(B\given A)$: how likely the evidence is if $A$ is true.
+  \item[Posterior] $P(A\given B)$: updated belief after seeing the evidence.
+\end{description}
+
+\begin{workedexample}
+A condition affects 1\% of people. A test detects 90\% of true cases and gives a false positive for 5\% of people without the condition. Then
+\[
+P(+)=0.90(0.01)+0.05(0.99)=0.0585.
+\]
+Therefore,
+\[
+P(\text{condition}\given +)=\frac{0.90(0.01)}{0.0585}\approx0.154.
+\]
+A positive result corresponds to about a 15.4\% chance of the condition, not 90\%, because the condition is rare.
+\end{workedexample}
+
+\begin{keyidea}
+Always consider the base rate. Strong-looking evidence can still lead to a modest posterior probability when the event is rare.
+\end{keyidea}
+
+\section{Random variables and common distributions}
+
+A random variable assigns a number to an uncertain outcome. Its expectation is a probability-weighted average. For a discrete random variable,
+\[
+  \mathbb{E}[X]=\sum_x xP(X=x).
+\]
+
+Common distributions include:
+
+\begin{description}[leftmargin=1.25in,style=nextline]
+  \item[Bernoulli] One binary outcome with probability $p$.
+  \item[Binomial] Number of successes in $n$ independent Bernoulli trials.
+  \item[Categorical] One result from several classes.
+  \item[Poisson] Count of events in a fixed interval under simplifying assumptions.
+  \item[Uniform] All values in a range have equal density, or all finite outcomes have equal probability.
+  \item[Normal] Continuous values concentrated symmetrically around a mean.
+\end{description}
+
+Probability distributions connect directly to loss functions. Gaussian error leads naturally to squared-error regression, while a Bernoulli model leads naturally to binary cross-entropy.
+
+\section{Covariance and correlation}
+\label{sec:correlation}
+
+Covariance describes whether two variables tend to move together:
+\[
+  \operatorname{Cov}(X,Y)=\mathbb{E}[(X-\mu_X)(Y-\mu_Y)].
+\]
+Pearson correlation standardizes covariance:
+\[
+  \rho_{X,Y}=\frac{\operatorname{Cov}(X,Y)}{\sigma_X\sigma_Y}.
+\]
+It lies between $-1$ and $1$ and measures linear association.
+
+\begin{pitfall}
+Correlation does not prove causation. A hidden variable may affect both quantities, the direction may be reversed, or the relationship may result from how the data was selected.
+\end{pitfall}
+
+A correlation near zero also does not rule out a curved or other nonlinear relationship.
+
+\begin{optionaltopic}
+\textbf{Likelihood and maximum likelihood estimation.} Given data $x_1,\ldots,x_n$, the likelihood treats the probability of the observed data as a function of a parameter $\theta$:
+\[
+L(\theta)=\prod_{i=1}^{n}p(x_i\given\theta).
+\]
+Maximum likelihood estimation chooses the parameter that makes the observed data most probable. In practice, we maximize the log-likelihood because it turns a product into a sum:
+\[
+\hat{\theta}_{\mathrm{MLE}}=\argmax_{\theta}\sum_{i=1}^{n}\log p(x_i\given\theta).
+\]
+Many familiar machine-learning losses are negative log-likelihoods.
+\end{optionaltopic}
+
+\begin{optionaltopic}
+\textbf{Hypothesis tests, p-values, and effect size.} A hypothesis test asks whether data would be surprising under a stated null model. A p-value is the probability, assuming the null model, of seeing a result at least as extreme as the observed one. It is not the probability that the null hypothesis is true. Report practical effect size and uncertainty, not only statistical significance.
+\end{optionaltopic}
+
+\begin{optionaltopic}
+\textbf{Entropy, cross-entropy, and KL divergence.} Entropy measures uncertainty in a probability distribution. Cross-entropy measures how well predicted probabilities match true outcomes and is widely used in classification. KL divergence measures how one probability distribution differs from another. These ideas reappear in \chapref{ch:classification} and \chapref{ch:evaluation}.
+\end{optionaltopic}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\section{Scalars, vectors, and matrices}
+
+\begin{description}[leftmargin=1.1in,style=nextline]
+  \item[Scalar] One number, such as temperature $23$.
+  \item[Vector] An ordered list of numbers, such as one house $\bm{x}=[120,3,8]^{\mathsf T}$.
+  \item[Matrix] A rectangular table of numbers, such as a dataset with one row per house and one column per feature.
+\end{description}
+
+For $n$ observations and $p$ features, the design matrix has shape
+\[
+  X\in\mathbb{R}^{n\times p}.
+\]
+The first number is the number of rows; the second is the number of columns.
+
+\begin{workedexample}
+If 500 students are described by age, study hours, attendance, and previous score, then $X$ has shape $500\times4$. One row is a four-number vector describing one student.
+\end{workedexample}
+
+\section{Matrix shapes: the rule that governs everything}
+
+Most linear-algebra errors in machine learning are shape errors. One rule prevents nearly all of them: the inner dimensions must match, and the outer dimensions survive.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\small]
+\fill[MLPaleBlue,draw=MLBlue,rounded corners=1mm] (0,0) rectangle (2.2,1.9);
+\node[font=\bfseries\color{MLNavy}] at (1.1,0.95) {$X$};
+\node[font=\scriptsize\color{MLMuted}] at (1.1,-0.35) {$(n \times p)$};
+\node[font=\Large\color{MLInk}] at (2.75,0.95) {$\times$};
+\fill[MLPaleTeal,draw=MLTeal,rounded corners=1mm] (3.3,0.35) rectangle (4.3,1.55);
+\node[font=\bfseries\color{MLNavy}] at (3.8,0.95) {$\bm{w}$};
+\node[font=\scriptsize\color{MLMuted}] at (3.8,-0.35) {$(p \times 1)$};
+\node[font=\Large\color{MLInk}] at (4.85,0.95) {$=$};
+\fill[MLPaleOrange,draw=MLOrange,rounded corners=1mm] (5.4,0) rectangle (6.1,1.9);
+\node[font=\bfseries\color{MLNavy}] at (5.75,0.95) {$\hat{\bm{y}}$};
+\node[font=\scriptsize\color{MLMuted}] at (5.75,-0.35) {$(n \times 1)$};
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]},thick,MLRed] (1.75,-0.75) -- (3.35,-0.75);
+\node[font=\scriptsize\color{MLRed}] at (2.55,-1.05) {these must match};
+\draw[{Stealth[length=2mm]}-,thick,MLGreen] (0.4,2.25) -- (0.4,2.0);
+\draw[-{Stealth[length=2mm]},thick,MLGreen] (0.4,2.25) -- (5.6,2.25);
+\draw[-{Stealth[length=2mm]},thick,MLGreen] (5.6,2.25) -- (5.6,2.0);
+\node[font=\scriptsize\color{MLGreen}] at (3.0,2.5) {these survive into the answer};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Think of matrices as adaptors. A cable with a $p$-shaped plug fits a socket with a $p$-shaped hole. What comes out the other end has whatever shape that device produces. If the dimensions disagree, the multiplication is not defined.
+\end{analogy}
+
+\section{Vector arithmetic}
+
+Vectors of the same length can be added component by component:
+\[
+\begin{bmatrix}1\\2\end{bmatrix}+
+\begin{bmatrix}3\\4\end{bmatrix}=
+\begin{bmatrix}4\\6\end{bmatrix}.
+\]
+Multiplying by a scalar stretches or reverses a vector:
+\[
+3\begin{bmatrix}1\\2\end{bmatrix}=
+\begin{bmatrix}3\\6\end{bmatrix}.
+\]
+
+\section{Dot products: weighted sums and alignment}
+
+The dot product of two vectors is
+\[
+  \bm{a}^{\mathsf T}\bm{b}=\sum_{j=1}^{p}a_jb_j.
+\]
+It has two useful interpretations.
+
+\begin{enumerate}
+  \item It creates a weighted sum. Linear models use $\bm{w}^{\mathsf T}\bm{x}+b$.
+  \item It measures alignment. A large positive dot product means the vectors point in similar directions; a negative one means they point in opposing directions.
+\end{enumerate}
+
+\begin{workedexample}
+For $\bm{w}=[2,-1]^{\mathsf T}$ and $\bm{x}=[3,4]^{\mathsf T}$,
+\[
+\bm{w}^{\mathsf T}\bm{x}=2(3)+(-1)(4)=2.
+\]
+A linear model with bias $b=0.5$ would predict $2.5$.
+\end{workedexample}
+
+\section{Norms: measuring vector size}
+
+The $L_1$ norm is the sum of absolute values:
+\[
+  \|\bm{x}\|_1=\sum_j|x_j|.
+\]
+The $L_2$ norm is the ordinary straight-line length:
+\[
+  \|\bm{x}\|_2=\sqrt{\sum_jx_j^2}.
+\]
+These norms appear in distance calculations and regularization.
+
+\section{Distance and similarity}
+
+A model often needs to decide whether two observations are close or similar.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.28\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Measure & Formula or idea & Useful when \cr
+\midrule
+Euclidean distance & $\|\bm{x}-\bm{z}\|_2$ & ordinary geometric distance; features are scaled \cr
+Manhattan distance & $\|\bm{x}-\bm{z}\|_1$ & movement along grid-like axes; more robustness to a single large difference \cr
+Cosine similarity & $\frac{\bm{x}^{\mathsf T}\bm{z}}{\|\bm{x}\|_2\|\bm{z}\|_2}$ & direction matters more than magnitude, such as word-count vectors \cr
+Jaccard similarity & overlap divided by union & sets or binary presence/absence features \cr
+Hamming distance & number of unequal positions & binary strings or categorical codes \cr
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Distance-based models can be meaningless when features use very different scales. Standardize or otherwise justify the scale before calculating distances.
+\end{pitfall}
+
+\subsection*{The same two points can look different under different measures}
+
+The course material lists Euclidean, Manhattan, Jaccard, Minkowski, and cosine measures because there is no universal definition of ``close.'' The data representation and the question determine the geometry.
+
+\begin{workedexample}
+For points $P=(1,2)$ and $Q=(4,6)$,
+\[
+ d_2(P,Q)=\sqrt{(4-1)^2+(6-2)^2}=5,
+\]
+while
+\[
+ d_1(P,Q)=|4-1|+|6-2|=7.
+\]
+Euclidean distance measures the straight-line path; Manhattan distance measures the axis-by-axis path.
+\end{workedexample}
+
+The \term{Minkowski distance} unifies both:
+\[
+ d_p(\bm{x},\bm{z})=
+ \left(\sum_j |x_j-z_j|^p\right)^{1/p}.
+\]
+Setting $p=1$ gives Manhattan distance and $p=2$ gives Euclidean distance. Changing $p$ changes which differences matter most, so it is a modeling choice rather than a cosmetic parameter.
+
+\begin{workedexample}
+For sets $A=\{0,1,2,5,6\}$ and $B=\{0,2,3,4,5,7,9\}$, the intersection has three elements and the union has nine. Therefore
+\[
+ J(A,B)=\frac{|A\cap B|}{|A\cup B|}=\frac{3}{9}=0.33.
+\]
+Jaccard similarity ignores shared absences and focuses on overlap among present items, which is why it is natural for sets and sparse binary indicators.
+\end{workedexample}
+
+\begin{keyidea}
+Choose the representation and the distance together. Euclidean distance on one-hot categories, cosine similarity on raw physical measurements, or Jaccard similarity on dense continuous variables may all produce numbers while answering the wrong geometric question.
+\end{keyidea}
+
+\section{Cosine similarity visually}
+
+Cosine similarity depends on the angle $\theta$ between two vectors:
+\[
+  \cos(\theta)=\frac{\bm{x}^{\mathsf T}\bm{z}}{\|\bm{x}\|_2\|\bm{z}\|_2}.
+\]
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=1.05]
+\draw[-{Stealth[length=2.5mm]},thick,MLBlue] (0,0)--(4,1.2) node[right] {$\bm{x}$};
+\draw[-{Stealth[length=2.5mm]},thick,MLTeal] (0,0)--(3,2.7) node[above] {$\bm{z}$};
+\draw[MLOrange,thick] (1.1,0.33) arc[start angle=16.7,end angle=42, radius=1.15];
+\node[MLOrange] at (1.45,0.82) {$\theta$};
+\draw[->,MLMuted] (-0.3,0)--(4.5,0);
+\draw[->,MLMuted] (0,-0.3)--(0,3.2);
+\end{tikzpicture}
+\end{mlfigure}
+
+A cosine similarity near 1 means similar direction, near 0 means roughly perpendicular, and near $-1$ means opposite direction.
+
+\section{Matrices and linear transformations}
+
+A matrix can transform one vector into another:
+\[
+  \bm{y}=A\bm{x}.
+\]
+Depending on its values, $A$ can rotate, stretch, shrink, reflect, or combine coordinates. A linear regression model applies this same idea to many rows at once:
+\[
+  \hat{\bm{y}}=X\bm{\beta}.
+\]
+
+Matrix multiplication is possible when the inner dimensions match. If $A$ is $m\times p$ and $B$ is $p\times k$, then $AB$ is $m\times k$.
+
+\begin{intuition}
+Think of matrix multiplication as a factory line. Each output column is built from weighted combinations of the input columns. The shape tells you whether the machines can connect.
+\end{intuition}
+
+\section{Transpose, identity, and inverse}
+
+The transpose switches rows and columns. If $A$ is $m\times p$, then $A^{\mathsf T}$ is $p\times m$.
+
+The identity matrix $I$ acts like the number 1:
+\[
+  I\bm{x}=\bm{x}.
+\]
+When an inverse exists,
+\[
+  A^{-1}A=I.
+\]
+In practice, machine-learning software usually solves linear systems using stable numerical methods instead of explicitly calculating an inverse.
+
+\section{Gradients: which way changes the loss?}
+
+For a function with several parameters, the gradient collects all partial derivatives:
+\[
+  \nabla_{\bm{\theta}}J=
+  \begin{bmatrix}
+  \frac{\partial J}{\partial\theta_1}\\
+  \vdots\\
+  \frac{\partial J}{\partial\theta_p}
+  \end{bmatrix}.
+\]
+The gradient points toward the fastest increase in $J$. To reduce a loss, gradient descent moves in the opposite direction:
+\[
+  \bm{\theta}\leftarrow\bm{\theta}-\alpha\nabla_{\bm{\theta}}J.
+\]
+
+This chapter needs only the direction: the gradient points uphill, so optimization moves against it. The full gradient-descent intuition, learning-rate cases, and worked example appear once in \secref{sec:gradient-descent}.
+
+\begin{optionaltopic}
+\textbf{Eigenvectors, eigenvalues, and singular value decomposition.} An eigenvector of a square matrix keeps its direction after the matrix transformation, changing only in size. Singular value decomposition factors any matrix into rotations and axis-wise scaling. These ideas power principal component analysis in \chapref{ch:dimred}. On a first reading, understand the purpose: they reveal important directions in data.
+\end{optionaltopic}
+
+\begin{optionaltopic}
+\textbf{The Hessian and curvature.} A Hessian matrix collects second derivatives and describes how the gradient changes. Positive curvature suggests a bowl-like objective; negative curvature suggests a hill-like direction. This is useful for advanced optimization but is not required for the algorithms in this beginner edition.
+\end{optionaltopic}
+
+\begin{keyidea}
+Vectors represent observations and parameters; matrices represent datasets and transformations; dot products create weighted sums; distances compare observations; and gradients tell optimization which direction to move.
+\end{keyidea}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/05-geometry}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item When would the median and IQR describe a distribution more faithfully than the mean and standard deviation?
+  \item If \(X\) has shape \(n\times p\), what shape must a coefficient vector have for \(X\bm{w}\) to produce one prediction per row?
+  \item Why can standardizing features change a nearest-neighbor or clustering result even though the observations themselves did not change?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Center and spread describe a distribution together; samples estimate populations but sampling bias is not repaired by sample size.
+  \item Probability, Bayes' theorem, and correlation provide shared language for uncertainty and association without implying causation.
+  \item A dataset with $n$ rows and $p$ features is an $n\times p$ matrix.
+  \item Dot products are weighted sums and measures of alignment.
+  \item Norms measure size; distances compare observations.
+  \item Feature scale strongly affects distance-based methods.
+  \item The negative gradient gives a local direction for reducing an objective.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,338 @@
+\chapter{Linear Models for Regression}
+\label{ch:regression}
+
+\chapterguide%
+  {\chapref{ch:supervised}, \chapref{ch:training}, and vectors/matrices from \chapref{ch:linear-algebra}.}
+  {Fit and interpret linear regression, compute a small fit by hand, extend the model with polynomial features, control overfitting with ridge/lasso/elastic net, and recognize when a robust, quantile, count, or Tweedie loss better matches the target.}
+
+Stage 3B begins here: the supervised workflow is now fixed, so the remaining chapters change the model family rather than the evaluation rules. Linear regression is one of the oldest and most interpretable supervised algorithms, and it is a valuable baseline for many regression problems. The general training ideas from \chapref{ch:training} now become concrete: regularization, model capacity, and optimization can all be seen directly in a familiar regression model.
+
+\begin{firstread}
+Read linear regression as ``base amount plus contributions.'' A house begins with a base price, then area, bedrooms, age, and location each add or subtract an amount. The coefficients are those per-feature contributions; fitting finds values that make past predictions reasonably close to past answers.
+\end{firstread}
+
+\section{The model}
+
+Linear regression predicts a continuous value using a weighted sum of features:
+\[
+  \hat{y}=\beta_0+\beta_1x_1+\cdots+\beta_{p}x_{p}.
+\]
+The intercept $\beta_0$ is the prediction when every feature equals zero. A coefficient $\beta_j$ describes how the prediction changes when $x_j$ increases by one unit while the other features remain fixed.
+
+\begin{intuition}
+The model is a recipe with adjustable amounts: ``a house's predicted price is a base amount, plus so-much per square meter, plus so-much per bedroom, minus so-much per year of age.'' Training does nothing more than find the amounts that make the recipe's outputs match the known prices as closely as possible.
+\end{intuition}
+
+\section{Least squares: how the line is chosen}
+
+Ordinary least squares (OLS) chooses coefficients that minimize the residual sum of squares:
+\[
+  \min_{\bm{\beta}}
+  \sum_{i=1}^{n}{(y_i-\hat{y}_i)}^2.
+\]
+A \term{residual} $y_i-\hat{y}_i$ is the vertical gap between a data point and the fitted line --- the part of the target the model failed to explain.
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=0.50\linewidth,
+  axis lines=left,
+  xlabel={feature $x$ (e.g.\ floor area)},
+  ylabel={target $y$ (e.g.\ price)},
+  label style={font=\small},
+  ticks=none, xmin=0, xmax=10, ymin=0, ymax=10,
+  clip=false
+]
+\addplot[only marks, mark=*, mark size=1.6pt] coordinates {
+  (1,2.1) (1.8,2.0) (2.5,3.6) (3.2,3.1) (4.0,4.9)
+  (4.6,4.2) (5.4,5.9) (6.1,5.4) (6.9,7.3) (7.6,6.8)
+  (8.3,8.4) (9.0,7.9)
+};
+\addplot[thick, domain=0.4:9.5] {0.8*x + 1.2};
+\draw[dashed] (axis cs:6.9,6.72) -- (axis cs:6.9,7.3)
+  node[above right=1pt, font=\footnotesize, align=left]
+    {residual\\$y_i-\hat{y}_i$};
+\node[font=\footnotesize, anchor=east]
+  at (axis cs:9.5,5.9) {$\hat{y}=\beta_0+\beta_1 x$};
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Imagine each data point pulling on the line with a rubber band whose strength grows with the square of its length. Least squares finds the line where all these pulls balance out --- the line with the smallest total squared vertical gaps.
+\end{intuition}
+
+With a single feature, the best-fitting slope and intercept have simple closed forms:
+\[
+  \hat{\beta}_1
+  =\frac{\sum_{i=1}^{n}(x_i-\bar{x})(y_i-\bar{y})}
+        {\sum_{i=1}^{n}{(x_i-\bar{x})}^2},
+  \qquad
+  \hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}.
+\]
+The slope is the covariance between $x$ and $y$ divided by the variance of $x$ --- ``how much they move together, per unit of how much $x$ moves on its own.'' The intercept then forces the line through the point of means $(\bar{x},\bar{y})$.
+
+\begin{workedexample}
+Fit a line to three points by hand: $(1,2)$, $(2,3)$, $(3,5)$.
+The means are $\bar{x}=2$ and $\bar{y}=10/3$. The deviations from the means are $(-1,0,1)$ for $x$ and $(-\tfrac{4}{3},-\tfrac{1}{3},\tfrac{5}{3})$ for $y$. Then
+\[
+  \hat{\beta}_1
+  =\frac{(-1)(-\tfrac{4}{3})+(0)(-\tfrac{1}{3})+(1)(\tfrac{5}{3})}
+        {{(-1)}^2+0^2+1^2}
+  =\frac{3}{2}=1.5,
+  \qquad
+  \hat{\beta}_0=\tfrac{10}{3}-1.5\times 2=\tfrac{1}{3}\approx 0.33.
+\]
+The fitted line is $\hat{y}=0.33+1.5x$, giving predictions $1.83$, $3.33$, and $4.83$ with residuals $+0.17$, $-0.33$, and $+0.17$. The residuals sum to zero --- a general property of least squares with an intercept.
+\end{workedexample}
+
+\section{Many features: the matrix view}
+
+With the intercept absorbed into a leading column of ones in the design matrix $X\in\mathbb{R}^{n\times(p+1)}$, the objective and its gradient are
+\[
+  J(\bm{\beta})=\frac{1}{n}\|X\bm{\beta}-\bm{y}\|_2^2,
+  \qquad
+  \nabla_{\bm{\beta}}J
+  =\frac{2}{n}X^{\mathsf T}(X\bm{\beta}-\bm{y}).
+\]
+Setting the gradient to zero gives the \term{normal equations} $X^{\mathsf T}X\bm{\beta}=X^{\mathsf T}\bm{y}$, whose solution (when $X^{\mathsf T}X$ is invertible) is
+\[
+  \hat{\bm{\beta}}={(X^{\mathsf T}X)}^{-1}X^{\mathsf T}\bm{y}.
+\]
+Two practical routes reach the same answer: solve a linear system using a stable matrix factorization, or run gradient descent on $J$ (\chapref{ch:training}), which can scale to very large datasets. Forming an explicit inverse is mainly a teaching device; numerical software normally avoids it.
+
+\subsection{Reading the coefficients honestly}
+
+\begin{itemize}
+  \item Coefficients are in the target's units per unit of the feature, so their sizes are not comparable unless the features are standardized first.
+  \item ``Holding the other features fixed'' is a mathematical statement, not a physical one. If floor area and bedroom count always grow together in the data, the model cannot cleanly separate their effects, and the individual coefficients become unstable even when predictions stay good. This is \term{multicollinearity}.
+  \item Coefficients are associations, not causal effects (\secref{sec:correlation}); adding or removing one feature can change the sign of another coefficient.
+\end{itemize}
+
+\subsection{The assumptions, in plain words}
+
+OLS works best when: the relationship is approximately linear in the chosen features; the errors are independent of one another; the error size does not systematically grow or shrink with the prediction; and no feature is an exact combination of others. Violations do not make the model useless --- they make the coefficient interpretations and classical uncertainty estimates unreliable, and they are usually visible in a plot of residuals against predictions.
+
+\section{Reading residuals: the diagnostic that matters most}
+
+Fitting a line is easy. Knowing whether the line was the right idea requires looking at what is left over. A \term{residual} is simply $y - \hat y$: the part the model failed to explain.
+
+\begin{mlfigure}
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.1cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLGreen}}, title={Healthy: a formless cloud},
+  xlabel={Prediction $\hat y$}, ylabel={Residual},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0, xmax=10, ymin=-3, ymax=3
+]
+\addplot[only marks,mark=*,mark size=1.2pt,MLGreen] coordinates {
+(0.6,0.7)(1.2,-0.9)(1.8,0.3)(2.4,-1.4)(3.0,1.1)(3.6,-0.4)(4.2,1.6)(4.8,-1.1)
+(5.4,0.2)(6.0,-1.7)(6.6,1.3)(7.2,-0.6)(7.8,0.9)(8.4,-1.2)(9.0,0.5)(9.5,-0.3)};
+\draw[MLNavy,thick,dashed] (axis cs:0,0) -- (axis cs:10,0);
+\end{axis}
+\end{tikzpicture}
+\hfill
+\begin{tikzpicture}[baseline=(current bounding box.north)]
+\begin{axis}[
+  width=0.46\linewidth, height=4.1cm, axis lines=left,
+  title style={font=\small\bfseries\color{MLRed}}, title={Sick: an obvious curve},
+  xlabel={Prediction $\hat y$}, ylabel={Residual},
+  label style={font=\scriptsize\color{MLMuted}}, tick label style={font=\scriptsize\color{MLMuted}},
+  xmin=0, xmax=10, ymin=-3, ymax=3
+]
+\addplot[only marks,mark=*,mark size=1.2pt,MLRed] coordinates {
+(0.6,2.1)(1.2,1.4)(1.8,0.6)(2.4,0.1)(3.0,-0.6)(3.6,-1.2)(4.2,-1.6)(4.8,-1.9)
+(5.4,-1.8)(6.0,-1.5)(6.6,-1.0)(7.2,-0.3)(7.8,0.5)(8.4,1.3)(9.0,2.0)(9.5,2.5)};
+\draw[MLNavy,thick,dashed] (axis cs:0,0) -- (axis cs:10,0);
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+Residuals should look like structureless noise. Any visible pattern is information the model failed to use. A U-shape means the true relationship curves and you need a polynomial term or a non-linear model. A widening funnel means the errors grow with the prediction, which often calls for predicting $\log y$ instead of $y$.
+\end{keyidea}
+
+\section{Polynomial regression: curves from a linear model}
+
+Linear regression is linear \emph{in the parameters}, not necessarily in the raw inputs. Creating new features such as $x^2$, $x^3$, or $x_1x_2$ and fitting the same machinery yields curved predictions:
+\[
+  \hat{y}=\beta_0+\beta_1x+\beta_2x^2+\cdots+\beta_dx^d.
+\]
+This flexibility is powerful and dangerous in equal measure: the degree $d$ is a capacity dial, and turning it too far produces a curve that chases the noise.
+
+\begin{mlfigure}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=0.52\linewidth,
+  axis lines=left,
+  xlabel={$x$}, ylabel={$y$},
+  ticks=none, xmin=0, xmax=4.5, ymin=-3, ymax=19.5,
+  legend style={draw=none, font=\small, at={(0.03,0.97)}, anchor=north west},
+  clip=true
+]
+\addplot[only marks, mark=*, mark size=1.5pt] coordinates {
+  (0.3,0.35) (0.8,0.45) (1.3,1.95) (1.8,3.0) (2.3,5.6)
+  (2.8,7.5) (3.3,11.3) (3.8,14.0) (4.2,18.1)
+};
+\addplot[thick, dotted, domain=0.1:4.4, samples=60] {4.5*x-3.4};
+\addlegendentry{degree 1: underfits}
+\addplot[thick, domain=0.1:4.4, samples=80] {x^2};
+\addlegendentry{degree 2: captures the trend}
+\addplot[thick, dashed, domain=0.1:4.4, samples=160] {x^2 + 1.1*sin(deg(4.5*x))};
+\addlegendentry{degree 9: chases the noise}
+\end{axis}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+A degree-1 model is a ruler forced through curved data: wrong everywhere in a systematic way. A degree-9 model is a wet noodle that threads through every point, wiggles included --- perfect on the training data and unreliable between and beyond the points. The honest model sits in the middle, and validation data (not training error) is how you find it.
+\end{intuition}
+
+Polynomial features grow quickly --- degree 3 with 10 raw features already creates hundreds of terms --- which raises the next question: how can a model with many features be kept under control?
+
+\section{Ridge regression: shrink everything a little}
+
+\term{Ridge regression} adds an $L_2$ penalty on coefficient size to the least-squares objective. For centered features and target (so the intercept has been removed), its solution is
+\[
+  \hat{\bm{\beta}}_{\mathrm{ridge}}
+  =\argmin_{\bm{\beta}}
+  \|X\bm{\beta}-\bm{y}\|_2^2
+  +\lambda\|\bm{\beta}\|_2^2
+  ={(X^{\mathsf T}X+\lambda I)}^{-1}X^{\mathsf T}\bm{y}.
+\]
+Reading the objective: the first term wants to fit the data, the second term charges rent on large coefficients, and $\lambda\geq 0$ sets the rent. With $\lambda=0$ ridge is ordinary least squares; as $\lambda$ grows, all penalized coefficients shrink smoothly toward zero. For $\lambda>0$, $X^{\mathsf T}X+\lambda I$ is invertible in this centered formulation. In the usual model with an intercept, software normally leaves that intercept unpenalized and reconstructs it from the feature and target means.
+
+\section{Lasso: shrink some coefficients to exactly zero}
+
+\term{Lasso regression} swaps the penalty for an $L_1$ norm:
+\[
+  \hat{\bm{\beta}}_{\mathrm{lasso}}
+  =\argmin_{\bm{\beta}}
+  \|X\bm{\beta}-\bm{y}\|_2^2
+  +\lambda\|\bm{\beta}\|_1.
+\]
+The change looks small but has a striking consequence: as $\lambda$ grows, lasso sets weak coefficients \emph{exactly} to zero, removing those features from the model entirely. Lasso therefore performs automatic feature selection and produces sparse, readable models. Its main caution: among a group of strongly correlated features, lasso tends to keep one and discard the rest somewhat arbitrarily.
+
+\subsection{Why the penalties behave differently}
+
+Minimizing a penalized objective is equivalent to minimizing the data fit subject to a budget on the coefficients. The $L_1$ budget region is a diamond with sharp corners on the axes; the $L_2$ budget region is a smooth disk. The best constrained solution is where the elliptical contours of the least-squares loss first touch the budget region --- and contours naturally strike a diamond at a corner, where some coefficients are exactly zero.
+
+\begin{mlfigure}
+\begin{tikzpicture}[x=0.92cm, y=0.92cm, font=\small]
+% ---- lasso panel ----
+\begin{scope}
+\draw[-{Stealth[length=2mm]}] (-1.5,0) -- (3.6,0) node[below] {$\beta_1$};
+\draw[-{Stealth[length=2mm]}] (0,-1.1) -- (0,2.2);
+\node[left] at (0,1.9) {$\beta_2$};
+\draw[thick, fill=gray!18] (1,0) -- (0,1) -- (-1,0) -- (0,-1) -- cycle;
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (0.52 and 0.25);
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (0.95 and 0.45);
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (1.42 and 0.67);
+\fill (2.1,0.9) circle (1.6pt) node[above right=0pt] {OLS fit};
+\fill (1,0) circle (2pt);
+\node[anchor=north, align=center, font=\footnotesize]
+  at (1,-1.22) {lasso fit: $\beta_2=0$};
+\node[anchor=west] at (0.35,2.65) {$L_1$ budget (diamond)};
+\end{scope}
+% ---- ridge panel ----
+\begin{scope}[xshift=6.0cm]
+\draw[-{Stealth[length=2mm]}] (-1.5,0) -- (3.6,0) node[below] {$\beta_1$};
+\draw[-{Stealth[length=2mm]}] (0,-1.1) -- (0,2.2);
+\node[left] at (0,1.9) {$\beta_2$};
+\draw[thick, fill=gray!18] (0,0) circle (1);
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (0.52 and 0.25);
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (0.95 and 0.45);
+\draw[rotate around={39:(2.1,0.9)}] (2.1,0.9) ellipse (1.35 and 0.64);
+\fill (2.1,0.9) circle (1.6pt) node[above right=0pt] {OLS fit};
+\fill (0.98,0.19) circle (2pt);
+\node[anchor=north, align=center, font=\footnotesize]
+  at (1,-1.22) {ridge fit: both small, neither zero};
+\node[anchor=west] at (0.35,2.65) {$L_2$ budget (disk)};
+\end{scope}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Regularization is like attaching a spring that pulls every coefficient toward zero. The data pulls coefficients toward whatever fits best; the spring pulls back. Ridge uses a soft spring that shrinks everything a little; lasso uses a stiff one that snaps weak coefficients all the way to zero, effectively deleting those features.
+\end{intuition}
+
+\section{Elastic net and practical guidance}
+
+\term{Elastic net} combines both penalties,
+\[
+  \lambda\!\left(
+  \rho\,\|\bm{\beta}\|_1
+  +(1-\rho)\,\|\bm{\beta}\|_2^2
+  \right),
+\]
+gaining lasso's sparsity while sharing weight across correlated features like ridge. The mixing parameter $\rho$ and strength $\lambda$ are both tuned on validation data.
+
+Working habits that apply to every model in this chapter:
+
+\begin{itemize}
+  \item \term{Standardize the features first.} The penalties treat all coefficients equally, which is only fair if the features are on comparable scales. The intercept is normally left unpenalized.
+  \item \term{Tune $\lambda$ with cross-validation} (\chapref{ch:evaluation}), searching over a logarithmic grid such as $10^{-3}$, $10^{-2}$, \ldots, $10^{2}$.
+  \item \term{Default choices:} ridge when most features plausibly matter a little; lasso when you expect only a few to matter and want to know which; elastic net when features come in correlated groups.
+  \item For data with heavy outliers, replacing squared error with a robust alternative such as the \term{Huber loss} --- quadratic for small errors, linear for large ones --- keeps a few extreme points from dominating the fit.
+\end{itemize}
+
+\begin{keyidea}
+Linear regression finds the best weighted-sum predictor; feature transformations let that ``line'' bend; and regularization keeps the added flexibility honest by charging for large coefficients. This trio --- a simple model, richer features, and a complexity penalty tuned on validation data --- is the template that the rest of machine learning elaborates.
+\end{keyidea}
+
+\begin{modelcard}{Linear Regression Family - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+Best when & The target is numerical, a weighted-sum relationship is a useful approximation, and interpretability matters. \cr
+Start with & Ordinary linear regression, residual plots, and a mean/median baseline. \cr
+Preprocessing & Encode categories; standardize before ridge, lasso, or elastic net; inspect skew and outliers. \cr
+Main controls & Polynomial degree, regularization strength $\lambda$, and elastic-net mixing parameter. \cr
+Watch for & Nonlinearity, influential outliers, multicollinearity, leakage, and unsafe extrapolation beyond the training range. \cr
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\section{When ordinary squared error is the wrong target model}
+\label{sec:special-regression-targets}
+
+Ordinary least squares is a strong baseline for a continuous target, but the target's data-generating structure can justify a different loss or distribution. Do not choose these models because they sound advanced; choose them because the outcome and decision make their assumptions useful.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.29\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Target structure & Useful starting point & Main caution \\
+\midrule
+Continuous values with occasional large errors & Robust regression loss & Robustness changes which errors receive the most influence; validate against the real evaluation objective. \\
+Conditional quantiles matter & Quantile regression & Different quantiles answer different questions and should not be interpreted as conditional means. \\
+Non-negative counts & Count-aware generalized linear model & The chosen distributional assumptions must be plausible for the observed mean--variance relationship. \\
+Positive skewed outcomes & Log-scale modeling or an appropriate positive-response model & Back-transformation changes the interpretation of average predictions and errors. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+
+Use the same split and validation discipline from \chapref{ch:evaluation}. A specialized loss is useful only when it improves the metric that represents the real task and its predictions remain plausible.
+
+\input{chapters/kaggle-labs/09-regression}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What does a regression coefficient mean when the other modeled features are held fixed, and why is that not automatically a causal effect?
+  \item How do ridge and lasso change coefficient estimates differently as regularization becomes stronger?
+  \item How can an interaction or polynomial feature let a model remain linear in its parameters while representing a nonlinear relationship in the original inputs?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Linear regression predicts a weighted sum of features.
+  \item Least squares chooses coefficients that minimize squared residuals.
+  \item Polynomial features create curved relationships while the model remains linear in its coefficients.
+  \item Ridge shrinks all coefficients; lasso can set some coefficients to zero; elastic net combines both behaviors.
+  \item Robust, quantile, Poisson, and Tweedie models are useful when the target structure justifies a loss beyond ordinary squared error.
+  \item Validation data should choose feature complexity, regularization strength, and whether a specialized target model actually helps.
+\end{itemize}
+\end{chapterrecap}

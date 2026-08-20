@@ -1,0 +1,488 @@
+\chapter{Understanding and Preparing Data}
+\label{ch:data}
+
+\chapterguide%
+  {\chapsref{ch:orientation}{ch:python}: the workflow, computational vocabulary, and the distinction between features and targets.}
+  {audit and clean a dataset, distinguish deterministic corrections from learned preprocessing, choose a valid split, handle missing and categorical values, prevent leakage, and build a reproducible pipeline.}
+
+Now that the environment and basic library vocabulary are in place, the next job is to make the data trustworthy. A powerful algorithm cannot rescue a badly defined target, incorrect measurements, or an unfair train-test split.
+
+Data preparation is easier when you separate three questions: \emph{What does the data mean? What is demonstrably wrong? What must be learned from examples?} This chapter follows that order. It treats cleaning as a documented reasoning process, not as a collection of commands that make a table look tidy.
+
+\section{Start with a data audit}
+
+Before changing the dataset, answer the following questions.
+
+\begin{mlsteps}
+  \item \term{What does one row represent?} A person, transaction, image, day, machine, or something else?
+  \item \term{What does each column mean?} Record its type, unit, valid range, and source.
+  \item \term{When is the target known?} A feature available only after the outcome occurs creates leakage.
+  \item \term{Which rows are related?} Repeated measurements from one person or device must usually stay in the same split.
+  \item \term{Who or what is missing?} The dataset may not represent the full population where the model will be used.
+\end{mlsteps}
+
+
+\section{A safe order of operations}
+
+The phrase ``clean the data'' hides several different jobs. Their order matters.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.45cm,
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.75cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[box] (meaning) {1. Define meaning\\rows, keys, units, timing};
+\node[box,right=of meaning] (rules) {2. Apply fixed rules\\parse, standardize, validate};
+\node[box,right=of rules] (split) {3. Split honestly\\groups, time, population};
+\node[box,right=of split] (learn) {4. Learn preparation\\from training data only};
+\draw[arr] (meaning)--(rules);
+\draw[arr] (rules)--(split);
+\draw[arr] (split)--(learn);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.32\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Stage & Examples & Why it belongs there \\
+\midrule
+Before the split & Check required columns, parse known date formats, standardize documented units, normalize harmless whitespace, verify keys, and reject impossible values using domain rules. & These rules do not estimate anything from the target or from the distribution of the full dataset. \\
+After the split & Learn medians, means, scales, frequent-category cutoffs, outlier thresholds, target encodings, and any later feature-selection or resampling rules. & These choices depend on observed data and must be fitted on training rows only. \\
+After modeling & Inspect test performance once, document limitations, and monitor future data quality and drift. & The test set remains an honest final check rather than another source of design decisions. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+A correction may happen before the split when it follows a fixed, target-blind rule that would be applied identically to any future row. If a value, cutoff, category grouping, or decision is estimated from the observed data, learn it from training data only.
+\end{keyidea}
+
+\section{Feature and target types}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Type & Example & Typical treatment \cr
+\midrule
+Numerical & age, temperature, income & keep numeric; scale or transform when needed \cr
+Nominal category & country, product type & one-hot encode or use a model that handles categories \cr
+Ordinal category & low, medium, high & encode in the true order, but do not assume equal gaps without reason \cr
+Date or time & purchase date, hour & extract useful parts such as elapsed time, weekday, or season \cr
+Text & review, message & convert to numerical counts or other classical text features \cr
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Targets usually fall into two basic groups:
+
+\begin{itemize}
+  \item A \term{continuous number} suggests regression, such as price or temperature.
+  \item A \term{category} suggests classification, such as fraud/not fraud or animal species.
+\end{itemize}
+
+\section{Clean structural problems before modeling}
+
+Structural cleaning makes the stored values agree with their documented meaning. It should be reproducible: another person using the same raw file and rules should produce the same cleaned file.
+
+\subsection{Confirm row identity and handle duplicates}
+
+
+\begin{mltable}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{\linewidth}{@{}>{\footnotesize\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}>{\footnotesize}p{0.28\linewidth}>{\footnotesize}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries Pattern & \bfseries What it may mean & \bfseries Safe response \\
+\midrule
+Exact repeated row & Accidental repeated import, or a genuinely repeated event with too few identifying columns & Remove only after confirming that repetition has no meaning; record how many rows were removed. \\
+Repeated key & Violation of the row definition, conflicting versions, or an expected one-to-many relationship & Investigate and define a rule: keep the latest version, aggregate, repair the key, or redesign the row definition. \\
+Same person, different visits & Valid repeated measurements & Keep the rows, but use a group-aware split so one person cannot appear on both sides. \\
+Near duplicate & Spelling, rounding, or record-linkage differences & Use an explicit matching rule and review uncertain cases; do not silently fuzzy-match everything. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\subsection{Repair types, labels, dates, and units}
+
+
+Use the following order:
+
+\begin{mlsteps}
+  \item \term{Preserve the raw value.} Keep the source file unchanged and create a cleaned copy or scripted transformation.
+  \item \term{Parse explicitly.} Convert numbers and dates with known rules, and count values that fail to parse.
+  \item \term{Normalize representation.} Trim accidental whitespace, standardize case where case has no meaning, and map documented synonyms to one label.
+  \item \term{Normalize units.} Convert to one stated unit using a known conversion; never mix unit conversion with statistical scaling.
+  \item \term{Validate the result.} Check allowed categories, ranges, key uniqueness, and date order with assertions.
+\end{mlsteps}
+
+
+\subsection{Distinguish impossible values from unusual values}
+
+An \term{impossible value} violates a domain rule: a negative age, a discharge date before admission, or a percentage above 100. A \term{rare value} is surprising but possible: a very large purchase, an old patient, or a sensor spike during a genuine failure. These cases require different actions.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Action & When to use it \\
+\midrule
+Correct & Only when an authoritative source or deterministic rule reveals the true value. \\
+Set missing & When the stored value is known to be invalid but the true value is unknown. Impute later inside the training pipeline if appropriate. \\
+Drop & When the row cannot answer the project question and a documented inclusion rule justifies removal. Report the count and check whether exclusions are concentrated in a group. \\
+Flag & When a suspicious value may still be real. A binary quality flag lets the model or analyst retain that information. \\
+Keep & When a value is valid, even if it is inconvenient. Rare cases may be exactly where a useful model is most needed. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Do not delete or cap values merely because they hurt the model's score. That uses the modeling result to redefine the data and can erase the difficult cases the model will meet after deployment.
+\end{pitfall}
+
+\subsection{Keep a cleaning log}
+
+For every rule, record the reason, affected columns, number of changed rows, and whether values were corrected, marked missing, excluded, or flagged. Retain row identifiers so changes can be traced without exposing them as model features. A short log makes mistakes reversible and lets future readers distinguish raw facts from project decisions.
+
+\section{Training, validation, and test sets}
+\label{sec:data-splits}
+
+\begin{mlfigure}
+\begin{tikzpicture}[x=0.093\linewidth,font=\small]
+  \draw[fill=MLBlue!28,draw=MLBlue] (0,0) rectangle (6.5,0.85);
+  \draw[fill=MLTeal!22,draw=MLTeal] (6.5,0) rectangle (8.3,0.85);
+  \draw[fill=MLOrange!22,draw=MLOrange] (8.3,0) rectangle (10,0.85);
+  \node[align=center] at (3.25,0.425) {Training\\learn parameters};
+  \node[align=center,font=\footnotesize] at (7.4,0.425) {Validation\\choose settings};
+  \node[align=center,font=\footnotesize] at (9.15,0.425) {Test\\final check};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Training set] Used to fit model parameters and data-dependent preprocessing steps.
+  \item[Validation set] Used to compare models, thresholds, and hyperparameters.
+  \item[Test set] Used only for the final estimate after all choices are complete.
+\end{description}
+
+Common proportions include 60--80\% for training and the remainder divided between validation and test. The best proportions depend on dataset size; the logic of the separation matters more than a fixed percentage.
+
+\section{Choose a split that imitates the future}
+
+A random split is useful only when future rows are independent and drawn in the same way.
+
+\begin{description}[leftmargin=1.35in,style=nextline]
+  \item[Stratified split] Keeps class proportions similar across subsets.
+  \item[Group split] Keeps all rows from one person, device, school, or customer in one subset.
+  \item[Time split] Trains on the past and evaluates on later periods.
+  \item[Spatial split] Separates locations when nearby observations are strongly related.
+\end{description}
+
+\begin{workedexample}
+A medical dataset has five visits for every patient. Splitting rows randomly may place the same patient in both training and test data. The model can partly recognize that patient instead of learning a rule that works for new patients. A group split by patient is more honest.
+\end{workedexample}
+
+\begin{pitfall}
+The split is part of the model design. A high score from an unrealistic split is not evidence that the model will work in practice.
+\end{pitfall}
+
+\section{Data leakage}
+\label{sec:data-leakage}
+
+\term{Data leakage} occurs when information that would not be available at prediction time influences training. Leakage can enter through features, preprocessing, later model-selection steps such as feature selection, or the split itself.
+
+Examples include:
+
+\begin{itemize}
+  \item predicting hospital readmission using a field recorded after discharge;
+  \item calculating the mean for standardization using the entire dataset;
+  \item selecting features using test-set performance;
+  \item placing near-duplicate rows in both training and test data;
+  \item using future values to predict an earlier point in time;
+  \item including an identifier or proxy that effectively reveals the target, such as a claim-resolution code when predicting whether a claim will be approved.
+\end{itemize}
+
+The safe rule is simple: fit every data-dependent choice on training data only, then apply the learned transformation unchanged to validation and test data.
+
+\section{Leakage, drawn}
+
+Leakage is abstract until you see the order of operations. The only difference between the two pictures below is \emph{when} the split happens -- and that difference is the single most common cause of a model that looks excellent in testing and fails in reality.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.35cm and 0.5cm,
+  ok/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=2.85cm,minimum height=0.78cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  bad/.style={draw=MLRed,fill=MLPaleRed,rounded corners=1.5mm,minimum width=2.85cm,minimum height=0.78cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=MLTeal},
+  barr/.style={-{Stealth[length=1.9mm]},thick,draw=MLRed},
+  tag/.style={font=\scriptsize\bfseries,align=left}
+]
+\node[tag,color=MLRed] (t1) {WRONG};
+\node[bad,right=0.35cm of t1] (w1) {Load all data};
+\node[bad,right=of w1] (w2) {Fit prep on all data};
+\node[bad,right=of w2] (w3) {Split};
+\node[bad,right=of w3] (w4) {Train, test, celebrate};
+\draw[barr] (w1)--(w2); \draw[barr] (w2)--(w3); \draw[barr] (w3)--(w4);
+\node[font=\scriptsize\itshape\color{MLRed},below=0.12cm of w2] {test rows influenced the scaler};
+
+\node[tag,color=MLGreen,below=1.35cm of t1] (t2) {RIGHT};
+\node[ok,right=0.35cm of t2] (r1) {Load all data};
+\node[ok,right=of r1] (r2) {Split first};
+\node[ok,right=of r2] (r3) {Fit prep on training only};
+\node[ok,right=of r3] (r4) {Transform test, then evaluate};
+\draw[arr] (r1)--(r2); \draw[arr] (r2)--(r3); \draw[arr] (r3)--(r4);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Leakage is revising for an exam using a copy of the actual exam paper. Your practice score will be superb and completely meaningless, because the score no longer measures what it claims to measure.
+\end{analogy}
+
+\section{Missing values: meaning and strategy}
+
+Missing values do not all mean the same thing. A value may be missing because it was not measured, not applicable, too expensive to collect, or related to the outcome itself.
+
+A practical process is:
+
+\begin{mlsteps}
+  \item Measure how much is missing in each feature and group.
+  \item Investigate why it is missing and whether the pattern carries information.
+  \item Choose a treatment under the information boundary in \secref{sec:data-leakage}.
+  \item Add a missing-value indicator when the fact that a value is missing may matter.
+  \item Check whether the treatment changes important distributions.
+\end{mlsteps}
+
+Common treatments are median imputation for numerical features, a dedicated ``missing'' category for categorical features, and model-based imputation when simple methods are not sufficient.
+
+The labels \term{MCAR}, \term{MAR}, and \term{MNAR} describe increasingly demanding assumptions about why values are missing. They are useful vocabulary, but they are not diagnoses that can be read directly from a table. For a first project, record plausible causes, compare missingness across relevant groups, preserve informative indicators, and test the consequences of reasonable treatments.
+
+\section{Encoding categorical features}
+
+Most algorithms need numerical inputs. The encoding must preserve the meaning of the category.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Encoding method & How it works \\
+\midrule
+One-hot encoding & Creates one binary column per category. It is a safe default for nominal features with a manageable number of values. \\
+Ordinal encoding & Uses ordered numbers only when the categories truly have an order. \\
+Frequency encoding & Replaces a category with how often it appears in training data. \\
+Target encoding & Uses target statistics; apply the leakage rule from \secref{sec:data-leakage}. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+A production pipeline should also know what to do with a category that did not appear during training. Mapping it to an ``unknown'' value is usually safer than causing an error.
+
+\section{Scaling and transforming numerical features}
+\label{sec:scaling}
+
+Scaling changes the measuring stick of a numerical feature without changing which row is larger or smaller. This matters whenever the algorithm uses distances, margins, coefficient penalties, or gradient steps. A feature measured in thousands can otherwise dominate another feature measured in single digits simply because of its units.
+
+The three course scalers answer three different questions:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}p{0.29\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Transformation & Best first use \\
+\midrule
+Standard scaling & $z=(x-\mu)/\sigma$ & General default for SVM, $k$-NN, clustering, and regularized linear models when mean and standard deviation are meaningful. \\
+Min--max scaling & $x'=(x-x_{\min})/(x_{\max}-x_{\min})$ & Put a feature into $[0,1]$ when a bounded range is convenient and extreme values are not dominating the observed range. \\
+Robust scaling & $x'=(x-\operatorname{median}(x))/\operatorname{IQR}(x)$ & Data with strong outliers, because the median and interquartile range are less affected by extreme observations. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+A fitted scaler is data-dependent preprocessing, so its information boundary is exactly the one defined in \secref{sec:data-leakage}.
+
+\begin{workedexample}
+Suppose a video-view feature contains $[2400,36,23075,70,1,905]$. Min--max scaling forces the smallest observed value to 0 and the largest to 1, so the extreme 23,075-view video stretches the entire range. Robust scaling instead centers on the median and divides by the middle 50\% spread, so that one extreme view count has much less influence on the scale. The choice is not ``which formula is best?'' but ``which reference scale matches the geometry I want the model to use?''
+\end{workedexample}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.27\linewidth}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model family & Scale-sensitive? & Why \\
+\midrule
+$k$-NN, $K$-means, DBSCAN & Usually yes & Their neighborhoods or clusters are defined by distance. \\
+SVM / SVR & Usually yes & Margin and kernel distances depend directly on feature magnitude. \\
+Ridge, lasso, elastic net, logistic regression & Usually yes & The penalty compares coefficient sizes across features; unequal units distort that comparison. \\
+Decision trees and tree ensembles & Usually no & Splits depend on ordering and thresholds, which monotonic rescaling preserves. \\
+Naive Bayes & Depends on variant & Scaling may change numerical conditioning but is not a universal requirement; match preprocessing to the distributional assumption. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Other useful transformations include $\log(1+x)$ for positive variables with a long right tail and power transforms for severe skewness. These are not interchangeable with scaling: a log transform changes the shape of the distribution, while a scaler mainly changes units and location.
+
+\begin{intuition}
+Suppose one feature is age from 10 to 80 and another is annual income from 20,000 to 300,000. A Euclidean distance may be dominated by income simply because its numbers are larger. Scaling puts the features on comparable measuring sticks; it does not make an unimportant feature important or repair a bad definition of distance.
+\end{intuition}
+
+% === VISUAL ADDITION: scaling-geometry ===
+\subsection{Scaling changes the geometry, drawn}
+
+Distance-based models do not know that one column is measured in years and another in dollars. They only see numerical gaps. Scaling changes those gaps into comparable units.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize]
+\begin{scope}
+  \fill[MLPaleRed!30,rounded corners=1mm] (0,0) rectangle (6.25,3.45);
+  \draw[rounded corners=1mm,draw=MLRed!45] (0,0) rectangle (6.25,3.45);
+  \node[font=\small\bfseries\color{MLNavy}] at (3.125,3.05) {Before scaling};
+
+  \node[anchor=west,text=MLMuted] at (0.35,2.30) {age gap};
+  \draw[MLBlue,line width=5pt] (2.05,2.30) -- (2.85,2.30);
+  \node[anchor=west,text=MLBlue] at (3.07,2.30) {$10$ years};
+
+  \node[anchor=west,text=MLMuted] at (0.35,1.48) {income gap};
+  \draw[MLOrange,line width=5pt] (2.05,1.48) -- (5.50,1.48);
+  \node[anchor=east,text=MLOrange] at (5.75,1.80) {$40{,}000$ dollars};
+
+  \node[align=center,text width=5.35cm,text=MLRed] at (3.125,0.55)
+    {Raw Euclidean distance is almost entirely the income column.};
+\end{scope}
+
+\begin{scope}[xshift=6.75cm]
+  \fill[MLPaleTeal!45,rounded corners=1mm] (0,0) rectangle (6.25,3.45);
+  \draw[rounded corners=1mm,draw=MLTeal!55] (0,0) rectangle (6.25,3.45);
+  \node[font=\small\bfseries\color{MLNavy}] at (3.125,3.05) {After standardization};
+
+  \node[anchor=west,text=MLMuted] at (0.35,2.30) {age gap};
+  \draw[MLBlue,line width=5pt] (2.05,2.30) -- (4.50,2.30);
+  \node[anchor=west,text=MLBlue] at (4.72,2.30) {$0.50$ SD};
+
+  \node[anchor=west,text=MLMuted] at (0.35,1.48) {income gap};
+  \draw[MLTeal,line width=5pt] (2.05,1.48) -- (4.01,1.48);
+  \node[anchor=west,text=MLTeal] at (4.23,1.48) {$0.40$ SD};
+
+  \node[align=center,text width=5.35cm,text=MLGreen] at (3.125,0.55)
+    {Both features now contribute on comparable measuring sticks.};
+\end{scope}
+
+\node[align=center,text width=12.5cm,font=\scriptsize\bfseries\color{MLNavy}] at (6.50,-0.48)
+  {Same observations; different geometry. Scaling changes distance, not the ordering within a feature.};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+For a distance-based method, changing units can change who counts as ``near.'' That is why scaling can change a $k$-NN, SVM, or clustering result even though no row and no label changed.
+\end{keyidea}
+% === END VISUAL ADDITION ===
+
+\section{Outliers, imbalance, and rare cases}
+
+After impossible values and unit mistakes have been handled, an outlier may still be a valid rare event or evidence that several populations are mixed together. Investigate before deleting it. Data-driven rules such as percentile clipping or an interquartile-range cutoff must be learned from training data, because the cutoff depends on the observed distribution.
+
+For class imbalance, the important job in this chapter is to \emph{notice it and preserve it}. Record the class counts, use stratification when a random holdout is appropriate, and do not delete rare positive cases merely to make the table look balanced.
+
+\begin{keyidea}
+Do not choose an imbalance ``fix'' before you know how the model will be evaluated. \chapref{ch:evaluation} develops precision, recall, precision--recall curves, thresholds, and ranking metrics. \chapref{ch:training} then sets the safe imbalance policy; SMOTE is introduced with the other imbalance interventions in \chapref{ch:training}; its nearest-neighbor geometry becomes clearer after \chapref{ch:knn-nb}.
+\end{keyidea}
+
+\section{Feature engineering}
+
+\term{Feature engineering} creates useful inputs from raw data. Examples include:
+
+\begin{itemize}
+  \item price per unit, body-mass index, or another meaningful ratio;
+  \item elapsed time between two dates;
+  \item weekday, month, or cyclical time features;
+  \item interactions such as area multiplied by location score;
+  \item counts or averages from past behavior, calculated without using the future.
+\end{itemize}
+
+
+\subsection*{Feature engineering by data type}
+Feature engineering depends on the structure of the information. Do not apply every transformation to every problem; choose transformations that preserve meaning and respect the prediction-time information boundary.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Data type & Common transformation ideas & Main safety question \\
+\midrule
+Categorical & One-hot or ordinal encodings; grouped rare categories & Is the representation appropriate for nominal versus ordered values, and was any learned mapping fitted on training data only? \\
+Numeric & Log, power, ratio, interaction, polynomial, or scaling transformations & Does the transformation preserve units and meaning, and were fitted quantities learned without using validation or test rows? \\
+Temporal & Lags, elapsed time, rolling summaries, seasonal indicators & Was every input genuinely available at the prediction moment? \\
+Text or images & Counts, embeddings, handcrafted descriptors, or learned representations & Does the representation preserve task-relevant structure without leaking label or future information? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\subsection{A safety test for engineered features}
+Before adding a derived column, ask two questions: \emph{what information does it use?} and \emph{when is that information available?} The answer determines where the transformation belongs.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.38\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Feature type & Example & Safe treatment \\
+\midrule
+Deterministic & BMI from documented height and weight; extracting hour from a timestamp & May be computed reproducibly wherever the required raw fields are legitimately available. \\
+Distribution-fitted & Power transform, frequency encoding, clipping threshold, learned category grouping & Fit from training rows only, normally inside a pipeline. \\
+Target-aware & Target encoding, supervised feature selection, a category merge chosen because it separates labels & Fit inside training folds; never compute from the complete labeled table before validation. Supervised selection is treated as a leakage-sensitive model-development step in \chapref{ch:training}. \\
+Temporal aggregate & Lag, rolling mean, previous-week count & Use observations available by the prediction moment only; never back-fill a missing past feature with a future value. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Use a preprocessing pipeline}
+\label{sec:preprocessing-pipeline}
+
+A pipeline stores the exact order of transformations. It learns imputation values, category mappings, and scaling values from training data, then applies those same learned values everywhere else. Later, the same container also keeps supervised feature-selection and resampling steps inside model selection (\chapref{ch:training}).
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.35cm,
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum height=0.76cm,inner xsep=5pt,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[box,minimum width=1.8cm] (raw) {Raw data};
+\node[box,right=of raw,minimum width=3.5cm] (check) {Fixed schema and quality rules};
+\node[box,right=of check,minimum width=2.1cm] (split) {Honest split};
+\node[box,right=of split,minimum width=3.4cm] (prep) {Train-fitted preprocessing};
+\node[box,right=of prep,minimum width=1.8cm] (model) {Fit model};
+\draw[arr] (raw)--(check); \draw[arr] (check)--(split); \draw[arr] (split)--(prep); \draw[arr] (prep)--(model);
+\end{tikzpicture}
+\end{mlfigure}
+
+Document the data source, collection period, row definition, feature units, target timing, inclusion rules, split logic, random seed, known bias, and privacy limits.
+
+\begin{keyidea}
+Prepare the training data first, learn every transformation from it, and reuse those fitted transformations unchanged on validation, test, and future production data.
+\end{keyidea}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\section{The whole preparation as one object}
+
+
+\begin{keyidea}
+The pipeline is the unit you fit and later evaluate. The median age, scaling values, and category vocabulary are learned from the training rows and then reused unchanged on the holdout. Do not interpret or tune from the holdout yet; \chapref{ch:evaluation} introduces the metrics and shows that the same pipeline is refitted separately inside every cross-validation training fold. This is why a pipeline is more than convenient syntax: it enforces the information boundary.
+\end{keyidea}
+
+\begin{debugtask}
+A teammate computes median values, standardization statistics, and a target encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
+\end{debugtask}
+
+\input{chapters/kaggle-labs/03-data-preparation}
+
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A data audit begins with the meaning of rows, columns, units, timing, and missing populations.
+  \item Fixed, target-blind schema corrections can precede the split; quantities learned from observed data belong inside training.
+  \item Duplicates, invalid values, rare values, and missing values are different problems and should not be handled by one automatic deletion rule.
+  \item The holdout must imitate future use and respect groups, time, or location when necessary.
+  \item Leakage occurs when unavailable or held-out information influences features, preprocessing, or model-development choices.
+  \item Missing-value handling, encoding, scaling, and distribution-fitted feature engineering must learn from training data only.
+  \item A preprocessing pipeline keeps the preparation rule attached to the model and ready for honest evaluation in \chapref{ch:evaluation}.
+\end{itemize}
+\end{chapterrecap}

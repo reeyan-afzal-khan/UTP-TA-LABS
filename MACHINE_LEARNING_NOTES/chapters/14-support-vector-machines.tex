@@ -1,0 +1,293 @@
+\chapter{Support Vector Machines and Supervised Synthesis}
+\label{ch:svm}
+
+\chapterguide%
+  {Linear classifiers from \chapref{ch:classification}, model-capacity ideas from \chapref{ch:training}, and dot products/norms from \chapref{ch:linear-algebra}.}
+  {Explain the maximum-margin idea, read the hard- and soft-margin objectives, use the kernel trick to draw curved boundaries, compare the full supervised toolkit, and decide when an SVM is a sensible candidate relative to the other supervised model families.}
+
+\chapref{ch:classification} ended with an open question: when many straight lines separate the classes, which one should a classifier choose? The support vector machine (SVM) gives an influential answer: choose the line with the \emph{widest margin} --- the one that stays as far as possible from the nearest points of both classes. Points on or inside that margin are the \term{support vectors}, and they determine the boundary.
+
+\begin{firstread}
+Core path: keep the margin picture, then learn soft margins, $C$, kernels, and $\gamma$. The practical goal is to know when an SVM is a sensible comparison model and why scaling matters.
+\end{firstread}
+
+\section{The widest street}
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=0.85, font=\small]
+% class + (filled)
+\foreach \p in {(1,1),(2,1.2),(1,2.6),(0.8,1.8),(2.4,0.8)}
+  \fill \p circle (2.4pt);
+% class - (open)
+\foreach \p in {(4,4),(5,3.5),(3.6,4.9),(4.6,4.7),(5.2,2.9)}
+  \draw[thick, fill=gray!30] \p circle (2.4pt);
+% support vectors
+\fill (1.5,2.5) circle (2.4pt);
+\draw[thick, fill=gray!30] (2.5,3.5) circle (2.4pt);
+\draw[thick, fill=gray!30] (4,2) circle (2.4pt);
+\draw (1.5,2.5) circle (5.5pt);
+\draw (2.5,3.5) circle (5.5pt);
+\draw (4,2) circle (5.5pt);
+% lines
+\draw[thick] (0,5) -- (5,0)
+  node[pos=0.06, right=2pt] {$\bm{w}^{\mathsf T}\bm{x}+b=0$};
+\draw[dashed] (0,4) -- (4,0);
+\draw[dashed] (0,6) -- (6,0);
+% margin arrow
+\draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick]
+  (3.1,0.9) -- (4.1,1.9) node[midway, below right=-1pt] {margin};
+\node[align=left] at (5.35,5.3) {circled points =\\support vectors};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+Imagine the boundary as the center line of a street between two crowds. The SVM builds the \emph{widest possible street} that touches neither crowd; the people leaning against the curbs are the support vectors. Everyone standing far back could go home --- removing them would not move the street at all.
+\end{intuition}
+
+\section{The hard-margin objective}
+
+With labels $y_i\in\{-1,+1\}$, a linear SVM scores points with $\bm{w}^{\mathsf T}\bm{x}+b$ and requires every training point to sit on its correct side with room to spare:
+\[
+  \min_{\bm{w},b}\ \frac{1}{2}\|\bm{w}\|_2^2
+  \quad\text{subject to}\quad
+  y_i(\bm{w}^{\mathsf T}\bm{x}_i+b)\geq 1 .
+\]
+Decoding the pieces: the constraint $y_i(\bm{w}^{\mathsf T}\bm{x}_i+b)\geq 1$ says ``the score has the right sign, and its size is at least 1'' --- points exactly at 1 lie on the dashed margin lines. Geometrically, the distance between the two dashed lines works out to $2/\|\bm{w}\|_2$, so \emph{minimizing} $\|\bm{w}\|$ is exactly \emph{maximizing} the margin; squaring and halving just make the calculus tidy.
+
+\section{The soft margin: allowing exceptions}
+
+Real classes overlap, so the SVM used in practice permits violations and charges for them:
+\[
+  \min_{\bm{w},b}\
+  \frac{1}{2}\|\bm{w}\|_2^2
+  +C\sum_{i=1}^{n}
+  \max\!\left(0,\,1-y_i(\bm{w}^{\mathsf T}\bm{x}_i+b)\right).
+\]
+The second term is the \term{hinge loss}: zero for points comfortably beyond the margin, growing linearly for points inside it or on the wrong side. The hyperparameter $C$ sets the exchange rate between a wide street and few violations:
+
+\begin{itemize}
+  \item \term{Large $C$}: violations are expensive, so the boundary contorts to classify nearly everything correctly --- narrow margin, higher risk of overfitting.
+  \item \term{Small $C$}: violations are cheap, so the model keeps a wide, calm margin and tolerates some training errors --- stronger regularization.
+\end{itemize}
+
+Written as ``hinge loss plus an $L_2$ penalty,'' the soft-margin SVM lines up neatly beside regularized logistic regression, which is ``cross-entropy loss plus an $L_2$ penalty'': same skeleton, different loss. The hinge loss stops caring once a point clears the margin, which is why only the support vectors matter; cross-entropy keeps rewarding extra confidence forever, which is why logistic regression uses every point.
+
+\section{Curved boundaries: mapping up}
+
+Some datasets cannot be separated by any straight line --- but they can be after the features are transformed.
+
+\begin{workedexample}
+On a number line, let $x\in\{-2,2\}$ be class A and $x\in\{-1,0,1\}$ be class B. No single threshold on $x$ separates A from B (A sits on \emph{both} sides). Now map each point upward to two features, $\phi(x)=(x,\,x^2)$:
+\begin{mltable}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+$x$ & $-2$ & $-1$ & $0$ & $1$ & $2$ \\
+\midrule
+$x^2$ & $4$ & $1$ & $0$ & $1$ & $4$ \\
+class & A & B & B & B & A \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+In the new $(x,x^2)$ plane, class A floats at height 4 and class B sits at height $\leq 1$: the horizontal line $x^2=2.5$ separates them perfectly. A linear boundary in the mapped space is a \emph{curved} boundary (here, $|x|=\sqrt{2.5}$) in the original space.
+\end{workedexample}
+
+\section{The kernel trick}
+
+Explicitly building rich feature maps gets expensive fast --- and, for the most useful maps, impossible (they are infinite-dimensional). The escape hatch is that the SVM's training and prediction equations can be rearranged to use the data \emph{only through inner products} $\phi(\bm{x})^{\mathsf T}\phi(\bm{x}')$. A \term{kernel function} computes that inner product directly from the original inputs,
+\[
+  k(\bm{x},\bm{x}')=\phi(\bm{x})^{\mathsf T}\phi(\bm{x}'),
+\]
+so the mapped features never need to be constructed at all --- this shortcut is the \term{kernel trick}. Standard choices:
+
+\begin{mltable}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Kernel & Formula & Boundary it produces \\
+\midrule
+Linear & $\bm{x}^{\mathsf T}\bm{x}'$ & Straight; fast on huge, sparse data \\
+Polynomial & ${(\gamma\,\bm{x}^{\mathsf T}\bm{x}'+r)}^d$ & Curved, degree-$d$ interactions \\
+RBF (Gaussian) & $\exp\!\left(-\gamma\|\bm{x}-\bm{x}'\|_2^2\right)$ & Smooth, local, very flexible \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+The \term{RBF kernel} is the default: it reads as ``similarity that decays with distance,'' and its $\gamma$ sets how fast. Small $\gamma$ means every support vector influences a wide area (smooth boundary, may underfit); large $\gamma$ means influence is a tight bubble around each point (wiggly boundary, may overfit). In practice, $C$ and $\gamma$ are tuned \emph{together} on a logarithmic grid --- they interact strongly.
+
+\begin{intuition}
+An RBF-kernel SVM predicts like a panel of landmarks: each support vector shouts its own class with a volume that fades with distance ($\gamma$ is how fast the shout fades), and a new point goes to whichever side shouts louder where it stands. The kernel trick is the accounting identity that lets this infinitely-rich comparison be computed with one cheap formula per pair of points.
+\end{intuition}
+
+% === VISUAL ADDITION: svm-linear-vs-rbf ===
+\subsection{Linear versus RBF boundaries, drawn}
+
+The kernel changes the \emph{shape} of boundary the SVM is allowed to use. The same data can therefore be impossible for a linear SVM and easy for an RBF SVM.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize]
+\begin{scope}
+  \draw[draw=MLMuted!70,fill=white] (0,0) rectangle (4.7,3.8);
+  \node[font=\small\bfseries\color{MLNavy}] at (2.35,4.2) {Linear kernel};
+  \foreach \p in {(2.0,1.7),(2.4,1.9),(2.1,2.3),(2.7,2.2),(2.55,1.55)}
+    \fill[MLBlue] \p circle (2.6pt);
+  \foreach \p in {(0.65,0.65),(1.0,3.05),(3.75,0.7),(4.0,3.0),(0.55,2.0),(4.15,1.85)}
+    \draw[MLOrange,very thick] \p circle (2.9pt);
+  \draw[MLNavy,very thick] (0.35,2.9) -- (4.35,0.85);
+  \node[align=center,text=MLRed] at (2.35,-0.48)
+    {one straight line cannot\\put the center in its own class};
+\end{scope}
+
+\begin{scope}[xshift=6.0cm]
+  \draw[draw=MLMuted!70,fill=white] (0,0) rectangle (4.7,3.8);
+  \node[font=\small\bfseries\color{MLNavy}] at (2.35,4.2) {RBF kernel};
+  \foreach \p in {(2.0,1.7),(2.4,1.9),(2.1,2.3),(2.7,2.2),(2.55,1.55)}
+    \fill[MLBlue] \p circle (2.6pt);
+  \foreach \p in {(0.65,0.65),(1.0,3.05),(3.75,0.7),(4.0,3.0),(0.55,2.0),(4.15,1.85)}
+    \draw[MLOrange,very thick] \p circle (2.9pt);
+  \draw[MLTeal,very thick] (2.35,1.95) ellipse (1.15 and 0.92);
+  \node[align=center,text=MLGreen] at (2.35,-0.48)
+    {a smooth curved boundary\\can isolate the local region};
+\end{scope}
+
+\node[font=\scriptsize\color{MLBlue}] at (4.9,4.18) {$\bullet$ class A};
+\node[font=\scriptsize\color{MLOrange}] at (6.65,4.18) {$\circ$ class B};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+A kernel does not ``bend'' a trained straight line afterward. It changes the similarity representation used while fitting, which lets a linear separator in that representation correspond to a curved boundary in the original feature space.
+\end{keyidea}
+% === END VISUAL ADDITION ===
+
+\section{What $C$ and $\gamma$ actually do}
+\label{sec:svm-controls}
+
+An SVM has two dials, and beginners routinely turn them without knowing which way is which.
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=0.82, every node/.style={font=\scriptsize}]
+\begin{scope}
+\draw[draw=MLMuted,fill=white] (0,0) rectangle (3.5,2.8);
+\draw[MLNavy,very thick] (0.3,0.2) -- (3.2,2.6);
+\draw[MLNavy,dashed] (0.05,0.75) -- (2.7,2.95);
+\draw[MLNavy,dashed] (0.75,-0.15) -- (3.5,2.15);
+\fill[MLBlue!12] (0.05,0.75) -- (2.7,2.95) -- (3.5,2.15) -- (0.75,-0.15) -- cycle;
+\draw[MLNavy,very thick] (0.3,0.2) -- (3.2,2.6);
+\foreach \p in {(0.5,1.9),(1.0,2.4),(0.35,1.35),(1.5,2.65)} \fill[MLBlue] \p circle (2.2pt);
+\foreach \p in {(2.4,0.5),(2.9,1.0),(3.2,0.4),(1.9,0.25)} \fill[MLOrange] \p circle (2.2pt);
+\fill[MLOrange] (1.65,1.6) circle (2.2pt);
+\node[font=\small\bfseries\color{MLNavy}] at (1.75,3.15) {small $C$: wide street};
+\node[color=MLMuted,align=center] at (1.75,-0.55) {tolerates the stray point\\simpler, may underfit};
+\end{scope}
+\begin{scope}[xshift=4.6cm]
+\draw[draw=MLMuted,fill=white] (0,0) rectangle (3.5,2.8);
+\fill[MLRed!10] (0.35,0.95) -- (2.15,2.9) -- (2.6,2.5) -- (0.8,0.55) -- cycle;
+\draw[MLRed,very thick,rounded corners=2pt] (0.2,0.5) -- (1.2,1.3) -- (1.45,1.85) -- (2.0,2.2) -- (2.6,2.8);
+\foreach \p in {(0.5,1.9),(1.0,2.4),(0.35,1.35),(1.5,2.65)} \fill[MLBlue] \p circle (2.2pt);
+\foreach \p in {(2.4,0.5),(2.9,1.0),(3.2,0.4),(1.9,0.25)} \fill[MLOrange] \p circle (2.2pt);
+\fill[MLOrange] (1.65,1.6) circle (2.2pt);
+\draw[MLRed,very thick] (1.4,1.45) circle (0.32);
+\node[font=\small\bfseries\color{MLNavy}] at (1.75,3.15) {large $C$: narrow street};
+\node[color=MLMuted,align=center] at (1.75,-0.55) {bends to capture it\\complex, may overfit};
+\end{scope}
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}p{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Dial & \normalfont\bfseries\leavevmode\color{MLNavy}Plain meaning & \normalfont\bfseries\leavevmode\color{MLNavy}Turn it up when \\
+\midrule
+$C$ & How badly you want to avoid mistakes on the training data & The model underfits; the boundary is too simple \\
+$\gamma$ & How far a single training point's influence reaches & The boundary needs to be more local and wiggly \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{analogy}
+$C$ is a strictness setting for a teacher marking homework. A low $C$ teacher accepts that a few students will get things wrong and teaches a general rule. A high $C$ teacher insists that every single student's answer be accommodated, and ends up teaching a rule so contorted that nobody can apply it to a new question.
+
+$\gamma$ is the radius of each training point's voice. Low $\gamma$ means every point is heard across the whole room, producing a smooth global boundary. High $\gamma$ means each point is only heard by its immediate neighbors, producing islands around individual examples.
+\end{analogy}
+
+
+\section{Multiclass SVMs and support vector regression}
+
+The SVM is natively binary. Multiclass problems are handled by reduction: \term{one-vs-rest} trains $K$ machines (each class against all others), while \term{one-vs-one} trains a machine for every pair of classes and lets them vote; both work well.
+
+\term{Support vector regression (SVR)} recycles the margin idea for numeric targets: build a tube of half-width $\varepsilon$ around the prediction and charge nothing for points inside it, using the $\varepsilon$-insensitive loss $\max(0,\,|y-f(\bm{x})|-\varepsilon)$. Only points on or outside the tube become support vectors, giving a sparse, outlier-tolerant regressor with the full kernel toolbox available.
+
+\section{Practical notes}
+
+\begin{itemize}
+  \item \term{Scale the features.} Apply the distance-geometry rule from \secref{sec:scaling}.
+  \item \term{Tune $C$ (and $\gamma$)} by cross-validation over logarithmic grids such as $10^{-2},\ldots,10^{3}$.
+  \item \term{Know the sweet spot:} SVMs shine on small-to-medium datasets, high-dimensional problems, and text (linear kernel); training scales poorly to hundreds of thousands of observations, where tree ensembles or linear models are more practical.
+  \item \term{Probabilities are not native.} SVMs output scores and margins; if calibrated probabilities are needed, apply and validate a calibration step (\chapref{ch:evaluation}).
+\end{itemize}
+
+\section{Choosing a supervised model}
+\label{sec:supervised-model-choice}
+
+Stage 3B ends here, so the supervised model-family menu can now be laid on the table.
+
+\begin{mltable}
+\begin{tabular}{@{}p{0.19\linewidth}p{0.36\linewidth}p{0.36\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model & Useful strengths & Important limitations \\
+\midrule
+Linear regression & Interpretable, fast, the standard first baseline & Linear relationships only; sensitive to outliers \\
+Ridge / lasso & Controls overfitting; lasso selects features & Still linear; needs feature scaling \\
+Logistic regression & Strong probability baseline, convex training, interpretable odds & Linear boundary; calibration still needs checking \\
+LDA / QDA & Fast, stable on small data & Gaussian class assumptions \\
+$k$-NN & No training, flexible boundaries & Slow at prediction; scale- and dimension-sensitive \\
+Naive Bayes & Very fast, strong text baseline & Independence and calibration caveats (\secref{sec:naive-bayes}) \\
+Decision tree & Readable rules, no scaling, mixed data & Unstable; overfits without pruning \\
+Random forest & Robust, accurate, minimal tuning & Larger, slower, less transparent \\
+Gradient boosting & Often a very strong tabular benchmark & Needs careful tuning and early stopping \\
+SVM & Margins and kernels; strong in high dimensions & Scaling required; slow on very large data \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+A sensible default path: start with a regularized linear model as the baseline; try a random forest for a near-free accuracy check; reach for tuned gradient boosting when accuracy matters most; and consider an SVM when the data is high-dimensional or modest in size. Let validation results --- not fashion --- make the final call.
+
+\begin{keyidea}
+The SVM contributes two permanent ideas to machine learning. First, among all boundaries that fit, prefer the one with the largest safety margin --- a built-in form of regularization. Second, a linear method plus the kernel trick becomes a nonlinear method at almost no conceptual cost. Margins and kernels outlived the SVM's peak popularity and now echo throughout the field.
+\end{keyidea}
+
+\begin{modelcard}{Support Vector Machines - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+Best when & The dataset is small to medium sized, features are informative, and a strong margin-based boundary is useful. \cr
+Preprocessing & Standardize numerical features; encode categories; remove clearly irrelevant features when justified by the validated workflow in \secref{sec:feature-selection}. \cr
+Main controls & $C$ for margin violations; kernel choice; $\gamma$ for RBF-kernel reach; $\varepsilon$ for SVR. \cr
+Strengths & Effective in high-dimensional spaces and flexible through kernels. \cr
+Watch for & Slow training on very large datasets, sensitive scale, difficult probability interpretation, and expensive kernel tuning. \cr
+\end{tabularx}
+\end{modelcard}
+
+% ==== EXPANDED EDITION ADDITIONS ====
+
+\input{chapters/kaggle-labs/14-svm}
+
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the geometric meaning of a larger separating margin in an SVM?
+  \item How do \(C\) and, for an RBF kernel, \(\gamma\) change the flexibility of the fitted decision boundary?
+  \item Why should scaling and SVM hyperparameter selection both happen inside the validation procedure?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A linear SVM chooses a separating boundary with the widest margin.
+  \item Support vectors are the training points that determine the boundary.
+  \item The parameter $C$ balances a wide margin against training violations.
+  \item Kernels create nonlinear boundaries through similarity calculations in a richer feature space.
+  \item Feature scaling follows the distance-geometry rule in \secref{sec:scaling}.
+\end{itemize}
+\end{chapterrecap}

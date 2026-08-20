@@ -1,0 +1,344 @@
+\chapter*{Epilogue: Where to Go Next}
+\phantomsection
+\addcontentsline{toc}{chapter}{Epilogue: Where to Go Next}
+\markboth{Epilogue: Where to Go Next}{}
+\label{ch:next}
+\setcounter{section}{0}
+\renewcommand{\thesection}{E.\arabic{section}}
+\renewcommand{\theHsection}{E.\arabic{section}}
+
+\chapterguide%
+  {Everything in this book. Nothing new is required.}
+  {see where classical machine learning sits in the wider field, understand what deep learning adds and why, choose a next direction that matches your interests, and follow a concrete twelve-month plan.}
+
+You now know something real. You can take a messy table, prepare it without leaking, choose an appropriate model, evaluate it honestly, and explain what it does and where it fails. That is the foundation, and a surprising number of working practitioners do exactly this and nothing more.
+
+This epilogue is a map of what lies beyond it.
+
+\begin{keyidea}
+Many ideas ahead extend concepts you have already met. Neural networks optimize a larger parameterized function; transformers add attention-based architectures; deep reinforcement learning replaces small tables with function approximators. You are extending the foundation, not starting again.
+\end{keyidea}
+
+\section{The map of the field}
+
+The opening map organized machine learning by feedback, task, data structure, model family, and lifecycle. At the end of the book, use the same map in the opposite direction: identify the capability your current toolkit is missing, then learn the branch that supplies it.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  core/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,
+              text width=3.2cm,minimum height=1.0cm,align=center,
+              font=\scriptsize\bfseries\color{MLNavy}},
+  nxt/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,
+              text width=3.2cm,inner xsep=2pt,minimum height=0.95cm,align=center,
+              font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[core] (c) at (0,3.0) {Your foundation\\\scriptsize\mdseries data + classical models + honest evaluation};
+
+\node[nxt] (dl) at (-5.3,1.0) {\textbf{Learn representations}\\deep learning, transfer learning};
+\node[nxt] (fm) at (-1.8,1.0) {\textbf{Reuse general models}\\foundation, multimodal, generative};
+\node[nxt] (causal) at (1.8,1.0) {\textbf{Estimate interventions}\\causal inference, experiments};
+\node[nxt] (graph) at (5.3,1.0) {\textbf{Model relations}\\graphs, spatial structure};
+
+\node[nxt] (prob) at (-5.3,-1.25) {\textbf{Represent uncertainty}\\Bayesian and probabilistic ML};
+\node[nxt] (online) at (-1.8,-1.25) {\textbf{Adapt continuously}\\online and continual learning};
+\node[nxt] (private) at (1.8,-1.25) {\textbf{Protect data}\\federated and privacy-preserving ML};
+\node[nxt] (eng) at (5.3,-1.25) {\textbf{Ship reliably}\\MLOps, data systems, monitoring};
+
+\coordinate (topjunction) at (0,2.0);
+\coordinate (bottomjunction) at (0,-0.15);
+\draw[thick,draw=MLTeal] (c.south) -- (bottomjunction);
+\foreach \x in {dl,fm,causal,graph}
+  \draw[arr] (topjunction) -| (\x.north);
+\foreach \x in {prob,online,private,eng}
+  \draw[arr] (bottomjunction) -| (\x.north);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.40\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+If your next problem says\ldots & Learn next \\
+\midrule
+The useful features are hidden inside pixels, audio, or long text. & Deep learning and representation learning. \\
+I want to adapt a model that already knows a lot. & Transfer learning and foundation models. \\
+I need to generate text, images, audio, or other samples. & Generative modeling: autoregressive, diffusion, latent-variable, and related models. \\
+My examples are connected by edges or locations. & Graph ML, network methods, and spatial statistics. \\
+I need probabilities and uncertainty, not only point predictions. & Probabilistic and Bayesian modeling, calibration, conformal and interval methods. \\
+I need to know what an action will change. & Causal inference, experimental design, uplift / treatment-effect modeling. \\
+Data arrive continuously and the world changes. & Online, streaming, continual, and adaptive learning. \\
+The data cannot be centralized freely. & Privacy-preserving, federated, and secure learning. \\
+I want the system to automate model search. & AutoML and optimization --- but keep the same leakage-safe evaluation discipline. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Foundation models, RAG, tool use, and agents belong at different layers. A foundation model is a learned model; RAG adds retrieval; tool use adds external actions; an agent adds a control loop around model calls and tools. Keeping those layers separate makes systems easier to evaluate and debug.
+\end{keyidea}
+
+\input{chapters/optional-optimization-depth}
+
+\section{Deep learning: what it adds and when you need it}
+
+A basic feed-forward neural network composes affine transformations with nonlinear activations. Modern systems add specialized architectures, normalization, residual connections, attention, and large-scale optimization. Their key practical advantage on many unstructured inputs is representation learning: useful features can be learned jointly with the predictor.
+
+\begin{optionaltopic}
+Deep learning, transfer learning, and language models are orientation topics here. They are not required for the classical machine-learning course assessment.
+\end{optionaltopic}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.65cm and 1.0cm,
+  bx/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,text width=2.85cm,minimum height=0.82cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  hm/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.5mm,text width=2.85cm,minimum height=0.82cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=MLTeal}
+]
+\node[font=\scriptsize\bfseries\color{MLNavy}] (l1) at (-5.3,1.0) {Classical ML};
+\node[bx] (a1) at (-1.7,1.0) {raw data};
+\node[hm,right=of a1] (a2) {\emph{you} design features};
+\node[bx,right=of a2] (a3) {model learns weights};
+\draw[arr] (a1)--(a2); \draw[arr] (a2)--(a3);
+\node[font=\scriptsize\bfseries\color{MLNavy}] (l2) at (-5.3,-1.0) {Deep learning};
+\node[bx] (b1) at (-1.7,-1.0) {raw data};
+\node[bx,right=of b1] (b2) {model learns features};
+\node[bx,right=of b2] (b3) {model learns weights};
+\draw[arr] (b1)--(b2); \draw[arr] (b2)--(b3);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{analogy}
+Classical image systems often relied on designed features such as edges, color histograms, and corners. A convolutional network can learn increasingly task-useful representations from pixels, although what an internal layer represents varies by architecture, data, and training objective.
+\end{analogy}
+
+
+\subsection{When deep learning is worth it, and when it is not}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLGreen}}p{0.50\linewidth}>{\bfseries\leavevmode\color{MLRed}}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLGreen}Reach for deep learning when & \normalfont\bfseries\leavevmode\color{MLRed}Stay with classical ML when \\
+\midrule
+\normalfont The input is images, audio, video, or long text & \normalfont The data is a table of rows and columns \\
+\normalfont You have tens of thousands of examples or more & \normalfont You have a few thousand rows \\
+\normalfont Useful features are hard to describe in words & \normalfont The features are already meaningful \\
+\normalfont A pre-trained model exists that you can fine-tune & \normalfont You must explain every decision to a regulator \\
+\normalfont Accuracy justifies the compute and complexity & \normalfont A gradient-boosted tree already works \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+On small and medium tabular datasets, linear models and tree ensembles remain strong baselines and may be faster, easier to validate, and easier to explain than a neural network. Benchmark under the same split, metric, and compute budget; novelty is not evidence of suitability.
+\end{keyidea}
+
+\subsection{Your first neural network}
+
+
+\begin{intuition}
+Compare that optimization loop with the gradient-descent idea introduced in \secref{sec:gradient-descent}. It repeats the same four moves: predict, measure the error, compute derivatives, and update parameters. Automatic differentiation and the network architecture add important machinery, but the optimization pattern is familiar.
+\end{intuition}
+
+\subsection{The architectures worth knowing by name}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Architecture & \normalfont\bfseries\leavevmode\color{MLNavy}Built for & \normalfont\bfseries\leavevmode\color{MLNavy}Core idea \\
+\midrule
+MLP & Tables, simple inputs & Stacked linear layers with non-linearities \\
+CNN & Images & The same small filter slides across the whole picture \\
+RNN / LSTM & Sequences (older) & Carry a memory forward through time \\
+Transformer & Text, and now everything & Attention: every position looks at every other \\
+Autoencoder & Compression, anomalies & Squeeze the input down, then rebuild it \\
+GAN / Diffusion & Generating images & Learn to produce data that looks real \\
+GNN & Networks and graphs & Pass messages between connected nodes \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\subsection{Transfer learning: the shortcut that makes it practical}
+
+
+\begin{keyidea}
+Transfer learning is the reason a student with a laptop can build a good text or image classifier. Someone else spent millions of pounds teaching a model what language or vision looks like in general; you spend an afternoon teaching it your specific task. Almost nobody trains a large model from scratch, and you should not plan to either.
+\end{keyidea}
+
+\section{Large language models, briefly and honestly}
+
+Large language models are usually transformer-based models pretrained with token-prediction objectives, then adapted with one or more post-training methods such as supervised instruction data, preference optimization, or reinforcement-style objectives. They are the most visible part of the field, and one of the easiest places to confuse a learned model with the larger system built around it.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.14\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Skill & \normalfont\bfseries\leavevmode\color{MLNavy}What it involves \\
+\midrule
+Prompting & Writing instructions that reliably produce what you want \\
+RAG & Retrieving your own documents and giving them to the model as context \\
+Fine-tuning & Adapting a model to a specific style or task with your data \\
+Evaluation & Deciding whether the output is actually good -- the hard part \\
+Agents & Building a control loop that lets a model plan or choose tool calls, while the surrounding system checks state, permissions, and outcomes \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+A language model produces fluent text, not guaranteed truth. It can generate unsupported citations, statistics, and function names. Serious applications therefore need task-specific evaluation, retrieval or verification where appropriate, and human oversight for consequential use --- the evaluation discipline from \chapref{ch:evaluation} still applies.
+\end{pitfall}
+
+\section{Getting models into the world}
+
+Training a model is perhaps a fifth of a real project. The rest is engineering.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.4cm and 0.5cm,
+  bx/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=2.2cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=MLTeal}
+]
+\node[bx] (a) {Version the\\data};
+\node[bx,right=of a] (b) {Track the\\experiments};
+\node[bx,right=of b] (c) {Test the\\pipeline};
+\node[bx,right=of c] (d) {Serve it\\as an API};
+\node[bx,right=of d] (e) {Monitor for\\drift};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\draw[arr] (e.south) .. controls +(0,-0.7) and +(0,-0.7) .. (a.south);
+\node[font=\scriptsize\itshape\color{MLMuted}] at ($(a)!0.5!(e)+(0,-1.15)$) {retrain when performance falls};
+\end{tikzpicture}
+\end{mlfigure}
+
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Operational handoff field & What to record \\
+\midrule
+Decision and population & Who is eligible, when scoring occurs, what action follows, and any capacity limit. \\
+Target and timing & Exact outcome definition, prediction horizon, feature cutoff, and label delay. \\
+Validation evidence & Split design, baseline, primary deployment metric, secondary checks, and final untouched result. \\
+Policy & Threshold or ranking rule, deterministic tie handling, exclusions, and expected batch size. \\
+Monitoring & Schema/data-quality checks, drift signals, delayed outcome metrics, subgroup counts, and intervention outcomes where relevant. \\
+Governance & Model/data version, owner, privacy/security controls, known limitations, rollback condition, and causal-status statement. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLBlue}\ttfamily}p{0.18\linewidth}>{\bfseries}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Tool & \normalfont\bfseries\leavevmode\color{MLNavy}Job & \normalfont\bfseries\leavevmode\color{MLNavy}Why it matters \\
+\midrule
+git & Version control & Records intentional changes and supports review. \\
+docker & Containers & Packages an application environment consistently. \\
+mlflow & Experiment tracking & Remembers which settings produced which score. \\
+dvc & Data versioning & Git for datasets too large for git. \\
+fastapi & Serving & Turns a model into something other software can call. \\
+pytest & Testing & Catches the pipeline breaking before users do. \\
+evidently & Drift monitoring & One option for detecting changes that warrant investigation. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Input or score drift is an alert, not proof that predictive performance fell; stable inputs do not guarantee stable outcomes either. Monitor data quality, eligibility, predictions, actions, and delayed outcomes. Investigate changes, then retrain, recalibrate, revise, or retire the system according to a prespecified response plan.
+\end{keyidea}
+
+\section{Mathematics, if and when you want it}
+
+You do not need more mathematics to be useful. You need it to read research papers and to invent methods rather than apply them. In order of return on effort:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.06\linewidth}>{\bfseries}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}\# & \normalfont\bfseries\leavevmode\color{MLNavy}Topic & \normalfont\bfseries\leavevmode\color{MLNavy}What it unlocks \\
+\midrule
+1 & Linear algebra & Everything. Matrices, eigenvectors, projections, SVD. \\
+2 & Probability & Distributions, expectation, Bayes, likelihood. \\
+3 & Calculus & Derivatives, chain rule -- and therefore backpropagation. \\
+4 & Optimization & Convexity, constraints, why some problems are hard. \\
+5 & Statistics & Estimation, hypothesis testing, confidence, experiment design. \\
+6 & Information theory & Entropy, cross-entropy, KL divergence. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{intuition}
+Learn these when a specific gap blocks you, not in advance. Trying to complete a mathematics curriculum before building anything is the single most common way people stall out. Build first; when a paper defeats you, go and learn the piece you were missing. Motivated learning sticks.
+\end{intuition}
+
+\section{Responsibility is part of the skill}
+
+A model that is accurate can still be harmful. This is not a footnote to the technical work; it is part of it.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Concern & \normalfont\bfseries\leavevmode\color{MLNavy}The question to ask \\
+\midrule
+Bias & Does it perform or allocate actions differently across relevant groups? Prespecify lawful, meaningful audits and include counts and uncertainty. \\
+Feedback loops & Does acting on the prediction change the data it will be retrained on? \\
+Proxies & Is a feature standing in for something you are not allowed to use? \\
+Consent & Did the people in the training data agree to this use? \\
+Explanation & Can you tell someone why the model decided what it did about them? \\
+Recourse & If it is wrong about someone, how do they get that fixed? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+
+A single diagnostic is only a starting point. Group definitions, data collection, legal basis, privacy, intersectional sample sizes, appropriate metrics, and uncertainty require domain and stakeholder judgment.
+
+\begin{pitfall}
+Removing a sensitive attribute does not by itself remove inequity: other variables can act as proxies, labels can encode past decisions, and representation can differ across groups. Where lawful and appropriate, protected attributes may be needed for auditing even when excluded from prediction. No single metric ``solves'' fairness; examine performance, allocation, harms, and recourse in context.
+\end{pitfall}
+
+\subsection{Project ideas that teach the most}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.38\linewidth}>{\bfseries}p{0.18\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Project & \normalfont\bfseries\leavevmode\color{MLNavy}Skills & \normalfont\bfseries\leavevmode\color{MLNavy}Why it is a good first choice \\
+\midrule
+Predict something about your own life & Everything & Real data you understand; you can tell when it is wrong \\
+Classify your own photos & CNN, transfer & Small data, fast feedback, visible results \\
+Sort your email or messages & Text, NB, TF-IDF & Cheap labels, immediately useful \\
+Local weather or transport forecast & Time series & Teaches why random splits fail \\
+Cluster a music or film library & Clustering, PCA & No labels needed; interpretation is the challenge \\
+Reproduce a paper's result & Everything, hard & The fastest route from user to practitioner \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Choose a project where you can recognize a bad answer yourself. On data you understand, a nonsense prediction is obvious and you learn from it. On an unfamiliar benchmark, a nonsense prediction is just a number, and you learn nothing.
+\end{keyidea}
+
+
+\begin{analogy}
+Learning machine learning is like learning an instrument. Nobody becomes a musician by reading about music theory; they become one by playing badly, listening carefully, and playing again. The theory helps enormously -- but only alongside the playing, never instead of it.
+\end{analogy}
+
+\begin{keyidea}
+The field will keep changing, and much of what is fashionable today will look dated in five years. What will not change is the underlying discipline: define the problem, respect the data, hold out an honest test, compare against a baseline, measure what actually matters, and be clear about what your model cannot do. That is what this book was really teaching, and it will still be true when the tools have all been replaced.
+\end{keyidea}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Classical machine learning provides strong baselines and a durable evaluation discipline.
+  \item Deep learning is especially useful for many image, audio, and text tasks, but its added complexity must earn its place.
+  \item Transfer learning makes deep learning practical without enormous resources.
+  \item Deployment, monitoring, and drift are as important as training.
+  \item Learn mathematics when a specific gap blocks you, not in advance.
+  \item Responsible evaluation considers groups, allocation, privacy, uncertainty, and recourse; deleting a sensitive column does not remove bias.
+  \item Build, evaluate, document, and share in a sequence that suits the project.
+\end{itemize}
+\end{chapterrecap}

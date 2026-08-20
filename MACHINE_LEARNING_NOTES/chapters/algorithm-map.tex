@@ -1,0 +1,220 @@
+
+\chapter*{The Machine-Learning Map}
+\addcontentsline{toc}{chapter}{The Machine-Learning Map}
+\markboth{The Machine-Learning Map}{}
+
+Machine learning is easier to navigate when you stop treating it as one list of algorithms. The same project can be described in several ways at once: by the \emph{feedback} available, the \emph{job} to be done, the \emph{kind of data}, the \emph{model family}, and the \emph{stage of the lifecycle}. Use the maps on the next pages in that order.
+
+\begin{keyidea}
+Do not begin with ``Which algorithm should I use?'' Begin with four questions: \textbf{What decision or output do I need? What feedback is available? What structure does the data have? How will success be measured on future data?}
+\end{keyidea}
+
+\section*{1. The whole picture}
+
+Machine learning is a major approach within artificial intelligence, but it also overlaps heavily with statistics, optimization, scientific computing, and data systems. The boundaries are not clean, so the useful map is a set of connected views rather than one perfect tree.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.8mm,
+              minimum width=3.0cm,minimum height=0.82cm,align=center,
+              font=\scriptsize\bfseries\color{MLNavy}},
+  core/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,
+              minimum width=3.4cm,minimum height=1.0cm,align=center,
+              font=\small\bfseries\color{MLNavy}},
+  adj/.style={draw=MLMuted!70,fill=MLPaleGray,rounded corners=1.8mm,
+              minimum width=3.0cm,minimum height=0.82cm,align=center,
+              font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[core] (ml) at (0,0) {MACHINE LEARNING\\\scriptsize\mdseries learn patterns from data or interaction};
+
+\node[box] (feedback) at (-5.0,2.1) {Learning signal\\labels, no labels, rewards};
+\node[box] (task) at (0,2.1) {Task\\predict, discover, generate, decide};
+\node[box] (data) at (5.0,2.1) {Data structure\\tables, time, text, images, graphs};
+
+\node[box] (family) at (-5.0,-2.1) {Model family\\linear, trees, kernels, neural};
+\node[box] (eval) at (0,-2.1) {Evaluation\\split, metric, uncertainty, error analysis};
+\node[box] (life) at (5.0,-2.1) {Lifecycle\\train, deploy, monitor, govern};
+
+\draw[arr] (feedback) -- (ml);
+\draw[arr] (task) -- (ml);
+\draw[arr] (data) -- (ml);
+\draw[arr] (ml) -- (family);
+\draw[arr] (ml) -- (eval);
+\draw[arr] (ml) -- (life);
+
+\node[adj] at (-4.8,3.65) {Statistics and probability};
+\node[adj] at (0,3.65) {Optimization and linear algebra};
+\node[adj] at (4.8,3.65) {Computer and data systems};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+View & Main branches \\
+\midrule
+Feedback & Full labels; limited labels; no external labels; rewards from interaction. \\
+Task & Prediction, ranking, forecasting, structure discovery, representation, generation, anomaly detection, or sequential decision-making. \\
+Data & Tabular, temporal, text, image/video, audio, graph/spatial, or multimodal. \\
+Model family & Linear/probabilistic, neighbors, trees/ensembles, kernels, neural networks, generative models, graph models. \\
+Evaluation & Generalization, realistic splits, baselines, task metrics, calibration, uncertainty, subgroup and failure analysis. \\
+Lifecycle & Problem framing, data collection, preparation, training, evaluation, deployment, monitoring, maintenance, governance. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{2. Start from the feedback you actually have}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  q/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,
+            text width=3.3cm,minimum height=0.9cm,align=center,font=\bfseries\small},
+  branch/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,
+                 text width=3.25cm,minimum height=1.0cm,align=center,font=\small\color{MLNavy}},
+  leaf/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,
+               text width=3.0cm,minimum height=1.18cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
+]
+\node[q] (start) at (0,3.8) {What feedback is available?};
+
+\node[branch] (full) at (-5.4,1.9) {A target for each example};
+\node[branch] (few) at (-1.8,1.9) {Only some targets};
+\node[branch] (none) at (1.8,1.9) {No external target};
+\node[branch] (reward) at (5.4,1.9) {Reward after actions};
+
+\node[leaf] (sup) at (-5.4,-0.1) {\textbf{Supervised learning}\\regression, classification, ranking, forecasting, survival};
+\node[leaf] (limited) at (-1.8,-0.1) {\textbf{Limited-label learning}\\semi-supervised, active learning};
+\node[leaf] (unsup) at (1.8,-0.1) {\textbf{Unsupervised / self-supervised}\\clustering, representation, density, generation};
+\node[leaf] (rl) at (5.4,-0.1) {\textbf{Reinforcement learning}\\bandits, policies, value learning, control};
+
+\draw[arr] (start.south) -- (0,2.9);
+\draw[arr] (-5.4,2.9) -- (-5.4,2.4);
+\draw[arr] (-1.8,2.9) -- (-1.8,2.4);
+\draw[arr] (1.8,2.9) -- (1.8,2.4);
+\draw[arr] (5.4,2.9) -- (5.4,2.4);
+\draw[draw=MLMuted,thick] (-5.4,2.9) -- (5.4,2.9);
+
+\draw[arr] (full) -- (sup);
+\draw[arr] (few) -- (limited);
+\draw[arr] (none) -- (unsup);
+\draw[arr] (reward) -- (rl);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{intuition}
+\textbf{Self-supervised learning} creates a training signal from the data itself -- for example, predicting a hidden word or a missing part of an image. It is one of the main bridges from unlabeled data to modern representation learning. \textbf{Active learning} is different: the model chooses which examples would be most valuable for a human to label.
+\end{intuition}
+
+\section*{3. Start from the job you need done}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Need & First framing & Where it lives \\
+\midrule
+Predict a number & Regression & Core: \chapref{ch:regression} \\
+Predict a category & Classification & Core: \chapref{ch:classification} \\
+Predict an ordered category & Ordinal classification / regression & Introduced in \chapref{ch:classification} \\
+Rank a finite set of items & Ranking / recommendation & Beyond the core; evaluate at the operational cutoff \\
+Predict later values & Forecasting / temporal prediction & Uses supervised learning with chronological validation \\
+Estimate time until an event & Survival / event-time modeling & Beyond the core; censoring changes the evaluation problem \\
+Find groups & Clustering & Core: \chapref{ch:unsupervised}, then \chapref{ch:clustering} \\
+Compress or build a representation & PCA, embeddings, representation learning & Core PCA: \chapref{ch:dimred}; modern embeddings are beyond \\
+Find unusual cases & Anomaly detection & Core: \chapref{ch:anomaly} \\
+Model a full distribution or generate samples & Density estimation / generative modeling & GMM is introduced in \chapref{ch:clustering}; modern generative models are beyond \\
+Choose actions over time & Bandits / reinforcement learning & Extension: \chapref{ch:rl} \\
+Estimate what an intervention will change & Causal inference / experimentation & Adjacent to prediction; introduced as a direction in \hyperref[ch:next]{the Epilogue} \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Prediction asks ``what is likely to happen?'' Causal inference asks ``what would change if we acted differently?'' A highly predictive model does not automatically answer the second question.
+\end{keyidea}
+
+\section*{4. Start from the data structure}
+
+The input representation often narrows the sensible model families before tuning begins.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Data & Strong classical starting point & Modern directions and the main caution \\
+\midrule
+Tabular rows & Linear/logistic models, trees, random forests, gradient boosting & Deep tabular models can help, but strong tree baselines remain essential. \\
+Time series / events & Lagged features plus linear or tree models & Sequence models and transformers; preserve chronology, horizon, and label availability. \\
+Text & Counts or TF--IDF with naive Bayes, logistic regression, or linear SVM & Embeddings, transformers, foundation language models; evaluate meaning, not fluency alone. \\
+Images / video & Hand-designed features, PCA, linear/SVM models & CNNs, vision transformers, diffusion models; transfer learning is usually the practical route. \\
+Audio / speech & Spectral features plus classical classifiers & Neural audio encoders and transformers; sampling and temporal alignment matter. \\
+Graphs / networks & Engineered node, edge, and graph statistics & Graph neural networks; random row splits can leak through connected structure. \\
+Spatial data & Domain features plus linear/tree models & Spatial statistics and geospatial deep learning; nearby observations may not be independent. \\
+Multimodal & Separate feature pipelines combined carefully & Multimodal representation and foundation models; alignment between modalities is part of the problem. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{5. Model families are reusable building blocks}
+
+A model family is \emph{not} the same thing as a task. Trees, kernels, and neural networks can all be adapted to several prediction problems.
+
+\enlargethispage{4\baselineskip}
+\begin{mltable}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabularx}{\linewidth}{@{}>{\footnotesize\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}>{\footnotesize}p{0.24\linewidth}>{\footnotesize}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries Family & \bfseries Core idea & \bfseries Examples in or beyond these notes \\
+\midrule
+Baselines & Simple reference rule & Mean, median, majority, random, or domain rule \\
+Linear / GLMs & Weighted feature combinations & Linear, ridge, lasso, logistic, softmax \\
+Probabilistic & Model probability distributions & Naive Bayes, LDA, GMM; Bayesian models beyond the core \\
+Neighbors & Use nearby cases & $k$-NN, local outlier methods, density neighborhoods \\
+Trees / ensembles & Partition space; combine learners & CART, random forests, boosting, stacking \\
+Kernels / margins & Separate in a transformed space & SVM, SVR, one-class SVM \\
+Neural networks & Learn features and predictions together & MLP, CNN, transformers, graph neural networks \\
+Generative / foundation & Learn distributions or reusable representations & Autoencoders, diffusion, language and multimodal models \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+A good workflow climbs a ladder: \textbf{baseline $\rightarrow$ simple model $\rightarrow$ stronger model $\rightarrow$ tuned system}. Stop when added complexity no longer improves the real decision enough to justify its cost.
+\end{keyidea}
+
+\section*{6. Good first models for the core problems}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Problem & Start with & Then compare with \\
+\midrule
+Regression & Mean baseline, linear regression & Ridge/lasso, trees, random forest, gradient boosting, support vector regression \\
+Binary classification & Majority baseline, logistic regression & $k$-NN, naive Bayes, trees, random forest, boosting, SVM \\
+Multiclass classification & Majority baseline, softmax regression & Trees, random forest, boosting, $k$-NN, SVM \\
+Clustering & $K$-means after scaling & Hierarchical clustering, DBSCAN, Gaussian mixtures \\
+Dimensionality reduction & PCA & t-SNE or UMAP for exploratory visualization \\
+Anomaly detection & Simple statistical rules & Local methods, isolation forest, one-class models \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{7. What these notes cover -- and what lies beyond}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\color{MLNavy}Scope & \bfseries\color{MLNavy}Topics \\
+\midrule
+\color{MLGreen}Core in these notes & \normalfont Problem framing and leakage-safe preparation; baselines and evaluation; classical supervised and unsupervised methods. \\
+\color{MLBlue}Introduced / bridged & \normalfont Limited-label and reinforcement learning; image features and transfer learning; deployment, drift, and responsibility. \\
+\color{MLOrange!85!black}Beyond the core & \normalfont Deep, foundation, generative, graph, Bayesian, causal, online, federated, privacy-preserving, and production ML. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}

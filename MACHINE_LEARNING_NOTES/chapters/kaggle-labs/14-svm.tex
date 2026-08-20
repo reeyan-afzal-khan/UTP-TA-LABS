@@ -1,0 +1,24 @@
+\section{Kaggle implementation: tune an SVM on standardized features}
+\label{sec:kaggle-breast-svm}
+
+\begin{kaggleproject}{Breast Cancer Wisconsin --- linear and RBF support-vector machines}
+\kagglesource{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin (Diagnostic) Data Set}
+\textbf{Question.} When a feature table is standardized, which combination of kernel, $C$, and $\gamma$ works best under stratified cross-validation?
+\end{kaggleproject}
+
+\textbf{Before running.} Predict the qualitative pattern you expect from the experiment before you look at the output or plot.
+
+\begin{labmode}
+Stage 3B synthesis: create the outer train/test split first, perform scaling and hyperparameter selection only inside the training partition, lock the selected SVM, and then evaluate the untouched test set once. Define the scaling pipeline, search space, validation design, and primary metric yourself before checking the reference implementation.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab13-breast_cancer_svm.py}
+
+
+\begin{keyidea}
+Scaling is inside the pipeline, so each cross-validation fold learns its own means and standard deviations. The hyperparameter search therefore evaluates a complete training procedure rather than an SVM fitted after globally preprocessed data. ROC AUC is computed from the SVM decision score; probability calibration is unnecessary when the task only requires ranking.
+\end{keyidea}
+
+\begin{labdeliverable}
+Submit the stratified-CV search space, the chosen kernel/$C$/$\gamma$ configuration, validation evidence for the leading candidates, and one final untouched-test ROC AUC. State explicitly why standardization belongs inside the pipeline and why an SVM decision score is sufficient for ranking/AUC even when calibrated probabilities are not required.
+\end{labdeliverable}

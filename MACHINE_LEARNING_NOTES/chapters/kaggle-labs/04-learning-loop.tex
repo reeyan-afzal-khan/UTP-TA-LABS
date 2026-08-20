@@ -1,0 +1,25 @@
+\section{Kaggle lab: one complete learning loop}
+\label{sec:kaggle-insurance-loop}
+
+\begin{kaggleproject}{Medical Cost Personal Data --- first end-to-end regression pipeline}
+\kagglesource{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Datasets}
+\textbf{File.} \texttt{all\_datasets/medical\_cost\_personal\_dataset/insurance.csv}\\
+\textbf{Target.} \texttt{charges}; regression.\\
+\textbf{Question.} Can a mixed numeric/categorical table become a repeatable train--validation experiment without preprocessing leakage?\\
+\textbf{Before running.} Identify which columns require scaling, which require encoding, and why all fitted preprocessing belongs inside the pipeline.
+
+\begin{labmode}
+This is a guided first pipeline. Keep the supplied split and pipeline structure fixed so the learning objective and leakage boundary remain visible.
+\end{labmode}
+
+\lstinputlisting[style=mlpython]{all_experiments/lab03-insurance_learning_loop.py}
+
+
+\begin{tryit}
+Run the script as written. Then remove \texttt{smoker} from the feature matrix and compare MAE and RMSE. Do not interpret the change causally; interpret it only as a predictive-information experiment.
+\end{tryit}
+\end{kaggleproject}
+
+\begin{labdeliverable}
+Submit one notebook with the end-to-end pipeline, the fixed train/validation rule, validation MAE and RMSE for the reference model, the same metrics after removing \texttt{smoker}, and a 3--5 sentence interpretation separating predictive importance from causal claims.
+\end{labdeliverable}
