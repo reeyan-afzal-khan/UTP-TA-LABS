@@ -44,18 +44,6 @@ env/
 .idea/
 .vscode/
 
-# =========================
-# Dataset
-# =========================
-Dataset/
-
-# NumPy arrays
-*.npy
-*.npz
-
-# Logs
-*.log
-
 # Temporary files
 *.tmp
 *.temp
