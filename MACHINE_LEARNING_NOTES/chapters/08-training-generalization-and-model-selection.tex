@@ -28,7 +28,6 @@ The first term fits the observed data; $\Omega$ discourages undesirable complexi
 
 An optimization problem may have a unique global solution, many equivalent solutions, or numerous local and saddle regions. Reaching a low training loss does not guarantee good generalization.
 
-
 \section{Underfitting and overfitting}
 
 \begin{description}[leftmargin=1.15in,style=nextline]
@@ -265,11 +264,9 @@ Learning curves distinguish problems that can be addressed by a larger model fro
 \end{tikzpicture}
 \end{mlfigure}
 
-
 \begin{keyidea}
 Read the two curves as evidence. A wide, slowly closing gap suggests variance: more representative data, simpler capacity, or stronger regularization may help. Two curves that meet at a poor level suggest limited signal, optimization trouble, or underfitting; richer features or models are candidates, but more data can still help feature learning or reveal rare cases.
 \end{keyidea}
-
 
 \section{Hyperparameter tuning}
 \label{sec:hyperparameter-tuning}
@@ -293,13 +290,11 @@ The validation procedure must be identical across candidates. Repeatedly adaptin
 
 \subsection{Tuning without fooling yourself}
 
-
 \begin{intuition}
 Random search is often more efficient than a Cartesian grid when only a few of many hyperparameters matter, because every trial explores a new value on each dimension. A small grid remains useful for one or two well-understood controls. Neither method compensates for a flawed validation design.
 \end{intuition}
 
 \subsection{Nested cross-validation for the selection procedure}
-
 
 Each outer validation fold is untouched by the tuning performed inside that outer training split. This estimates the performance of the \emph{whole selection procedure} with less selection bias; it is not literally unbiased in every finite sample, and its fold scores are still dependent.
 
@@ -394,11 +389,7 @@ Reproducibility & Record the data version, split logic, preprocessing, model spe
 \end{tabularx}
 \end{modelcard}
 
-% ==== EXPANDED EDITION ADDITIONS ====
-
 \subsection{A short reproducibility checklist}
-
-
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.05\linewidth}X@{}}
@@ -421,11 +412,9 @@ Reproducibility & Record the data version, split logic, preprocessing, model spe
 Item 7 is easy to omit. Models are most uncertain on populations poorly represented in development data, and subgroup analysis may expose other failures. Recording known limits is part of responsible deployment, not an admission that the project failed.
 \end{keyidea}
 
-
 \begin{tryit}
 Before opening the test set, repeat the complete training and validation procedure across several stochastic seeds using the same prespecified splits. Report how predictions and validation metrics vary. Lock the seed policy and model choice, refit as planned, and evaluate the test set once; do not repeatedly probe test sensitivity.
 \end{tryit}
-
 
 \begin{debugtask}
 A hyperparameter search reports its best configuration, then the researcher reruns the search with a narrower grid chosen after inspecting the test score. Explain how the test set entered training decisions and redesign the selection/final-evaluation boundary.
@@ -440,8 +429,7 @@ Choose one supervised pipeline and one fixed cross-validation design. Plot or ta
 \end{tryit}
 
 
-\input{chapters/kaggle-labs/08-model-selection}
-
+\input{chapters/labs/03-supervised-workflow}
 
 \begin{quickcheck}
 \begin{enumerate}

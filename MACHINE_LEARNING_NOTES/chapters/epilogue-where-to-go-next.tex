@@ -112,7 +112,6 @@ Deep learning, transfer learning, and language models are orientation topics her
 Classical image systems often relied on designed features such as edges, color histograms, and corners. A convolutional network can learn increasingly task-useful representations from pixels, although what an internal layer represents varies by architecture, data, and training objective.
 \end{analogy}
 
-
 \subsection{When deep learning is worth it, and when it is not}
 
 \begin{mltable}
@@ -135,7 +134,6 @@ On small and medium tabular datasets, linear models and tree ensembles remain st
 \end{keyidea}
 
 \subsection{Your first neural network}
-
 
 \begin{intuition}
 Compare that optimization loop with the gradient-descent idea introduced in \secref{sec:gradient-descent}. It repeats the same four moves: predict, measure the error, compute derivatives, and update parameters. Automatic differentiation and the network architecture add important machinery, but the optimization pattern is familiar.
@@ -161,7 +159,6 @@ GNN & Networks and graphs & Pass messages between connected nodes \\
 \end{mltable}
 
 \subsection{Transfer learning: the shortcut that makes it practical}
-
 
 \begin{keyidea}
 Transfer learning is the reason a student with a laptop can build a good text or image classifier. Someone else spent millions of pounds teaching a model what language or vision looks like in general; you spend an afternoon teaching it your specific task. Almost nobody trains a large model from scratch, and you should not plan to either.
@@ -210,7 +207,6 @@ Training a model is perhaps a fifth of a real project. The rest is engineering.
 \node[font=\scriptsize\itshape\color{MLMuted}] at ($(a)!0.5!(e)+(0,-1.15)$) {retrain when performance falls};
 \end{tikzpicture}
 \end{mlfigure}
-
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}X@{}}
@@ -293,7 +289,6 @@ Recourse & If it is wrong about someone, how do they get that fixed? \\
 \end{tabularx}
 \end{mltable}
 
-
 A single diagnostic is only a starting point. Group definitions, data collection, legal basis, privacy, intersectional sample sizes, appropriate metrics, and uncertainty require domain and stakeholder judgment.
 
 \begin{pitfall}
@@ -321,7 +316,6 @@ Reproduce a paper's result & Everything, hard & The fastest route from user to p
 \begin{keyidea}
 Choose a project where you can recognize a bad answer yourself. On data you understand, a nonsense prediction is obvious and you learn from it. On an unfamiliar benchmark, a nonsense prediction is just a number, and you learn nothing.
 \end{keyidea}
-
 
 \begin{analogy}
 Learning machine learning is like learning an instrument. Nobody becomes a musician by reading about music theory; they become one by playing badly, listening carefully, and playing again. The theory helps enormously -- but only alongside the playing, never instead of it.

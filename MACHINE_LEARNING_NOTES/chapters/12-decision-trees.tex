@@ -174,7 +174,6 @@ This section applies the bias--variance framework from \secref{sec:bias-variance
 \begin{analogy}
 \end{analogy}
 
-
 \subsection{The controls that limit growth}
 
 \begin{mltable}
@@ -194,7 +193,6 @@ class\_weight & Make rare-class rows count for more. \\
 \end{mltable}
 
 \subsection{Cost-complexity pruning, properly}
-
 
 \section{Strengths, limitations, and practical notes}
 
@@ -220,12 +218,9 @@ Watch for & High variance, unstable splits, misleading feature importance, and b
 \end{tabularx}
 \end{modelcard}
 
-% ==== EXPANDED EDITION ADDITIONS ====
-
 \section{Interpreting a fitted tree}
 
 A decision tree is one of the very few models you can print out and check by eye. Take advantage of that.
-
 
 \begin{keyidea}
 That is the fitted decision rule itself, not a post-hoc approximation. A small tree is unusually easy to inspect among nonlinear models, which helps explain its popularity in rule-oriented settings. Inspection alone does not make a model fair, causal, stable, or suitable for a high-stakes decision; those claims require separate evidence and governance.
@@ -233,7 +228,6 @@ That is the fitted decision rule itself, not a post-hoc approximation. A small t
 
 \section{Feature importance, and why to distrust it}
 \label{sec:tree-feature-importance}
-
 
 \begin{workedexample}
 Permutation importance works by an elegant trick: shuffle one column at random, destroying its relationship with the target, and measure how much the score drops. If shuffling ``age'' costs three points of accuracy and shuffling ``customer ID'' costs nothing, then age was genuinely being used and the ID was not.
@@ -250,8 +244,6 @@ A depth-20 tree has nearly perfect training accuracy and unstable feature import
 \begin{decisionmemo}
 Choose between a shallow single tree and a random forest for a decision that must be explained to a nontechnical reviewer. Your memo must separate predictive performance from interpretability and state what level of performance loss, if any, you would accept for the simpler model.
 \end{decisionmemo}
-
-\input{chapters/kaggle-labs/12-tree}
 
 
 \begin{quickcheck}

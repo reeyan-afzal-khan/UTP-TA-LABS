@@ -1,0 +1,7 @@
+plt.figure(figsize=(6, 4))
+plt.plot(ks, inertias, marker="o")
+plt.xlabel("Number of clusters k")
+plt.ylabel("Inertia")
+plt.title("K-means elbow diagnostic")
+plt.tight_layout()
+plt.show()

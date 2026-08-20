@@ -1,0 +1,32 @@
+\labsection{4}{Regression and time-aware validation}{sec:lab04-regression}
+
+\begin{labproject}{Linear models under ordinary and chronological validation}
+\textbf{Coverage.} Chapter 9.\\
+\textbf{Core data.} Medical Cost Personal Data. Bike Sharing is a transfer activity within the same lab.\\
+\textbf{Goal.} Compare ordinary linear regression with ridge regularization, inspect residual behavior, and contrast random splitting with a chronological holdout when time ordering matters.
+
+\begin{labmode}
+The main learning objective is not a particular regression score. It is choosing a validation design that matches how future predictions will actually be made.
+\end{labmode}
+
+\smallskip\noindent\textit{Implementation note.} Code is shown in notebook-sized blocks rather than as one complete listing. Run the blocks in order; each framed block corresponds to a canonical Jupyter code cell.\par
+
+\medskip\noindent\textbf{Part A --- Linear and ridge regression.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block01.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block02.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block03.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block04.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block05.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block06.py}
+
+\medskip\noindent\textbf{Part B --- Optional chronological-validation transfer.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block07.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block08.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block09.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block10.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab04-regression_validation/block11.py}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit linear-versus-ridge validation metrics, one residual diagnostic, and a short comparison between random and chronological validation on the bike-sharing transfer activity. Explain which split better matches deployment and why.
+\end{labdeliverable}

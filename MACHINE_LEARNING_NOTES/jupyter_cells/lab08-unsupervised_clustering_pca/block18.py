@@ -1,0 +1,8 @@
+plt.figure(figsize=(6, 4))
+plt.plot(np.cumsum(pca.explained_variance_ratio_), marker=".")
+plt.axhline(locked_variance, linestyle="--")
+plt.xlabel("Number of principal components")
+plt.ylabel("Cumulative explained variance")
+plt.title("Locked PCA compression budget")
+plt.tight_layout()
+plt.show()

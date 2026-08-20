@@ -212,7 +212,6 @@ $C$ is a strictness setting for a teacher marking homework. A low $C$ teacher ac
 $\gamma$ is the radius of each training point's voice. Low $\gamma$ means every point is heard across the whole room, producing a smooth global boundary. High $\gamma$ means each point is only heard by its immediate neighbors, producing islands around individual examples.
 \end{analogy}
 
-
 \section{Multiclass SVMs and support vector regression}
 
 The SVM is natively binary. Multiclass problems are handled by reduction: \term{one-vs-rest} trains $K$ machines (each class against all others), while \term{one-vs-one} trains a machine for every pair of classes and lets them vote; both work well.
@@ -269,10 +268,8 @@ Watch for & Slow training on very large datasets, sensitive scale, difficult pro
 \end{tabularx}
 \end{modelcard}
 
-% ==== EXPANDED EDITION ADDITIONS ====
 
-\input{chapters/kaggle-labs/14-svm}
-
+\input{chapters/labs/07-svm}
 
 \begin{quickcheck}
 \begin{enumerate}

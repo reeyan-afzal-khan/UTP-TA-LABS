@@ -200,15 +200,12 @@ Watch for & Nonlinear class structure, poorly calibrated probabilities, rare cla
 \end{tabularx}
 \end{modelcard}
 
-
 \section{Using linear classifiers in practice}
 \label{sec:logistic-practice}
 
 \subsection{Probabilities, not just labels}
 
-
 \subsection{Moving the threshold on purpose}
-
 
 \begin{intuition}
 Read the table as a dial, not a set of separate models. It is a single trained model being asked to be more or less cautious. A cancer screening service would choose the top row and accept the false alarms. A system that automatically freezes bank accounts would choose the bottom row, because wrongly freezing an account is expensive.
@@ -218,13 +215,11 @@ Choose the operating point from out-of-fold predictions and a stated cost or cap
 
 \subsection{Reading the coefficients}
 
-
 \begin{workedexample}
 Suppose the coefficient for ``hours studied'' is $0.62$. Then $e^{0.62}\approx 1.86$. Interpretation: each extra hour of study multiplies the \emph{odds} of passing by about 1.86 -- roughly an 86\% increase in the odds, holding the other features fixed. Note that this is odds, not probability; the effect on probability depends on where you started.
 \end{workedexample}
 
 \subsection{More than two classes}
-
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -254,7 +249,6 @@ Softmax is the sigmoid's multi-class cousin. It takes one raw score per class, m
 Fit a logistic regression, obtain out-of-fold probabilities on the training data, then sweep the threshold from 0.05 to 0.95 in steps of 0.05, recording precision and recall at each point. Plot recall on the $x$-axis against precision on the $y$-axis. You have just drawn a precision-recall curve by hand, as introduced in \chapref{ch:evaluation}, without using the test set.
 \end{tryit}
 
-
 \begin{debugtask}
 A teammate lowers the probability threshold until test-set recall reaches the desired value, then reports that same test recall as final performance. Explain the leakage in model selection and show where threshold tuning belongs instead.
 \end{debugtask}
@@ -262,8 +256,6 @@ A teammate lowers the probability threshold until test-set recall reaches the de
 \begin{decisionmemo}
 For a rare positive class, choose between an unweighted logistic model, class weighting, and a lower decision threshold. State which quantity each intervention changes, which validation metric you would inspect, and why the three options are not interchangeable.
 \end{decisionmemo}
-
-\input{chapters/kaggle-labs/10-logistic}
 
 
 \begin{quickcheck}

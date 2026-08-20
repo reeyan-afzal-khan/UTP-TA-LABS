@@ -28,7 +28,6 @@ A useful evaluation plan states:
 
 Choosing many metrics after seeing the test results encourages selective reporting. Define the primary metric before final evaluation whenever possible.
 
-
 \section{Regression metrics}
 \label{sec:regression-metrics}
 
@@ -40,7 +39,6 @@ For true values $y_i$ and predictions $\hat{y}_i$, mean squared error and root m
   \operatorname{RMSE}=\sqrt{\operatorname{MSE}}.
 \]
 MSE strongly penalizes large errors. RMSE is easier to interpret because it uses the same units as the target.
-
 
 \begin{workedexample}
 Five delivery times, in minutes. Four predictions are nearly right; one is badly wrong.
@@ -100,7 +98,6 @@ Mean absolute percentage error is
 It is easy to express as a percentage but becomes undefined or unstable when true values are zero or near zero. It can also penalize overprediction and underprediction asymmetrically.
 
 For asymmetric real-world costs, a custom loss or quantile loss may be more appropriate. Quantile regression can estimate an interval of plausible outcomes rather than only a conditional mean.
-
 
 \section{Classification metrics: start with the confusion matrix}
 \label{sec:classification-metrics}
@@ -259,13 +256,11 @@ Three numbers, one model: $0.940$, $0.789$, $0.639$. None is wrong. They answer 
 
 For multiclass problems, metrics can be averaged in different ways; \term{macro averaging} gives every class equal weight, \term{micro averaging} pools all decisions and therefore gives common classes more influence, and \term{weighted averaging} weights each class by its frequency.
 
-
 \section{Thresholds, ROC curves, and precision-recall curves}
 
 A probability model becomes a hard classifier only after a threshold is chosen. Lowering the threshold usually increases recall and false positives; raising it usually increases precision and false negatives.
 
 The receiver operating characteristic (ROC) curve plots true-positive rate against false-positive rate across thresholds. ROC AUC is the probability that a randomly chosen positive example receives a higher score than a randomly chosen negative example.
-
 
 No area metric determines the operating threshold. Select a threshold or ranked cutoff with out-of-fold/validation predictions and application costs or capacity, then assess the locked rule once on test data.
 
@@ -339,7 +334,6 @@ The bar marks the capacity cutoff at $k=5$. There are $4$ churners in the batch 
 \]
 Read \emph{lift} as the payoff for ranking: phoning five customers at random would reach $0.20\times5=1$ churner on average, and the model reached three. Note that no threshold was chosen anywhere in that calculation. The team's constraint is five calls, not a probability of $0.5$, so the model's job is to sort the batch, not to label it.
 \end{workedexample}
-
 
 \begin{pitfall}
 A high predicted churn risk does not mean a customer is highly persuadable. Precision@300 measures predictive ranking; it cannot prove that contacting those 300 customers causes additional retention. Causal intervention effects require a design such as a randomized experiment.
@@ -433,7 +427,6 @@ After selecting a model and hyperparameters, refit on the allowed training data 
 
 \subsection{Choose the cross-validation splitter that matches the data}
 
-
 \begin{keyidea}
 The splitter is part of the evaluation design. Use the same structure for every candidate model so the comparison changes the model, not the meaning of the validation task.
 \end{keyidea}
@@ -481,7 +474,6 @@ Look at what each metric can charge for a single row. Brier is capped: the worst
 That is the practical difference. If being confidently wrong is a catastrophe in your application, log loss encodes that and Brier does not.
 \end{workedexample}
 
-
 \section{Uncertainty and repeated experiments}
 
 A reported metric is an estimate, not a permanent property of a model. It varies with the sampled observations, training randomness, and hyperparameters. Useful practices include confidence intervals, bootstrap resampling, repeated cross-validation, and multiple training seeds.
@@ -524,10 +516,6 @@ Diagnosis & Inspect errors, subgroups, calibration, threshold behavior, and dist
 Final report & State the data period, metric definition, uncertainty, limitations, and untouched test result. \cr
 \end{tabularx}
 \end{modelcard}
-
-% ==== EXPANDED EDITION ADDITIONS ====
-
-\input{chapters/kaggle-labs/07-evaluation}
 
 
 \begin{quickcheck}

@@ -1,0 +1,52 @@
+\labsection{3}{Supervised workflow, evaluation, and model selection}{sec:lab03-supervised-workflow}
+
+\begin{labproject}{From a no-skill baseline to a locked final model}
+\textbf{Coverage.} Chapters 6--8.\\
+\textbf{Core data.} Titanic and Breast Cancer Wisconsin. Heart Failure is an optional transfer activity inside the same lab.\\
+\textbf{Goal.} Compare supervised baselines fairly, inspect threshold-dependent errors and ranking metrics, tune only on development data, and preserve an untouched final test boundary.
+
+\begin{labmode}
+This is the course's main workflow lab. Do not treat baseline comparison, threshold policy, cross-validation, and final evaluation as separate labs; they are successive decisions in one supervised-learning process.
+\end{labmode}
+
+\smallskip\noindent\textit{Implementation note.} Code is shown in notebook-sized blocks rather than as one complete listing. Run the blocks in order; each framed block corresponds to a canonical Jupyter code cell.\par
+
+\medskip\noindent\textbf{Part A --- Supervised baselines on Titanic.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block01.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block02.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block03.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block04.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block05.py}
+
+\medskip\noindent\textbf{Part B --- Thresholds and ranking metrics.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block06.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block07.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block08.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block09.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block10.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block11.py}
+
+\medskip\noindent\textbf{Part C --- Optional heart-failure transfer.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block12.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block13.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block14.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block15.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block16.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block17.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block18.py}
+
+\medskip\noindent\textbf{Part D --- Cross-validated model selection.}\par
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block19.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block20.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block21.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block22.py}
+\lstinputlisting[style=mlpython]{jupyter_cells/lab03-supervised_workflow_evaluation_selection/block23.py}
+
+\begin{decisionmemo}
+Choose a classification threshold for a setting in which false negatives cost substantially more than false positives. State the consequence of lowering the threshold and name the validation evidence you used.
+\end{decisionmemo}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit a comparison against a no-skill baseline, confusion-matrix and ROC/precision--recall evidence for at least two thresholds, the cross-validated selection result, and one final untouched-test result after all choices are locked. The Heart Failure transfer activity is optional and does not count as another lab.
+\end{labdeliverable}

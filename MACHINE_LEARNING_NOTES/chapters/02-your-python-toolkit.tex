@@ -3,7 +3,7 @@
 
 \chapterguide%
   {You should be comfortable creating folders and running a command in a terminal.}
-  {Create a clean project workspace, manually download the course datasets into dedicated dataset folders, create and activate a virtual environment, install dependencies from a requirements file you write yourself, and save your practical work as Jupyter notebooks in \texttt{all\_experiments/}.}
+  {Create a clean project workspace, manually download the course datasets into dedicated dataset folders, create and activate a virtual environment, install the project dependencies from the included requirements file, and save your practical work as Jupyter notebooks in \texttt{all\_experiments/}.}
 
 Machine learning combines ideas with computation. From this chapter onward, major methods are paired with complete Python examples and small public Kaggle datasets. You will still type, run, modify, and explain the code yourself. The objective of the setup is not automation; it is to make every path predictable enough that the machine-learning ideas stay in focus.
 
@@ -12,8 +12,8 @@ Machine learning combines ideas with computation. From this chapter onward, majo
 Use one root folder for the course. Inside it, keep \emph{datasets} and \emph{experiments} separate:
 
 \begin{lstlisting}[style=mlterminal]
-MACHINE_LEARNING_UTP/
-  all_datasets/                       # root folder for downloaded datasets
+UTP_MACHINE_LEARNING/
+  all_datasets/                  # one subfolder per dataset
     titanic_dataset/
     medical_cost_personal_dataset/
     breast_cancer_dataset/
@@ -26,12 +26,11 @@ MACHINE_LEARNING_UTP/
     red_wine_quality_dataset/
     bike_sharing_dataset/
 
-  all_experiments/                   # your .ipynb practical notebooks inside dedicated experiment folders
-    experiment_01/
-    experiment_02/
-    experiment_03/
+  all_experiments/              # 10 canonical practical notebooks
+    lab01-foundations_environment_data.ipynb
+    lab02-learning_loop_geometry.ipynb
     ...
-    experiment_10/
+    lab10-reinforcement_integration.ipynb
 
   requirements.txt
 \end{lstlisting}
@@ -39,7 +38,6 @@ MACHINE_LEARNING_UTP/
 \begin{keyidea}
 \texttt{all\_datasets/} is only the dataset \emph{root}. Do not throw every CSV into that root. Each downloaded dataset gets its own folder because a Kaggle download may contain one file, several related files, a README, or supporting metadata. Your code should therefore use paths such as \texttt{all\_datasets/titanic\_dataset/Titanic-Dataset.csv}.
 \end{keyidea}
-
 
 \section{Download the course datasets manually from Kaggle}
 
@@ -133,13 +131,12 @@ which -a python3
 
 Python's standard-library \texttt{venv} module creates a lightweight environment with its own installed packages. This keeps the course dependencies separate from other Python projects. \href{https://docs.python.org/3/library/venv.html}{Python \texttt{venv} documentation}.
 
-First create a normal text file named \texttt{requirements.txt} in the root folder \texttt{MACHINE\_LEARNING\_UTP}. Type and save these package names yourself:
+The repository includes a normal text file named \texttt{requirements.txt} in the project root. It contains the course dependencies:
 
 \begin{lstlisting}[style=mlterminal]
 numpy
 pandas
 matplotlib
-seaborn
 scikit-learn
 jupyter
 \end{lstlisting}
@@ -184,27 +181,22 @@ Do not install random packages globally whenever a tutorial asks for one. Activa
 
 \section{Verify the scientific stack}
 
-Run this small import check once in Python or in your first notebook:
+Use the practical lab below as the single environment check. It imports the core scientific packages and records their versions so the same notebook also serves as a reproducibility note. If all four imports succeed, the core environment is ready.
 
-\begin{lstlisting}[style=mlpython]
-import numpy as np
-import pandas as pd
-import matplotlib
-import sklearn
 
-print("NumPy:", np.__version__)
-print("pandas:", pd.__version__)
-print("Matplotlib:", matplotlib.__version__)
-print("scikit-learn:", sklearn.__version__)
-\end{lstlisting}
-
-If all four imports succeed, the core environment is ready.
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why should datasets, notebooks, and generated code listings live in separate folders?
+  \item Why is a project-local virtual environment safer than installing course packages globally?
+  \item If a notebook raises \texttt{FileNotFoundError}, what should you inspect before changing any data files?
+\end{enumerate}
+\end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
   \item \texttt{all\_datasets/} is the dataset root; every Kaggle dataset lives inside its own dedicated subfolder.
   \item A dataset folder may legitimately contain several related files, as with Optical Digits, Student Performance, and Bike Sharing.
-  \item Create \texttt{requirements.txt} yourself, then install it inside a project-local virtual environment.
+  \item Install the included \texttt{requirements.txt} inside a project-local virtual environment.
   \item Save your practical work as notebooks in \texttt{all\_experiments/}; a good notebook records code, plots, results, and interpretation.
 \end{itemize}
 \end{chapterrecap}

@@ -1,0 +1,10 @@
+# This visualization is descriptive after the procedure is locked.
+X_test_pca = pca.transform(X_test)
+plt.figure(figsize=(6, 4))
+scatter = plt.scatter(X_test_pca[:, 0], X_test_pca[:, 1], c=y_test, s=12, alpha=0.7)
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.title("Official test digits in the first two locked components")
+plt.colorbar(scatter, label="digit")
+plt.tight_layout()
+plt.show()

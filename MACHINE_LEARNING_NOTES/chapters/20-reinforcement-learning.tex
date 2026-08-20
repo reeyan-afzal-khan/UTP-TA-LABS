@@ -229,10 +229,7 @@ Main risks & Unsafe exploration, reward hacking, unstable estimates, poor state 
 Reinforcement learning does not learn from a correct answer for every action. It learns from consequences, balancing immediate reward, future reward, and the need to explore.
 \end{keyidea}
 
-% ==== EXPANDED EDITION ADDITIONS ====
-
 \section{Bandit exploration behavior}
-
 
 \begin{keyidea}
 Look at the pull counts. The agent spent almost all its attempts on the best machine but never stopped sampling the others entirely. A fixed 10\% of decisions use a random exploratory action; some of those random actions still choose the current best arm. Continued exploration reduces the risk of settling early on the wrong answer, at the cost of occasionally taking an action believed to be worse.
@@ -256,7 +253,6 @@ Look at the pull counts. The agent spent almost all its attempts on the best mac
 \end{mlfigure}
 
 \section{Tabular Q-learning dynamics}
-
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}\ttfamily}p{0.15\linewidth}p{0.16\linewidth}X@{}}
@@ -284,8 +280,8 @@ In a continuing task, an undiscounted infinite sum may be undefined, so the disc
 Tabular Q-learning needs one table cell per state-action pair. For very large or continuous state spaces, the table cannot exist. Replacing it with a function approximator, sometimes a neural network that estimates $Q(s,a)$, leads toward deep reinforcement learning (\hyperref[ch:next]{the Epilogue}).
 \end{keyidea}
 
-\input{chapters/kaggle-labs/20-reinforcement}
 
+\input{chapters/labs/10-reinforcement}
 
 \begin{quickcheck}
 \begin{enumerate}

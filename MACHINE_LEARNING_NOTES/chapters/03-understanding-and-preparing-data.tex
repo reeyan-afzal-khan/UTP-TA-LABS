@@ -21,7 +21,6 @@ Before changing the dataset, answer the following questions.
   \item \term{Who or what is missing?} The dataset may not represent the full population where the model will be used.
 \end{mlsteps}
 
-
 \section{A safe order of operations}
 
 The phrase ``clean the data'' hides several different jobs. Their order matters.
@@ -89,7 +88,6 @@ Structural cleaning makes the stored values agree with their documented meaning.
 
 \subsection{Confirm row identity and handle duplicates}
 
-
 \begin{mltable}
 \renewcommand{\arraystretch}{1.18}
 \setlength{\tabcolsep}{5pt}
@@ -108,7 +106,6 @@ Near duplicate & Spelling, rounding, or record-linkage differences & Use an expl
 
 \subsection{Repair types, labels, dates, and units}
 
-
 Use the following order:
 
 \begin{mlsteps}
@@ -118,7 +115,6 @@ Use the following order:
   \item \term{Normalize units.} Convert to one stated unit using a known conversion; never mix unit conversion with statistical scaling.
   \item \term{Validate the result.} Check allowed categories, ranges, key uniqueness, and date order with assertions.
 \end{mlsteps}
-
 
 \subsection{Distinguish impossible values from unusual values}
 
@@ -398,7 +394,6 @@ Do not choose an imbalance ``fix'' before you know how the model will be evaluat
   \item counts or averages from past behavior, calculated without using the future.
 \end{itemize}
 
-
 \subsection*{Feature engineering by data type}
 Feature engineering depends on the structure of the information. Do not apply every transformation to every problem; choose transformations that preserve meaning and respect the prediction-time information boundary.
 
@@ -459,10 +454,7 @@ Document the data source, collection period, row definition, feature units, targ
 Prepare the training data first, learn every transformation from it, and reuse those fitted transformations unchanged on validation, test, and future production data.
 \end{keyidea}
 
-% ==== EXPANDED EDITION ADDITIONS ====
-
 \section{The whole preparation as one object}
-
 
 \begin{keyidea}
 The pipeline is the unit you fit and later evaluate. The median age, scaling values, and category vocabulary are learned from the training rows and then reused unchanged on the holdout. Do not interpret or tune from the holdout yet; \chapref{ch:evaluation} introduces the metrics and shows that the same pipeline is refitted separately inside every cross-validation training fold. This is why a pipeline is more than convenient syntax: it enforces the information boundary.
@@ -472,8 +464,16 @@ The pipeline is the unit you fit and later evaluate. The median age, scaling val
 A teammate computes median values, standardization statistics, and a target encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
 \end{debugtask}
 
-\input{chapters/kaggle-labs/03-data-preparation}
 
+\input{chapters/labs/01-foundations}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why must train/test splitting happen before any preprocessing step that learns from the data?
+  \item What is the difference between an identifier, a feature, and a target?
+  \item Why is a prediction-time information boundary necessary when deciding whether a feature is leakage?
+\end{enumerate}
+\end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}

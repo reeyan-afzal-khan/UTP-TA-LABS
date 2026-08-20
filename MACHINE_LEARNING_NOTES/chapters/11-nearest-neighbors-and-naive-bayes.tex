@@ -122,7 +122,6 @@ The single control on $k$-NN is $k$ itself, and its effect is easiest to see as 
 The lone orange point sitting up in the blue region is probably noise. With $k=1$ the boundary detours around it, carving out a little island -- the model has memorized a mistake. With $k=15$ that point is outvoted by its fifteen neighbors and the boundary sails straight past. Small $k$ means low bias and high variance; large $k$ means the reverse.
 \end{intuition}
 
-
 \section{Naive Bayes}
 \label{sec:naive-bayes}
 
@@ -214,10 +213,8 @@ Main risks & Scale, irrelevant features, slow prediction, high dimensions & Unre
 \end{tabularx}
 \end{modelcard}
 
-% ==== EXPANDED EDITION ADDITIONS ====
 
-\input{chapters/kaggle-labs/11-knn-nb}
-
+\input{chapters/labs/05-classification-models}
 
 \begin{quickcheck}
 \begin{enumerate}

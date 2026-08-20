@@ -6,32 +6,51 @@ Before the detailed Machine-Learning Map, use this one-page route to answer only
 
 \begin{mlfigure}
 \begin{tikzpicture}[
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=10.9cm,minimum height=0.82cm,align=center,font=\scriptsize\color{MLNavy}},
-  branch/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=5.05cm,minimum height=1.55cm,align=center,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal,shorten >=1pt},
+  every node/.append style={execute at begin node={\hyphenpenalty=10000\relax}},
+  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=13.2cm,minimum height=1.35cm,align=center,font=\footnotesize\color{MLNavy}},
+  gate/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=6.8cm,minimum height=0.78cm,align=center,font=\small\bfseries},
+  sup/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=6.2cm,minimum height=2.05cm,align=center,font=\scriptsize\color{MLNavy}},
+  unsup/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=6.2cm,minimum height=2.05cm,align=center,font=\scriptsize\color{MLNavy}},
+  other/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=13.2cm,minimum height=1.35cm,align=center,font=\footnotesize\color{MLNavy}},
+  finish/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=13.2cm,minimum height=1.25cm,align=center,font=\footnotesize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal,shorten <=1pt,shorten >=2pt},
   flow/.style={thick,draw=MLTeal,line cap=round,line join=round},
   junction/.style={circle,fill=MLTeal,inner sep=1.2pt}
 ]
-\node[stage] (a) at (0,4.65) {\textbf{Stages 1--2: Orientation and shared foundations}\\Frame the problem, prepare data safely, and learn the mathematics needed to reason about models.};
-\node[branch] (s1) at (-3.0,2.35) {\textbf{Stage 3A: Supervised workflow}\\Define a target, establish a baseline, validate honestly, and select with evidence.};
-\node[branch] (s2) at (-3.0,0.15) {\textbf{Stage 3B: Supervised model families}\\Compare assumptions and failure modes before choosing the simplest adequate method.};
-\node[branch] (u1) at (3.0,2.35) {\textbf{Stage 4A: Unsupervised workflow}\\State the structure you seek and evaluate it without pretending an answer key exists.};
-\node[branch] (u2) at (3.0,0.15) {\textbf{Stage 4B: Unsupervised model families}\\Choose methods for grouping, representation, or unusual-case detection.};
-\node[stage] (c) at (0,-2.0) {\textbf{Stage 5: Other learning signals}\\Learn from scarce labels or rewards, then integrate the full workflow in the capstone.};
-\coordinate (split) at ($(a.south)+(0,-0.48)$);
-\draw[flow] (a.south) -- (split);
-\draw[flow] (s1.north |- split) -- (u1.north |- split);
+\node[stage] (a) at (0,9.15) {\textbf{Stage 1: Orientation and tools \hspace{0.5em} (Chapters 1--2)}\\Learn the core vocabulary, map the end-to-end workflow, set up Python, and organize the datasets and experiments.\\\textbf{Milestone:} a clear problem statement and a working course environment.};
+\node[stage] (b) at (0,6.95) {\textbf{Stage 2: Data and shared foundations \hspace{0.5em} (Chapters 3--5)}\\Audit, split, and preprocess data safely; then learn the statistics, probability, vectors, distance, scaling, and optimization ideas reused later.\\\textbf{Milestone:} trustworthy data and enough mathematics to explain what a model is doing.};
+\node[gate] (g) at (0,5.10) {What learning signal is available?};
+
+\node[sup] (s1) at (-3.45,2.85) {\textbf{Stage 3A: Supervised workflow \quad Chapters 6--8}\\Targets are available. Frame regression or classification, build a baseline, choose suitable metrics, validate honestly, and select without touching the final test set.};
+\node[sup] (s2) at (-3.45,-0.15) {\textbf{Stage 3B: Supervised model families \quad Chapters 9--14}\\Compare linear and logistic models, nearest neighbors, naive Bayes, decision trees, ensembles, and support vector machines.\\\textbf{Goal:} choose the simplest model that meets the real requirement.};
+
+\node[unsup] (u1) at (3.45,2.85) {\textbf{Stage 4A: Unsupervised workflow \quad Chapter 15}\\No target is supplied during fitting. State the structure you want, define useful evidence, and evaluate geometry, stability, reconstruction, or domain meaning.};
+\node[unsup] (u2) at (3.45,-0.15) {\textbf{Stage 4B: Unsupervised model families \quad Chapters 16--18}\\Study clustering, dimensionality reduction and representation, and anomaly detection.\\\textbf{Goal:} find useful structure without treating it as automatic truth.};
+
+\node[other] (c) at (0,-3.45) {\textbf{Stage 5: Other learning signals \hspace{0.5em} (Chapters 19--20)}\\Use scarce labels through semi-supervised and active learning, then learn from actions and rewards through reinforcement learning.\\\textbf{Milestone:} recognize how the workflow changes when the feedback changes.};
+\node[finish] (d) at (0,-5.95) {\textbf{Capstone and Epilogue: integrate, defend, and extend}\\Choose the learning branch, build a leakage-safe pipeline, evaluate it fairly, explain its limits, and identify the next field direction that matches your goals.};
+
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (g);
+\coordinate (split) at ($(g.south)+(0,-0.40)$);
+\coordinate (splitL) at (s1.north |- split);
+\coordinate (splitR) at (u1.north |- split);
+\draw[flow] (g.south) -- (split);
+\draw[flow] (splitL) -- (splitR);
 \node[junction] at (split) {};
-\draw[arr] (s1.north |- split) -- (s1.north);
-\draw[arr] (u1.north |- split) -- (u1.north);
+\draw[arr] (splitL) -- (s1.north);
+\draw[arr] (splitR) -- (u1.north);
 \draw[arr] (s1) -- (s2);
 \draw[arr] (u1) -- (u2);
-\coordinate (merge) at ($(c.north)+(0,0.45)$);
-\draw[flow] (s2.south) -- (s2.south |- merge);
-\draw[flow] (u2.south) -- (u2.south |- merge);
-\draw[flow] (s2.south |- merge) -- (u2.south |- merge);
+\coordinate (merge) at ($(c.north)+(0,0.70)$);
+\coordinate (mergeL) at (s2.south |- merge);
+\coordinate (mergeR) at (u2.south |- merge);
+\draw[flow] (s2.south) -- (mergeL);
+\draw[flow] (u2.south) -- (mergeR);
+\draw[flow] (mergeL) -- (mergeR);
 \node[junction] at (merge) {};
 \draw[arr] (merge) -- (c.north);
+\draw[arr] (c) -- (d);
 \end{tikzpicture}
 \end{mlfigure}
 
