@@ -2,21 +2,21 @@
 \label{ch:data}
 
 \chapterguide%
-  {\chapsref{ch:orientation}{ch:python}: the workflow, computational vocabulary, and the distinction between features and targets.}
-  {audit and clean a dataset, distinguish deterministic corrections from learned preprocessing, choose a valid split, handle missing and categorical values, prevent leakage, and build a reproducible pipeline.}
+  {\chapsref{ch:orientation}{ch:python}: the workflow, computational vocabulary, and the distinction between features and labels.}
+  {assess and clean a dataset, distinguish deterministic corrections from learned preprocessing, choose a valid split, handle missing and categorical values, prevent leakage, and build a reproducible pipeline.}
 
-Now that the environment and basic library vocabulary are in place, the next job is to make the data trustworthy. A powerful algorithm cannot rescue a badly defined target, incorrect measurements, or an unfair train-test split.
+Now that the environment and basic library vocabulary are in place, the next job is to make the data trustworthy. A powerful algorithm cannot rescue a badly defined label, incorrect measurements, or an unfair train-test split.
 
 Data preparation is easier when you separate three questions: \emph{What does the data mean? What is demonstrably wrong? What must be learned from examples?} This chapter follows that order. It treats cleaning as a documented reasoning process, not as a collection of commands that make a table look tidy.
 
-\section{Start with a data audit}
+\section{Start with a data quality assessment}
 
 Before changing the dataset, answer the following questions.
 
 \begin{mlsteps}
   \item \term{What does one row represent?} A person, transaction, image, day, machine, or something else?
   \item \term{What does each column mean?} Record its type, unit, valid range, and source.
-  \item \term{When is the target known?} A feature available only after the outcome occurs creates leakage.
+  \item \term{When is the label known?} A feature available only after the outcome occurs creates leakage.
   \item \term{Which rows are related?} Repeated measurements from one person or device must usually stay in the same split.
   \item \term{Who or what is missing?} The dataset may not represent the full population where the model will be used.
 \end{mlsteps}
@@ -47,18 +47,18 @@ The phrase ``clean the data'' hides several different jobs. Their order matters.
 \rowcolor{MLPaleBlue!92}
 Stage & Examples & Why it belongs there \\
 \midrule
-Before the split & Check required columns, parse known date formats, standardize documented units, normalize harmless whitespace, verify keys, and reject impossible values using domain rules. & These rules do not estimate anything from the target or from the distribution of the full dataset. \\
-After the split & Learn medians, means, scales, frequent-category cutoffs, outlier thresholds, target encodings, and any later feature-selection or resampling rules. & These choices depend on observed data and must be fitted on training rows only. \\
+Before the split & Check required columns, parse known date formats, standardize documented units, normalize harmless whitespace, verify keys, and reject impossible values using domain rules. & These rules do not estimate anything from the label or from the distribution of the full dataset. \\
+After the split & Learn medians, means, scales, frequent-category cutoffs, outlier thresholds, label-informed mean encodings, and any later feature-selection or resampling rules. & These choices depend on observed data and must be fitted on training rows only. \\
 After modeling & Inspect test performance once, document limitations, and monitor future data quality and drift. & The test set remains an honest final check rather than another source of design decisions. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \begin{keyidea}
-A correction may happen before the split when it follows a fixed, target-blind rule that would be applied identically to any future row. If a value, cutoff, category grouping, or decision is estimated from the observed data, learn it from training data only.
+A correction may happen before the split when it follows a fixed, label-blind rule that would be applied identically to any future row. If a value, cutoff, category grouping, or decision is estimated from the observed data, learn it from training data only.
 \end{keyidea}
 
-\section{Feature and target types}
+\section{Feature and label types}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}X@{}}
@@ -75,7 +75,7 @@ Text & review, message & convert to numerical counts or other classical text fea
 \end{tabularx}
 \end{mltable}
 
-Targets usually fall into two basic groups:
+Labels usually fall into two basic groups:
 
 \begin{itemize}
   \item A \term{continuous number} suggests regression, such as price or temperature.
@@ -197,14 +197,14 @@ Examples include:
   \item selecting features using test-set performance;
   \item placing near-duplicate rows in both training and test data;
   \item using future values to predict an earlier point in time;
-  \item including an identifier or proxy that effectively reveals the target, such as a claim-resolution code when predicting whether a claim will be approved.
+  \item including an identifier or proxy that effectively reveals the label, such as a claim-resolution code when predicting whether a claim will be approved.
 \end{itemize}
 
 The safe rule is simple: fit every data-dependent choice on training data only, then apply the learned transformation unchanged to validation and test data.
 
 \section{Leakage, drawn}
 
-Leakage is abstract until you see the order of operations. The only difference between the two pictures below is \emph{when} the split happens -- and that difference is the single most common cause of a model that looks excellent in testing and fails in reality.
+Leakage is abstract until you see the order of operations. The only difference between the two pictures below is \emph{when} the split happens --- and that difference is the single most common cause of a model that looks excellent in testing and fails in reality.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -267,7 +267,7 @@ Encoding method & How it works \\
 One-hot encoding & Creates one binary column per category. It is a safe default for nominal features with a manageable number of values. \\
 Ordinal encoding & Uses ordered numbers only when the categories truly have an order. \\
 Frequency encoding & Replaces a category with how often it appears in training data. \\
-Target encoding & Uses target statistics; apply the leakage rule from \secref{sec:data-leakage}. \\
+Label-informed mean encoding & Uses label statistics; apply the leakage rule from \secref{sec:data-leakage}. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -422,7 +422,7 @@ Feature type & Example & Safe treatment \\
 \midrule
 Deterministic & BMI from documented height and weight; extracting hour from a timestamp & May be computed reproducibly wherever the required raw fields are legitimately available. \\
 Distribution-fitted & Power transform, frequency encoding, clipping threshold, learned category grouping & Fit from training rows only, normally inside a pipeline. \\
-Target-aware & Target encoding, supervised feature selection, a category merge chosen because it separates labels & Fit inside training folds; never compute from the complete labeled table before validation. Supervised selection is treated as a leakage-sensitive model-development step in \chapref{ch:training}. \\
+Label-aware & Label-informed mean encoding, supervised feature selection, a category merge chosen because it separates labels & Fit inside training folds; never compute from the complete labeled table before validation. Supervised selection is treated as a leakage-sensitive model-development step in \chapref{ch:training}. \\
 Temporal aggregate & Lag, rolling mean, previous-week count & Use observations available by the prediction moment only; never back-fill a missing past feature with a future value. \\
 \bottomrule
 \end{tabularx}
@@ -448,7 +448,7 @@ A pipeline stores the exact order of transformations. It learns imputation value
 \end{tikzpicture}
 \end{mlfigure}
 
-Document the data source, collection period, row definition, feature units, target timing, inclusion rules, split logic, random seed, known bias, and privacy limits.
+Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias, and privacy limits.
 
 \begin{keyidea}
 Prepare the training data first, learn every transformation from it, and reuse those fitted transformations unchanged on validation, test, and future production data.
@@ -461,24 +461,24 @@ The pipeline is the unit you fit and later evaluate. The median age, scaling val
 \end{keyidea}
 
 \begin{debugtask}
-A teammate computes median values, standardization statistics, and a target encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
+A teammate computes median values, standardization statistics, and a label-informed mean encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
 \end{debugtask}
 
 
-\input{chapters/labs/01-foundations}
+\input{labs/01-foundations}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item Why must train/test splitting happen before any preprocessing step that learns from the data?
-  \item What is the difference between an identifier, a feature, and a target?
+  \item What is the difference between an identifier, a feature, and a label?
   \item Why is a prediction-time information boundary necessary when deciding whether a feature is leakage?
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item A data audit begins with the meaning of rows, columns, units, timing, and missing populations.
-  \item Fixed, target-blind schema corrections can precede the split; quantities learned from observed data belong inside training.
+  \item A data quality assessment begins with the meaning of rows, columns, units, timing, and missing populations.
+  \item Fixed, label-blind schema corrections can precede the split; quantities learned from observed data belong inside training.
   \item Duplicates, invalid values, rare values, and missing values are different problems and should not be handled by one automatic deletion rule.
   \item The holdout must imitate future use and respect groups, time, or location when necessary.
   \item Leakage occurs when unavailable or held-out information influences features, preprocessing, or model-development choices.

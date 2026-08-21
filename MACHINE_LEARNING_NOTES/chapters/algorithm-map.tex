@@ -70,18 +70,18 @@ Lifecycle & Problem framing, data collection, preparation, training, evaluation,
 \begin{mlfigure}
 \begin{tikzpicture}[
   q/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,
-            text width=3.3cm,minimum height=0.9cm,align=center,font=\bfseries\small},
+            text width=14.05cm,minimum height=0.9cm,align=center,font=\bfseries\small},
   branch/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,
                  text width=3.25cm,minimum height=1.0cm,align=center,font=\small\color{MLNavy}},
   leaf/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,
-               text width=3.0cm,minimum height=1.18cm,align=center,font=\scriptsize\color{MLNavy}},
+               text width=3.0cm,minimum height=1.58cm,align=center,font=\scriptsize\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
 ]
 \node[q] (start) at (0,3.8) {What feedback is available?};
 
-\node[branch] (full) at (-5.4,1.9) {A target for each example};
-\node[branch] (few) at (-1.8,1.9) {Only some targets};
-\node[branch] (none) at (1.8,1.9) {No external target};
+\node[branch] (full) at (-5.4,1.9) {A label for each example};
+\node[branch] (few) at (-1.8,1.9) {Only some labels};
+\node[branch] (none) at (1.8,1.9) {No external label};
 \node[branch] (reward) at (5.4,1.9) {Reward after actions};
 
 \node[leaf] (sup) at (-5.4,-0.1) {\textbf{Supervised learning}\\regression, classification, ranking, forecasting, survival};
@@ -104,7 +104,7 @@ Lifecycle & Problem framing, data collection, preparation, training, evaluation,
 \end{mlfigure}
 
 \begin{intuition}
-\textbf{Self-supervised learning} creates a training signal from the data itself -- for example, predicting a hidden word or a missing part of an image. It is one of the main bridges from unlabeled data to modern representation learning. \textbf{Active learning} is different: the model chooses which examples would be most valuable for a human to label.
+\textbf{Self-supervised learning} creates a training signal from the data itself --- for example, predicting a hidden word or a missing part of an image. It is one of the main bridges from unlabeled data to modern representation learning. \textbf{Active learning} is different: the model chooses which examples would be most valuable for a human to label.
 \end{intuition}
 
 \section*{3. Start from the job you need done}
@@ -204,7 +204,7 @@ Anomaly detection & Simple statistical rules & Local methods, isolation forest, 
 \end{tabularx}
 \end{mltable}
 
-\section*{7. What these notes cover -- and what lies beyond}
+\section*{7. What these notes cover --- and what lies beyond}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode}p{0.22\linewidth}X@{}}

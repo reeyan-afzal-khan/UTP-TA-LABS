@@ -1,0 +1,252 @@
+\labsection{8}{Unsupervised structure, clustering, and PCA}{sec:lab08-unsupervised}
+
+\begin{labproject}{Search for structure without pretending an answer key exists}
+\textbf{Coverage.} Chapters 15--17.\\
+\textbf{Core data.} Mall Customers and Optical Recognition of Handwritten Digits.\\
+\textbf{Goal.} Define an unsupervised question, compare K-means with DBSCAN, and evaluate PCA as a representation/compression step using downstream validation.
+
+\begin{labmode}
+This lab deliberately joins workflow, clustering, and representation learning. The methods are different, but all require you to define what useful structure means before interpreting a plot or cluster label.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- K-means diagnostics.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "mall_customers_dataset" / "Mall_Customers.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+features = ["Age", "Annual Income (k$)", "Spending Score (1-100)"]
+X = df[features]
+X_scaled = StandardScaler().fit_transform(X)
+
+ks, inertias, silhouettes = [], [], []
+
+for k in range(2, 9):
+    model = KMeans(n_clusters=k, n_init=20, random_state=42)
+    labels = model.fit_predict(X_scaled)
+    sil = silhouette_score(X_scaled, labels)
+    ks.append(k)
+    inertias.append(model.inertia_)
+    silhouettes.append(sil)
+    print("k=", k, "inertia=", round(model.inertia_, 2),
+          "silhouette=", round(sil, 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 4))
+plt.plot(ks, inertias, marker="o")
+plt.xlabel("Number of clusters k")
+plt.ylabel("Inertia")
+plt.title("K-means elbow diagnostic")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 4))
+plt.plot(ks, silhouettes, marker="o")
+plt.xlabel("Number of clusters k")
+plt.ylabel("Silhouette score")
+plt.title("K-means silhouette diagnostic")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- K-means versus DBSCAN.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN, KMeans
+from sklearn.metrics import silhouette_score
+from sklearn.preprocessing import StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "mall_customers_dataset" / "Mall_Customers.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+features = ["Age", "Annual Income (k$)", "Spending Score (1-100)"]
+X = StandardScaler().fit_transform(df[features])
+
+kmeans = KMeans(n_clusters=5, n_init=30, random_state=42)
+k_labels = kmeans.fit_predict(X)
+print("KMeans silhouette:", round(silhouette_score(X, k_labels), 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# DBSCAN can mark observations as noise (-1) instead of forcing every row into a cluster.
+dbscan = DBSCAN(eps=0.75, min_samples=6)
+d_labels = dbscan.fit_predict(X)
+mask = d_labels != -1
+n_clusters = len(set(d_labels[mask]))
+print("DBSCAN clusters:", n_clusters)
+print("DBSCAN noise points:", int((~mask).sum()))
+if n_clusters >= 2:
+    print("DBSCAN silhouette (non-noise only):",
+          round(silhouette_score(X[mask], d_labels[mask]), 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+out = df.copy()
+out["kmeans_cluster"] = k_labels
+out["dbscan_cluster"] = d_labels
+print(out.groupby("kmeans_cluster")[features].mean().round(1))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 4))
+plt.scatter(
+    df["Annual Income (k$)"],
+    df["Spending Score (1-100)"],
+    c=k_labels,
+    alpha=0.75,
+)
+plt.xlabel("Annual income (k$)")
+plt.ylabel("Spending score")
+plt.title("K-means labels in two original features")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 4))
+plt.scatter(
+    df["Annual Income (k$)"],
+    df["Spending Score (1-100)"],
+    c=d_labels,
+    alpha=0.75,
+)
+plt.xlabel("Annual income (k$)")
+plt.ylabel("Spending score")
+plt.title("DBSCAN labels; noise has label -1")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part C --- PCA compression on handwritten digits.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+data_dir = PROJECT_ROOT / "all_datasets" / "optical_recognition_dataset"
+columns = [f"pixel_{i}" for i in range(64)] + ["label"]
+train = pd.read_csv(data_dir / "optdigits.tra", header=None, names=columns)
+test = pd.read_csv(data_dir / "optdigits.tes", header=None, names=columns)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# The dataset ships with an official training file and an official test file.
+# Keep the official test file untouched while exploring the compression choice.
+X_dev = train.drop(columns="label") / 16.0
+y_dev = train["label"]
+X_test = test.drop(columns="label") / 16.0
+y_test = test["label"]
+
+X_fit, X_valid, y_fit, y_valid = train_test_split(
+    X_dev, y_dev, test_size=0.25, random_state=42, stratify=y_dev
+)
+
+# Development baseline: all 64 features, evaluated on validation data.
+baseline = LogisticRegression(max_iter=2000)
+baseline.fit(X_fit, y_fit)
+baseline_valid = baseline.predict(X_valid)
+print(
+    "64-feature validation accuracy:",
+    round(accuracy_score(y_valid, baseline_valid), 4),
+)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Compare compression budgets only on development validation data.
+for retained_variance in [0.90, 0.95, 0.99]:
+    candidate = Pipeline([
+        ("pca", PCA(n_components=retained_variance, svd_solver="full")),
+        ("model", LogisticRegression(max_iter=2000)),
+    ])
+    candidate.fit(X_fit, y_fit)
+    valid_pred = candidate.predict(X_valid)
+    pca = candidate.named_steps["pca"]
+    print(
+        f"{retained_variance:.0%} variance:",
+        "components=", pca.n_components_,
+        "validation accuracy=", round(accuracy_score(y_valid, valid_pred), 4),
+    )
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Course policy: 95% retained variance is locked before the official test is opened.
+locked_variance = 0.95
+final_baseline = LogisticRegression(max_iter=2000)
+final_baseline.fit(X_dev, y_dev)
+
+final_model = Pipeline([
+    ("pca", PCA(n_components=locked_variance, svd_solver="full")),
+    ("model", LogisticRegression(max_iter=2000)),
+])
+final_model.fit(X_dev, y_dev)
+
+baseline_test_pred = final_baseline.predict(X_test)
+pca_test_pred = final_model.predict(X_test)
+pca = final_model.named_steps["pca"]
+
+print("\nFINAL LOCKED TEST")
+print("full 64-feature accuracy:", round(accuracy_score(y_test, baseline_test_pred), 4))
+print("PCA components kept:", pca.n_components_)
+print("PCA variance retained:", round(pca.explained_variance_ratio_.sum(), 4))
+print("PCA-to-logistic accuracy:", round(accuracy_score(y_test, pca_test_pred), 4))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 4))
+plt.plot(np.cumsum(pca.explained_variance_ratio_), marker=".")
+plt.axhline(locked_variance, linestyle="--")
+plt.xlabel("Number of principal components")
+plt.ylabel("Cumulative explained variance")
+plt.title("Locked PCA compression budget")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# This visualization is descriptive after the procedure is locked.
+X_test_pca = pca.transform(X_test)
+plt.figure(figsize=(6, 4))
+scatter = plt.scatter(X_test_pca[:, 0], X_test_pca[:, 1], c=y_test, s=12, alpha=0.7)
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.title("Official test digits in the first two locked components")
+plt.colorbar(scatter, label="digit")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one defensible unsupervised question, K-means and DBSCAN diagnostics with interpretation, and the PCA compression table showing components retained and downstream validation performance. Open the official digit test set only after the compression rule is locked.
+\end{labdeliverable}

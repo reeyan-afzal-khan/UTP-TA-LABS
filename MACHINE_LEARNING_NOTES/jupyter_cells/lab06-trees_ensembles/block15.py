@@ -1,7 +1,0 @@
-plt.figure(figsize=(6, 4))
-plt.scatter(y_valid, results["gradient_boosting"], alpha=0.65)
-plt.xlabel("Observed quality")
-plt.ylabel("Predicted quality")
-plt.title("Wine quality validation: gradient boosting")
-plt.tight_layout()
-plt.show()

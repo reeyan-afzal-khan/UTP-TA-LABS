@@ -5,7 +5,7 @@
   {\chapref{ch:training} plus basic probability from \chapref{ch:statistics}; entropy is helpful but re-explained here.}
   {Grow a classification tree by hand using Gini impurity and information gain, build regression trees with variance reduction, and control tree size with stopping rules and pruning.}
 
-A decision tree predicts by asking a sequence of simple questions --- ``is age below 30?'', ``is income at least 50{,}000?'' --- and routing each observation down the branches until it reaches a \term{leaf}, which holds the prediction. Small trees are among the most human-readable models: their learned rules can be printed, drawn, and discussed. Trees are also the building blocks of random forests and gradient boosting (\chapref{ch:ensembles}), two strong families for tabular data.
+A decision tree predicts by asking a sequence of simple questions --- ``Is age below 30?'' and ``Is income at least 50{,}000?'' --- and routing each observation down the branches until it reaches a \term{leaf}, which holds the prediction. Small trees are among the most human-readable models: their learned rules can be printed, drawn, and discussed. Trees are also the building blocks of random forests and gradient boosting (\chapref{ch:ensembles}), two strong families for tabular data.
 
 \begin{firstread}
 A decision tree is a flowchart learned from examples. Training chooses questions that separate the known answers well. Prediction follows one path of yes/no answers to a final box. \term{Impurity} is only a score for how mixed the answers remain in a box.
@@ -44,9 +44,9 @@ Standard tree learning (the CART algorithm) is \term{greedy and recursive}:
 
 \begin{enumerate}
   \item At the current node, consider candidate splits: for a numerical feature, thresholds between sorted values; for categorical features, the available split rules depend on the tree formulation and representation.
-  \item Score each candidate by how much it \emph{purifies} the data --- how well it separates the classes (or, for regression, how much it shrinks the spread of the target).
+  \item Score each candidate by how much it \emph{purifies} the data --- how well it separates the classes (or, for regression, how much it shrinks the spread of the label).
   \item Apply the best split, sending observations left and right.
-  \item Repeat on each child until a stopping rule fires; each final node becomes a leaf that predicts its majority class (classification) or mean target (regression).
+  \item Repeat on each child until a stopping rule fires; each final node becomes a leaf that predicts its majority class (classification) or mean label (regression).
 \end{enumerate}
 
 Greedy means the algorithm never looks ahead or reconsiders: it takes the best immediate split at every step. That keeps training fast and usually works well, though it does not guarantee the globally best tree.
@@ -119,13 +119,13 @@ This geometry explains both a strength and a weakness: boundaries that align wit
 
 \section{Regression trees}
 
-For a numerical target, impurity becomes the spread of $y$ within a node --- its variance (equivalently, the mean squared error around the node mean) --- and a split is chosen to reduce it the most. Each leaf predicts the mean target of its training observations, so the fitted function is piecewise constant.
+For a numerical label, impurity becomes the spread of $y$ within a node --- its variance (equivalently, the mean squared error around the node mean) --- and a split is chosen to reduce it the most. Each leaf predicts the mean label of its training observations, so the fitted function is piecewise constant.
 
 \begin{workedexample}
-A node holds targets $y=\{2,3,10,11\}$ with mean $6.5$ and variance $16.25$. Splitting into $\{2,3\}$ and $\{10,11\}$ gives children with means $2.5$ and $10.5$ and variance $0.25$ each --- a weighted variance of $0.25$. The split explains almost all the spread, and the two leaves predict $2.5$ and $10.5$.
+A node holds labels $y=\{2,3,10,11\}$ with mean $6.5$ and variance $16.25$. Splitting into $\{2,3\}$ and $\{10,11\}$ gives children with means $2.5$ and $10.5$ and variance $0.25$ each --- a weighted variance of $0.25$. The split explains almost all the spread, and the two leaves predict $2.5$ and $10.5$.
 \end{workedexample}
 
-One consequence deserves a warning label: a regression tree can never predict a value outside the range of its training targets. Asked about a house larger than any it has seen, it predicts the mean of its largest-house leaf --- trees do not extrapolate.
+One consequence deserves a warning label: a regression tree can never predict a value outside the range of its training labels. Asked about a house larger than any it has seen, it predicts the mean of its largest-house leaf --- trees do not extrapolate.
 
 \section{Stopping and pruning}
 
@@ -170,9 +170,6 @@ This section applies the bias--variance framework from \secref{sec:bias-variance
 \end{axis}
 \end{tikzpicture}
 \end{mlfigure}
-
-\begin{analogy}
-\end{analogy}
 
 \subsection{The controls that limit growth}
 
@@ -230,7 +227,7 @@ That is the fitted decision rule itself, not a post-hoc approximation. A small t
 \label{sec:tree-feature-importance}
 
 \begin{workedexample}
-Permutation importance works by an elegant trick: shuffle one column at random, destroying its relationship with the target, and measure how much the score drops. If shuffling ``age'' costs three points of accuracy and shuffling ``customer ID'' costs nothing, then age was genuinely being used and the ID was not.
+Permutation importance works by an elegant trick: shuffle one column at random, destroying its relationship with the label, and measure how much the score drops. If shuffling ``age'' costs three points of accuracy and shuffling ``customer ID'' costs nothing, then age was genuinely being used and the ID was not.
 \end{workedexample}
 
 \begin{keyidea}
@@ -257,7 +254,7 @@ Choose between a shallow single tree and a random forest for a decision that mus
 \begin{chapterrecap}
 \begin{itemize}
   \item A decision tree repeatedly splits the feature space with yes/no questions.
-  \item Classification trees reduce impurity; regression trees reduce target variation.
+  \item Classification trees reduce impurity; regression trees reduce label variation.
   \item Deep trees can memorize training data and become unstable.
   \item Depth limits, minimum leaf sizes, and pruning control complexity.
   \item A small tree is interpretable, but an ensemble of trees is often more accurate.

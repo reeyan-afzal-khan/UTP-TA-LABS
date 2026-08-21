@@ -1,5 +1,0 @@
-model.fit(X_train, y_train)
-train_pred = model.predict(X_train)
-valid_pred = model.predict(X_valid)
-print("training accuracy:", round(accuracy_score(y_train, train_pred), 3))
-print("validation accuracy:", round(accuracy_score(y_valid, valid_pred), 3))

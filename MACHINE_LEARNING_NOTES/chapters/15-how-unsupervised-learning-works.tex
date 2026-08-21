@@ -3,9 +3,9 @@
 
 \chapterguide%
   {The shared foundations in Stages 1--2 and the supervised workflow in Stage 3A for comparison.}
-  {explain what changes when no target is supplied, distinguish the main unsupervised tasks, evaluate structure without pretending there is always a ground-truth answer, and follow a safe unsupervised workflow.}
+  {explain what changes when no label is supplied, distinguish the main unsupervised tasks, evaluate structure without pretending there is always a ground-truth answer, and follow a safe unsupervised workflow.}
 
-Stage 4A begins by resetting the workflow before any unsupervised model family is chosen. Until now, the main modeling chapters had a target $y$. That target gave training a direction and made evaluation comparatively direct. Unsupervised learning removes that answer key. The input is usually just a feature matrix $X$, and the goal is to discover or construct useful structure.
+Stage 4A begins by resetting the workflow before any unsupervised model family is chosen. Until now, the main modeling chapters had a label $y$. That label gave training a direction and made evaluation comparatively direct. Unsupervised learning removes that answer key. The input is usually just a feature matrix $X$, and the goal is to discover or construct useful structure.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -14,7 +14,7 @@ Stage 4A begins by resetting the workflow before any unsupervised model family i
 ]
 \node[bx] (s) at (-4.3,0) {Supervised\\$X+y \longrightarrow$ predict $y$};
 \node[bx] (u) at (4.3,0) {Unsupervised\\$X \longrightarrow$ discover structure};
-\draw[arr] (s.east) -- node[above,font=\scriptsize\color{MLMuted}]{remove the supplied target} (u.west);
+\draw[arr] (s.east) -- node[above,font=\scriptsize\color{MLMuted}]{remove the supplied label} (u.west);
 \end{tikzpicture}
 \end{mlfigure}
 
@@ -45,7 +45,7 @@ These tasks can share algorithms and geometry without sharing an evaluation rule
 
 \section{What does fitting mean without labels?}
 
-An unsupervised method still has an objective; it simply does not compare predictions with a supplied target during fitting.
+An unsupervised method still has an objective; it simply does not compare predictions with a supplied label during fitting.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}p{0.34\linewidth}X@{}}
@@ -80,7 +80,7 @@ Sometimes known labels exist for analysis even though the algorithm did not use 
 Often the strongest question is whether the representation or discovered structure is useful: are clusters interpretable and stable, does a compressed representation preserve a downstream signal, and do highly ranked anomalies correspond to cases a reviewer cares about?
 
 \begin{pitfall}
-Do not evaluate an unsupervised method by inventing a convenient target after the fact and then treating that target as ground truth. Clusters may cut across known categories for legitimate reasons, and a visually pleasing two-dimensional plot can distort neighborhoods. State what property the method was designed to preserve.
+Do not evaluate an unsupervised method by inventing a convenient label after the fact and then treating that label as ground truth. Clusters may cut across known categories for legitimate reasons, and a visually pleasing two-dimensional plot can distort neighborhoods. State what property the method was designed to preserve.
 \end{pitfall}
 
 \section{The unsupervised workflow}
@@ -107,7 +107,7 @@ A train/test split is not automatically required for every exploratory clusterin
 Many unsupervised algorithms see only geometry. If annual income is measured in hundreds of thousands and age in tens, a raw Euclidean distance can become mostly an income distance. Standardization, feature weighting, encoding, and the choice of distance therefore define part of the problem rather than merely polishing the input.
 
 \begin{keyidea}
-In supervised learning, a target can sometimes reveal that a poor representation is unhelpful. In unsupervised learning there may be no such corrective signal. The representation and distance choice therefore deserve explicit justification before interpreting the structure that appears.
+In supervised learning, a label can sometimes reveal that a poor representation is unhelpful. In unsupervised learning there may be no such corrective signal. The representation and distance choice therefore deserve explicit justification before interpreting the structure that appears.
 \end{keyidea}
 
 \section{The sequence ahead}
@@ -123,13 +123,13 @@ In supervised learning, a target can sometimes reveal that a poor representation
 \begin{enumerate}
   \item Why is there no universal unsupervised-learning accuracy score?
   \item Give one internal, one external, and one downstream form of evidence that could support an unsupervised result.
-  \item When does an unsupervised project need a held-out split even though no target is used during fitting?
+  \item When does an unsupervised project need a held-out split even though no label is used during fitting?
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Unsupervised learning fits structure in $X$ without using a supplied target during fitting.
+  \item Unsupervised learning fits structure in $X$ without using a supplied label during fitting.
   \item Clustering, dimensionality reduction, anomaly detection, and density estimation answer different questions and therefore need different objectives and evaluation evidence.
   \item Internal, external, and practical/downstream evaluation are complementary; there is no universal unsupervised accuracy score.
   \item Scaling, representation, and distance choices are part of the model because many unsupervised methods are geometric.

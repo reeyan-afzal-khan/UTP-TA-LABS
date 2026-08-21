@@ -3,7 +3,7 @@
 
 \chapterguide%
   {\chapref{ch:supervised}, \chapref{ch:training}, and vectors/matrices from \chapref{ch:linear-algebra}.}
-  {Fit and interpret linear regression, compute a small fit by hand, extend the model with polynomial features, control overfitting with ridge/lasso/elastic net, and recognize when a robust, quantile, count, or Tweedie loss better matches the target.}
+  {Fit and interpret linear regression, compute a small fit by hand, extend the model with polynomial features, control overfitting with ridge/lasso/elastic net, and recognize when a robust, quantile, count, or Tweedie loss better matches the label.}
 
 Stage 3B begins here: the supervised workflow is now fixed, so the remaining chapters change the model family rather than the evaluation rules. Linear regression is one of the oldest and most interpretable supervised algorithms, and it is a valuable baseline for many regression problems. The general training ideas from \chapref{ch:training} now become concrete: regularization, model capacity, and optimization can all be seen directly in a familiar regression model.
 
@@ -30,7 +30,7 @@ Ordinary least squares (OLS) chooses coefficients that minimize the residual sum
   \min_{\bm{\beta}}
   \sum_{i=1}^{n}{(y_i-\hat{y}_i)}^2.
 \]
-A \term{residual} $y_i-\hat{y}_i$ is the vertical gap between a data point and the fitted line --- the part of the target the model failed to explain.
+A \term{residual} $y_i-\hat{y}_i$ is the vertical gap between a data point and the fitted line --- the part of the label the model failed to explain.
 
 \begin{mlfigure}
 \begin{tikzpicture}
@@ -38,7 +38,7 @@ A \term{residual} $y_i-\hat{y}_i$ is the vertical gap between a data point and t
   width=0.82\linewidth, height=0.50\linewidth,
   axis lines=left,
   xlabel={feature $x$ (e.g.\ floor area)},
-  ylabel={target $y$ (e.g.\ price)},
+  ylabel={label $y$ (e.g.\ price)},
   label style={font=\small},
   ticks=none, xmin=0, xmax=10, ymin=0, ymax=10,
   clip=false
@@ -104,7 +104,7 @@ Two practical routes reach the same answer: solve a linear system using a stable
 \subsection{Reading the coefficients honestly}
 
 \begin{itemize}
-  \item Coefficients are in the target's units per unit of the feature, so their sizes are not comparable unless the features are standardized first.
+  \item Coefficients are in the label's units per unit of the feature, so their sizes are not comparable unless the features are standardized first.
   \item ``Holding the other features fixed'' is a mathematical statement, not a physical one. If floor area and bedroom count always grow together in the data, the model cannot cleanly separate their effects, and the individual coefficients become unstable even when predictions stay good. This is \term{multicollinearity}.
   \item Coefficients are associations, not causal effects (\secref{sec:correlation}); adding or removing one feature can change the sign of another coefficient.
 \end{itemize}
@@ -150,7 +150,7 @@ Fitting a line is easy. Knowing whether the line was the right idea requires loo
 \end{mlfigure}
 
 \begin{keyidea}
-Residuals should look like structureless noise. Any visible pattern is information the model failed to use. A U-shape means the true relationship curves and you need a polynomial term or a non-linear model. A widening funnel means the errors grow with the prediction, which often calls for predicting $\log y$ instead of $y$.
+Residuals should look like structureless noise. Any visible pattern is information the model failed to use. A U-shape means the true relationship curves and you need a polynomial term or a nonlinear model. A widening funnel means the errors grow with the prediction, which often calls for predicting $\log y$ instead of $y$.
 \end{keyidea}
 
 \section{Polynomial regression: curves from a linear model}
@@ -193,7 +193,7 @@ Polynomial features grow quickly --- degree 3 with 10 raw features already creat
 
 \section{Ridge regression: shrink everything a little}
 
-\term{Ridge regression} adds an $L_2$ penalty on coefficient size to the least-squares objective. For centered features and target (so the intercept has been removed), its solution is
+\term{Ridge regression} adds an $L_2$ penalty on coefficient size to the least-squares objective. For centered features and label (so the intercept has been removed), its solution is
 \[
   \hat{\bm{\beta}}_{\mathrm{ridge}}
   =\argmin_{\bm{\beta}}
@@ -201,7 +201,7 @@ Polynomial features grow quickly --- degree 3 with 10 raw features already creat
   +\lambda\|\bm{\beta}\|_2^2
   ={(X^{\mathsf T}X+\lambda I)}^{-1}X^{\mathsf T}\bm{y}.
 \]
-Reading the objective: the first term wants to fit the data, the second term charges rent on large coefficients, and $\lambda\geq 0$ sets the rent. With $\lambda=0$ ridge is ordinary least squares; as $\lambda$ grows, all penalized coefficients shrink smoothly toward zero. For $\lambda>0$, $X^{\mathsf T}X+\lambda I$ is invertible in this centered formulation. In the usual model with an intercept, software normally leaves that intercept unpenalized and reconstructs it from the feature and target means.
+Reading the objective: the first term wants to fit the data, the second term charges rent on large coefficients, and $\lambda\geq 0$ sets the rent. With $\lambda=0$ ridge is ordinary least squares; as $\lambda$ grows, all penalized coefficients shrink smoothly toward zero. For $\lambda>0$, $X^{\mathsf T}X+\lambda I$ is invertible in this centered formulation. In the usual model with an intercept, software normally leaves that intercept unpenalized and reconstructs it from the feature and label means.
 
 \section{Lasso: shrink some coefficients to exactly zero}
 
@@ -283,7 +283,7 @@ Linear regression finds the best weighted-sum predictor; feature transformations
 
 \begin{modelcard}{Linear Regression Family - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
-Best when & The target is numerical, a weighted-sum relationship is a useful approximation, and interpretability matters. \cr
+Best when & The label is numerical, a weighted-sum relationship is a useful approximation, and interpretability matters. \cr
 Start with & Ordinary linear regression, residual plots, and a mean/median baseline. \cr
 Preprocessing & Encode categories; standardize before ridge, lasso, or elastic net; inspect skew and outliers. \cr
 Main controls & Polynomial degree, regularization strength $\lambda$, and elastic-net mixing parameter. \cr
@@ -291,21 +291,21 @@ Watch for & Nonlinearity, influential outliers, multicollinearity, leakage, and 
 \end{tabularx}
 \end{modelcard}
 
-\section{When ordinary squared error is the wrong target model}
-\label{sec:special-regression-targets}
+\section{When ordinary squared error is the wrong model for the label}
+\label{sec:special-regression-labels}
 
-Ordinary least squares is a strong baseline for a continuous target, but the target's data-generating structure can justify a different loss or distribution. Do not choose these models because they sound advanced; choose them because the outcome and decision make their assumptions useful.
+Ordinary least squares is a strong baseline for a continuous label, but the label's data-generating structure can justify a different loss or distribution. Do not choose these models because they sound advanced; choose them because the outcome and decision make their assumptions useful.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}p{0.22\linewidth}p{0.29\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Target structure & Useful starting point & Main caution \\
+Label structure & Useful starting point & Main caution \\
 \midrule
 Continuous values with occasional large errors & Robust regression loss & Robustness changes which errors receive the most influence; validate against the real evaluation objective. \\
 Conditional quantiles matter & Quantile regression & Different quantiles answer different questions and should not be interpreted as conditional means. \\
 Non-negative counts & Count-aware generalized linear model & The chosen distributional assumptions must be plausible for the observed mean--variance relationship. \\
-Positive skewed outcomes & Log-scale modeling or an appropriate positive-response model & Back-transformation changes the interpretation of average predictions and errors. \\
+Positively skewed outcomes & Log-scale modeling or an appropriate positive-response model & Back-transformation changes the interpretation of average predictions and errors. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -313,7 +313,7 @@ Positive skewed outcomes & Log-scale modeling or an appropriate positive-respons
 Use the same split and validation discipline from \chapref{ch:evaluation}. A specialized loss is useful only when it improves the metric that represents the real task and its predictions remain plausible.
 
 
-\input{chapters/labs/04-regression}
+\input{labs/04-regression}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -329,7 +329,7 @@ Use the same split and validation discipline from \chapref{ch:evaluation}. A spe
   \item Least squares chooses coefficients that minimize squared residuals.
   \item Polynomial features create curved relationships while the model remains linear in its coefficients.
   \item Ridge shrinks all coefficients; lasso can set some coefficients to zero; elastic net combines both behaviors.
-  \item Robust, quantile, Poisson, and Tweedie models are useful when the target structure justifies a loss beyond ordinary squared error.
-  \item Validation data should choose feature complexity, regularization strength, and whether a specialized target model actually helps.
+  \item Robust, quantile, Poisson, and Tweedie models are useful when the label structure justifies a loss beyond ordinary squared error.
+  \item Validation data should choose feature complexity, regularization strength, and whether a specialized label model actually helps.
 \end{itemize}
 \end{chapterrecap}

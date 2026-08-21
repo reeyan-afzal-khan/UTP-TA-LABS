@@ -150,7 +150,7 @@ The four settings above are easier to remember as a picture. What changes betwee
 \end{mlfigure}
 
 \begin{analogy}
-Supervised learning is studying with the answer key beside you. Semi-supervised learning is having an answer key for only a few questions and using those answers to make sense of the rest. Unsupervised learning is being handed a shuffled box of photographs and asked to sort them into piles that make sense -- nobody tells you what the piles should be. Reinforcement learning is learning a video game: no one explains the rules, but the score goes up or down after every move.
+Supervised learning is studying with the answer key beside you. Semi-supervised learning is having an answer key for only a few questions and using those answers to make sense of the rest. Unsupervised learning is being handed a shuffled box of photographs and asked to sort them into piles that make sense --- nobody tells you what the piles should be. Reinforcement learning is learning a video game: no one explains the rules, but the score goes up or down after every move.
 \end{analogy}
 
 \section{Generalization: the real goal}
@@ -186,10 +186,10 @@ Before choosing any algorithm, write down what happens when the model is wrong. 
 \rowcolor{MLPaleBlue!92}
 \normalfont\bfseries\leavevmode\color{MLNavy}Problem & \normalfont\bfseries\leavevmode\color{MLNavy}Cost of a false alarm & \normalfont\bfseries\leavevmode\color{MLNavy}Cost of a miss \\
 \midrule
-Spam filter & A real email is hidden -- irritating, occasionally serious & A spam email arrives -- mildly annoying \\
-Disease screening & An unnecessary follow-up test -- costly and stressful & An untreated illness -- potentially fatal \\
-Fraud detection & A legitimate card is blocked -- an angry customer & Money is lost -- direct financial damage \\
-Movie recommendation & A poor suggestion -- ignored & A good movie not shown -- invisible loss \\
+Spam filter & A real email is hidden --- irritating and occasionally serious & A spam email arrives --- mildly annoying \\
+Disease screening & An unnecessary follow-up test --- costly and stressful & An untreated illness --- potentially fatal \\
+Fraud detection & A legitimate card is blocked --- an angry customer & Money is lost --- direct financial damage \\
+Movie recommendation & A poor suggestion --- ignored & A good movie is not shown --- an invisible loss \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -199,7 +199,7 @@ This table is why accuracy alone can be a weak metric, and why \chapref{ch:evalu
 \end{intuition}
 
 \begin{tryit}
-Pick something a computer decides about you: which movies you are shown, whether a message goes to junk mail, whether a bank approves a payment. Write down the five parts -- observation, feature, target, model, metric -- and then the cost of each direction of error.
+Pick something a computer decides about you: which movies you are shown, whether a message goes to junk mail, or whether a bank approves a payment. Write down the five parts --- observation, feature, target, model, and metric --- and then the cost of each direction of error.
 \end{tryit}
 
 \section{What to learn first}
@@ -209,7 +209,7 @@ Follow the book's learning path rather than trying to memorize the entire field 
 \begin{enumerate}
   \item Learn the vocabulary and the end-to-end workflow in this chapter.
   \item Understand the software-toolkit roles and computational vocabulary in \chapref{ch:python}.
-  \item Audit and prepare data safely in \chapref{ch:data}.
+  \item Assess data quality and prepare data safely in \chapref{ch:data}.
   \item Use \chapref{ch:learning} to choose the learning branch from the feedback available.
   \item Learn the shared statistical and geometric vocabulary in \chapref{ch:foundations}, focusing first on the concepts immediately reused by later models.
   \item Complete Stage 3A first: supervised workflow, evaluation, and model selection; then Stage 3B changes one supervised model family at a time.

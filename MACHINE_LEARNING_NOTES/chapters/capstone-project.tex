@@ -12,8 +12,8 @@ Choose a small public dataset that is not the main dataset from your favorite ea
 \section*{Required capstone sequence}
 
 \begin{enumerate}
-  \item \textbf{Problem contract.} State the observation unit, target or unsupervised objective, prediction/use moment, population, success metric, and cost of mistakes.
-  \item \textbf{Data provenance and audit.} Document files, columns, units, missingness, duplicates, impossible values, suspicious identifiers, and any cleaning decisions.
+  \item \textbf{Problem contract.} State the observation unit, label or unsupervised objective, prediction/use moment, population, success metric, and cost of mistakes.
+  \item \textbf{Data provenance and quality assessment.} Document files, columns, units, missingness, duplicates, impossible values, suspicious identifiers, and all cleaning decisions.
   \item \textbf{Validation design.} Choose random, stratified, grouped, or chronological splitting based on how future data will arrive. Reserve a final test set when the task is supervised.
   \item \textbf{Baseline.} Establish a no-skill or simple domain baseline before trying complex models.
   \item \textbf{Leakage-safe preprocessing.} Put learned transformations inside pipelines or inside the training folds of the validation procedure.
@@ -39,12 +39,12 @@ Add \emph{one} extension that changes the question rather than merely changing t
 Do not force reinforcement learning onto a static tabular problem merely to tick a box. The capstone should demonstrate that you know \emph{when} a learning paradigm fits, not that every paradigm can be applied to every dataset.
 
 \begin{keyidea}
-A strong capstone is easy to audit. A reader should be able to tell what you knew at each stage, which data influenced each decision, why the final method was selected, and where the result may fail.
+A strong capstone is easy to review and reproduce. A reader should be able to tell what you knew at each stage, which data influenced each decision, why the final method was selected, and where the result may fail.
 \end{keyidea}
 
 \section*{Submission package}
 
-Submit a compact, auditable project package rather than a collection of disconnected screenshots:
+Submit a compact, traceable project package rather than a collection of disconnected screenshots:
 
 \begin{itemize}
   \item \textbf{Notebook(s):} one main \texttt{.ipynb} notebook, or a clearly numbered sequence, containing the analysis, plots, results, and interpretation.
@@ -57,4 +57,3 @@ Submit a compact, auditable project package rather than a collection of disconne
 \begin{keyidea}
 The capstone should make the information boundary visible. Development results may influence the design; the final supervised test result must not influence development decisions. If the test score makes you want to change the model, record that idea as future work rather than reopening model selection.
 \end{keyidea}
-

@@ -3,12 +3,12 @@
 
 \chapterguide%
   {\chapref{ch:supervised}, \chapref{ch:training}, and probability/odds from \chapref{ch:statistics}.}
-  {Fit and interpret logistic regression, extend it to many classes with softmax, explain how discriminant analysis reaches a linear boundary from a different direction, recognize ordered-category targets, and place the perceptron in its historical role.}
+  {Fit and interpret logistic regression, extend it to many classes with softmax, explain how discriminant analysis reaches a linear boundary from a different direction, recognize ordered-category labels, and place the perceptron in its historical role.}
 
 Classification asks the model to choose a category. The simplest useful family of classifiers draws a straight line (in higher dimensions, a flat plane) through feature space and predicts one class on each side. This chapter covers the three classical ways to find that line: logistic regression, discriminant analysis, and the perceptron.
 
 \begin{firstread}
-Core path: logistic regression, cross-entropy, decision thresholds, and softmax regression. Ordinal targets are a useful special case. LDA and the perceptron are comparison models for a second pass rather than prerequisites for later chapters.
+Core path: logistic regression, cross-entropy, decision thresholds, and softmax regression. Ordinal labels are a useful special case. LDA and the perceptron are comparison models for a second pass rather than prerequisites for later chapters.
 \end{firstread}
 
 \section{Why not just use linear regression?}
@@ -114,9 +114,9 @@ Each class's score is exponentiated (making it positive) and divided by the tota
 A simpler alternative that works with any binary classifier is \term{one-vs-rest}: train $K$ separate binary models (``class $k$ against everything else'') and predict the class whose model is most confident.
 
 \section{Ordered categories are not ordinary multiclass labels}
-\label{sec:ordinal-targets}
+\label{sec:ordinal-labels}
 
-Some targets are categories with a meaningful order: \emph{low $<$ medium $<$ high}, satisfaction ratings, or disease stages. This is an \term{ordinal} target. Ordinary softmax classification ignores the order, while coding the labels as $1,2,3$ and using ordinary regression invents equal numerical gaps that may not exist.
+Some labels are categories with a meaningful order: \emph{low $<$ medium $<$ high}, satisfaction ratings, or disease stages. This is an \term{ordinal} label. Ordinary softmax classification ignores the order, while coding the labels as $1,2,3$ and using ordinary regression invents equal numerical gaps that may not exist.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}p{0.25\linewidth}X@{}}
@@ -131,7 +131,7 @@ Regression on integer codes & Use only when the numerical spacing itself is defe
 \end{tabularx}
 \end{mltable}
 
-There is no single universally appropriate model for ordinal targets. The important first-course skill is recognizing the ordered target structure and choosing an order-aware method or metric when the application requires it. Validation still decides whether that added structure improves the real task.
+There is no single universally appropriate model for ordinal labels. The important first-course skill is recognizing the ordered label structure and choosing an order-aware method or metric when the application requires it. Validation still decides whether that added structure improves the real task.
 
 \section{Linear discriminant analysis}
 
@@ -216,7 +216,7 @@ Choose the operating point from out-of-fold predictions and a stated cost or cap
 \subsection{Reading the coefficients}
 
 \begin{workedexample}
-Suppose the coefficient for ``hours studied'' is $0.62$. Then $e^{0.62}\approx 1.86$. Interpretation: each extra hour of study multiplies the \emph{odds} of passing by about 1.86 -- roughly an 86\% increase in the odds, holding the other features fixed. Note that this is odds, not probability; the effect on probability depends on where you started.
+Suppose the coefficient for ``hours studied'' is $0.62$. Then $e^{0.62}\approx 1.86$. Interpretation: each extra hour of study multiplies the \emph{odds} of passing by about 1.86 --- roughly an 86\% increase in the odds, holding the other features fixed. Note that this is odds, not probability; the effect on probability depends on where you started.
 \end{workedexample}
 
 \subsection{More than two classes}

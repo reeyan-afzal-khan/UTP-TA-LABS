@@ -1,0 +1,72 @@
+\labsection{1}{Environment and data foundations}{sec:lab01-foundations}
+
+\begin{labproject}{From a reproducible environment to a defensible data quality assessment}
+\textbf{Coverage.} Chapters 2--3.\\
+\textbf{Core data.} Titanic; the environment check uses no dataset.\\
+\textbf{Goal.} Verify the scientific-Python environment, establish the repository path convention, and assess a dataset systematically before fitting any model.
+
+\begin{labmode}
+This first lab combines setup and data preparation into one foundations milestone. The environment check provides evidence that later results are reproducible; the Titanic data quality assessment shows that the table is understood before modeling begins.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Environment check.}\par
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import pandas as pd
+import matplotlib
+import sklearn
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+print("NumPy:", np.__version__)
+print("pandas:", pd.__version__)
+print("Matplotlib:", matplotlib.__version__)
+print("scikit-learn:", sklearn.__version__)
+\end{lstlisting}
+
+
+
+\medskip\noindent\textbf{Part B --- Titanic data quality assessment.}\par
+
+\begin{lstlisting}[style=mlpython]
+import pandas as pd
+from pathlib import Path
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Keep the assessment explicit: rows, columns, types, missingness, and label balance.
+print("shape:", df.shape)
+print(df.head())
+print("\nData types:\n", df.dtypes)
+print("\nMissing values:\n", df.isna().sum().sort_values(ascending=False))
+print("\nSurvival rate:\n", df["Survived"].value_counts(normalize=True))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# A few simple, interpretable features used later in the course.
+df["FamilySize"] = df["SibSp"] + df["Parch"] + 1
+df["IsAlone"] = (df["FamilySize"] == 1).astype(int)
+
+summary = (
+    df.groupby(["Sex", "Pclass"], dropna=False)["Survived"]
+      .agg(["count", "mean"])
+      .rename(columns={"mean": "survival_rate"})
+)
+print("\nSurvival by sex and class:\n", summary)
+\end{lstlisting}
+
+\begin{tryit}
+Add three data quality checks of your own. At least one must concern missingness or duplicates, and at least one must concern whether a feature would be available at prediction time.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one notebook containing the environment versions, repository-path check, schema and missingness assessment, label prevalence, duplicate check, and two prediction-time feature decisions with short justifications. No model score is required.
+\end{labdeliverable}

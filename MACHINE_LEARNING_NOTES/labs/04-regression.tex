@@ -1,0 +1,172 @@
+\labsection{4}{Regression and time-aware validation}{sec:lab04-regression}
+
+\begin{labproject}{Linear models under ordinary and chronological validation}
+\textbf{Coverage.} Chapter 9.\\
+\textbf{Core data.} Medical Cost Personal Data. Bike Sharing is a transfer activity within the same lab.\\
+\textbf{Goal.} Compare ordinary linear regression with ridge regularization, inspect residual behavior, and contrast random splitting with a chronological holdout when time ordering matters.
+
+\begin{labmode}
+The main learning objective is not a particular regression score. It is choosing a validation design that matches how future predictions will actually be made.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Linear and ridge regression.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "medical_cost_personal_dataset" / "insurance.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X = df.drop(columns="charges")
+y = df["charges"]
+num_cols = ["age", "bmi", "children"]
+cat_cols = ["sex", "smoker", "region"]
+
+preprocess = ColumnTransformer([
+    ("num", Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ]), num_cols),
+    ("cat", Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+    ]), cat_cols),
+])
+
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.20, random_state=42
+)
+
+predictions = {}
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+for name, estimator in {
+    "ordinary least squares": LinearRegression(),
+    "ridge": Ridge(alpha=10.0),
+}.items():
+    model = Pipeline([("preprocess", preprocess), ("model", estimator)])
+    model.fit(X_train, y_train)
+    pred = model.predict(X_valid)
+    predictions[name] = pred
+    print("\n", name)
+    print("MAE:", round(mean_absolute_error(y_valid, pred), 2))
+    print("RMSE:", round(np.sqrt(mean_squared_error(y_valid, pred)), 2))
+    print("R2:", round(r2_score(y_valid, pred), 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Visual diagnostics for the regularized model.
+ridge_pred = predictions["ridge"]
+plt.figure(figsize=(6, 4))
+plt.scatter(y_valid, ridge_pred, alpha=0.65)
+lims = [min(y_valid.min(), ridge_pred.min()), max(y_valid.max(), ridge_pred.max())]
+plt.plot(lims, lims, linestyle="--")
+plt.xlabel("Actual charges")
+plt.ylabel("Predicted charges")
+plt.title("Ridge validation: actual versus predicted")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+residual = y_valid.to_numpy() - ridge_pred
+plt.figure(figsize=(6, 4))
+plt.scatter(ridge_pred, residual, alpha=0.65)
+plt.axhline(0, linestyle="--")
+plt.xlabel("Predicted charges")
+plt.ylabel("Residual")
+plt.title("Ridge validation residual plot")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- Optional chronological-validation transfer.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "bike_sharing_dataset" / "day.csv"
+df = pd.read_csv(train_path)
+df["dteday"] = pd.to_datetime(df["dteday"])
+df = df.sort_values("dteday").reset_index(drop=True)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# cnt = casual + registered, so casual and registered would leak the label.
+features = [
+    "season", "yr", "mnth", "holiday", "weekday", "workingday",
+    "weathersit", "temp", "atemp", "hum", "windspeed",
+]
+X = df[features]
+y = df["cnt"]
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Chronological development holdout: earlier dates train, later dates validate.
+cut = int(len(df) * 0.80)
+X_train, X_valid = X.iloc[:cut], X.iloc[cut:]
+y_train, y_valid = y.iloc[:cut], y.iloc[cut:]
+dates_valid = df["dteday"].iloc[cut:]
+
+cat_cols = ["season", "yr", "mnth", "holiday", "weekday", "workingday", "weathersit"]
+num_cols = ["temp", "atemp", "hum", "windspeed"]
+preprocess = ColumnTransformer([
+    ("cat", OneHotEncoder(handle_unknown="ignore"), cat_cols),
+    ("num", "passthrough", num_cols),
+])
+model = Pipeline([
+    ("preprocess", preprocess),
+    ("model", RandomForestRegressor(
+        n_estimators=400, min_samples_leaf=2, random_state=42, n_jobs=-1
+    )),
+])
+model.fit(X_train, y_train)
+pred = model.predict(X_valid)
+
+print("MAE:", round(mean_absolute_error(y_valid, pred), 1))
+print("RMSE:", round(np.sqrt(mean_squared_error(y_valid, pred)), 1))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(8, 4))
+plt.plot(dates_valid, y_valid.to_numpy(), label="actual")
+plt.plot(dates_valid, pred, label="predicted")
+plt.xlabel("Date")
+plt.ylabel("Daily rentals")
+plt.title("Chronological validation: actual versus predicted demand")
+plt.legend()
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+
+\end{labproject}
+
+\begin{labdeliverable}
+Submit linear-versus-ridge validation metrics, one residual diagnostic, and a short comparison between random and chronological validation on the bike-sharing transfer activity. Explain which split better matches deployment and why.
+\end{labdeliverable}

@@ -137,7 +137,7 @@ with eigenvalues $\lambda_1=5$ and $\lambda_2=0$. The first component is $\bm{v}
 \end{tikzpicture}
 \end{mlfigure}
 
-Three complementary rules: use a cumulative-variance target when the application can justify one; look for an elbow in the \term{scree plot}; or, when PCA feeds a supervised model, treat $k$ as a hyperparameter and let training-fold validation decide. Under squared reconstruction loss, retaining the top $k$ components gives the best rank-$k$ linear reconstruction, and the discarded eigenvalues quantify the average variance lost.
+Three complementary rules: use a cumulative-variance threshold when the application can justify one; look for an elbow in the \term{scree plot}; or, when PCA feeds a supervised model, treat $k$ as a hyperparameter and let training-fold validation decide. Under squared reconstruction loss, retaining the top $k$ components gives the best rank-$k$ linear reconstruction, and the discarded eigenvalues quantify the average variance lost.
 
 \subsection{What PCA cannot promise}
 \label{sec:pca-limitations}
@@ -145,7 +145,7 @@ Three complementary rules: use a cumulative-variance target when the application
 \begin{itemize}
   \item It is \term{linear}: a spiral or a curved sheet of data has structure PCA cannot straighten out.
   \item It is \term{scale-sensitive}: changing units changes the covariance matrix. Standardize when that influence is arbitrary, not as an automatic rule.
-  \item \term{Variance is not predictive importance}: the directions that vary most are not necessarily the ones that predict a target --- a low-variance component can carry crucial signal. (\chapref{ch:classification}'s LDA is a supervised method that seeks class-separating directions instead.)
+  \item \term{Variance is not predictive importance}: the directions that vary most are not necessarily the ones that predict a label --- a low-variance component can carry crucial signal. (\chapref{ch:classification}'s LDA is a supervised method that seeks class-separating directions instead.)
   \item \term{Components resist interpretation}: each is a weighted blend of all original features, so ``component 3 increased'' rarely means anything to a domain expert without inspecting its weights.
 \end{itemize}
 
@@ -189,7 +189,7 @@ PCA gives you as many components as you like, ordered by how much variance each 
 \end{mlfigure}
 
 \begin{analogy}
-PCA is like photographing a chair. Photograph it from directly above and you see a confusing square. Photograph it from the side and it is instantly recognizable -- same object, better angle. PCA searches for the angle from which the data varies the most, then the next best angle at right angles to that, and so on. The scree plot tells you how many angles you actually need before the rest is just dust.
+PCA is like photographing a chair. Photograph it from directly above and you see a confusing square. Photograph it from the side and it is instantly recognizable --- same object, better angle. PCA searches for the angle from which the data varies the most, then the next best angle at right angles to that, and so on. The scree plot tells you how many angles you actually need before the rest is just dust.
 \end{analogy}
 
 \section{t-SNE and UMAP: maps for the eye}
@@ -241,7 +241,7 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
 \end{modelcard}
 
 
-\input{chapters/labs/08-unsupervised}
+\input{labs/08-unsupervised}
 
 \begin{quickcheck}
 \begin{enumerate}

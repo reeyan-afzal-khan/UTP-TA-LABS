@@ -8,7 +8,7 @@
 Up to this point, the book has deliberately avoided committing to one kind of machine-learning problem. You now know how to represent data and prepare it safely. Before studying a large block of mathematics, first identify the learning signal and the kind of structure a model must learn. That context tells you why later ideas such as probability, distance, dot products, and gradients matter: \emph{what feedback is available, and what structure are we trying to learn?}
 
 \begin{keyidea}
-A machine-learning algorithm extracts useful structure from data. What counts as ``useful'' changes with the feedback signal. With targets, the structure should predict those targets. Without targets, the structure must be judged by stability, geometry, reconstruction, density, downstream usefulness, or domain meaning. With rewards, the structure must support good decisions over time.
+A machine-learning algorithm extracts useful structure from data. What counts as ``useful'' changes with the feedback signal. With labels, the structure should predict those labels. Without labels, the structure must be judged by stability, geometry, reconstruction, density, downstream usefulness, or domain meaning. With rewards, the structure must support good decisions over time.
 \end{keyidea}
 
 \section{Start with the learning signal}
@@ -21,9 +21,9 @@ A machine-learning algorithm extracts useful structure from data. What counts as
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
 ]
 \node[q] (s) at (0,3.6) {What feedback do we have?};
-\node[bx] (full) at (-5.1,1.8) {Targets for examples};
-\node[bx] (few) at (-1.7,1.8) {Only some targets};
-\node[bx] (none) at (1.7,1.8) {No external target};
+\node[bx] (full) at (-5.1,1.8) {Labels for examples};
+\node[bx] (few) at (-1.7,1.8) {Only some labels};
+\node[bx] (none) at (1.7,1.8) {No external label};
 \node[bx] (reward) at (5.1,1.8) {Rewards after actions};
 \node[leaf] (sup) at (-5.1,-0.2) {\textbf{Supervised}\\learn $X\rightarrow y$};
 \node[leaf] (semi) at (-1.7,-0.2) {\textbf{Limited-label}\\combine labeled and unlabeled data};
@@ -41,7 +41,7 @@ A machine-learning algorithm extracts useful structure from data. What counts as
 \rowcolor{MLPaleBlue!92}
 Setting & Given & What is learned? & Typical question \\
 \midrule
-Supervised & $X$ and target $y$ & A mapping from features to a target & ``What value or class should I predict?'' \\
+Supervised & $X$ and label $y$ & A mapping from features to a label & ``What value or class should I predict?'' \\
 Unsupervised & $X$ only & Structure, representation, density, or unusualness in the features & ``What patterns are present when no answer key is supplied?'' \\
 Semi-supervised / active & $X$ plus some labels & A predictive mapping that also uses unlabeled structure or selectively requests labels & ``How can scarce labels be used efficiently?'' \\
 Reinforcement & States, actions, rewards, transitions & A policy or value rule for sequential decisions & ``Which action leads to good long-term outcomes?'' \\
@@ -68,7 +68,7 @@ Despite the different learning signals, most projects share a small backbone:
 \end{tikzpicture}
 \end{mlfigure}
 
-The details inside the boxes change. Supervised learning can compare predictions with known targets. Unsupervised learning often has no single correct answer and therefore needs several kinds of evidence. Reinforcement learning evaluates behavior across trajectories rather than independent labeled rows.
+The details inside the boxes change. Supervised learning can compare predictions with known labels. Unsupervised learning often has no single correct answer and therefore needs several kinds of evidence. Reinforcement learning evaluates behavior across trajectories rather than independent labeled rows.
 
 \section{What changes between supervised and unsupervised learning}
 
@@ -78,7 +78,7 @@ The details inside the boxes change. Supervised learning can compare predictions
 \rowcolor{MLPaleBlue!92}
 Question & Supervised learning & Unsupervised learning \\
 \midrule
-What data are fitted? & Features $X$ plus target $y$ & Features $X$ only \\
+What data are fitted? & Features $X$ plus label $y$ & Features $X$ only \\
 What guides fitting? & A loss comparing predictions with known answers & An objective such as compact clusters, reconstruction, variance preservation, density, or local isolation \\
 What is the output? & Prediction rule, score, or probability & Groups, coordinates, components, density model, anomaly score, or discovered pattern \\
 What is a baseline? & Mean/median/majority or a domain rule & Simple geometry or domain reference, random/naive partition, reconstruction reference, or stability comparison depending on the task \\
@@ -119,7 +119,7 @@ The book now branches cleanly.
 \begin{description}[leftmargin=1.55in,style=nextline]
   \item[Stage 3A: supervised workflow] Learn the prediction objective, baselines, evaluation, and model-selection discipline before comparing algorithms.
   \item[Stage 3B: supervised model families] Hold that workflow fixed while changing one family at a time from linear models through SVMs.
-  \item[Stage 4A: unsupervised workflow] Reset the objective: no target is supplied during fitting, so evidence must come from geometry, stability, usefulness, or external meaning.
+  \item[Stage 4A: unsupervised workflow] Reset the objective: no label is supplied during fitting, so evidence must come from geometry, stability, usefulness, or external meaning.
   \item[Stage 4B: unsupervised model families] Apply that workflow to clustering, representation learning, and anomaly detection.
   \item[Stage 5: other signals] Change the amount or type of feedback: limited labels in semi-supervised/active learning, then rewards from interaction in reinforcement learning.
 \end{description}
@@ -148,7 +148,7 @@ The next chapter supplies a shared mathematical toolkit. Read it with a purpose 
 \begin{chapterrecap}
 \begin{itemize}
   \item Learning settings are separated first by the feedback available, not by algorithm names.
-  \item Supervised learning learns a target mapping; unsupervised learning learns structure without a supplied target; limited-label methods mix labeled and unlabeled evidence; reinforcement learning learns from rewards.
+  \item Supervised learning learns a label mapping; unsupervised learning learns structure without a supplied label; limited-label methods mix labeled and unlabeled evidence; reinforcement learning learns from rewards.
   \item Data preparation, representation, evaluation discipline, and monitoring remain shared foundations even though the fitting objective changes.
   \item Stage 3 first establishes the supervised workflow and then compares supervised model families; Stage 4 mirrors that structure for unsupervised learning.
 \end{itemize}

@@ -7,50 +7,62 @@ Before the detailed Machine-Learning Map, use this one-page route to answer only
 \begin{mlfigure}
 \begin{tikzpicture}[
   every node/.append style={execute at begin node={\hyphenpenalty=10000\relax}},
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=13.2cm,minimum height=1.35cm,align=center,font=\footnotesize\color{MLNavy}},
+  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.75cm,minimum height=1.38cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
   gate/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=6.8cm,minimum height=0.78cm,align=center,font=\small\bfseries},
-  sup/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=6.2cm,minimum height=2.05cm,align=center,font=\scriptsize\color{MLNavy}},
-  unsup/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=6.2cm,minimum height=2.05cm,align=center,font=\scriptsize\color{MLNavy}},
-  other/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=13.2cm,minimum height=1.35cm,align=center,font=\footnotesize\color{MLNavy}},
-  finish/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=13.2cm,minimum height=1.25cm,align=center,font=\footnotesize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal,shorten <=1pt,shorten >=2pt},
+  branch/.style={rounded corners=2mm,text width=5.90cm,minimum height=2.85cm,align=left,inner xsep=3.4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
+  sup/.style={branch,draw=MLBlue,fill=MLPaleBlue},
+  unsup/.style={branch,draw=MLTeal,fill=MLPaleTeal},
+  other/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=12.75cm,minimum height=1.45cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
+  finish/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=12.75cm,minimum height=1.30cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
+  branchlabel/.style={fill=white,inner xsep=2pt,inner ysep=1pt,font=\tiny\bfseries\color{MLMuted}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal},
   flow/.style={thick,draw=MLTeal,line cap=round,line join=round},
   junction/.style={circle,fill=MLTeal,inner sep=1.2pt}
 ]
-\node[stage] (a) at (0,9.15) {\textbf{Stage 1: Orientation and tools \hspace{0.5em} (Chapters 1--2)}\\Learn the core vocabulary, map the end-to-end workflow, set up Python, and organize the datasets and experiments.\\\textbf{Milestone:} a clear problem statement and a working course environment.};
-\node[stage] (b) at (0,6.95) {\textbf{Stage 2: Data and shared foundations \hspace{0.5em} (Chapters 3--5)}\\Audit, split, and preprocess data safely; then learn the statistics, probability, vectors, distance, scaling, and optimization ideas reused later.\\\textbf{Milestone:} trustworthy data and enough mathematics to explain what a model is doing.};
-\node[gate] (g) at (0,5.10) {What learning signal is available?};
+\node[stage] (a) at (0,9.15) {{\normalsize\bfseries\color{MLBlue}Stage 1: Orientation and tools}\hfill{\footnotesize\bfseries Chapters 1--2}\par
+  \smallskip\textbf{Learn:} problem vocabulary \textbullet\ the end-to-end workflow \textbullet\ Python and project organization.\par
+  \textbf{Ready when:} you can state the problem clearly and run the course environment.};
+\node[stage] (b) at (0,6.95) {{\normalsize\bfseries\color{MLBlue}Stage 2: Data and shared foundations}\hfill{\footnotesize\bfseries Chapters 3--5}\par
+  \smallskip\textbf{Learn:} data quality, safe splitting and preprocessing, statistics, probability, geometry, scaling, and optimization.\par
+  \textbf{Ready when:} the data is trustworthy and you can explain the mathematical ideas reused by later models.};
+\node[gate] (g) at (0,5.10) {Which learning setting fits the task?};
 
-\node[sup] (s1) at (-3.45,2.85) {\textbf{Stage 3A: Supervised workflow \quad Chapters 6--8}\\Targets are available. Frame regression or classification, build a baseline, choose suitable metrics, validate honestly, and select without touching the final test set.};
-\node[sup] (s2) at (-3.45,-0.15) {\textbf{Stage 3B: Supervised model families \quad Chapters 9--14}\\Compare linear and logistic models, nearest neighbors, naive Bayes, decision trees, ensembles, and support vector machines.\\\textbf{Goal:} choose the simplest model that meets the real requirement.};
+\node[sup] (s1) at (-3.45,2.45) {{\centering\bfseries\color{MLBlue}Stage 3A: Supervised workflow\par}{\centering\bfseries Chapters 6--8\par}\smallskip
+  \textbf{Learn:} baselines, metrics, honest validation, and a sealed final test.\par
+  \textbf{Outcome:} a defensible selection procedure.};
+\node[sup] (s2) at (-3.45,-0.70) {{\centering\bfseries\color{MLBlue}Stage 3B: Supervised model families\par}{\centering\bfseries Chapters 9--14\par}\smallskip
+  \textbf{Compare:} linear/logistic; KNN/naive Bayes; trees/ensembles/SVMs.\par
+  \textbf{Outcome:} the simplest adequate model.};
 
-\node[unsup] (u1) at (3.45,2.85) {\textbf{Stage 4A: Unsupervised workflow \quad Chapter 15}\\No target is supplied during fitting. State the structure you want, define useful evidence, and evaluate geometry, stability, reconstruction, or domain meaning.};
-\node[unsup] (u2) at (3.45,-0.15) {\textbf{Stage 4B: Unsupervised model families \quad Chapters 16--18}\\Study clustering, dimensionality reduction and representation, and anomaly detection.\\\textbf{Goal:} find useful structure without treating it as automatic truth.};
+\node[unsup] (u1) at (3.45,2.45) {{\centering\bfseries\color{MLTeal}Stage 4A: Unsupervised workflow\par}{\centering\bfseries Chapter 15\par}\smallskip
+  \textbf{Learn:} evaluation through stability, geometry, reconstruction, and domain evidence.\par
+  \textbf{Outcome:} a defensible evaluation plan.};
+\node[unsup] (u2) at (3.45,-0.70) {{\centering\bfseries\color{MLTeal}Stage 4B: Unsupervised model families\par}{\centering\bfseries Chapters 16--18\par}\smallskip
+  \textbf{Compare:} clustering, representation learning, and anomaly detection.\par
+  \textbf{Outcome:} structure supported by evidence, not assumed to be truth.};
 
-\node[other] (c) at (0,-3.45) {\textbf{Stage 5: Other learning signals \hspace{0.5em} (Chapters 19--20)}\\Use scarce labels through semi-supervised and active learning, then learn from actions and rewards through reinforcement learning.\\\textbf{Milestone:} recognize how the workflow changes when the feedback changes.};
-\node[finish] (d) at (0,-5.95) {\textbf{Capstone and Epilogue: integrate, defend, and extend}\\Choose the learning branch, build a leakage-safe pipeline, evaluate it fairly, explain its limits, and identify the next field direction that matches your goals.};
+\node[other] (c) at (0,-3.70) {{\normalsize\bfseries\color{MLOrange}Stage 5: Advanced Concepts}\hfill{\footnotesize\bfseries Chapters 19--20}\par
+  \smallskip\textbf{Learn:} semi-supervised and active learning for scarce labels \textbullet\ reinforcement learning for actions and rewards.\par
+  \textbf{Ready when:} you can explain how the workflow changes with the available feedback.};
+\node[finish] (d) at (0,-5.95) {{\normalsize\bfseries\color{MLGreen}Capstone and Epilogue: integrate, defend, and extend}\par
+  \smallskip\textbf{Integrate:} choose the branch \textbullet\ build a leakage-safe pipeline \textbullet\ evaluate fairly \textbullet\ communicate limitations.\par
+  \textbf{Extend:} identify the next field direction that matches your goals.};
 
-\draw[arr] (a) -- (b);
-\draw[arr] (b) -- (g);
+\draw[arr] (a.south) -- (b.north);
+\draw[arr] (b.south) -- (g.north);
 \coordinate (split) at ($(g.south)+(0,-0.40)$);
-\coordinate (splitL) at (s1.north |- split);
-\coordinate (splitR) at (u1.north |- split);
 \draw[flow] (g.south) -- (split);
-\draw[flow] (splitL) -- (splitR);
 \node[junction] at (split) {};
-\draw[arr] (splitL) -- (s1.north);
-\draw[arr] (splitR) -- (u1.north);
-\draw[arr] (s1) -- (s2);
-\draw[arr] (u1) -- (u2);
-\coordinate (merge) at ($(c.north)+(0,0.70)$);
-\coordinate (mergeL) at (s2.south |- merge);
-\coordinate (mergeR) at (u2.south |- merge);
-\draw[flow] (s2.south) -- (mergeL);
-\draw[flow] (u2.south) -- (mergeR);
-\draw[flow] (mergeL) -- (mergeR);
+\draw[arr] (split) -| node[pos=0.28,above,branchlabel] {Dataset is labeled} (s1.north);
+\draw[arr] (split) -| node[pos=0.28,above,branchlabel] {Dataset is unlabeled} (u1.north);
+\draw[arr] (s1.south) -- (s2.north);
+\draw[arr] (u1.south) -- (u2.north);
+\coordinate (merge) at ($(c.north)+(0,0.25)$);
+\draw[flow] (s2.south) |- (merge);
+\draw[flow] (u2.south) |- (merge);
 \node[junction] at (merge) {};
 \draw[arr] (merge) -- (c.north);
-\draw[arr] (c) -- (d);
+\draw[arr] (c.south) -- (d.north);
 \end{tikzpicture}
 \end{mlfigure}
 

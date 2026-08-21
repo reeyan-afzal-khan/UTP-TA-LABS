@@ -5,24 +5,24 @@
   {Stages 1 and 2: prepared data, basic statistics, vectors, and distance measures.}
   {Formulate regression and classification tasks, read a loss function, distinguish parametric from non-parametric models, and set up a baseline that any serious model must beat.}
 
-Supervised learning uses examples that contain both input features $\bm{x}$ and a known target $y$. The model learns a mapping $f$ so that $f(\bm{x})$ is close to the correct target on data it has never seen. The previous chapter separated the major learning signals. We now enter the supervised branch. This chapter begins Stage 3A. It sets up the objective, loss, target types, and baseline that every supervised algorithm relies on. The next two chapters establish how supervised models are evaluated and selected without contaminating the final test set; Stage 3B begins only after that workflow is secure.
+Supervised learning uses examples that contain both input features $\bm{x}$ and a known label $y$. The model learns a mapping $f$ so that $f(\bm{x})$ is close to the correct label on data it has never seen. The previous chapter separated the major learning signals. We now enter the supervised branch. This chapter begins Stage 3A. It sets up the objective, loss, label types, and baseline that every supervised algorithm relies on. The next two chapters establish how supervised models are evaluated and selected without contaminating the final test set; Stage 3B begins only after that workflow is secure.
 
 \begin{intuition}
-Supervised learning is learning by example with an answer key. Someone hands the model thousands of solved problems (``this house sold for \$310{,}000'', ``this email was spam'') and the model's job is to work out the general rule connecting the inputs to the answers, so that it can solve new problems where nobody knows the answer yet.
+Supervised learning is learning by example with an answer key. Someone hands the model thousands of solved problems (``this house sold for \$310{,}000,'' ``this email was spam'') and the model's job is to work out the general rule connecting the inputs to the answers, so that it can solve new problems where nobody knows the answer yet.
 \end{intuition}
 
 \begin{firstread}
 The entire chapter can be reduced to a loop: make a prediction, compare it with the known answer, measure the mistake, and adjust the rule. A \term{loss function} is simply the chosen mistake score. A \term{baseline} is the simple rule the model must beat.
 \end{firstread}
 
-\section{Two kinds of targets}
+\section{Two kinds of labels}
 
 \begin{description}[leftmargin=1.25in,style=nextline]
-  \item[Regression] The target is a number on a continuous scale: a price, a temperature, a length of stay. Predictions can be too high or too low by some amount.
-  \item[Classification] The target is a category: spam or not spam, which of ten digits, which species. Predictions are right or wrong, and a good model also reports \emph{how confident} it is through class probabilities.
+  \item[Regression] The label is a number on a continuous scale: a price, a temperature, a length of stay. Predictions can be too high or too low by some amount.
+  \item[Classification] The label is a category: spam or not spam, which of ten digits, which species. Predictions are right or wrong, and a good model also reports \emph{how confident} it is through class probabilities.
 \end{description}
 
-The same dataset can support either task depending on how the target is defined. Predicting tomorrow's exact temperature is regression; predicting whether tomorrow will be ``hot'' or ``cold'' is classification. Ordered categories (small, medium, large) and counts sit between the two and sometimes need special treatment, but regression and classification cover the vast majority of practical problems.
+The same dataset can support either task depending on how the label is defined. Predicting tomorrow's exact temperature is regression; predicting whether tomorrow will be ``hot'' or ``cold'' is classification. Ordered categories (small, medium, large) and counts sit between the two and sometimes need special treatment, but regression and classification cover the vast majority of practical problems.
 
 \section{The supervised-learning objective}
 
@@ -153,7 +153,7 @@ Neither family is better in general. A parametric model with the right form is h
 A \term{baseline} is the simplest prediction rule imaginable, evaluated with the same metrics and splits as any real model:
 
 \begin{itemize}
-  \item for regression, predict the training-set mean (or median) of the target for every observation;
+  \item for regression, predict the training-set mean (or median) of the label for every observation;
   \item for classification, predict the most common class for every observation;
   \item when domain rules exist (``flag any transaction over \$10{,}000''), evaluate those too.
 \end{itemize}
@@ -219,7 +219,7 @@ All supervised algorithms answer the same question --- ``what function turns the
 
 \begin{modelcard}{Supervised Learning - Project Checklist}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}>{\raggedright\arraybackslash}X@{}}
-Question 1 & Is the target a number, a category, or a special type such as a count or ordered label? \cr
+Question 1 & Is the label a number, a category, or a special type such as a count or ordered category? \cr
 Question 2 & What simple baseline should the model beat? \cr
 Question 3 & Which loss guides training, and which metric matches the real cost of mistakes? \cr
 Question 4 & How will the split imitate future predictions? \cr
@@ -230,7 +230,7 @@ Question 5 & Does the final model need interpretability, probabilities, speed, o
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item How does a regression target differ from a classification target, and what does that change about the kind of prediction produced?
+  \item How does a regression label differ from a classification label, and what does that change about the kind of prediction produced?
   \item Why can the loss used for fitting differ from the metric used to report practical performance?
   \item What does a learned model have to demonstrate beyond beating its own training loss?
 \end{enumerate}
@@ -238,7 +238,7 @@ Question 5 & Does the final model need interpretability, probabilities, speed, o
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Supervised learning uses feature-target pairs to learn a prediction rule.
+  \item Supervised learning uses feature-label pairs to learn a prediction rule.
   \item Regression predicts numbers; classification predicts categories or class probabilities.
   \item A loss guides training, while validation and test metrics estimate performance on new data.
   \item Parametric models use a fixed form; non-parametric models can grow in complexity with the data.

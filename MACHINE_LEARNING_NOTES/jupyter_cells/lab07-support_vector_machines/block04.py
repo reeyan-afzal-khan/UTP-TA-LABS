@@ -1,6 +1,0 @@
-search.fit(X_train, y_train)
-score = search.decision_function(X_test)
-pred = search.predict(X_test)
-print("best:", search.best_params_)
-print("accuracy:", round(accuracy_score(y_test, pred), 3))
-print("ROC AUC:", round(roc_auc_score(y_test, score), 3))

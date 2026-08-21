@@ -5,7 +5,7 @@
   {Supervised learning, validation, classification probabilities, and similarity measures.}
   {explain why unlabeled data may help, follow pseudo-labeling and graph-based methods, describe active learning, and recognize when these methods can reinforce mistakes.}
 
-Stages 3 and 4 showed the two clean endpoints: targets for the supervised branch and no supplied targets for the unsupervised branch. Real projects often sit between them. In ordinary supervised learning, every training row has a target label. In many real projects, raw examples are plentiful but labels are expensive. A doctor may need to label scans, an engineer may need to inspect machine failures, or a legal expert may need to categorize documents.
+Stages 3 and 4 showed the two clean endpoints: labels for the supervised branch and no supplied labels for the unsupervised branch. Real projects often sit between them. In ordinary supervised learning, every training row has a label. In many real projects, raw examples are plentiful but labels are expensive. A doctor may need to label scans, an engineer may need to inspect machine failures, or a legal expert may need to categorize documents.
 
 \term{Semi-supervised learning} uses a small labeled dataset together with a larger unlabeled dataset. \term{Active learning} asks a human to label the examples that would be most useful.
 
@@ -41,7 +41,7 @@ Semi-supervised methods rely on assumptions such as:
   \item the decision boundary should pass through low-density areas rather than cutting through a cluster.
 \end{itemize}
 
-These assumptions may be wrong. Two nearby customers can have different outcomes, or a cluster can contain several classes. Unlabeled data helps only when its structure relates to the target.
+These assumptions may be wrong. Two nearby customers can have different outcomes, or a cluster can contain several classes. Unlabeled data helps only when its structure relates to the label.
 
 \section{Self-training and pseudo-labeling}
 
@@ -166,7 +166,7 @@ A student revising for an exam has limited time. The inefficient approach is to 
 \begin{mlsteps}
   \item Create fixed, human-labeled validation and test sets before using unlabeled data.
   \item Train a supervised baseline using only the labeled training set.
-  \item Inspect whether similarity or cluster structure appears connected to the target.
+  \item Inspect whether similarity or cluster structure appears connected to the label.
   \item Add one semi-supervised or active-learning method at a time.
   \item Compare against the labeled-only baseline using the same evaluation protocol.
   \item Review performance by class and subgroup, not only overall average performance.
@@ -175,7 +175,7 @@ A student revising for an exam has limited time. The inefficient approach is to 
 
 \begin{modelcard}{Semi-Supervised and Active Learning - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
-Best when & Human labels are expensive, unlabeled examples are plentiful, and feature-space structure relates to the target. \cr
+Best when & Human labels are expensive, unlabeled examples are plentiful, and feature-space structure relates to the label. \cr
 Start with & A supervised baseline and a fixed human-labeled validation/test set. \cr
 Main controls & Confidence threshold, number of pseudo-labeling rounds, graph similarity, labeling budget, query strategy. \cr
 Main risks & Confirmation bias, class imbalance, poor similarity measures, sampling only unusual cases, changing labeling standards. \cr
@@ -187,7 +187,7 @@ Unlabeled data provides structure, not truth. Human labels remain the source of 
 \end{keyidea}
 
 
-\input{chapters/labs/09-anomaly-limited-labels}
+\input{labs/09-anomaly-limited-labels}
 
 \begin{quickcheck}
 \begin{enumerate}

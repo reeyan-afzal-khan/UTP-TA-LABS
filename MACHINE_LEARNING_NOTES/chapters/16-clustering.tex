@@ -5,7 +5,7 @@
   {\chapref{ch:unsupervised}, feature scaling, vectors, distances, and the Gaussian distribution from \chapref{ch:foundations}.}
   {distinguish hard from soft clustering, run $K$-means by hand, choose and justify cluster structure, and compare $K$-means, fuzzy $C$-means, Gaussian mixtures, hierarchical clustering, and DBSCAN under the Stage 4A evaluation workflow.}
 
-Stage 4A already established what changes when no target is supplied and how unsupervised evidence should be judged. Stage 4B now holds that workflow fixed while changing the model family. We begin with \term{clustering}: methods that propose a grouping, hierarchy, density partition, or soft membership structure for observations.
+Stage 4A already established what changes when no label is supplied and how unsupervised evidence should be judged. Stage 4B now holds that workflow fixed while changing the model family. We begin with \term{clustering}: methods that propose a grouping, hierarchy, density partition, or soft membership structure for observations.
 
 The central question is no longer ``what is unsupervised learning?'' but \textbf{what notion of a group does this clustering method assume?} $K$-means prefers compact center-based groups; hierarchical methods expose nested structure; DBSCAN defines groups through density connectivity and can leave points as noise; mixture models assign probabilistic memberships. The quantitative score is therefore evidence about a chosen structure, not an answer key.
 
@@ -186,7 +186,7 @@ Clustering has no correct answer to check against, so choosing the number of clu
 \end{mlfigure}
 
 \begin{intuition}
-Inertia always falls as $K$ rises -- give every point its own cluster and it reaches zero -- so you cannot simply minimize it. Look for a bend after which extra clusters buy little. The silhouette has a maximum, but it also embeds a preference for compact, separated groups. Agreement between diagnostics supports a candidate $K$; it does not establish that the groups are stable or useful.
+Inertia always falls as $K$ rises --- give every point its own cluster and it reaches zero --- so you cannot simply minimize it. Look for a bend after which extra clusters buy little. The silhouette has a maximum, but it also embeds a preference for compact, separated groups. Agreement between diagnostics supports a candidate $K$; it does not establish that the groups are stable or useful.
 \end{intuition}
 
 \section{Lloyd's algorithm and initialization}
@@ -203,11 +203,11 @@ Never interpret one random initialization as definitive. Stability across sensib
 
 \subsection{$K$-medoids}
 
-$K$-medoids is $K$-means' robust sibling: each cluster is represented by an actual observation (its \term{medoid}) rather than a mean, and any distance function may be used. Medoids resist outliers (a far point cannot drag a medoid the way it drags a mean) and make sense for data where averaging is meaningless --- at a higher computational price.
+$K$-medoids is a robust alternative to $K$-means: each cluster is represented by an actual observation (its \term{medoid}) rather than a mean, and any distance function may be used. Medoids resist outliers (a far point cannot drag a medoid the way it drags a mean) and make sense for data where averaging is meaningless --- at a higher computational price.
 
 \section{Gaussian mixture models}
 
-A Gaussian mixture model (GMM) is a probabilistic relative of $K$-means. It assumes the data was generated from $K$ Gaussian components with mixing weights $\pi_k$:
+A Gaussian mixture model (GMM) is a probabilistic relative of $K$-means. It assumes that the observations were generated from $K$ Gaussian components with mixing weights $\pi_k$:
 \[
   p(\bm{x})
   =\sum_{k=1}^{K}
@@ -397,7 +397,7 @@ DBSCAN & Irregular shapes and explicit noise points & Density parameters and var
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Clustering searches for groups without target labels.
+  \item Clustering searches for groups without supplied labels.
   \item $K$-means alternates between assigning points and updating centroids.
   \item Fuzzy $C$-means gives distance-based soft memberships; Gaussian mixtures give model-based component responsibilities.
   \item Hierarchical clustering can build groups bottom-up by merging or top-down by splitting, and a dendrogram records the hierarchy.

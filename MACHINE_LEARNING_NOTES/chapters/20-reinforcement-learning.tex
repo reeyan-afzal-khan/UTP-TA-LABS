@@ -5,7 +5,7 @@
   {Probability, expected value, optimization, and the idea of sequential decisions.}
   {describe the agent-environment loop, calculate a discounted return, interpret state and action values, follow tabular Q-learning, and explain the exploration-exploitation trade-off.}
 
-The final learning signal changes more radically. Supervised learning receives target answers, unsupervised learning receives no external answer key, and reinforcement learning receives rewards after actions. Reinforcement learning (RL) studies decisions that affect what happens next. Instead of receiving the correct answer for every action, an agent receives rewards and must discover which behavior produces the best long-term outcome.
+The final learning signal changes more radically. Supervised learning receives labeled examples, unsupervised learning receives no external answer key, and reinforcement learning receives rewards after actions. Reinforcement learning (RL) studies decisions that affect what happens next. Instead of receiving the correct answer for every action, an agent receives rewards and must discover which behavior produces the best long-term outcome.
 
 \begin{firstread}
 Translate the vocabulary before reading the equations: the \term{agent} is the decision-maker, the \term{state} is the current situation, an \term{action} is a choice, and the \term{reward} is feedback. The difficult part is that a choice can change later situations, so the best immediate reward may not produce the best long-term result.
@@ -135,7 +135,7 @@ After observing transition $(s_t,a_t,r_{t+1},s_{t+1})$, update
 Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha\left[r_{t+1}+\gamma\max_{a'}Q(s_{t+1},a')-Q(s_t,a_t)\right].
 \]
 
-The bracketed quantity is the \term{temporal-difference error}: the difference between the new target and the current estimate.
+The bracketed quantity is the \term{temporal-difference error}: the difference between the new backup value and the current estimate.
 
 \begin{mlsteps}
   \item Initialize the Q-table, often with zeros.
@@ -147,11 +147,11 @@ The bracketed quantity is the \term{temporal-difference error}: the difference b
 \end{mlsteps}
 
 \begin{workedexample}
-Suppose $Q(s,a)=2$, reward $r=1$, $\gamma=0.9$, the best next-state Q-value is $4$, and $\alpha=0.5$. The target is $1+0.9(4)=4.6$. The temporal-difference error is $4.6-2=2.6$. The update gives
+Suppose $Q(s,a)=2$, reward $r=1$, $\gamma=0.9$, the best next-state Q-value is $4$, and $\alpha=0.5$. The backup value is $1+0.9(4)=4.6$. The temporal-difference error is $4.6-2=2.6$. The update gives
 \[
 Q(s,a)\leftarrow2+0.5(2.6)=3.3.
 \]
-The estimate moves halfway toward the new target.
+The estimate moves halfway toward the new backup value.
 \end{workedexample}
 
 \section{One Q-learning update, drawn}
@@ -167,12 +167,12 @@ The whole of tabular Q-learning is one line of arithmetic applied millions of ti
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
 ]
 \node[bx] (old) at (-2.35,1.55) {Old estimate\\$Q(s,a)$};
-\node[gd] (target) at (2.35,1.55) {Better estimate\\$r+\gamma\max_{a'}Q(s',a')$};
+\node[gd] (backup) at (2.35,1.55) {Backup value\\$r+\gamma\max_{a'}Q(s',a')$};
 \node[op] (update) at (0,0.30)
-  {Move a fraction $\alpha$ toward the target\\$Q+\alpha(\text{target}-Q)$};
+  {Move a fraction $\alpha$ toward the backup value\\$Q+\alpha(\text{backup}-Q)$};
 \node[bx] (new) at (0,-1.05) {New estimate\\$Q(s,a)$};
 \draw[arr] (old.south)--(update.north west);
-\draw[arr] (target.south)--(update.north east);
+\draw[arr] (backup.south)--(update.north east);
 \draw[arr] (update.south)--(new.north);
 \node[font=\scriptsize\itshape\color{MLMuted},below=0.25cm of new,align=center]
   {what actually happened\\nudges what you believed};
@@ -180,7 +180,7 @@ The whole of tabular Q-learning is one line of arithmetic applied millions of ti
 \end{mlfigure}
 
 \begin{analogy}
-You believed the journey to school takes 20 minutes. Today it took 26. You do not now believe it takes 26 minutes -- one bad day is not the truth -- but you do not keep saying 20 either. You settle on something like 21. The learning rate $\alpha$ is how much you let a single experience change your mind, and $\gamma$ is how much you care about consequences that arrive later rather than immediately.
+You believed the journey to school takes 20 minutes. Today it took 26. You do not now believe it takes 26 minutes --- one bad day is not the truth --- but you do not keep saying 20 either. You settle on something like 21. The learning rate $\alpha$ is how much you let a single experience change your mind, and $\gamma$ is how much you care about consequences that arrive later rather than immediately.
 \end{analogy}
 
 \section{Exploration strategies}
@@ -281,12 +281,12 @@ Tabular Q-learning needs one table cell per state-action pair. For very large or
 \end{keyidea}
 
 
-\input{chapters/labs/10-reinforcement}
+\input{labs/10-reinforcement}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What are the state, action, reward, and transition in a reinforcement-learning formulation?
-  \item What two pieces of information appear in the tabular Q-learning update target?
+  \item What two pieces of information appear in the tabular Q-learning backup value?
   \item Why should the exploratory training policy be evaluated separately from the final greedy policy?
 \end{enumerate}
 \end{quickcheck}

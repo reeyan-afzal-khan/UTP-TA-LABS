@@ -26,11 +26,11 @@ UTP_MACHINE_LEARNING/
     red_wine_quality_dataset/
     bike_sharing_dataset/
 
-  all_experiments/              # 10 canonical practical notebooks
-    lab01-foundations_environment_data.ipynb
-    lab02-learning_loop_geometry.ipynb
+  all_experiments/              # one dedicated folder for each lab
+    lab01/
+    lab02/
     ...
-    lab10-reinforcement_integration.ipynb
+    lab10/
 
   requirements.txt
 \end{lstlisting}
@@ -52,14 +52,14 @@ Open the dataset page by clicking on the name of the dataset in the table below,
 \rowcolor{MLPaleBlue!92}
 Kaggle dataset & Main use in these notes \\
 \midrule
-\href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & auditing, baselines, model selection, logistic regression, trees \\
+\href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & data quality assessment, baselines, model selection, logistic regression, trees \\
 \href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & first pipeline, linear and ridge regression \\
 \href{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin} & geometry, evaluation, KNN, naive Bayes, SVM, limited labels \\
 \href{https://www.kaggle.com/datasets/shashanknecrothapa/ames-housing-dataset}{Ames Housing} & random forests and gradient boosting \\
 \href{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customers} & unsupervised workflow, K-means, DBSCAN \\
 \href{https://www.kaggle.com/datasets/yadavhim/optical-recognition-of-handwritten-digits}{Optical Recognition of Handwritten Digits} & PCA and representation learning \\
 \href{https://www.kaggle.com/datasets/miadul/credit-card-fraud-detection-dataset}{Credit Card Fraud Detection} & anomaly detection and imbalanced evaluation \\
-\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & unfamiliar-data audit, delimiter/schema comparison, stage checkpoint \\
+\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & unfamiliar-data assessment, delimiter/schema comparison, stage checkpoint \\
 \href{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}{Heart Failure Prediction} & classification evaluation on a new mixed-type schema \\
 \href{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009}{Red Wine Quality} & ensemble transfer exercise \\
 \href{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing} & chronological splitting, leakage checks, regression transfer lab \\
@@ -85,7 +85,7 @@ A path error is not a machine-learning error. If \texttt{pd.read\_csv(...)} rais
 
 \section{Install Python and make it available in the terminal}
 
-Download a current supported release from the \href{https://www.python.org/downloads/}{official Python downloads page}.
+Download a currently supported release from the \href{https://www.python.org/downloads/}{official Python downloads page}.
 
 \begin{description}[leftmargin=1.15in,style=nextline]
   \item[Windows] Run the official installer, install for your account, and allow it to add Python to \texttt{PATH}. Reopen the terminal, then use \texttt{py}.
@@ -151,7 +151,7 @@ py -m venv .venv
 python3 -m venv .venv
 \end{lstlisting}
 
-Then staying in the same folder activate the virtual environment PowerShell or Terminal:
+Then, while remaining in the project root, activate the virtual environment in PowerShell or Terminal:
 
 \begin{lstlisting}[style=mlterminal]
 # Windows
@@ -176,12 +176,12 @@ python3 -m pip install -r requirements.txt
 Package installation is normally a one-time setup. On later study sessions, activate \texttt{.venv} again; you do not need to reinstall the requirements each time.
 
 \begin{keyidea}
-Do not install random packages globally whenever a tutorial asks for one. Activate that project environment first, and install into it.
+Do not install packages globally simply because a tutorial requests them. Activate the project environment first, then install the packages inside it.
 \end{keyidea}
 
 \section{Verify the scientific stack}
 
-Use the practical lab below as the single environment check. It imports the core scientific packages and records their versions so the same notebook also serves as a reproducibility note. If all four imports succeed, the core environment is ready.
+Use the practical lab below as the primary environment check. It imports the core scientific packages and records their versions, so the notebook also serves as a reproducibility record. If all four imports succeed, the core environment is ready.
 
 
 \begin{quickcheck}

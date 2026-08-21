@@ -2,7 +2,7 @@
 \label{ch:evaluation}
 
 \chapterguide%
-  {\chapref{ch:data} and \chapref{ch:statistics}: honest holdouts, target types, averages, spread, and sampling uncertainty.}
+  {\chapref{ch:data} and \chapref{ch:statistics}: honest holdouts, label types, averages, spread, and sampling uncertainty.}
   {design a reliable supervised-learning evaluation, choose regression, classification, ranking, and probability metrics, use cross-validation, analyze uncertainty, and diagnose errors by subgroup.}
 
 In supervised learning, evaluation compares predictions with known outcomes, but the score is meaningful only when the split and metric match future use. Model evaluation should match the real purpose of the system. A metric is useful only when it reflects the consequences of the model's mistakes. Reliable evaluation also requires an appropriate data split, a meaningful baseline, and careful comparison across models.
@@ -38,7 +38,7 @@ For true values $y_i$ and predictions $\hat{y}_i$, mean squared error and root m
   \qquad
   \operatorname{RMSE}=\sqrt{\operatorname{MSE}}.
 \]
-MSE strongly penalizes large errors. RMSE is easier to interpret because it uses the same units as the target.
+MSE strongly penalizes large errors. RMSE is easier to interpret because it uses the same units as the label.
 
 \begin{workedexample}
 Five delivery times, in minutes. Four predictions are nearly right; one is badly wrong.
@@ -77,7 +77,7 @@ Read the three error numbers together. \textbf{MedAE $=1$} says the typical pred
 \end{workedexample}
 
 \begin{pitfall}
-Do not discretize a continuous target into ``low/medium/high'' merely so that you can compute a confusion matrix. That changes the estimand: a regression problem about numerical error becomes a classification problem about thresholded categories. If those categories are genuinely the decision you care about, define them before modeling and train/evaluate that classification task directly. Otherwise keep the continuous target and use regression metrics.
+Do not discretize a continuous label into ``low/medium/high'' merely so that you can compute a confusion matrix. That changes the estimand: a regression problem about numerical error becomes a classification problem about thresholded categories. If those categories are genuinely the decision you care about, define them before modeling and train/evaluate that classification task directly. Otherwise keep the continuous label and use regression metrics.
 \end{pitfall}
 
 \section{Additional regression metrics}
@@ -165,7 +165,7 @@ Almost every classification metric is a different way of reading the same four b
 \end{mlfigure}
 
 \begin{analogy}
-Precision is ``when the alarm sounds, how often is there a real fire?''. Recall is ``of all the real fires, how often did the alarm sound?''. An alarm wired to go off constantly has perfect recall and usually poor precision. A disconnected alarm has zero recall and \emph{undefined} precision because it never predicts positive. The useful operating point depends on false-alarm cost, missed-fire cost, and response capacity.
+Precision asks, ``When the alarm sounds, how often is there a real fire?'' Recall asks, ``Of all the real fires, how often did the alarm sound?'' An alarm wired to go off constantly has perfect recall and usually poor precision. A disconnected alarm has zero recall and \emph{undefined} precision because it never predicts positive. The useful operating point depends on false-alarm cost, missed-fire cost, and response capacity.
 \end{analogy}
 
 \begin{mltable}
@@ -482,7 +482,7 @@ When comparing two models on the same test cases, paired differences are more in
 
 \section{Error and subgroup analysis}
 
-Aggregate metrics can hide systematic failures. Inspect errors by class, target range, data source, time period, device type, location, and relevant demographic or operational groups.
+Aggregate metrics can hide systematic failures. Inspect errors by class, label range, data source, time period, device type, location, and relevant demographic or operational groups.
 
 Error analysis asks:
 
@@ -498,7 +498,7 @@ The purpose is not only to describe failure but to decide whether better data, f
 
 \section{Evaluation under distribution shift}
 
-Independent and identically distributed test data may not represent deployment. Covariate shift changes the input distribution, label shift changes class frequencies, and concept drift changes the relationship between features and targets.
+Independent and identically distributed test data may not represent deployment. Covariate shift changes the input distribution, label shift changes class frequencies, and concept drift changes the relationship between features and labels.
 
 Stress tests can evaluate missing features, corrupted inputs, rare groups, seasonal changes, and plausible worst cases. Once deployed, input statistics, prediction distributions, calibration, and delayed outcomes should be monitored. A model that was valid at launch can become unreliable as the environment changes.
 

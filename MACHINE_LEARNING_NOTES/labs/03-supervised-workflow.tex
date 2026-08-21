@@ -1,0 +1,305 @@
+\labsection{3}{Supervised workflow, evaluation, and model selection}{sec:lab03-supervised-workflow}
+
+\begin{labproject}{From a no-skill baseline to a locked final model}
+\textbf{Coverage.} Chapters 6--8.\\
+\textbf{Core data.} Titanic and Breast Cancer Wisconsin. Heart Failure is an optional transfer activity inside the same lab.\\
+\textbf{Goal.} Compare supervised baselines fairly, inspect threshold-dependent errors and ranking metrics, tune only on development data, and preserve an untouched final test boundary.
+
+\begin{labmode}
+This is the course's main workflow lab. Do not treat baseline comparison, threshold policy, cross-validation, and final evaluation as separate labs; they are successive decisions in one supervised-learning process.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Supervised baselines on Titanic.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
+X = df[features]
+y = df["Survived"]
+
+num_cols = ["Age", "SibSp", "Parch", "Fare"]
+cat_cols = ["Pclass", "Sex", "Embarked"]
+preprocess = ColumnTransformer([
+    ("num", Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ]), num_cols),
+    ("cat", Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+    ]), cat_cols),
+])
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+models = {
+    "logistic": LogisticRegression(max_iter=1000),
+    "random_forest": RandomForestClassifier(
+        n_estimators=300, random_state=42, min_samples_leaf=2
+    ),
+}
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+for name, estimator in models.items():
+    pipe = Pipeline([("preprocess", preprocess), ("model", estimator)])
+    pipe.fit(X_train, y_train)
+    pred = pipe.predict(X_valid)
+    prob = pipe.predict_proba(X_valid)[:, 1]
+    print(name, "accuracy=", round(accuracy_score(y_valid, pred), 3),
+          "roc_auc=", round(roc_auc_score(y_valid, prob), 3))
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- Thresholds and ranking metrics.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    average_precision_score,
+    classification_report,
+    confusion_matrix,
+    roc_auc_score,
+    RocCurveDisplay,
+    PrecisionRecallDisplay,
+)
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "breast_cancer_dataset" / "data.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X = df.drop(columns=["id", "diagnosis", "Unnamed: 32"], errors="ignore")
+y = (df["diagnosis"] == "M").astype(int)
+
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+model = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", LogisticRegression(max_iter=2000)),
+])
+model.fit(X_train, y_train)
+prob = model.predict_proba(X_valid)[:, 1]
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Explore threshold policies on development validation data, not a final test set.
+for threshold in [0.50, 0.30]:
+    pred = (prob >= threshold).astype(int)
+    print(f"\nthreshold={threshold:.2f}")
+    print(confusion_matrix(y_valid, pred))
+    print(classification_report(y_valid, pred, digits=3))
+    ConfusionMatrixDisplay.from_predictions(y_valid, pred)
+    plt.title(f"Confusion matrix at threshold {threshold:.2f}")
+    plt.tight_layout()
+    plt.show()
+
+print("ROC AUC:", round(roc_auc_score(y_valid, prob), 3))
+print("PR AUC:", round(average_precision_score(y_valid, prob), 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+RocCurveDisplay.from_predictions(y_valid, prob)
+plt.title("ROC curve")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PrecisionRecallDisplay.from_predictions(y_valid, prob)
+plt.title("Precision-recall curve")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part C --- Optional heart-failure transfer.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    PrecisionRecallDisplay,
+    RocCurveDisplay,
+    average_precision_score,
+    classification_report,
+    roc_auc_score,
+)
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "heart_failure_dataset" / "heart.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X = df.drop(columns="HeartDisease")
+y = df["HeartDisease"]
+
+num_cols = X.select_dtypes(include="number").columns.tolist()
+cat_cols = X.select_dtypes(exclude="number").columns.tolist()
+preprocess = ColumnTransformer([
+    ("num", Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ]), num_cols),
+    ("cat", Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+    ]), cat_cols),
+])
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+model = Pipeline([
+    ("preprocess", preprocess),
+    ("model", LogisticRegression(max_iter=2000)),
+])
+model.fit(X_train, y_train)
+prob = model.predict_proba(X_valid)[:, 1]
+pred = (prob >= 0.50).astype(int)
+
+print(classification_report(y_valid, pred, digits=3))
+print("ROC AUC:", round(roc_auc_score(y_valid, prob), 3))
+print("PR AUC:", round(average_precision_score(y_valid, prob), 3))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+ConfusionMatrixDisplay.from_predictions(y_valid, pred)
+plt.title("Heart-disease confusion matrix")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+RocCurveDisplay.from_predictions(y_valid, prob)
+plt.title("Heart-disease ROC curve")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PrecisionRecallDisplay.from_predictions(y_valid, prob)
+plt.title("Heart-disease precision-recall curve")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part D --- Cross-validated model selection.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
+X = df[features]
+y = df["Survived"]
+
+num_cols = ["Age", "SibSp", "Parch", "Fare"]
+cat_cols = ["Pclass", "Sex", "Embarked"]
+preprocess = ColumnTransformer([
+    ("num", Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ]), num_cols),
+    ("cat", Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+    ]), cat_cols),
+])
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+pipe = Pipeline([
+    ("preprocess", preprocess),
+    ("model", LogisticRegression(max_iter=2000)),
+])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42, stratify=y
+)
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+search = GridSearchCV(
+    pipe,
+    param_grid={
+        "model__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+        "model__class_weight": [None, "balanced"],
+    },
+    scoring="roc_auc",
+    cv=cv,
+    n_jobs=-1,
+)
+search.fit(X_train, y_train)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Only after selection is complete do we evaluate once on the untouched test set.
+test_prob = search.predict_proba(X_test)[:, 1]
+print("best parameters:", search.best_params_)
+print("training-CV ROC AUC:", round(search.best_score_, 3))
+print("final test ROC AUC:", round(roc_auc_score(y_test, test_prob), 3))
+\end{lstlisting}
+
+\begin{decisionmemo}
+Choose a classification threshold for a setting in which false negatives cost substantially more than false positives. State the consequence of lowering the threshold and name the validation evidence you used.
+\end{decisionmemo}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit a comparison against a no-skill baseline, confusion-matrix and ROC/precision--recall evidence for at least two thresholds, the cross-validated selection result, and one final untouched-test result after all choices are locked. The Heart Failure transfer activity is optional and does not count as another lab.
+\end{labdeliverable}

@@ -216,7 +216,7 @@ $\gamma$ is the radius of each training point's voice. Low $\gamma$ means every 
 
 The SVM is natively binary. Multiclass problems are handled by reduction: \term{one-vs-rest} trains $K$ machines (each class against all others), while \term{one-vs-one} trains a machine for every pair of classes and lets them vote; both work well.
 
-\term{Support vector regression (SVR)} recycles the margin idea for numeric targets: build a tube of half-width $\varepsilon$ around the prediction and charge nothing for points inside it, using the $\varepsilon$-insensitive loss $\max(0,\,|y-f(\bm{x})|-\varepsilon)$. Only points on or outside the tube become support vectors, giving a sparse, outlier-tolerant regressor with the full kernel toolbox available.
+\term{Support vector regression (SVR)} recycles the margin idea for numeric labels: build a tube of half-width $\varepsilon$ around the prediction and charge nothing for points inside it, using the $\varepsilon$-insensitive loss $\max(0,\,|y-f(\bm{x})|-\varepsilon)$. Only points on or outside the tube become support vectors, giving a sparse, outlier-tolerant regressor with the full kernel toolbox available.
 
 \section{Practical notes}
 
@@ -269,7 +269,7 @@ Watch for & Slow training on very large datasets, sensitive scale, difficult pro
 \end{modelcard}
 
 
-\input{chapters/labs/07-svm}
+\input{labs/07-svm}
 
 \begin{quickcheck}
 \begin{enumerate}

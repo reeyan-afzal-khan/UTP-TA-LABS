@@ -1,0 +1,117 @@
+\labsection{2}{Learning loop, preprocessing, and geometry}{sec:lab02-loop-geometry}
+
+\begin{labproject}{Build one leakage-safe pipeline and inspect the geometry it creates}
+\textbf{Coverage.} Chapters 4--5.\\
+\textbf{Core data.} Medical Cost Personal Data and Breast Cancer Wisconsin.\\
+\textbf{Goal.} Complete a train--validation learning loop with preprocessing inside a pipeline, then demonstrate how scaling changes distance-based geometry.
+
+\begin{labmode}
+Treat preprocessing as part of the fitted model. The second activity makes that rule concrete: standardization is not cosmetic when an algorithm depends on distances or angles.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- End-to-end insurance learning loop.}\par
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "medical_cost_personal_dataset" / "insurance.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+X = df.drop(columns="charges")
+y = df["charges"]
+
+num_cols = ["age", "bmi", "children"]
+cat_cols = ["sex", "smoker", "region"]
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+preprocess = ColumnTransformer([
+    ("num", Pipeline([
+        ("imputer", SimpleImputer(strategy="median")),
+        ("scale", StandardScaler()),
+    ]), num_cols),
+    ("cat", Pipeline([
+        ("imputer", SimpleImputer(strategy="most_frequent")),
+        ("onehot", OneHotEncoder(handle_unknown="ignore")),
+    ]), cat_cols),
+])
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+model = Pipeline([
+    ("preprocess", preprocess),
+    ("regressor", LinearRegression()),
+])
+
+X_train, X_valid, y_train, y_valid = train_test_split(
+    X, y, test_size=0.20, random_state=42
+)
+model.fit(X_train, y_train)
+pred = model.predict(X_valid)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+print("Validation MAE:", round(mean_absolute_error(y_valid, pred), 2))
+print("Validation RMSE:", round(np.sqrt(mean_squared_error(y_valid, pred)), 2))
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- Breast-cancer geometry and scaling.}\par
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from sklearn.metrics import pairwise_distances
+from sklearn.preprocessing import StandardScaler
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+PROJECT_ROOT = Path.cwd()
+train_path = PROJECT_ROOT / "all_datasets" / "breast_cancer_dataset" / "data.csv"
+df = pd.read_csv(train_path)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+feature_cols = [c for c in df.columns if c not in {"id", "diagnosis", "Unnamed: 32"}]
+X = df[feature_cols]
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Compare raw Euclidean distance with distance after standardization.
+raw = pairwise_distances(X.iloc[:5], metric="euclidean")
+X_scaled = StandardScaler().fit_transform(X)
+scaled = pairwise_distances(X_scaled[:5], metric="euclidean")
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+np.set_printoptions(precision=2, suppress=True)
+print("Raw distances among first five rows:\n", raw)
+print("\nScaled distances among first five rows:\n", scaled)
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+# Cosine similarity answers a different question: direction rather than magnitude.
+cosine_distance = pairwise_distances(X_scaled[:5], metric="cosine")
+print("\nCosine similarities:\n", 1 - cosine_distance)
+\end{lstlisting}
+
+\begin{tryit}
+Remove one high-information insurance feature and compare validation error. Then choose three breast-cancer features on visibly different scales and compare raw versus standardized pairwise distances.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit validation MAE and RMSE for the reference insurance pipeline and one controlled feature-removal variant, plus a compact raw-versus-standardized distance comparison and a short explanation of why representation choices alter similarity.
+\end{labdeliverable}

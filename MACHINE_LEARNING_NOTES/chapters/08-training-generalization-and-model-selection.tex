@@ -222,7 +222,7 @@ A learning curve plots training and validation performance against training-set 
 \begin{itemize}
   \item Poor training and validation performance suggests underfitting or an optimization problem.
   \item Strong training performance with weak validation performance suggests overfitting.
-  \item Both curves improving as more data is added suggests that additional representative data may help.
+  \item Improvement in both curves as more data is added suggests that additional representative data may help.
   \item Highly unstable curves suggest sensitivity to the split, seed, or a small validation sample.
 \end{itemize}
 
@@ -322,7 +322,7 @@ SMOTE uses nearest-neighbor geometry, which \chapref{ch:knn-nb} develops in deta
 \end{coursechoice}
 
 \begin{pitfall}
-Resampling changes the training distribution. It does \emph{not} justify changing the validation or test distribution to look balanced. Keep evaluation prevalence realistic unless the deployment question itself defines a different target population.
+Resampling changes the training distribution. It does \emph{not} justify changing the validation or test distribution to look balanced. Keep evaluation prevalence realistic unless the deployment question itself defines a different population of interest.
 \end{pitfall}
 
 \section{Feature selection is part of model development} \label{sec:feature-selection}
@@ -349,7 +349,7 @@ After \chapref{ch:regression}, revisit lasso as an embedded selector. After \cha
 \end{secondpass}
 
 \begin{pitfall}
-Supervised feature selection sees the target, so fitting a selector once on the complete labeled table before cross-validation leaks information. Put the selector inside the same pipeline that is validated with the model. If the number of selected features is tuned, that choice is a hyperparameter too.
+Supervised feature selection sees the label, so fitting a selector once on the complete labeled table before cross-validation leaks information. Put the selector inside the same pipeline that is validated with the model. If the number of selected features is tuned, that choice is a hyperparameter too.
 \end{pitfall}
 
 \begin{keyidea}
@@ -429,7 +429,7 @@ Choose one supervised pipeline and one fixed cross-validation design. Plot or ta
 \end{tryit}
 
 
-\input{chapters/labs/03-supervised-workflow}
+\input{labs/03-supervised-workflow}
 
 \begin{quickcheck}
 \begin{enumerate}

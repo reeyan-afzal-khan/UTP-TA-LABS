@@ -130,7 +130,7 @@ Gradient boosting generalizes the idea to any differentiable loss. After $m-1$ r
 The \term{learning rate} $\nu$ shrinks each tree's contribution. Smaller values usually need more trees and sometimes improve generalization, but the interaction is data-dependent; choose the pair with validation or early stopping.
 
 \begin{workedexample}
-Targets $y=(3,5,8,10)$. Round 0 predicts the mean: $F_0=6.5$ for everyone, residuals $(-3.5,-1.5,1.5,3.5)$. A one-split stump fitted to the residuals separates the first two observations from the last two and predicts their residual means, $-2.5$ and $+2.5$. With $\nu=0.5$,
+Labels $y=(3,5,8,10)$. Round 0 predicts the mean: $F_0=6.5$ for everyone, residuals $(-3.5,-1.5,1.5,3.5)$. A one-split stump fitted to the residuals separates the first two observations from the last two and predicts their residual means, $-2.5$ and $+2.5$. With $\nu=0.5$,
 \[
   F_1=(6.5-1.25,\;6.5-1.25,\;6.5+1.25,\;6.5+1.25)
   =(5.25,\,5.25,\,7.75,\,7.75),
@@ -154,7 +154,7 @@ Library & Distinctive approach & Practical strength \\
 \midrule
 XGBoost & Adds explicit regularization of tree size and leaf values to the objective and uses second-derivative information for better splits. & Popularized the modern toolkit, including early stopping and column subsampling. \\
 LightGBM & Grows trees leaf-wise instead of level-wise and buckets feature values into histograms. & Extremely fast on large datasets. \\
-CatBoost & Handles categorical features natively with target statistics computed in a careful order to avoid leakage. & Notably strong when the data contains many categorical columns. \\
+CatBoost & Handles categorical features natively with label statistics computed in a careful order to avoid leakage. & Notably strong when the data contains many categorical columns. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -207,7 +207,7 @@ Both build many small models, but they differ in one decisive way: bagging build
 \end{mlfigure}
 
 \begin{analogy}
-Bagging is asking a hundred people to guess the number of sweets in a jar and taking the average -- individual errors cancel out. Boosting is a relay of tutors: the first teaches the class, the second focuses only on the students who failed, the third on those who still fail. Averaging fixes noise; relaying fixes ignorance.
+Bagging is asking a hundred people to guess the number of sweets in a jar and taking the average --- individual errors cancel out. Boosting is a relay of tutors: the first teaches the class, the second focuses only on the students who failed, and the third focuses on those who still fail. Averaging fixes noise; relaying fixes ignorance.
 \end{analogy}
 
 \begin{keyidea}
@@ -274,7 +274,7 @@ reg\_lambda & 0--10 & Extra penalty on leaf values. \\
 \subsection{When combining model families helps}
 
 \begin{intuition}
-Soft voting averages probabilities and treats every model as equally trustworthy. Stacking trains a small extra model to learn \emph{which} base model to believe in which situation -- perhaps the forest is reliable for common cases and the linear model for the extremes. Stacking is stronger, but it needs enough data to train that extra layer without overfitting.
+Soft voting averages probabilities and treats every model as equally trustworthy. Stacking trains a small extra model to learn \emph{which} base model to believe in which situation --- perhaps the forest is reliable for common cases and the linear model for the extremes. Stacking is stronger, but it needs enough data to train that extra layer without overfitting.
 \end{intuition}
 
 \begin{pitfall}
@@ -319,7 +319,7 @@ Compare a single tree, a random forest, and a gradient-boosting model with the s
 \end{tryit}
 
 
-\input{chapters/labs/06-trees-ensembles}
+\input{labs/06-trees-ensembles}
 
 \begin{quickcheck}
 \begin{enumerate}

@@ -1,7 +1,0 @@
-plt.figure(figsize=(6, 4))
-plt.plot(ks, silhouettes, marker="o")
-plt.xlabel("Number of clusters k")
-plt.ylabel("Silhouette score")
-plt.title("K-means silhouette diagnostic")
-plt.tight_layout()
-plt.show()

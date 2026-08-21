@@ -177,7 +177,7 @@ Large language models are usually transformer-based models pretrained with token
 Prompting & Writing instructions that reliably produce what you want \\
 RAG & Retrieving your own documents and giving them to the model as context \\
 Fine-tuning & Adapting a model to a specific style or task with your data \\
-Evaluation & Deciding whether the output is actually good -- the hard part \\
+Evaluation & Deciding whether the output is actually good --- the hard part \\
 Agents & Building a control loop that lets a model plan or choose tool calls, while the surrounding system checks state, permissions, and outcomes \\
 \bottomrule
 \end{tabularx}
@@ -215,7 +215,7 @@ Training a model is perhaps a fifth of a real project. The rest is engineering.
 Operational handoff field & What to record \\
 \midrule
 Decision and population & Who is eligible, when scoring occurs, what action follows, and any capacity limit. \\
-Target and timing & Exact outcome definition, prediction horizon, feature cutoff, and label delay. \\
+Label and timing & Exact outcome definition, prediction horizon, feature cutoff, and label delay. \\
 Validation evidence & Split design, baseline, primary deployment metric, secondary checks, and final untouched result. \\
 Policy & Threshold or ranking rule, deterministic tie handling, exclusions, and expected batch size. \\
 Monitoring & Schema/data-quality checks, drift signals, delayed outcome metrics, subgroup counts, and intervention outcomes where relevant. \\
@@ -257,7 +257,7 @@ You do not need more mathematics to be useful. You need it to read research pape
 \midrule
 1 & Linear algebra & Everything. Matrices, eigenvectors, projections, SVD. \\
 2 & Probability & Distributions, expectation, Bayes, likelihood. \\
-3 & Calculus & Derivatives, chain rule -- and therefore backpropagation. \\
+3 & Calculus & Derivatives, chain rule --- and therefore backpropagation. \\
 4 & Optimization & Convexity, constraints, why some problems are hard. \\
 5 & Statistics & Estimation, hypothesis testing, confidence, experiment design. \\
 6 & Information theory & Entropy, cross-entropy, KL divergence. \\
@@ -279,7 +279,7 @@ A model that is accurate can still be harmful. This is not a footnote to the tec
 \rowcolor{MLPaleBlue!92}
 \normalfont\bfseries\leavevmode\color{MLNavy}Concern & \normalfont\bfseries\leavevmode\color{MLNavy}The question to ask \\
 \midrule
-Bias & Does it perform or allocate actions differently across relevant groups? Prespecify lawful, meaningful audits and include counts and uncertainty. \\
+Bias & Does it perform or allocate actions differently across relevant groups? Prespecify lawful, meaningful evaluations and include counts and uncertainty. \\
 Feedback loops & Does acting on the prediction change the data it will be retrained on? \\
 Proxies & Is a feature standing in for something you are not allowed to use? \\
 Consent & Did the people in the training data agree to this use? \\
@@ -292,7 +292,7 @@ Recourse & If it is wrong about someone, how do they get that fixed? \\
 A single diagnostic is only a starting point. Group definitions, data collection, legal basis, privacy, intersectional sample sizes, appropriate metrics, and uncertainty require domain and stakeholder judgment.
 
 \begin{pitfall}
-Removing a sensitive attribute does not by itself remove inequity: other variables can act as proxies, labels can encode past decisions, and representation can differ across groups. Where lawful and appropriate, protected attributes may be needed for auditing even when excluded from prediction. No single metric ``solves'' fairness; examine performance, allocation, harms, and recourse in context.
+Removing a sensitive attribute does not by itself remove inequity: other variables can act as proxies, labels can encode past decisions, and representation can differ across groups. Where lawful and appropriate, protected attributes may be needed for fairness evaluation even when excluded from prediction. No single metric ``solves'' fairness; examine performance, allocation, harms, and recourse in context.
 \end{pitfall}
 
 \subsection{Project ideas that teach the most}
@@ -318,7 +318,7 @@ Choose a project where you can recognize a bad answer yourself. On data you unde
 \end{keyidea}
 
 \begin{analogy}
-Learning machine learning is like learning an instrument. Nobody becomes a musician by reading about music theory; they become one by playing badly, listening carefully, and playing again. The theory helps enormously -- but only alongside the playing, never instead of it.
+Learning machine learning is like learning an instrument. Nobody becomes a musician by reading about music theory; they become one by playing badly, listening carefully, and playing again. The theory helps enormously --- but only alongside the playing, never instead of it.
 \end{analogy}
 
 \begin{keyidea}
