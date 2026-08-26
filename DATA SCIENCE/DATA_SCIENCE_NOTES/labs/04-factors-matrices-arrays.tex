@@ -1,0 +1,97 @@
+\labsection{4}{Factors, matrix operations, and multidimensional arrays}{sec:lab04}
+
+\begin{labproject}{Lab 4b guided practice}
+\textbf{Coverage.} Chapter~\ref{chap:factors-matrices-arrays}.\\
+\textbf{Goal.} Summarize factor levels, manipulate a transposed matrix pair, and construct arrays with the dimensions shown in the supplied expected output.
+
+\textbf{Task 1 --- Retirement-age factor levels.}
+
+\begin{lstlisting}[style=dsr]
+age <- c(
+  55,57,56,52,51,59,58,53,59,55,
+  60,60,60,60,52,55,56,51,60,52,
+  54,56,52,57,54,56,58,53,53,50,
+  55,51,57,60,57,55,51,50,57,58
+)
+
+age_factor <- factor(age)
+print(levels(age_factor))
+print(table(age_factor))
+\end{lstlisting}
+
+The exact-age counts for the supplied vector are:
+
+\begin{dstable}
+\begin{tabular}{@{}rrrrrrrrrrrr@{}}
+\toprule
+Age & 50 & 51 & 52 & 53 & 54 & 55 & 56 & 57 & 58 & 59 & 60 \\
+\midrule
+Count & 2 & 4 & 4 & 3 & 2 & 5 & 4 & 5 & 3 & 2 & 6 \\
+\bottomrule
+\end{tabular}
+\end{dstable}
+
+The handout displays the ranges 50--52, 52--54, 54--56, 56--58, and 58--60. Those displayed ranges overlap at 52, 54, 56, and 58. A faithful direct count is therefore:
+
+\begin{lstlisting}[style=dsr]
+range_counts <- c(
+  `50-52` = sum(age >= 50 & age <= 52),
+  `52-54` = sum(age >= 52 & age <= 54),
+  `54-56` = sum(age >= 54 & age <= 56),
+  `56-58` = sum(age >= 56 & age <= 58),
+  `58-60` = sum(age >= 58 & age <= 60)
+)
+print(range_counts)
+\end{lstlisting}
+
+These counts are 10, 9, 11, 12, and 11 respectively, but they should not be added as though they were mutually exclusive groups because the handout's endpoints overlap.
+
+\begin{pitfall}
+If the intention is to divide staff into five non-overlapping groups, the supplied ranges need an explicit boundary convention. The handout does not provide one, so these notes do not invent it silently.
+\end{pitfall}
+
+\textbf{Task 2 --- Create a 3-by-3 matrix and transpose it.}
+
+\begin{lstlisting}[style=dsr]
+V1 <- c(2, 3, 1, 5, 4, 6, 8, 7, 9)
+
+Matrix1 <- matrix(V1, nrow = 3, byrow = TRUE)
+Matrix2 <- t(Matrix1)
+
+rownames(Matrix1) <- c("R1", "R2", "R3")
+colnames(Matrix1) <- c("C1", "C2", "C3")
+rownames(Matrix2) <- c("R1", "R2", "R3")
+colnames(Matrix2) <- c("C1", "C2", "C3")
+
+print(Matrix1 + Matrix2)
+print(Matrix1 - Matrix2)
+print(Matrix1 * Matrix2)
+print(Matrix1 / Matrix2)
+\end{lstlisting}
+
+The arithmetic operators match the element-wise usage shown in Lab 4a.
+
+\textbf{Task 3 --- Construct the two arrays shown in the expected output.}
+
+\begin{lstlisting}[style=dsr]
+Array1 <- array(1:24, dim = c(2, 4, 3))
+Array2 <- array(25:54, dim = c(3, 2, 5))
+
+print(Array1)
+print(Array2)
+
+print("The second row of the second matrix of the first array:")
+print(Array1[2, , 2])
+
+print("The element corresponding to the supplied sample output 30:")
+print(Array2[3, 2, 1])
+\end{lstlisting}
+
+\begin{pitfall}
+Lab 4b asks for the element in the ``3rd row and 3rd column'' of the first matrix of Array2, while Array2 is specified to have only 2 columns. The supplied expected output is 30, which corresponds to \texttt{Array2[3,2,1]} in the displayed 3-row by 2-column matrix. The guided code follows the dimensions and sample output rather than inventing a nonexistent third column.
+\end{pitfall}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the exact-age factor summary and your interpretation of the requested ranges, the two named 3-by-3 matrices with four arithmetic results, and the two multidimensional arrays with the requested selections.
+\end{labdeliverable}

@@ -1,32 +1,20 @@
-###  MACHINE LEARNING
+# UTP Teaching Assistant Labs and Course Notes
 
-| Lab | Chapters | Practical focus | Task notebooks |
-| ---: | --- | --- | ---: |
-| 01 | Chapters 2–3 | Foundations | 2 |
-| 02 | Chapters 4–5 | Learning Loop and Geometry | 2 |
-| 03 | Chapters 6–8 | Supervised Workflow | 4 |
-| 04 | Chapter 9 | Regression | 2 |
-| 05 | Chapters 10–11 | Classification Models | 2 |
-| 06 | Chapters 12–13 | Trees and Ensembles | 3 |
-| 07 | Chapter 14 | Support Vector Machines | 1 |
-| 08 | Chapters 15–17 | Unsupervised Learning | 3 |
-| 09 | Chapters 18–19 | Anomaly Detection and Limited Labels | 2 |
-| 10 | Chapter 20 | Reinforcement Learning | 1 |
+This repository collects laboratory materials, tutorial resources, implementations, and original LaTeX teaching companions from courses taught at Universiti Teknologi PETRONAS.
 
-###  OPERTATING SYSTEMS
-___
+## Course notes
 
-### Tasks:
-|   DATE   | LAB-TASKS                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|:--------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Lab01 | [Task 01 - System calls of UNIX (opendir, readdir, closedir)](Lab01/task_1.c)  <br/>[Task 02 - System calls of UNIX (fork, getpid, exit)](Lab01/task_2.c)|
-| Lab02 | [Task 01 - Program for simulation of cp UNIX command](Lab02/task_1.c) <br/>[Task 02 - Program for simulation of ls UNIX command](Lab02/task_2.c) <br/>[Task 03 - Program for simulation of grep UNIX command](Lab02/task_3.c)|
-| Lab03 | [Task 01 - Shell Program - Even or Odd](Lab03/task_1.sh) <br/>[Task 02 - Shell Program - Checking Leap Year](Lab03/task_2.sh) <br/>[Task 03 - Shell Program - Factorial of a Number](Lab03/task_3.sh) <br/>[Task 04 - Shell Program - Swap two Numbers](Lab03/task_4.sh)|
-| Lab04 | [Task 01 - CPU Scheduling Algorithms - Priority](Lab04/task_1.c) <br/>[Task 02 - CPU Scheduling Algorithms - Round Robin](Lab04/task_2.c) <br/>[Task 03 - CPU Scheduling Algorithms - FCFS](Lab04/task_3.c) <br/>[Task 04 - CPU Scheduling Algorithms - SJF](Lab04/task_4.c)|
-| Lab05 | [Task 01 - Producer Consumer Problem Using Semaphores](Lab05/task_1.c) <br/>[Task 02 - IPC Using Shared Memory](Lab05/task_2.c)|
-| Lab06 | [Task 01 - Bankers Algorithm For Deadlock Avoidance](Lab06/task_1.c) <br/>[Task 02 - Algorithm For Deadlock Detection](Lab06/task_2.c) <br/>[Task 03 - Threading & Synchronization Applications](Lab06/task_3.c)|
-| Lab07 | [Task 01 - Memory Allocation Methods For Fixed Partition - Fit](Lab07/task_1.c) <br/>[Task 02 - Memory Allocation Methods For Fixed Partition - Worst Fit](Lab07/task_2.c) <br/>[Task 03 - Memory Allocation Methods For Fixed Partition - Best Fit](Lab07/task_3.c)|
-| Lab08 | [Task 01 - Paging Technique of Memory Management](Lab08/task_1.c)  <br/>[Task 02 - Page Replacement Algorithms - FIFO](Lab08/task_2.c) <br/>[Task 03 - Page Replacement Algorithms - LRU](Lab08/task_3.c) <br/>[Task 04 - Page Replacement Algorithms - LFU](Lab08/task_4.c)|
-| Lab09 | [Task 01 - File Organization Technique - Single Level Directory](Lab09/task_1.c)  <br/>[Task 02 - File Organization Technique - Two Level Directory](Lab09/task_2.c)|
-| Lab10 | [Task 01 - File Allocation Strategies - Sequential](Lab10/task_1.c)  <br/>[Task 02 - File Allocation Strategies - Linked](Lab10/task_2.c) <br/>[Task 03 - File Allocation Strategies - Indexed](Lab10/task_3.c)|
-___
+| Course | Note coverage | LaTeX entry point |
+| --- | --- | --- |
+| Algorithms and Data Structures | Arrays, linked lists, stacks, queues, trees, graphs, searching, sorting, hashing, and algorithm comparison | [Open notes](<ALGORITHMS & DATA STRUCTURES/ALGORITHMS_DATA_STRUCTURES_NOTES/main.tex>) |
+| Artificial Intelligence | Uninformed and informed search, fuzzy logic, ANFIS, robotics, NLP, multimodal demonstrations, and genetic algorithms | [Open notes](<ARTIFICIAL INTELLIGENCE/ARTIFICIAL_INTELLIGENCE_NOTES/main.tex>) |
+| Data Communication and Networking | Wireshark, eNSP, static and dynamic routing, FTP, DHCP, LACP, VLANs, and WAN links | [Open notes](<DATA COMMUNICATION & NETWORKING/DATA_COMMUNICATION_NETWORKING_NOTES/main.tex>) |
+| Data Science | R foundations, data structures, control flow, data frames, cleaning, visualization, correlation, scaling, regression, and KNN | [Open notes](<DATA SCIENCE/DATA_SCIENCE_NOTES/main.tex>) |
+| Enterprise Resource Planning | Integrated processes, ERP development, CRM and sales, production, supply chain, accounting, HR, modeling, implementation, and Odoo practice | [Open notes](<ENTERPRISE RESOURCE PLANNING/ENTERPRISE_RESOURCE_PLANNING_NOTES/main.tex>) |
+| FinTech Innovation | Inclusion, alternative finance, digital banking, blockchain, Big Tech, cryptocurrencies, InsurTech, and responsible product design | [Open notes](<FINTECH INNOVATION/FINTECH_INNOVATION_NOTES/main.tex>) |
+| Machine Learning | Foundations through classical supervised, unsupervised, limited-label, and reinforcement-learning topics, with ten practical milestones | [Open notes](<MACHINE LEARNING/MACHINE_LEARNING_NOTES/main.tex>) |
+| Operating Systems | UNIX interfaces, shell work, scheduling, IPC, synchronization, deadlock, memory, paging, and file systems | [Open notes](<OPERATING SYSTEMS/OPERATING_SYSTEMS_NOTES/main.tex>) |
+
+## Disclaimer
+
+These materials support teaching and independent study. They are not official university publications, or a substitute for the current course outline and institutional policies.

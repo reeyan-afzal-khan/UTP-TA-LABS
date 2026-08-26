@@ -1,0 +1,46 @@
+\labsection{5}{Stack ADT and expression processing}{sec:lab05}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab V}
+\textbf{Objective.} Build intuition for stacks, their operations, implementations, and use cases.
+
+\textbf{Outcomes.} Understand stack behavior; use push/pop/peek; apply a stack to unseen programming problems.
+
+\textbf{Problem directions.} Implement a stack with an array; implement a stack with a linked list; convert infix notation to postfix using a stack.
+\end{sourcealignment}
+
+\begin{labproject}{Implement the stack ADT twice}
+\textbf{Coverage.} Chapter 5.
+
+Required operations are \texttt{push()}, \texttt{pop()}, \texttt{peek()}, \texttt{isFull()}, \texttt{isEmpty()}, and \texttt{display()} for the array version and the corresponding linked-list behavior.
+
+\begin{lstlisting}
+// Suggested trace
+push(10);
+push(20);
+push(30);
+peek();       // 30
+pop();        // removes 30
+display();    // 20 10 from top to bottom
+\end{lstlisting}
+
+\begin{tryit}
+Deliberately trigger array overflow and stack underflow. Then implement the manual's infix-to-postfix exercise and test \texttt{A+B*C} and \texttt{(A+B)*C}.
+\end{tryit}
+
+\begin{clarification}
+A linked-list stack normally has no predetermined fixed capacity. If your interface contains \texttt{isFull()}, document whether you impose a maximum node count; otherwise only allocation failure makes the structure unable to grow.
+\end{clarification}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item LIFO order is visible in the output.
+  \item Underflow is handled before reading/removing the top.
+  \item Array overflow is handled before writing past capacity.
+  \item The infix-to-postfix result respects parentheses and operator precedence.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit both stack implementations, one overflow/underflow trace, and the infix-to-postfix converter with at least two test expressions.
+\end{labdeliverable}

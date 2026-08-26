@@ -1,0 +1,46 @@
+\labsection{10}{Searching and sorting experiments}{sec:lab10}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab X}
+\textbf{Objective.} Search a list and perform sorting using different techniques.
+
+\textbf{Outcomes.} Understand searching techniques and the working of multiple sorting techniques.
+
+\textbf{Manual problems.}
+\begin{enumerate}
+  \item Sort an array in descending order using quick sort, always selecting the median element of the current array/subarray as pivot.
+  \item Implement binary search and test whether a given element is present.
+  \item Modify merge logic to merge three sorted arrays into one array.
+  \item Sort an array using heap sort.
+\end{enumerate}
+\end{sourcealignment}
+
+\begin{labproject}{Trace, implement, and compare algorithms}
+\textbf{Coverage.} Chapter 10.
+
+Use a common dataset where appropriate, for example:
+\begin{lstlisting}
+vector<int> data = {29, 10, 14, 37, 13};
+\end{lstlisting}
+
+\begin{tryit}
+Trace at least two sorting methods by hand. Then implement the four manual problems above. Count comparisons or swaps for one sorting pair so the final-project style of algorithm comparison becomes familiar.
+\end{tryit}
+
+\begin{clarification}
+The source's quick-sort theory contains a complexity inconsistency, documented in Chapter~\ref{ch:search-sort}. Also, ``median element as pivot'' can mean the element at the middle index rather than the statistical median value; follow the wording used by your instructor or clarify the interpretation before coding.
+\end{clarification}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Binary search is run only on sorted input.
+  \item Descending quick sort produces a correctly ordered final array.
+  \item The three-way merge preserves every input value exactly once.
+  \item Heap sort output is sorted and the heap property is maintained during extraction.
+  \item Test cases include duplicates and a missing search target.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit implementations for the assigned manual problems, sample output, and at least one complete trace showing intermediate states.
+\end{labdeliverable}

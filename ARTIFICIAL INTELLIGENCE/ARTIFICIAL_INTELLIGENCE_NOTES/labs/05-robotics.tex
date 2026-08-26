@@ -1,0 +1,30 @@
+\labsection{5}{Robotics scenarios and simulation in Python}{sec:lab05-robotics}
+
+\begin{labproject}{From motion equations to robot decision rules}
+\textbf{Coverage.} 2D motion, obstacle avoidance, PID line following, A* path planning, collision avoidance, 2-link forward kinematics, plus the conceptual SLAM and Q-learning extensions named in the source.\\
+\textbf{Software.} Python, NumPy, Matplotlib, and \texttt{heapq} for A*.
+
+\begin{labmode}
+The robotics source is scenario-based. Treat every plot as evidence about the implemented behavior: do not only run the script; explain why the trajectory has that shape.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Motion and reactive control.}\par
+Run Scenario 1 and Scenario 2. For Scenario 1, verify that a 45-degree heading produces equal-size x and y increments. For Scenario 2, plot obstacles and the robot path, then record where each 90-degree turn occurs.
+
+\medskip\noindent\textbf{Part B --- Feedback control.}\par
+Run the PID line-following simulation with \(K_p=0.5\), \(K_i=0.01\), and \(K_d=0.1\). Plot the desired path and robot path together.
+
+\medskip\noindent\textbf{Part C --- Deliberative planning.}\par
+Run the A* grid planner on the supplied 5-by-5 obstacle map. Render the path using \texttt{S}, \texttt{G}, \texttt{*}, \texttt{\#}, and \texttt{.} exactly as in the handout.
+
+\medskip\noindent\textbf{Part D --- Multi-robot and arm motion.}\par
+Run the two-robot collision-avoidance example and the 2-link arm example. For the arm, plot the end-effector trajectory.
+
+\begin{tryit}
+Choose one scenario and change one parameter only: heading, obstacle location, PID gain, A* start/goal, collision threshold, or link length. Predict the qualitative change before running the code, then compare your prediction with the result.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one notebook containing the six implemented scenarios, all resulting plots/text-grid outputs, and a one-paragraph explanation of how reactive control, feedback control, and search-based planning differ in the examples.
+\end{labdeliverable}

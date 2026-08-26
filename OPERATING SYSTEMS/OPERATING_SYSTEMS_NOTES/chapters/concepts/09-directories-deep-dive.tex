@@ -1,0 +1,59 @@
+\section{A filesystem separates names, metadata, and data}
+A useful mental model is to separate three things:
+\begin{enumerate}
+  \item \textbf{Name:} a directory entry such as \texttt{report.txt}.
+  \item \textbf{Metadata object:} ownership, permissions, timestamps, size, and block mapping (for example, an inode in Unix-like designs).
+  \item \textbf{Data blocks:} the bytes that belong to the file.
+\end{enumerate}
+This separation explains why renaming a file can be cheap: the operation may only change a directory entry while leaving file data where it already is.
+
+\section{Pathname resolution is repeated directory lookup}
+Resolving \texttt{/a/b/c.txt} means starting from the root, looking up \texttt{a}, then looking up \texttt{b} inside that directory, then \texttt{c.txt}. For a relative path, the process starts from its current working directory instead.
+
+Every directory in the traversal path requires appropriate search/execute permission under Unix-style protection. This is why having permission on the final file alone may not be enough if an ancestor directory blocks traversal.
+
+\section{Hard links and symbolic links}
+\begin{description}
+  \item[Hard link] Another directory entry referring to the same underlying filesystem object/inode. Removing one name does not delete the data while other hard links remain.
+  \item[Symbolic link] A separate small file whose contents identify another pathname. Resolution follows that pathname, so a symlink can become dangling if the target disappears.
+\end{description}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  n/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.7cm,align=center,font=\small\bfseries\color{MLNavy}},
+  i/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,minimum width=2.7cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[n] (a) {name: report.txt};
+\node[n,below=0.9cm of a] (b) {name: final.txt};
+\node[i,right=2.2cm of a,yshift=-0.45cm] (ino) {same inode / metadata};
+\node[n,right=2.2cm of ino] (data) {file data blocks};
+\draw[arr] (a)--(ino); \draw[arr] (b)--(ino); \draw[arr] (ino)--(data);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Directory structure evolution}
+Single-level and two-level directory models are useful historically because they expose why hierarchy became necessary. Tree-structured directories scale naming naturally, while links make the namespace graph-like. Once cycles are possible, traversal utilities must avoid infinite recursion by tracking visited objects or applying other rules.
+
+\section{Directory operations and consistency}
+Create, unlink, rename, and link operations update metadata structures. A crash halfway through such an update can leave inconsistent state unless the filesystem uses ordering, journaling, copy-on-write, or recovery mechanisms. This is why directory operations are an OS consistency topic, not just a UI topic.
+
+\section{Caching directory and metadata lookups}
+Repeated pathname resolution would be expensive if every component required storage I/O. Operating systems cache recently used directory entries and metadata in memory. Cache hits make operations such as opening commonly used libraries dramatically faster.
+
+\section{Connecting Lab 9 graphics to the real abstraction}
+The OpenGL tree visualizes parent-child namespace relationships. To interpret it as an OS model:
+\begin{itemize}
+  \item a displayed directory node represents a namespace container, not a physically contiguous disk region;
+  \item an edge represents name containment/lookup relationship, not necessarily a physical pointer drawn exactly as on disk;
+  \item expand/collapse is a UI operation; it does not create or delete filesystem objects;
+  \item coordinates and animations are presentation state unrelated to file metadata.
+\end{itemize}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why can two hard-link names refer to the same file contents?
+  \item What is the starting point for an absolute path versus a relative path?
+  \item Why does the directory tree not imply that file data is physically stored in the same tree shape?
+\end{enumerate}
+\end{quickcheck}

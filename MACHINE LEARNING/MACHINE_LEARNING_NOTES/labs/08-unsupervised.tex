@@ -20,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "mall_customers_dataset" / "Mall_Customers.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -74,7 +74,7 @@ from sklearn.preprocessing import StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "mall_customers_dataset" / "Mall_Customers.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -152,7 +152,7 @@ from sklearn.pipeline import Pipeline
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 data_dir = PROJECT_ROOT / "all_datasets" / "optical_recognition_dataset"
 columns = [f"pixel_{i}" for i in range(64)] + ["label"]
 train = pd.read_csv(data_dir / "optdigits.tra", header=None, names=columns)

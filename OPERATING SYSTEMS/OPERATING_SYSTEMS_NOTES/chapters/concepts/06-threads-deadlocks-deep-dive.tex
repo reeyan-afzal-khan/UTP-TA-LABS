@@ -1,0 +1,93 @@
+\section{Why use threads?}
+Threads allow multiple execution flows to share one process's address space and resources. Common reasons include responsiveness, parallelism on multicore processors, and natural decomposition of server or pipeline work. Thread creation and communication can also be cheaper than creating fully isolated processes.
+
+\section{What threads share and what they do not}
+Threads in one process usually share code, global data, heap, and open files. Each thread requires its own execution state: program counter, registers, scheduling state, and stack. The shared address space makes communication easy but also creates race conditions.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.25\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Resource & Same-process threads & Separate processes \\
+\midrule
+Address space / heap & Shared & Normally isolated \\
+Registers / stack & Private per thread & Private per process/thread \\
+Open-file descriptions & Commonly shared through process resources & Can be inherited/shared intentionally \\
+Failure isolation & Lower & Stronger \\
+Communication & Direct shared memory & IPC required for isolated state \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Pthreads lifecycle}
+The Lab 6 thread program introduces \texttt{pthread\_create()}, \texttt{pthread\_self()}, \texttt{pthread\_equal()}, and \texttt{pthread\_join()}. A join is analogous to waiting for another thread to finish and also provides an orderly point for collecting termination state/resources.
+
+\section{Deadlock is a circular progress failure}
+A \term{deadlock} is a state in which a set of processes/threads cannot make further progress because each is waiting for an event/resource that another member of the set must provide.
+
+The Coffman conditions characterize the classic resource deadlock model. All four must hold for deadlock to be possible:
+\begin{enumerate}
+  \item \term{Mutual exclusion}: at least one resource cannot be shared simultaneously.
+  \item \term{Hold and wait}: a process holds resources while requesting additional ones.
+  \item \term{No preemption}: resources cannot simply be taken away by the system.
+  \item \term{Circular wait}: a cycle of processes exists, each waiting for a resource held by the next.
+\end{enumerate}
+Breaking any one condition prevents this class of deadlock.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  p/.style={draw=MLBlue,fill=MLPaleBlue,circle,minimum size=1.0cm,font=\small\bfseries\color{MLNavy}},
+  r/.style={draw=MLRed,fill=MLPaleRed,rectangle,rounded corners=1mm,minimum size=0.9cm,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[p] (p1) {P1};
+\node[r,right=2cm of p1] (r2) {R2};
+\node[p,below=1.6cm of r2] (p2) {P2};
+\node[r,left=2cm of p2] (r1) {R1};
+\draw[arr] (p1)--node[above,font=\scriptsize]{requests}(r2);
+\draw[arr] (r2)--node[right,font=\scriptsize]{held by}(p2);
+\draw[arr] (p2)--node[below,font=\scriptsize]{requests}(r1);
+\draw[arr] (r1)--node[left,font=\scriptsize]{held by}(p1);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Four strategies for dealing with deadlock}
+\begin{description}
+  \item[Prevention] Design the protocol so at least one Coffman condition cannot hold, for example impose a global lock/resource ordering to prevent circular wait.
+  \item[Avoidance] Examine requests before granting them and grant only when the system remains in a safe state. Banker's algorithm is the classic example.
+  \item[Detection and recovery] Allow deadlocks to happen, periodically detect them, then recover by terminating processes, rolling back work, or reclaiming resources if possible.
+  \item[Ignore] In some environments, the system does not run a general deadlock algorithm because the cost/complexity exceeds the expected benefit; applications must avoid problematic cycles.
+\end{description}
+
+\section{Safe state is not the same as current deadlock}
+A state is \term{safe} if there exists at least one order in which every process can obtain its remaining maximum needs and finish. An \term{unsafe} state means no such guaranteed sequence is known under the declared maximum claims. Unsafe does not necessarily mean the processes are already deadlocked at this exact moment; it means the system has lost the safety guarantee.
+
+\section{Banker's algorithm step by step}
+For each process $i$ and resource type $j$:
+\[
+Need_{ij}=Max_{ij}-Allocation_{ij}.
+\]
+Let \texttt{Work = Available}. Repeatedly find an unfinished process whose entire Need row is no greater than Work. Pretend it finishes, then return its allocated resources:
+\[
+Work \leftarrow Work + Allocation_i.
+\]
+If all processes can be marked finished, the state is safe and the order found is a safe sequence.
+
+\begin{workedexample}
+Suppose one resource type has 10 instances. P1 holds 3 and may need at most 7 total; P2 holds 2 and may need at most 4; P3 holds 2 and may need at most 5. Available is $10-(3+2+2)=3$. Remaining needs are P1=4, P2=2, P3=3. P2 can finish first, returning 2 so Work becomes 5; then P1 or P3 can finish. Therefore a safe sequence exists.
+\end{workedexample}
+
+\begin{pitfall}
+The statement ``unsafe = deadlocked'' is too strong. Banker's algorithm reasons about whether future completion can be guaranteed under maximum claims. Deadlock detection algorithms answer a different question: which processes are currently unable to complete given present outstanding requests and resources.
+\end{pitfall}
+
+\section{Lock ordering as a practical prevention technique}
+If every thread acquires multiple locks in one globally agreed order, a circular-wait cycle cannot form. For example, always acquire lock A before B. The rule must be universal; one code path that acquires B before A can reintroduce the cycle.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Name the four Coffman conditions.
+  \item What is the difference between prevention and avoidance?
+  \item Why does a safe sequence prove that the declared state is safe?
+\end{enumerate}
+\end{quickcheck}

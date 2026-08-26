@@ -1,0 +1,217 @@
+\chapter{Queues}
+\label{ch:queues}
+
+\chapterguide%
+  {Know the constrained-access idea from stacks and the array/linked-list implementation alternatives.}
+  {explain FIFO, trace front/rear movement, implement enqueue/dequeue, explain why circular queues reuse array space, and distinguish linear, circular, and priority queues at the level covered by the slides.}
+
+A \term{queue} is a linear data structure that follows \term{FIFO}: First In, First Out. Insertion occurs at the \term{rear}; deletion occurs at the \term{front}.
+
+\section{Front and rear}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=1.55cm,minimum height=0.82cm,font=\bfseries\color{ADSNavy}},
+ arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+]
+\node[cell] (a) {A};
+\node[cell,right=-\pgflinewidth of a] (b) {B};
+\node[cell,right=-\pgflinewidth of b] (c) {C};
+\node[cell,right=-\pgflinewidth of c] (d) {D};
+\node[below=0.35cm of a,font=\scriptsize\bfseries\color{ADSOrange}] {FRONT};
+\node[below=0.35cm of d,font=\scriptsize\bfseries\color{ADSOrange}] {REAR};
+\draw[arr] ([xshift=-1.3cm]a.west) -- (a.west) node[midway,above,font=\scriptsize\color{ADSMuted}] {dequeue};
+\draw[arr] (d.east) -- ++(1.3,0) node[midway,above,font=\scriptsize\color{ADSMuted}] {enqueue};
+\end{tikzpicture}
+\end{mlfigure}
+
+The Week VI slides use the terms \term{Create Q}, \term{Enqueue(Q,item)}, and \term{Dequeue(Q)}. The enqueue operation is stated as $O(1)$ in the slide implementation model.
+
+\section{Core queue operations}
+
+\begin{description}[leftmargin=1.3in,style=nextline]
+  \item[Create Q] Create an empty queue.
+  \item[enqueue()] Add an item at the rear.
+  \item[dequeue()] Remove and return the oldest item at the front.
+  \item[peek/front] Read the front item without removing it.
+  \item[isEmpty()] Check whether the queue contains no items.
+  \item[isFull()] Check capacity in a fixed array implementation.
+\end{description}
+
+\section{A simple linear array queue}
+
+A basic fixed array can use indexes for front and rear.
+
+\begin{lstlisting}
+class LinearQueue {
+private:
+    static const int CAP = 5;
+    int data[CAP];
+    int front = 0;
+    int rear = -1;
+
+public:
+    bool isEmpty() const { return rear < front; }
+    bool isFull() const { return rear == CAP - 1; }
+
+    bool enqueue(int value) {
+        if (isFull()) return false;
+        data[++rear] = value;
+        return true;
+    }
+
+    bool dequeue(int& value) {
+        if (isEmpty()) return false;
+        value = data[front++];
+        return true;
+    }
+};
+\end{lstlisting}
+
+This model exposes the limitation described by the slides: after repeated dequeues, unused positions may exist at the beginning even though \texttt{rear} has reached the end of the array.
+
+\section{Circular queue: reusing array space}
+
+The circular queue addresses that limitation by connecting the logical last position back to the first. The slides call this a \term{ring buffer} and state that modular arithmetic is used for enqueue and dequeue.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\small\bfseries]
+\foreach \ang/\val in {90/0,30/1,-30/2,-90/3,-150/4,150/5}{
+  \node[circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=9mm] at (\ang:1.8cm) {\val};
+}
+\draw[-{Stealth[length=2mm]},thick,draw=ADSTeal] (105:2.35cm) arc[start angle=105,end angle=-220,radius=2.35cm];
+\node at (0,0) {wrap around};
+\end{tikzpicture}
+\end{mlfigure}
+
+For capacity $N$, moving to the next slot uses
+\[
+\text{next} = (\text{index}+1) \bmod N.
+\]
+
+\begin{workedexample}
+With capacity $5$, if the rear is at index $4$, then the next rear position is
+\[
+(4+1) \bmod 5 = 0.
+\]
+The index wraps back to the beginning instead of moving outside the array.
+\end{workedexample}
+
+\section{Circular queue implementation pattern}
+
+One robust representation stores the number of active elements in addition to front and rear.
+
+\begin{lstlisting}
+class CircularQueue {
+private:
+    static const int CAP = 5;
+    int data[CAP];
+    int front = 0;
+    int rear = 0;
+    int count = 0;
+
+public:
+    bool isEmpty() const { return count == 0; }
+    bool isFull() const { return count == CAP; }
+
+    bool enqueue(int value) {
+        if (isFull()) return false;
+        data[rear] = value;
+        rear = (rear + 1) % CAP;
+        ++count;
+        return true;
+    }
+
+    bool dequeue(int& value) {
+        if (isEmpty()) return false;
+        value = data[front];
+        front = (front + 1) % CAP;
+        --count;
+        return true;
+    }
+};
+\end{lstlisting}
+
+\section{Linked-list queue}
+
+A linked queue normally keeps both a front pointer and a rear pointer so enqueue can add at the rear without traversing the list.
+
+\begin{lstlisting}
+struct QNode {
+    int data;
+    QNode* next;
+};
+
+class LinkedQueue {
+private:
+    QNode* front = nullptr;
+    QNode* rear = nullptr;
+
+public:
+    bool isEmpty() const { return front == nullptr; }
+
+    void enqueue(int value) {
+        QNode* n = new QNode{value, nullptr};
+        if (rear == nullptr) {
+            front = rear = n;
+        } else {
+            rear->next = n;
+            rear = n;
+        }
+    }
+
+    bool dequeue(int& value) {
+        if (isEmpty()) return false;
+        QNode* old = front;
+        value = old->data;
+        front = front->next;
+        if (front == nullptr) rear = nullptr;
+        delete old;
+        return true;
+    }
+};
+\end{lstlisting}
+
+\section{Linear, circular, and priority queues}
+
+The lecture deck asks students to differentiate these queue types, and the official lab manual adds the processing rules for a \term{priority queue}.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.19\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Queue type & Ordering rule & Course role \\
+\midrule
+Linear queue & FIFO & Front removes oldest; rear inserts newest. \\
+Circular queue & FIFO with wrap-around array positions & Reuses vacant positions with modulo arithmetic. \\
+Priority queue & Higher priority is processed before lower priority; equal-priority items follow arrival order & Models work where urgency matters more than pure arrival time. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The lab manual states two priority rules:
+\begin{enumerate}
+  \item an element of higher priority is processed before an element of lower priority;
+  \item when two elements have the same priority, they are processed in the order in which they were added.
+\end{enumerate}
+It also states that priority queues can be implemented using arrays or linked lists.
+
+\begin{sourcealignment}{Queue lab manual}
+The manual supplies the priority-ordering rules and the array/linked-list implementation options, but it does not specify a particular insertion strategy, heap representation, or priority convention such as whether a numerically larger value means higher priority. Any implementation should document that design choice.
+\end{sourcealignment}
+
+\begin{quickcheck}
+Why can a simple linear array queue appear full even when unused slots exist near index 0? How does modulo arithmetic fix that issue in a circular queue?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A queue follows FIFO.
+  \item Enqueue inserts at the rear; dequeue removes at the front.
+  \item Queues can be implemented with arrays or linked lists.
+  \item A circular queue connects the logical last position to the first and uses modulo arithmetic to reuse space.
+  \item Priority queues use priority rather than pure arrival order.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/06-queues}

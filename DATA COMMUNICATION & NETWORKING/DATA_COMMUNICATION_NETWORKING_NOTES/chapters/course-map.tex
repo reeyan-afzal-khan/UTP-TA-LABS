@@ -1,0 +1,28 @@
+\chapter*{Course Map: From Packets to WANs}
+\addcontentsline{toc}{chapter}{Course Map: From Packets to WANs}\markboth{Course Map}{}
+The supplied labs form a practical progression. The path begins with observing packets, moves into device configuration and routing, then adds application services, Layer-2 switching, and WAN protocols.
+
+\begin{center}
+\begin{tikzpicture}[node distance=8mm,stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=13cm,minimum height=1.45cm,align=left,inner sep=3mm,font=\small\color{MLNavy}},arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}]
+\node[stage] (a) {\textbf{Stage 1 -- Observe and configure: Labs 1--2}\\Wireshark packet sniffing, traffic traces, eNSP topology building, packet capture, Huawei VRP navigation, interface addressing, verification, and saving configuration.};
+\node[stage,below=of a] (b) {\textbf{Stage 2 -- Make networks reachable: Labs 3--4}\\Static routes, backup preference, OSPF single-area routing, router IDs, advertisements, routing tables, neighbors, and connectivity testing.};
+\node[stage,below=of b] (c) {\textbf{Stage 3 -- Add network services: Labs 5--6}\\FTP server/client file transfer, AAA authorization, DHCP global pools, interface-based pools, leases, DNS values, and dynamic allocation.};
+\node[stage,below=of c] (d) {\textbf{Stage 4 -- Build the switched LAN: Labs 7--8}\\Manual aggregation and static LACP, system/interface priority, VLAN access/trunk/hybrid ports, PVIDs, and isolation/reachability tests.};
+\node[stage,below=of d] (e) {\textbf{Stage 5 -- Connect sites across a WAN: Lab 9}\\HDLC and PPP encapsulation, serial DCE clocking, OSPF over serial links, PAP/CHAP authentication, and PPP debugging.};
+\node[stage,below=of e,draw=MLGreen,fill=MLPaleTeal] (f) {\textbf{Group project -- Integrate and explain}\\Build a working eNSP network, demonstrate selected OSI/TCP-IP layers, explain protocol choices and packet forwarding, present the system, and submit the report.};
+\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);\draw[arr] (d)--(e);\draw[arr] (e)--(f);
+\end{tikzpicture}
+\end{center}
+
+\section*{How to use these notes}
+Each chapter now combines the supplied slide material in four forms:
+\begin{itemize}
+\item \textbf{Source visuals} reproduce useful topology diagrams, interface screenshots, and protocol illustrations from the uploaded course material.
+\item \textbf{Command blocks} preserve the Huawei VRP configuration sequence used in the labs.
+\item \textbf{Verification evidence} explains which display command, routing entry, packet capture, or ping result proves that the configuration actually worked.
+\item \textbf{Troubleshooting order} turns the lab into a diagnostic workflow instead of a command-copying exercise.
+\end{itemize}
+
+\begin{keyidea}
+Treat every lab as the same engineering loop: \textbf{build the topology $\rightarrow$ configure addresses/protocols $\rightarrow$ inspect state $\rightarrow$ test with traffic $\rightarrow$ explain the evidence}. The commands change, but the reasoning loop remains the same.
+\end{keyidea}

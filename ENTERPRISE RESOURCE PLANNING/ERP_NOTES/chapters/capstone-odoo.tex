@@ -1,0 +1,160 @@
+\chapter*{Capstone: West End Bicycles End-to-End ERP Story}
+\addcontentsline{toc}{chapter}{Capstone: West End Bicycles End-to-End ERP Story}
+\markboth{Capstone: West End Bicycles}{}
+
+The supplied Odoo guide is designed as one connected storyline. The strongest final demonstration is therefore not eight isolated screenshots, but one narrative showing how information and stock move across the company.
+
+\begin{sourcebasis}
+This capstone follows the 21-step West End Bicycles Odoo 19 Community build guide supplied with Tutorial 1. It preserves the guide's company, roles, products, vendors, customer, Road Bike BOM, and RM 5,000 customer order.
+\end{sourcebasis}
+
+\section*{The two connected business cycles}
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  b/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  g/.style={draw=ERPGreen,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  m/.style={draw=ERPOrange,fill=ERPPaleOrange,rounded corners=2mm,minimum width=3.0cm,minimum height=0.88cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal}
+]
+\node[b] (need) at (0,2.4) {Need materials};
+\node[b] (po) at (3.0,2.4) {Purchase Order};
+\node[b] (rec) at (6.0,2.4) {Receipt};
+\node[m] (make) at (9.2,2.4) {Inventory + Manufacturing};
+\node[g] (opp) at (0,0) {Opportunity};
+\node[g] (quote) at (3.0,0) {Quotation / SO};
+\node[g] (del) at (6.0,0) {Delivery};
+\node[g] (pay) at (9.2,0) {Invoice / Payment};
+\draw[arr] (need)--(po); \draw[arr] (po)--(rec); \draw[arr] (rec)--(make);
+\draw[arr] (opp)--(quote); \draw[arr] (quote)--(del); \draw[arr] (del)--(pay);
+\draw[arr] (make.south) -- node[right,font=\tiny\color{ERPMuted}] {finished bikes available} (pay.north west);
+\end{tikzpicture}
+\end{erpfigure}
+
+The buying cycle fills the warehouse; the selling cycle empties it. Manufacturing connects raw materials to finished goods. Finance closes the loop when money is received.
+
+\section*{Capstone data set}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Master data & Values used in the guide \\
+\midrule
+Company & West End Bicycles, Ipoh, Perak, Malaysia \\
+Finished product & Road Bike, Goods, Track Inventory, selling price RM 1,000 \\
+Road Bike BOM & 1 Aluminium Frame, 2 Rubber Tires, 1 Brake Set, 1 Gear Set, 1 Bicycle Chain \\
+Customer & Seri Iskandar Cycling Club \\
+Customer order & 5 Road Bikes, total expected/order value RM 5,000 \\
+Key operational roles & Sales Manager, Purchasing Officer, Production Planner, Accountant \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section*{The 21-step build roadmap}
+
+\begin{enumerate}
+  \item Create or access the Odoo database.
+  \item Install the eight required apps.
+  \item Set up West End Bicycles company profile.
+  \item Create departments, employees, managers, and selected operational users.
+  \item Create finished products.
+  \item Create raw-material products.
+  \item Create suppliers/vendors.
+  \item Link vendors to the raw materials they supply.
+  \item Create RFQs and confirm Purchase Orders.
+  \item Validate receipts so raw-material stock increases.
+  \item Create the Road Bike BOM.
+  \item Complete a Manufacturing Order for 5 Road Bikes.
+  \item Create Seri Iskandar Cycling Club as customer.
+  \item Create the CRM opportunity.
+  \item Move the opportunity through the pipeline.
+  \item Create and confirm the quotation/Sales Order for 5 Road Bikes.
+  \item Validate the Delivery so finished-bike stock decreases.
+  \item Create and post the customer invoice.
+  \item Register the customer payment.
+  \item Create/describe the cross-functional customer-order team.
+  \item Explain the information flow and show management reporting.
+\end{enumerate}
+
+\section*{What should happen to stock}
+
+The physical logic is simple enough to use as a diagnostic tool.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.28\linewidth}XX@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Event & Raw-material stock & Road Bike stock \\
+\midrule
+Validate vendor receipts & Increases & No change \\
+Complete MO for 5 bikes & Decreases according to BOM & Increases by 5 \\
+Validate customer delivery & No change & Decreases by 5 \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+If the stock movement does not follow this pattern, trace the document states upstream. A Purchase Order that was never received cannot supply Manufacturing; an MO that is not Done cannot create finished stock; a Sales Order cannot deliver bikes that do not exist on hand.
+
+\section*{Who owns what}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.23\linewidth}p{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Role & Odoo ownership field & Business meaning \\
+\midrule
+Sales Manager & Salesperson / Team Leader & Owns customer opportunity and commercial order \\
+Purchasing Officer & Buyer & Owns vendor sourcing and purchase documents \\
+Production Planner & Responsible & Owns the Manufacturing Order \\
+Accountant & Finance/payment activity & Owns or supports invoicing and payment recording \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section*{The information-flow narrative}
+
+A polished demonstration can use this sequence:
+
+\begin{enumerate}
+  \item \textbf{Customer demand enters CRM.} The opportunity records who wants what and the expected value.
+  \item \textbf{Sales formalises the deal.} The quotation records product, quantity, customer, price, and salesperson.
+  \item \textbf{Sales Order creates operational demand.} Inventory can now see the fulfilment requirement.
+  \item \textbf{Inventory confirms physical movement.} Delivery status proves whether goods actually left the warehouse.
+  \item \textbf{Finance reuses the sales data.} The invoice is generated from the order rather than typed from scratch.
+  \item \textbf{Payment closes the loop.} Sales and management can see settlement status.
+  \item \textbf{Reports aggregate the history.} Graph, list, and pivot views turn transaction records into management information.
+\end{enumerate}
+
+\begin{keyidea}
+The capstone is successful when you can explain \emph{why} each record exists, what event changes its state, what downstream record it enables, and which department needs the resulting information. A sequence of screenshots without that explanation is not yet an ERP demonstration.
+\end{keyidea}
+
+\section*{Recommended final screenshots}
+
+The supplied guide recommends evidence across the entire process. A compact final set is:
+
+\begin{enumerate}
+  \item installed apps and company profile;
+  \item departments/employees/users;
+  \item Road Bike product with Goods + Track Inventory;
+  \item raw material with linked vendor;
+  \item confirmed Purchase Order;
+  \item Done Receipt;
+  \item Road Bike BOM;
+  \item Done Manufacturing Order;
+  \item CRM opportunity;
+  \item confirmed Sales Order;
+  \item Done Delivery;
+  \item Posted invoice;
+  \item Paid/In Payment invoice;
+  \item one Graph or Pivot report.
+\end{enumerate}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item If Road Bike stock remains zero after the MO, which upstream records should you inspect?
+  \item If the invoice price is different from the Sales Order, what ERP integration principle has failed?
+  \item Which capstone steps demonstrate the link between CRM, SCM, and Finance?
+\end{enumerate}
+\end{quickcheck}

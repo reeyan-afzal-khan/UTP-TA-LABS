@@ -1,0 +1,28 @@
+\labsection{5}{Synchronization and shared memory}{sec:lab05}
+\begin{labproject}{Model producer-consumer state and inspect System V shared memory}
+\textbf{Coverage.} Chapter 5.\\
+\textbf{Source files.} \texttt{source\_code/Lab05/task\_1.c}, \texttt{task\_2.c}.\\
+\textbf{Goal.} Distinguish synchronization state from IPC state.
+
+\medskip\noindent\textbf{Task A --- Producer-consumer counters.}\par
+For the supplied capacity of 3, verify the invariant
+\[
+\texttt{empty} + \texttt{full} = 3
+\]
+after every valid produce/consume action.
+
+\begin{pitfall}
+The lab's integer \texttt{wait()} and \texttt{signal()} are a sequential simulation. Do not claim that they provide thread-safe atomic semaphore behavior.
+\end{pitfall}
+
+\medskip\noindent\textbf{Task B --- Shared-memory lifecycle.}\par
+Trace \texttt{ftok} $\rightarrow$ \texttt{shmget} $\rightarrow$ \texttt{shmat} $\rightarrow$ access $\rightarrow$ \texttt{shmdt} $\rightarrow$ \texttt{shmctl(IPC\_RMID)}. Use \texttt{ipcs -m} before and after removal to observe the kernel object.
+
+\begin{tryit}
+Split shared-memory writing and reading into two separate programs. Run the writer first, keep the segment alive, then run the reader. Add synchronization only if both can access the same bytes concurrently.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit an invariant trace for producer-consumer, shared-memory terminal output, and a diagram showing the segment's lifecycle and which step creates, maps, detaches, and removes it.
+\end{labdeliverable}

@@ -1,0 +1,62 @@
+\chapter*{Course Map}
+\phantomsection
+\addcontentsline{toc}{chapter}{Course Map}
+
+The course moves from the question ``how should data be organized?'' to the question ``which organization makes a particular operation efficient?'' The lecture sequence builds that idea in five technical stages, then the final project asks students to synthesize the course through an evidence-based algorithm comparison.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.45cm and 0.45cm,
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{ADSNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=ADSTeal}
+]
+\node[box] (a) {1. Foundations\\data structures and arrays};
+\node[box,right=of a] (b) {2. Linear dynamic structures\\linked lists, stacks, queues};
+\node[box,right=of b] (c) {3. Hierarchies\\trees, BSTs, heaps};
+\node[box,below=0.65cm of c] (d) {4. Networks\\graphs and traversal};
+\node[box,left=of d] (e) {5. Core algorithms\\search, sort, hash};
+\node[box,left=of e] (f) {6. Synthesis\\algorithm comparison project};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d); \draw[arr] (d) -- (e); \draw[arr] (e) -- (f);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.13\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Stage & Main structures & Central question \\
+\midrule
+1 & Primitive/non-primitive structures, arrays & How is data represented and accessed in memory? \\
+2 & Linked lists, circular lists, stacks, queues & How can pointer-based structures support dynamic or constrained access? \\
+3 & Trees, binary trees, BSTs, heaps, balancing & How can hierarchy improve organization and searching? \\
+4 & Graphs, adjacency structures, BFS/DFS, spanning trees & How can general relationships between objects be represented and traversed? \\
+5 & Searching, sorting, hashing & How do algorithm choice and data organization affect running time? \\
+6 & Final comparison project & How can two related algorithms be compared fairly using complexity, operation counts, runtime, and practical use cases? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{How these notes use the course sources}
+The notes preserve the terminology and topic order of the supplied slide decks, then use the official lab manual to strengthen objectives, outcomes, and problem sets. The final-project guideline is incorporated as a dedicated synthesis chapter. Slide/manual diagrams are redrawn as TikZ where useful, and source tasks are turned into C++ practice milestones with verification checklists.
+
+\begin{clarification}
+A few slide statements need context to avoid ambiguity in implementation. These notes do not silently replace them. Whenever an indexing convention, complexity claim, or standard definition needs extra context, the slide claim is stated first and the extra computer-science convention is placed in a box like this one.
+\end{clarification}
+
+\section*{Complexity vocabulary used across the course}
+The slides use $O(1)$, $O(n)$, $O(\log n)$, $O(n\log n)$, and $O(n^2)$ when discussing operations. Read $n$ as the amount of input data relevant to the operation.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.16\linewidth}X p{0.26\linewidth}@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Notation & Informal meaning & Course examples \\
+\midrule
+$O(1)$ & Work does not grow with the number of stored items. & Array index access, queue enqueue under the stated implementation assumptions, hash calculation. \\
+$O(\log n)$ & Repeatedly reduce the remaining search space. & Binary search; BST search under the balanced-tree assumption. \\
+$O(n)$ & Work grows roughly in proportion to the number of items. & Linear search, linked-list traversal. \\
+$O(n\log n)$ & Common efficient comparison-sorting scale. & Heap sort; standard merge-sort and average quicksort context. \\
+$O(n^2)$ & Nested or repeated scans over much of the input. & Bubble, insertion worst case, and selection sort. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}

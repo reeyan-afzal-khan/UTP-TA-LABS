@@ -1,0 +1,239 @@
+\chapter{NLP Methods: Entities, Summaries, Sentiment, and Keywords}
+\label{ch:nlp-methods}
+
+\chapterguide%
+  {Understand the Lab 6 pipeline idea and basic MATLAB string operations.}
+  {explain the nine Lab 7 examples, distinguish rule-based from feature-based NLP, interpret frequency and TF--IDF summarization, and identify limitations of simplified simulations.}
+
+Lab 7 continues NLP with nine compact MATLAB programs. Several are explicitly simulations: they use small dictionaries, manual vocabularies, or hand-written rules to make the processing steps visible.
+
+\section{Code 1: Named Entity Recognition simulation}
+
+The source defines dictionaries for people, locations, and organizations, splits a sentence into tokens, removes a period, and checks whether each token exactly matches an entry.
+
+\begin{lstlisting}[style=mlmatlab]
+clc; clear;
+text = "Barack Obama was born in Hawaii and served as the 44th President of the United States.";
+
+personList = ["Barack Obama"];
+locationList = ["Hawaii", "United States"];
+organizationList = ["United Nations", "Google", "Microsoft"];
+
+tokens = split(text);
+disp("Named Entities Identified:");
+
+for i = 1:length(tokens)
+    word = erase(tokens{i}, '.');
+    if any(strcmp(word, personList))
+        fprintf("Person: %s\n", word);
+    elseif any(strcmp(word, locationList))
+        fprintf("Location: %s\n", word);
+    elseif any(strcmp(word, organizationList))
+        fprintf("Organization: %s\n", word);
+    end
+end
+\end{lstlisting}
+
+\begin{pitfall}
+The exact code splits the sentence into single tokens but stores multi-word entities such as ``Barack Obama'' and ``United States'' as whole dictionary entries. Therefore those multi-word entries cannot match a single token in this loop. The screenshot in the source correspondingly shows \texttt{Location: Hawaii}. This is a useful example of why representation choices matter.
+\end{pitfall}
+
+\section{Code 2: summarization by keyword frequency}
+
+The handout splits a paragraph into sentences, builds one combined word list, counts each unique word, scores a sentence by the frequencies of its words, and selects the highest-scoring sentence.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[b] (s) {Split into sentences};
+\node[b,right=0.40cm of s] (t) {Tokenize words};
+\node[b,right=0.40cm of t] (f) {Count frequencies};
+\node[b,right=0.40cm of f] (sc) {Score sentences};
+\node[b,right=0.40cm of sc] (m) {Select max score};
+\draw[arr] (s)--(t); \draw[arr] (t)--(f); \draw[arr] (f)--(sc); \draw[arr] (sc)--(m);
+\end{tikzpicture}
+\end{mlfigure}
+
+The method is \term{extractive}: the summary is one of the original sentences rather than newly generated prose.
+
+\section{Code 3: grammar correction simulation}
+
+The source corrects one pattern using string replacement:
+
+\begin{lstlisting}[style=mlmatlab]
+inputSentence = "She go to school every day.";
+patterns = ["go to school"];
+corrections = ["goes to school"];
+
+corrected = inputSentence;
+for i = 1:length(patterns)
+    corrected = strrep(corrected, patterns(i), corrections(i));
+end
+\end{lstlisting}
+
+This demonstrates a rule-based transformation: the program does not infer grammar generally; it applies a known replacement rule.
+
+\section{Code 4: dependency-parsing simulation as POS tags}
+
+The handout labels the example ``Dependency Parsing Simulation (POS tagging-style).'' It splits ``The dog chased the cat.'' and pairs each word with a manually supplied tag sequence:
+\[
+\texttt{DET, NOUN, VERB, DET, NOUN}.
+\]
+
+\begin{lstlisting}[style=mlmatlab]
+sentence = "The dog chased the cat.";
+words = split(sentence);
+tags = ["DET", "NOUN", "VERB", "DET", "NOUN"];
+
+for i = 1:length(words)
+    fprintf("%-7s - %s\n", words{i}, tags{i});
+end
+\end{lstlisting}
+
+\begin{intuition}
+The code makes the output format visible, but the tags are supplied by the programmer. The example therefore demonstrates the representation of tagged text rather than an automatic parser that learns or predicts the tags.
+\end{intuition}
+
+\section{Code 5: simplified Naive Bayes sentiment classification}
+
+This is the most model-like program in Lab 7. The handout creates five labeled sentences, defines a manual bag of sentiment words, converts each sentence into binary features, trains \texttt{fitcnb}, and predicts the sentiment of ``The product is wonderful.''
+
+\begin{lstlisting}[style=mlmatlab]
+texts = [
+    "I love this product", ...
+    "This is terrible", ...
+    "Very happy with the results", ...
+    "It is bad and disappointing", ...
+    "Absolutely wonderful experience"
+];
+labels = [1; 0; 1; 0; 1];
+bag = ["love", "terrible", "happy", "bad", "wonderful"];
+
+features = zeros(length(texts), length(bag));
+for i = 1:length(texts)
+    for j = 1:length(bag)
+        if contains(lower(texts(i)), bag(j))
+            features(i, j) = 1;
+        end
+    end
+end
+
+features = features(:, var(features) > 0);
+Mdl = fitcnb(features, labels, 'DistributionNames', 'kernel');
+\end{lstlisting}
+
+The source screenshot reports \texttt{Predicted Sentiment: Positive} for the test sentence.
+
+\section{Code 6: summarization with TF--IDF}
+
+Lab 7 then uses MATLAB's text-processing objects: \texttt{tokenizedDocument}, \texttt{bagOfWords}, and \texttt{tfidf}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the maximum is returned.
+
+\begin{lstlisting}[style=mlmatlab]
+documents = tokenizedDocument(text);
+bag = bagOfWords(documents);
+tfidfMatrix = tfidf(bag);
+score = sum(tfidfMatrix, 2);
+[~, idx] = max(score);
+disp(text(idx));
+\end{lstlisting}
+
+The source screenshot selects ``Machine learning enables systems to learn patterns from data.''
+
+\section{Code 7: rule-based sentiment analysis}
+
+The second sentiment method uses positive and negative word lists rather than a trained classifier.
+
+\begin{lstlisting}[style=mlmatlab]
+positiveWords = ["good", "great", "excellent", "fantastic", ...
+                 "amazing", "breathtaking"];
+negativeWords = ["bad", "terrible", "awful", "boring", ...
+                 "worst", "dull"];
+
+words = lower(strsplit(text));
+posCount = sum(ismember(words, positiveWords));
+negCount = sum(ismember(words, negativeWords));
+\end{lstlisting}
+
+The program returns Positive, Negative, or Neutral according to which count is larger.
+
+\section{Code 8: heuristic language detection}
+
+The language detector defines small keyword lists for English, French, and German. It counts word matches for each list, takes the largest count, and maps the index to a language label. For the supplied French sentence, the source screenshot reports French.
+
+\begin{lstlisting}[style=mlmatlab]
+english = ["the", "and", "hello", "good"];
+french = ["bonjour", "comment", "vous", "aujourd'hui"];
+german = ["hallo", "wie", "geht", "ihnen"];
+
+words = lower(strsplit(text));
+enCount = sum(ismember(words, english));
+frCount = sum(ismember(words, french));
+deCount = sum(ismember(words, german));
+
+[~, idx] = max([enCount, frCount, deCount]);
+languages = ["English", "French", "German"];
+disp(languages(idx));
+\end{lstlisting}
+
+\section{Code 9: keyword extraction}
+
+The final example tokenizes a paragraph, removes stop words and punctuation, builds a bag-of-words model, sorts vocabulary counts in descending order, and returns the top five words.
+
+\begin{lstlisting}[style=mlmatlab]
+document = tokenizedDocument(text);
+document = removeStopWords(document);
+document = erasePunctuation(document);
+
+bow = bagOfWords(document);
+[sortedCounts, sortedIndex] = sort(bow.Counts, 'descend');
+sortedWords = bow.Vocabulary(sortedIndex);
+keywords = sortedWords(1:min(5, end));
+\end{lstlisting}
+
+The source screenshot lists terms including Data, science, involves, extracting, and insights.
+
+\section{A taxonomy of the Lab 7 methods}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Example & Main mechanism & What supplies the intelligence \\
+\midrule
+NER simulation & Exact dictionary matching & Hand-written entity lists \\
+Frequency summary & Word counts & Repetition-based sentence score \\
+Grammar correction & String replacement & Hand-written correction rules \\
+POS-style output & Fixed tag list & Programmer-supplied tags \\
+Naive Bayes sentiment & Binary word features + classifier & Labeled examples and manual vocabulary \\
+TF--IDF summary & Weighted term representation & Document statistics \\
+Rule sentiment & Positive/negative lexicons & Hand-written sentiment lists \\
+Language detection & Keyword counts & Language-specific keyword lists \\
+Keyword extraction & Bag-of-words counts & Frequency after stop-word/punctuation removal \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\input{labs/07-nlp-part-b}
+
+\clearpage
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does the NER simulation miss multi-word entities under its current tokenization rule?
+  \item What makes the frequency and TF--IDF summarizers extractive?
+  \item Which sentiment example is trained from labeled data, and which uses a fixed lexicon?
+  \item What does the language detector do when it receives the keyword match counts?
+  \item Why are stop-word removal and punctuation removal useful before the keyword-count step in Code 9?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Lab 7 is a survey of compact, interpretable NLP pipelines.
+  \item Some examples are rule-based simulations; others use text statistics or a simple classifier.
+  \item Frequency and TF--IDF can score existing sentences for extractive summarization.
+  \item Sentiment can be implemented as a learned classification problem or as direct lexicon counting.
+  \item The examples make preprocessing choices visible, which also exposes limitations such as exact-match tokenization.
+\end{itemize}
+\end{chapterrecap}

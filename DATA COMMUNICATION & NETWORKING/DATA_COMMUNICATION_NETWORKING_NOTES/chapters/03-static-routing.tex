@@ -1,0 +1,93 @@
+\chapter{Static Routing}
+\chapterguide{Interface addressing, VRP navigation, and direct-link verification from Lab 2.}{Read a routing table, explain why remote networks initially fail, configure next-hop static routes, use route preference for a backup path, and verify reachability.}
+\sourcelab{Lab 3 - Static Routing.pptx}
+
+\section{The topology: three routers and three transit networks}
+The lab uses a triangle of routers. Each router also owns a loopback network that represents a local destination. The point of the exercise is to show the difference between \emph{directly connected} networks, which a router learns automatically, and \emph{remote} networks, which require a routing decision.
+
+\sourceimage[0.87\linewidth]{Static-routing topology from the supplied Lab 3 slide}{static-routing-topology.png}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Link or loopback & Network & Example addresses in source\\\midrule
+R1--R2 & \cmd{10.0.12.0/24} & R1 .1, R2 .2\\
+R1--R3 & \cmd{10.0.13.0/24} & R1 .1, R3 .3\\
+R2--R3 & \cmd{10.0.23.0/24} & R2 .2, R3 .3\\
+R1 Loopback0 & \cmd{10.0.1.0/24} & \cmd{10.0.1.1}\\
+R2 Loopback0 & \cmd{10.0.2.0/24} & \cmd{10.0.2.2}\\
+R3 Loopback0 & \cmd{10.0.3.0/24} & \cmd{10.0.3.3}\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Why the first remote ping fails}
+After IP addressing is configured, R1 can ping its directly connected neighbors because those destination networks already appear as direct routes. R2, however, initially cannot reach remote networks such as R3's loopback \cmd{10.0.3.0/24} if no route tells R2 where to forward those packets.
+
+\sourceimage[0.76\linewidth]{R2 routing table before the missing remote routes are added}{static-routing-table-before.png}
+
+\begin{keyidea}
+A router does not forward by ``guessing'' the next router. It matches the destination IP against its routing table. If the required remote network is absent, the forwarding decision is absent.
+\end{keyidea}
+
+\section{Static-route syntax in this lab}
+The source demonstrates next-hop static routes in the form:
+\begin{center}
+\cmd{ip route-static <destination-network> <mask/prefix> <next-hop> [preference <value>]}
+\end{center}
+A static route is therefore a manually installed rule: \emph{for this destination network, send packets to this next hop}.
+
+\section{Primary routes on R2}
+The lab directs R2 toward R3 by using next hop \cmd{10.0.23.3}.
+\begin{lstlisting}[style=dcnterminal]
+[R2] ip route-static 10.0.13.0 24 10.0.23.3
+[R2] ip route-static 10.0.3.0 24 10.0.23.3
+<R2> display ip routing-table
+\end{lstlisting}
+The supplied slides state that the default preference for a static route is 60, so the primary path does not need an explicit preference value.
+
+\begin{workedexample}
+For destination \cmd{10.0.3.3}, R2 matches the route to \cmd{10.0.3.0/24} and forwards the packet to next hop \cmd{10.0.23.3}. R3 then delivers the packet to its own loopback network. Return traffic also needs a valid route back toward the source.
+\end{workedexample}
+
+\section{Backup static routes and route preference}
+The second part of the lab adds an alternate path via R1. The backup route uses a \emph{worse} preference value so it does not replace the primary route while the preferred path is available.
+\begin{lstlisting}[style=dcnterminal]
+[R2] ip route-static 10.0.13.0 255.255.255.0 10.0.12.1 preference 80
+[R2] ip route-static 10.0.3.0 24 10.0.12.1 preference 80
+\end{lstlisting}
+In the supplied configuration, the primary static route uses the default preference 60 and the backup route uses 80. The lab therefore expects the route via R3 to win until that path becomes unavailable.
+
+\begin{conceptmap}
+\textbf{Primary path present} $\rightarrow$ preference 60 route is installed.\\
+\textbf{Primary path unavailable} $\rightarrow$ the less-preferred route with preference 80 can become usable, providing redundancy.
+\end{conceptmap}
+
+\begin{pitfall}
+One supplied slide shows \cmd{255.255.25.0} while explaining a /24 mask. Elsewhere the same lab consistently uses /24, whose decimal form is \cmd{255.255.255.0}. The notes follow the lab's /24 objective and flag the source typo rather than treating it as a new subnet mask.
+\end{pitfall}
+
+\section{Verification sequence}
+\begin{netsteps}
+\item Use \cmd{display ip interface brief} to confirm all expected interfaces and addresses.
+\item Ping directly connected neighbors first; a remote-routing test is meaningless if the local link is broken.
+\item Use \cmd{display ip routing-table} and confirm that the intended static destination networks are present.
+\item Ping the remote interface or loopback address.
+\item For the backup-route portion, make the primary path unavailable as directed in the lab and confirm the alternate route becomes effective.
+\end{netsteps}
+
+\begin{verifybox}
+The strongest proof combines routing-table evidence with traffic evidence: the table shows the installed static route and ping shows that packets actually reach the destination.
+\end{verifybox}
+
+\begin{quickcheck}
+\begin{enumerate}
+\item Why can R2 reach a directly connected network without a static route?
+\item What information does the next-hop address provide?
+\item Why is the backup route configured with a preference value of 80 rather than 60?
+\item Which command proves that the route exists before you test it with ping?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+Static routing is explicit forwarding policy. First prove the direct links, then inspect the routing table, add the missing destination-to-next-hop rules, and verify them with traffic. A second static route with a worse preference can provide a controlled backup path.
+\end{chapterrecap}

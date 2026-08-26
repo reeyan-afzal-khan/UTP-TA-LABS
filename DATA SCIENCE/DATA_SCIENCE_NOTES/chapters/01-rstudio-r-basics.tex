@@ -1,0 +1,212 @@
+\chapter{RStudio, R, Variables, and Mathematical Operations}
+\label{chap:r-basics}
+
+\chapterguide
+  {No prior R programming is assumed. The lab handout begins with installation and a one-line environment check.}
+  {install and verify R/RStudio; distinguish Console and Script usage; create variables; use assignment operators; inspect object classes; perform arithmetic; and read simple user input.}
+
+\section{R and RStudio setup}
+
+The first handout separates the setup into two installations: install \term{R} first, then install \term{RStudio Desktop}. The environment is considered operational when RStudio opens and the Console evaluates a simple expression such as:
+
+\begin{lstlisting}[style=dsr]
+1 + 2
+\end{lstlisting}
+
+The expected result is \texttt{3}. This small test checks that RStudio can communicate with the installed R runtime.
+
+\begin{keyidea}
+R is the programming language/runtime used to execute the code. RStudio is the development environment shown in the lab handout. The lab sequence therefore installs R before RStudio.
+\end{keyidea}
+
+\subsection{Console versus Script}
+
+The handout asks you to differentiate the R Console and an R Script. Their roles can be inferred from the exercises:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{3.0cm}X X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Area & What the lab uses it for & Example \\
+\midrule
+R Console & Immediate commands and quick experiments. A command is entered and evaluated directly. & \texttt{2+3}, \texttt{print("Hello World!")} \\
+R Script & A saved sequence of R statements that can be rerun. & A file named \texttt{test.R} containing a short program. \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+\begin{workedexample}
+The first saved script in the handout is:
+\begin{lstlisting}[style=dsr]
+# My first program in R Programming
+myString <- "Hello, World!"
+print(myString)
+\end{lstlisting}
+The line beginning with \texttt{\#} is a comment. The assignment stores a character value in \texttt{myString}, and \texttt{print()} displays it.
+\end{workedexample}
+
+\section{Packages}
+
+The handout gives two package-installation paths: use the RStudio menus, or call \texttt{install.packages()} from the Console. A package is then made available in the current R session using \texttt{library()}.
+
+\begin{lstlisting}[style=dsr]
+install.packages("package_name")
+library(package_name)
+\end{lstlisting}
+
+The installation step is distinct from loading: installation places the package on the system; \texttt{library()} attaches it for use in the current session.
+
+\section{Variables and object names}
+
+The lab creates three variables and inspects the current workspace:
+
+\begin{lstlisting}[style=dsr]
+var.1 = 5
+var_1 = 7
+x = 1
+print(ls())
+print(ls(pattern = "var"))
+\end{lstlisting}
+
+The first \texttt{ls()} lists the objects in the workspace. The pattern form restricts the names shown to those matching \texttt{"var"}. The exercise also demonstrates that names containing a period or underscore can be used.
+
+\section{Assignment operators}
+
+The supplied table groups assignment operators by direction:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{3.3cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Operator & Handout description \\
+\midrule
+\texttt{<-}, \texttt{<<-}, \texttt{=} & Leftwards assignment \\
+\texttt{->}, \texttt{->>} & Rightwards assignment \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+The examples deliberately vary assignment direction and value type:
+
+\begin{lstlisting}[style=dsr]
+Gender <- "Female"
+height <<- 152
+Weight = 81
+3 -> f
+23.5 ->> x
+b <- seq(from = 0, to = 5)
+c <- seq(from = 0, to = 10, by = 2)
+v = 2L
+w <<- 2 + 5i
+a <- charToRaw("Hello")
+\end{lstlisting}
+
+The two \texttt{seq()} calls generate regularly spaced sequences. The suffix \texttt{L} in \texttt{2L} is used by the handout to create an integer value. The complex-number example contains a real and imaginary component. \texttt{charToRaw()} converts the characters of \texttt{"Hello"} to raw byte values, displayed in hexadecimal form in the handout.
+
+\subsection{Inspecting an object's class}
+
+The handout checks object classes with \texttt{class()}:
+
+\begin{lstlisting}[style=dsr]
+print(class(Gender))
+print(class(height))
+print(class(f))
+print(class(x))
+print(class(b))
+print(class(v))
+print(class(w))
+\end{lstlisting}
+
+\begin{keyidea}
+The same variable syntax can hold different kinds of values. When an operation depends on the kind of value stored, inspect the object using \texttt{class()} rather than assuming its type from the variable name.
+\end{keyidea}
+
+\section{Arithmetic operations}
+
+The handout introduces the following operators:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{2.2cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Operator & Operation \\
+\midrule
+\texttt{+} & Addition \\
+\texttt{-} & Subtraction \\
+\texttt{*} & Multiplication \\
+\texttt{**} or \texttt{\^} & Exponentiation \\
+\texttt{/} & Division \\
+\texttt{\%\%} & Modulus / remainder \\
+\texttt{\%/\%} & Integer division \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+The lab reuses earlier variables to make each operator concrete:
+
+\begin{lstlisting}[style=dsr]
+print(f + 3)
+print(height - x)
+print(Weight * 2)
+print(b ** 2)
+print(c ^ 5)
+
+m = height / 100
+print(Weight / (m ** 2))
+BMI = Weight / (m ** 2)
+
+print(b %% 2)
+print(c %/% 2)
+\end{lstlisting}
+
+The BMI sequence is especially useful because it combines assignment, division, exponentiation, and reuse of a previously calculated value.
+
+\section{Reading user input}
+
+The handout uses \texttt{readline()} for keyboard input and then converts the age value to numeric form:
+
+\begin{lstlisting}[style=dsr]
+name <- readline(prompt = "Enter name: ")
+age <- readline(prompt = "Enter age: ")
+
+# convert character into numeric
+age <- as.numeric(age)
+
+print(paste("Hi,", name,
+            "this year you are", age, "years old."))
+\end{lstlisting}
+
+This example combines input, type conversion, text construction, and output.
+
+\section{Built-in help and demonstrations}
+
+The final Lab 1a exercises introduce R's help and demonstration commands:
+
+\begin{lstlisting}[style=dsr]
+?paste
+demo(graphics)
+demo(image)
+\end{lstlisting}
+
+These commands are part of the learning workflow: inspect function help, then run built-in demonstrations to see how features behave.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does the handout install R before RStudio?
+  \item What is the practical difference between testing one expression in the Console and saving several statements in an R Script?
+  \item What does \texttt{ls(pattern = "var")} do differently from \texttt{ls()}?
+  \item Which operators in the handout return a remainder and an integer quotient?
+  \item Why does the user-input example call \texttt{as.numeric(age)}?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Verify the environment with a simple Console expression before starting larger exercises.
+  \item Use scripts for saved, rerunnable programs and the Console for immediate evaluation.
+  \item R supports leftward and rightward assignment forms in the supplied exercises.
+  \item \texttt{class()} inspects an object's class; \texttt{ls()} inspects workspace object names.
+  \item The arithmetic examples lead naturally into a small BMI calculation.
+  \item \texttt{readline()}, \texttt{as.numeric()}, and \texttt{paste()} form a basic input-process-output pattern.
+\end{itemize}
+\end{chapterrecap}

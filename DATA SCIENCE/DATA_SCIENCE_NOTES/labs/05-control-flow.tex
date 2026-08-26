@@ -1,0 +1,70 @@
+\labsection{5}{Leap years, cubes, and Armstrong numbers}{sec:lab05}
+
+\begin{labproject}{Lab 5b guided practice}
+\textbf{Coverage.} Chapter~\ref{chap:control-flow}.\\
+\textbf{Goal.} Use conditions and loops to implement the three programming problems in the supplied handout.
+
+\textbf{Task 1 --- Check whether a year is a leap year.}
+
+\begin{lstlisting}[style=dsr]
+year <- as.integer(readline("Input year: "))
+
+if ((year %% 400 == 0) ||
+    (year %% 4 == 0 && year %% 100 != 0)) {
+  print(paste(year, "is a leap year."))
+} else {
+  print(paste(year, "is not a leap year."))
+}
+\end{lstlisting}
+
+This produces the handout's intended outcomes for the two sample years: 2004 is reported as a leap year, while 1900 is not.
+
+\textbf{Task 2 --- Display cubes up to an input integer.}
+
+\begin{lstlisting}[style=dsr]
+n <- as.integer(readline("Input an integer: "))
+
+for (i in 1:n) {
+  cube <- i ^ 3
+  print(paste(
+    "Number is:", i,
+    "and cube of the", i, "is:", cube
+  ))
+}
+\end{lstlisting}
+
+For input \texttt{5}, the sequence of cube values is 1, 8, 27, 64, and 125, matching the sample output.
+
+\textbf{Task 3 --- Check an Armstrong number.}
+
+The handout calls this an ``Armstrong number of n digits'' but also says digits are raised to power three, while its example uses \texttt{1634}. Those statements are internally inconsistent. The following implementation makes the supplied \texttt{1634} example work by using the number of digits as the exponent.
+
+\begin{lstlisting}[style=dsr]
+number <- as.integer(readline("Input an integer: "))
+
+original <- number
+digits <- nchar(as.character(number))
+sum_power <- 0
+
+temp <- number
+while (temp > 0) {
+  digit <- temp %% 10
+  sum_power <- sum_power + digit ^ digits
+  temp <- temp %/% 10
+}
+
+if (sum_power == original) {
+  print(paste(original, "is an Armstrong number."))
+} else {
+  print(paste(original, "is not an Armstrong number."))
+}
+\end{lstlisting}
+
+\begin{pitfall}
+The source text says ``sum of digits raised to the power three'' and then gives 1634 as the example. Raising 1, 6, 3, and 4 to the third power does not produce 1634. The guided solution above is explicitly an implementation choice made to reconcile the ``n digits'' wording with the supplied sample result; confirm the expected definition with the GA if the assessment requires the literal handout wording.
+\end{pitfall}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit three working R programs and demonstrate them using the sample inputs shown in Lab 5b where applicable.
+\end{labdeliverable}

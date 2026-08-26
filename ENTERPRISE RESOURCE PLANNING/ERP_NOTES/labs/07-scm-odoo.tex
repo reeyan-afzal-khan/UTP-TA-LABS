@@ -1,0 +1,64 @@
+\labsection{7}{Supply Chain Management: Procure, Receive, and Measure}{sec:lab07}
+
+\begin{labproject}{Build the upstream supply chain for Road Bikes and connect it to SCM performance}
+\textbf{Coverage.} Tutorial 7 + Chapter 7.\
+\textbf{Core system.} Odoo Purchase + Inventory + Manufacturing.\
+\textbf{Goal.} Demonstrate supplier master data, purchase orders, receipts, inventory availability, and the link between supplier performance and production readiness.
+
+\begin{labmode}
+Tutorial 7 asks students to research an SCM implementation and compare CRM with SCM. The Odoo work gives a concrete supply-chain process you can analyse using metrics such as lead time, fill rate, and on-time performance.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Create vendors and vendor-product links.}
+
+Create the supplied vendors and link them to raw materials on the product Purchase tab:
+\begin{itemize}
+  \item Ipoh Metal Supply $\rightarrow$ Aluminium Frame;
+  \item RubberWheel Co. $\rightarrow$ Rubber Tires;
+  \item BikeParts Supplier $\rightarrow$ Brake Set, Gear Set, Bicycle Chain;
+  \item CarbonTech Components $\rightarrow$ Carbon Fiber Frame if used in your extended catalogue.
+\end{itemize}
+
+Set vendor prices from the guide and record a delivery lead time if the field is present.
+
+\medskip\noindent\textbf{Part B --- Raise RFQs and confirm Purchase Orders.}
+
+Use one RFQ per vendor. Assign the Purchasing Officer as Buyer. Use the guide's example quantities or quantities approved by the tutor. Confirm each RFQ so the document becomes a Purchase Order and a Receipt smart button appears.
+
+\medskip\noindent\textbf{Part C --- Receive materials.}
+
+Open the linked Receipt, check quantities, and Validate. Repeat for each supplier. Verify on-hand stock for one component before and after validation.
+
+\medskip\noindent\textbf{Part D --- Explain why receipt is not the same as order.}
+
+Record one sentence for each:
+\begin{itemize}
+  \item what the Purchase Order proves;
+  \item what the Receipt proves;
+  \item which event makes components usable by Manufacturing;
+  \item which event should supplier on-time/fill-rate analysis compare against.
+\end{itemize}
+
+\medskip\noindent\textbf{Part E --- Build a supplier scorecard concept.}
+
+For each supplier, define:
+\begin{itemize}
+  \item initial fill rate;
+  \item order lead time;
+  \item on-time performance;
+  \item one quality-related measure of your own.
+\end{itemize}
+
+You do not need a large history in the demo database. The purpose is to define how repeated Odoo Purchase/Receipt transactions could generate the metric over time.
+
+\medskip\noindent\textbf{Part F --- Complete Tutorial 7 research.}
+
+Group 1: research a manufacturing company that successfully implemented SCM, whether ERP existed before SCM, the challenges, and how success was measured.\
+Group 2: compare CRM and SCM, including similarities, differences, interaction points, and technologies.
+
+Use the SCM metrics from Chapter 7 to strengthen the Group 1 analysis and the demand-to-fulfilment hand-off to strengthen the Group 2 comparison.
+\end{labproject}
+
+\begin{labdeliverable}
+Submit/share the Tutorial 7 presentation and reflection as instructed. Include Odoo evidence of one vendor-product link, one confirmed Purchase Order, and one Done Receipt. Your reflection should connect at least one research point back to the Odoo supply-chain process.
+\end{labdeliverable}

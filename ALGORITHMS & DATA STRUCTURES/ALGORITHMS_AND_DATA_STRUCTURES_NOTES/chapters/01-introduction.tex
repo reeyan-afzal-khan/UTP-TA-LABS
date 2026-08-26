@@ -1,0 +1,233 @@
+\chapter{Introduction to Data Structures}
+\label{ch:introduction}
+
+\chapterguide%
+  {Basic C++ variables and control flow are useful, but the chapter starts from the course definition of data and data structures.}
+  {classify primitive and non-primitive structures, distinguish linear and non-linear organization, name the common operations, explain correctness/time/space concerns, and use a C++ \texttt{struct} to represent a record.}
+
+A data structure is not just a container. It is a decision about how data will be organized, related, stored, and accessed in memory. That decision affects both the structural and functional design of a program.
+
+\begin{keyidea}
+The course summarizes the relationship as
+\[
+\text{Program} = \text{Algorithm} + \text{Data Structure}.
+\]
+An algorithm describes the steps. A data structure determines how the data used by those steps is arranged.
+\end{keyidea}
+
+\section{From data to a data structure}
+
+The Week I slides separate two ideas:
+
+\begin{description}[leftmargin=1.4in,style=nextline]
+  \item[Data] A collection of raw facts and figures.
+  \item[Data structure] A way to organize, store, and relate data in memory.
+\end{description}
+
+\begin{intuition}
+Five student ages are data. Storing them as an array is a structural choice. Storing each student's ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.
+\end{intuition}
+
+\section{Classification of data structures}
+
+The slides divide data structures into two broad categories: \term{primitive} and \term{non-primitive}.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.55cm and 1.0cm,
+  top/.style={draw=ADSNavy,fill=ADSNavy,text=white,rounded corners=2mm,minimum width=3.2cm,minimum height=0.8cm,align=center,font=\bfseries},
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=4.0cm,minimum height=1.0cm,align=center,font=\small\color{ADSNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+]
+\node[top] (ds) {Data Structures};
+\node[box,below left=0.8cm and 0.6cm of ds] (p) {Primitive\\basic machine-level values};
+\node[box,below right=0.8cm and 0.6cm of ds] (np) {Non-Primitive\\structures derived from primitive values};
+\node[box,below left=0.7cm and 0.15cm of np] (lin) {Linear\\array, linked list, stack, queue};
+\node[box,below right=0.7cm and 0.15cm of np] (nonlin) {Non-Linear\\tree, graph};
+\draw[arr] (ds) -- (p); \draw[arr] (ds) -- (np); \draw[arr] (np) -- (lin); \draw[arr] (np) -- (nonlin);
+\end{tikzpicture}
+\end{mlfigure}
+
+\subsection{Primitive data structures}
+
+The course describes primitive data structures as basic structures directly manipulated by machine-level instructions. The slides list integers, floating-point numbers, character constants, string constants, and pointers as examples.
+
+Typical operations highlighted for primitive structures are:
+
+\begin{itemize}
+  \item create;
+  \item select or access;
+  \item update;
+  \item destroy or delete.
+\end{itemize}
+
+\begin{clarification}
+The Week I classification is the course framing. In modern C++, types such as \texttt{std::string} are library classes rather than built-in primitive machine types. Keep the slide classification for this course, but be aware that language-level terminology can be more precise.
+\end{clarification}
+
+\subsection{Non-primitive data structures}
+
+Non-primitive structures are described as structures derived from primitive data structures. They can organize homogeneous items of the same type or heterogeneous items of different types, and they can represent relationships among items.
+
+\subsection{Linear data structures}
+
+In a linear structure, elements form a sequence or linear series. The slides give stacks, queues, and linked lists as common examples. Arrays, introduced in the next chapter, are another central linear structure in the course.
+
+\begin{mlfigure}
+\begin{tikzpicture}[node distance=0.15cm,
+  cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=1.4cm,minimum height=0.8cm,font=\bfseries\color{ADSNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}]
+\node[cell] (a) {A};
+\node[cell,right=of a] (b) {B};
+\node[cell,right=of b] (c) {C};
+\node[cell,right=of c] (d) {D};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d);
+\node[below=0.35cm of c,anchor=north east,font=\small\color{ADSMuted}] {one sequence of elements};
+\end{tikzpicture}
+\end{mlfigure}
+
+\subsection{Non-linear data structures}
+
+A non-linear structure allows one item to connect to several other items. The slides emphasize hierarchical or parent-child relationships and give \term{trees} and \term{graphs} as the main examples.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=7mm,font=\scriptsize\bfseries\color{ADSNavy}},
+  edge/.style={thick,draw=ADSTeal}
+]
+\node[node] (a) {A};
+\node[node,below left=0.8cm and 1cm of a] (b) {B};
+\node[node,below right=0.8cm and 1cm of a] (c) {C};
+\node[node,below left=0.8cm and 0.4cm of b] (d) {D};
+\node[node,below right=0.8cm and 0.4cm of b] (e) {E};
+\draw[edge] (a)--(b); \draw[edge] (a)--(c); \draw[edge] (b)--(d); \draw[edge] (b)--(e);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Common operations}
+
+For non-primitive structures, the Week I slides list the following common operations:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.19\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Operation & Meaning in the course context \\
+\midrule
+Traversal & Visit elements systematically. \\
+Insertion & Add a new element. \\
+Selection & Access or choose a particular element. \\
+Searching & Find an element that matches a condition or key. \\
+Sorting & Rearrange elements into a specified order. \\
+Merging & Combine structures or collections. \\
+Destroy/Delete & Remove elements or release the structure. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+These operation names recur throughout the course. The important change from chapter to chapter is not the operation itself, but how the structure makes the operation easier or harder.
+
+\section{Primitive vs non-primitive structures}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.18\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Feature & Primitive & Non-primitive \\
+\midrule
+Meaning & Basic built-in or basic-value type in the course classification & Built using primitive types \\
+Examples & \texttt{int}, \texttt{float}, \texttt{char}, pointer & array, linked list, tree, graph \\
+Structure & Simple & Can store groups or relationships \\
+Memory use & Usually fixed/simple & Can be static or dynamic \\
+Use case & Single value & Grouped or connected data \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Three characteristics of a good data-structure implementation}
+
+The Week I slides highlight three characteristics.
+
+\begin{description}[leftmargin=1.4in,style=nextline]
+  \item[Correctness] The implementation must implement its interface correctly.
+  \item[Time complexity] The running or execution time of operations should be as small as possible for the problem.
+  \item[Space complexity] The memory used by the operations should be as small as possible for the problem.
+\end{description}
+
+\begin{keyidea}
+A data structure is useful because of the operations it supports. Saying ``a linked list is dynamic'' or ``an array gives direct access'' matters because those properties change the cost and behavior of insertion, deletion, searching, and traversal.
+\end{keyidea}
+
+\section{C++ practical: structures (\texttt{struct})}
+
+The slides introduce \texttt{struct} as a user-defined C/C++ data type that groups items of different types into a single record.
+
+\begin{lstlisting}
+struct Student {
+    int id;
+    string name;
+    int age;
+    string course;
+};
+\end{lstlisting}
+
+Each variable of type \texttt{Student} contains all four fields.
+
+\begin{workedexample}
+Suppose one student has ID 1001, name ``Amina'', age 20, and course ``Computer Science''. These values have different primitive or library types, but they belong to one logical record. A \texttt{struct} preserves that relationship.
+\end{workedexample}
+
+\begin{lstlisting}
+Student s;
+s.id = 1001;
+s.name = "Amina";
+s.age = 20;
+s.course = "Computer Science";
+
+cout << s.id << " " << s.name << " "
+     << s.age << " " << s.course << '\n';
+\end{lstlisting}
+
+\section{Putting records into an array}
+
+The Week I lab asks for at least five student records, then display, search, and update operations. One direct representation is an array of \texttt{Student} records.
+
+\begin{lstlisting}
+const int N = 5;
+Student students[N] = {
+    {1001, "Amina", 20, "CS"},
+    {1002, "Ben",   21, "IT"},
+    {1003, "Chen",  20, "CS"},
+    {1004, "Devi",  22, "IS"},
+    {1005, "Ehsan", 21, "IT"}
+};
+\end{lstlisting}
+
+Searching by ID can be performed by examining records one by one.
+
+\begin{lstlisting}
+int target = 1003;
+for (int i = 0; i < N; ++i) {
+    if (students[i].id == target) {
+        cout << "Found: " << students[i].name << '\n';
+        break;
+    }
+}
+\end{lstlisting}
+
+\begin{quickcheck}
+Classify each as primitive or non-primitive using the course framing: an integer, a pointer, an array of integers, a linked list, a graph. Then name one operation whose efficiency could depend strongly on the chosen structure.
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A data structure organizes, stores, and relates data in memory.
+  \item The course divides structures into primitive and non-primitive categories.
+  \item Non-primitive structures can be linear or non-linear.
+  \item Core operations include traversal, insertion, selection, searching, sorting, merging, and deletion.
+  \item Correctness, time complexity, and space complexity are central implementation concerns.
+  \item C++ \texttt{struct} groups different fields into one record and can be combined with arrays for record-based applications.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/01-foundations}

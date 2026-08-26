@@ -1,0 +1,244 @@
+\chapter{Uninformed Search: BFS, DFS, and Uniform-Cost Search}
+\label{ch:uninformed}
+
+\chapterguide%
+  {Be comfortable reading a graph, a grid, and a simple Python container such as a list, set, or dictionary.}
+  {represent a search problem, explain frontier and visited sets, trace BFS and DFS, use Uniform-Cost Search on weighted graphs, and recognize when each method is appropriate.}
+
+The first laboratory introduces three search strategies: Breadth-First Search (BFS), Depth-First Search (DFS), and Uniform-Cost Search (UCS). They are called \term{uninformed} because their expansion rule does not use an estimate of how close a state is to the goal. They differ in what they consider ``next.''
+
+\section{A search problem is more than a graph}
+
+The source exercises use graphs, mazes, word transformations, and binary trees. These look different, but each can be expressed with the same ingredients.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Ingredient & Meaning in the laboratory problems \\
+\midrule
+State & A graph node such as \texttt{A}; a maze coordinate; a word such as \texttt{hot}; or a tree node. \\
+Start & The state where the search begins, for example \texttt{A} or \texttt{S}. \\
+Goal & The desired destination, for example \texttt{G} or \texttt{cog}. \\
+Successors & Legal next states, obtained from graph adjacency, grid movement, one-letter changes, or child links. \\
+Path & The ordered sequence of states used to reach the current state. \\
+Path cost & The total edge or movement cost accumulated so far; UCS explicitly uses this quantity. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{intuition}
+A search algorithm does not need to know whether a state represents a city, a word, or a maze cell. It only needs a way to generate legal successors and a rule for deciding which frontier state to expand next.
+\end{intuition}
+
+\section{The frontier and the visited set}
+
+Most graph-search implementations maintain two central structures.
+
+\begin{description}
+  \item[Frontier] States that have been discovered but not fully explored. The data structure used for this frontier gives BFS, DFS, and UCS their characteristic behavior.
+  \item[Visited set] States already processed. It prevents repeated work and is essential when the graph contains cycles or loops.
+\end{description}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[box] (start) {Start state};
+\node[box,right=1cm of start] (front) {Frontier};
+\node[box,right=1cm of front] (expand) {Expand one state};
+\node[box,right=1cm of expand] (goal) {Goal test};
+\draw[arr] (start)--(front);
+\draw[arr] (front)--(expand);
+\draw[arr] (expand)--(goal);
+\draw[arr] (expand.south) -- ++(0,-0.65) -| node[pos=0.25,below,font=\scriptsize\color{MLMuted}] {add legal successors} (front.south);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Breadth-First Search}
+
+\term{Breadth-First Search} expands states level by level. In the laboratory graph, the start node \texttt{A} first exposes \texttt{B} and \texttt{C}; only after all states at that depth are considered does the search move deeper.
+
+A FIFO queue implements this rule:
+
+\begin{mlsteps}
+  \item Put the start state in the queue.
+  \item Remove the oldest state from the front.
+  \item If it is the goal, return its path.
+  \item Add unvisited successors to the back of the queue.
+  \item Repeat until the queue is empty.
+\end{mlsteps}
+
+For the unweighted graph from Lab 1,
+\[
+A\rightarrow\{B,C\},\quad B\rightarrow\{D,E\},\quad C\rightarrow\{F\},
+\]
+with \(D,E,F\rightarrow G\), BFS returns a path with the fewest edges because every step is treated as equal cost.
+
+\begin{workedexample}
+If neighbor order is preserved exactly as written in the handout, BFS expands \texttt{A}, then \texttt{B}, then \texttt{C}, then reaches the next layer containing \texttt{D}, \texttt{E}, and \texttt{F}. Since \texttt{D} is encountered before \texttt{E} and \texttt{F}, a typical returned path is \texttt{A -> B -> D -> G}. Other shortest paths also exist in the graph.
+\end{workedexample}
+
+\subsection{BFS in a maze}
+
+The maze exercise uses four-direction movement. A cell is a state, and a legal successor is an in-bounds adjacent cell that is not a wall. BFS is suitable when every move has equal cost and the objective is the shortest number of steps.
+
+\begin{lstlisting}[style=mlpython]
+from collections import deque
+
+def bfs_grid(grid, start, goal):
+    rows, cols = len(grid), len(grid[0])
+    visited = {start}
+    queue = deque([(start, [start])])
+
+    while queue:
+        (x, y), path = queue.popleft()
+        if (x, y) == goal:
+            return path
+
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            nx, ny = x + dx, y + dy
+            if (0 <= nx < rows and 0 <= ny < cols
+                    and grid[nx][ny] == 0
+                    and (nx, ny) not in visited):
+                visited.add((nx, ny))
+                queue.append(((nx, ny), path + [(nx, ny)]))
+    return None
+\end{lstlisting}
+
+\begin{pitfall}
+Mark a state visited when it is inserted into the BFS queue, not only when it is removed. Otherwise the same state can be inserted many times by different parents.
+\end{pitfall}
+
+\section{Depth-First Search}
+
+\term{Depth-First Search} follows one branch as far as possible before trying alternatives. A stack or recursion naturally implements this behavior.
+
+\begin{mlsteps}
+  \item Start at the current state and perform the goal test.
+  \item Mark the state visited.
+  \item Choose an unvisited successor.
+  \item Recurse down that branch.
+  \item If the branch fails, return to the previous state and try the next successor.
+\end{mlsteps}
+
+The source maze implementation expresses this directly with recursion:
+
+\begin{lstlisting}[style=mlpython]
+def dfs_maze(grid, x, y, path, visited, goal):
+    if (x, y) == goal:
+        return path
+
+    visited.add((x, y))
+    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        nx, ny = x + dx, y + dy
+        if (0 <= nx < len(grid) and 0 <= ny < len(grid[0])
+                and grid[nx][ny] == 0
+                and (nx, ny) not in visited):
+            result = dfs_maze(
+                grid, nx, ny,
+                path + [(nx, ny)],
+                visited, goal
+            )
+            if result:
+                return result
+    return None
+\end{lstlisting}
+
+\begin{intuition}
+BFS explores a wide wavefront. DFS explores a narrow tunnel. Both can find a reachable goal, but DFS does not promise the fewest-edge path.
+\end{intuition}
+
+\subsection{DFS preorder on a binary tree}
+
+The Lab 1 tree has root 1, children 2 and 3, and leaves 4--7. Preorder DFS visits the current node before its left and right subtrees:
+\[
+1,2,4,5,3,6,7.
+\]
+
+\begin{lstlisting}[style=mlpython]
+def dfs_preorder(root):
+    if not root:
+        return []
+    return [root.val] + dfs_preorder(root.left) + dfs_preorder(root.right)
+\end{lstlisting}
+
+\section{Uniform-Cost Search}
+
+\term{Uniform-Cost Search} is the cost-aware uninformed method in the source material. It always expands the frontier path with the smallest accumulated cost \(g(n)\). A min-priority queue replaces the FIFO queue used by BFS.
+
+For the weighted Lab 1 graph,
+\begin{align*}
+A&\to B:1, & A&\to C:4,\\
+B&\to D:3, & B&\to E:2,\\
+D&\to G:4, & E&\to G:1, & F&\to G:2.
+\end{align*}
+The path through \texttt{B} and \texttt{E} has cost
+\[
+1+2+1=4,
+\]
+which is lower than the alternatives shown in the handout.
+
+\begin{lstlisting}[style=mlpython]
+import heapq
+
+def ucs(graph, start, goal):
+    pq = [(0, [start])]
+    visited = set()
+
+    while pq:
+        cost, path = heapq.heappop(pq)
+        node = path[-1]
+        if node == goal:
+            return path, cost
+
+        if node not in visited:
+            visited.add(node)
+            for neighbor, weight in graph[node]:
+                heapq.heappush(
+                    pq,
+                    (cost + weight, path + [neighbor])
+                )
+    return None
+\end{lstlisting}
+
+\begin{keyidea}
+BFS orders the frontier by depth, DFS by recency/depth, and UCS by accumulated path cost. The graph representation may stay the same while only the frontier policy changes.
+\end{keyidea}
+
+\section{Comparing the three methods}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}p{0.19\linewidth}p{0.19\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Frontier rule & Main structure & What the lab examples emphasize \\
+\midrule
+BFS & Shallowest first & FIFO queue & Shortest path in equal-cost graph/grid; level-order tree traversal \\
+DFS & Deepest first & Stack / recursion & Reachability, maze exploration, preorder tree traversal \\
+UCS & Lowest \(g(n)\) & Min-priority queue & Least-cost path in a weighted graph \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\input{labs/01-search-foundations}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does BFS ignore the numerical edge weights in the first graph problem?
+  \item What changes in the data structure when moving from BFS to UCS?
+  \item Why is a visited set especially important for the ``graph with loops'' UCS problem?
+  \item What traversal order does DFS preorder produce for the seven-node binary tree in Lab 1?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Search problems can be expressed using states, successors, a start state, a goal test, and sometimes a path cost.
+  \item BFS uses a FIFO queue and is suited to equal-cost shortest-path problems.
+  \item DFS explores one branch deeply before backtracking and is naturally implemented with recursion or a stack.
+  \item UCS uses a priority queue ordered by cumulative cost and is the weighted counterpart to breadth-first exploration.
+  \item The frontier rule is the central difference among these uninformed strategies.
+\end{itemize}
+\end{chapterrecap}

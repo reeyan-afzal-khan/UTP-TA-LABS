@@ -1,0 +1,193 @@
+\chapter{Production Planning: From Demand to a Feasible Production Plan}
+\label{ch:production-planning}
+
+\chapterguide
+  {You should know that Sales generates demand information and Supply Chain must turn that demand into physical products.}
+  {explain the production-planning hierarchy, distinguish common production approaches, connect forecasts to capacity and inventory decisions, and explain the role of a bill of materials and manufacturing order.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 3 (Production Planning) and Chapter 4 of the textbook. The tutorial asks students to select a production-planning approach, calculate a sales forecast, and prepare an S\&OP plan. The Odoo build guide provides the Road Bike bill of materials and manufacturing workflow used in the practical.
+\end{sourcebasis}
+
+\section{What production planning is trying to decide}
+
+Production planning coordinates demand, inventory, materials, capacity, and time. The planner must answer several linked questions:
+
+\begin{itemize}
+  \item What do we expect customers to want?
+  \item How much finished-goods inventory do we already have?
+  \item How much should we produce in each period?
+  \item Do we have enough labour and equipment capacity?
+  \item Which raw materials are required, in what quantities, and by what dates?
+  \item When should each product be manufactured?
+\end{itemize}
+
+The textbook organises this into a planning hierarchy.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.3cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  side/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=3.3cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.4cm
+]
+\node[box] (f) {Sales forecast};
+\node[box,below=of f] (sop) {Sales \& Operations Planning};
+\node[box,below=of sop] (dm) {Demand management};
+\node[box,below left=0.55cm and 0.55cm of dm] (sched) {Detailed scheduling};
+\node[box,below right=0.55cm and 0.55cm of dm] (mrp) {MRP};
+\node[side,below=of sched] (prod) {Production};
+\node[side,below=of mrp] (purch) {Purchasing};
+\draw[arr] (f)--(sop); \draw[arr] (sop)--(dm); \draw[arr] (dm)--(sched); \draw[arr] (dm)--(mrp); \draw[arr] (sched)--(prod); \draw[arr] (mrp)--(purch);
+\end{tikzpicture}
+\end{erpfigure}
+
+\section{Production approaches}
+
+The tutorial asks students to choose one production-planning approach for a business venture and understand the alternatives. In introductory ERP courses, the most useful distinction is based on when production happens relative to customer demand.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.21\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Approach & Core idea & Typical trade-off \\
+\midrule
+Make-to-stock & Produce finished goods before a specific customer order, based on expected demand. & Fast fulfilment, but inventory risk if demand is wrong. \\
+Make-to-order & Begin production after a customer order is received. & Lower finished-goods inventory, but longer customer lead time. \\
+Engineer/configure-to-order & Design or configure significant product details after the order. & High customisation, but greater planning complexity and longer lead time. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+The supplied West End Bicycles Odoo guide explicitly uses \term{make-to-stock}: Road Bikes are manufactured before the customer order is delivered. That is why raw materials are purchased and 5 bikes are manufactured before the delivery is validated.
+
+\section{Sales forecasting}
+
+A \term{sales forecast} is an estimate of future demand. It is not a promise and it is not the same as a confirmed order. Forecasts are needed because supply decisions often require lead time.
+
+The textbook demonstrates a simple approach that begins with the previous year's demand, removes the unusual effect of the previous year's promotion, applies expected underlying growth, and then adds the expected effect of this year's promotion.
+
+For month $t$:
+
+\[
+\text{Previous-year base}_t
+= \text{Previous-year sales}_t - \text{Previous promotion}_t
+\]
+
+\[
+\text{Base projection}_t
+= \text{Previous-year base}_t(1+g)
+\]
+
+\[
+\text{Forecast}_t
+= \text{Base projection}_t + \text{Current promotion}_t
+\]
+
+where $g$ is the expected growth rate.
+
+\begin{keyidea}
+Forecasting should separate the underlying demand pattern from one-off causes. If last year's promotion temporarily increased sales, simply multiplying the total by a growth rate would treat the temporary promotion as permanent base demand.
+\end{keyidea}
+
+\section{Sales and Operations Planning}
+
+\term{Sales and Operations Planning (S\&OP)} converts the demand forecast into a feasible aggregate production plan. The main balancing relationship is:
+
+\[
+\text{Ending Inventory}_t
+= \text{Beginning Inventory}_t + \text{Production}_t - \text{Sales}_t
+\]
+
+The planner may deliberately produce more than the forecast in one month to build inventory before a peak, or produce less than the forecast while drawing down inventory built earlier.
+
+A feasible plan must also respect capacity:
+
+\[
+\text{Capacity}_t = \text{Rate per hour} \times \text{Hours per day} \times \text{Working days}_t
+\]
+
+\[
+\text{Utilization}_t = \frac{\text{Production Plan}_t}{\text{Capacity}_t}\times 100\%
+\]
+
+The production plan therefore balances three competing concerns: customer demand, inventory, and capacity.
+
+\section{Demand management and detailed scheduling}
+
+S\&OP is intentionally aggregate. The next step, \term{demand management}, breaks the aggregate plan into individual products and smaller time periods. A monthly production target might become weekly or daily requirements for Road Bikes, Mountain Bikes, and City Bikes.
+
+\term{Detailed scheduling} then decides exactly when production runs occur. In repetitive environments, longer runs reduce setup/changeover frequency but can increase finished-goods inventory. Shorter runs can reduce inventory but consume more capacity in setup time.
+
+\begin{intuition}
+S\&OP decides ``how much should the factory produce this month?'' Detailed scheduling decides ``which product runs on which day, and in what sequence?''
+\end{intuition}
+
+\section{The bill of materials connects planning to materials}
+
+A \term{bill of materials (BOM)} is the product recipe: a structured list of components and quantities needed to make the finished product. The supplied Road Bike BOM is simple:
+
+\begin{erptable}
+\begin{tabularx}{0.72\linewidth}{@{}>{\bfseries\color{ERPNavy}}Xr@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Component & Quantity per Road Bike \\
+\midrule
+Aluminium Frame & 1 \\
+Rubber Tires & 2 \\
+Brake Set & 1 \\
+Gear Set & 1 \\
+Bicycle Chain & 1 \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+For 5 Road Bikes, the gross component requirement is therefore 5 frames, 10 tyres, 5 brake sets, 5 gear sets, and 5 chains. MRP later extends this simple multiplication by considering inventory, scheduled receipts, lot sizes, and lead times.
+
+\section{Manufacturing orders execute the plan}
+
+A plan says what should happen. A \term{manufacturing order (MO)} is the operational instruction to produce a specific quantity. In an integrated ERP system, completing the MO changes inventory: component quantities decrease and finished-goods quantities increase.
+
+\begin{odoobox}
+In the West End Bicycles guide:
+\begin{enumerate}
+  \item create a Road Bike BOM for one unit;
+  \item create a Manufacturing Order for 5 Road Bikes;
+  \item assign the Production Planner as responsible;
+  \item confirm the MO and ensure components are available;
+  \item produce and mark the MO Done;
+  \item verify that component stock fell and Road Bike on-hand stock rose to 5.
+\end{enumerate}
+This is the physical meaning of integration: production is not only a planning record; it changes the stock records used later by Sales and Delivery.
+\end{odoobox}
+
+\section{Safety stock and the cost of uncertainty}
+
+\term{safety stock} is extra inventory held to reduce the risk of a stockout when demand or supply is uncertain. More safety stock increases service protection but also increases holding cost and cash tied up in inventory.
+
+Forecast accuracy matters because a less accurate forecast generally requires a larger buffer to achieve the same service level. ERP does not eliminate uncertainty; it improves the information used to manage the uncertainty.
+
+\begin{pitfall}
+High capacity utilisation is not always the same as good production planning. A factory can keep machines busy by producing goods that customers do not need, creating excess inventory. The objective is an economically sensible balance between demand, capacity, setup cost, and inventory cost.
+\end{pitfall}
+
+\begin{tryit}
+Choose one of the business ventures suggested in Tutorial 3---furniture, cookies, printing/personalised products, or your own idea. Decide whether make-to-stock, make-to-order, or a more customised approach fits best. Then explain what would go wrong if you used one of the other approaches instead.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why can production differ from the sales forecast in a given month?
+  \item What information does a BOM provide that a sales forecast does not?
+  \item What stock changes should occur when a Manufacturing Order for 5 Road Bikes is completed?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Production planning links forecasts, inventory, capacity, materials, and schedules.
+  \item Forecasting estimates demand; S\&OP balances demand with capacity and inventory.
+  \item Demand management and detailed scheduling progressively add product and time detail.
+  \item A BOM defines component requirements; an MO executes production and changes inventory.
+  \item West End Bicycles uses a make-to-stock story: buy components, manufacture bikes, then sell and deliver from finished-goods stock.
+\end{itemize}
+\end{chapterrecap}

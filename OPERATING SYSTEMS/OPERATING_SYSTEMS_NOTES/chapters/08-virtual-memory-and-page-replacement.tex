@@ -1,0 +1,68 @@
+\chapter{Virtual Memory and Page Replacement}\label{ch:vm}
+\chapterguide{Understand contiguous allocation from Chapter~\ref{ch:allocation}.}{Explain pages and frames, translate a virtual page through a page table, define page faults, and trace FIFO, LRU, and LFU replacement.}
+
+\section{Why virtual memory changes the problem}
+Paging divides virtual memory into fixed-size \term{pages} and physical memory into equal-size \term{frames}. A page table records which frame currently contains each resident virtual page. Because pages need not occupy adjacent frames, paging removes external fragmentation from physical allocation, though the last page of an object can still create internal fragmentation.
+
+\section{Address translation}
+If the page size is $P$, a virtual address $v$ can be decomposed into
+\[
+\text{page} = \left\lfloor \frac{v}{P}\right\rfloor, \qquad
+\text{offset} = v \bmod P.
+\]
+If the page table maps that page to frame $f$, then
+\[
+\text{physical address} = fP + \text{offset}.
+\]
+
+\section{Page faults}
+A \term{page fault} occurs when a referenced virtual page is not currently resident in a usable physical frame. The OS must locate the page on backing storage (or otherwise materialize it), obtain a frame, update mapping metadata, and restart/resume the faulting instruction as appropriate.
+
+\section{Replacement policies}
+When no free frame exists, the OS needs a victim page.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.16\linewidth}p{0.29\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Policy & Victim rule & State required \\
+\midrule
+FIFO & Page resident for the longest time & Arrival/load order \\
+LRU & Page whose most recent use is farthest in the past & Recency information \\
+LFU & Page with the smallest reference count & Frequency counts plus a tie-breaker \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{FIFO}
+FIFO treats loaded pages like a queue. It is easy to implement but does not use actual access behavior. FIFO can exhibit \term{Belady's anomaly}: for some reference strings, adding more frames can increase the number of faults.
+
+\section{LRU}
+LRU approximates the principle of temporal locality: a page used recently is likely to be used again soon. Exact LRU can be expensive, so real systems often use hardware-assisted approximations.
+
+\section{LFU}
+LFU retains frequently referenced pages. Pure cumulative counts can preserve stale historical popularity, so practical frequency-based schemes often age counts or use bounded windows.
+
+\begin{workedexample}
+With three frames and reference string 1, 2, 3, 1, 4: the first three references fault and fill the frames. The second reference to 1 is a hit. On reference 4, FIFO evicts 1 if 1 was loaded earliest, whereas LRU evicts 2 because 2 is the least recently used at that moment.
+\end{workedexample}
+
+\section{Mutex exercise in this lab set}
+The first program in Lab 8 is actually a mutex synchronization demonstration rather than an address-translation program, despite its opening comment. This is a good reminder that source comments are documentation, not truth: read the executable logic and verify what it does.
+
+\begin{keyidea}
+A page-replacement algorithm is a prediction policy: it tries to choose the resident page whose removal will hurt future execution least.
+\end{keyidea}
+
+\input{chapters/concepts/08-virtual-memory-deep-dive}
+
+\input{labs/08-mutex-and-page-replacement}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Paging separates virtual pages from physical frames through a page table.
+  \item A page fault is an exceptional control transfer caused by a non-resident or otherwise invalid mapping.
+  \item FIFO uses age, LRU uses recency, and LFU uses frequency to choose victims.
+  \item The correctness of a trace depends on frame count, reference order, hit handling, and tie-breaking rules.
+\end{itemize}
+\end{chapterrecap}

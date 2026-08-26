@@ -1,0 +1,83 @@
+\section{The shell is a process-control language}
+A shell is not merely a place to type commands. It is a user-space program that parses command lines, expands variables and wildcards, establishes redirections and pipelines, launches processes, and collects exit status. Shell scripting therefore provides a compact way to automate operating-system interactions.
+
+\section{The execution model of a command line}
+For a simple external command, a typical shell conceptually performs these steps:
+\begin{mlsteps}
+  \item Parse the command and apply quoting/expansion rules.
+  \item If redirection is requested, prepare the required file descriptors.
+  \item Create a child process.
+  \item In the child, replace the process image with the requested executable.
+  \item In the parent, wait for a foreground command or return immediately for a background job.
+\end{mlsteps}
+Built-in commands such as changing the shell's own current directory cannot always be implemented as ordinary child processes because their effect must change the shell process itself.
+
+\section{Variables, expansion, and quoting}
+Shell variables are text values. Expansion happens before the final command is executed, which makes quoting important.
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.23\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Form & Meaning & Example consequence \\
+\midrule
+\texttt{\$x} & Expand variable & Word splitting/globbing may occur depending on context \\
+\texttt{"\$x"} & Expand while preserving it as one quoted field & Safer for filenames containing spaces \\
+\texttt{'\$x'} & Literal characters; no variable expansion & Prints \texttt{\$x} rather than its value \\
+\texttt{\$((...))} & Arithmetic expansion & Preferred modern integer arithmetic syntax in Bash \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Unquoted variables are a common shell-programming bug. A test like \texttt{[ \$name = admin ]} can break when \texttt{name} is empty or contains spaces. Prefer \texttt{[ "\$name" = "admin" ]}.
+\end{pitfall}
+
+\section{Exit status drives control flow}
+Every command returns an integer exit status. By convention, zero represents success and nonzero represents some kind of failure or false condition. \texttt{if}, \texttt{\&\&}, and \texttt{||} are therefore built around command status, not only around numeric expressions.
+
+\section{Redirection and pipelines}
+The shell can connect processes without changing their source code.
+\begin{itemize}
+  \item \texttt{>} replaces standard output with a file.
+  \item \texttt{>>} appends standard output to a file.
+  \item \texttt{<} replaces standard input with a file.
+  \item \texttt{|} connects one process's standard output to another process's standard input through a pipe.
+\end{itemize}
+A pipeline such as \texttt{cat log.txt | grep ERROR | wc -l} illustrates composability: each process performs one transformation while the OS transports bytes between them.
+
+\section{Conditionals and loops}
+The lab scripts practice the same control structures used in larger administration scripts: selection and repetition.
+\begin{lstlisting}[style=osbash]
+if (( n % 2 == 0 )); then
+    echo "even"
+else
+    echo "odd"
+fi
+
+factorial=1
+for ((i = 2; i <= n; i++)); do
+    factorial=$((factorial * i))
+done
+\end{lstlisting}
+
+\section{Correctness matters more than syntax}
+A script can be syntactically valid but algorithmically wrong. The common simplified leap-year rule ``divisible by 4'' is incomplete. The Gregorian rule is:
+\[
+\text{leap} \iff (y \bmod 400 = 0)\ \lor\ \big((y \bmod 4 = 0) \land (y \bmod 100 \ne 0)\big).
+\]
+Thus 2000 is a leap year, but 1900 is not.
+
+\begin{workedexample}
+For 1900: divisible by 4, but also divisible by 100 and not by 400, so it is \emph{not} a leap year. For 2000: divisible by 400, so it \emph{is} a leap year.
+\end{workedexample}
+
+\section{Shell scripts as OS laboratory tools}
+Shell scripts are useful for compiling, executing, and repeatedly testing C programs. A small test harness can run a scheduler with several inputs, capture output, and compare results. This habit turns later OS labs from one-off demonstrations into reproducible experiments.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why must \texttt{cd} normally be a shell built-in?
+  \item What OS object is created to implement a pipeline?
+  \item Why should a filename variable usually be quoted when passed to a command?
+\end{enumerate}
+\end{quickcheck}

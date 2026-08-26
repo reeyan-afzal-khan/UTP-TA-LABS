@@ -1,0 +1,49 @@
+\labsection{2}{ERP Benefits, Challenges, and Modular Integration}{sec:lab02}
+
+\begin{labproject}{Teach one ERP benefit and one ERP challenge using the system you just built}
+\textbf{Coverage.} Tutorial 2 + Chapter 2.\
+\textbf{Core system.} Odoo 19 Community app structure.\
+\textbf{Goal.} Move from generic statements such as ``ERP improves efficiency'' to evidence-based explanations of how integration creates benefits and why implementation is difficult.
+
+\begin{labmode}
+Tutorial 2 uses Team Benefit and Team Challenge. Odoo is used here as a concrete reference architecture: each team must point to at least one app-to-app connection or setup choice that demonstrates the selected benefit/challenge.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Team Benefit.}
+
+Choose one ERP benefit such as shared data, faster process flow, management visibility, reduced duplicate entry, better inventory accuracy, or integrated reporting. Explain:
+\begin{enumerate}
+  \item the old fragmented problem;
+  \item the ERP mechanism that changes it;
+  \item the Odoo record or connection that demonstrates the mechanism;
+  \item one metric that could show the benefit.
+\end{enumerate}
+
+Example structure: ``A Sales Order creates a linked Delivery and can create an Invoice. This reduces repeated entry of product, quantity, customer, and price. Measure the percentage of invoices requiring manual correction.''
+
+\medskip\noindent\textbf{Part B --- Team Challenge.}
+
+Choose one challenge such as data migration, training, change resistance, scope creep, poor process design, weak sponsorship, role/permission design, or excessive customisation. Explain:
+\begin{enumerate}
+  \item why it is difficult;
+  \item which users/processes are affected;
+  \item what could happen if it is ignored;
+  \item how the implementation team should reduce the risk.
+\end{enumerate}
+
+\medskip\noindent\textbf{Part C --- Inspect modularity in Odoo.}
+
+Open the app grid and identify which app owns each of these records: customer, opportunity, quotation, purchase order, receipt, BOM, manufacturing order, delivery, invoice, employee. Then draw arrows showing which records create or feed the next record.
+
+\begin{keyidea}
+The point is to see modularity without silos. The records live in different apps because the workflows differ, but they remain connected through shared master data and document relationships.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part D --- Teach the other subgroup.}
+
+Follow Tutorial 2: explain your selected topic, listen to the other subgroup, take notes, and write the required paragraph demonstrating what you learned.
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the paragraph required by Tutorial 2. Keep your research source details separately as required by the tutorial. In class, be ready to demonstrate one Odoo screen or linked-record example that makes your benefit/challenge concrete.
+\end{labdeliverable}

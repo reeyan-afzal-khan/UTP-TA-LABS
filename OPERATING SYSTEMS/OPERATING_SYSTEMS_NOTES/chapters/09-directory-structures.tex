@@ -1,0 +1,55 @@
+\chapter{Directories and File-System Namespace}\label{ch:directories}
+\chapterguide{Know how \texttt{opendir/readdir} expose directory entries.}{Explain directory trees, absolute and relative pathnames, distinguish file names from file metadata, and connect the Lab 9 visualizations to real file-system structures.}
+
+\section{Why directories exist}
+A file system needs a namespace that maps human-readable pathnames to file-system objects. A directory stores associations between names and underlying objects or metadata references. Hierarchical directories allow organization, delegation, and scalable lookup.
+
+\section{Common directory organizations}
+Textbooks often introduce:
+\begin{itemize}
+  \item \textbf{single-level}: every file shares one directory;
+  \item \textbf{two-level}: each user gets a separate directory;
+  \item \textbf{tree-structured}: directories may contain files and subdirectories;
+  \item \textbf{acyclic/general graph}: links allow more complex sharing, requiring cycle/reference management.
+\end{itemize}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  dir/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.75cm,font=\small\bfseries\color{MLNavy}},
+  file/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1mm,minimum width=1.9cm,minimum height=0.65cm,font=\scriptsize\color{MLNavy}},
+  edge from parent/.style={draw=MLMuted,thick,-{Stealth[length=1.8mm]}}
+]
+\node[dir] {root}
+ child {node[dir] {home} child {node[file] {notes.tex}} child {node[file] {code.c}}}
+ child {node[dir] {etc} child {node[file] {config}}}
+ child {node[dir] {tmp}};
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Absolute and relative paths}
+An \term{absolute path} begins from the root of the namespace. A \term{relative path} begins from the process's current working directory. Special entries such as \texttt{.} and \texttt{..} conventionally mean current and parent directory.
+
+\section{Name versus metadata}
+A filename is not the complete file. Real file systems maintain metadata such as object type, owner, permissions, timestamps, size, and pointers to data blocks. In Unix-like systems, directory entries associate names with inode numbers; the inode stores most metadata and block mapping information.
+
+\section{What Lab 9 visualizes}
+The supplied OpenGL programs model a root directory with file children and a more general interactive tree whose nodes may represent directories or files. The graphics are not implementing an on-disk file system; they visualize the \emph{namespace structure} and parent-child relationships.
+
+\begin{pitfall}
+A GUI tree node should not be confused with the physical location of file data. Directory hierarchy is a logical namespace; data blocks can be placed elsewhere on storage.
+\end{pitfall}
+
+\section{Directory operations}
+Important logical operations include search, create, delete, list, rename, link/unlink, and traverse. A well-designed file system must implement these while preserving consistency if power fails or operations race.
+
+\input{chapters/concepts/09-directories-deep-dive}
+
+\input{labs/09-directory-visualization}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Directories provide a pathname namespace over file-system objects.
+  \item Tree structures make nested organization natural, while links can introduce graph-like sharing.
+  \item Pathnames describe logical location; storage blocks need not mirror the directory tree physically.
+\end{itemize}
+\end{chapterrecap}

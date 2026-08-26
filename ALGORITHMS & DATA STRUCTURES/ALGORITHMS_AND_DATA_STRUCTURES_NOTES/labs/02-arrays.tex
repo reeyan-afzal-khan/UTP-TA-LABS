@@ -1,0 +1,51 @@
+\labsection{2}{Arrays, multidimensional storage, and matrices}{sec:lab02}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab II}
+\textbf{Objective.} Understand the array as a basic prerequisite for more complex data structures.
+
+\textbf{Outcomes.} Explain how arrays are stored in memory and use arrays to solve programming problems.
+
+\textbf{Problem directions.} Real-world scenarios involving arrays; multidimensional arrays; matrix-related problems such as matrix multiplication.
+\end{sourcealignment}
+
+\begin{labproject}{Process and multiply matrices}
+\textbf{Coverage.} Chapter 2.
+
+\begin{lstlisting}
+#include <iostream>
+using namespace std;
+
+int main() {
+    const int R = 2, K = 3, C = 2;
+    int A[R][K] = {{1,2,3}, {4,5,6}};
+    int B[K][C] = {{7,8}, {9,10}, {11,12}};
+    int P[R][C] = {};
+
+    for (int i = 0; i < R; ++i)
+        for (int j = 0; j < C; ++j)
+            for (int t = 0; t < K; ++t)
+                P[i][j] += A[i][t] * B[t][j];
+}
+\end{lstlisting}
+
+\begin{tryit}
+Add two of the following: row sums, column sums, transpose, largest element, diagonal sum, or a check for whether a square matrix is symmetric.
+\end{tryit}
+
+\begin{workedexample}
+For matrix multiplication, the result size is $R\times C$. Each output cell $P[i][j]$ accumulates products across the shared dimension $K$.
+\end{workedexample}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Validate that the number of columns in $A$ equals the number of rows in $B$.
+  \item Print both inputs and the output matrix with clear row/column formatting.
+  \item Trace one output cell by hand and match it to the program result.
+  \item Explain what each nested loop controls.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit source code, output, and one hand-worked multiplication cell showing the same arithmetic performed by the innermost loop.
+\end{labdeliverable}

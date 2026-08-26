@@ -1,0 +1,363 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\IfFileExists{glyphtounicode.tex}{\input{glyphtounicode}\pdfgentounicode=1}{}
+\usepackage[american]{babel}
+\IfFileExists{sourcesanspro.sty}
+  {\usepackage[default]{sourcesanspro}}
+  {\usepackage[scaled]{helvet}\renewcommand{\familydefault}{\sfdefault}}
+\usepackage[margin=21mm,headheight=22pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage[table]{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds,matrix}
+
+% ---------- Visual system ----------
+\definecolor{ADSNavy}{HTML}{18324A}
+\definecolor{ADSBlue}{HTML}{246B9E}
+\definecolor{ADSTeal}{HTML}{138A80}
+\definecolor{ADSGreen}{HTML}{2D7D46}
+\definecolor{ADSOrange}{HTML}{C86B24}
+\definecolor{ADSRed}{HTML}{B34843}
+\definecolor{ADSInk}{HTML}{263238}
+\definecolor{ADSMuted}{HTML}{60717C}
+\definecolor{ADSPaleBlue}{HTML}{EEF6FB}
+\definecolor{ADSPaleTeal}{HTML}{EEF8F6}
+\definecolor{ADSPaleOrange}{HTML}{FFF5EA}
+\definecolor{ADSPaleRed}{HTML}{FFF0EF}
+\definecolor{ADSPaleGray}{HTML}{F4F6F7}
+
+\color{ADSInk}
+\hypersetup{
+  pdftitle={Algorithms and Data Structures Notes: Course Edition},
+  pdfauthor={Reeyan Afzal Khan},
+  pdfsubject={TEB1113/TFB2023 Algorithms and Data Structures notes},
+  pdfkeywords={algorithms, data structures, C++, arrays, linked lists, stacks, queues, trees, graphs, sorting, hashing},
+  pdflang={en-US},
+  bookmarksnumbered=true,
+  bookmarksopen=true
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.45em,itemsep=0.22em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=1.75em,itemsep=0.28em,topsep=0.3em}
+\setlist[description]{font=\bfseries\color{ADSNavy},itemsep=0.25em,topsep=0.3em}
+\renewcommand{\arraystretch}{1.34}
+\setlength{\tabcolsep}{6.5pt}
+\arrayrulecolor{ADSBlue!45}
+\renewcommand{\tabularxcolumn}[1]{p{#1}}
+\makeatletter
+\g@addto@macro\@arrayparboxrestore{\RaggedRight\arraybackslash}
+\makeatother
+\AtBeginEnvironment{tabular}{%
+  \small
+  \setlength{\extrarowheight}{0.6pt}%
+  \rowcolors{2}{ADSPaleBlue!72}{white}%
+}
+\AtBeginEnvironment{tabularx}{%
+  \small
+  \setlength{\extrarowheight}{0.6pt}%
+  \rowcolors{2}{ADSPaleBlue!72}{white}%
+}
+\emergencystretch=1.5em
+\hbadness=10000
+\hfuzz=8pt
+
+% ---------- Table of contents ----------
+\addto\captionsamerican{\renewcommand{\contentsname}{Learning Path}}
+\newlistentry{lab}{toc}{-1}
+\setlength{\cftbeforepartskip}{0.38em}
+\renewcommand{\cftpartfont}{\normalsize\bfseries\color{ADSNavy}}
+\renewcommand{\cftpartpagefont}{\normalsize\bfseries\color{ADSNavy}}
+\renewcommand{\cftpartleader}{\hfill}
+\renewcommand{\cftchappresnum}{Chapter~}
+\renewcommand{\cftchapaftersnum}{\quad}
+\setlength{\cftchapindent}{1.5em}
+\setlength{\cftchapnumwidth}{6em}
+\setlength{\cftbeforechapskip}{0pt}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\setlength{\cftlabindent}{3em}
+\setlength{\cftlabnumwidth}{0em}
+\setlength{\cftbeforelabskip}{0.10em}
+\renewcommand{\cftlabfont}{\bfseries\color{ADSOrange!90!black}}
+\renewcommand{\cftlabpagefont}{\bfseries\color{ADSOrange!90!black}}
+\renewcommand{\cftlableader}{\color{ADSOrange!65!ADSMuted}\cftdotfill{\cftlabdotsep}}
+
+% ---------- Headings ----------
+\titleformat{\chapter}[display]
+  {\bfseries\color{ADSNavy}}
+  {\filleft\colorbox{ADSBlue}{\parbox{2.55cm}{\centering\color{white}\Large CHAPTER\\[-0.15em]\Huge\thechapter}}}
+  {0.65em}{\Huge\raggedright}
+  [\vspace{0.25em}{\color{ADSBlue}\titlerule[1.2pt]}]
+\renewcommand{\thepart}{Stage~\arabic{part}}
+\titleformat{\part}[display]
+  {\centering\color{ADSNavy}\bfseries}
+  {\Large\color{ADSTeal}\thepart}{0.45em}{\Huge}
+  [\vspace{0.55em}\color{ADSTeal}\rule{0.45\linewidth}{1.5pt}]
+\titleformat{\section}{\Large\bfseries\color{ADSNavy}}{\thesection}{0.55em}{}
+\titleformat{\subsection}{\large\bfseries\color{ADSBlue}}{\thesubsection}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{-1.8em}{1.0em}
+\titlespacing*{\part}{0pt}{0pt}{1em}
+\titlespacing*{\section}{0pt}{1.2em}{0.35em}
+\titlespacing*{\subsection}{0pt}{0.95em}{0.2em}
+
+% ---------- Page furniture ----------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\color{ADSMuted}Algorithms and Data Structures Notes}
+\rhead{\small\color{ADSMuted}\nouppercase{\leftmark}}
+\cfoot{\small\color{ADSMuted}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{ADSPaleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \cfoot{\small\color{ADSMuted}\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% ---------- Code listings ----------
+\lstdefinestyle{adscpp}{
+  language=C++,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\bfseries\color{ADSBlue},
+  commentstyle=\itshape\color{ADSMuted},
+  stringstyle=\color{ADSGreen!70!black},
+  backgroundcolor=\color{ADSPaleGray!72},
+  frame=single,
+  rulecolor=\color{ADSBlue!28},
+  framesep=5pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  upquote=true,
+  tabsize=4,
+  aboveskip=0.7em,
+  belowskip=0.8em
+}
+\lstset{style=adscpp}
+
+% ---------- Boxes ----------
+\newtcolorbox{mlfigure}{
+  enhanced,breakable,colback=white,colframe=ADSBlue!35,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm
+}
+\newtcolorbox{mltable}{
+  enhanced,breakable,colback=white,colframe=ADSBlue!28,
+  boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm
+}
+\newtcolorbox{keyidea}{
+  enhanced,breakable,colback=ADSPaleTeal,colframe=ADSTeal,
+  boxrule=0.85pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSTeal,title=Key idea
+}
+\newtcolorbox{workedexample}{
+  enhanced,breakable,colback=ADSPaleBlue,colframe=ADSBlue,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSBlue,title=Worked example
+}
+\newtcolorbox{intuition}{
+  enhanced,breakable,colback=ADSPaleOrange,colframe=ADSOrange,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSOrange,title=Intuition
+}
+\newtcolorbox{firstread}{
+  enhanced,breakable,colback=white,colframe=ADSBlue,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{ADSBlue},title=Core path
+}
+\newtcolorbox{pitfall}{
+  enhanced,breakable,colback=ADSPaleRed,colframe=ADSRed,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{ADSNavy},title=Common mistake
+}
+\newtcolorbox{clarification}{
+  enhanced,breakable,colback=ADSPaleOrange!65,colframe=ADSOrange,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSOrange,title=Clarification beyond the slide wording
+}
+\newtcolorbox{chapterrecap}{
+  enhanced,breakable,colback=ADSPaleTeal,colframe=ADSGreen,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSGreen,title=Chapter recap
+}
+\newtcolorbox{quickcheck}{
+  enhanced,breakable,colback=white,colframe=ADSOrange,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSOrange,title=Check your understanding
+}
+\newtcolorbox{tryit}{
+  enhanced,breakable,colback=white,colframe=ADSTeal,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSTeal,title=Try it yourself
+}
+\newtcolorbox{labproject}[1]{
+  enhanced,breakable,colback=white,colframe=ADSNavy,
+  boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=2mm,bottom=2mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSNavy,title={#1}
+}
+\newtcolorbox{labdeliverable}{
+  enhanced,breakable,colback=white,colframe=ADSGreen,
+  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSGreen,title=Lab deliverable
+}
+\newtcolorbox{labmode}{
+  enhanced,breakable,colback=ADSPaleBlue!52,colframe=ADSBlue,
+  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSBlue,title=How to use this lab
+}
+\newtcolorbox{sourcealignment}[1]{
+  enhanced,breakable,colback=ADSPaleGray!72,colframe=ADSMuted!75,
+  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSMuted!88!ADSNavy,title={Source alignment --- #1}
+}
+\newtcolorbox{verification}{
+  enhanced,breakable,colback=ADSPaleTeal!65,colframe=ADSGreen,
+  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSGreen,title=Verification checklist
+}
+\newtcolorbox{projectrequirement}{
+  enhanced,breakable,colback=ADSPaleBlue,colframe=ADSNavy,
+  boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSNavy,title=Final-project requirement
+}
+\newtcolorbox{recommendedworkflow}{
+  enhanced,breakable,colback=ADSPaleOrange,colframe=ADSOrange,
+  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=ADSOrange,title=Recommended workflow (added guidance)
+}
+
+\newcommand{\labsection}[3]{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{lab}{Lab #1 of 11 --- #2}%
+  \markboth{Lab #1 of 11 --- #2}{}%
+  \begin{tcolorbox}[
+    enhanced,width=\linewidth,colback=ADSNavy,colframe=ADSNavy,
+    boxrule=0pt,arc=2mm,left=5mm,right=5mm,top=5mm,bottom=5mm,
+    before skip=0pt,after skip=1.2em]
+    {\large\bfseries\color{ADSTeal!35!white} PRACTICAL MILESTONE\par}
+    \vspace{0.25em}
+    {\Huge\bfseries\color{white} Lab #1 of 11\par}
+    \vspace{0.20em}
+    {\Large\bfseries\color{white} #2\par}
+  \end{tcolorbox}
+  \label{#3}%
+}
+
+\newcommand{\chapterguide}[2]{%
+  \begin{tcolorbox}[
+    enhanced,breakable,colback=white,colframe=ADSNavy,boxrule=0.8pt,arc=2mm,
+    left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,
+    title=Chapter at a glance,fonttitle=\bfseries\color{white},colbacktitle=ADSNavy]
+    \textbf{Before you start:} #1\par
+    \textbf{By the end, you can:} #2
+  \end{tcolorbox}
+}
+\newenvironment{mlsteps}
+  {\begin{enumerate}[label=\textcolor{ADSBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}
+  {\end{enumerate}}
+\newcommand{\term}[1]{\textbf{\color{ADSNavy}#1}}
+\newcommand{\chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+
+% ---------- Cover ----------
+\begin{titlepage}
+\centering
+\vspace*{1.1cm}
+{\color{ADSTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
+{\Huge\bfseries\color{ADSNavy} Algorithms and Data Structures Notes\par}
+\vspace{0.35cm}
+{\LARGE\color{ADSBlue} A Step-by-Step C++ Guide from Arrays to Hashing\par}
+\vspace{0.9cm}
+\begin{tikzpicture}[
+  node distance=0.65cm and 0.45cm,
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=1.35cm,align=center,font=\bfseries\small\color{ADSNavy}},
+  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=ADSTeal}
+]
+\node[box] (linear) {LINEAR\\arrays, lists, stacks};
+\node[box,right=of linear] (hier) {HIERARCHICAL\\trees};
+\node[box,right=of hier] (network) {NETWORK\\graphs};
+\node[box,right=of network] (access) {FAST ACCESS\\search, sort, hash};
+\draw[arr] (linear) -- (hier);
+\draw[arr] (hier) -- (network);
+\draw[arr] (network) -- (access);
+\end{tikzpicture}
+\vfill
+\begin{tcolorbox}[width=0.82\linewidth,colback=ADSPaleOrange,colframe=ADSOrange,arc=2mm,boxrule=0.16pt]
+\centering\small
+Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides, the official lab manual, and the final-project guidelines. Source terminology and required tasks are preserved; where standard computer-science conventions or teaching guidance add context, the addition is explicitly labelled.
+\end{tcolorbox}
+\vfill
+{\Large\bfseries Reeyan Afzal Khan\par}
+\vspace{0.35cm}
+{\color{ADSMuted} Department of Computing\par}
+{\color{ADSMuted} Universiti Teknologi PETRONAS\par}
+\vspace{0.8cm}
+{\color{ADSTeal}\rule{0.72\linewidth}{2pt}}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{Foundations}
+\input{chapters/01-introduction}
+\input{chapters/02-arrays}
+
+\part{Linear Dynamic Structures}
+\input{chapters/03-linked-lists}
+\input{chapters/04-circular-linked-list}
+\input{chapters/05-stacks}
+\input{chapters/06-queues}
+
+\part{Trees and Hierarchies}
+\input{chapters/07-trees-i}
+\input{chapters/08-trees-ii}
+
+\part{Graphs and Traversal}
+\input{chapters/09-graphs}
+
+\part{Core Algorithms and Fast Access}
+\input{chapters/10-searching-sorting}
+\input{chapters/11-hashing}
+
+\part{Course Project and Synthesis}
+\input{chapters/12-final-project}
+
+\end{document}

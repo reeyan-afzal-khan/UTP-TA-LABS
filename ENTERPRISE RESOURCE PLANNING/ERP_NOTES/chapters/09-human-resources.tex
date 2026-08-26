@@ -1,0 +1,172 @@
+\chapter{Human Resources Processes and Recruitment}
+\label{ch:hr}
+
+\chapterguide
+  {You should understand master data, process ownership, and why cross-functional information must be current.}
+  {describe an end-to-end recruitment process, identify information problems that harm candidate experience, explain how ERP-supported HR records improve coordination, and distinguish an employee record from an operational system user.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 8 and Chapter 6 of the textbook. The tutorial uses the ABC Company recruitment scenario and asks students to identify information-system problems and draw both a flowchart and a swimlane diagram. The Odoo guide adds department, employee, manager, and user-role setup for West End Bicycles.
+\end{sourcebasis}
+
+\section{Human Resources is a business process partner}
+
+HR is often introduced through administrative tasks, but its information flows support every functional area. Departments need people with the right skills; HR needs accurate vacancy, job, salary, and reporting information from those departments.
+
+Typical HR processes include recruiting, hiring, onboarding, training, compensation administration, benefits, performance management, compliance, and workforce planning.
+
+\section{Recruitment as an end-to-end process}
+
+The ABC Company scenario in Tutorial 8 can be expressed as a sequence of business events:
+
+\begin{enumerate}
+  \item a department identifies a staffing need;
+  \item the manager submits a hiring request and position requirements;
+  \item HR performs job analysis and prepares the posting;
+  \item the vacancy is advertised;
+  \item applications are received and screened;
+  \item shortlisted candidates are interviewed;
+  \item top candidates complete a skills assessment;
+  \item references and background checks are completed;
+  \item stakeholders review the evidence and select a candidate;
+  \item HR issues the offer with salary, benefits, and start date.
+\end{enumerate}
+
+The textbook's Fitter Snacker example shows how a paper-based version of this process can fail: forms may be inconsistent or lost, applications can be misfiled, reviews happen sequentially because paper copies must circulate, interview scheduling is slow, and promising candidates can accept another offer while the company is still coordinating internally.
+
+\section{Candidate experience is an information-flow problem}
+
+Tutorial 8 asks which problems could create a negative candidate impression. Useful categories include:
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.24\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Problem & What the candidate experiences & Information-system response \\
+\midrule
+Slow scheduling & Long silence between stages & Shared calendars, workflow tasks, status tracking, reminders \\
+Lost or duplicated documents & Candidate asked to resend information & Central applicant record and document control \\
+Inconsistent requirements & Different interviewers describe the job differently & Controlled job description and competency profile \\
+Missing feedback & Repeated delays while decision-makers chase comments & Structured evaluation forms and completion status \\
+Poor communication & Candidate does not know whether the application is active & Standardised stage/status communication \\
+Incorrect offer details & Salary, role, or start date conflicts & Approved master data and controlled offer workflow \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\begin{keyidea}
+A candidate experiences the organisation as one process. They do not care that scheduling belongs to HR, technical evaluation belongs to the hiring manager, and approval belongs to senior management. ERP/process integration should hide that internal fragmentation from the candidate.
+\end{keyidea}
+
+\section{Job information should be treated as controlled data}
+
+A job vacancy should not be a hurried free-text note. The organisation benefits from maintaining structured information such as:
+
+\begin{itemize}
+  \item job title and department;
+  \item reporting line;
+  \item responsibilities;
+  \item required and preferred skills;
+  \item qualifications and experience;
+  \item employment type;
+  \item location;
+  \item compensation range or grade where appropriate;
+  \item required approvals;
+  \item planned start date.
+\end{itemize}
+
+This makes candidate screening more consistent and later supports onboarding, training, performance evaluation, and workforce planning.
+
+\section{The ``dream job'' activity as a data-design exercise}
+
+Tutorial 8 asks students to choose a desired role and identify the information needed to judge candidates. The point is not merely to list attractive skills. A good answer distinguishes:
+
+\begin{description}
+  \item[Evidence] Degree, certifications, portfolio, previous roles, project outcomes, technical tests, references.
+  \item[Competencies] Technical knowledge, communication, problem solving, teamwork, leadership, domain knowledge.
+  \item[Constraints] Work authorisation, location, availability, salary expectations, required schedule.
+  \item[Selection criteria] Which attributes are essential, which are preferred, and how each is evaluated.
+\end{description}
+
+That structure turns recruitment into a repeatable business process rather than an informal impression.
+
+\section{Employee master data and organisational structure}
+
+Once someone is hired, HR records become master data reused throughout the organisation: employee identity, department, manager, role, work contact information, and possibly compensation or training information subject to authorisation.
+
+\begin{odoobox}
+The West End Bicycles Odoo guide creates four departments:
+\begin{itemize}
+  \item Sales and Marketing;
+  \item Accounting and Finance;
+  \item Supply Chain;
+  \item Human Resources.
+\end{itemize}
+It then creates employees such as Sales Manager, Purchasing Officer, Production Planner, Accountant, and HR Officer, assigns managers, and builds a simple organisation chart.
+\end{odoobox}
+
+\section{Employee record versus system user}
+
+The Odoo guide makes an important systems distinction: an \term{Employee} record and a \term{User} login are different objects.
+
+An employee record describes a person in the organisation. A user account gives the person authenticated access and permissions in Odoo. Operational document fields such as Salesperson, Buyer, and Responsible may reference users because the system needs to know who can own or act on a transaction.
+
+The guide therefore creates user accounts for selected operational roles and links them back to the corresponding employee records.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.24\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Role & Operational ownership & Example in the Odoo guide \\
+\midrule
+Sales Manager & Salesperson / team leadership & CRM opportunity, quotation, Sales Order \\
+Purchasing Officer & Buyer & RFQ and Purchase Order \\
+Production Planner & Responsible & Manufacturing Order \\
+Accountant & Finance activity & Customer payment and invoice follow-up \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section{HR data and access control}
+
+HR information can be sensitive. ERP integration must therefore combine availability with authorisation. A production manager may need an employee's skills or availability without needing access to private compensation or personal information.
+
+This is a good example of why ``one shared database'' does not mean ``one unrestricted database.''
+
+\begin{pitfall}
+Do not solve HR integration by giving everyone broad access. A well-designed ERP system shares the right data with the right role while preserving confidentiality and accountability.
+\end{pitfall}
+
+\section{From recruitment to the rest of ERP}
+
+After hiring, HR information supports other processes:
+
+\begin{itemize}
+  \item training records determine whether staff are qualified for specialised work;
+  \item department and manager relationships support approvals and responsibility;
+  \item workforce forecasts support production and sales plans;
+  \item payroll and benefit expenses feed financial reporting;
+  \item access rights connect employee responsibilities to system permissions.
+\end{itemize}
+
+\begin{tryit}
+Choose one role from the Tutorial 8 ``dream job'' activity. Create a compact selection matrix with five criteria, the evidence used to judge each criterion, and an importance rating. Then identify which fields belong in long-term employee master data and which belong only in the recruitment transaction.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Name three ways a paper-based recruitment process can lose a strong candidate.
+  \item Why are an Odoo Employee and an Odoo User conceptually different?
+  \item Give one example of HR information needed by another functional area and one example of information HR needs from that area.
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Recruitment is a cross-functional process involving the hiring department, HR, candidates, assessors, and approvers.
+  \item Slow or inconsistent information flow directly affects candidate experience and hiring quality.
+  \item Structured job and candidate data makes recruitment more repeatable and auditable.
+  \item Employee master data supports organisation structure, training, finance, and access management.
+  \item In Odoo, HR employee records and login users serve different purposes and must be linked when operational ownership is required.
+\end{itemize}
+\end{chapterrecap}

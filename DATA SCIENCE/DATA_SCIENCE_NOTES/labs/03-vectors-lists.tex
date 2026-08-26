@@ -1,0 +1,87 @@
+\labsection{3}{Exam records with vectors and lists}{sec:lab03}
+
+\begin{labproject}{Lab 3b guided practice}
+\textbf{Coverage.} Chapter~\ref{chap:vectors-lists}.\\
+\textbf{Goal.} Use vectors for grade counting and logical pass/fail checks, then use named lists for student records and subject scores.
+
+\textbf{Task 1 --- Grade distribution and pass/fail values.}
+
+\begin{lstlisting}[style=dsr]
+scores <- c(
+  33, 24, 54, 94, 16, 89, 60, 6, 77, 61,
+  13, 44, 26, 24, 73, 73, 90, 39, 90, 54
+)
+
+grade_A <- sum(scores >= 90 & scores <= 100)
+grade_B <- sum(scores >= 80 & scores <= 89)
+grade_C <- sum(scores >= 70 & scores <= 79)
+grade_D <- sum(scores >= 60 & scores <= 69)
+grade_E <- sum(scores >= 50 & scores <= 59)
+grade_F <- sum(scores <= 49)
+
+print(c(A = grade_A, B = grade_B, C = grade_C,
+        D = grade_D, E = grade_E, F = grade_F))
+
+pass <- scores > 49
+print(pass)
+\end{lstlisting}
+
+For the supplied 20 scores, the grade counts are A=3, B=1, C=3, D=2, E=2, and F=9.
+
+\textbf{Task 2 --- Named list of students and exam scores.}
+
+\begin{lstlisting}[style=dsr]
+students <- c(
+  "Robert", "Hemsworth", "Scarlett", "Evans", "Pratt",
+  "Larson", "Holland", "Paul", "Simu", "Renner"
+)
+
+exam <- c(59, 71, 83, 68, 65, 57, 62, 92, 92, 59)
+
+records <- list(student_name = students, exam_score = exam)
+
+highest <- max(records$exam_score)
+lowest <- min(records$exam_score)
+average <- mean(records$exam_score)
+
+print(paste("Highest Score:", highest))
+print(paste("Lowest Score:", lowest))
+print(paste("Average Score:", average))
+print(paste("Student with highest score:",
+            paste(records$student_name[records$exam_score == highest],
+                  collapse = ", ")))
+print(paste("Student with lowest score:",
+            paste(records$student_name[records$exam_score == lowest],
+                  collapse = ", ")))
+\end{lstlisting}
+
+The supplied data contain a tie for the highest exam score: Paul and Simu both have 92. The lowest score is Larson's 57. The average is 70.8.
+
+\textbf{Task 3 --- Append Chemistry and Physics scores.}
+
+\begin{lstlisting}[style=dsr]
+records$chemistry <- c(59, 71, 83, 68, 65, 57, 62, 92, 92, 59)
+records$physics   <- c(89, 86, 65, 52, 60, 67, 40, 77, 90, 61)
+
+chem_fail <- sum(records$chemistry <= 49)
+phys_fail <- sum(records$physics <= 49)
+
+chem_best <- max(records$chemistry)
+phys_best <- max(records$physics)
+
+print(paste("Chemistry failures:", chem_fail))
+print(paste("Physics failures:", phys_fail))
+print(records$student_name[records$chemistry == chem_best])
+print(records$student_name[records$physics == phys_best])
+\end{lstlisting}
+
+For the supplied values, no student fails Chemistry and one student (Holland) fails Physics. The best Chemistry score is shared by Paul and Simu; the best Physics score is Simu's 90.
+
+\begin{referencebox}
+The phrase ``who got the highest/best score for both subjects'' in Lab 3b can be read in more than one way. The code above reports the highest scorer for each subject separately because that conclusion is directly supported by the two score vectors. If your GA intends a combined-score ranking instead, define that rule explicitly before computing it.
+\end{referencebox}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the grade counts and 20 pass/fail values, the named student record with summary statistics, and the Chemistry/Physics failure and highest-score analysis.
+\end{labdeliverable}

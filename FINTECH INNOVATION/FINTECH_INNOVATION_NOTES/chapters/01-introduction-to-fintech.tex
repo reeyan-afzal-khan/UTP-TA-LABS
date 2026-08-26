@@ -1,0 +1,355 @@
+\chapter{Introduction to FinTech}
+\label{ch:intro-fintech}
+
+\chapterguide%
+  {No specialist background is required; begin with the basic functions of a retail bank.}
+  {define FinTech, explain why it emerged, distinguish disintermediation from unbundling, identify its main drivers and advantages, and analyze the pressures faced by both incumbents and FinTech firms.}
+
+FinTech is not simply ``finance on a phone.'' The course presents it as a broader re-design of financial services in which modern technology changes the \emph{business model}, the \emph{customer interface}, the \emph{speed of decisions}, the \emph{data used}, and sometimes the very need for a traditional financial intermediary.
+
+\begin{keyidea}
+A useful working definition from the lecture material is: \term{FinTech is technology-enabled innovation in financial services that can create new business models, applications, processes, or products and materially change how financial services are provided.}
+\end{keyidea}
+
+\section{Start with what a traditional bank does}
+
+At the simplest level, the lecture frames retail banking around three core functions:
+
+\begin{enumerate}
+  \item \term{Store value.} Customers place money in a regulated institution that provides a secure place for deposits.
+  \item \term{Move value.} Banks support payments through cash, cards, transfers, and related payment infrastructure.
+  \item \term{Lend value.} Banks collect funds from savers and lend them to households and businesses.
+\end{enumerate}
+
+The traditional model therefore places the bank between two groups. Savers receive interest; borrowers obtain capital; the bank earns a spread and fees for performing intermediation, risk management, compliance, liquidity management, and payment services.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.1cm,
+  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.2cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{MLNavy}},
+  bank/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,minimum width=3.5cm,minimum height=1.55cm,align=center,font=\small\bfseries},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+]
+\node[p] (s) {Savers\\deposits};
+\node[bank,right=of s] (b) {Traditional bank\\intermediary};
+\node[p,right=of b] (r) {Borrowers\\loans};
+\draw[arr] (s) -- node[above,font=\scriptsize]{funds} (b);
+\draw[arr] (b) -- node[above,font=\scriptsize]{credit} (r);
+\draw[arr] (r) to[bend left=24] node[below,font=\scriptsize]{interest + repayment} (b);
+\draw[arr] (b) to[bend left=24] node[below,font=\scriptsize]{interest} (s);
+\end{tikzpicture}
+\end{mlfigure}
+
+This integrated model historically enjoyed strong barriers to entry. Large incumbents possessed established brands, branch and payment networks, compliance capability, capital, customer relationships, and institutional knowledge. The lecture's central argument is that digital technology weakens some of these barriers and makes it possible to compete with only one slice of the old bank value chain.
+
+\section{What FinTech changes}
+
+The lecture materials describe FinTech companies as firms that combine financial services with modern technology to change the way people pay, transfer money, borrow, lend, invest, insure, and manage wealth. The emphasis is repeatedly placed on five qualities:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Quality & What it means in the course \\ 
+\midrule
+User-friendly & The product is built around the customer's task rather than the bank's internal process. \\
+Efficient & Digital workflows reduce manual steps, paperwork, and avoidable operating cost. \\
+Transparent & Pricing, status, and product information are made easier for customers to see and understand. \\
+Automated & Software performs tasks that previously required repeated human processing. \\
+Accessible & Internet and mobile distribution can reach users outside the physical branch network. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The lecture uses definitions associated with the IMF/World Bank and the People's Bank of China to reinforce that FinTech is not one product category. It can appear in deposits, lending and capital raising, insurance, investment management, payments, clearing, and settlement.
+
+\begin{intuition}
+A bank is an organization that happens to use technology. A FinTech proposition starts by asking whether technology can redesign a particular financial job from the customer's point of view. That distinction explains why a small firm can challenge one profitable process without first reproducing an entire bank.
+\end{intuition}
+
+\section{Why did FinTech emerge?}
+
+The slides connect the modern FinTech wave to both a \term{trust shock} and a \term{technology shift}.
+
+\subsection{The post-2008 trust problem}
+
+The global financial crisis is presented as a major catalyst. Confidence in established institutions weakened, particularly among younger consumers. A new provider that had no role in the crisis could position itself around lower cost, clearer pricing, better interfaces, and greater transparency.
+
+The lecture also argues that customers became less willing to organize their lives around banking hours and bank procedures. In a digital economy, users increasingly expect services to be available when needed, with status information visible immediately.
+
+\subsection{Digital natives and changing expectations}
+
+Millennials and later digital-native users grew up learning, buying, communicating, and sharing online. As a result, they compare a bank not only with another bank but with the best digital experiences they use elsewhere. Amazon, Google, Apple, and other technology leaders become the benchmark for speed, personalization, and usability.
+
+\begin{workedexample}
+Suppose a customer can open an e-commerce account in minutes, receive real-time delivery updates, and get personalized recommendations. If a banking product takes days, demands repeated branch visits, and provides little status visibility, the customer experiences the bank's process as friction even if the underlying financial product is sound. FinTech competition often targets exactly this gap.
+\end{workedexample}
+
+The lecture cites a TransferWise survey in which respondents identified perceived security, lower cost, convenience, speed, and customer service as reasons for preferring technology providers. Treat those percentages as a lecture-era snapshot; the conceptual lesson is that \emph{non-price experience factors can be as strategically important as price}.
+
+\section{Disintermediation: cutting out part of the middle layer}
+
+\term{Disintermediation} means reducing or removing a traditional intermediary from a transaction. In finance, a digital marketplace can connect users directly while the platform performs matching, information, identity, or risk-assessment functions.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.75cm and 0.8cm,
+  person/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
+  old/.style={draw=MLMuted,fill=MLPaleGray,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
+  new/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.1mm]},thick,draw=MLTeal}
+]
+\node[person] (a) at (-5,1.0) {Saver / investor};
+\node[old] (b) at (0,1.0) {Bank balance sheet};
+\node[person] (c) at (5,1.0) {Borrower};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c);
+\node[person] (d) at (-5,-1.3) {Saver / investor};
+\node[new] (e) at (0,-1.3) {Digital marketplace};
+\node[person] (f) at (5,-1.3) {Borrower};
+\draw[arr] (d)--(e); \draw[arr] (e)--(f);
+\node[font=\scriptsize\color{MLMuted},align=center] at (0,-2.2) {The platform may match, score and service the transaction\\without funding it like a traditional bank.};
+\end{tikzpicture}
+\end{mlfigure}
+
+The slides emphasize why this can be disruptive:
+
+\begin{itemize}
+  \item removing layers may lower borrowing costs and raise returns to fund providers;
+  \item the investor rather than the platform may carry more direct credit risk;
+  \item the platform may not need to maintain the same liquidity structure as a deposit-taking bank;
+  \item revenue can be volume-based rather than primarily based on taking balance-sheet risk.
+\end{itemize}
+
+\begin{pitfall}
+Disintermediation does \emph{not} mean ``no intermediary of any kind.'' A P2P or crowdfunding platform is itself an intermediary in matching, information, contracting, servicing, and often risk assessment. The difference is that it does not necessarily perform all of the functions of a conventional bank.
+\end{pitfall}
+
+\section{Unbundling: attacking one part of the value chain}
+
+\term{Unbundling} is the course's other central disruption concept. A traditional bank offers many products under one institution. A FinTech firm can focus intensely on a narrow service and attempt to become the ``best of breed'' in that niche.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  service/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  attack/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLOrange}
+]
+\node[service] (p) at (-5,0) {Payments};
+\node[service] (l) at (-2.5,0) {Lending};
+\node[service] (w) at (0,0) {Wealth};
+\node[service] (i) at (2.5,0) {Insurance};
+\node[service] (s) at (5,0) {Settlement};
+\node[attack] (x) at (-2.5,-1.6) {Single-purpose\\FinTech};
+\draw[arr] (x) -- (l);
+\node[font=\scriptsize\color{MLMuted},align=center] at (0,-2.55) {A focused entrant does not need to rebuild the whole bank;\\it needs to make one high-friction, valuable activity significantly better.};
+\end{tikzpicture}
+\end{mlfigure}
+
+The supplied lecture lists examples across the financial system:
+
+\begin{itemize}
+  \item \term{Payments and settlement:} electronic payments, digital currencies, and distributed ledgers can change the payment process and cost structure.
+  \item \term{Funding:} direct lending and crowdfunding connect savers and borrowers through digital channels using structured and unstructured data.
+  \item \term{Asset management:} robo-advisory and AI-based tools can automate portfolio advice and monitoring.
+  \item \term{Investment banking:} algorithmic trading and B2B platforms can create more direct links between buyers and sellers.
+  \item \term{Insurance:} connected devices, data, and new usage patterns can change underwriting, distribution, and claims.
+\end{itemize}
+
+\begin{keyidea}
+Disintermediation changes \emph{who sits in the middle}. Unbundling changes \emph{how many services must be bought from the same provider}. The two often occur together, but they answer different questions.
+\end{keyidea}
+
+\section{Where disruption is most likely}
+
+The lecture gives a compact strategic rule: incumbents are most vulnerable where \term{customer friction} meets a \term{large profit pool}. A digital entrant can therefore begin vertically, fix one painful process, gain the customer relationship, and later expand horizontally.
+
+Typical sources of friction discussed in the slides include:
+
+\begin{itemize}
+  \item long decision times in lending;
+  \item opaque prices and fees;
+  \item repeated paperwork and manual approval;
+  \item products designed around internal silos rather than customer journeys;
+  \item weak mobile experiences;
+  \item limited access for thin-file, unbanked, or underbanked customers.
+\end{itemize}
+
+Digital players can combine platform models, data-intensive decision-making, and relatively asset-light operations. This is why the lecture repeatedly compares FinTech businesses with marketplaces: the strategic asset is often the software, data, network, and customer relationship rather than a large physical footprint.
+
+\section{The main drivers of FinTech}
+
+The Week 1 deck groups the drivers into customer, technology, economic, and access forces. The following table consolidates them.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.23\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Driver & Course explanation \\
+\midrule
+Customer expectations & Users expect 24/7 access, intuitive design, personalization, transparency, and fast service. \\
+Mobile culture & Smartphones reduce dependence on branches and make financial services continuously reachable. \\
+AI, cloud, and big data & Scalable computing and analytics lower the cost of building data-driven services and automate decisions. \\
+New digital value systems & Digital currencies and new credit/payment mechanisms create alternatives to older infrastructure. \\
+Trust and transparency & Post-crisis skepticism creates room for providers that communicate more clearly and appear customer-centric. \\
+Financial stress and liquidity needs & Consumers value tools that help them manage payments, liquidity, savings, and investments under economic pressure. \\
+Unbanked and underbanked demand & Large populations remain poorly served by conventional models and represent both a social need and a market opportunity. \\
+Lower barriers to entry & Internet and mobile distribution allow new firms to reach users without first building a branch network. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The course also highlights \term{data} as a distinctive advantage. Digital firms can gather, process, and interpret formal and social information to learn about customers and businesses. The strategic value is not simply collecting more data; it is turning data into faster and more relevant decisions.
+
+\section{Why customers may prefer FinTech propositions}
+
+Across the introductory deck, the value proposition repeatedly reduces to four ideas:
+
+\begin{enumerate}
+  \item \term{Better customer experience.} Design the process around the customer's task.
+  \item \term{Lower cost or better pricing.} A lighter operating model can reduce fees or improve rates.
+  \item \term{Faster decisions.} Automation and data reduce waiting and manual approval layers.
+  \item \term{Access to underserved segments.} Alternative distribution and data can serve users rejected or ignored by traditional models.
+\end{enumerate}
+
+\begin{analogy}
+Think of a traditional bank as a department store that tries to sell every financial product. An unbundled FinTech is a specialist shop that chooses one category and tries to make the selection, price, and checkout experience dramatically better. The specialist does not need to be better at everything to take meaningful business away from the department store.
+\end{analogy}
+
+\section{Opportunities created by FinTech}
+
+The lecture describes several system-level opportunities:
+
+\begin{itemize}
+  \item reduce transaction costs and operational friction;
+  \item increase efficiency and competitive pressure;
+  \item narrow information asymmetry through better data and analytics;
+  \item broaden access to financial services, especially for underserved users;
+  \item improve international payments and remittances;
+  \item support regulatory compliance and supervisory processes with technology;
+  \item enable more inclusive economic growth.
+\end{itemize}
+
+These opportunities create the bridge to Chapter~\ref{ch:financial-inclusion}, where the course asks who is excluded by the traditional system and how digital finance can change the economics of serving them.
+
+\section{Threats to incumbent financial institutions}
+
+The Week 1 slides identify the main competitive threats as erosion of brand equity, market share, margins, information-security confidence, and customer retention. They also group incumbent challenges into a memorable set of ``six Cs.'' The source slides explicitly name culture, customers, competition, computers, compliance, and costs.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.18\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+The C & Pressure on the incumbent \\
+\midrule
+Culture & Become customer-centric, lean, automated, and agile while balancing institutional constraints. \\
+Customers & Deal with empowered, demanding, sometimes confused, and occasionally malicious users. \\
+Competition & Compete with aggressive, global, digitally native entrants rather than only peer banks. \\
+Computers & Adopt new technology while maintaining always-connected, multi-device services. \\
+Compliance & Handle fraud, cybersecurity, regulation, governance, risk, and compliance requirements. \\
+Costs & Improve returns and efficiency while reducing expensive infrastructure and process overhead. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Challenges faced by FinTech firms themselves}
+
+FinTechs are challengers, but the lecture is clear that they face serious constraints too.
+
+\subsection{Regulatory uncertainty and compliance}
+
+Financial services are highly regulated and requirements vary between jurisdictions. The slides stress that regulators may support innovation while still expecting firms to take compliance seriously. A young company must understand licensing, consumer protection, anti-financial-crime obligations, and which authority governs which activity.
+
+\subsection{Talent}
+
+FinTech firms compete for people who can combine software engineering, data, financial knowledge, security, design, and regulatory understanding. A strong idea does not become a scalable product without the right technical and domain talent.
+
+\subsection{Scaling the customer base}
+
+A B2C FinTech may need a very large user base before unit economics become sustainable. The Week 1 lecture uses Revolut and robo-advisory customer-acquisition costs as examples of the tension between rapid growth and profitability.
+
+\subsection{Raising capital}
+
+Financial services products can be expensive to build and launch, particularly when licensing, compliance, and security requirements are substantial. A company can therefore have a compelling customer proposition but still fail if it cannot finance the path to scale.
+
+\subsection{Cybersecurity}
+
+A digitally native financial provider is an attractive target. The slides emphasize that attackers are increasingly organized and capable, so security is not an optional technical feature; it is part of the firm's financial and reputational viability.
+
+\begin{pitfall}
+Do not assume that ``digital'' automatically means ``cheap, safe, and scalable.'' A FinTech can avoid branches and legacy systems yet still face high customer-acquisition costs, compliance costs, fraud losses, cyber risk, and the need for substantial investment capital.
+\end{pitfall}
+
+\section{The global and Southeast Asian context}
+
+The course uses dated investment and company examples to show that FinTech is a global phenomenon with a particularly strong Asian presence. One lecture snapshot notes that the United States and China dominated many of the largest 2018 FinTech VC deals, while a later H1 2022 snapshot reports substantial investment across Asia-Pacific, the Americas, and EMEA.
+
+Singapore is presented as an ASEAN FinTech hub because of its regulatory environment, policy support, ease of doing business, technology ecosystem, and concentration of FinTech firms. The slides then use Southeast Asian technology companies to illustrate how FinTech can become embedded inside larger digital ecosystems.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.19\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Lecture example & Why it matters to the course argument \\
+\midrule
+Grab & Shows the convergence of transport, delivery, digital financial services, and digital banking ambitions. \\
+GoTo & Demonstrates a super-app ecosystem combining on-demand services, commerce, and financial products. \\
+Sea & Illustrates the movement from e-commerce and digital services into licensed digital banking. \\
+OVO & Shows an e-wallet expanding into P2P lending, investment, and insurance through partnerships and acquisitions. \\
+Bitkub & Connects the FinTech ecosystem to the cryptocurrency exchange sector. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The valuations, ownership percentages, user counts, and listing details in these examples are best read as historical lecture snapshots. Their educational purpose is to show \emph{ecosystem expansion}: a technology firm can use an existing user base and digital engagement to add financial services.
+
+\section{A single mental model for Week 1}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  box2/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  box3/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[box] (f) at (-4.8,0) {FRICTION\\cost, delay, poor CX, exclusion};
+\node[box2] (t) at (-1.6,0) {TECHNOLOGY\\mobile, data, AI, cloud};
+\node[box2] (m) at (1.6,0) {NEW MODEL\\unbundle, platform, automate};
+\node[box3] (o) at (4.8,0) {OUTCOME\\competition, access, new risks};
+\draw[arr] (f)--(t); \draw[arr] (t)--(m); \draw[arr] (m)--(o);
+\end{tikzpicture}
+\end{mlfigure}
+
+When you encounter a new FinTech case, ask four questions:
+
+\begin{enumerate}
+  \item What customer or institutional friction is being targeted?
+  \item What technology makes a different process possible?
+  \item Which part of the financial value chain is being unbundled or re-intermediated?
+  \item What new risk, regulation, or sustainability problem appears as a result?
+\end{enumerate}
+
+\begin{tryit}
+Choose one financial app you use or know. Identify: (1) the traditional bank function it replaces or improves, (2) whether it is disintermediating or unbundling, (3) the main source of customer friction it solves, and (4) the new risk created by moving the task online.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What are the three basic functions of a retail bank used as the starting point in this course?
+  \item How is disintermediation different from unbundling?
+  \item Why can customer experience be a strategic source of disruption rather than merely a design issue?
+  \item Name four major drivers of FinTech innovation from the lecture.
+  \item Why can a successful FinTech still struggle to become profitable?
+  \item What is the ``friction + profit pool'' rule for predicting where disruption is likely?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item FinTech is technology-enabled innovation that changes financial products, processes, applications, and business models.
+  \item The modern FinTech wave is linked to post-crisis trust problems, digital-native expectations, mobile access, AI/cloud/big data, and unmet customer needs.
+  \item Disintermediation removes or reduces a traditional intermediary; unbundling separates a one-stop financial institution into specialist services.
+  \item Digital challengers often compete on customer experience, price, speed, transparency, and access to underserved users.
+  \item Incumbents face cultural, technological, competitive, compliance, and cost pressures; FinTechs face regulation, talent, scaling, funding, and cyber risk.
+  \item The course repeatedly asks how technology changes both the economics of financial intermediation and control of the customer relationship.
+\end{itemize}
+\end{chapterrecap}

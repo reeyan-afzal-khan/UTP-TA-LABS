@@ -1,0 +1,242 @@
+\chapter{Correlation Analyses and Normalization in R}
+\label{chap:correlation-normalization}
+
+\chapterguide
+  {You should be comfortable loading datasets, selecting columns, installing packages, and creating visualizations.}
+  {compute Pearson correlation using \texttt{cor()} and \texttt{cor.test()}; visualize correlation matrices using the packages shown in the handout; construct correlation heatmaps; and compare log transformation, standard scaling, and min--max scaling using the supplied examples.}
+
+\section{Pearson correlation with \texttt{cor()}}
+
+The handout begins with two vectors:
+
+\begin{lstlisting}[style=dsr]
+x <- c(1, 2, 3, 4, 5, 6, 7)
+y <- c(1, 3, 6, 2, 7, 4, 5)
+
+result <- cor(x, y, method = "pearson")
+cat("Pearson correlation coefficient is:", result)
+\end{lstlisting}
+
+The purpose is to obtain a single Pearson correlation coefficient describing the linear association between the paired values.
+
+\section{Pearson correlation with \texttt{cor.test()}}
+
+The next example uses the same vectors but requests a full test object:
+
+\begin{lstlisting}[style=dsr]
+result <- cor.test(x, y, method = "pearson")
+print(result)
+\end{lstlisting}
+
+The handout therefore distinguishes a direct coefficient calculation from a more detailed statistical-test output.
+
+\section{Correlation matrix with \texttt{corrplot}}
+
+Using \texttt{mtcars}, the source computes a correlation matrix and visualizes it:
+
+\begin{lstlisting}[style=dsr]
+install.packages("corrplot")
+install.packages("RColorBrewer")
+
+library(corrplot)
+library(RColorBrewer)
+
+M <- cor(mtcars)
+?corrplot
+
+corrplot(M, type = "upper")
+corrplot(M, type = "upper", order = "hclust")
+corrplot(
+  M,
+  type = "upper",
+  order = "hclust",
+  col = brewer.pal(n = 8, name = "RdYlBu")
+)
+\end{lstlisting}
+
+The progression adds hierarchical ordering and then a color palette.
+
+\section{Building a heatmap-ready correlation table}
+
+Lab 9a next uses the built-in \texttt{environmental} data from the \texttt{lattice} package:
+
+\begin{lstlisting}[style=dsr]
+install.packages("lattice")
+library(lattice)
+
+data <- environmental
+head(data)
+
+corr_mat <- round(cor(data), 2)
+head(corr_mat)
+\end{lstlisting}
+
+The matrix is reordered using a distance derived from correlation values and hierarchical clustering:
+
+\begin{lstlisting}[style=dsr]
+dist <- as.dist((1 - corr_mat) / 2)
+hc <- hclust(dist)
+corr_mat <- corr_mat[hc$order, hc$order]
+\end{lstlisting}
+
+Then \texttt{reshape2::melt()} converts the matrix into a longer form:
+
+\begin{lstlisting}[style=dsr]
+install.packages("reshape2")
+library(reshape2)
+
+melted_corr_mat <- melt(corr_mat)
+head(melted_corr_mat)
+\end{lstlisting}
+
+This transformed table is the input for the following \texttt{ggplot2} heatmap.
+
+\section{Correlation heatmaps}
+
+\subsection{Using \texttt{ggplot2}}
+
+\begin{lstlisting}[style=dsr]
+install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(
+  data = melted_corr_mat,
+  aes(x = Var1, y = Var2, fill = value)
+) +
+  geom_tile() +
+  geom_text(
+    aes(Var2, Var1, label = value),
+    color = "white",
+    size = 4
+  )
+\end{lstlisting}
+
+The heatmap encodes each correlation value as a tile and overlays the numeric value as text.
+
+\subsection{Using \texttt{heatmaply}}
+
+\begin{lstlisting}[style=dsr]
+install.packages("heatmaply")
+library(heatmaply)
+
+heatmaply_cor(
+  x = cor(data),
+  xlab = "Features",
+  ylab = "Features",
+  k_col = 2,
+  k_row = 2
+)
+\end{lstlisting}
+
+\subsection{Using \texttt{ggcorrplot}}
+
+The handout's package-installation line and library name do not match exactly:
+
+\begin{lstlisting}[style=dsr]
+# Printed package name in the handout:
+install.packages("ggcorplot")
+
+# Printed library/function name:
+library(ggcorrplot)
+ggcorrplot::ggcorrplot(cor(data))
+\end{lstlisting}
+
+\begin{pitfall}
+Lab 9a prints \texttt{install.packages("ggcorplot")} but immediately uses \texttt{library(ggcorrplot)} and \texttt{ggcorrplot::ggcorrplot()}. These notes preserve the mismatch as a source caution. Verify the package name in your R environment before installation rather than assuming the two spellings are equivalent.
+\end{pitfall}
+
+\section{Normalization by log transformation}
+
+The supplied numeric vector is:
+
+\begin{lstlisting}[style=dsr]
+mydata <- c(244, 753, 596, 645, 874, 141, 639, 465, 999, 654)
+
+scaled_data <- log(mydata)
+print(scaled_data)
+\end{lstlisting}
+
+The lab labels this as normalization with log transformation and asks students to inspect how the values change.
+
+\section{Standard scaling}
+
+The handout uses \texttt{scale()} and converts the result to a data frame:
+
+\begin{lstlisting}[style=dsr]
+scaled_data2 <- as.data.frame(scale(mydata))
+print(scaled_data2)
+\end{lstlisting}
+
+This gives a second transformed representation of exactly the same source values.
+
+\section{Min--max scaling}
+
+The third method uses \texttt{caret::preProcess()} with the \texttt{"range"} method:
+
+\begin{lstlisting}[style=dsr]
+install.packages("caret")
+library(caret)
+
+minmax <- preProcess(
+  as.data.frame(mydata),
+  method = c("range")
+)
+
+scaled_data3 <- predict(
+  minmax,
+  as.data.frame(mydata)
+)
+print(scaled_data3)
+\end{lstlisting}
+
+\section{Comparing summaries}
+
+The final Lab 9a step is to compare summary statistics for the raw and transformed data:
+
+\begin{lstlisting}[style=dsr]
+summary(mydata)
+summary(scaled_data1)
+summary(scaled_data2)
+summary(scaled_data3)
+\end{lstlisting}
+
+\begin{pitfall}
+The log-transformation code stores its result in \texttt{scaled\_data}, but the final comparison calls \texttt{summary(scaled\_data1)}. The source does not define \texttt{scaled\_data1}. To execute the intended comparison, either use \texttt{summary(scaled\_data)} or explicitly assign \texttt{scaled\_data1 <- scaled\_data} before the summary calls. This is an explicit implementation note, not a silent source correction.
+\end{pitfall}
+
+\begin{dsfigure}
+\begin{tikzpicture}[
+  box/.style={draw=DSBlue,fill=DSPaleBlue,rounded corners=2mm,text width=3.35cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{DSNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=DSTeal}
+]
+\node[box] (raw) {Raw numeric data};
+\node[box,right=1.0cm of raw] (log) {Log transformation};
+\node[box,below=0.8cm of log] (std) {Standard scaling};
+\node[box,above=0.8cm of log] (mm) {Min--max scaling};
+\draw[arr] (raw) -- (log);
+\draw[arr] (raw.east) -- ++(0.55,0) |- (std.west);
+\draw[arr] (raw.east) -- ++(0.55,0) |- (mm.west);
+\end{tikzpicture}
+\end{dsfigure}
+
+The three branches represent the three transformation methods explicitly requested in Lab 9a; the final exercise compares their summary output against the raw data.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference in output intent between \texttt{cor()} and \texttt{cor.test()} in Lab 9a?
+  \item Which dataset is used for the first \texttt{corrplot()} example?
+  \item Why is \texttt{melt()} applied to the reordered correlation matrix before the \texttt{ggplot2} heatmap?
+  \item Which function performs the standard scaling in the handout?
+  \item Which object-name mismatch appears in the final summary comparison?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Pearson correlation is computed directly with \texttt{cor()} and examined more fully with \texttt{cor.test()}.
+  \item The source demonstrates several correlation visualizations: \texttt{corrplot}, a \texttt{ggplot2} tile heatmap, \texttt{heatmaply}, and \texttt{ggcorrplot}.
+  \item Correlation matrices can be reordered before plotting to group similar relationships visually.
+  \item The normalization section compares log transformation, standard scaling, and min--max scaling on the same data.
+  \item Lab 9a contains a few naming/package inconsistencies that should be checked explicitly when reproducing the code.
+\end{itemize}
+\end{chapterrecap}

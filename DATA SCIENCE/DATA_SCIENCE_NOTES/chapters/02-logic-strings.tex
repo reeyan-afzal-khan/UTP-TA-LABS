@@ -1,0 +1,264 @@
+\chapter{Logical and Relational Operators, Strings, and String Manipulation}
+\label{chap:logic-strings}
+
+\chapterguide
+  {You should already be able to create variables, run commands, and print results in R.}
+  {evaluate logical and relational expressions; distinguish element-wise and short-circuit logical forms used in the handout; construct valid strings; use escape sequences; concatenate, format, measure, change case, and extract text.}
+
+\section{Logical operations}
+
+Lab 2a introduces three core logical operators:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{2.2cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Operator & Meaning in the handout \\
+\midrule
+\texttt{!} & Logical NOT \\
+\texttt{\&} & Logical AND \\
+\texttt{|} & Logical OR \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+The first experiment uses single Boolean values:
+
+\begin{lstlisting}[style=dsr]
+a = TRUE
+b = FALSE
+
+print(a & b)
+print(a & !b)
+print(a | b)
+print(!a | b)
+\end{lstlisting}
+
+The same handout then compares \texttt{\&}/\texttt{|} with \texttt{\&\&}/\texttt{||} using vectors:
+
+\begin{lstlisting}[style=dsr]
+c = c(TRUE, FALSE)
+d = c(FALSE, FALSE)
+
+print(c && d)
+print(c || d)
+
+v <- c(3, 1.5, TRUE)
+t <- c(4, 2.1, FALSE)
+
+print(!v)
+print(!t)
+print(v & t)
+print(v | t)
+print(v && t)
+print(v || t)
+\end{lstlisting}
+
+\begin{keyidea}
+The code is designed to make you observe that R can apply logical operations to vectors. The handout also includes the double-character forms \texttt{\&\&} and \texttt{||}; compare their output with the element-wise forms rather than treating every logical operator as interchangeable.
+\end{keyidea}
+
+\section{Relational operations}
+
+Relational operators compare values and return logical results.
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{2.4cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Operator & Meaning \\
+\midrule
+\texttt{<} & Less than \\
+\texttt{>} & Greater than \\
+\texttt{<=} & Less than or equal to \\
+\texttt{>=} & Greater than or equal to \\
+\texttt{==} & Equal to \\
+\texttt{!=} & Not equal to \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+\begin{lstlisting}[style=dsr]
+x = 5
+y = 9
+z = 2 + 3
+
+print(x > y)
+print(x < y)
+print(x <= z)
+print(y >= z)
+print(x == z)
+print(x != y)
+\end{lstlisting}
+
+Because \texttt{z} evaluates to \texttt{5}, the equality test \texttt{x == z} becomes a direct demonstration of comparison after arithmetic evaluation.
+
+Relational operations also work across corresponding elements of vectors in the supplied exercise:
+
+\begin{lstlisting}[style=dsr]
+v <- c(2, 5.5, 6, 9)
+t <- c(8, 2.5, 14, 9)
+
+print(v > t)
+print(v < t)
+print(v <= t)
+print(v >= t)
+print(v == t)
+print(v != t)
+\end{lstlisting}
+
+\section{Constructing strings}
+
+R strings in the handout may use either single or double quotation marks:
+
+\begin{lstlisting}[style=dsr]
+a <- 'Start and end with single quote'
+b <- "Start and end with double quotes"
+c <- "single quote ' in between double quotes"
+d <- 'Double quotes " in between single quote'
+\end{lstlisting}
+
+The handout deliberately follows those valid examples with malformed cases in which the chosen delimiter appears unescaped inside the same kind of quoted string. Their purpose is to make the syntax error visible.
+
+\begin{pitfall}
+Lab 2a includes lines such as an unmatched quote and a single quote placed inside a single-quoted string without escaping. These are not meant to be silently accepted; run them to observe that quote delimiters must be balanced or escaped.
+\end{pitfall}
+
+\section{Escape characters}
+
+The supplied escape-sequence table contains:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{2.4cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Sequence & Description \\
+\midrule
+\texttt{\textbackslash"} & Double quote \\
+\texttt{\textbackslash\textbackslash} & Backslash \\
+\texttt{\textbackslash n} & New line \\
+\texttt{\textbackslash r} & Carriage return \\
+\texttt{\textbackslash t} & Tab \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+\begin{lstlisting}[style=dsr]
+str <- "We are the so-called \"Vikings\", from the north."
+cat(str)
+
+str <- "We are the so-called \\Vikings\\, from the north."
+cat(str)
+
+str <- "We are the \rso-called Vikings\nfrom the north."
+cat(str)
+
+str <- "\tWe are the so-called Vikings from the north."
+cat(str)
+\end{lstlisting}
+
+The use of \texttt{cat()} is useful here because the escape sequences affect how the text is rendered rather than merely showing a quoted representation.
+
+\section{Concatenating strings}
+
+Lab 2a uses \texttt{paste()} with different separators:
+
+\begin{lstlisting}[style=dsr]
+a <- "Hello"
+b <- "How"
+c <- "are you? "
+
+print(paste(a, b, c))
+print(paste(a, b, c, sep = "-"))
+print(paste(a, b, c, sep = "", collapse = ""))
+\end{lstlisting}
+
+The \texttt{sep} argument changes the text inserted between supplied values. The exercise also exposes the \texttt{collapse} argument for combining multiple generated strings.
+
+\section{Formatting numbers and strings}
+
+The handout uses \texttt{format()} in several ways:
+
+\begin{lstlisting}[style=dsr]
+# Total number of displayed digits; final digit is rounded.
+result <- format(23.123456789, digits = 9)
+print(result)
+
+# Scientific notation.
+result <- format(c(6, 13.14521), scientific = TRUE)
+print(result)
+
+# Minimum digits to the right of decimal point.
+result <- format(23.47, nsmall = 5)
+print(result)
+
+# format() returns formatted text.
+result <- format(6)
+print(result)
+
+# Width and justification.
+result <- format(13.7, width = 6)
+print(result)
+result <- format("Hello", width = 8, justify = "l")
+print(result)
+result <- format("Hello", width = 8, justify = "c")
+print(result)
+\end{lstlisting}
+
+\section{Measuring and changing strings}
+
+The base-R function \texttt{nchar()} and the \texttt{stringr} function \texttt{str\_length()} are both shown for character counting:
+
+\begin{lstlisting}[style=dsr]
+str <- "Count the number of characters"
+print(nchar(str))
+
+install.packages("stringr")
+library(stringr)
+str_length(str)
+\end{lstlisting}
+
+Case conversion is demonstrated with:
+
+\begin{lstlisting}[style=dsr]
+print(toupper("Changing To Upper"))
+print(tolower("Changing To Lower"))
+\end{lstlisting}
+
+These functions become directly useful in Lab 2b, where two strings must be compared without regard to case and a user's name must be displayed in uppercase.
+
+\section{Extracting parts of a string}
+
+The handout introduces two closely related functions:
+
+\begin{lstlisting}[style=dsr]
+# 5th through 7th characters
+result <- substring("Extract", 5, 7)
+print(result)
+
+# first character
+result <- substr("Learn Code Tech", 1, 1)
+print(result)
+\end{lstlisting}
+
+The important idea is positional extraction: specify starting and ending character positions and return only that part of the text.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What type of value is returned by a relational comparison such as \texttt{x < y}?
+  \item Why does \texttt{x == z} evaluate as true in the handout example?
+  \item What is the role of a backslash in \texttt{\"Vikings\"} inside a double-quoted string?
+  \item Which function in the handout converts text to uppercase?
+  \item Which functions are used to extract character ranges from a string?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Logical operators combine or negate Boolean conditions; relational operators compare values.
+  \item The handout contrasts element-wise logical operators with the double-character forms \texttt{\&\&} and \texttt{||}.
+  \item Strings require matched delimiters; embedded delimiter characters must be handled correctly.
+  \item Escape sequences control embedded quotes, backslashes, line breaks, carriage returns, and tabs.
+  \item \texttt{paste()}, \texttt{format()}, \texttt{nchar()}, \texttt{toupper()}, \texttt{tolower()}, \texttt{substring()}, and \texttt{substr()} form the core string toolkit in Lab 2a.
+\end{itemize}
+\end{chapterrecap}

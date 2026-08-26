@@ -1,0 +1,44 @@
+\labsection{8}{BSTs, heaps, and balancing structures}{sec:lab08}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab VIII}
+\textbf{Objective.} Understand BSTs, heaps, AVL/height balancing, and B-trees and apply those structures to problems.
+
+\textbf{Outcomes.} Learn BST, heap, and B-tree structures and implement/apply them computationally.
+
+\textbf{Problem directions.} Create max/min heaps; insert/delete heap elements; solve BST problems; practice B-tree creation, insertion, and removal.
+\end{sourcealignment}
+
+\begin{labproject}{Compare ordering rules across specialized trees}
+\textbf{Coverage.} Chapter 8.
+
+\begin{lstlisting}
+// BST insertion order
+// 50, 30, 70, 20, 40, 60, 80
+// inorder should be sorted.
+
+// Max-heap insertion order
+// 30, 10, 50, 20, 40
+// print the heap array after every insertion.
+\end{lstlisting}
+
+\begin{tryit}
+Insert 10,20,30,40,50 into a plain BST and draw the resulting height. Compare that shape with a balanced tree. Then create both a min-heap and max-heap from the same keys.
+\end{tryit}
+
+\begin{labmode}
+The supplied course sources name B-tree creation/insertion/removal but do not provide the order/minimum-degree rules needed for a unique implementation. Follow the B-tree parameters specified by your instructor rather than inventing them.
+\end{labmode}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item BST inorder output is sorted for the chosen key policy.
+  \item A max-heap parent is not smaller than either child; a min-heap parent is not larger than either child.
+  \item Heap insertion/deletion restores the heap property.
+  \item Complexity claims are related to tree height, not only node count.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit a BST program, one heap implementation with insertion/deletion, and instructor-directed B-tree exercises where assigned.
+\end{labdeliverable}

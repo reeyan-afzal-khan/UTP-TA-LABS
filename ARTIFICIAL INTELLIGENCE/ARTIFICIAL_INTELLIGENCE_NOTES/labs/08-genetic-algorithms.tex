@@ -1,0 +1,30 @@
+\labsection{8}{Genetic Algorithm optimization}{sec:lab08-ga}
+
+\begin{labproject}{Five GA formulations in MATLAB}
+\textbf{Coverage.} Nonlinear maximization, Rosenbrock minimization, regression-weight optimization, 0--1 knapsack, and polynomial-root search.\\
+\textbf{Goal.} Keep the GA loop recognizable while changing chromosome representation and fitness definition to match each problem.
+
+\begin{labmode}
+The source supplies complete MATLAB loops for all five codes. Run the baseline scripts first because GA outputs depend on random initialization and stochastic operators.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Continuous one- and two-variable objectives.}\par
+Run Code 1 and Code 2. Plot best fitness versus generation and record the best chromosome found at the end of the run.
+
+\medskip\noindent\textbf{Part B --- Linear regression.}\par
+Run Code 3 and report the best discovered slope/intercept together with the final MSE. Compare the values qualitatively with the data-generating parameters \([2.5,5]\).
+
+\medskip\noindent\textbf{Part C --- Binary knapsack.}\par
+Run Code 4. Decode the best chromosome into selected items, total weight, and total value. Confirm that the capacity constraint is satisfied.
+
+\medskip\noindent\textbf{Part D --- Polynomial roots.}\par
+Run Code 5 and report whether the final population converges nearer to \(-2\) or 3 in that run. Repeat with a different random seed and compare.
+
+\begin{tryit}
+Add elitism to exactly one code and plot the original and elitist best-fitness traces. Explain why copying the best chromosome unchanged can alter the shape of the curve.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one MATLAB live script containing all five GA problems, five convergence plots, the final decoded solution for each problem, and a comparison table listing chromosome type, fitness direction, crossover type, and mutation type.
+\end{labdeliverable}

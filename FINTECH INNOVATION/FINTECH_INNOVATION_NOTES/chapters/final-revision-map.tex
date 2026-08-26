@@ -1,0 +1,145 @@
+\chapter*{Final Revision Map}
+\addcontentsline{toc}{chapter}{Final Revision Map}
+\markboth{Final Revision Map}{ }
+
+Use this section after completing all eight chapters. It compresses the course into the comparisons and causal chains most likely to help in revision.
+
+\section*{The complete course in one chain}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  g/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  o/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+]
+\node[b] (a) at (-5.2,1.2) {Traditional\\intermediation};
+\node[b] (b) at (-2.6,1.2) {Customer\\friction};
+\node[g] (c) at (0,1.2) {Digital\\technology};
+\node[g] (d) at (2.6,1.2) {Unbundling +\\new platforms};
+\node[o] (e) at (5.2,1.2) {Competition +\\new risks};
+\node[b] (f) at (-3.9,-1.2) {Financial\\inclusion};
+\node[g] (g) at (-1.3,-1.2) {P2P / mobile /\\digital banks};
+\node[o] (h) at (1.3,-1.2) {Blockchain +\\crypto};
+\node[o] (i) at (3.9,-1.2) {Big Tech +\\ecosystems};
+\draw[arr](a)--(b); \draw[arr](b)--(c); \draw[arr](c)--(d); \draw[arr](d)--(e);
+\draw[arr](b) to[bend right=24] (f); \draw[arr](c) to[bend right=14] (g); \draw[arr](c) to[bend left=10] (h); \draw[arr](d) to[bend left=24] (i);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section*{Eight concepts you must distinguish}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Concept & Distinction to remember \\
+\midrule
+Disintermediation vs unbundling & Disintermediation changes the intermediary; unbundling separates a one-stop provider into specialist services. \\
+Unbanked vs underbanked & Unbanked means no formal account; underbanked means partial or insufficient use of mainstream services. \\
+Traditional lending vs P2P & Bank lending uses the bank balance sheet and pooling; P2P matches investors and borrowers through a platform. \\
+Donation vs reward vs debt vs equity crowdfunding & No return; non-financial reward; repayment with interest; ownership claim. \\
+UX vs CX & UX is interface interaction; CX is the entire relationship including reliability, support, security, price, and access. \\
+Neobank vs challenger bank & In the Week 5 lecture, no full banking license versus full banking license. \\
+Centralized database vs blockchain & Single authoritative state versus replicated, cryptographically linked records governed by network validation/consensus. \\
+FinTech vs TechFin & Finance-led technology innovation versus technology-platform-led expansion into financial services. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{Recurring FinTech value proposition}
+
+Most cases in the course can be decomposed into five claims:
+
+\begin{enumerate}
+  \item \term{Lower cost} through automation, digital distribution, cloud infrastructure, and reduced physical overhead.
+  \item \term{Faster service} through fewer manual approval layers and real-time data.
+  \item \term{Better customer experience} through intuitive interfaces, transparency, alerts, personalization, and continuous access.
+  \item \term{Better matching or risk assessment} through platforms and additional data sources.
+  \item \term{Greater access} for customers and businesses who are difficult to serve through legacy economics.
+\end{enumerate}
+
+Whenever you make one of these claims in an answer, pair it with a limitation: security, privacy, credit loss, lack of guarantees, regulation, sustainability, integration, or market concentration.
+
+\section*{Recurring technology stack}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Technology & Role in the course \\
+\midrule
+Mobile & Continuous financial access, notifications, biometrics, camera/OCR, contactless interaction \\
+Cloud & Scalable modern infrastructure and faster deployment for digital banks and incumbents \\
+APIs & Connect banks to third-party applications and enable platform/open-banking models \\
+Big data / analytics & Personalization, credit assessment, fraud detection, and predictive intelligence \\
+AI / automation & Faster decisions, conversational assistance, process efficiency, and robo-advice \\
+Blockchain & Shared, cryptographically linked transaction history without one authoritative ledger copy \\
+Cryptography & Key ownership, transaction authorization, hashing, signatures, and proof-of-work mechanisms \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{Recurring business-model tension}
+
+The most important business tension across P2P lending, neobanks, Big Tech, and crypto is:
+
+\begin{center}
+\term{growth and access} $\quad\longleftrightarrow\quad$ \term{risk, trust, regulation, and sustainable economics}
+\end{center}
+
+A good exam answer should explain both sides. Technology can lower one cost while creating another. Removing a bank intermediary can improve price while moving risk to investors. Giving users private-key control increases freedom while reducing recoverability. A neobank can acquire users cheaply while still failing to monetize them sustainably.
+
+\section*{Fast comparison: who owns the customer relationship?}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}XXX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model & Primary interface & Strategic asset & Main vulnerability \\
+\midrule
+Traditional bank & Branch + bank-owned digital channels & Trust, license, balance sheet, customer history & Legacy cost and slower change \\
+P2P platform & Marketplace & Matching, scoring, low-cost distribution & Credit risk and weak guarantees \\
+Digital-only bank & Mobile-first account & CX, modern architecture, data, low servicing cost & Profitability and trust at scale \\
+Big Tech / TechFin & Existing super-platform & User base, engagement, data, ecosystem & Regulatory exposure and financial-brand risk \\
+Cryptocurrency network & Wallet + protocol & Decentralized transfer and user-controlled keys & Volatility, custody, governance, scalability, regulation \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{Exam-answer structure}
+
+For an ``analyze'' or ``evaluate'' question, use this order:
+
+\begin{mlsteps}
+  \item \term{Define the model precisely.}
+  \item \term{Identify the traditional friction or market failure.}
+  \item \term{Explain the enabling technology and business-model change.}
+  \item \term{State the benefit to each stakeholder.}
+  \item \term{State the risk or limitation to each stakeholder.}
+  \item \term{Explain the incumbent or regulatory response.}
+  \item \term{Conclude with the condition under which the innovation creates sustainable value.}
+\end{mlsteps}
+
+\begin{quickcheck}
+Without looking back, answer these eight prompts in one or two sentences each:
+\begin{enumerate}
+  \item Why did the 2008 crisis help create an opening for FinTech?
+  \item How do digital financial services change the economics of financial inclusion?
+  \item Why can P2P lending serve a borrower rejected by a bank?
+  \item Why does a good mobile app still depend on legacy core integration?
+  \item Why can a digital-only bank have millions of users and still lose money?
+  \item How do hash references make blockchain history tamper-evident?
+  \item Why does Big Tech care about financial services even if direct banking profit is modest?
+  \item Why is Bitcoin's private-key model both empowering and risky?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Follow the recurring sequence: friction, digital mechanism, new model, benefit, new risk, institutional response.
+  \item The course is not eight isolated topics; each chapter changes either access, intermediation, distribution, infrastructure, or platform control.
+  \item Strong answers compare stakeholders and trade-offs rather than listing advantages alone.
+  \item Dated market figures in the lecture are evidence for historical context, while the conceptual mechanisms are the main revision target.
+\end{itemize}
+\end{chapterrecap}

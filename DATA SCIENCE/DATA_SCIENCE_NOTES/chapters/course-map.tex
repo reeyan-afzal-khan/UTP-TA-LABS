@@ -1,0 +1,47 @@
+\chapter*{Course Map: From R Commands to Data Insight}
+\addcontentsline{toc}{chapter}{Course Map: From R Commands to Data Insight}
+\markboth{Course Map}{}
+
+The supplied lab sequence builds one layer at a time. Early labs establish the R environment and language; the middle labs develop R's core data structures and data-frame workflow; the final labs use those foundations for visualization, correlation analysis, and normalization.
+
+\begin{dsfigure}
+\begin{tikzpicture}[
+  stage/.style={draw=DSBlue,fill=DSPaleBlue,rounded corners=2mm,text width=12.4cm,minimum height=1.36cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{DSNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=DSTeal}
+]
+\node[stage] (s1) at (0,5.4) {{\normalsize\bfseries\color{DSBlue}Stage 1: R orientation and language foundations}\hfill{\footnotesize Labs 1--2}\par
+\smallskip Install and verify R/RStudio; distinguish Console and Script; work with variables, assignments, arithmetic, logical and relational operators, strings, escape characters, and string manipulation.};
+\node[stage] (s2) at (0,3.45) {{\normalsize\bfseries\color{DSBlue}Stage 2: Core R data structures}\hfill{\footnotesize Labs 3--4}\par
+\smallskip Construct, access, and manipulate vectors and lists; then move to factors, matrices, and arrays.};
+\node[stage] (s3) at (0,1.50) {{\normalsize\bfseries\color{DSBlue}Stage 3: Programming flow and data frames}\hfill{\footnotesize Labs 5--7}\par
+\smallskip Use selection and repetition statements; create and modify data frames; import, clean, filter, search, arrange, and export tabular data.};
+\node[stage] (s4) at (0,-0.45) {{\normalsize\bfseries\color{DSBlue}Stage 4: Visualization and introductory analysis}\hfill{\footnotesize Labs 8--9}\par
+\smallskip Build common charts; use built-in datasets; compute Pearson correlation and correlation heatmaps; compare log transformation, standard scaling, and min--max scaling.};
+\draw[arr] (s1.south) -- (s2.north);
+\draw[arr] (s2.south) -- (s3.north);
+\draw[arr] (s3.south) -- (s4.north);
+\end{tikzpicture}
+\end{dsfigure}
+
+\begin{keyidea}
+The sequence is cumulative. Labs 7--9 assume that you are already comfortable with vectors, indexing, conditions, data frames, package loading, and working-directory/file concepts introduced earlier.
+\end{keyidea}
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{1.4cm}p{4.1cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Lab & Main topic & Practical emphasis \\
+\midrule
+1 & RStudio, R, variables, arithmetic & Set up the environment; write and run R code; use assignments, types, arithmetic, and input. \\
+2 & Logic, relations, strings & Evaluate Boolean conditions and manipulate text. \\
+3 & Vectors and lists & Store homogeneous and mixed collections; index and manipulate them. \\
+4 & Factors, matrices, arrays & Work with categorical values and multidimensional structures. \\
+5 & Selection and repetition & Control which statements execute and how often they repeat. \\
+6 & Data frames & Create, inspect, access, add, and remove rows/columns. \\
+7 & Managing data frames & Import/export files; handle missing values; filter, search, and arrange. \\
+8 & Data visualization & Use built-in datasets and create pie, box, histogram, scatter, bar, and line plots. \\
+9 & Correlation and normalization & Compute Pearson correlation, visualize correlation matrices, and scale numeric data. \\
+\bottomrule
+\end{tabularx}
+\end{dstable}

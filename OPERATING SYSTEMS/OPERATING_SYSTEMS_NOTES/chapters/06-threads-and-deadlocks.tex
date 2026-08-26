@@ -1,0 +1,78 @@
+\chapter{Threads, Resource Allocation, and Deadlocks}\label{ch:deadlock}
+\chapterguide{Read Chapter~\ref{ch:ipc} first.}{Create and join POSIX threads, explain mutex protection, state the four deadlock conditions, distinguish prevention/avoidance/detection, and execute the Banker's safety test.}
+
+\section{POSIX threads}
+The POSIX threads API creates multiple execution streams inside one process. \texttt{pthread\_create()} starts a thread, \texttt{pthread\_self()} identifies the calling thread, \texttt{pthread\_equal()} compares thread identifiers, and \texttt{pthread\_join()} waits for completion.
+
+\begin{lstlisting}[style=osc]
+pthread_t t;
+int err = pthread_create(&t, NULL, worker, NULL);
+if (err != 0) {
+    /* handle error */
+}
+pthread_join(t, NULL);
+\end{lstlisting}
+
+\begin{pitfall}
+Thread identifiers are opaque values. Portable code compares them with \texttt{pthread\_equal()} rather than assuming they are ordinary integers with a specific representation.
+\end{pitfall}
+
+\section{Mutexes}
+A \term{mutex} protects a critical section so only one thread owns the lock at a time. The normal lifecycle is initialize, lock, access shared state, unlock, then destroy after all users are finished.
+
+\section{What deadlock means}
+A \term{deadlock} is a state in which a set of processes or threads are permanently blocked because each waits for an event that only another member of the set can cause.
+
+Four Coffman conditions must hold simultaneously for resource deadlock:
+\begin{enumerate}
+  \item \textbf{Mutual exclusion}: at least one resource cannot be shared concurrently.
+  \item \textbf{Hold and wait}: a process holds resources while requesting more.
+  \item \textbf{No preemption}: resources cannot simply be taken away.
+  \item \textbf{Circular wait}: a cycle of processes each waits for a resource held by the next.
+\end{enumerate}
+Breaking any one condition prevents this class of deadlock.
+
+\section{Prevention, avoidance, and detection}
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Strategy & Core idea & Trade-off \\
+\midrule
+Prevention & Design the protocol so a Coffman condition cannot hold & Can reduce utilization or flexibility \\
+Avoidance & Grant a request only if the resulting state remains safe & Requires future maximum-demand information \\
+Detection/recovery & Allow deadlock, detect it later, then recover & Detection and recovery can be expensive \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Banker's algorithm}
+Banker's algorithm is a deadlock-avoidance method. For each process and resource type,
+\[
+\text{Need} = \text{Max} - \text{Allocation}.
+\]
+The safety algorithm starts with \texttt{Work = Available}. It repeatedly finds an unfinished process whose Need vector is component-wise no larger than Work. That process is assumed able to finish, so its Allocation is released into Work. If every process can be placed into such an order, the state is \term{safe}.
+
+\begin{workedexample}
+Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while P2 has Need $(2,1)$ and Allocation $(1,0)$. P1 can finish first because $(1,0)\le(1,1)$. Work becomes $(2,2)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.
+\end{workedexample}
+
+\begin{pitfall}
+An \term{unsafe state} is not identical to an already existing deadlock. Unsafe means the OS can no longer guarantee that every future maximum claim can be satisfied in some order. Deadlock is an actual circular waiting condition.
+\end{pitfall}
+
+\section{Detection versus the supplied exercise}
+A textbook deadlock-detection algorithm normally uses current outstanding requests rather than each process's declared future maximum. The supplied lab calculates \texttt{Need = Max - Allocation}; this is close to a safety/avoidance test. Treat the code as a useful matrix exercise, but keep the conceptual distinction clear.
+
+\input{chapters/concepts/06-threads-deadlocks-deep-dive}
+
+\input{labs/06-threads-and-deadlocks}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Threads share a process's resources and therefore need synchronization around shared mutable state.
+  \item Deadlock requires mutual exclusion, hold-and-wait, no preemption, and circular wait.
+  \item Banker's algorithm avoids unsafe allocations by searching for a safe completion sequence.
+  \item Unsafe, deadlocked, and merely blocked are different states.
+\end{itemize}
+\end{chapterrecap}

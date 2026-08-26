@@ -1,0 +1,197 @@
+\chapter{Fuzzy Logic and ANFIS}
+\label{ch:fuzzy}
+
+\chapterguide%
+  {Know basic true/false Boolean logic and be able to run MATLAB scripts.}
+  {explain fuzzy truth values, identify the four components of a Fuzzy Inference System, distinguish Mamdani and Sugeno systems, explain ANFIS, and build/evaluate the MATLAB examples from Lab 4.}
+
+Lab 4 shifts from graph search to \term{approximate reasoning}. Fuzzy Logic represents concepts such as ``cold,'' ``warm,'' or ``hot'' using degrees between 0 and 1 rather than forcing every statement to be completely true or false.
+
+\section{From crisp truth to fuzzy membership}
+
+In classical logic, a statement is either false \((0)\) or true \((1)\). In fuzzy logic, a degree can lie anywhere in the interval
+\[
+0\leq \mu(x)\leq 1.
+\]
+The Lab 4 example describes ``the water is hot'' as potentially having a truth or membership value such as \(0.7\) rather than only 0 or 1.
+
+\begin{intuition}
+Human descriptions often use graded language: somewhat cold, very fast, mostly full. Fuzzy logic turns that kind of gradual description into numerical membership values that a rule system can process.
+\end{intuition}
+
+\section{Why fuzzy logic is used}
+
+The handout emphasizes three motivations:
+\begin{itemize}
+  \item handle uncertainty, imprecision, and approximate reasoning;
+  \item support human-like linguistic rules;
+  \item build control and decision systems in areas such as control, diagnosis, and pattern recognition.
+\end{itemize}
+
+\section{The four components of a Fuzzy Inference System}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[b] (fuzz) {Fuzzification\\\scriptsize crisp input $\to$ memberships};
+\node[b,right=0.65cm of fuzz] (rules) {Rule base\\\scriptsize IF--THEN rules};
+\node[b,right=0.65cm of rules] (infer) {Inference engine\\\scriptsize apply rules};
+\node[b,right=0.65cm of infer] (defuzz) {Defuzzification\\\scriptsize fuzzy output $\to$ crisp value};
+\draw[arr] (fuzz)--(rules);
+\draw[arr] (rules)--(infer);
+\draw[arr] (infer)--(defuzz);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Component & Description from the laboratory material \\
+\midrule
+Fuzzification & Converts crisp inputs to fuzzy values using membership functions. \\
+Rule base & Stores IF--THEN rules, such as IF temperature is high THEN fan speed is high. \\
+Inference engine & Applies the rules to the fuzzy inputs to obtain fuzzy outputs. \\
+Defuzzification & Converts fuzzy outputs back to a crisp numerical value. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Membership functions in the temperature controller}
+
+The source MATLAB example creates one input, \texttt{Temperature}, over \([0,100]\) and gives it three triangular membership functions: Cold, Warm, and Hot. The output \texttt{FanSpeed} over \([0,10]\) receives Low, Medium, and High membership functions.
+
+\begin{lstlisting}[style=mlmatlab]
+fis = mamfis('Name', 'temperatureControl');
+
+fis = addInput(fis, [0 100], 'Name', 'Temperature');
+fis = addMF(fis, 'Temperature', 'trimf', [0 0 50], ...
+    'Name', 'Cold');
+fis = addMF(fis, 'Temperature', 'trimf', [25 50 75], ...
+    'Name', 'Warm');
+fis = addMF(fis, 'Temperature', 'trimf', [50 100 100], ...
+    'Name', 'Hot');
+
+fis = addOutput(fis, [0 10], 'Name', 'FanSpeed');
+fis = addMF(fis, 'FanSpeed', 'trimf', [0 0 5], ...
+    'Name', 'Low');
+fis = addMF(fis, 'FanSpeed', 'trimf', [3 5 7], ...
+    'Name', 'Medium');
+fis = addMF(fis, 'FanSpeed', 'trimf', [5 10 10], ...
+    'Name', 'High');
+\end{lstlisting}
+
+The rule list in the handout links the three input terms directly to the corresponding output terms.
+
+\begin{lstlisting}[style=mlmatlab]
+ruleList = [
+    1 1 1 1;  % IF Cold THEN Low
+    2 2 1 1;  % IF Warm THEN Medium
+    3 3 1 1   % IF Hot THEN High
+];
+fis = addRule(fis, ruleList);
+\end{lstlisting}
+
+\begin{workedexample}
+The source evaluates the controller at a crisp temperature of 70. MATLAB first determines the memberships of 70 in Cold/Warm/Hot, applies the rule base, aggregates the output, and returns one crisp fan-speed value through \texttt{evalfis}.
+\end{workedexample}
+
+\section{Mamdani and Sugeno FIS}
+
+Lab 4 distinguishes two types of Fuzzy Inference System.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Type & Laboratory description \\
+\midrule
+Mamdani & Intuitive and commonly used for control applications. \\
+Sugeno & Uses constant or linear output functions and is suitable for optimization and learning. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The source Sugeno example creates a \texttt{Speed} input and a \texttt{BrakeForce} output, with Gaussian input membership functions and linear output functions.
+
+\begin{lstlisting}[style=mlmatlab]
+fis2 = sugfis('Name', 'speedControl');
+fis2 = addInput(fis2, [0 100], 'Name', 'Speed');
+fis2 = addOutput(fis2, [0 1], 'Name', 'BrakeForce');
+
+fis2 = addMF(fis2, 'Speed', 'gaussmf', [10 20], 'Name', 'Slow');
+fis2 = addMF(fis2, 'Speed', 'gaussmf', [10 80], 'Name', 'Fast');
+fis2 = addMF(fis2, 'BrakeForce', 'linear', [0.01 0], 'Name', 'Low');
+fis2 = addMF(fis2, 'BrakeForce', 'linear', [-0.01 1], 'Name', 'High');
+\end{lstlisting}
+
+\section{ANFIS: Adaptive Neuro-Fuzzy Inference System}
+
+The handout summarizes ANFIS as
+\[
+\text{ANFIS}=\text{Neural Network learning}+\text{Fuzzy Logic representation}.
+\]
+It uses a Sugeno-type FIS and learns fuzzy rules and membership-function parameters from input-output data. The handout names a hybrid learning approach combining least squares and gradient descent.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.32\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Feature & Fuzzy Logic & ANFIS \\
+\midrule
+Rule definition & Manual & Learned from data \\
+Learning capability & No & Yes, through neural-network-style learning \\
+Output type & Mamdani or Sugeno & Sugeno only \\
+Typical use in handout & Expert-defined systems & Data-driven modeling \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Fuzzy Logic is useful when the rule base is supplied by experts. ANFIS is useful when input-output data is available and the fuzzy system should be learned and tuned from that data.
+\end{keyidea}
+
+\section{Training examples in Lab 4}
+
+The source progresses from a single-input training table to two inputs, prediction, saving/reloading a FIS, a diabetes dataset, error plotting, and a smart-air-conditioner example.
+
+\begin{lstlisting}[style=mlmatlab]
+% Single input
+ data1 = [0 0; 5 2.5; 10 5; 15 7.5; 20 10];
+anfisFIS1 = anfis(data1, 10);
+
+% Two inputs
+ data2 = [0 0 0; 5 2 2.5; 10 5 5; 15 7 7.5; 20 10 10];
+anfisFIS2 = anfis(data2, 20);
+
+% Prediction
+inputVal = [12 6];
+predictedOutput = evalfis(anfisFIS2, inputVal);
+\end{lstlisting}
+
+\section{Software context}
+
+Lab 4 specifies MATLAB with the Fuzzy Logic Toolbox and describes installing MATLAB through a MathWorks account and a university license. The examples also use commands such as \texttt{mamfis}, \texttt{sugfis}, \texttt{addMF}, \texttt{addRule}, \texttt{evalfis}, \texttt{gensurf}, \texttt{anfis}, \texttt{writefis}, and \texttt{readfis}.
+
+\input{labs/04-fuzzy-anfis}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between a crisp value and a fuzzy membership value?
+  \item Name the four components of a Fuzzy Inference System in order.
+  \item Why does Lab 4 associate ANFIS with Sugeno rather than Mamdani output functions?
+  \item What does the smart-AC ANFIS example use as inputs and output?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Fuzzy logic represents degrees of truth between 0 and 1.
+  \item A FIS consists of fuzzification, a rule base, an inference engine, and defuzzification.
+  \item Mamdani systems are presented as intuitive control systems; Sugeno systems use constant or linear outputs.
+  \item ANFIS combines Sugeno fuzzy inference with data-driven learning.
+  \item Lab 4 moves from hand-built membership functions and rules to trained ANFIS models and prediction.
+\end{itemize}
+\end{chapterrecap}

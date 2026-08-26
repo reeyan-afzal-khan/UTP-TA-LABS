@@ -1,0 +1,44 @@
+\labsection{4}{Circular linked-list operations}{sec:lab04}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab IV}
+\textbf{Objective.} Study linked-list types more deeply and implement algorithms for circular linked lists.
+
+\textbf{Outcomes.} Understand circular linked lists and implement one from scratch.
+
+\textbf{Problem directions.} Implement the different insertion/deletion operations possible in a circular linked list; compare singly, doubly, and circular lists.
+\end{sourcealignment}
+
+\begin{labproject}{Maintain a circular list without breaking the loop}
+\textbf{Coverage.} Chapter 4.
+
+Implement insertion at beginning/end, deletion from beginning/end, deletion by value, and display.
+
+\begin{lstlisting}
+void displayCircular(Node* last) {
+    if (last == nullptr) return;
+    Node* head = last->next;
+    Node* p = head;
+    do {
+        cout << p->data << ' ';
+        p = p->next;
+    } while (p != head);
+}
+\end{lstlisting}
+
+\begin{tryit}
+Use the same input sequence in singly, doubly, and circular implementations. Compare traversal stop conditions and the pointer fields required per node.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Empty, one-node, and multi-node cases are tested.
+  \item After every mutation, the last node still points to the head.
+  \item Traversal stops when it returns to the starting node rather than waiting for \texttt{nullptr}.
+  \item Deletion-by-value handles the head, a middle node, and the last node.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the required operations, test output, and a three-column comparison of singly, doubly, and circular linked lists.
+\end{labdeliverable}

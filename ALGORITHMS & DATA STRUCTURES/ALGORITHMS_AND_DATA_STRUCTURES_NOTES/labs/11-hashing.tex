@@ -1,0 +1,37 @@
+\labsection{11}{Hashing and collision resolution}{sec:lab11}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab XI}
+\textbf{Objective.} Learn hashing techniques for efficient storage and access.
+
+\textbf{Outcome.} Store data so it can be accessed efficiently.
+
+\textbf{Problem directions.} Practice hashing and resolve collisions using linear probing, double hashing, and quadratic hashing/probing.
+\end{sourcealignment}
+
+\begin{labproject}{Resolve the same collision three ways}
+\textbf{Coverage.} Chapter 11.
+
+Use the source example $H(x)=x\bmod5$ with keys 10, 12, and 14, then insert 15 so the home slot 0 collides with 10.
+
+\begin{lstlisting}
+vector<int> keys = {10, 12, 14, 15};
+const int TABLE_SIZE = 5;
+\end{lstlisting}
+
+\begin{tryit}
+For each collision strategy, record every probe index rather than only the final slot. Then add more keys and compare how probe sequences grow as the table becomes crowded.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every inserted key remains discoverable using the same probe rule used for insertion.
+  \item Probe sequences stay inside the table using modular arithmetic.
+  \item The double-hash step does not collapse to zero and is suitable for the chosen table size.
+  \item The term ``quadratic hashing'' in the source is connected to the usual term ``quadratic probing.''
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit all three collision-resolution methods and a comparison table listing the probe sequence and final slot for each key.
+\end{labdeliverable}

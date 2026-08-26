@@ -1,0 +1,78 @@
+\section{A process is more than a PID}
+The process identifier is only a label. The meaningful idea is that each process has an execution context and a protected resource environment. Two instances of the same executable can therefore have different PIDs, stacks, heaps, open files, current directories, and scheduling states.
+
+\subsection{Parent-child process relationships}
+On Unix-like systems, processes form a hierarchy. A process created by \texttt{fork()} has a parent process. Immediately after a successful fork, parent and child begin with nearly identical logical memory contents, but they are separate processes. Modern systems normally implement this efficiently with \term{copy-on-write}: physical pages may initially be shared read-only and copied only when one process modifies a page.
+
+\begin{keyidea}
+\texttt{fork()} creates a new process; \texttt{exec()} replaces the current process image with a new program. Shells usually use them together: fork a child, let the child exec the requested command, and let the parent shell wait or continue depending on whether the job is foreground or background.
+\end{keyidea}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3cm,minimum height=0.85cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLTeal,thick}
+]
+\node[p] (shell) {Shell process};
+\node[p,below left=1.25cm and 1.2cm of shell] (parent) {Parent continues};
+\node[p,below right=1.25cm and 1.2cm of shell] (child) {Child after fork};
+\node[p,below=1.0cm of child] (prog) {New program after exec};
+\draw[arr] (shell)--node[left,font=\scriptsize]{fork}(parent);
+\draw[arr] (shell)--node[right,font=\scriptsize]{fork}(child);
+\draw[arr] (child)--node[right,font=\scriptsize]{exec}(prog);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Waiting, zombies, and orphans}
+When a child terminates, the kernel retains a small amount of exit information until its parent collects it using a wait operation. A terminated child whose status has not yet been collected is commonly called a \term{zombie}. A child whose parent exits first becomes an \term{orphan} and is adopted/re-parented according to the operating system's process-management rules.
+
+\begin{pitfall}
+A zombie is not a running process consuming CPU. It is a terminated process with an unreaped process-table entry. The resource leak is the retained bookkeeping entry, not continued execution.
+\end{pitfall}
+
+\section{File descriptors: per-process references to open objects}
+A process usually has a table of small integer \term{file descriptors}. By convention, descriptors 0, 1, and 2 start as standard input, standard output, and standard error. An entry points to kernel-managed open-file state such as the current file offset and access mode.
+
+\begin{workedexample}
+If a shell redirects \texttt{program > out.txt}, the program itself can still write to descriptor 1 as usual. The shell has arranged for descriptor 1 to refer to \texttt{out.txt} before the program starts. This demonstrates why redirection is an OS/file-descriptor concept rather than a special feature inside every application.
+\end{workedexample}
+
+\section{Library calls versus system calls}
+Not every C function that performs I/O maps one-to-one to a kernel transition. \texttt{fgetc()} is a C library function operating on a buffered \texttt{FILE *}. The library may satisfy multiple character reads from one larger underlying \texttt{read()} system call. Buffering reduces expensive transitions and improves throughput.
+
+\section{Directory entries and pathname lookup}
+A directory traversal with \texttt{readdir()} returns names and implementation-defined directory-entry information. The OS still has to resolve a pathname component by component. For a path such as
+\[
+\texttt{/home/student/report.txt},
+\]
+the file system starts from the root, looks up \texttt{home}, then \texttt{student}, then \texttt{report.txt}. Permissions and mount points can affect traversal.
+
+\section{Defensive systems programming}
+System interfaces can fail for ordinary reasons: a file does not exist, permissions are insufficient, memory is exhausted, a directory path is invalid, or a process limit is reached. Good systems code therefore treats error handling as part of the algorithm.
+\begin{mlsteps}
+  \item Check command-line argument counts before indexing \texttt{argv}.
+  \item Check every resource-acquisition result such as \texttt{fopen()}, \texttt{opendir()}, \texttt{fork()}, and memory allocation.
+  \item Use \texttt{perror()} or error codes to preserve the reason for failure.
+  \item Release resources exactly once on every exit path.
+  \item Test the return value of the read operation itself rather than predicting EOF in advance.
+\end{mlsteps}
+
+\begin{workedexample}
+A robust text scan is conceptually:
+\begin{enumerate}
+  \item open the file;
+  \item repeatedly request the next character;
+  \item process it only if the read succeeded;
+  \item stop when the read reports end-of-file or error;
+  \item close the file.
+\end{enumerate}
+This is why \texttt{while ((ch = fgetc(fp)) != EOF)} is preferable to \texttt{while (!feof(fp))}.
+\end{workedexample}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why do shells commonly use both \texttt{fork()} and \texttt{exec()}?
+  \item What is the difference between a \texttt{FILE *} and a POSIX integer file descriptor?
+  \item Why can parent and child print in either order after \texttt{fork()}?
+\end{enumerate}
+\end{quickcheck}

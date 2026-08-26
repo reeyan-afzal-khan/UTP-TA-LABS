@@ -1,0 +1,26 @@
+\labsection{8}{Mutexes and page-replacement policies}{sec:lab08}
+\begin{labproject}{Protect a shared critical section and trace FIFO, LRU, and LFU}
+\textbf{Coverage.} Chapter 8.\\
+\textbf{Source files.} Four C programs in \texttt{source\_code/Lab08}.\\
+\textbf{Goal.} Connect synchronization with virtual-memory policy tracing.
+
+\medskip\noindent\textbf{Task A --- Mutex.}\par
+The first source creates two threads and holds a pthread mutex around the entire simulated job. Explain why this serializes the jobs even though two threads exist.
+
+\medskip\noindent\textbf{Task B --- FIFO.}\par
+Maintain a circular insertion pointer. A hit does not advance the pointer; a fault replaces the frame at the current pointer and advances it modulo the frame count.
+
+\medskip\noindent\textbf{Task C --- LRU.}\par
+On replacement, identify the resident page whose last reference is farthest back in the reference string.
+
+\medskip\noindent\textbf{Task D --- LFU.}\par
+Track frequency and state the tie-breaker explicitly. The supplied code uses recency information to break certain equal-frequency cases.
+
+\begin{debugtask}
+The opening comment of \texttt{task\_1.c} describes address translation, but the executable code demonstrates a pthread mutex. Document what the code actually does rather than repeating the stale comment.
+\end{debugtask}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit a frame trace for one shared reference string under FIFO, LRU, and LFU, with hit/fault totals and a short explanation of every replacement victim.
+\end{labdeliverable}

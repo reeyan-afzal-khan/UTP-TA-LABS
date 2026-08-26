@@ -25,7 +25,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "medical_cost_personal_dataset" / "insurance.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -109,7 +109,7 @@ from sklearn.preprocessing import OneHotEncoder
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "bike_sharing_dataset" / "day.csv"
 df = pd.read_csv(train_path)
 df["dteday"] = pd.to_datetime(df["dteday"])

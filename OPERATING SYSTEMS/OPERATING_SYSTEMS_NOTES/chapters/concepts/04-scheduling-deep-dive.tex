@@ -1,0 +1,96 @@
+\section{Scheduling is a queueing problem}
+At any instant a process may be using the CPU, waiting in the ready queue, or blocked for an event such as I/O. CPU scheduling chooses among \emph{ready} work. It does not make a blocked process runnable; that requires the event it is waiting for to occur.
+
+\subsection{CPU-bound and I/O-bound behavior}
+Processes often alternate between \term{CPU bursts} and \term{I/O bursts}. An I/O-bound workload tends to have many short CPU bursts separated by waits, whereas a CPU-bound workload tends to use longer CPU bursts. A good general-purpose scheduler must serve both without letting one class dominate the other.
+
+\section{Preemptive versus non-preemptive scheduling}
+A \term{non-preemptive} scheduler allows a running process to keep the CPU until it blocks or terminates. A \term{preemptive} scheduler may interrupt it and return it to the ready queue. Preemption improves responsiveness and fairness but introduces context-switch overhead and concurrency concerns because a task can be interrupted between operations.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.23\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Metric & What it measures & Usually desirable \\
+\midrule
+CPU utilization & Fraction of time CPU does useful work & High \\
+Throughput & Jobs completed per unit time & High \\
+Turnaround time & Arrival to completion & Low \\
+Waiting time & Time spent ready but not running & Low \\
+Response time & Arrival to first CPU service/response & Low, especially interactively \\
+Fairness & Whether work receives a reasonable share & Avoid starvation \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{A complete worked scheduling example}
+Consider four processes, all arriving at time 0:
+\[
+P_1=8,\quad P_2=4,\quad P_3=2,\quad P_4=1
+\]
+where the numbers are CPU burst times.
+
+\subsection{FCFS}
+Input order gives the Gantt chart
+\[
+\boxed{P_1\ 0\!\to\!8}\;\boxed{P_2\ 8\!\to\!12}\;\boxed{P_3\ 12\!\to\!14}\;\boxed{P_4\ 14\!\to\!15}.
+\]
+Waiting times are $0,8,12,14$, so
+\[
+\overline W_{FCFS}=\frac{0+8+12+14}{4}=8.5.
+\]
+The three short processes wait behind the long $P_1$: this is the convoy effect.
+
+\subsection{Non-preemptive SJF}
+Shortest burst first gives $P_4,P_3,P_2,P_1$:
+\[
+\boxed{P_4\ 0\!\to\!1}\;\boxed{P_3\ 1\!\to\!3}\;\boxed{P_2\ 3\!\to\!7}\;\boxed{P_1\ 7\!\to\!15}.
+\]
+Waiting times are $0,1,3,7$, so
+\[
+\overline W_{SJF}=2.75.
+\]
+This dramatic improvement explains why favoring short work is attractive, but in real systems the future burst length is not known exactly.
+
+\subsection{Round Robin with $q=2$}
+The CPU rotates through the ready queue in quanta of at most two time units. The beginning of the trace is
+\[
+P_1(0\!\to\!2),\ P_2(2\!\to\!4),\ P_3(4\!\to\!6),\ P_4(6\!\to\!7),\ldots
+\]
+$P_4$ does not finish as early as under SJF, but every process receives service quickly. This is the central response-time benefit of RR.
+
+\begin{keyidea}
+No scheduler is ``best'' without a workload and objective. SJF is excellent for average waiting time under ideal burst knowledge; RR is attractive for interactive fairness; priority scheduling expresses importance; FCFS has minimal policy complexity.
+\end{keyidea}
+
+\section{How SJF can be approximated}
+Because the next CPU burst is unknown, a system may estimate it using exponential averaging:
+\[
+\tau_{n+1}=\alpha t_n+(1-\alpha)\tau_n,
+\]
+where $t_n$ is the measured previous burst and $\tau_n$ is the previous prediction. A large $\alpha$ emphasizes recent behavior; a small $\alpha$ smooths over a longer history.
+
+\section{Priority scheduling, starvation, and aging}
+If higher-priority jobs continually arrive, a low-priority process may wait indefinitely: \term{starvation}. \term{Aging} raises the effective priority of a process as its waiting time grows. This converts ``important work first'' into a policy that still eventually serves old work.
+
+\section{Quantum size and context-switch cost}
+If a time quantum is $q$ and each context switch costs $s$, making $q$ extremely small can spend a substantial fraction of CPU time switching rather than executing applications. On the other hand, a huge $q$ causes Round Robin to behave like FCFS. Quantum selection is therefore a latency/overhead trade-off.
+
+\begin{workedexample}
+Suppose $q=2$ ms and a context switch costs $0.1$ ms. If every quantum is fully used, roughly $0.1/(2+0.1)\approx4.8\%$ of the CPU interval is switching overhead. With $q=20$ ms the fraction falls below $0.5\%$, but an interactive task may wait much longer for its next turn.
+\end{workedexample}
+
+\section{Arrival times change everything}
+When arrival times differ, a scheduler may become idle before the next job arrives, and SJF can choose only among jobs that have already entered the ready queue. Preemptive shortest-remaining-time scheduling can even replace a currently running job when a shorter one arrives.
+
+\begin{pitfall}
+Never sort all processes by burst time first when arrival times differ and call the result SJF. The algorithm must make each decision using only processes that are ready at that time.
+\end{pitfall}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which scheduling metric most directly captures how quickly an interactive process first gets CPU time?
+  \item Why can priority scheduling starve a process, and how does aging help?
+  \item What does RR approach as the time quantum becomes very large?
+\end{enumerate}
+\end{quickcheck}

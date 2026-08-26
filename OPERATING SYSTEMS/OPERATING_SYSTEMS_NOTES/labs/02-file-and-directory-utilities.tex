@@ -1,0 +1,29 @@
+\labsection{2}{File scanning and directory utilities}{sec:lab02}
+\begin{labproject}{Build small Unix-style text and directory tools}
+\textbf{Coverage.} Chapter 2.\\
+\textbf{Source files.} \texttt{source\_code/Lab02/task\_1.c}--\texttt{task\_3.c}.\\
+\textbf{Goal.} Practice robust read loops, pathname arguments, directory traversal, and line-oriented text searching.
+
+\medskip\noindent\textbf{Task A --- Count spaces safely.}\par
+Replace a \texttt{while (!feof(fp))} loop with a read-result loop:
+\begin{lstlisting}[style=osc]
+int ch, spaces = 0;
+while ((ch = fgetc(fp)) != EOF) {
+    if (ch == ' ') spaces++;
+}
+\end{lstlisting}
+
+\medskip\noindent\textbf{Task B --- Fix the directory listing.}\par
+The supplied \texttt{task\_2.c} closes the directory inside the traversal loop. Move \texttt{closedir(dp)} after the loop and add an \texttt{opendir()} failure check.
+
+\medskip\noindent\textbf{Task C --- Mini grep.}\par
+The supplied program reads each line with \texttt{fgets()}, removes the newline if present, uses \texttt{strstr()} to search for a substring, and prints matching lines with line numbers.
+
+\begin{debugtask}
+Compile every Lab 2 source with warnings enabled, for example \texttt{gcc -Wall -Wextra file.c}. Record each warning/error and fix the program rather than suppressing diagnostics.
+\end{debugtask}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit corrected source for all three tasks and a one-page note explaining why successful-read loops and acquire/use/release resource discipline matter in OS programming.
+\end{labdeliverable}

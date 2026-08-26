@@ -1,0 +1,40 @@
+\chapter*{Course Map: Follow the Transformation of Finance}
+\addcontentsline{toc}{chapter}{Course Map: Follow the Transformation of Finance}
+\markboth{Course Map}{ }
+
+This course is easiest to understand as one connected story: technology changes how financial services are delivered, which expands access, creates new intermediaries, reshapes banks, and finally enables new infrastructure and platform competitors.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
+  stage2/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
+  stage3/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+]
+\node[stage] (a) at (0,5.7) {{\large\bfseries\color{MLBlue}1. Why FinTech emerged}\hfill\textbf{Week 1 / Chapter 1}\par
+Traditional intermediation, disintermediation, unbundling, customer friction, technology drivers, and incumbent challenges.};
+\node[stage] (b) at (0,3.9) {{\large\bfseries\color{MLBlue}2. Who finance still fails to serve}\hfill\textbf{Week 2 / Chapter 2}\par
+Unbanked and underbanked customers, financial inclusion, digital financial services, alternative data, and access constraints.};
+\node[stage2] (c) at (0,2.1) {{\large\bfseries\color{MLTeal}3. How intermediation is redesigned}\hfill\textbf{Weeks 3--5 / Chapters 3--5}\par
+P2P lending and crowdfunding, mobile banking, platform banking, neobanks, challenger banks, customer experience, profitability, and regulation.};
+\node[stage3] (d) at (0,0.3) {{\large\bfseries\color{MLOrange}4. How the financial infrastructure changes}\hfill\textbf{Weeks 6--7 / Chapter 6}\par
+Distributed ledgers, cryptography, blocks, Merkle trees, nodes, miners, immutability, and smart contracts.};
+\node[stage3] (e) at (0,-1.5) {{\large\bfseries\color{MLOrange}5. Who controls the customer interface}\hfill\textbf{Week 8 / Chapter 7}\par
+Big Tech, TechFin, GAFA/BAT, super apps, data advantages, incumbent bank assets, and platform competition.};
+\node[stage3] (f) at (0,-3.3) {{\large\bfseries\color{MLOrange}6. What happens when money itself becomes digital}\hfill\textbf{Week 9 / Chapter 8}\par
+Cryptocurrencies, Bitcoin wallets and mining, forks, currency functions, benefits, risks, scalability, and cryptoization.};
+\draw[arr] (a.south) -- (b.north);
+\draw[arr] (b.south) -- (c.north);
+\draw[arr] (c.south) -- (d.north);
+\draw[arr] (d.south) -- (e.north);
+\draw[arr] (e.south) -- (f.north);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+The recurring pattern across the course is \emph{friction $\rightarrow$ technology-enabled redesign $\rightarrow$ new value proposition $\rightarrow$ new risks and regulation}. Use that pattern to connect apparently different topics such as P2P lending, neobanks, blockchain, Big Tech, and cryptocurrency.
+\end{keyidea}
+
+\begin{libnote}
+\textbf{About dated facts.} The lecture decks contain market statistics, company valuations, product examples, and regulatory statements from several different years. In these notes such figures are labeled as lecture snapshots. They are useful for understanding the argument being taught, but they should not be interpreted as current market data unless separately verified.
+\end{libnote}

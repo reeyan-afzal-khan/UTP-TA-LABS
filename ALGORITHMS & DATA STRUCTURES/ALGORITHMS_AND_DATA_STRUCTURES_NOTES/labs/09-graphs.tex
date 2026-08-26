@@ -1,0 +1,43 @@
+\labsection{9}{Graph representation, traversal, and spanning trees}{sec:lab09}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab IX}
+\textbf{Objective.} Understand graph representation, implementation, and traversal.
+
+\textbf{Outcomes.} Understand graph properties, representations, and BFS/DFS traversal.
+
+\textbf{Problem directions.} Implement an adjacency list for $m$ vertices and $n$ edges; test whether a path of a given length exists; find a minimum spanning tree of an undirected graph using a greedy approach.
+\end{sourcealignment}
+
+\begin{labproject}{Build, traverse, and analyze one graph}
+\textbf{Coverage.} Chapter 9.
+
+\begin{lstlisting}
+void addUndirectedEdge(vector<vector<int>>& adj, int u, int v) {
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+}
+\end{lstlisting}
+
+Use the course graph or create a weighted undirected test graph. Implement adjacency-list storage, BFS, DFS, and the path-length check required by the manual.
+
+\begin{tryit}
+Reorder the adjacency list and rerun BFS/DFS. Explain why an exact visitation order may change. Then assign edge weights and apply the greedy MST method specified by your instructor.
+\end{tryit}
+
+\begin{clarification}
+The course source asks for a greedy minimum-spanning-tree solution but does not choose Prim's or Kruskal's algorithm. State which algorithm you use and follow your instructor's specification if one is given.
+\end{clarification}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every valid edge appears in the adjacency structure with the intended directionality.
+  \item BFS uses queue behavior; DFS uses recursion or an explicit stack.
+  \item A visited structure prevents infinite traversal on cycles.
+  \item The MST includes every vertex, has no cycle, and has $|V|-1$ edges when the graph is connected.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit adjacency-list construction, BFS, DFS, the required path test, and a labelled MST result for a weighted undirected example.
+\end{labdeliverable}

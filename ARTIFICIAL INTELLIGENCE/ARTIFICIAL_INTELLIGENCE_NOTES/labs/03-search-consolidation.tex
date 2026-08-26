@@ -1,0 +1,27 @@
+\labsection{3}{Uninformed and informed search implementation}{sec:lab03-search-code}
+
+\begin{labproject}{One Python search toolkit}
+\textbf{Coverage.} The ten examples in Lab 3: five uninformed-search patterns and five informed-search patterns.\\
+\textbf{Goal.} Turn the repeated code into a small, testable search toolkit.
+
+\begin{labmode}
+The source handout already provides reference functions for BFS grid search, DFS maze search, UCS, BFS tree traversal, DFS preorder, GBFS grid search, A* grid search, A* graph search, and a greedy word ladder. The weighted-maze example reuses the A* grid pattern.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Uninformed functions.}\par
+Place the following in one module: \texttt{bfs\_grid}, \texttt{dfs\_maze}, \texttt{ucs}, \texttt{bfs\_tree}, and \texttt{dfs\_preorder}.
+
+\medskip\noindent\textbf{Part B --- Informed functions.}\par
+Add \texttt{greedy\_bfs}, \texttt{astar\_grid}, \texttt{astar\_graph}, and \texttt{greedy\_word\_ladder}. Use the weighted-grid example to confirm that the A* grid implementation can accumulate cell costs.
+
+\medskip\noindent\textbf{Part C --- Cross-algorithm trace.}\par
+Choose one graph and instrument each compatible algorithm to print the frontier priority, popped state, path, and visited-set size.
+
+\begin{tryit}
+Create a summary table with columns: algorithm, data structure, priority expression, returned path, and returned cost (where defined). Use actual outputs from your code rather than a theoretical table copied from the notes.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the search module plus a driver notebook/script that runs every Lab 3 example and prints a compact comparison table.
+\end{labdeliverable}

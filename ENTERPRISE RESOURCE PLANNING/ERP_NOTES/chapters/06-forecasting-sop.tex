@@ -1,0 +1,166 @@
+\chapter{Sales Forecasting and Sales \& Operations Planning}
+\label{ch:forecasting-sop}
+
+\chapterguide
+  {You should understand the production-planning hierarchy and the difference between forecast, production plan, inventory, and capacity.}
+  {calculate a simple promotion-adjusted forecast, construct an S\&OP table, interpret capacity utilisation and safety stock, and identify unit or data inconsistencies before using a planning model.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 6, the supplied Sales Forecast and S\&OP spreadsheet, and the forecasting/S\&OP sections of Chapter 4 in the textbook. The tutorial uses Footloose Sport Shoes and asks students to automate the calculations with spreadsheet formulas.
+\end{sourcebasis}
+
+\section{Forecast structure used in the tutorial}
+
+The Footloose exercise provides 2022 monthly sales, identifies unusual promotional demand from the previous year, assumes 3\% underlying growth, and adds a different promotion plan for the forecast year.
+
+The calculation is best understood as four rows:
+
+\begin{enumerate}
+  \item remove last year's promotion from last year's total to estimate the base;
+  \item apply the 3\% growth assumption to the base;
+  \item obtain the new base projection;
+  \item add this year's expected promotion effect.
+\end{enumerate}
+
+For a spreadsheet, if the previous-year sales are in row 5, previous promotion in row 6, growth rate in a fixed input cell, and new promotion in row 10, the logic should be formula-driven rather than typed month by month.
+
+\section{Worked forecast for Footloose Sport Shoes}
+
+Using the values in the supplied spreadsheet and the tutorial's 3\% growth assumption gives the following results.
+
+\begin{erptable}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+ & Jan & Feb & Mar & Apr & May & Jun & Jul & Aug & Sep & Oct & Nov & Dec \\
+\midrule
+Previous year & 4000 & 4000 & 4500 & 5000 & 5000 & 5500 & 5500 & 5750 & 6000 & 6000 & 6200 & 6300 \\
+Previous promo & 0 & 0 & 0 & 0 & 0 & 200 & 0 & 0 & 0 & 0 & 400 & 400 \\
+Base & 4000 & 4000 & 4500 & 5000 & 5000 & 5300 & 5500 & 5750 & 6000 & 6000 & 5800 & 5900 \\
+3\% growth & 120 & 120 & 135 & 150 & 150 & 159 & 165 & 172.5 & 180 & 180 & 174 & 177 \\
+Base projection & 4120 & 4120 & 4635 & 5150 & 5150 & 5459 & 5665 & 5922.5 & 6180 & 6180 & 5974 & 6077 \\
+New promo & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 500 & 400 \\
+Forecast & 4120 & 4120 & 4635 & 5150 & 5150 & 5459 & 5665 & 5922.5 & 6180 & 6180 & 6474 & 6477 \\
+\bottomrule
+\end{tabular}}
+\end{erptable}
+
+If the organisation plans in whole pairs, it must also choose and document a rounding rule. Do not silently round some months and not others.
+
+\begin{workedexample}
+For June, previous-year sales were 5,500 pairs, but 200 pairs were attributed to a promotion. The estimated base is therefore 5,300. Applying 3\% growth gives $5{,}300\times 1.03=5{,}459$. Since the new promotion is planned only for November and December, the June forecast remains 5,459 pairs.
+\end{workedexample}
+
+\section{S\&OP is a balancing problem}
+
+Once forecast demand is available, planners decide how much to produce. The inventory balance is:
+
+\[
+I_t = I_{t-1} + P_t - F_t
+\]
+
+where $I_t$ is ending inventory, $P_t$ is production, and $F_t$ is forecast demand in period $t$.
+
+A plan that exactly matches forecast every month keeps inventory unchanged only if beginning inventory is already at the desired level. In practice, production is often shifted between periods because capacity changes with working days and because peak demand may exceed comfortable capacity.
+
+\section{Capacity and utilisation}
+
+Tutorial 6 states that the factory can produce a maximum of 40 shoes per hour, works 8 hours per normal day, and should remain at 99\% utilisation or below.
+
+Before calculating, units must be consistent.
+
+\begin{pitfall}
+The tutorial describes demand in \emph{pairs of shoes} but states a production rate of \emph{40 shoes per hour}. Those are different units. If ``40 shoes/hour'' is literal, capacity is 20 pairs/hour. If the intended classroom interpretation is 40 pairs/hour, the capacity is twice as large. Confirm the intended unit with the tutor before finalising the S\&OP table.
+\end{pitfall}
+
+If the intended rate is $r$ pairs/hour, monthly capacity is
+
+\[
+C_t = r\times 8\times D_t,
+\]
+
+where $D_t$ is the number of working days in the month. Utilisation is
+
+\[
+U_t = \frac{P_t}{C_t}\times 100\%.
+\]
+
+To enforce the tutorial's ceiling,
+
+\[
+P_t \leq 0.99C_t.
+\]
+
+\section{Safety stock and seasonal peaks}
+
+The tutorial says the planner expects higher demand in June and December and wants a safety stock buffer. One sensible strategy is to build inventory in an earlier month when capacity is less constrained, then use that inventory during the peak.
+
+This is exactly why S\&OP is more than copying the forecast into the production row. A production plan can intentionally differ from forecast while still satisfying cumulative demand.
+
+\section{Source inconsistencies to notice before modelling}
+
+The course materials contain a few values that should be treated carefully rather than silently reconciled:
+
+\begin{itemize}
+  \item Tutorial 6 asks for the 2023 forecast using 2022 sales, while the supplied spreadsheet headings still say ``for year 2022.'' The row values nevertheless match the tutorial's previous-year input structure.
+  \item Tutorial 6 states safety stock of 100, but the spreadsheet pre-fills 500 in the December inventory cell of the S\&OP table.
+  \item The tutorial uses pairs sold while the stated hourly production rate is in shoes.
+\end{itemize}
+
+\begin{keyidea}
+Planning models are only as reliable as their units and assumptions. Before writing formulas, verify time period, unit of measure, starting inventory, promotion assumptions, capacity rate, and whether the numbers describe individual items, pairs, cases, or product groups.
+\end{keyidea}
+
+\section{A disciplined spreadsheet design}
+
+A good planning spreadsheet separates \term{inputs} from \term{calculated rows}. The 3\% growth rate should be entered once and referenced absolutely. Promotion assumptions should live in their own row. Capacity should be calculated from rate, hours, and working days rather than typed as a number.
+
+A robust design makes assumptions visible so that a tutor or manager can change one input and see the plan recalculate.
+
+\section{How Odoo contributes to forecasting and planning}
+
+The supplied Odoo build guide does not implement a dedicated S\&OP workflow. It does, however, create the operational history that planning needs.
+
+\begin{odoobox}
+Use Odoo's reporting views to connect the spreadsheet exercise to ERP data:
+\begin{itemize}
+  \item \pathmenu{Sales \textrightarrow Reporting}: observe confirmed demand and revenue history.
+  \item \pathmenu{Inventory \textrightarrow Reporting}: inspect on-hand stock and movement history.
+  \item \pathmenu{Manufacturing \textrightarrow Reporting}: review manufacturing orders and output.
+\end{itemize}
+The planning spreadsheet is therefore not isolated from ERP; it is an analytical layer that can use historical sales, inventory, and production information generated by the integrated transactions.
+\end{odoobox}
+
+\section{Product-mix planning}
+
+The tutorial's S\&OP table also allocates production among product types. If total production is $P_t$ and the mix is 50\%, 30\%, and 20\%, then:
+
+\[
+P_{1,t}=0.50P_t,\qquad P_{2,t}=0.30P_t,\qquad P_{3,t}=0.20P_t.
+\]
+
+The percentages must sum to 100\%. A product-mix assumption is a simplification: real products may consume different capacities or bottleneck resources. For the tutorial, it is an aggregate allocation rule.
+
+\begin{tryit}
+Build one month of S\&OP twice: first under the assumption of 40 \emph{pairs}/hour and then under the literal 40 \emph{shoes}/hour. Compare the resulting capacity and utilisation. This shows why unit discipline matters before any optimisation or planning discussion.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why should last year's promotion be removed before applying the 3\% growth factor?
+  \item What does a positive ending inventory mean in the S\&OP balance equation?
+  \item Why might production be deliberately higher than forecast in October or November if December demand is expected to peak?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The tutorial forecast removes old promotion effects, applies underlying growth, then adds the new promotion.
+  \item S\&OP balances forecast demand, production, inventory, working days, and capacity.
+  \item Capacity and utilisation calculations require consistent units.
+  \item Safety stock protects service levels but ties up inventory and cash.
+  \item The supplied Word tutorial and spreadsheet contain a few inconsistent labels/starting values; these should be surfaced and confirmed rather than silently corrected.
+  \item Odoo reporting supplies historical operational data that can feed planning analysis.
+\end{itemize}
+\end{chapterrecap}

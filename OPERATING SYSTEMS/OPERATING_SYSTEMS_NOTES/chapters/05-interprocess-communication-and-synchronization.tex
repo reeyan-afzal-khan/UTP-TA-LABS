@@ -1,0 +1,62 @@
+\chapter{Interprocess Communication and Synchronization}\label{ch:ipc}
+\chapterguide{Know what processes and threads are, and understand that concurrent execution order is not deterministic.}{Explain race conditions, critical sections and semaphores; trace producer-consumer state; and use shared memory with a clear create/attach/use/detach/remove lifecycle.}
+
+\section{Concurrency creates interleavings}
+Two computations are \term{concurrent} when their executions overlap in time. On one core this can occur through rapid context switches; on multiple cores instructions can truly execute simultaneously. If shared state is accessed without coordination, different instruction interleavings can produce different outcomes.
+
+\section{Race conditions and critical sections}
+A \term{race condition} occurs when correctness depends on the relative timing of concurrent operations. A \term{critical section} is code that accesses shared state and must obey a synchronization rule.
+
+A correct critical-section solution aims for:
+\begin{itemize}
+  \item \textbf{mutual exclusion}: at most one participant is in the protected critical section;
+  \item \textbf{progress}: if no one is inside, eligible participants can eventually choose who enters;
+  \item \textbf{bounded waiting}: a participant should not be postponed forever.
+\end{itemize}
+
+\section{Semaphores}
+A semaphore is an integer synchronization object manipulated through atomic operations conventionally called \texttt{wait} (P/down) and \texttt{signal} (V/up). A binary semaphore can model a lock; a counting semaphore can represent the number of available resource units.
+
+\section{Producer-consumer}
+For a bounded buffer of capacity $N$, a classic semaphore design uses:
+\begin{itemize}
+  \item \texttt{mutex = 1} to protect the buffer data structure;
+  \item \texttt{empty = N} for available slots;
+  \item \texttt{full = 0} for occupied slots.
+\end{itemize}
+A producer waits for an empty slot and the mutex, inserts an item, then signals the mutex and \texttt{full}. A consumer waits for a full slot and the mutex, removes an item, then signals the mutex and \texttt{empty}.
+
+\begin{pitfall}
+A teaching program that implements \texttt{wait(s)} as ordinary \texttt{--s} and \texttt{signal(s)} as \texttt{++s} demonstrates the counts but is \emph{not} a real concurrent semaphore. Real synchronization requires atomic operations and blocking/wakeup semantics supplied by the OS or threading runtime.
+\end{pitfall}
+
+\section{Interprocess communication choices}
+Processes may communicate through pipes, message queues, sockets, signals, or shared memory. \term{Shared memory} can be very fast because processes access the same memory region after mapping it, but the application must separately solve synchronization.
+
+\section{System V shared memory lifecycle}
+The supplied lab uses System V IPC:
+\begin{enumerate}
+  \item obtain a key with \texttt{ftok()};
+  \item create or locate a segment with \texttt{shmget()};
+  \item attach it with \texttt{shmat()};
+  \item read/write the mapped bytes;
+  \item detach with \texttt{shmdt()};
+  \item remove the segment with \texttt{shmctl(..., IPC\_RMID, ...)} when appropriate.
+\end{enumerate}
+
+\begin{keyidea}
+IPC answers \emph{how data moves between execution contexts}; synchronization answers \emph{when shared data may be safely accessed}. Many systems need both.
+\end{keyidea}
+
+\input{chapters/concepts/05-concurrency-deep-dive}
+
+\input{labs/05-synchronization-and-shared-memory}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Races arise because concurrent instruction order is not fixed.
+  \item Critical-section protocols coordinate access to shared mutable state.
+  \item Semaphores can count resources and enforce ordering, but their operations must be atomic.
+  \item Shared memory is an IPC mechanism; it does not automatically protect itself from races.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,179 @@
+\chapter{Customer Relationship Management}
+\label{ch:crm}
+
+\chapterguide
+  {You should know the sales-order process and the difference between a potential sale and a confirmed order.}
+  {explain the purpose of CRM, distinguish operational CRM activities, connect CRM to ERP data, and evaluate how CRM supports acquisition, retention, sales, marketing, and service.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 4 and the CRM section of Chapter 3 in the textbook. Tutorial 4 uses Luna Electronics and asks students to justify CRM, propose a CRM system, explain its features, and support the proposal with a case study.
+\end{sourcebasis}
+
+\section{CRM is a relationship process, not just a contact list}
+
+\term{Customer Relationship Management (CRM)} is a set of processes and systems for managing interactions with prospects and customers across the relationship lifecycle. The goal is to make customer-facing work coordinated, visible, and reusable across the organisation.
+
+A contact database answers ``Who is this customer?'' A CRM system should also help answer:
+
+\begin{itemize}
+  \item What opportunities are currently active?
+  \item Who is responsible for the next action?
+  \item What has the customer bought before?
+  \item What promises, quotations, complaints, or campaigns has the customer received?
+  \item What is the expected value and probability of the deal?
+  \item What should the salesperson or service representative do next?
+\end{itemize}
+
+\begin{intuition}
+CRM tries to give the organisation a ``single face to the customer.'' The customer should not receive three contradictory prices from Sales, Marketing, and an executive simply because those people do not share interaction history.
+\end{intuition}
+
+\section{Core CRM activities}
+
+The textbook identifies several recurring CRM capabilities.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.25\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+CRM activity & Purpose \\
+\midrule
+One-to-one marketing & Tailor offers and communication to a customer's profile or history; supports cross-selling and up-selling. \\
+Sales force automation & Record contacts, assign leads, track opportunities, manage follow-ups, and forecast sales activity. \\
+Campaign management & Organise marketing campaigns and analyse their outcomes. \\
+Marketing content / knowledge & Give staff consistent product and promotional information. \\
+Service and call-centre support & Provide representatives with customer and product history so issues can be resolved without starting from zero. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+Modern products may package these features differently, but the business purpose remains similar: capture interactions, coordinate work, and learn from the accumulated customer data.
+
+\section{Lead, opportunity, quotation, and order are different states}
+
+A common beginner mistake is to treat every prospect as a sales order. CRM exists partly because sales work begins before a customer commits.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.45cm,minimum height=0.88cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.4cm
+]
+\node[box] (lead) {Lead / interest};
+\node[box,right=of lead] (opp) {Qualified opportunity};
+\node[box,right=of opp] (quote) {Quotation};
+\node[box,right=of quote] (so) {Sales order};
+\node[box,right=of so] (rel) {Ongoing relationship};
+\draw[arr] (lead)--(opp); \draw[arr] (opp)--(quote); \draw[arr] (quote)--(so); \draw[arr] (so)--(rel);
+\end{tikzpicture}
+\end{erpfigure}
+
+A \term{lead} is a potential contact or expression of interest. An \term{opportunity} is a potential deal being actively pursued. A \term{quotation} is a commercial offer. A \term{sales order} is a confirmed customer commitment. After the sale, service and future marketing continue the relationship.
+
+\section{Why CRM becomes more valuable when integrated with ERP}
+
+CRM has customer-facing information; ERP has operational and financial information. When connected, the salesperson does not need to guess whether a customer was delivered, invoiced, or paid.
+
+Useful integrated views include:
+
+\begin{itemize}
+  \item customer purchase history and product mix;
+  \item current quotations and open orders;
+  \item fulfilment and delivery status;
+  \item receivable and payment status;
+  \item profitability or discount patterns;
+  \item service history and recurring complaints.
+\end{itemize}
+
+This supports better decisions such as which customers to prioritise, which products to cross-sell, which accounts need service attention, and whether a discount is commercially sensible.
+
+\section{The Luna Electronics problem}
+
+Tutorial 4 asks how CRM could help Luna Electronics grow its customer base, retain existing customers, and improve customer service and support.
+
+A convincing answer should connect each business problem to a CRM mechanism rather than simply saying ``CRM improves customer relationships.''
+
+\begin{workedexample}
+Suppose Luna Electronics loses repeat customers because complaints are handled through personal email inboxes. A CRM process can log the interaction against the customer, assign responsibility, store the response, and make the history visible to the next employee. The business benefit is not the database itself; it is faster, more consistent service and less dependence on one employee's memory.
+\end{workedexample}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.23\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Business goal & CRM mechanism & Possible evidence of success \\
+\midrule
+Acquire customers & Lead capture, campaign tracking, opportunity pipeline, follow-up activities. & Lead-to-opportunity and opportunity-to-order conversion. \\
+Retain customers & Interaction history, segmentation, targeted offers, proactive follow-up. & Repeat-purchase rate, churn rate, customer lifetime value trend. \\
+Improve service & Shared case history, knowledge base, ownership and escalation. & Response time, resolution time, repeated-contact rate, satisfaction score. \\
+Improve sales productivity & Pipeline visibility, next activities, opportunity value, automated document hand-off. & Sales cycle length, win rate, forecast accuracy. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section{CRM data quality and governance}
+
+CRM is only useful if staff record interactions consistently. Common problems include duplicate customer records, opportunities with no next activity, optimistic expected revenue, inconsistent stages, and missing contact details.
+
+A good CRM process therefore defines:
+
+\begin{itemize}
+  \item what counts as a lead and an opportunity;
+  \item when a stage should change;
+  \item who owns the record;
+  \item which fields are mandatory;
+  \item how duplicate customers are prevented or merged;
+  \item what ``won'' and ``lost'' mean;
+  \item how lost reasons are recorded and analysed.
+\end{itemize}
+
+\begin{pitfall}
+A colourful pipeline is not automatically a reliable sales forecast. If users move opportunities between stages inconsistently or enter unrealistic expected revenue, management gets a visually attractive but misleading report.
+\end{pitfall}
+
+\section{CRM in the West End Bicycles Odoo flow}
+
+\begin{odoobox}
+The supplied Odoo guide creates an opportunity called \textbf{Road Bike Order -- Seri Iskandar Cycling Club} with expected revenue of RM 5,000. The Sales Manager is assigned as salesperson. The opportunity moves through pipeline stages and then creates the quotation for 5 Road Bikes.
+
+This demonstrates three CRM principles:
+\begin{enumerate}
+  \item the deal is owned by a named person;
+  \item expected revenue exists before the sale is confirmed;
+  \item the opportunity can create a quotation, preserving the customer relationship history as the deal becomes an operational order.
+\end{enumerate}
+\end{odoobox}
+
+\section{How to evaluate a CRM proposal}
+
+For the Tutorial 4 proposal, a strong evaluation framework asks six questions:
+
+\begin{enumerate}
+  \item \textbf{Fit:} Does the system support the required sales, marketing, and service processes?
+  \item \textbf{Integration:} Can customer, order, delivery, and financial data be connected?
+  \item \textbf{Usability:} Will staff actually record and update interactions?
+  \item \textbf{Reporting:} Can management see conversion, pipeline, campaigns, and service performance?
+  \item \textbf{Governance and security:} Can access, ownership, and customer-data handling be controlled?
+  \item \textbf{Cost and scalability:} Is the system affordable and able to grow with the business?
+\end{enumerate}
+
+\begin{tryit}
+For Luna Electronics, choose one customer problem and write a chain in this format: \emph{problem $\rightarrow$ CRM feature $\rightarrow$ changed employee behaviour $\rightarrow$ measurable business outcome}. If one link is vague, the proposal needs more detail.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why is an opportunity different from a sales order?
+  \item Give one example of cross-selling and one example of up-selling for Luna Electronics.
+  \item Why does CRM data quality affect sales forecasting?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item CRM coordinates customer-facing information before, during, and after a sale.
+  \item Core activities include targeted marketing, sales-force automation, campaign management, and service support.
+  \item Integration with ERP connects relationship history to orders, deliveries, invoices, and payments.
+  \item CRM value should be expressed through changed processes and measurable outcomes, not generic claims.
+  \item Odoo CRM provides the pipeline that turns customer interest into the quotation and sales-order process used later in the course.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,71 @@
+\section{From a byte stream to application records}
+At the OS interface, a regular file is fundamentally a sequence of bytes plus metadata. ``Student records'' or ``employee records'' are an application-level interpretation layered on top. The application decides field layout, delimiters, binary encoding, and how records are searched.
+
+\section{Access methods}
+\begin{description}
+  \item[Sequential access] Process bytes/records in order. Excellent for logs, streams, and full scans.
+  \item[Direct/random access] Jump to a known byte or fixed-size record offset. Requires predictable mapping from logical position to file location.
+  \item[Indexed access] Maintain an auxiliary mapping from key to record/block location. This can dramatically reduce lookup work at the cost of extra metadata and update complexity.
+\end{description}
+
+\begin{workedexample}
+If fixed-size records are exactly 64 bytes and the file contains no header, record $i$ begins at byte offset $64i$. A seek can reach it in constant arithmetic time. In a variable-length text file, record $i$ cannot generally be located this way without an index because earlier records have different lengths.
+\end{workedexample}
+
+\section{Logical blocks versus physical blocks}
+Filesystems usually reason in blocks. The application sees logical file block 0, 1, 2, ... while filesystem metadata maps those logical positions to physical storage locations. Allocation methods differ mainly in how that mapping is represented.
+
+\subsection{Contiguous allocation}
+Store a file in consecutive blocks. Metadata can be as small as start block plus length. Sequential and random access are excellent, but growing the file can be difficult if the following blocks are occupied.
+
+\subsection{Linked allocation}
+Each block contains a pointer/reference to the next. A file can grow by allocating any free block, avoiding external fragmentation in the classic sense. However, reaching logical block $k$ may require following the chain from the beginning, and pointer corruption can lose the remainder of the chain.
+
+\subsection{Indexed allocation}
+Store block pointers in a dedicated index structure. This supports direct lookup of logical blocks and non-contiguous placement. Large files may require multi-level indexing or multiple index blocks.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.18\linewidth}p{0.25\linewidth}p{0.25\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Random access & Growth & Main overhead/risk \\
+\midrule
+Contiguous & Excellent & Difficult if adjacent space unavailable & External fragmentation / relocation \\
+Linked & Poor without extra indexing & Easy & Pointer overhead and chain traversal \\
+Indexed & Good & Flexible & Index-block space and metadata complexity \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Extents: a practical compromise}
+Many modern filesystems map files using \term{extents}: each extent describes a run of consecutive blocks. A large file can consist of several extents. This keeps metadata smaller than one pointer per block while allowing growth without requiring the entire file to remain one contiguous run.
+
+\section{Managing free space}
+The filesystem also needs to know which blocks are unused. Common approaches include bitmaps/bit vectors, free lists, grouping, and counting runs of free blocks. Allocation performance depends on how quickly suitable free regions can be found.
+
+\section{Crash consistency and journaling}
+A high-level operation such as ``append data and rename the file'' can require several low-level metadata writes. If power fails after only some writes reach storage, metadata may become inconsistent. \term{Journaling} records enough intended metadata change in a log so recovery can replay or discard incomplete operations according to the filesystem's protocol. Copy-on-write filesystems instead write new versions and then atomically switch references when possible.
+
+\begin{keyidea}
+Durability is not the same as successful execution of \texttt{fwrite()}. Library buffering, kernel page cache, device caches, and filesystem ordering all lie between an application call and persistent storage. Systems that require strong durability must use the appropriate flush/synchronization primitives and understand their guarantees.
+\end{keyidea}
+
+\section{Binary-structure portability}
+Writing a C struct directly with \texttt{fwrite()} is convenient for a lab, but a durable file format should define field sizes and byte order explicitly. Compilers may insert padding between fields; architectures can differ in endianness and type width. A portable binary format serializes values deliberately rather than persisting an arbitrary in-memory struct layout.
+
+\section{Transactional thinking for allocation}
+The indexed-allocation lab should conceptually perform \emph{validate then commit}:
+\begin{mlsteps}
+  \item Validate that the requested index block is in range and free.
+  \item Validate every requested data block and reject duplicates.
+  \item Only after the entire request is known to be valid, mark all involved blocks allocated.
+\end{mlsteps}
+This avoids partial state changes when a later validation step fails.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why is indexed allocation better suited to direct access than linked allocation?
+  \item What portability issue arises from writing raw C structs to disk?
+  \item What problem does a filesystem journal help solve?
+\end{enumerate}
+\end{quickcheck}

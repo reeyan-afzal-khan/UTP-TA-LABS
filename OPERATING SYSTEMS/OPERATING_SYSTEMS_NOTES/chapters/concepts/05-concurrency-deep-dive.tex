@@ -1,0 +1,96 @@
+\section{Concurrency creates interleavings}
+Two threads can be individually correct yet jointly incorrect because their instructions can interleave in many possible orders. A \term{race condition} occurs when the result depends on an uncontrolled relative timing of concurrent operations on shared state.
+
+\begin{workedexample}
+Suppose shared \texttt{x=10} and two threads both execute \texttt{x=x+1}. At machine level this is conceptually read, add, write. Both threads can read 10 before either writes, then both write 11. The expected mathematical result 12 is lost. This is a \term{lost update} race.
+\end{workedexample}
+
+\section{The critical-section problem}
+A \term{critical section} is code that accesses shared state requiring controlled concurrency. A classic solution aims for three properties:
+\begin{description}
+  \item[Mutual exclusion] At most one participant is in the protected critical section when simultaneous access would be unsafe.
+  \item[Progress] If nobody is inside and some processes want to enter, the choice of the next entrant should not be postponed forever by unrelated processes.
+  \item[Bounded waiting] A requester should not be bypassed indefinitely.
+\end{description}
+
+\section{Atomic operations and locks}
+A lock works only if the operation that acquires ownership is itself atomic. Real processors provide primitives such as test-and-set or compare-and-swap, and OS/runtime libraries build mutexes and semaphores on top of such mechanisms plus scheduler support.
+
+\subsection{Mutex}
+A \term{mutex} expresses ownership of one mutually exclusive region. A thread locks it, enters the critical section, then unlocks it.
+
+\subsection{Semaphore}
+A \term{semaphore} is an integer-like synchronization abstraction manipulated through atomic operations often called wait/P/down and signal/V/up.
+\begin{itemize}
+  \item A \textbf{binary semaphore} can act similarly to a lock in simple cases.
+  \item A \textbf{counting semaphore} represents multiple units of an available resource.
+\end{itemize}
+
+\section{Producer-consumer with bounded buffer}
+For a buffer of capacity $N$, the canonical semaphore design uses:
+\[
+\texttt{empty}=N,\qquad \texttt{full}=0,\qquad \texttt{mutex}=1.
+\]
+A producer must reserve an empty slot and enter the critical section before inserting an item; a consumer must reserve a full slot and enter the critical section before removing one.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  buf/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,minimum width=4.1cm,minimum height=1.0cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[box] (p) {Producer};
+\node[buf,right=1.2cm of p] (b) {Bounded shared buffer\\protected by mutex};
+\node[box,right=1.2cm of b] (c) {Consumer};
+\draw[arr] (p)--node[above,font=\scriptsize]{wait empty; insert}(b);
+\draw[arr] (b)--node[above,font=\scriptsize]{remove; signal empty}(c);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{pitfall}
+The Lab 5 producer-consumer program changes ordinary integer variables through homemade \texttt{wait()} and \texttt{signal()} functions. This illustrates semaphore \emph{logic}, but it is not a real concurrent synchronization implementation because those operations are not made atomic and the program does not create concurrent producer/consumer threads.
+\end{pitfall}
+
+\section{Interprocess communication models}
+Processes can communicate in two broad ways.
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model & Strength & Main correctness concern \\
+\midrule
+Shared memory & Very fast after mapping; processes directly read/write common bytes & Synchronization is explicit and essential \\
+Message passing & Clear send/receive boundaries; easier isolation & Copying/queueing overhead and protocol design \\
+Pipes & Simple byte stream between related processes & Direction, lifetime, blocking, framing \\
+Sockets & Local or network communication through a common abstraction & Protocol, partial I/O, failures, ordering \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{System V shared memory in the lab}
+The Lab 5 shared-memory program demonstrates the lifecycle of a shared segment:
+\begin{mlsteps}
+  \item Obtain/create a segment identifier with \texttt{shmget()}.
+  \item Attach it into the process address space with \texttt{shmat()}.
+  \item Read or write the mapped bytes.
+  \item Detach with \texttt{shmdt()}.
+  \item Remove the segment with \texttt{shmctl(..., IPC\_RMID,...)} when no longer needed.
+\end{mlsteps}
+Attaching shared memory does not automatically synchronize readers and writers. If multiple processes modify it concurrently, a separate synchronization scheme is required.
+
+\section{Safety, liveness, and performance}
+Concurrency design should be evaluated on three axes:
+\begin{itemize}
+  \item \textbf{Safety:} nothing bad happens, e.g. no two writers corrupt a protected structure.
+  \item \textbf{Liveness:} something good eventually happens, e.g. no permanent deadlock/starvation.
+  \item \textbf{Performance:} synchronization does not serialize more work than necessary or cause excessive contention.
+\end{itemize}
+Correctness comes first; a very fast data race is still wrong.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why is \texttt{x++} not necessarily atomic?
+  \item In bounded-buffer synchronization, what do \texttt{empty} and \texttt{full} count?
+  \item Why does shared memory require a separate synchronization mechanism?
+\end{enumerate}
+\end{quickcheck}

@@ -1,0 +1,65 @@
+\chapter*{Group Project: Integrated eNSP Network}
+\addcontentsline{toc}{chapter}{Group Project: Integrated eNSP Network}\markboth{Group Project}{}
+\begin{sourcebasis}This section is derived from the supplied \textbf{Group Project - Template DCN.ppt}.\end{sourcebasis}
+
+\section*{What the project asks you to demonstrate}
+The supplied template asks for a basic client-server communication scenario in eNSP and encourages students to explain the design using selected OSI/TCP-IP layers. The project slide specifies choosing \textbf{2 or 3 OSI/TCP-IP layers} for the demonstration.
+
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.22\linewidth}X}
+\toprule
+Layer/theme & Project task from the supplied template\\\midrule
+Application & Set up a basic client-server communication scenario in eNSP.\\
+Transport & Use TCP for reliable communication, configure a basic TCP connection, demonstrate simple flow-control effects by limiting data rate, and simulate a packet-drop case to show TCP retransmission behavior.\\
+Network & Build a topology with 2--3 routers and multiple hosts, use static routing, implement an IPv4 addressing scheme, explain how devices communicate, and demonstrate packet forwarding.\\
+Data Link (optional) & Extend the design to the Data Link Layer for extra marks, focusing on how data is transmitted over the physical medium.\\\bottomrule
+\end{tabularx}
+
+\section*{A build sequence that reuses the lab workflow}
+\begin{netsteps}
+\item Draw the topology and write the addressing plan before entering any CLI commands.
+\item Configure host/router interfaces and prove every directly connected link.
+\item Add static routes and verify each remote destination in the routing table.
+\item Prove end-to-end forwarding with ping before adding the client-server demonstration.
+\item Add the chosen application/TCP behavior and collect packet or command evidence that explains what happens.
+\item If using the optional Data Link component, make the Layer-2 behavior visible and explain why it matters to the end-to-end flow.
+\item Prepare screenshots that are readable, labeled, and tied to a technical claim.
+\end{netsteps}
+
+\section*{Recommended evidence matrix}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.26\linewidth}X}
+\toprule
+Claim in presentation/report & Strong evidence\\\midrule
+``The topology is addressed correctly'' & Addressing table plus \cmd{display ip interface brief}/host IP configuration.\\
+``Routers can forward between networks'' & Routing-table entries and successful end-to-end ping.\\
+``TCP provides reliable transfer'' & Packet capture showing the connection and, for the drop case, retransmission evidence.\\
+``Rate limiting affects the flow'' & Before/after observation tied to the configured limitation.\\
+``The design uses a specific layer/protocol'' & Configuration excerpt plus a packet/state observation that proves the protocol is active.\\\bottomrule
+\end{tabularx}
+
+\section*{Deliverables}
+The supplied project lists three outputs:
+\begin{itemize}
+\item \textbf{eNSP demo:} a working network that students can explain while it is running.
+\item \textbf{Presentation:} the network design, basic configurations, protocol choices, and related technical explanation.
+\item \textbf{Report:} a written record of the implementation. The source slide states a Week 12 due date and submission through uLearn and to the lab instructor.
+\end{itemize}
+
+\section*{Evaluation criteria}
+The supplied rubric weights the work as follows:
+\begin{center}\begin{tabular}{lr}\toprule
+Design \& Implementation & 40\%\\
+Functionality \& Demo & 30\%\\
+Presentation \& Explanation & 20\%\\
+Report Quality & 10\%\\\bottomrule
+\end{tabular}\end{center}
+The rubric bands shown in the template are Excellent (90--100), Good (75--89), Satisfactory (60--74), and Needs Improvement (<60).
+
+\sourceimage[0.74\linewidth]{Evaluation-criteria table from the supplied project template}{project-evaluation.png}
+
+\begin{keyidea}
+The project rewards a working system and a defensible explanation. Reuse the lab habit of pairing every configuration claim with observable evidence: interface state, a route, a packet trace, an application result, or a connectivity test.
+\end{keyidea}
+
+\begin{labdeliverable}
+A strong final package contains a topology diagram, addressing table, configuration excerpts, routing evidence, client-server/TCP evidence, retransmission or rate-limit evidence where applicable, concise explanations of the selected layers, and a short troubleshooting/limitations section.
+\end{labdeliverable}

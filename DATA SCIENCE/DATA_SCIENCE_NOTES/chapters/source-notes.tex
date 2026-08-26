@@ -1,0 +1,28 @@
+\chapter*{Source Notes and Handout Ambiguities}
+\addcontentsline{toc}{chapter}{Source Notes and Handout Ambiguities}
+\markboth{Source Notes and Handout Ambiguities}{}
+
+This course edition is based on the supplied TEB2164 Lab 1a--9b handouts. It preserves their topic order, variable names, code patterns, activities, and stated learning outcomes while making internal inconsistencies explicit instead of silently changing them.
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{2.0cm}p{4.4cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Source & Issue visible in supplied material & Treatment in these notes \\
+\midrule
+Lab 4a & \texttt{vector3} and \texttt{vector4} are created, but \texttt{array2} is then built from \texttt{vector1} and \texttt{vector2}. & Preserved as a caution; no unsupported intended replacement is asserted. \\
+Lab 4b & Array2 is specified as 3 rows by 2 columns, yet the task asks for row 3, column 3. The sample output is 30. & Guided code uses \texttt{[3,2,1]}, which matches both the displayed dimensions and sample value 30. \\
+Lab 5b & The Armstrong task says ``power three'' but uses 1634 as the expected Armstrong example. & Guided solution clearly states that it uses the number of digits as the exponent to reconcile the sample. \\
+Lab 6a & The subsection labels for summary versus row/column counts appear swapped. & Functions are organized by their actual calls, and the mismatch is noted. \\
+Lab 6 practical & Uploaded file header says Lab 5b although the content continues the data-frame material from Lab 6a. & Placed as Lab 6 in this edition. \\
+Lab 7b & The required \texttt{uforeport.xls} and \texttt{titanic.csv} files were not among the supplied materials for this build. & No dataset-specific numerical insights are fabricated; only a reproducible workflow is given. \\
+Lab 8a & \texttt{pie3D()} uses undefined \texttt{lbl}; histogram fragment prints \texttt{n breaks = 5}. & Both are explicitly flagged; a working \texttt{breaks = 5} interpretation is labeled as such. \\
+Lab 9a & Package name appears as \texttt{ggcorplot} while library/function use \texttt{ggcorrplot}; final summary calls undefined \texttt{scaled\_data1}. & Both mismatches are stated directly and the execution-safe alternatives are identified. \\
+Lab 9b & The task asks to log-transform \texttt{mtcars} without specifying how zero-valued columns should be handled. & Notes instruct students to inspect and report the issue rather than conceal it. \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+\begin{keyidea}
+When reproducing a lab, distinguish three things: what the handout explicitly states, what the code actually does when run, and any implementation choice you make to resolve an ambiguity. That separation makes the analysis easier to defend and easier to debug.
+\end{keyidea}

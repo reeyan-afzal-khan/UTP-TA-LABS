@@ -24,7 +24,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -92,7 +92,7 @@ from sklearn.preprocessing import StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "breast_cancer_dataset" / "data.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -123,7 +123,9 @@ for threshold in [0.50, 0.30]:
     plt.title(f"Confusion matrix at threshold {threshold:.2f}")
     plt.tight_layout()
     plt.show()
+\end{lstlisting}
 
+\begin{lstlisting}[style=mlpython]
 print("ROC AUC:", round(roc_auc_score(y_valid, prob), 3))
 print("PR AUC:", round(average_precision_score(y_valid, prob), 3))
 \end{lstlisting}
@@ -164,7 +166,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "heart_failure_dataset" / "heart.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -239,7 +241,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}

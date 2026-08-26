@@ -1,0 +1,40 @@
+\labsection{7}{Tree representation and traversal}{sec:lab07}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab VII}
+\textbf{Objective.} Learn the tree ADT and apply trees to real-life problems.
+
+\textbf{Outcomes.} Implement a tree using an array and a linked representation; implement traversal methods; choose an appropriate tree structure.
+
+\textbf{Problem directions.} Tree representation; binary-tree implementation; traversal algorithms; inserting, deleting, and updating tree elements.
+\end{sourcealignment}
+
+\begin{labproject}{Represent the same binary tree two ways}
+\textbf{Coverage.} Chapter 7.
+
+\begin{lstlisting}
+TreeNode* root = new TreeNode{8, nullptr, nullptr};
+root->left = new TreeNode{4, nullptr, nullptr};
+root->right = new TreeNode{12, nullptr, nullptr};
+root->left->left = new TreeNode{2, nullptr, nullptr};
+root->left->right = new TreeNode{6, nullptr, nullptr};
+\end{lstlisting}
+
+Implement inorder, preorder, and postorder traversal. Then represent the same shape in an array and identify each parent/child index.
+
+\begin{tryit}
+Write all three traversal sequences before running the program. Add one update operation and one structural insertion/deletion exercise specified by your lab session.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Traversals visit every stored node exactly once.
+  \item The linked and array representations describe the same shape.
+  \item Your array child-index formula matches the chosen 0-based or 1-based convention.
+  \item Empty subtrees terminate recursion safely.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit both representations, all three traversal outputs, and a brief note stating your indexing convention.
+\end{labdeliverable}

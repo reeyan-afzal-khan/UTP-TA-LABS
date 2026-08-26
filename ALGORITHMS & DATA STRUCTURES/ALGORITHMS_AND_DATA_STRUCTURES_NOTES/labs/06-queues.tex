@@ -1,0 +1,41 @@
+\labsection{6}{Linear, linked, circular, and priority queues}{sec:lab06}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab VI}
+\textbf{Objective.} Build proper intuition for queues and implement different queue types.
+
+\textbf{Outcomes.} Understand queue variants and efficient array/linked-list implementations.
+
+\textbf{Problem directions.} Array queue with enqueue/dequeue; linked-list queue with enqueue/dequeue; circular-array queue problems. The manual also defines priority-queue processing rules.
+\end{sourcealignment}
+
+\begin{labproject}{Implement queues and demonstrate wrap-around}
+\textbf{Coverage.} Chapter 6.
+
+Build an array queue and a linked-list queue. Then implement a circular queue where index movement uses modulo arithmetic.
+
+\begin{lstlisting}
+// Circular queue, capacity 5
+// enqueue 10, 20, 30, 40
+// dequeue twice
+// enqueue 50, 60
+// rear must wrap without breaking FIFO order
+\end{lstlisting}
+
+\begin{tryit}
+Print \texttt{front}, \texttt{rear}, and either \texttt{count} or your chosen full/empty state after every circular operation. As an extension, represent items as \texttt{(value, priority)} and implement the two priority rules from the lab manual.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Array and linked-list queues preserve FIFO order.
+  \item Dequeuing the final linked node resets both front and rear correctly.
+  \item Circular wrap-around visibly reuses low array indexes.
+  \item Full and empty circular states cannot be confused.
+  \item If a priority queue is implemented, equal-priority items preserve arrival order.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit array and linked-list queue implementations plus a circular-queue trace that reuses earlier array slots. Include the priority-queue extension if assigned by your instructor.
+\end{labdeliverable}

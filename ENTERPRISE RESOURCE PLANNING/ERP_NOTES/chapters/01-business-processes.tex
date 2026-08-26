@@ -1,0 +1,175 @@
+\chapter{Business Functions, Business Processes, and ERP Integration}
+\label{ch:business-processes}
+
+\chapterguide
+  {You only need a basic idea of what departments such as Sales, Finance, Supply Chain, and HR do.}
+  {distinguish a functional area from a business function and a business process, trace cross-functional information flows, and explain why a shared ERP database improves coordination.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 1 on Business Process / Business Functions and Chapter 1 of \emph{Concepts in Enterprise Resource Planning}. The West End Bicycles scenario and the four functional areas are preserved from the course materials; the explanations and diagrams below reorganise those ideas into a study sequence.
+\end{sourcebasis}
+
+\section{Start with the organisation, not the software}
+
+An ERP system exists to support how a business works. Before learning menus and modules, identify the work performed by the organisation.
+
+A \term{functional area} is a broad part of the organisation responsible for a family of activities. The course materials emphasise four recurring areas:
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.23\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Functional area & Typical business functions \\
+\midrule
+Marketing and Sales & Product promotion, pricing, quotations, sales orders, customer support, CRM, and sales forecasting. \\
+Supply Chain Management & Purchasing, receiving, inventory, production planning, manufacturing, logistics, and delivery. \\
+Accounting and Finance & Recording transactions, receivables and payables, budgeting, cash management, financial reporting, and profitability analysis. \\
+Human Resources & Recruiting, hiring, training, payroll-related administration, benefits, employee records, and compliance. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+A \term{business function} is one activity within a functional area. For example, ``taking a sales order'' is a business function in Marketing and Sales. A \term{business process} is broader: it is a connected set of activities that transforms an input into an output that matters to a customer or another internal user.
+
+\begin{intuition}
+A department is an organisational box. A process is a journey. The customer order journey may begin in Sales, move through credit checking, inventory, delivery, and invoicing, and end when payment is recorded. The customer sees one experience even though the company sees several departments.
+\end{intuition}
+
+\section{Why business processes cross functional boundaries}
+
+Suppose West End Bicycles receives an order for 1,000 bicycles. The sales employee can capture the request, but Sales alone cannot complete the order. The organisation must answer several questions:
+
+\begin{itemize}
+  \item Is the customer allowed to buy on the requested credit terms?
+  \item Are enough bicycles already in stock?
+  \item If not, can production make them on time?
+  \item Are the required frames, tyres, brakes, gears, and chains available?
+  \item When can the order be delivered?
+  \item What invoice should Finance issue, and has the customer paid?
+\end{itemize}
+
+Each question belongs partly to a different functional area. The process therefore crosses functional lines.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  area/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.9cm,minimum height=1.05cm,align=center,font=\small\bfseries\color{ERPNavy}},
+  proc/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.2cm,minimum height=0.75cm,align=center,font=\scriptsize\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal}
+]
+\node[area] (ms) at (0,2.2) {Marketing \\ \& Sales};
+\node[area] (af) at (4.0,2.2) {Accounting \\ \& Finance};
+\node[area] (scm) at (8.0,2.2) {Supply Chain \\ Management};
+\node[area] (hr) at (12.0,2.2) {Human \\ Resources};
+\node[proc] (p1) at (0,0) {Capture order};
+\node[proc] (p2) at (3,0) {Check credit};
+\node[proc] (p3) at (6,0) {Plan / reserve};
+\node[proc] (p4) at (9,0) {Deliver};
+\node[proc] (p5) at (12,0) {Invoice / pay};
+\draw[arr] (p1) -- (p2); \draw[arr] (p2) -- (p3); \draw[arr] (p3) -- (p4); \draw[arr] (p4) -- (p5);
+\draw[dashed,draw=ERPMuted] (ms.south) -- (p1.north);
+\draw[dashed,draw=ERPMuted] (af.south) -- (p2.north);
+\draw[dashed,draw=ERPMuted] (scm.south) -- (p3.north);
+\draw[dashed,draw=ERPMuted] (scm.south east) -- (p4.north);
+\draw[dashed,draw=ERPMuted] (af.south east) -- (p5.north);
+\end{tikzpicture}
+\end{erpfigure}
+
+The HR area may not touch every individual order, but it still supports the process by ensuring that the organisation has trained salespeople, buyers, production planners, accountants, and warehouse staff.
+
+\section{The information each area needs from the others}
+
+A process can fail even when every department works hard if information moves slowly or inconsistently.
+
+\subsection{Marketing and Sales}
+Marketing and Sales needs customer details, order data, product availability, unit cost and profitability information, and staffing support. It produces sales orders, prices, sales forecasts, and customer demand information.
+
+\subsection{Supply Chain Management}
+SCM needs sales forecasts and confirmed orders so it can plan production, purchasing, and inventory. It produces availability, production, receipt, and shipment information that Sales and Finance need.
+
+\subsection{Accounting and Finance}
+Finance needs sales, purchasing, inventory, production, payroll, and payment data. It produces invoices, credit information, payments to suppliers, financial statements, and management reports.
+
+\subsection{Human Resources}
+HR needs staffing requirements and job-skill information from operational departments. It produces employee records, training information, compliance records, and compensation-related data.
+
+\begin{keyidea}
+The quality of a decision is constrained by the quality, timeliness, and consistency of the data available when the decision is made. ERP integration is valuable because it reduces the delay and disagreement created by multiple disconnected copies of the same business facts.
+\end{keyidea}
+
+\section{Silos versus an integrated information system}
+
+A \term{silo} is a departmental information system that stores its own data and does not automatically stay synchronised with other systems. A silo is not automatically bad; the problem appears when a cross-functional process depends on information that exists in several different versions.
+
+\begin{erpfigure}
+\resizebox{0.95\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw=ERPRed,fill=ERPPaleRed,rounded corners=2mm,minimum width=2.7cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  ibox/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.7cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  db/.style={cylinder,shape border rotate=90,aspect=0.30,draw=ERPBlue,fill=ERPPaleBlue,minimum height=1.3cm,minimum width=2.4cm,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick}
+]
+\node[box] (s1) at (0,2.0) {Sales DB};
+\node[box] (s2) at (3.3,2.0) {Warehouse DB};
+\node[box] (s3) at (6.6,2.0) {Finance DB};
+\node at (3.3,3.0) {\bfseries\color{ERPRed}Disconnected silos};
+\draw[arr,draw=ERPRed,dashed] (s1) -- node[above,font=\tiny] {file / paper} (s2);
+\draw[arr,draw=ERPRed,dashed] (s2) -- node[above,font=\tiny] {manual update} (s3);
+
+\node[ibox] (i1) at (9.0,2.0) {Sales};
+\node[ibox] (i2) at (12.0,2.0) {Inventory};
+\node[ibox] (i3) at (15.0,2.0) {Finance};
+\node[db] (db) at (12.0,0.15) {Shared data};
+\node at (12.0,3.0) {\bfseries\color{ERPTeal}Integrated ERP};
+\draw[arr,draw=ERPTeal] (i1) -- (db); \draw[arr,draw=ERPTeal] (i2) -- (db); \draw[arr,draw=ERPTeal] (i3) -- (db);
+\end{tikzpicture}}
+\end{erpfigure}
+
+With a shared database, a business event can update several views of the company at once. For example, when a delivery is validated, Inventory sees stock leave the warehouse, Sales sees fulfilment progress, and Finance has the evidence needed to bill or recognise the related transaction according to the configured process.
+
+\section{West End Bicycles as the running example}
+
+The tutorial scenario describes West End Bicycles as a manufacturer of road, mountain, and city bicycles, along with accessories such as helmets, shoes, and clothing. That scenario is useful because it requires all four functional areas.
+
+\begin{workedexample}
+For a Road Bike order, the process can be read as two connected cycles:
+\begin{enumerate}
+  \item \textbf{Procure-to-pay:} identify the need for frames, tyres, and parts; create purchase orders; receive materials; update inventory; pay suppliers.
+  \item \textbf{Order-to-cash:} capture customer interest; create a quotation; confirm a sales order; deliver bikes; create an invoice; receive payment.
+\end{enumerate}
+Manufacturing connects the two cycles by converting purchased components into finished Road Bikes.
+\end{workedexample}
+
+\section{What Odoo adds to this picture}
+
+The supplied Odoo 19 Community guide implements the same concepts using eight applications: Contacts, CRM, Employees, Inventory, Invoicing, Manufacturing, Purchase, and Sales.
+
+\begin{odoobox}
+The Odoo guide emphasises three ideas that will recur throughout the practicals:
+\begin{itemize}
+  \item Records are linked. A purchase order leads to a receipt; a sales order leads to a delivery and an invoice.
+  \item Business documents move through states such as draft, confirmed/posted, and done/paid.
+  \item Smart buttons expose the relationships between records, making the information flow visible instead of requiring separate manual reconciliation.
+\end{itemize}
+\end{odoobox}
+
+\begin{pitfall}
+Do not define ERP as merely ``software that combines departments.'' The important point is process integration: the same underlying business event should be visible consistently to the functions that need it, at the time they need it.
+\end{pitfall}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Explain the difference between a functional area, a business function, and a business process using West End Bicycles.
+  \item Why can a weekly printed credit report cause a sales-order problem even if the Accounting data was correct when the report was printed?
+  \item Name three pieces of information that must move between Sales and Supply Chain when fulfilling a bicycle order.
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Functional areas organise responsibility; business processes connect activities across those areas.
+  \item Marketing and Sales, SCM, Accounting and Finance, and HR depend on one another's data.
+  \item Disconnected systems create duplicate entry, delays, inconsistent data, and poor visibility.
+  \item ERP uses integrated data and linked processes so that one business event can support several departments without re-entering the same facts.
+  \item Odoo will be used in the practicals to make those information flows visible through linked records and document states.
+\end{itemize}
+\end{chapterrecap}

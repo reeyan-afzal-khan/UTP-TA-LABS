@@ -1,0 +1,464 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\IfFileExists{glyphtounicode.tex}{\input{glyphtounicode}\pdfgentounicode=1}{}
+\usepackage[american]{babel}
+\IfFileExists{sourcesanspro.sty}
+  {\usepackage[default]{sourcesanspro}}
+  {\usepackage[scaled]{helvet}\renewcommand{\familydefault}{\sfdefault}}
+\usepackage[margin=21mm,headheight=22pt]{geometry}
+\usepackage{amsmath,amssymb,mathtools,bm}
+\usepackage{microtype}
+\DeclareTextCommand{\textdollar}{T1}{{\upshape\char`\$}}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\usepackage[table]{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{
+  compat=1.18,
+  every axis/.append style={
+    axis line style={draw=MLMuted!85,line width=0.55pt},
+    tick style={draw=MLMuted!85},
+    tick label style={font=\scriptsize\color{MLMuted}},
+    label style={font=\small\color{MLNavy}},
+    title style={font=\small\bfseries\color{MLNavy}},
+    legend style={
+      font=\scriptsize,
+      draw=MLBlue!22,
+      fill=white,
+      rounded corners=1pt
+    }
+  },
+  every axis plot/.append style={line width=1.15pt}
+}
+\tikzset{every picture/.append style={line cap=round,line join=round}}
+
+% ---------- Visual system ----------
+\definecolor{MLNavy}{HTML}{18324A}
+\definecolor{MLBlue}{HTML}{246B9E}
+\definecolor{MLTeal}{HTML}{138A80}
+\definecolor{MLGreen}{HTML}{2D7D46}
+\definecolor{MLOrange}{HTML}{C86B24}
+\definecolor{MLRed}{HTML}{B34843}
+\definecolor{MLInk}{HTML}{263238}
+\definecolor{MLMuted}{HTML}{60717C}
+\definecolor{MLPaleBlue}{HTML}{EEF6FB}
+\definecolor{MLPaleTeal}{HTML}{EEF8F6}
+\definecolor{MLPaleOrange}{HTML}{FFF5EA}
+\definecolor{MLPaleRed}{HTML}{FFF0EF}
+\definecolor{MLPaleGray}{HTML}{F4F6F7}
+
+\color{MLInk}
+\hypersetup{
+  pdftitle={FinTech Innovation Notes: Course Edition},
+  pdfauthor={Reeyan Afzal Khan and Mohd Safuwan Shahabudin},
+  pdfsubject={FinTech innovation notes from foundations to digital finance},
+  pdfkeywords={fintech, digital banking, crowdfunding, blockchain, cryptocurrency, financial inclusion},
+  pdflang={en-US},
+  bookmarksnumbered=true,
+  bookmarksopen=true
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.45em,itemsep=0.22em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=1.75em,itemsep=0.28em,topsep=0.3em}
+\setlist[description]{font=\bfseries\color{MLNavy},itemsep=0.25em,topsep=0.3em}
+\renewcommand{\arraystretch}{1.34}
+\setlength{\tabcolsep}{6.5pt}
+\arrayrulecolor{MLBlue!45}
+% Keep every paragraph-style table column top-aligned and comfortably ragged.
+% Most tables mix fixed-width p columns with flexible X columns; giving X the
+% same p-column baseline prevents entries in one column from floating halfway
+% down a multi-line row.
+\renewcommand{\tabularxcolumn}[1]{p{#1}}
+\makeatletter
+\g@addto@macro\@arrayparboxrestore{\RaggedRight\arraybackslash}
+\makeatother
+\AtBeginEnvironment{tabular}{%
+  \small
+  \setlength{\extrarowheight}{0.6pt}%
+  \rowcolors{2}{MLPaleBlue!72}{white}%
+}
+\AtBeginEnvironment{tabularx}{%
+  \small
+  \setlength{\extrarowheight}{0.6pt}%
+  \rowcolors{2}{MLPaleBlue!72}{white}%
+}
+\emergencystretch=1.5em
+\hbadness=10000
+\hfuzz=8pt
+
+% ---------- Table of contents ----------
+\addto\captionsamerican{\renewcommand{\contentsname}{Learning Path}}
+\newlistentry{lab}{toc}{-1}
+\renewcommand{\cftpartpresnum}{}
+\renewcommand{\cftpartaftersnum}{}
+\setlength{\cftpartnumwidth}{5.2em}
+\setlength{\cftbeforepartskip}{0.38em}
+\renewcommand{\cftpartfont}{\normalsize\bfseries\color{MLNavy}}
+\renewcommand{\cftpartpagefont}{\normalsize\bfseries\color{MLNavy}}
+\renewcommand{\cftpartleader}{\hfill}
+\renewcommand{\cftchappresnum}{Chapter~}
+\renewcommand{\cftchapaftersnum}{\quad}
+\setlength{\cftchapindent}{1.5em}
+\setlength{\cftchapnumwidth}{6em}
+\setlength{\cftbeforechapskip}{0pt}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\setlength{\cftlabindent}{3em}
+\setlength{\cftlabnumwidth}{0em}
+\setlength{\cftbeforelabskip}{0.10em}
+\renewcommand{\cftlabfont}{\bfseries\color{MLOrange!90!black}}
+\renewcommand{\cftlabpagefont}{\bfseries\color{MLOrange!90!black}}
+\renewcommand{\cftlableader}{\color{MLOrange!65!MLMuted}\cftdotfill{\cftlabdotsep}}
+
+% ---------- Headings ----------
+\titleformat{\chapter}[display]
+  {\bfseries\color{MLNavy}}
+  {\filleft\colorbox{MLBlue}{\parbox{2.55cm}{\centering\color{white}\Large CHAPTER\\[-0.15em]\Huge\thechapter}}}
+  {0.65em}{\Huge\raggedright}
+  [\vspace{0.25em}{\color{MLBlue}\titlerule[1.2pt]}]
+\renewcommand{\thepart}{Stage~\arabic{part}}
+\titleformat{\part}[display]
+  {\centering\color{MLNavy}\bfseries}
+  {\Large\color{MLTeal}\thepart}{0.45em}{\Huge}
+  [\vspace{0.55em}\color{MLTeal}\rule{0.45\linewidth}{1.5pt}]
+
+\newcommand{\substage}[3]{%
+  \cleardoublepage
+  \thispagestyle{empty}
+  \phantomsection
+  \addcontentsline{toc}{chapter}{Stage #1 --- #2}
+  \begin{center}
+    \vspace*{0.20\textheight}
+    {\Large\bfseries\color{MLTeal} Stage #1\par}
+    \vspace{0.45em}
+    {\Huge\bfseries\color{MLNavy} #2\par}
+    \vspace{0.65em}
+    {\color{MLTeal}\rule{0.46\linewidth}{1.5pt}\par}
+    \vspace{1.1em}
+    \begin{minipage}{0.76\linewidth}
+      \centering\large\color{MLMuted} #3
+    \end{minipage}
+  \end{center}
+  \cleardoublepage
+}
+
+\titleformat{\section}
+  {\Large\bfseries\color{MLNavy}}
+  {\thesection}{0.55em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{MLBlue}}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{-1.8em}{1.0em}
+\titlespacing*{\part}{0pt}{0pt}{1em}
+\titlespacing*{\section}{0pt}{1.2em}{0.35em}
+\titlespacing*{\subsection}{0pt}{0.95em}{0.2em}
+
+% ---------- Page furniture ----------
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\color{MLMuted}FinTech Innovation Notes}
+\rhead{\small\color{MLMuted}\nouppercase{\leftmark}}
+\cfoot{\small\color{MLMuted}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{MLPaleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \cfoot{\small\color{MLMuted}\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% ---------- Code listings ----------
+\lstdefinestyle{mlpython}{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\bfseries\color{MLBlue},
+  commentstyle=\itshape\color{MLMuted},
+  stringstyle=\color{MLGreen!70!black},
+  backgroundcolor=\color{MLPaleGray!72},
+  frame=single,
+  rulecolor=\color{MLBlue!28},
+  framesep=5pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  upquote=true,
+  tabsize=4,
+  aboveskip=0.7em,
+  belowskip=0.8em
+}
+\lstdefinestyle{mlterminal}{
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{MLPaleGray!72},
+  frame=single,
+  rulecolor=\color{MLMuted!35},
+  framesep=5pt,
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  upquote=true,
+  aboveskip=0.6em,
+  belowskip=0.7em
+}
+\newtcolorbox{labproject}[1]{
+  enhanced,breakable,colback=white,colframe=MLBlue,
+  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLBlue,title={#1}
+}
+\newcommand{\kagglesource}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
+}
+
+% ---------- Reusable learning blocks ----------
+\newtcolorbox{mlfigure}{
+  enhanced,width=\linewidth,colback=white,colframe=MLBlue!28,
+  boxrule=0.7pt,arc=2mm,
+  left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,
+  before skip=0.75em,after skip=0.85em,
+  halign=center
+}
+\newtcolorbox{mltable}{
+  enhanced,width=\linewidth,colback=white,colframe=MLTeal!32,
+  boxrule=0.7pt,arc=2mm,
+  left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
+  before skip=0.75em,after skip=0.85em,
+  halign=center
+}
+\newtcolorbox{keyidea}{
+  enhanced,breakable,colback=MLPaleTeal,colframe=MLTeal,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{MLNavy},title=Key idea
+}
+\newtcolorbox{workedexample}{
+  enhanced,breakable,colback=MLPaleBlue,colframe=MLBlue,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{MLNavy},title=Worked example
+}
+\newtcolorbox{intuition}{
+  enhanced,breakable,colback=white,colframe=MLOrange!42,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
+  fonttitle=\bfseries\color{MLOrange!85!black},title=Plain idea
+}
+\newtcolorbox{firstread}{
+  enhanced,breakable,colback=white,colframe=MLBlue!42,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
+  fonttitle=\bfseries\color{MLBlue},
+  title=Core path
+}
+\newtcolorbox{pitfall}{
+  enhanced,breakable,colback=MLPaleRed,colframe=MLRed,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{MLNavy},title=Common mistake
+}
+\newtcolorbox{optionaltopic}{
+  enhanced,breakable,colback=white,colframe=MLMuted!58,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
+  fonttitle=\bfseries\color{MLMuted},title=Beyond the core
+}
+\newtcolorbox{modelcard}[1]{
+  enhanced,breakable,colback=white,colframe=MLBlue,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLBlue,title=#1
+}
+\newtcolorbox{chapterrecap}{
+  enhanced,breakable,colback=MLPaleTeal,colframe=MLGreen,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Chapter recap
+}
+\newtcolorbox{quickcheck}{
+  enhanced,breakable,colback=white,colframe=MLOrange,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLOrange,title=Check your understanding
+}
+
+\newtcolorbox{tryit}{
+  enhanced,breakable,colback=white,colframe=MLTeal,
+  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLTeal,title=Try it yourself
+}
+\newtcolorbox{libnote}{
+  enhanced,breakable,colback=white,colframe=MLMuted!48,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
+  fonttitle=\bfseries\color{MLNavy},title=Reference note
+}
+\newtcolorbox{analogy}{
+  enhanced,breakable,colback=white,colframe=MLOrange!38,
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
+  fonttitle=\bfseries\color{MLOrange!85!black},title=Analogy
+}
+
+\newtcolorbox{secondpass}{
+  enhanced,breakable,colback=MLPaleGray!82,colframe=MLMuted,
+  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLMuted,title=Second pass
+}
+\newtcolorbox{debugtask}{
+  enhanced,breakable,colback=MLPaleRed!58,colframe=MLRed,
+  boxrule=0.85pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLRed,title=Debugging task
+}
+\newtcolorbox{decisionmemo}{
+  enhanced,breakable,colback=MLPaleOrange!55,colframe=MLOrange,
+  boxrule=0.85pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLOrange,title=Decision memo
+}
+\newtcolorbox{miniproject}{
+  enhanced,breakable,colback=MLPaleTeal!52,colframe=MLGreen,
+  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Mini-project
+}
+
+\newtcolorbox{labdeliverable}{
+  enhanced,breakable,colback=white,colframe=MLGreen,
+  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Lab deliverable
+}
+\newtcolorbox{labmode}{
+  enhanced,breakable,colback=MLPaleBlue!52,colframe=MLBlue,
+  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLBlue,title=How much is scaffolded?
+}
+
+% ---------- Standalone lab breaks inside the full book ----------
+\newcommand{\labsection}[3]{%
+  \clearpage
+  \phantomsection
+  \addcontentsline{toc}{lab}{Lab #1 of 10 --- #2}%
+  \markboth{Lab #1 of 10 --- #2}{}%
+  \begin{tcolorbox}[
+    enhanced,width=\linewidth,colback=MLNavy,colframe=MLNavy,
+    boxrule=0pt,arc=2mm,left=5mm,right=5mm,top=5mm,bottom=5mm,
+    before skip=0pt,after skip=1.2em]
+    {\large\bfseries\color{MLTeal!35!white} PRACTICAL MILESTONE\par}
+    \vspace{0.25em}
+    {\Huge\bfseries\color{white} Lab #1 of 10\par}
+    \vspace{0.20em}
+    {\Large\bfseries\color{white} #2\par}
+  \end{tcolorbox}
+  \label{#3}%
+}
+\newcommand{\coretag}{\par\smallskip\noindent\colorbox{MLPaleBlue}{\strut\small\bfseries\color{MLBlue}CORE NOW}\par\smallskip}
+\newcommand{\latertag}{\par\smallskip\noindent\colorbox{MLPaleGray}{\strut\small\bfseries\color{MLMuted}RETURN LATER}\par\smallskip}
+
+\newtcolorbox{coursechoice}{
+  enhanced,breakable,colback=white,colframe=MLNavy,
+  boxrule=0.8pt,arc=2mm,left=2.8mm,right=2.8mm,top=2mm,bottom=2mm,
+  fonttitle=\bfseries\color{white},colbacktitle=MLNavy,title=Course choice
+}
+
+\newcommand{\lib}[1]{\textbf{\color{MLBlue}\texttt{#1}}}
+
+\newcommand{\chapterguide}[2]{%
+  \begin{tcolorbox}[
+    enhanced,breakable,colback=white,colframe=MLNavy,boxrule=0.8pt,arc=2mm,
+    left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,
+    title=Chapter at a glance,fonttitle=\bfseries\color{white},colbacktitle=MLNavy]
+    \textbf{Before you start:} #1\par
+    \textbf{By the end, you can:} #2
+  \end{tcolorbox}
+}
+
+\newenvironment{mlsteps}
+  {\begin{enumerate}[label=\textcolor{MLBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}
+  {\end{enumerate}}
+
+\newcommand{\term}[1]{\textbf{\color{MLNavy}#1}}
+\newcommand{\chapref}[1]{Chapter~\ref{#1}}
+\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\given}{\mathrel{|}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+
+% ---------- Cover ----------
+\begin{titlepage}
+\centering
+\vspace*{1.1cm}
+{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
+{\Huge\bfseries\color{MLNavy} FinTech Innovation Notes\par}
+\vspace{0.35cm}
+{\LARGE\color{MLBlue} From Financial Inclusion to Digital Banking, Blockchain and Crypto\par}
+\vspace{0.8cm}
+\begin{tikzpicture}[
+  node distance=0.75cm and 0.65cm,
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.35cm,minimum height=1.55cm,align=center,font=\bfseries\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}
+]
+\node[box] (access) {ACCESS\\financial inclusion};
+\node[box,right=of access] (platform) {PLATFORMS\\digital finance};
+\node[box,right=of platform] (infra) {INFRASTRUCTURE\\blockchain and crypto};
+\draw[arr] (access) -- (platform);
+\draw[arr] (platform) -- (infra);
+\end{tikzpicture}
+\vfill
+\begin{tcolorbox}[width=0.82\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]
+\centering\small
+A structured study guide for TFB3323 FinTech Innovation, reorganized from Weeks 1--9 into concepts, comparisons, diagrams, examples, revision questions, and chapter recaps.\\[0.3em]
+\textbf{Lecture-snapshot rule:} dated statistics, valuations, product examples, and regulatory snapshots are retained as presented in the supplied lecture materials and are not silently updated to current values.
+\end{tcolorbox}
+\vfill
+{\Large\bfseries Reeyan Afzal Khan\par Mohd Safuwan Shahabudin \par}
+\vspace{0.5cm}
+{\color{MLMuted} Department of Computing \par}
+{\color{MLMuted} Universiti Teknologi PETRONAS}
+\vspace{0.8cm}
+{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
+\end{titlepage}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{FinTech Foundations and Access}
+\input{chapters/01-introduction-to-fintech}
+\input{chapters/02-financial-inclusion}
+
+\part{Alternative Finance and Digital Banking}
+\input{chapters/03-p2p-and-crowdfunding}
+\input{chapters/04-mobile-and-internet-banking}
+\input{chapters/05-digital-only-banks}
+
+\part{Distributed Infrastructure and Platform Competition}
+\input{chapters/06-blockchain}
+\input{chapters/07-big-tech-in-fintech}
+\input{chapters/08-cryptocurrencies}
+
+\input{chapters/final-revision-map}
+
+\end{document}

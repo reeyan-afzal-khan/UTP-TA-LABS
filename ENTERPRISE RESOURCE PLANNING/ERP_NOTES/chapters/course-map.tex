@@ -1,0 +1,29 @@
+\chapter*{Course Map: Follow the Flow of Information}
+\addcontentsline{toc}{chapter}{Course Map: Follow the Flow of Information}
+\markboth{Course Map}{}
+
+ERP becomes much easier when you stop treating each module as an isolated topic. The course follows the same logic as a real business: understand the organisation, capture customer demand, plan and obtain resources, fulfil the order, record the financial consequences, and improve the process.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  stage/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,text width=12.4cm,minimum height=1.22cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=ERPTeal},
+  node distance=0.55cm
+]
+\node[stage] (a) {{\normalsize\bfseries\color{ERPBlue}Stage 1: ERP foundations}\hfill{\footnotesize Chapters 1--2}\par
+\smallskip Functional areas, business processes, silos, shared databases, ERP evolution, benefits, challenges, and implementation thinking.};
+\node[stage,below=of a] (b) {{\normalsize\bfseries\color{ERPBlue}Stage 2: Customer and sales}\hfill{\footnotesize Chapters 3--4}\par
+\smallskip CRM, quotations, sales orders, availability, delivery, invoicing, payment, and the information that must cross Sales, Operations, and Finance.};
+\node[stage,below=of b] (c) {{\normalsize\bfseries\color{ERPBlue}Stage 3: Plan and supply}\hfill{\footnotesize Chapters 5--7}\par
+\smallskip Production approaches, sales forecasting, S\&OP, demand management, BOMs, MRP, purchasing, inventory, suppliers, and SCM metrics.};
+\node[stage,below=of c] (d) {{\normalsize\bfseries\color{ERPBlue}Stage 4: Finance, people, and improvement}\hfill{\footnotesize Chapters 8--10}\par
+\smallskip Accounting integration, HR processes, recruitment, flowcharts, swimlanes, process improvement, project scope, change management, and go-live preparation.};
+\node[stage,below=of d] (e) {{\normalsize\bfseries\color{ERPGreen}Stage 5: Odoo practical integration}\hfill{\footnotesize Labs 1--8 + Capstone}\par
+\smallskip Build West End Bicycles in Odoo 19 Community and trace one connected story from organisation setup through purchasing, manufacturing, CRM, sales, delivery, invoicing, payment, and reporting.};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d); \draw[arr] (d) -- (e);
+\end{tikzpicture}
+\end{erpfigure}
+
+\begin{keyidea}
+The central question throughout the course is not ``Which screen do I click?'' It is ``Which business event happened, what data does that event create, which functional areas need the data, and what should the ERP system do next?''
+\end{keyidea}

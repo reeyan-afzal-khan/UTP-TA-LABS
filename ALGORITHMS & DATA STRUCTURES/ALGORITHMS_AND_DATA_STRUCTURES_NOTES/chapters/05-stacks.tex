@@ -1,0 +1,191 @@
+\chapter{Stacks}
+\label{ch:stacks}
+
+\chapterguide%
+  {Linked lists can be used to build other abstract data types; arrays provide a fixed contiguous alternative.}
+  {explain a stack as a LIFO ADT, trace push/pop/peek operations, identify overflow and underflow, and implement array-based and linked-list stacks in C++.}
+
+A \term{stack} is an abstract data type in which access occurs at one end called the \term{top}. The defining rule is \term{LIFO}: Last In, First Out.
+
+\section{The LIFO principle}
+
+If 10 is inserted first, then 20, then 30, the top is 30. Removing an item removes 30 before 20 or 10.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=2.4cm,minimum height=0.72cm,font=\bfseries\color{ADSNavy}}
+]
+\node[cell] (a) {10};
+\node[cell,above=-\pgflinewidth of a] (b) {20};
+\node[cell,above=-\pgflinewidth of b] (c) {30};
+\node[right=0.5cm of c,font=\small\bfseries\color{ADSOrange}] {TOP};
+\draw[-{Stealth[length=2mm]},thick,draw=ADSTeal] ([xshift=1.1cm]c.north) -- ++(0,0.9) node[above,font=\scriptsize\color{ADSMuted}] {pop removes 30};
+\end{tikzpicture}
+\end{mlfigure}
+
+The slide deck names the main operations:
+
+\begin{description}[leftmargin=1.2in,style=nextline]
+  \item[push()] Insert a new item at the top.
+  \item[pop()] Remove the top item.
+  \item[peek()] Read the top item without removing it.
+  \item[isEmpty()] Check whether there is no item to access.
+  \item[isFull()] Check capacity for a fixed-size representation.
+  \item[display()] Show the stored items.
+\end{description}
+
+\section{Stack states: overflow and underflow}
+
+The learning outcomes explicitly ask students to identify both conditions.
+
+\begin{description}[leftmargin=1.35in,style=nextline]
+  \item[Overflow] A push is attempted on a fixed-size stack that has no free slot.
+  \item[Underflow] A pop or peek is attempted on an empty stack.
+\end{description}
+
+\begin{pitfall}
+Always test the relevant state before changing the top index or dereferencing the top node. Underflow bugs often become invalid memory access.
+\end{pitfall}
+
+\section{Array-based stack}
+
+The slides specifically frame the array implementation as fixed-size.
+
+\begin{lstlisting}
+class ArrayStack {
+private:
+    static const int CAPACITY = 5;
+    int data[CAPACITY];
+    int topIndex = -1;
+
+public:
+    bool isEmpty() const { return topIndex == -1; }
+    bool isFull()  const { return topIndex == CAPACITY - 1; }
+
+    bool push(int value) {
+        if (isFull()) return false;
+        data[++topIndex] = value;
+        return true;
+    }
+
+    bool pop(int& removed) {
+        if (isEmpty()) return false;
+        removed = data[topIndex--];
+        return true;
+    }
+
+    bool peek(int& value) const {
+        if (isEmpty()) return false;
+        value = data[topIndex];
+        return true;
+    }
+};
+\end{lstlisting}
+
+The top index is enough to identify the active end of the structure. In the normal implementation above, push, pop, and peek do not scan the existing elements.
+
+\section{Linked-list stack}
+
+A linked-list stack uses the head node as the top. Pushing inserts at the head; popping removes the head.
+
+\begin{lstlisting}
+struct StackNode {
+    int data;
+    StackNode* next;
+};
+
+class LinkedStack {
+private:
+    StackNode* top = nullptr;
+
+public:
+    bool isEmpty() const { return top == nullptr; }
+
+    void push(int value) {
+        top = new StackNode{value, top};
+    }
+
+    bool pop(int& removed) {
+        if (isEmpty()) return false;
+        StackNode* old = top;
+        removed = old->data;
+        top = top->next;
+        delete old;
+        return true;
+    }
+
+    bool peek(int& value) const {
+        if (isEmpty()) return false;
+        value = top->data;
+        return true;
+    }
+};
+\end{lstlisting}
+
+\begin{clarification}
+The Week V lab lists \texttt{isFull()} for both array and linked-list stacks. A linked-list stack normally has no predetermined fixed capacity; it is ``full'' only if an external capacity rule is imposed or memory allocation fails. This distinction is not stated on the slide, so the notes preserve the lab operation while making the implementation assumption explicit.
+\end{clarification}
+
+\section{Array vs linked-list stack}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Feature & Array-based & Linked-list \\
+\midrule
+Capacity in course implementation & Fixed & Dynamic unless a limit is imposed \\
+Top representation & Integer index & Pointer to first node \\
+Push/pop location & End at \texttt{topIndex} & Head node \\
+Overflow & When capacity is exhausted & Not a fixed-size condition by default \\
+Pointer memory & No per-element pointer & One pointer per node \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{intuition}
+A physical stack of plates behaves like the ADT: adding a plate changes only the top, and removing a plate takes the most recently added plate first.
+\end{intuition}
+
+\section{Lab-manual application: infix to postfix}
+
+The official lab manual adds one stack problem that is not spelled out in the Week V slide deck: \term{conversion of an infix expression to postfix using a stack}. The stack temporarily stores operators while operands are sent directly to the output.
+
+For example, the infix expression
+\[
+A + B * C
+\]
+becomes
+\[
+A\;B\;C\;*\;+.
+\]
+Multiplication is emitted before addition because it has higher precedence.
+
+\begin{mlsteps}
+  \item Read the expression from left to right.
+  \item Send operands directly to the postfix output.
+  \item Push an opening parenthesis onto the operator stack.
+  \item For an operator, pop operators of higher precedence (and, for left-associative operators, equal precedence) before pushing the new operator.
+  \item On a closing parenthesis, pop until the matching opening parenthesis is removed.
+  \item At the end, pop all remaining operators.
+\end{mlsteps}
+
+\begin{clarification}
+The lab manual names infix-to-postfix conversion as practice but does not provide the precedence/associativity algorithm in the supplied material. The procedure above is standard supporting context so the named lab task can be implemented.
+\end{clarification}
+
+\begin{quickcheck}
+After \texttt{push(10)}, \texttt{push(20)}, \texttt{push(30)}, \texttt{pop()}, and \texttt{peek()}, what value is returned by \texttt{peek()}? What condition causes underflow?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A stack is an ADT with access at the top.
+  \item LIFO means the most recently inserted item is removed first.
+  \item \texttt{push()} inserts, \texttt{pop()} removes, and \texttt{peek()} reads the top.
+  \item Fixed-size stacks can overflow; empty stacks can underflow.
+  \item Stacks can be implemented with arrays or linked lists.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/05-stacks}

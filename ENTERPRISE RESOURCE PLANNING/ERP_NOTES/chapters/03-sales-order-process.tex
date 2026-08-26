@@ -1,0 +1,168 @@
+\chapter{Marketing Information Systems and the Sales Order Process}
+\label{ch:sales-order}
+
+\chapterguide
+  {You should understand functional integration and the idea of shared transaction data.}
+  {describe an end-to-end sales order process, diagnose problems caused by disconnected systems, explain the order-to-cash sequence, and show how sales, inventory, and finance are linked.}
+
+\begin{sourcebasis}
+This chapter uses Tutorial 5 and Chapter 3 of \emph{Concepts in Enterprise Resource Planning}. The Fitter Snacker case is retained as the main example of an inefficient, unintegrated sales process, while the Odoo sections map the same concepts onto the West End Bicycles practical.
+\end{sourcebasis}
+
+\section{What the sales order process includes}
+
+The \term{sales order process} is the flow of events from a customer's request through fulfilment and payment. It is broader than entering an order. A typical sequence includes quotation, order capture, credit or payment terms, availability checking, picking and delivery, invoicing, payment, and sometimes returns.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.35cm,minimum height=0.8cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.38cm
+]
+\node[box] (q) {Quotation};
+\node[box,right=of q] (so) {Sales order};
+\node[box,right=of so] (av) {Availability / credit};
+\node[box,right=of av] (del) {Pick, pack, deliver};
+\node[box,below=0.65cm of del] (inv) {Invoice};
+\node[box,left=of inv] (pay) {Payment};
+\draw[arr] (q)--(so); \draw[arr] (so)--(av); \draw[arr] (av)--(del); \draw[arr] (del)--(inv); \draw[arr] (inv)--(pay);
+\end{tikzpicture}
+\end{erpfigure}
+
+Each step creates information needed by another function. If the organisation treats these as isolated departmental tasks, the customer experiences delays and inconsistency.
+
+\section{Fitter Snacker: what goes wrong without integration}
+
+The textbook describes Fitter Snacker as using separate sales order, warehouse, and accounting systems. Data moves through periodic file transfers and paper reports rather than a shared real-time system. This creates several recurring problems.
+
+\subsection{Quotation and pricing problems}
+Salespeople can make arithmetic errors, combine discounts incorrectly, or create terms that the office does not yet know about. Handwritten and faxed quotations can be difficult to read. A customer may therefore need to repeat information or may accidentally create a duplicate order.
+
+\subsection{Availability and delivery-date problems}
+The sales clerk must ask the warehouse for an estimated shipping date. If stock data and pending orders are not current, the estimate may be unreliable. The customer receives a promise based on incomplete visibility.
+
+\subsection{Credit problems}
+Existing customers are checked against a periodic printed credit report. A recent payment may not yet appear, so the company might reject a good customer unnecessarily. The reverse can also happen: stale information may allow an order that pushes the customer beyond the intended credit exposure.
+
+\subsection{Order-filling and inventory problems}
+Paper packing lists move to the warehouse in batches. Manual handling increases delay, and inventory changes may be missed if staff do not update the records after opening cases or moving stock.
+
+\subsection{Accounting and invoicing problems}
+Sales-order data is periodically moved into the accounting system. If warehouse fulfilment changes after the data transfer, the invoice may not match what was actually shipped. Payment allocation and returns can also become difficult when records are incomplete or handwriting is unclear.
+
+\begin{pitfall}
+Many of these problems are not caused by careless employees. They are process-design problems. If a process requires people to repeatedly copy, fax, re-key, reconcile, and remember data across systems, errors and delays are predictable outcomes.
+\end{pitfall}
+
+\section{What an integrated ERP changes}
+
+An integrated ERP system replaces separate copies of the order with a linked document flow. The same customer, product, price, quantity, delivery, invoice, and payment records can be traced through the process.
+
+A strong sales-order system therefore performs several checks at the time of the transaction:
+
+\begin{itemize}
+  \item validates customer and product master data;
+  \item applies configured pricing and discounts;
+  \item checks inventory or planned availability;
+  \item checks credit or payment conditions where configured;
+  \item creates fulfilment documents from the order;
+  \item passes billing data to Finance;
+  \item records status changes so Sales can answer customer questions.
+\end{itemize}
+
+\section{Order-to-cash as a cross-functional cycle}
+
+The term \term{order-to-cash} emphasises that the process is not complete when the sales order is confirmed. The business has not earned the operational outcome it wants until the product is fulfilled and the money is collected.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.19\linewidth}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Stage & Primary owner & Information created or consumed \\
+\midrule
+Opportunity / quotation & Sales / Marketing & Customer need, product, quantity, expected price, proposed terms. \\
+Sales order & Sales & Confirmed demand and commercial commitment. \\
+Availability and delivery & Inventory / Operations & Stock reservation, picking, actual shipped quantity, delivery status. \\
+Invoice & Finance & Amount due, tax and payment terms, receivable record. \\
+Payment & Finance & Cash received and settlement status, visible back to Sales. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section{Integration of Sales and Accounting}
+
+The textbook stresses that in an ERP system accounting consequences can be created from operational events rather than reconstructed later. That matters because management reporting, customer balances, and profitability analysis depend on the same source transaction.
+
+For example, if a customer receives a discount, both Sales and Finance need the same final price. If Finance re-enters the invoice manually, the organisation creates an unnecessary opportunity for disagreement.
+
+\begin{keyidea}
+A reliable sales process preserves document lineage: the quotation explains how the sales order was formed, the delivery explains what was physically fulfilled, the invoice explains what was billed, and the payment explains what was settled.
+\end{keyidea}
+
+\section{How the sequence appears in Odoo 19 Community}
+
+The supplied West End Bicycles guide maps the order-to-cash flow to linked Odoo records.
+
+\begin{odoobox}
+For the Road Bike example, the practical sequence is:
+\begin{enumerate}
+  \item create a CRM opportunity for Seri Iskandar Cycling Club;
+  \item create a quotation for 5 Road Bikes at RM 1,000 each;
+  \item confirm the quotation so it becomes a Sales Order;
+  \item open the linked Delivery and validate shipment of 5 bikes;
+  \item return to the Sales Order and create a customer invoice;
+  \item post the invoice;
+  \item register the payment so the invoice becomes Paid or In Payment, depending on configuration.
+\end{enumerate}
+The guide emphasises that the price is set in Sales and then flows into the invoice rather than being typed again in Finance.
+\end{odoobox}
+
+\section{Document states matter}
+
+The Odoo guide gives a useful general rule: business records move through a lifecycle. A draft is still editable; a confirmed or posted record represents a commitment; a done or paid state represents completion of the real-world event.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.25\linewidth}p{0.23\linewidth}p{0.23\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Document & Draft-like state & Committed state & Final state \\
+\midrule
+Sales document & Quotation & Sales Order & Locked / fulfilled context \\
+Delivery & Draft & Ready / reserved & Done \\
+Customer invoice & Draft & Posted & Paid / In Payment \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+If a button is missing, the first diagnostic question should be: \emph{Is the preceding business event complete?}
+
+\section{Company-wide sales analysis}
+
+Tutorial 5 asks students to consider how management could analyse the full relationship with a customer such as Delicious Foods when complete sales data is retained separately in each sales division. In a fragmented environment, company-wide analysis requires collecting data from each division, reconciling customer identities and product names, standardising terms, checking duplicates, and combining the results. Organisational politics can also make divisions reluctant to share detailed performance data.
+
+ERP reduces the technical burden by storing comparable data centrally. It does not automatically remove organisational reluctance, but it makes a unified view possible if governance, authorisation, and management expectations support it.
+
+\begin{workedexample}
+If two divisions sell the same customer under slightly different names---for example ``Delicious Foods'' and ``Delicious Foods Co.''---a manual analysis may treat them as two unrelated customers. Good master-data governance prevents this by maintaining one controlled customer identity that transactions reference.
+\end{workedexample}
+
+\begin{tryit}
+Take the old Fitter Snacker process and label every point where information is copied, delayed, estimated, or re-entered. Then map each problem to an ERP mechanism: shared master data, automatic document creation, real-time status, configured pricing, availability checking, or integrated accounting.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why can a quotation error later become an invoicing problem?
+  \item What is the difference between a Sales Order and a Delivery in the process model?
+  \item Why is payment status useful to Sales even though Finance records the payment?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The sales order process spans quotation, order, fulfilment, billing, payment, and sometimes returns.
+  \item Fitter Snacker's disconnected systems cause stale credit data, pricing errors, repeated customer questions, missed dates, and manual reconciliation.
+  \item ERP links the commercial, physical, and financial views of the same order.
+  \item Order-to-cash is complete only when fulfilment and settlement are visible across functions.
+  \item Odoo expresses integration through linked records, smart buttons, and document states.
+\end{itemize}
+\end{chapterrecap}

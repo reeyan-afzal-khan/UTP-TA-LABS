@@ -1,0 +1,56 @@
+\section{Why memory management exists}
+Programs use addresses as though they have their own memory, while physical RAM is finite and shared. Memory management must therefore provide relocation, protection, allocation, and efficient utilization. It also cooperates with virtual memory to let the apparent address space differ from currently resident physical memory.
+
+\section{Logical versus physical addresses}
+A CPU instruction typically produces a \term{logical/virtual address}. Hardware memory-management logic translates it to a \term{physical address} before RAM is accessed. Even a simple historical base-and-limit scheme illustrates the principle:
+\[
+physical = base + logical, \qquad 0 \le logical < limit.
+\]
+The limit check prevents a process from addressing outside its assigned region.
+
+\section{Static partitions and dynamic partitions}
+In fixed partitioning, memory is split into predetermined regions. A process occupies one partition, which is simple but can waste space inside partitions. Dynamic partitioning instead creates variable-sized regions as processes arrive, making hole placement and external fragmentation central problems.
+
+\section{Internal versus external fragmentation}
+\begin{description}
+  \item[Internal fragmentation] Allocated region is larger than the requested object, so unused bytes are trapped \emph{inside} an allocation.
+  \item[External fragmentation] Enough free memory may exist in total, but it is split among non-contiguous holes that cannot satisfy one large contiguous request.
+\end{description}
+
+\begin{workedexample}
+Free holes are 100 KB, 50 KB, and 90 KB. Total free memory is 240 KB. A 150 KB contiguous request still fails because no single hole is large enough. That is external fragmentation.
+\end{workedexample}
+
+\section{Fit algorithms are online decisions}
+First fit, best fit, and worst fit make a local decision for the current request without knowing the future request sequence. Their behavior therefore depends heavily on allocation order.
+
+\begin{workedexample}
+Free blocks: $100,500,200,300,600$ KB. Requests: $212,417,112,426$ KB.
+\begin{itemize}
+  \item \textbf{First fit:} 212 goes to 500; 417 goes to 600; 112 goes to 200; 426 then fails in the simplified one-block-per-request model.
+  \item \textbf{Best fit:} 212 goes to 300; 417 to 500; 112 to 200; 426 to 600.
+  \item \textbf{Worst fit:} 212 goes to 600; 417 to 500; 112 to 300; 426 then fails.
+\end{itemize}
+This example shows why the lab's policy choice changes the success/failure pattern.
+\end{workedexample}
+
+\section{Splitting, coalescing, and compaction}
+A real variable-size allocator normally splits a larger free hole when satisfying a smaller request. When adjacent allocations are freed, neighboring holes may be \term{coalesced}. A system could also perform \term{compaction}: relocate allocated regions to merge scattered free space. Compaction is expensive and requires relocatable addresses, so modern general-purpose systems rely heavily on paging rather than continuous compaction of entire processes.
+
+\section{The buddy idea}
+A common allocation mechanism divides memory into power-of-two block sizes. Larger blocks can be split into equal \term{buddies}; when both buddies become free, they can merge back into the larger block. This makes coalescing efficient but introduces internal fragmentation because requests are rounded to supported block sizes.
+
+\begin{optionaltopic}
+Kernel memory allocators often combine several techniques. Page-level allocators manage physical frames, while slab/slub-style allocators efficiently reuse caches of frequently allocated kernel objects. The important lesson is that ``memory allocation'' is not one universal algorithm; different layers optimize for different object sizes and lifetimes.
+\end{optionaltopic}
+
+\section{Allocation policy versus the Lab 7 simulation}
+The Lab 7 programs correctly teach the selection rules, but their \texttt{bf[]} arrays mark an entire input block unavailable after one assignment. This is closer to allocating from a set of fixed candidate partitions than to a fully splitting dynamic-hole allocator. When interpreting results, state this model explicitly.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Explain internal and external fragmentation using one sentence each.
+  \item Why can compaction address external fragmentation but not be free of cost?
+  \item What is the local decision made by best fit?
+\end{enumerate}
+\end{quickcheck}

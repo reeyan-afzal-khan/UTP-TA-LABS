@@ -1,0 +1,81 @@
+\chapter*{Appendix A: Odoo 19 Community Quick Reference}
+\addcontentsline{toc}{chapter}{Appendix A: Odoo 19 Community Quick Reference}
+\markboth{Appendix A: Odoo Quick Reference}{}
+
+This appendix condenses the terminology and troubleshooting rules in the supplied West End Bicycles guide.
+
+\section*{Navigation and record behaviour}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Term & Meaning \\
+\midrule
+App grid & Main launcher for Sales, Purchase, Inventory, Manufacturing, CRM, Employees, and other installed apps. \\
+Breadcrumb & Clickable trail showing the current app/record path; use it to return to earlier records. \\
+Smart button & Button above a record that jumps to related records such as Receipt, Delivery, or Invoices. \\
+New & Starts a new record. Existing records are already editable in the Odoo 19 workflow described by the guide. \\
+Cloud/save indicator & Appears when changes are unsaved; navigating away also auto-saves in the guide's workflow. \\
+Graph / Pivot & Reporting views that summarise transaction data for analysis. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section*{Important Odoo 19 product rule}
+
+The supplied guide states that older ``Storable Product'' terminology should be translated to:
+
+\begin{center}
+\textbf{Product Type = Goods} \qquad + \qquad \textbf{Track Inventory = enabled}
+\end{center}
+
+If Track Inventory is not enabled, Odoo will not maintain the stock count expected by the course workflow.
+
+\section*{Core transaction vocabulary}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Term & Course meaning \\
+\midrule
+RFQ & Draft purchasing document before supplier commitment. \\
+Purchase Order & Confirmed order to a vendor; creates/links a Receipt. \\
+Receipt & Inventory transfer bringing purchased goods into stock. \\
+BOM & Component recipe for one finished product. \\
+Manufacturing Order & Instruction to produce a quantity; consumes components and produces finished stock. \\
+Opportunity & Potential sale in CRM. \\
+Quotation & Draft commercial offer to a customer. \\
+Sales Order & Confirmed customer order; links to fulfilment and billing. \\
+Delivery & Inventory transfer sending goods to the customer. \\
+Invoice & Customer billing document; Draft before posting, then Posted, then Paid/In Payment after settlement. \\
+On Hand & Quantity physically recorded in stock at the current moment. \\
+Validate & Complete an inventory transfer and update stock. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section*{Troubleshooting by process state}
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPRed}}p{0.29\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleRed!70}
+Problem & Likely cause & What to check \\
+\midrule
+No Track Inventory option / stock not moving & Product setup or Inventory app issue & Confirm Inventory is installed, Product Type is Goods, and Track Inventory is enabled. \\
+No New Quotation from CRM & Opportunity/customer/app state incomplete & Save opportunity, set customer, confirm Sales is installed; otherwise create quotation from Sales. \\
+Vendor does not appear on product purchasing & Vendor record exists but is not linked to product & Product Purchase tab, vendor line, price, and Can be Purchased. \\
+Cannot receive goods & RFQ not yet confirmed & Confirm RFQ into Purchase Order, then open Receipt. \\
+Cannot manufacture & Components are not actually on hand & Validate supplier receipts and check component On Hand. \\
+Cannot deliver & Finished product is unavailable & Complete Manufacturing Order and verify Road Bike On Hand. \\
+Cannot register payment & Invoice still Draft & Post/confirm the invoice before Register Payment. \\
+Expected button missing & Record is in the wrong lifecycle state & Check whether the prior business event is Draft, Confirmed/Posted, or Done. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\begin{keyidea}
+When troubleshooting, follow the process backwards. A downstream action is usually unavailable because an upstream business event has not been confirmed or completed.
+\end{keyidea}

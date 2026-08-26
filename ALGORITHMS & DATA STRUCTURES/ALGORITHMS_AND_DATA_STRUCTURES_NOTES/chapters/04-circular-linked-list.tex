@@ -1,0 +1,218 @@
+\chapter{Linked Lists II: Circular Linked Lists}
+\label{ch:circular-list}
+
+\chapterguide%
+  {Understand the node/head model and singly linked-list traversal from \chapref{ch:linked-lists}.}
+  {explain the circular link, compare singly/doubly/circular lists, trace circular traversal, and implement beginning/end insertion and deletion plus deletion by value.}
+
+A circular linked list changes one crucial link: the last node points back to the first node instead of pointing to \texttt{NULL}. The result is a sequence that can continue in a loop.
+
+\section{The circular structure}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ node/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=1mm,minimum width=2.5cm,minimum height=0.9cm,font=\small\bfseries\color{ADSNavy}},
+ arr/.style={-{Stealth[length=2.2mm]},thick,draw=ADSTeal}
+]
+\node[node] (a) {10 \quad next};
+\node[node,right=1cm of a] (b) {20 \quad next};
+\node[node,right=1cm of b] (c) {30 \quad next};
+\draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
+\draw[arr] (c.east) -- ++(0.7,0) |- ([yshift=-0.7cm]a.south) -- (a.south);
+\node[above=0.25cm of a,font=\scriptsize\bfseries\color{ADSOrange}] {HEAD};
+\node[above=0.25cm of c,font=\scriptsize\bfseries\color{ADSOrange}] {LAST};
+\end{tikzpicture}
+\end{mlfigure}
+
+The Week IV slides emphasize four consequences:
+
+\begin{itemize}
+  \item the last node points back to the head;
+  \item there is no \texttt{NULL} at the end;
+  \item traversal can continue indefinitely around the loop;
+  \item therefore traversal needs an explicit stopping condition.
+\end{itemize}
+
+\section{Traversal: stop when you return to the head}
+
+A normal singly linked list often uses \texttt{current != nullptr} as the loop condition. That condition does not work for a non-empty circular list because the pointer never becomes null.
+
+\begin{lstlisting}
+void display(Node* head) {
+    if (head == nullptr) return;
+
+    Node* current = head;
+    do {
+        cout << current->data << ' ';
+        current = current->next;
+    } while (current != head);
+
+    cout << '\n';
+}
+\end{lstlisting}
+
+\begin{keyidea}
+For a non-empty circular list, the natural traversal invariant is ``keep moving until the pointer returns to the starting node.''
+\end{keyidea}
+
+\section{Singly vs doubly vs circular}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.19\linewidth}X X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Feature & Singly & Doubly & Circular \\
+\midrule
+Last node points to & \texttt{NULL} & \texttt{NULL} & head \\
+Direction & Forward & Forward and backward & Usually forward circular in this course \\
+Pointers per node & \texttt{next} & \texttt{prev}, \texttt{next} & \texttt{next} \\
+Traversal stop & \texttt{NULL} & \texttt{NULL} & back at head \\
+Main use in slides & Simple dynamic list & Two-way navigation & Repeated/cyclic processing \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Insertion at the beginning}
+
+Assume \texttt{last} points to the final node. Then \texttt{last->next} is the head. This representation makes both the tail and head easy to identify.
+
+\begin{mlsteps}
+  \item Allocate the new node.
+  \item If the list is empty, point the node to itself and make it \texttt{last}.
+  \item Otherwise, point the new node to the current head.
+  \item Set \texttt{last->next} to the new node, making it the new head.
+\end{mlsteps}
+
+\begin{lstlisting}
+void insertBeginning(Node*& last, int value) {
+    Node* n = new Node{value, nullptr};
+
+    if (last == nullptr) {
+        n->next = n;
+        last = n;
+        return;
+    }
+
+    n->next = last->next;
+    last->next = n;
+}
+\end{lstlisting}
+
+\section{Insertion at the end}
+
+With the same \texttt{last} representation, insert at the beginning of the circle and then move \texttt{last} to the new node.
+
+\begin{lstlisting}
+void insertEnd(Node*& last, int value) {
+    Node* n = new Node{value, nullptr};
+
+    if (last == nullptr) {
+        n->next = n;
+        last = n;
+        return;
+    }
+
+    n->next = last->next;  // new node points to head
+    last->next = n;        // old last points to new node
+    last = n;              // new node becomes last
+}
+\end{lstlisting}
+
+\section{Deleting from the beginning}
+
+There are three cases: empty list, one-node list, and a list with at least two nodes.
+
+\begin{lstlisting}
+bool deleteBeginning(Node*& last) {
+    if (last == nullptr) return false;
+
+    Node* head = last->next;
+    if (head == last) {
+        delete head;
+        last = nullptr;
+        return true;
+    }
+
+    last->next = head->next;
+    delete head;
+    return true;
+}
+\end{lstlisting}
+
+\section{Deleting from the end}
+
+A singly circular list has no direct previous pointer, so deletion of the last node requires locating the node whose \texttt{next} is \texttt{last}.
+
+\begin{lstlisting}
+bool deleteEnd(Node*& last) {
+    if (last == nullptr) return false;
+
+    Node* head = last->next;
+    if (head == last) {
+        delete last;
+        last = nullptr;
+        return true;
+    }
+
+    Node* current = head;
+    while (current->next != last) {
+        current = current->next;
+    }
+
+    current->next = head;
+    delete last;
+    last = current;
+    return true;
+}
+\end{lstlisting}
+
+\section{Deletion by value}
+
+The Week IV lab also requires deletion by value. Traversal must both detect the target and recognize when the full circle has been checked.
+
+\begin{lstlisting}
+bool deleteValue(Node*& last, int value) {
+    if (last == nullptr) return false;
+
+    Node* prev = last;
+    Node* current = last->next;  // head
+
+    do {
+        if (current->data == value) {
+            if (current == prev) {      // one-node list
+                delete current;
+                last = nullptr;
+            } else {
+                prev->next = current->next;
+                if (current == last) last = prev;
+                delete current;
+            }
+            return true;
+        }
+        prev = current;
+        current = current->next;
+    } while (current != last->next);
+
+    return false;
+}
+\end{lstlisting}
+
+\begin{pitfall}
+The easiest circular-list bug is an infinite traversal. Every loop over the list must make progress and must have a condition tied to returning to the starting node.
+\end{pitfall}
+
+\begin{quickcheck}
+Why does \texttt{while (current != nullptr)} fail as a normal stopping condition in a circular list? What special pointer updates are needed when the list contains only one node?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A circular linked list connects the last node back to the head.
+  \item The list does not terminate with \texttt{NULL}.
+  \item Traversal must stop when the pointer returns to the start.
+  \item Insertions and deletions require careful maintenance of the closing link.
+  \item Circular linked lists are useful for repeated or cyclic processing.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/04-circular-list}

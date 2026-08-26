@@ -1,0 +1,68 @@
+\chapter{Contiguous Memory Allocation}\label{ch:allocation}
+\chapterguide{Know that a process needs memory for code, data, heap, and stack.}{Explain fixed/variable partition allocation, internal and external fragmentation, and trace first-fit, best-fit, and worst-fit policies.}
+
+\section{The allocation problem}
+A memory manager must map process memory demands onto available physical memory. Early and simplified schemes assign each process one contiguous region. The policy decides which free block or \term{hole} should satisfy a request.
+
+\section{Fragmentation}
+\term{Internal fragmentation} is unused space \emph{inside} an allocated region because the allocated unit is larger than the request. \term{External fragmentation} is free memory split across separated holes so that sufficient total free memory may exist without one large enough contiguous hole.
+
+\begin{mlfigure}
+\begin{tikzpicture}[x=0.15cm,y=0.7cm]
+\draw[fill=MLPaleBlue,draw=MLBlue] (0,0) rectangle (14,1) node[midway]{P1};
+\draw[fill=MLPaleGray,draw=MLMuted] (14,0) rectangle (21,1) node[midway]{free};
+\draw[fill=MLPaleTeal,draw=MLTeal] (21,0) rectangle (37,1) node[midway]{P2};
+\draw[fill=MLPaleGray,draw=MLMuted] (37,0) rectangle (44,1) node[midway]{free};
+\draw[fill=MLPaleOrange,draw=MLOrange] (44,0) rectangle (59,1) node[midway]{P3};
+\draw[fill=MLPaleGray,draw=MLMuted] (59,0) rectangle (72,1) node[midway]{free};
+\node[anchor=west,font=\small\color{MLMuted}] at (0,-0.55) {Separated free holes illustrate external fragmentation.};
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{First fit}
+\term{First fit} scans holes from the beginning and chooses the first one large enough. It is fast because the search can stop early.
+
+\section{Best fit}
+\term{Best fit} chooses the smallest hole that is still large enough. It minimizes the leftover size for the current request, but repeated use may create many tiny unusable holes.
+
+\section{Worst fit}
+\term{Worst fit} chooses the largest available hole, attempting to leave a reasonably large remainder. This does not guarantee lower fragmentation overall.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.18\linewidth}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Policy & Selection rule & Typical observation \\
+\midrule
+First fit & First hole with size $\ge$ request & Low search cost, order-dependent \\
+Best fit & Smallest sufficient hole & Small immediate remainder, can create tiny holes \\
+Worst fit & Largest sufficient hole & Leaves large remainder, may waste large blocks \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Worked comparison}
+For blocks 100, 500, 200, 300, 600 and requests 212, 417, 112, 426, the three policies choose different placements. To solve such questions consistently:
+\begin{enumerate}
+  \item mark every block initially free;
+  \item process requests in the given order;
+  \item among currently free blocks, apply exactly one policy rule;
+  \item compute fragment = block size $-$ request size;
+  \item mark the chosen block unavailable in the simplified one-file-per-block lab model.
+\end{enumerate}
+
+\begin{pitfall}
+The supplied lab programs model each block as usable by only one file/process. That is a useful partition-allocation simulation, but it is not the same as a full variable-size heap allocator that splits and coalesces holes after every request.
+\end{pitfall}
+
+\input{chapters/concepts/07-memory-deep-dive}
+
+\input{labs/07-memory-allocation}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Contiguous allocation assigns each request one continuous region.
+  \item Internal fragmentation wastes space inside an allocation; external fragmentation scatters free space between allocations.
+  \item First, best, and worst fit differ only in the hole-selection policy, but that choice changes future memory state.
+\end{itemize}
+\end{chapterrecap}

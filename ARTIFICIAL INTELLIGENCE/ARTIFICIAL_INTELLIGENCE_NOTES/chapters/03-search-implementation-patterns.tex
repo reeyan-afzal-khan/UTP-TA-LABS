@@ -1,0 +1,203 @@
+\chapter{Search Implementation Patterns}
+\label{ch:searchpatterns}
+
+\chapterguide%
+  {Know the conceptual difference among BFS, DFS, UCS, GBFS, and A*.}
+  {recognize reusable Python patterns for search, convert graphs to grids or trees without changing the search logic, and debug common frontier/visited mistakes.}
+
+Lab 3 consolidates the first two laboratories into code. The examples show that many AI search programs share a small set of implementation patterns: a frontier, a visited set, a successor loop, a goal test, and a representation of the path.
+
+\section{The generic graph-search loop}
+
+A large fraction of the code in Labs 1--3 can be summarized by the following control flow.
+
+\begin{lstlisting}[style=mlpython]
+frontier = make_frontier(start)
+visited = set()
+
+while frontier:
+    state, path, cost = remove_next(frontier)
+
+    if state == goal:
+        return path, cost
+
+    if state in visited:
+        continue
+    visited.add(state)
+
+    for successor in successors(state):
+        add_to_frontier(frontier, successor, path, cost)
+\end{lstlisting}
+
+What changes is \texttt{remove\_next} and the priority attached to each state.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}p{0.23\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Algorithm & Frontier implementation & Information stored or prioritized \\
+\midrule
+BFS & \texttt{collections.deque} & Path; oldest discovered state first \\
+DFS & Recursion or list stack & Current recursive path / most recent state \\
+UCS & \texttt{heapq} & \((g,\;path)\) \\
+GBFS & \texttt{heapq} & \((h,\;path)\) \\
+A* & \texttt{heapq} & \((f,\;g,\;path)\) \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Representation changes; search structure remains}
+
+\subsection{Graphs}
+A graph dictionary directly maps a node to its neighbors. Weighted graphs map to \((\text{neighbor},\text{cost})\) pairs.
+
+\begin{lstlisting}[style=mlpython]
+graph = {
+    'A': [('B', 1), ('C', 4)],
+    'B': [('D', 3), ('E', 2)],
+    'C': [('F', 5)],
+    'D': [('G', 4)],
+    'E': [('G', 1)],
+    'F': [('G', 2)],
+    'G': []
+}
+\end{lstlisting}
+
+\subsection{Grids}
+A grid does not list neighbors explicitly. The successor function computes adjacent coordinates and checks bounds and cell conditions.
+
+\begin{lstlisting}[style=mlpython]
+for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+    nx, ny = x + dx, y + dy
+    if 0 <= nx < rows and 0 <= ny < cols:
+        # apply the problem's wall or cost rule here
+        ...
+\end{lstlisting}
+
+\subsection{Word ladders}
+The Lab 3 GBFS example stores valid one-letter transitions explicitly as a graph. The heuristic compares the current word with the goal.
+
+\begin{lstlisting}[style=mlpython]
+def greedy_word_ladder(words, start, goal):
+    import heapq
+
+    def h(w):
+        return sum(1 for a, b in zip(w, goal) if a != b)
+
+    pq = [(h(start), [start])]
+    visited = set()
+
+    while pq:
+        _, path = heapq.heappop(pq)
+        current = path[-1]
+        if current == goal:
+            return path
+
+        visited.add(current)
+        for neighbor in words.get(current, []):
+            if neighbor not in visited:
+                heapq.heappush(pq, (h(neighbor), path + [neighbor]))
+    return None
+\end{lstlisting}
+
+\subsection{Trees}
+Tree traversal uses child references instead of a graph dictionary. BFS enqueues children; DFS recursively visits them.
+
+\begin{lstlisting}[style=mlpython]
+def bfs_tree(root):
+    from collections import deque
+    if not root:
+        return []
+
+    queue = deque([root])
+    result = []
+    while queue:
+        node = queue.popleft()
+        result.append(node.val)
+        if node.left:
+            queue.append(node.left)
+        if node.right:
+            queue.append(node.right)
+    return result
+\end{lstlisting}
+
+\section{Path storage as a teaching device}
+
+The handout implementations place the entire path inside the frontier entry. This is easy to read:
+
+\begin{lstlisting}[style=mlpython]
+queue.append(((nx, ny), path + [(nx, ny)]))
+\end{lstlisting}
+
+Every frontier item is therefore self-contained. When the goal is popped, the algorithm can immediately return the path.
+
+\begin{intuition}
+The path-copying pattern makes classroom traces simple because every queue entry visibly carries its history. The important conceptual point is that the frontier is not merely a collection of nodes; it contains enough information to reconstruct how the search reached each node.
+\end{intuition}
+
+\section{Visited-state discipline}
+
+The source examples use visited sets in slightly different positions. The reason is always the same: avoid processing the same state repeatedly.
+
+\begin{debugtask}
+Take the ``graph with loops'' from Lab 1, which contains edges back from \texttt{B} and \texttt{C} to \texttt{A}. Remove the visited set from UCS and print the first 30 popped paths. Explain why the priority queue keeps receiving cyclic paths even though a goal exists.
+\end{debugtask}
+
+\section{Priority queues and tuple ordering}
+
+Python's \texttt{heapq} removes the smallest tuple lexicographically. The laboratory code intentionally places the numerical priority first:
+
+\begin{lstlisting}[style=mlpython]
+# UCS
+heapq.heappush(pq, (cost + weight, path + [neighbor]))
+
+# GBFS
+heapq.heappush(pq, (heuristic((nx, ny), goal), path + [(nx, ny)]))
+
+# A*
+heapq.heappush(pq, (new_g + heuristic((nx, ny), goal),
+                    new_g,
+                    path + [(nx, ny)]))
+\end{lstlisting}
+
+The first element controls the main frontier ordering. Additional fields carry the path cost or path itself.
+
+\section{A single comparison harness}
+
+A useful consolidation exercise is to run all algorithms on the same graph and report the result in one format.
+
+\begin{lstlisting}[style=mlpython]
+def show_result(name, result):
+    print(f"\n{name}")
+    if result is None:
+        print("No path found")
+    else:
+        print(result)
+\end{lstlisting}
+
+This makes it easier to separate two questions:
+\begin{enumerate}
+  \item Did the algorithm find a goal?
+  \item What rule caused it to choose this particular path or cost?
+\end{enumerate}
+
+\input{labs/03-search-consolidation}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which one line changes conceptually when you move from UCS to GBFS: successor generation or priority calculation?
+  \item Why can the same Manhattan heuristic function be reused in GBFS and A*?
+  \item What is the purpose of carrying \texttt{g} separately from \texttt{f} in the A* heap entry?
+  \item In a tree, what plays the role of the successor function used by graph search?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The five search algorithms in Labs 1--3 share one generic search loop.
+  \item Graphs, grids, words, and trees differ mainly in how successors are generated.
+  \item Queue, stack/recursion, and heap data structures encode the frontier policy.
+  \item Visited sets protect graph search from loops and repeated expansions.
+  \item The Lab 3 implementations are valuable templates because they make path, cost, and priority explicit.
+\end{itemize}
+\end{chapterrecap}

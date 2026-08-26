@@ -1,0 +1,227 @@
+\chapter{Managing Data Frames: Import, Missing Values, Filtering, Sorting, and Export}
+\label{chap:managing-data-frames}
+
+\chapterguide
+  {You should be able to create, inspect, and index data frames.}
+  {install and load the file/data-management packages shown in the handout; identify the working directory; import Excel and CSV files; count and locate missing values; remove rows containing missing values; rename columns; filter and search records; sort rows; and export results.}
+
+\section{Packages used in Lab 7a}
+
+The handout introduces several packages as the workflow expands:
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}p{3.0cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Package & Supplied use \\
+\midrule
+\texttt{readxl} & Import the Excel file \texttt{uforeport.xls}. \\
+\texttt{dplyr} & Filter, pipe, and arrange data frames. \\
+\texttt{xlsx} & Export an Excel file. \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+Installation and loading follow the pattern introduced in Lab 1:
+
+\begin{lstlisting}[style=dsr]
+install.packages("readxl")
+library(readxl)
+
+any(grepl("readxl", installed.packages()))
+\end{lstlisting}
+
+The \texttt{any(grepl(...))} line is the handout's explicit package-installation check.
+
+\section{Working directory and file placement}
+
+Before importing a file, Lab 7a asks you to inspect or set the working directory:
+
+\begin{lstlisting}[style=dsr]
+getwd()
+
+# Example only; your path may differ.
+setwd("C:/Users/User/Desktop")
+
+list.files()
+\end{lstlisting}
+
+The handout expects \texttt{uforeport.xls} and \texttt{titanic.csv} to be stored in the same working location as the R work so that the filenames can be used directly.
+
+\begin{keyidea}
+The import examples assume the filenames resolve from the current working directory. If R cannot find a file, first check \texttt{getwd()} and \texttt{list.files()} before changing the analysis code.
+\end{keyidea}
+
+\section{Importing Excel and CSV files}
+
+The Excel file is read with \texttt{read\_excel()} after loading \texttt{readxl}:
+
+\begin{lstlisting}[style=dsr]
+uforeport <- read_excel("uforeport.xls")
+View(uforeport)
+\end{lstlisting}
+
+The CSV file uses base R's \texttt{read.csv()} and does not require the \texttt{readxl} package:
+
+\begin{lstlisting}[style=dsr]
+titanic <- read.csv("titanic.csv")
+View(titanic)
+\end{lstlisting}
+
+\section{Identifying missing values}
+
+The handout uses \texttt{is.na()} in three ways.
+
+\subsection{Count all missing values}
+
+\begin{lstlisting}[style=dsr]
+sum(is.na(uforeport))
+sum(is.na(titanic))
+\end{lstlisting}
+
+\subsection{Find their positions}
+
+\begin{lstlisting}[style=dsr]
+which(is.na(uforeport))
+which(is.na(titanic))
+\end{lstlisting}
+
+A small vector is included to make the behavior easier to see:
+
+\begin{lstlisting}[style=dsr]
+demo <- c(1, 2, NA, 4, NA, 6, 7)
+
+sum(is.na(demo))
+which(is.na(demo))
+\end{lstlisting}
+
+\subsection{Count missing values by column}
+
+\begin{lstlisting}[style=dsr]
+print(sapply(uforeport, function(x) sum(is.na(x))))
+print(sapply(titanic, function(x) sum(is.na(x))))
+\end{lstlisting}
+
+This gives a per-column missing-value count rather than one total for the entire table.
+
+\section{Removing rows with missing values}
+
+The source compares data-frame dimensions before and after \texttt{na.omit()}:
+
+\begin{lstlisting}[style=dsr]
+dim(uforeport)
+uforeport_cleaned <- na.omit(uforeport)
+dim(uforeport_cleaned)
+
+dim(titanic)
+titanic_cleaned <- na.omit(titanic)
+dim(titanic_cleaned)
+\end{lstlisting}
+
+The dimension comparison is the evidence requested by the exercise: it shows how many rows remain after records containing NA values are omitted.
+
+\section{Column names and renaming}
+
+The lab retrieves names in two equivalent-looking ways:
+
+\begin{lstlisting}[style=dsr]
+colnames(uforeport_cleaned)
+colnames(titanic_cleaned)
+
+names(uforeport_cleaned)
+names(titanic_cleaned)
+\end{lstlisting}
+
+For the UFO report, spaces in column names are replaced by underscores:
+
+\begin{lstlisting}[style=dsr]
+names(uforeport_cleaned) <- gsub(
+  " ", "_", colnames(uforeport_cleaned)
+)
+\end{lstlisting}
+
+This prepares names such as \texttt{Colors Reported} for the later \texttt{Colors\_Reported} filter expressions shown in the handout.
+
+\section{Filtering data}
+
+After loading \texttt{dplyr}, Lab 7a filters for exact values and numerical conditions:
+
+\begin{lstlisting}[style=dsr]
+install.packages("dplyr")
+library(dplyr)
+
+print(filter(uforeport_cleaned, City == "Belton"))
+print(filter(uforeport_cleaned, Colors_Reported == "GREEN"))
+print(filter(titanic_cleaned, sex == "female"))
+print(filter(titanic_cleaned, fare > 500))
+\end{lstlisting}
+
+\subsection{Multiple conditions}
+
+The supplied examples show both explicit \texttt{\&} and the pipe form:
+
+\begin{lstlisting}[style=dsr]
+print(filter(
+  titanic_cleaned,
+  sex == "female" & fare > 500
+))
+
+# Alternative dplyr form from the handout
+titanic_cleaned %>%
+  filter(sex == "female", fare > 500)
+
+ufo_green <- uforeport_cleaned %>%
+  filter(Colors_Reported == "GREEN")
+\end{lstlisting}
+
+\section{Arranging rows}
+
+The handout sorts Titanic by fare:
+
+\begin{lstlisting}[style=dsr]
+# Ascending
+titanic_sortbyfare <- arrange(titanic_cleaned, fare)
+
+# Descending
+titanic_sortbyfare <- arrange(titanic_cleaned, desc(fare))
+\end{lstlisting}
+
+The same variable name is reassigned in the source, so after both lines the descending version is the one retained.
+
+\section{Exporting analysis results}
+
+Lab 7a exports one Excel file and one CSV file:
+
+\begin{lstlisting}[style=dsr]
+install.packages("xlsx")
+library(xlsx)
+write.xlsx(ufo_green, "ufo_green.xlsx")
+
+write.csv(
+  titanic_sortbyfare,
+  "titanic_sortbyfare.csv"
+)
+\end{lstlisting}
+
+This completes the full file workflow: import, inspect/clean, transform, then save the result.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which function tells you the current working directory?
+  \item Which import function is used for \texttt{uforeport.xls}, and which for \texttt{titanic.csv}?
+  \item How do \texttt{sum(is.na(x))} and \texttt{which(is.na(x))} answer different questions?
+  \item What evidence does the handout collect before and after \texttt{na.omit()}?
+  \item Which \texttt{dplyr} function sorts rows, and how is descending order requested?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item File import depends on the working directory and filenames used by the code.
+  \item Missing values can be counted globally, located, and summarized per column.
+  \item \texttt{na.omit()} is the cleaning method demonstrated in the source material.
+  \item \texttt{gsub()} is used to normalize column names before filtering.
+  \item \texttt{dplyr::filter()} and \texttt{arrange()} implement row selection and sorting in the supplied workflow.
+  \item The final transformed tables are exported to Excel and CSV.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,225 @@
+\chapter{Final Project: Algorithm Comparison}
+\label{ch:final-project}
+
+\chapterguide%
+  {Know how to trace algorithms, state time/space complexity, and implement representative course algorithms in C++.}
+  {choose a valid pair of related algorithms, design a fair comparison, instrument operation counts and runtime, build the required interactive app, and structure the written report around evidence rather than claims.}
+
+The final-project guideline turns the course into a small comparative experiment. The required deliverable is not only a written report: the group must also build an interactive web or mobile application that demonstrates two algorithms from the \emph{same category} side by side.
+
+\begin{projectrequirement}
+Choose two related algorithms or operations, explain how both work, and compare their time complexity, space complexity, number of steps or operations, use cases, and practicality. The application must accept sample input, execute both choices, show the results, report steps and measurable time, provide visual output, and present a side-by-side comparison.
+\end{projectrequirement}
+
+\section{What counts as a valid comparison?}
+
+The project guideline explicitly requires algorithms from the same category. It gives the following examples.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.24\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Category & Example pair & Course connection \\
+\midrule
+Sorting & Bubble Sort vs Merge Sort & Chapter~\ref{ch:search-sort} \\
+Searching & Linear Search vs Binary Search & Chapter~\ref{ch:search-sort} \\
+Data-structure operations & Array insertion vs linked-list insertion & Chapters~\ref{ch:arrays} and~\ref{ch:linked-lists} \\
+Graph traversal & BFS vs DFS & Chapter~\ref{ch:graphs} \\
+Recursion vs iteration & Factorial or Fibonacci implemented both ways & General algorithm-design comparison \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The guideline also permits other pairs, provided the two choices are genuinely related. A comparison such as Bubble Sort vs Binary Search is invalid because the algorithms solve different problems.
+
+\begin{recommendedworkflow}
+A strong pair has one shared task and one clear independent variable: the algorithm. Keep the input, hardware, programming language, output requirement, and measurement method the same. That makes the comparison easier to explain and more defensible.
+\end{recommendedworkflow}
+
+\section{Required comparison dimensions}
+
+For each algorithm, the report is expected to cover how it works, a step-by-step example, best/average/worst time complexity, space complexity, and pros/cons. The comparison itself should also discuss step counts, use cases, and practicality.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.23\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Dimension & What to collect \\
+\midrule
+Working principle & A concise description of the rule each algorithm follows. \\
+Correctness evidence & Identical expected output for the same valid input, or an explanation of why outputs differ. \\
+Time complexity & Best, average, and worst cases where meaningful. State assumptions. \\
+Space complexity & Auxiliary memory and any important representation cost. \\
+Operation count & Comparisons, swaps, probes, node visits, queue/stack operations, or another pair-specific count. \\
+Measured runtime & Repeated timing under the same conditions; treat small-input timings cautiously. \\
+Practicality & Input constraints, setup cost, ease of implementation, and when one method is a better fit. \\
+Use cases & One or two scenarios where the trade-off matters. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Counting operations in C++}
+
+An operation counter makes the comparison visible even when runtime is too small or noisy to interpret. The exact counter should match the algorithm.
+
+\begin{lstlisting}
+struct Metrics {
+    long long comparisons = 0;
+    long long swaps = 0;
+    long long visits = 0;
+};
+
+void bubbleSortMeasured(vector<int>& a, Metrics& m) {
+    int n = static_cast<int>(a.size());
+    for (int pass = 0; pass < n - 1; ++pass) {
+        for (int i = 0; i < n - 1 - pass; ++i) {
+            ++m.comparisons;
+            if (a[i] > a[i + 1]) {
+                swap(a[i], a[i + 1]);
+                ++m.swaps;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{keyidea}
+Do not force every algorithm into the same notion of a ``step.'' Define the metric before the experiment. For sorting, comparisons and swaps are natural. For searching, comparisons are natural. For graphs, visited vertices/edges and queue/stack operations may be more meaningful.
+\end{keyidea}
+
+\section{Measuring runtime fairly}
+
+The project asks for time taken \emph{if measurable}. C++ can use \texttt{std::chrono}; however, one very short execution can be dominated by timer resolution, process scheduling, caching, or startup effects.
+
+\begin{lstlisting}
+#include <chrono>
+using namespace std::chrono;
+
+auto start = high_resolution_clock::now();
+algorithm(input);
+auto stop = high_resolution_clock::now();
+
+auto elapsed = duration_cast<microseconds>(stop - start).count();
+cout << elapsed << " microseconds\n";
+\end{lstlisting}
+
+\begin{recommendedworkflow}
+Run each algorithm multiple times on copied input and report a median or average. For sorting, never let Algorithm 2 receive the already-sorted output produced by Algorithm 1 unless ``sorted input'' is intentionally the scenario being tested. Preserve an untouched master input and copy it before each run.
+\end{recommendedworkflow}
+
+\section{Application requirements}
+
+The final-project guideline requires a web or mobile application before report submission. The interface should help even a non-computer-science user interpret the comparison.
+
+\begin{projectrequirement}
+The app must allow sample-data input, execute both algorithms, display results, show step counts, show time taken when measurable, include visual outputs, and provide a side-by-side comparison. The guideline specifically encourages interactive elements such as dropdowns and buttons.
+\end{projectrequirement}
+
+A practical screen flow is:
+
+\begin{mlsteps}
+  \item Choose the algorithm pair or open the fixed project pair.
+  \item Enter or generate the input dataset.
+  \item Validate the input and show any precondition, such as ``binary search requires sorted data.''
+  \item Run Algorithm 1 and Algorithm 2 on equivalent copies of the input.
+  \item Display result, operation count, elapsed time, and a compact visual trace.
+  \item Show a comparison table and one plain-language interpretation.
+\end{mlsteps}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=3.1cm,minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+]
+\node[box] (input) {Input / Generate Data};
+\node[box,right=0.7cm of input] (run) {Run Both Algorithms};
+\node[box,right=0.7cm of run] (metrics) {Collect Metrics};
+\node[box,below=0.8cm of run] (compare) {Side-by-Side Result + Visual};
+\draw[arr] (input)--(run);
+\draw[arr] (run)--(metrics);
+\draw[arr] (metrics.south) |- (compare.east);
+\draw[arr] (run)--(compare);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Report structure required by the guideline}
+
+The written report is organized into six main parts.
+
+\begin{description}[leftmargin=1.25in,style=nextline]
+  \item[A. Introduction] Identify the algorithms and explain why the comparison is useful or interesting.
+  \item[B. Algorithm Explanation] Explain each method, give a step-by-step example, state best/average/worst time and space complexity, and discuss pros/cons.
+  \item[C. Comparison Table] Compare working principle, time, space, number of steps, and best use cases side by side.
+  \item[D. Use Case Comparison] Give one or two real-world scenarios and explain why one algorithm is more suitable in each.
+  \item[E. Visual Aid (optional)] Add flowcharts, diagrams, operation-count graphs, or screenshots from the application.
+  \item[F. Conclusion] Summarize where each algorithm is more efficient or practical and state the group's takeaways.
+\end{description}
+
+\section{Team and repository requirements}
+
+\begin{projectrequirement}
+Teams may contain a maximum of four students. Each group submits one report and one application. The team leader should upload the code to a GitHub repository, give other team members access, reference members there, and include the repository in the report so the code can be accessed.
+\end{projectrequirement}
+
+\begin{recommendedworkflow}
+Use a simple repository structure such as \texttt{/app}, \texttt{/algorithm-core}, \texttt{/tests}, \texttt{/docs}, and a clear \texttt{README}. Keep algorithm logic separate from UI code so the same functions can be tested independently and then called by the web/mobile interface.
+\end{recommendedworkflow}
+
+\section{Project pair ideas from this course}
+
+The following pairs stay within the same problem category and have useful trade-offs to visualize.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Pair & Useful evidence to visualize \\
+\midrule
+Linear vs binary search & Comparisons as $n$ grows; binary-search precondition; target position. \\
+Bubble vs insertion sort & Comparisons and swaps for random, sorted, and nearly sorted input. \\
+Bubble vs merge sort & Quadratic growth vs divide-and-conquer behavior; extra merge storage. \\
+BFS vs DFS & Visit order, frontier data structure, discovered path behavior. \\
+Array vs linked-list insertion & Shifts vs pointer updates, plus the cost of locating the insertion position. \\
+Linear vs quadratic probing & Probe sequences and clustering after the same collisions. \\
+Min-heap vs max-heap operations & Heap restoration path and which extreme is available at the root. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Submission checklist}
+
+\begin{verification}
+Before submission, verify that the package contains:
+\begin{itemize}
+  \item project title and complete group details;
+  \item introduction to the selected pair;
+  \item detailed explanation and code for both algorithms;
+  \item step-by-step examples and complexity analysis;
+  \item a comprehensive side-by-side comparison table;
+  \item real-world use-case analysis;
+  \item a conclusion supported by the collected evidence;
+  \item the functioning web/mobile application;
+  \item the GitHub repository reference in the report;
+  \item optional diagrams, graphs, and application screenshots where they improve interpretation.
+\end{itemize}
+\end{verification}
+
+\begin{quickcheck}
+If one algorithm appears faster for a single input of size 20, is that enough to conclude it has better asymptotic time complexity? What additional evidence would make the comparison more convincing?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The project compares two related algorithms or operations from the same category.
+  \item The comparison must include time, space, operation counts, practicality, and use cases.
+  \item A web or mobile application is a required deliverable and must execute both choices interactively.
+  \item Fair experiments keep inputs and measurement conditions comparable.
+  \item The report structure and GitHub workflow are explicitly specified in the project guideline.
+\end{itemize}
+\end{chapterrecap}
+
+\section*{Course finish line}
+
+\begin{recommendedworkflow}
+By the end of the course, aim to be able to do five things with any structure or algorithm you have studied: draw its state, trace one operation by hand, implement the core operation, state the relevant time/space cost with assumptions, and design a test that exposes an edge case. The final project combines all five skills in one comparison.
+\end{recommendedworkflow}

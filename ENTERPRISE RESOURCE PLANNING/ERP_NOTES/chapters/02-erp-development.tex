@@ -1,0 +1,186 @@
+\chapter{The Development of ERP Systems: Architecture, Benefits, and Challenges}
+\label{ch:erp-development}
+
+\chapterguide
+  {You should understand the idea of functional silos from Chapter 1.}
+  {explain how MRP evolved into ERP, describe ERP modularity and shared data, evaluate major benefits and implementation challenges, and identify conditions that make an ERP project more likely to succeed.}
+
+\begin{sourcebasis}
+This chapter is based on Tutorial 2 and Chapter 2 of \emph{Concepts in Enterprise Resource Planning}, with implementation ideas reinforced by Chapter 7. Tutorial 2 asks students to investigate one ERP benefit and one ERP challenge, support each with evidence, and teach the result to peers.
+\end{sourcebasis}
+
+\section{Why ERP systems emerged}
+
+Business computing did not begin with an integrated company-wide platform. Early information systems were typically built to solve one department's immediate problem. A manufacturing system tracked materials, an accounting system recorded financial transactions, and a sales system captured customer orders. Each system could be useful by itself while still making the company as a whole difficult to coordinate.
+
+The manufacturing lineage is especially important. \term{Material Requirements Planning (MRP)} focused on calculating what materials were needed and when. Later systems expanded toward manufacturing resource planning and then broader enterprise integration. ERP extended the idea beyond factory planning to include sales, purchasing, finance, human resources, logistics, and other processes in one coordinated environment.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.25cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.75cm
+]
+\node[box] (inv) {Inventory control\\What do we have?};
+\node[box,right=of inv] (mrp) {MRP\\What materials and when?};
+\node[box,right=of mrp] (mfg) {Manufacturing planning\\Materials + capacity};
+\node[box,below=0.8cm of mfg] (erp) {ERP\\Company-wide processes and shared data};
+\draw[arr] (inv) -- (mrp); \draw[arr] (mrp) -- (mfg); \draw[arr] (mfg) -- (erp);
+\end{tikzpicture}
+\end{erpfigure}
+
+\section{The core architectural idea: modules around shared data}
+
+ERP products are modular because businesses perform different kinds of work. A sales module needs quotations and orders; a manufacturing module needs bills of materials and production orders; finance needs invoices, payments, and accounting records. Modularity lets specialised workflows exist while still sharing the same master and transaction data.
+
+Two types of data are useful to distinguish:
+
+\begin{description}
+  \item[Master data] Relatively stable facts reused across many transactions: customers, vendors, products, employees, units of measure, prices, and chart-of-account structures.
+  \item[Transaction data] Events that occur over time: a sales order, purchase order, receipt, manufacturing order, delivery, invoice, or payment.
+\end{description}
+
+\begin{keyidea}
+ERP integration is not achieved by putting every task on one giant screen. It is achieved by allowing specialised modules to use common master data and to create linked transaction records from the same business events.
+\end{keyidea}
+
+\section{Real-time information and one version of the business event}
+
+In the textbook, \term{real time} means that data and processes are current rather than waiting for periodic transfers. A confirmed order can therefore be available to the functions that need it without a clerk exporting a file, printing a report, or re-entering the data.
+
+This does not mean every organisation literally updates every metric with zero delay. The more useful operational meaning is that the system is designed so that authorised users work from the same current transaction records rather than from separately maintained departmental copies.
+
+\section{Major benefits of ERP}
+
+The course source highlights several benefits. They can be grouped into four mechanisms.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.19\linewidth}p{0.29\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Mechanism & What changes & Business value \\
+\midrule
+Data integration & People and modules use common records rather than separate departmental copies. & Fewer inconsistencies, duplicate entries, reconciliation tasks, and delays. \\
+Process integration & One transaction can trigger the next step in another function. & Faster order fulfilment, purchasing, billing, and reporting. \\
+Management visibility & Managers can view consolidated operational information without manually assembling reports. & More time can be spent managing and improving operations rather than merely discovering what happened. \\
+Global standardisation & Common processes and data structures can span units, locations, currencies, and languages. & Easier coordination and comparable reporting across the organisation. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+Other benefits are often consequences of these mechanisms: better customer service, lower inventory, shorter cycle times, improved reporting, stronger control, and a platform for analytics.
+
+\begin{workedexample}
+Suppose West End Bicycles stores the Road Bike price separately in a salesperson's spreadsheet and in Finance's invoice system. A price change must be updated twice and may be missed in one place. With an integrated ERP record, the quotation and later invoice can use the same transaction data, reducing the chance of contradictory prices.
+\end{workedexample}
+
+\section{Why ERP projects are difficult}
+
+ERP software affects many departments at once, so implementation is an organisational change project as much as a technology project. The source material identifies costs such as software, hardware, consultants, project-team time, training, implementation disruption, and productivity losses during transition.
+
+More importantly, failed or difficult implementations are frequently associated with process and people problems:
+
+\begin{itemize}
+  \item assuming new software will repair a fundamentally bad business process without redesigning it;
+  \item insufficient planning and analysis before configuration begins;
+  \item inadequate education and training;
+  \item treating the implementation as an IT-only project instead of giving process owners responsibility;
+  \item weak executive sponsorship;
+  \item poor organisational change management;
+  \item excessive scope or uncontrolled customisation;
+  \item difficult migration of master and open transaction data from legacy systems.
+\end{itemize}
+
+\begin{pitfall}
+``Install ERP'' is not a business objective. A project needs a process objective such as reducing order cycle time, improving inventory accuracy, shortening financial close, or eliminating repeated manual entry. Otherwise the organisation can spend heavily and merely reproduce its old problems inside a newer system.
+\end{pitfall}
+
+\section{Standard processes versus customisation}
+
+ERP packages usually embody a particular way of doing business. The implementation team must decide whether to:
+
+\begin{enumerate}
+  \item adapt the company's process to the standard ERP workflow;
+  \item configure the ERP system using supported options; or
+  \item customise the software when a real competitive or regulatory need cannot be met by standard configuration.
+\end{enumerate}
+
+Customisation is not automatically wrong, but every custom feature increases implementation effort and can make future upgrades harder. A useful question is: \emph{Does this process create competitive advantage, or is it merely familiar?}
+
+\section{How to judge ERP success}
+
+A successful ERP implementation is not simply one that goes live. It should improve measurable business outcomes.
+
+Possible indicators include:
+
+\begin{itemize}
+  \item order-to-delivery cycle time;
+  \item inventory accuracy and stockout frequency;
+  \item invoice and payment processing time;
+  \item days required to close financial accounts;
+  \item forecast accuracy;
+  \item percentage of transactions completed without manual re-entry;
+  \item user adoption and process compliance;
+  \item customer service levels;
+  \item realised cost savings or revenue improvements.
+\end{itemize}
+
+Some ERP benefits are hard to express as immediate cash savings. Better visibility, improved control, consistent data, and the ability to support future growth may still be strategically important.
+
+\section{Implementation success factors}
+
+The source repeatedly returns to a few conditions that increase the chance of success:
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.25\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Success factor & Why it matters \\
+\midrule
+Executive sponsorship & Gives the project authority, resources, and cross-functional priority. \\
+Clear scope and objectives & Prevents uncontrolled expansion and makes benefits measurable. \\
+Process ownership & Ensures decisions are made by people who understand the work, not only the technology. \\
+Training and communication & Helps users understand both the system and the new process. \\
+Change management & Addresses resistance, role changes, and new responsibilities. \\
+Data preparation & Poor master data can undermine even correctly configured software. \\
+Testing and staged readiness & Finds configuration and process problems before live transactions depend on the system. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section{How Odoo illustrates ERP modularity}
+
+The West End Bicycles guide uses eight Odoo 19 Community applications: Contacts, CRM, Employees, Inventory, Invoicing, Manufacturing, Purchase, and Sales. Each application has a distinct job, but the records are connected.
+
+\begin{odoobox}
+A useful way to read the Odoo app grid is as a modular ERP architecture:
+\begin{itemize}
+  \item \odooapp{Contacts}: shared customer and vendor identities.
+  \item \odooapp{CRM} and \odooapp{Sales}: demand, opportunities, quotations, and orders.
+  \item \odooapp{Purchase}, \odooapp{Inventory}, and \odooapp{Manufacturing}: sourcing, stock, and production.
+  \item \odooapp{Invoicing}: customer invoices and payments in the Community workflow used by the course.
+  \item \odooapp{Employees}: departments and people behind the processes.
+\end{itemize}
+The same product, customer, vendor, and order information can therefore be reused instead of rebuilt independently in each app.
+\end{odoobox}
+
+\begin{tryit}
+Choose one ERP benefit and one ERP implementation challenge from this chapter. For each, write: (1) the mechanism that creates the benefit/challenge, (2) one operational example at West End Bicycles, and (3) one metric that could show whether the issue improved after implementation. This mirrors the structure of Tutorial 2 while forcing the argument to be measurable.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between master data and transaction data? Give two Odoo examples of each.
+  \item Why is top-management support important in a cross-functional ERP implementation?
+  \item Why can copying an inefficient legacy process exactly into an ERP system reduce the expected benefit?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item ERP grew from narrower planning and departmental information systems into company-wide integrated platforms.
+  \item ERP modules remain specialised but share master data and linked transaction data.
+  \item The main benefits come from integration, visibility, process coordination, and standardisation.
+  \item The main risks involve process design, people, scope, training, data migration, and change management as much as software.
+  \item Success should be measured in business outcomes, not merely by whether the system was installed.
+\end{itemize}
+\end{chapterrecap}

@@ -1,0 +1,199 @@
+\chapter{Supply Chain Management, MRP, Purchasing, and Inventory}
+\label{ch:scm}
+
+\chapterguide
+  {You should understand forecasts, production plans, and bills of materials.}
+  {explain supply-chain integration, calculate basic material requirements, distinguish gross from net requirements, connect lead time and lot sizing to purchasing, and evaluate supply-chain performance with operational metrics.}
+
+\begin{sourcebasis}
+This chapter follows Tutorial 7 and Chapter 4 of the textbook. Tutorial 7 asks students to research a manufacturing company that implemented SCM and to compare CRM with SCM. The textbook adds MRP, supplier integration, and supply-chain performance metrics such as cash-to-cash cycle time, fill rate, lead time, and on-time performance.
+\end{sourcebasis}
+
+\section{What Supply Chain Management coordinates}
+
+\term{Supply Chain Management (SCM)} coordinates the organisations and activities involved in moving materials, information, and products from suppliers through production and distribution to the final customer.
+
+A traditional view treats each company as an isolated optimiser: the buyer pressures the supplier, the supplier protects its own information, and each party carries inventory to protect itself from uncertainty. An integrated supply-chain view recognises that poor coordination creates cost for everyone.
+
+\begin{erpfigure}
+\resizebox{0.96\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.35cm
+]
+\node[box] (sup) {Supplier};
+\node[box,right=of sup] (buy) {Purchase};
+\node[box,right=of buy] (rec) {Receive / inventory};
+\node[box,right=of rec] (make) {Manufacture};
+\node[box,right=of make] (del) {Deliver};
+\node[box,right=of del] (cust) {Customer};
+\draw[arr] (sup)--(buy); \draw[arr] (buy)--(rec); \draw[arr] (rec)--(make); \draw[arr] (make)--(del); \draw[arr] (del)--(cust);
+\draw[arr,bend left=30,draw=ERPOrange] (cust.north) to node[above,font=\tiny\color{ERPOrange!85!black}] {demand and status information} (sup.north);
+\end{tikzpicture}}
+\end{erpfigure}
+
+The physical flow generally moves toward the customer. Information must move both directions: forecasts and orders upstream, availability and shipment status downstream. Money flows back toward suppliers and the producer after transactions are settled.
+
+\section{From production requirements to material requirements}
+
+A sales forecast does not tell Purchasing how many tyres to buy. Production planning first determines what finished products are needed. Then the BOM converts those finished-product quantities into component quantities.
+
+For component $j$ used in products $i$:
+
+\[
+\text{Gross Requirement}_j
+= \sum_i \left(\text{Planned Product Quantity}_i\times \text{BOM Quantity}_{ij}\right).
+\]
+
+For 5 Road Bikes, with 2 tyres per bike:
+
+\[
+5\times 2=10\text{ tyres}.
+\]
+
+That is a \term{gross requirement}: the amount needed before considering what is already available.
+
+\section{MRP: gross requirements are not the same as purchase orders}
+
+\term{Material Requirements Planning (MRP)} determines the quantity and timing of required raw-material and subassembly supply. It considers more than the BOM:
+
+\begin{itemize}
+  \item gross requirements from the production plan;
+  \item current on-hand inventory;
+  \item scheduled receipts from orders already placed;
+  \item safety stock or minimum-stock rules;
+  \item supplier or internal lead times;
+  \item lot-sizing constraints.
+\end{itemize}
+
+A simplified net-requirement idea is:
+
+\[
+\text{Net Requirement}
+= \max\bigl(0,\;\text{Gross Requirement}+\text{Desired Ending Stock}-\text{Available Supply}\bigr).
+\]
+
+The exact MRP record is time-phased: availability in one week cannot satisfy a requirement in an earlier week.
+
+\section{Lead time changes when the order must be released}
+
+\term{Lead time} is the elapsed time between initiating supply and having the material available for use. If a component is needed in Week 5 and its purchasing lead time is two weeks, the order must be released approximately in Week 3, subject to the system's calendar and receiving assumptions.
+
+MRP therefore answers both \emph{how much} and \emph{when}.
+
+\section{Lot sizing changes the quantity}
+
+Suppliers may sell in fixed packs, pallets, minimum quantities, or economic batch sizes. If the net requirement is 930 units but the supplier only ships pallets of 500, the planned order may need to be 1,000 rather than 930.
+
+\begin{workedexample}
+Suppose West End Bicycles plans 20 Road Bikes. The BOM requires 1 Aluminium Frame and 2 Rubber Tires per bike. On hand are 7 frames and 12 tyres. Ignoring safety stock and scheduled receipts:
+\[
+\text{Frames net}=20-7=13,
+\]
+\[
+\text{Tyres net}=40-12=28.
+\]
+If tyres must be purchased in boxes of 10, the procurement quantity becomes 30 tyres even though the net requirement is 28.
+\end{workedexample}
+
+\section{Purchasing and receiving are separate business events}
+
+A purchase order records the organisation's commitment to buy. A receipt records what physically arrived. Those two events may differ in date or quantity.
+
+This distinction matters because:
+
+\begin{itemize}
+  \item Inventory should rise only when goods are actually received;
+  \item supplier performance should be measured against the requested quantity/date;
+  \item Finance should know what was ordered and what was accepted before payment;
+  \item manufacturing availability depends on actual on-hand stock, not merely an open purchase order.
+\end{itemize}
+
+\section{Supplier integration}
+
+The textbook's supply-chain discussion stresses that information sharing and relationships matter. Sharing realistic forecasts and status data can help suppliers prepare capacity and materials. In return, the buyer gains better visibility into lead time and availability.
+
+This collaboration does not mean giving every supplier unrestricted ERP access. It means designing controlled information exchange so the supply chain can coordinate around the same demand and fulfilment signals.
+
+\section{SCM measures of success}
+
+The textbook highlights several metrics.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Metric & Meaning \\
+\midrule
+Cash-to-cash cycle time & Time between paying for inputs and collecting cash from the customer. Shorter cycles generally mean less working capital is tied up. \\
+Total SCM cost & Cost of buying/handling inventory, processing orders, and supporting the information systems used by the supply chain. \\
+Initial fill rate & Percentage of an order supplied in the first shipment. \\
+Initial order lead time & Time required for the supplier to fill the order. \\
+On-time performance & How often the supplier meets the agreed delivery date. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+Metrics should be interpreted together. A supplier can have a high on-time percentage but a poor fill rate if it repeatedly delivers on time but short.
+
+\section{CRM versus SCM}
+
+Tutorial 7 asks students to compare CRM and SCM. Both coordinate relationships and information across organisational boundaries, but they focus on different sides of the enterprise.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.18\linewidth}XX@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Aspect & CRM & SCM \\
+\midrule
+Primary relationship & Prospects and customers & Suppliers, production, logistics partners \\
+Primary signal & Customer interest and demand & Material/product requirements and fulfilment \\
+Typical records & Leads, opportunities, contacts, campaigns, service history & Purchase orders, receipts, inventory, production plans, supplier performance \\
+Shared objective & \multicolumn{2}{p{0.58\linewidth}}{Deliver customer value efficiently by coordinating information rather than optimising one department in isolation.} \\
+Where they meet & \multicolumn{2}{p{0.58\linewidth}}{Demand captured by CRM/Sales becomes a planning and fulfilment requirement for SCM; SCM status returns to Sales so customers can receive accurate promises.} \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\section{SCM in Odoo 19 Community}
+
+\begin{odoobox}
+The West End Bicycles guide uses this procure-and-receive sequence:
+\begin{enumerate}
+  \item create vendors and raw-material products;
+  \item link each vendor to the material it supplies and the vendor price;
+  \item create one RFQ per vendor and assign the Purchasing Officer as Buyer;
+  \item confirm each RFQ into a Purchase Order;
+  \item open the linked Receipt and validate it;
+  \item verify that on-hand raw-material stock rises;
+  \item use those materials in the Road Bike manufacturing order;
+  \item later validate the customer delivery, which reduces finished-goods stock.
+\end{enumerate}
+This makes the supply chain visible as stock movements tied to purchasing and manufacturing records rather than as an isolated warehouse count.
+\end{odoobox}
+
+\begin{pitfall}
+An open Purchase Order is not the same as available inventory. A planner who treats ordered material as already on hand can release production that cannot actually start.
+\end{pitfall}
+
+\begin{tryit}
+For the Road Bike BOM, imagine a production plan of 50 bikes, on-hand inventory of 12 frames, 70 tyres, 18 brake sets, 20 gear sets, and 15 chains. Calculate the simplified net requirement for each component. Then add one realistic lot-size rule of your own and recalculate the purchase quantity.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between gross and net material requirements?
+  \item Why must lead time be represented in MRP rather than only the required quantity?
+  \item How do CRM and SCM interact in a customer-order process?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item SCM coordinates physical, information, and financial flows across suppliers, production, distribution, and customers.
+  \item MRP converts production requirements into time-phased material requirements using BOMs, inventory, receipts, lead times, and lot sizes.
+  \item Purchase orders and receipts are separate events; only the receipt creates actual stock availability.
+  \item SCM performance should be measured with cycle-time, cost, fill-rate, lead-time, and on-time metrics.
+  \item CRM captures demand; SCM fulfils it; integrated ERP data links the two.
+\end{itemize}
+\end{chapterrecap}

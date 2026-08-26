@@ -1,0 +1,172 @@
+\chapter{Trees I: Terminology, Traversal, and Binary Trees}
+\label{ch:trees-i}
+
+\chapterguide%
+  {Know linear and non-linear classification, linked-node representation, and basic pointer-based traversal.}
+  {define a tree and subtree, use root/parent/sibling/level/height terminology, trace inorder/preorder/postorder traversal, and explain array and linked representations of a binary tree.}
+
+A \term{tree} is a non-linear data structure in which data is stored hierarchically. The Trees I deck defines a tree recursively: there is a specially designated \term{root}, and the remaining nodes can be partitioned into disjoint subtrees of that root.
+
+\section{Root and subtrees}
+
+The slide example uses root $A$ with the following structure.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=7.5mm,font=\scriptsize\bfseries\color{ADSNavy}},
+ edge/.style={thick,draw=ADSTeal}, level distance=9mm, sibling distance=14mm
+]
+\node[node] (A) at (0,0) {A};
+\node[node] (B) at (-3,-1.1) {B};
+\node[node] (C) at (0,-1.1) {C};
+\node[node] (D) at (3,-1.1) {D};
+\node[node] (E) at (-4,-2.2) {E};
+\node[node] (F) at (-2,-2.2) {F};
+\node[node] (G) at (0,-2.2) {G};
+\node[node] (H) at (2,-2.2) {H};
+\node[node] (I) at (3,-2.2) {I};
+\node[node] (J) at (4,-2.2) {J};
+\node[node] (K) at (-4.6,-3.3) {K};
+\node[node] (L) at (-3.4,-3.3) {L};
+\node[node] (M) at (2,-3.3) {M};
+\foreach \u/\v in {A/B,A/C,A/D,B/E,B/F,C/G,D/H,D/I,D/J,E/K,E/L,H/M}{\draw[edge] (\u)--(\v);}
+\node[right=0.25cm of A,font=\scriptsize\bfseries\color{ADSOrange}] {root};
+\end{tikzpicture}
+\end{mlfigure}
+
+The Trees I slide explicitly identifies the subtree rooted at $B$ as one subtree of $A$, and similarly identifies the $C$ and $D$ branches as other subtrees.
+
+\section{Tree terminology}
+
+\subsection{Edge}
+An \term{edge} is the connecting link between two nodes.
+
+\begin{clarification}
+The slide says that with $N$ nodes there will be a \emph{maximum} of $N-1$ edges. For an ordinary connected tree with $N$ nodes, the standard invariant is stronger: it has \emph{exactly} $N-1$ edges. The slide wording is preserved here and the standard property is supplied as clarification.
+\end{clarification}
+
+\subsection{Parent and sibling}
+If node $N$ is the immediate predecessor of node $X$, then $N$ is the parent of $X$. Nodes with the same parent are siblings. In the slide example, $A$ is a parent of $B$, $C$, and $D$; $E$ and $F$ are siblings.
+
+\subsection{Internal node}
+An internal node has at least one child. In the diagram above, examples include $A$, $B$, $C$, $D$, $E$, and $H$.
+
+\begin{clarification}
+One slide lists $A,B,C,D,E,F,G,H,I,J$ as internal nodes, but the accompanying diagram shows several of those nodes without children. These notes use the slide's own definition -- ``has at least one child'' -- when classifying the drawn example.
+\end{clarification}
+
+\subsection{Level}
+The \term{level} of a node is the number of edges on the path from that node to the root. The root is at level 0. If a node is at level $\ell$, its children are at level $\ell+1$.
+
+\subsection{Height}
+The slides define the height of a node as the number of edges on the longest path from that node down to a leaf. In the example, $H$ has one child $M$, so its height is 1.
+
+\begin{workedexample}
+Using the recreated slide tree: $A$ is at level 0, $D$ is at level 1, $H$ is at level 2, and $M$ is at level 3. The height of $H$ is 1 because the longest downward path is $H\rightarrow M$.
+\end{workedexample}
+
+\section{Tree traversal}
+
+Traversal means visiting every node exactly once. The Trees I deck teaches three depth-first traversal orders.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Traversal & Rule \\
+\midrule
+Inorder & Left subtree $\rightarrow$ root $\rightarrow$ right subtree \\
+Preorder & Root $\rightarrow$ left subtree $\rightarrow$ right subtree \\
+Postorder & Left subtree $\rightarrow$ right subtree $\rightarrow$ root \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+These traversal rules are most naturally applied to binary trees, because each node has a clear left and right subtree.
+
+\section{Binary trees}
+
+A \term{binary tree} is a tree in which each node has at most two children. A binary-tree node can be represented with two pointers.
+
+\begin{lstlisting}
+struct TreeNode {
+    int data;
+    TreeNode* left;
+    TreeNode* right;
+};
+\end{lstlisting}
+
+\subsection{Recursive traversal code}
+
+\begin{lstlisting}
+void inorder(TreeNode* root) {
+    if (root == nullptr) return;
+    inorder(root->left);
+    cout << root->data << ' ';
+    inorder(root->right);
+}
+
+void preorder(TreeNode* root) {
+    if (root == nullptr) return;
+    cout << root->data << ' ';
+    preorder(root->left);
+    preorder(root->right);
+}
+
+void postorder(TreeNode* root) {
+    if (root == nullptr) return;
+    postorder(root->left);
+    postorder(root->right);
+    cout << root->data << ' ';
+}
+\end{lstlisting}
+
+\section{Array representation of a binary tree}
+
+The Trees I slide states that if a root is stored at array index $I$, then the left child is at $2I$ and the right child at $2I+1$.
+
+\begin{clarification}
+Those formulas correspond to a \textbf{1-based} array representation. C++ raw arrays are usually indexed from 0. With a zero-based representation, the common formulas are
+\[
+\text{left}(i)=2i+1,\qquad \text{right}(i)=2i+2,
+\]
+and the parent of a non-root node is $\lfloor(i-1)/2\rfloor$.
+\end{clarification}
+
+\begin{workedexample}
+Using zero-based indexing, node at index 2 has left child at $2(2)+1=5$ and right child at $2(2)+2=6$. Using the slide's 1-based convention, a node at index 2 has children at 4 and 5.
+\end{workedexample}
+
+\section{Linked representation of a binary tree}
+
+A linked representation stores data plus two pointers: one to the left child and one to the right child. A missing child is represented by a null pointer.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=8mm,font=\small\bfseries},
+ edge/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+]
+\node[node] (a) {8};
+\node[node,below left=0.9cm and 1.2cm of a] (b) {4};
+\node[node,below right=0.9cm and 1.2cm of a] (c) {12};
+\node[node,below left=0.9cm and 0.5cm of b] (d) {2};
+\node[node,below right=0.9cm and 0.5cm of b] (e) {6};
+\draw[edge] (a)--(b); \draw[edge] (a)--(c); \draw[edge] (b)--(d); \draw[edge] (b)--(e);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{quickcheck}
+State the inorder, preorder, and postorder rules without looking back. What indexing assumption is required for the slide formula $2I$ and $2I+1$?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Trees store data hierarchically and have a designated root.
+  \item Parent, sibling, internal node, level, and height describe structural relationships.
+  \item Inorder, preorder, and postorder visit the root in different positions relative to its subtrees.
+  \item A binary tree has at most two children per node.
+  \item Binary trees can use array or linked representations.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/07-trees-i}

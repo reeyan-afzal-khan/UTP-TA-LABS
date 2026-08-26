@@ -1,0 +1,68 @@
+\chapter{File Organization and Disk-Block Allocation}\label{ch:filesystems}
+\chapterguide{Read Chapter~\ref{ch:directories} first.}{Explain text versus binary records, sequential search, indexed allocation, and compare contiguous, linked, and indexed file allocation.}
+
+\section{Records inside files}
+Applications often impose a record structure on a byte stream. The Lab 10 programs store student or employee records and then display/search them. Two broad encodings appear:
+\begin{itemize}
+  \item \textbf{text format}: fields are converted to characters with functions such as \texttt{fprintf()} and parsed with \texttt{fscanf()};
+  \item \textbf{binary format}: an in-memory structure is written as raw bytes with \texttt{fwrite()} and read with \texttt{fread()}.
+\end{itemize}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Format & Strength & Caution \\
+\midrule
+Text & Human-readable, easier interoperability & Parsing overhead and larger representation \\
+Raw binary struct & Simple and compact within one build environment & Padding, endianness, type sizes, and ABI make it non-portable as a durable interchange format \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Sequential search}
+A simple search rewinds the file and scans one record at a time until a key matches. Cost is $O(n)$ records in the worst case. Larger systems add indexing structures to reduce lookup cost.
+
+\section{File allocation on storage}
+The OS/file system must map a file's logical blocks to physical storage blocks.
+\begin{itemize}
+  \item \term{Contiguous allocation}: file occupies consecutive blocks. Fast sequential/random access, but growth and external fragmentation are concerns.
+  \item \term{Linked allocation}: each block points to the next. Easy growth and no external fragmentation, but random access is inefficient and pointer integrity matters.
+  \item \term{Indexed allocation}: a dedicated index block stores pointers to the file's data blocks. Supports direct access but consumes index space.
+\end{itemize}
+
+\section{Indexed allocation in the supplied lab}
+Lab 10 task 3 uses an integer array to model whether a disk block is allocated. The user chooses an index block and a set of data blocks. The simulation rejects a request if any referenced block is already marked allocated.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1mm,minimum width=2.2cm,minimum height=0.7cm,font=\small\bfseries\color{MLNavy}},
+  d/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1mm,minimum width=1.7cm,minimum height=0.65cm,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[b] (idx) {Index block 7};
+\node[d,right=2.2cm of idx,yshift=1.0cm] (d1) {block 12};
+\node[d,right=2.2cm of idx] (d2) {block 19};
+\node[d,right=2.2cm of idx,yshift=-1.0cm] (d3) {block 31};
+\draw[arr] (idx)--(d1); \draw[arr] (idx)--(d2); \draw[arr] (idx)--(d3);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{pitfall}
+Using \texttt{goto START} after discovering a conflict can leave earlier temporary choices or the index-block mark in an inconsistent state unless rollback is carefully implemented. Transaction-like allocation should validate the whole request before committing state changes.
+\end{pitfall}
+
+\section{Durability and consistency}
+Real file systems must survive partial writes and crashes. Journaling, copy-on-write, checksums, write ordering, and recovery tools are examples of mechanisms used to keep metadata and file content consistent.
+
+\input{chapters/concepts/10-filesystem-deep-dive}
+
+\input{labs/10-file-records-and-indexed-allocation}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Text and binary files encode records differently and have different portability trade-offs.
+  \item Sequential search is simple but scales linearly with record count.
+  \item Contiguous, linked, and indexed allocation trade placement simplicity, access speed, growth flexibility, and metadata overhead.
+\end{itemize}
+\end{chapterrecap}

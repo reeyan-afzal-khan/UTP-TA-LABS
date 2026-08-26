@@ -1,0 +1,71 @@
+\labsection{6}{Build and extend a student data frame}{sec:lab06}
+
+\begin{labproject}{Lab 6 practical guided practice}
+\textbf{Coverage.} Chapter~\ref{chap:data-frames}.\\
+\textbf{Goal.} Reproduce the student table shown in the supplied practical, add a qualification column and a new row, then inspect structure, summary, and dimensions.
+
+\begin{referencebox}
+The uploaded practical file is titled as a Lab 5b handout, but its content and learning outcomes are the direct continuation of Lab 6a on data frames. In this course edition it is therefore placed as Lab 6.
+\end{referencebox}
+
+\textbf{Task 1 --- Create the base data frame.}
+
+\begin{lstlisting}[style=dsr]
+students <- data.frame(
+  name = c(
+    "Anastasia", "Dima", "Michael", "Matthew",
+    "Laura", "Kevin", "Jonas"
+  ),
+  score = c(12.5, 9.0, 16.5, 12.0, 9.0, 8.0, 19.0),
+  attempts = c(1, 3, 2, 3, 2, 1, 2)
+)
+
+print(students)
+\end{lstlisting}
+
+\textbf{Task 2 --- Add the \texttt{qualify} column shown in the handout.}
+
+\begin{lstlisting}[style=dsr]
+students$qualify <- c(
+  "yes", "no", "yes", "no", "no", "no", "yes"
+)
+print(students)
+\end{lstlisting}
+
+\textbf{Task 3 --- Add Emily's row.}
+
+\begin{lstlisting}[style=dsr]
+emily <- data.frame(
+  name = "Emily",
+  score = 14.5,
+  attempts = 1,
+  qualify = "yes"
+)
+
+students <- rbind(students, emily)
+print(students)
+\end{lstlisting}
+
+\textbf{Task 4 --- Inspect the dataset.}
+
+\begin{lstlisting}[style=dsr]
+str(students)
+summary(students)
+dim(students)
+nrow(students)
+ncol(students)
+\end{lstlisting}
+
+The handout specifically suggests changing column data types to observe how \texttt{summary()} changes. For example, converting \texttt{qualify} to a factor makes its categories explicit:
+
+\begin{lstlisting}[style=dsr]
+students$qualify <- factor(students$qualify)
+summary(students)
+\end{lstlisting}
+
+For the final eight-row table, the numeric score values range from 8.0 to 19.0, and the table has 8 rows and 4 columns.
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the data frame before and after the added column/row, followed by \texttt{str()}, \texttt{summary()}, and the row/column counts with a short observation about what changed after the column-type conversion.
+\end{labdeliverable}

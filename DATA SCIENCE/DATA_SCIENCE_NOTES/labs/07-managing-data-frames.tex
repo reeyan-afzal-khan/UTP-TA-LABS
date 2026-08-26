@@ -1,0 +1,89 @@
+\labsection{7}{Clean, filter, and report on external datasets}{sec:lab07}
+
+\begin{labproject}{Lab 7b analysis workflow}
+\textbf{Coverage.} Chapter~\ref{chap:managing-data-frames}.\\
+\textbf{Required source files in the handout.} \texttt{uforeport.xls} and \texttt{titanic.csv}.\\
+\textbf{Goal.} Clean both datasets and create as many defensible observations as possible using the Lab 7a tools.
+
+\begin{pitfall}
+The two dataset files themselves were not included with the supplied materials for this notes build. Therefore these notes do not fabricate counts, percentages, or row-level findings. The statement in Lab 7b that ``80\% who embark from Cherbourg survived and 25\% are from Third Class'' is treated only as the handout's example of the style of insight expected, not as a result verified from the missing files.
+\end{pitfall}
+
+\textbf{Part A --- Import and clean.}
+
+\begin{lstlisting}[style=dsr]
+library(readxl)
+library(dplyr)
+
+uforeport <- read_excel("uforeport.xls")
+titanic <- read.csv("titanic.csv")
+
+print(sapply(uforeport, function(x) sum(is.na(x))))
+print(sapply(titanic, function(x) sum(is.na(x))))
+
+uforeport_cleaned <- na.omit(uforeport)
+titanic_cleaned <- na.omit(titanic)
+
+names(uforeport_cleaned) <- gsub(
+  " ", "_", names(uforeport_cleaned)
+)
+\end{lstlisting}
+
+\textbf{Part B --- Build an evidence table before writing conclusions.}
+
+Use the column names available in your actual imported files and compute counts before percentages. For example:
+
+\begin{lstlisting}[style=dsr]
+# Confirm actual column names first.
+print(names(titanic_cleaned))
+
+# Example patterns; adapt to the exact imported schema.
+print(table(titanic_cleaned$sex))
+print(table(titanic_cleaned$survived))
+print(table(titanic_cleaned$embark_town))
+
+# Cross-tabulation pattern
+print(table(
+  titanic_cleaned$embark_town,
+  titanic_cleaned$survived
+))
+\end{lstlisting}
+
+\textbf{Part C --- Filter targeted subsets.}
+
+\begin{lstlisting}[style=dsr]
+female_rows <- titanic_cleaned %>%
+  filter(sex == "female")
+
+high_fare_rows <- titanic_cleaned %>%
+  filter(fare > 500)
+
+green_ufo <- uforeport_cleaned %>%
+  filter(Colors_Reported == "GREEN")
+\end{lstlisting}
+
+\textbf{Part D --- Arrange and export supporting tables.}
+
+\begin{lstlisting}[style=dsr]
+titanic_fare_desc <- titanic_cleaned %>%
+  arrange(desc(fare))
+
+write.csv(
+  titanic_fare_desc,
+  "titanic_fare_desc.csv"
+)
+\end{lstlisting}
+
+\textbf{Suggested report structure.}
+\begin{enumerate}
+  \item State the original and cleaned dimensions of both datasets.
+  \item Report which columns contained missing values and how many rows were removed by \texttt{na.omit()}.
+  \item Present several filtered or grouped observations supported by printed counts.
+  \item Distinguish a raw count from a percentage and show the denominator used for each percentage.
+  \item Export at least one useful filtered/sorted result as evidence of the data-management workflow.
+\end{enumerate}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit a cleaned-data report for both external files using the libraries and operations introduced in Lab 7a. Every numerical insight should be reproducible from code and the actual files supplied in your class environment.
+\end{labdeliverable}

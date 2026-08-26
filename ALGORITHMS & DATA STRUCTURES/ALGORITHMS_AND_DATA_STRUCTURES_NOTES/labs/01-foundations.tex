@@ -1,0 +1,65 @@
+\labsection{1}{Programming foundations and structured records}{sec:lab01}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab I}
+\textbf{Objective.} Revise programming prerequisites needed later in the course. The manual explicitly names structures, unions, pointers, and 1D arrays.
+
+\textbf{Observed outcomes.} Understand data structures and their types; use data structures for unseen problems; select an appropriate structure for a real-world problem.
+
+\textbf{Problem directions.} Basic C/C++ programs using loops and structures; programs on unions and 1D arrays; a small database-style application using structure, pointer, and array.
+\end{sourcealignment}
+
+\begin{labproject}{Build a small record-based application}
+\textbf{Coverage.} Chapter 1.
+
+The lecture task asks for at least five student records containing ID, name, age, and course, followed by display, search-by-ID, and update operations. This also satisfies the lab manual's database-style direction.
+
+\begin{lstlisting}
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Student {
+    int id;
+    string name;
+    int age;
+    string course;
+};
+
+void display(const Student students[], int n) {
+    for (int i = 0; i < n; ++i) {
+        cout << students[i].id << " | "
+             << students[i].name << " | "
+             << students[i].age << " | "
+             << students[i].course << '\n';
+    }
+}
+
+int findById(const Student students[], int n, int id) {
+    for (int i = 0; i < n; ++i)
+        if (students[i].id == id) return i;
+    return -1;
+}
+\end{lstlisting}
+
+\begin{tryit}
+Add \texttt{updateStudent()} and use a pointer to the selected record once the matching index is known. Then add one small 1D-array statistic such as the average student age.
+\end{tryit}
+
+\begin{labmode}
+The manual names \emph{union} as prerequisite review but does not provide detailed union theory in the supplied text. Treat union exercises as revision work directed by your instructor rather than as a new data-structures topic.
+\end{labmode}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item At least five records are stored and displayed correctly.
+  \item A valid ID is found; an invalid ID returns a clear ``not found'' result.
+  \item Updating one record changes only the intended record.
+  \item Array bounds are respected.
+  \item The role of a pointer versus an array index can be explained.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the C++ program, sample output for successful/unsuccessful search, and a short note identifying the data structure used for the collection and the structure used for each record.
+\end{labdeliverable}

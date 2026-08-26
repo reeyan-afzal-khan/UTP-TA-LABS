@@ -1,0 +1,82 @@
+\section{Virtual memory decouples address space from RAM}
+Virtual memory lets a process use a large, private-looking address space even though physical RAM is shared and may contain only a subset of that process's pages at a particular moment. The abstraction improves protection, relocation, sharing, and memory utilization.
+
+\section{Page-table entries contain more than a frame number}
+A page-table entry can conceptually include:
+\begin{itemize}
+  \item the physical frame number if resident;
+  \item a present/valid bit;
+  \item permission bits such as read/write/execute and user/kernel access;
+  \item an accessed/reference bit useful for replacement approximations;
+  \item a dirty/modified bit indicating whether the page must be written back before eviction.
+\end{itemize}
+The exact hardware format varies by architecture.
+
+\section{The TLB makes translation practical}
+Consulting an in-memory page table for every memory reference would add large overhead. A \term{translation lookaside buffer (TLB)} is a small associative cache of recent virtual-page to physical-frame translations. On a TLB hit, translation is fast; on a TLB miss, hardware/software walks the page table and can then cache the result.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.1cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[box] (cpu) {Virtual address};
+\node[box,right=1.1cm of cpu] (tlb) {TLB lookup};
+\node[box,right=1.1cm of tlb] (ram) {Physical memory};
+\node[box,below=1.1cm of tlb] (pt) {Page-table walk};
+\draw[arr] (cpu)--(tlb);
+\draw[arr] (tlb)--node[above,font=\scriptsize]{hit}(ram);
+\draw[arr] (tlb)--node[right,font=\scriptsize]{miss}(pt);
+\draw[arr] (pt)--node[right,font=\scriptsize]{fill translation}(tlb);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Demand paging and the page-fault path}
+With demand paging, a page is brought into physical memory when it is first needed rather than loading the entire process in advance. A fault commonly involves:
+\begin{mlsteps}
+  \item Hardware detects that the translation is not currently usable and traps to the kernel.
+  \item The kernel verifies whether the reference is legal.
+  \item It finds a free frame or selects a victim frame.
+  \item If the victim is dirty, its contents may need to be written back.
+  \item The required page is read/materialized into the frame.
+  \item Page-table/TLB state is updated.
+  \item The faulting instruction resumes.
+\end{mlsteps}
+Disk/storage access is many orders of magnitude slower than a normal RAM reference, so page-fault rate has a major effect on performance.
+
+\section{A detailed replacement trace}
+Take reference string
+\[
+1,2,3,1,4,5,2,1,2,3,4,5
+\]
+with three frames.
+
+For FIFO, maintain the load order. For LRU, update recency on \emph{every hit and fault}. The algorithms can choose different victims because FIFO asks ``who arrived earliest?'' while LRU asks ``who was used least recently?''.
+
+\begin{keyidea}
+A page hit is not a no-op for all algorithms. In LRU it changes recency state; in LFU it changes the frequency count. A trace that updates state only on faults is usually wrong for these policies.
+\end{keyidea}
+
+\section{Optimal replacement as a benchmark}
+The theoretical \term{OPT} algorithm evicts the page whose next use is farthest in the future. It is impossible to implement perfectly online because future references are unknown, but it gives a lower-bound benchmark for a known trace. LRU is motivated by the hope that recent past usage predicts near-future usage.
+
+\section{Belady's anomaly and stack algorithms}
+FIFO can exhibit Belady's anomaly: increasing the number of frames can increase page faults for some strings. LRU and OPT are \term{stack algorithms}; the set of pages resident with $n$ frames is contained in the set resident with $n+1$ frames under the same reference history, so they do not show this anomaly.
+
+\section{Locality, working set, and thrashing}
+Programs exhibit \term{locality}: during a phase, they tend to reuse a relatively small set of code/data pages. The \term{working set} approximates the pages actively needed in a recent time window. If a process receives too few frames for its active working set, it may fault repeatedly. When the system spends most of its time paging rather than executing useful instructions, it is \term{thrashing}.
+
+\begin{analogy}
+A student working at a desk needs a small active set of books. If the desk is too small, the student constantly walks to the shelf to swap books. A larger library does not help if the desk cannot hold the books needed for the current task. RAM frames are the desk; secondary storage is the shelf.
+\end{analogy}
+
+\section{Page size trade-offs}
+Larger pages reduce page-table entry counts and can improve sequential I/O efficiency, but they can waste more space through internal fragmentation and move more unused data on each fault. Smaller pages improve granularity but require more mapping metadata and can increase TLB pressure.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the purpose of the TLB?
+  \item Why must LRU update metadata on a page hit?
+  \item What does thrashing mean in performance terms?
+\end{enumerate}
+\end{quickcheck}

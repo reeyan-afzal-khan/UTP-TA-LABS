@@ -1,0 +1,52 @@
+\labsection{3}{Singly and doubly linked lists}{sec:lab03}
+
+\begin{sourcealignment}{Official Lab Manual --- Lab III}
+\textbf{Objective.} Become familiar with linked lists and gain the ability to use them as a basis for more advanced structures.
+
+\textbf{Outcomes.} Understand linked-list types and develop them from scratch.
+
+\textbf{Problem directions.} Singly-list create/display/delete; doubly-list creation and key search; insertion and deletion at various positions.
+\end{sourcealignment}
+
+\begin{labproject}{Implement both pointer structures}
+\textbf{Coverage.} Chapter 3.
+
+\textbf{Part A --- Singly list.} Create, append/insert, display, search, and delete by value.
+
+\textbf{Part B --- Doubly list.} Create, display forward/backward, search, insert at multiple positions, and delete by value.
+
+\begin{lstlisting}
+struct DNode {
+    int data;
+    DNode* prev;
+    DNode* next;
+};
+
+void append(DNode*& head, DNode*& tail, int value) {
+    DNode* n = new DNode{value, tail, nullptr};
+    if (tail == nullptr) head = tail = n;
+    else {
+        tail->next = n;
+        tail = n;
+    }
+}
+\end{lstlisting}
+
+\begin{tryit}
+Test insertion and deletion at the head, tail, and a middle position. For the doubly linked list, verify both \texttt{next} and \texttt{prev} directions after every change.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Empty-list and one-node cases do not dereference null pointers.
+  \item Deleting the head updates \texttt{head}; deleting the tail updates \texttt{tail} where used.
+  \item Doubly linked nodes satisfy \texttt{x->next->prev == x} whenever both nodes exist.
+  \item Memory for deleted nodes is released.
+  \item Search reports both found and not-found cases.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit both implementations plus one pointer diagram before and after a deletion in each list type.
+\end{labdeliverable}

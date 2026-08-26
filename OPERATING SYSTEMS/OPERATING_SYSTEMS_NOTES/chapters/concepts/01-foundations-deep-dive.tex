@@ -1,0 +1,85 @@
+\section{The central problem: controlled sharing}
+An operating system exists because a computer has a small number of physical resources that many programs want to use at the same time. The OS therefore solves two problems simultaneously:
+\begin{enumerate}
+  \item \textbf{Abstraction:} present hardware through easier objects such as processes, files, virtual memory, and sockets.
+  \item \textbf{Arbitration and protection:} decide who gets each resource, for how long, and under what permissions.
+\end{enumerate}
+These goals sometimes conflict. Maximum utilization might favor long uninterrupted CPU runs, while interactive responsiveness favors frequent preemption. Strong isolation may add overhead. Much of operating-system design is therefore about carefully chosen trade-offs.
+
+\begin{analogy}
+Think of the OS as the management layer of a large shared building. Applications are tenants. The CPU is a limited set of work rooms, memory is rented floor space, storage is the archive, and devices are shared facilities. The OS creates usable rules and identities, schedules access, and prevents one tenant from walking into another tenant's locked room.
+\end{analogy}
+
+\section{Mechanism versus policy}
+A useful systems distinction is between \term{mechanism} and \term{policy}.
+\begin{itemize}
+  \item A \textbf{mechanism} provides a capability: a timer interrupt can stop a running process; a page table can translate addresses; a mutex can provide mutual exclusion.
+  \item A \textbf{policy} decides how to use that capability: Round Robin chooses when a timer should cause a scheduling change; a page-replacement policy chooses a victim; a lock protocol decides which shared state must be protected.
+\end{itemize}
+Separating policy from mechanism makes systems easier to change. The same context-switch mechanism can support FCFS, priority scheduling, or Round Robin.
+
+\section{How control enters the kernel}
+The CPU does not run the kernel continuously. Most of the time a user process is executing. Kernel code runs when control is transferred for a reason:
+\begin{description}
+  \item[System call] A program deliberately requests an OS service, for example \texttt{read()} or \texttt{fork()}.
+  \item[Exception / fault] The current instruction cannot proceed normally, for example division by zero, invalid memory access, or a page fault.
+  \item[Interrupt] Hardware asynchronously requests attention, for example a timer tick, keyboard input, or disk-I/O completion.
+\end{description}
+The kernel saves enough processor state to later resume execution, determines the cause, runs the appropriate handler, and finally returns to a user process selected by the scheduler.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.4cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  kbox/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,minimum width=3.7cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+]
+\node[box] (u) {User process executing};
+\node[kbox,below=1.1cm of u] (e) {Controlled kernel entry};
+\node[kbox,below=1.1cm of e] (h) {Kernel handler / service};
+\node[box,below=1.1cm of h] (r) {Resume this or another process};
+\draw[arr] (u)--node[right,font=\scriptsize]{syscall / interrupt / exception}(e);
+\draw[arr] (e)--(h);
+\draw[arr] (h)--node[right,font=\scriptsize]{return / schedule}(r);
+\draw[arr,bend right=45] (r.west) to (u.west);
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{What the kernel must remember}
+To suspend one process and later continue it correctly, the OS needs a data structure commonly called a \term{process control block (PCB)}. Exact fields vary, but conceptually it stores:
+\begin{itemize}
+  \item process identifier and current state;
+  \item saved CPU registers and program counter;
+  \item scheduling parameters and accounting information;
+  \item memory-management references such as page-table information;
+  \item open files and I/O state;
+  \item credentials and protection information.
+\end{itemize}
+A \term{context switch} saves the execution context of one thread/process and restores another. Context switching enables multiprogramming but does not directly perform useful application work, so excessive switching is overhead.
+
+\section{Major operating-system design families}
+OS kernels can be organized in different ways.
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.19\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Style & Basic idea & Trade-off \\
+\midrule
+Monolithic kernel & Most core services run in one privileged kernel address space & Fast internal calls; a bug in privileged code can have broad impact \\
+Layered / modular & Kernel functionality is separated into clearer modules/layers & Easier organization and maintenance; boundaries can add complexity \\
+Microkernel & Keep a small privileged core and move more services to user-space servers & Strong isolation and modularity; extra communication may cost performance \\
+Hybrid & Mix techniques to balance performance and structure & Practical compromise used by many modern systems \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{optionaltopic}
+\textbf{Virtual machines and containers.} Virtualization adds another abstraction boundary. A hypervisor can present virtual hardware to guest operating systems, while containers generally share one host kernel but isolate process namespaces, filesystems, and resources. These ideas reuse the same OS principles of abstraction, scheduling, protection, and accounting.
+\end{optionaltopic}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Is a timer interrupt a policy or a mechanism? What scheduling policy can use it?
+  \item Why is a context switch necessary when the CPU changes from one process to another?
+  \item Give one example each of a system call, an exception, and an interrupt.
+\end{enumerate}
+\end{quickcheck}

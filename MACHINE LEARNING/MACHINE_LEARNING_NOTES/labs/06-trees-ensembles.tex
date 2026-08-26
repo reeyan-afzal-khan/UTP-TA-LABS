@@ -24,7 +24,7 @@ from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "titanic_dataset" / "Titanic-Dataset.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -103,7 +103,7 @@ from sklearn.preprocessing import OneHotEncoder
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "ames_housing_dataset" / "AmesHousing.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}
@@ -159,7 +159,7 @@ from sklearn.model_selection import train_test_split
 \end{lstlisting}
 
 \begin{lstlisting}[style=mlpython]
-PROJECT_ROOT = Path.cwd()
+PROJECT_ROOT = Path.cwd().parent
 train_path = PROJECT_ROOT / "all_datasets" / "red_wine_quality_dataset" / "winequality-red.csv"
 df = pd.read_csv(train_path)
 \end{lstlisting}

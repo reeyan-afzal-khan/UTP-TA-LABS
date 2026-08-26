@@ -1,0 +1,246 @@
+\chapter{Genetic Algorithms}
+\label{ch:ga}
+
+\chapterguide%
+  {Be comfortable with objective functions, random sampling, and MATLAB arrays.}
+  {define the core Genetic Algorithm vocabulary, trace the GA workflow, explain selection/crossover/mutation, and apply the Lab 8 code patterns to continuous optimization, regression, knapsack, and polynomial-root objectives.}
+
+Lab 8 defines a \term{Genetic Algorithm (GA)} as a metaheuristic inspired by Darwin's theory of natural evolution. The method searches for optimal or near-optimal solutions by evolving a population of candidate solutions over generations.
+
+\section{Core GA vocabulary}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Concept & Description from the handout \\
+\midrule
+Population & A set of possible solutions, also called individuals or chromosomes. \\
+Chromosome & One complete candidate solution, represented by real values or a binary string in the examples. \\
+Gene & One component or parameter inside a chromosome. \\
+Fitness function & A function used to evaluate how good a candidate solution is. \\
+Selection & Choose parents based on fitness, for example roulette-wheel selection. \\
+Crossover & Combine two parents to produce offspring. \\
+Mutation & Randomly alter genes to maintain diversity. \\
+Elitism & Preserve the best solutions from one generation to the next. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{The GA workflow}
+
+The source gives the following loop:
+
+\begin{mlsteps}
+  \item Initialize a population randomly.
+  \item Evaluate the fitness of every individual.
+  \item Select parents based on fitness.
+  \item Apply crossover and mutation to create a new population.
+  \item Replace the old population with the new generation.
+  \item Repeat until convergence or the maximum generation count is reached.
+\end{mlsteps}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[b] (p) {Population};
+\node[b,right=0.40cm of p] (fit) {Evaluate fitness};
+\node[b,right=0.40cm of fit] (sel) {Select parents};
+\node[b,right=0.40cm of sel] (cross) {Crossover};
+\node[b,right=0.40cm of cross] (mut) {Mutation};
+\node[b,below=1.0cm of sel] (rep) {New generation};
+\draw[arr] (p)--(fit); \draw[arr] (fit)--(sel); \draw[arr] (sel)--(cross); \draw[arr] (cross)--(mut);
+\draw[arr] (mut.south) |- (rep.east);
+\draw[arr] (rep.west) -| (p.south);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+A GA does not improve one solution directly. It repeatedly evaluates and transforms a population. Selection concentrates search around fitter candidates, crossover recombines existing material, and mutation injects random variation.
+\end{keyidea}
+
+\section{Code 1: maximize a nonlinear function}
+
+The first problem maximizes
+\[
+f(x)=x\sin(10\pi x)+1,\qquad x\in[0,1].
+\]
+The source uses a real-coded population of 20 one-dimensional chromosomes, 50 generations, crossover rate 0.8, and mutation rate 0.1.
+
+\begin{lstlisting}[style=mlmatlab]
+popSize = 20;
+chromLength = 1;
+maxGen = 50;
+crossRate = 0.8;
+mutRate = 0.1;
+
+pop = rand(popSize, chromLength);
+fitnessFunc = @(x) x .* sin(10 * pi * x) + 1;
+\end{lstlisting}
+
+\subsection{Roulette-wheel selection}
+
+The source converts fitness values to probabilities:
+\[
+p_i=\frac{f_i}{\sum_j f_j},
+\]
+then uses cumulative probabilities and a uniform random number to select each parent.
+
+\begin{lstlisting}[style=mlmatlab]
+fitness = fitnessFunc(pop);
+prob = fitness / sum(fitness);
+cumProb = cumsum(prob);
+newPop = zeros(size(pop));
+
+for i = 1:popSize
+    r = rand;
+    idx = find(cumProb >= r, 1, 'first');
+    newPop(i,:) = pop(idx,:);
+end
+\end{lstlisting}
+
+\subsection{Arithmetic crossover and mutation}
+
+The continuous examples blend two parents with a random coefficient \(\alpha\), then occasionally add a small random perturbation.
+
+\begin{lstlisting}[style=mlmatlab]
+alpha = rand;
+temp1 = alpha * newPop(i,:) + (1 - alpha) * newPop(i+1,:);
+temp2 = alpha * newPop(i+1,:) + (1 - alpha) * newPop(i,:);
+\end{lstlisting}
+
+\section{Code 2: minimize the Rosenbrock function}
+
+The second problem minimizes
+\[
+f(x,y)=(1-x)^2+100(y-x^2)^2,
+\qquad x,y\in[-2,2].
+\]
+Because roulette-wheel selection in the example expects larger values to be more desirable, the source inverts the minimization fitness:
+\[
+\text{invFitness}=\frac{1}{f+10^{-6}}.
+\]
+
+\begin{lstlisting}[style=mlmatlab]
+fitnessFunc = @(v) (1 - v(:,1)).^2 + ...
+    100*(v(:,2) - v(:,1).^2).^2;
+
+fitness = fitnessFunc(pop);
+invFitness = 1 ./ (fitness + 1e-6);
+prob = invFitness / sum(invFitness);
+\end{lstlisting}
+
+The mutation step adds Gaussian noise and clips each variable back to \([-2,2]\).
+
+\section{Code 3: optimize linear-regression weights}
+
+The source generates noisy data from
+\[
+y=2.5x+5+\text{noise}
+\]
+and represents each chromosome as two real-valued genes, \(w_1\) and \(w_2\). The objective is mean squared error:
+\[
+\mathrm{MSE}(w_1,w_2)=\operatorname{mean}
+\left(y-(w_1x+w_2)\right)^2.
+\]
+
+\begin{lstlisting}[style=mlmatlab]
+x = linspace(0, 10, 100)';
+true_w = [2.5, 5];
+y = true_w(1)*x + true_w(2) + randn(size(x));
+
+fitnessFunc = @(w) mean((y - (w(1)*x + w(2))).^2);
+\end{lstlisting}
+
+This example shows that a chromosome does not have to encode a path or a binary choice: it can directly encode model parameters.
+
+\section{Code 4: 0--1 knapsack}
+
+The knapsack example uses binary chromosomes. Four genes indicate whether each item is selected.
+
+\begin{lstlisting}[style=mlmatlab]
+weights = [2 3 4 5];
+values = [3 4 5 8];
+capacity = 5;
+
+chromLength = length(weights);
+pop = round(rand(popSize, chromLength));
+\end{lstlisting}
+
+For each chromosome, the source computes total weight and total value. A feasible solution receives its total value as fitness; an overweight solution receives zero. Mutation flips one random bit:
+
+\begin{lstlisting}[style=mlmatlab]
+gene = randi(chromLength);
+newPop(i, gene) = 1 - newPop(i, gene);
+\end{lstlisting}
+
+\begin{intuition}
+Continuous optimization mutates a number by adding a small perturbation. Binary optimization mutates a decision by flipping 0 to 1 or 1 to 0. The GA framework is the same; the chromosome representation determines the appropriate operator.
+\end{intuition}
+
+\section{Code 5: find roots through minimization}
+
+The final problem minimizes
+\[
+f(x)=(x-3)^2(x+2)^2,
+\qquad x\in[-5,5].
+\]
+The function is zero at \(x=3\) and \(x=-2\), so minimizing it searches for either root. The source converts the minimization objective to a maximization-style selection value using the negative objective, then shifts the values to obtain nonnegative roulette-wheel probabilities.
+
+\begin{lstlisting}[style=mlmatlab]
+fitnessFunc = @(x) (x - 3).^2 .* (x + 2).^2;
+fitness = -fitnessFunc(pop);
+
+prob = fitness - min(fitness) + eps;
+prob = prob / sum(prob);
+\end{lstlisting}
+
+\section{What changes across the five GA problems?}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}p{0.20\linewidth}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Problem & Chromosome & Fitness direction & Mutation \\
+\midrule
+Nonlinear \(f(x)\) & One real value & Maximize & Small real perturbation \\
+Rosenbrock & Two real values & Minimize & Gaussian perturbation, clipped to bounds \\
+Linear regression & \((w_1,w_2)\) & Minimize MSE & Gaussian perturbation \\
+Knapsack & Four bits & Maximize feasible value & Flip one bit \\
+Polynomial roots & One real value & Minimize objective & Gaussian perturbation, clipped to bounds \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Elitism in the concept list versus the supplied code}
+
+The core-concepts table in Lab 8 defines \term{elitism} as preserving the best solutions from one generation to the next. The five provided code loops implement selection, crossover, mutation, and replacement, but they do not contain an explicit step that copies the current best individual unchanged into the next generation. This is why the plotted ``best fitness'' in a generation need not be monotonic in the supplied implementations.
+
+\begin{debugtask}
+Add explicit elitism to one real-coded example: before replacement, identify the current best chromosome and force it into one position in \texttt{newPop}. Compare the best-fitness trace with the original script.
+\end{debugtask}
+
+\input{labs/08-genetic-algorithms}
+
+\clearpage
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between a chromosome and a gene in the Lab 8 terminology?
+  \item Why does the Rosenbrock example invert fitness values before roulette-wheel selection?
+  \item Why is bit-flip mutation appropriate for the knapsack example but not the regression-weight example?
+  \item What are the two exact roots encoded by the final polynomial objective?
+  \item What GA concept is defined in the handout but not explicitly implemented in the five source loops?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A GA evolves a population through fitness evaluation, selection, crossover, mutation, and replacement.
+  \item Chromosome representation determines how crossover and mutation should operate.
+  \item The Lab 8 examples cover maximization, minimization, continuous parameters, binary decisions, model fitting, and root-finding objectives.
+  \item Roulette-wheel selection converts fitness into sampling probabilities.
+  \item Elitism is part of the source concept list but is a useful extension to the provided code rather than an explicit step in those loops.
+\end{itemize}
+\end{chapterrecap}

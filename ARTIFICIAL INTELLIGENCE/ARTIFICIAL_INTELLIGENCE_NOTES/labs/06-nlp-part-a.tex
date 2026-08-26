@@ -1,0 +1,27 @@
+\labsection{6}{Natural Language Processing --- Part A}{sec:lab06-nlp-a}
+
+\begin{labproject}{Embeddings, image classification captions, and OCR translation}
+\textbf{Coverage.} FastText similarity, AlexNet-based caption simulation, OCR, local dictionaries, partial matching, and ROI selection.\\
+\textbf{Software.} MATLAB with the toolboxes/models required by the source examples.
+
+\begin{labmode}
+Lab 6 contains three main codes followed by three OCR variations. Keep the examples separate at first so that the role of each representation and task is clear.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Sentence similarity.}\par
+Run the two-sentence FastText example. Record the cosine-similarity output and list which tokens survive the embedding-vocabulary filter.
+
+\medskip\noindent\textbf{Part B --- Classification-based caption.}\par
+Run the AlexNet example with \texttt{plane.jpg}. Display the input image, predicted object label, and generated fixed-template caption.
+
+\medskip\noindent\textbf{Part C --- OCR and translation.}\par
+Run the street-sign OCR example with the English-to-French dictionary. Then test the multi-language STOP dictionary, partial keyword matching, and ROI-selection examples.
+
+\begin{tryit}
+Add one new road-sign phrase to the local dictionary and test one exact-match image and one OCR output containing extra surrounding text. Explain whether exact or partial matching is more appropriate for each case.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one MATLAB live script containing all Lab 6 pipelines, the similarity value, the image classification/caption output, OCR text, at least two translated outputs, and a short note describing what each stage contributes.
+\end{labdeliverable}

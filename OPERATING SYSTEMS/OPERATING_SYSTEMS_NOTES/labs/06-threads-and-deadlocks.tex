@@ -1,0 +1,23 @@
+\labsection{6}{Threads, Banker's algorithm, and deadlock reasoning}{sec:lab06}
+\begin{labproject}{Combine thread lifecycle with resource-allocation safety analysis}
+\textbf{Coverage.} Chapter 6.\\
+\textbf{Source files.} Three C programs in \texttt{source\_code/Lab06}.\\
+\textbf{Goal.} Practice POSIX thread creation/joining and matrix-based resource reasoning.
+
+\medskip\noindent\textbf{Task A --- Banker's safety algorithm.}\par
+After input, calculate every Need entry with \texttt{Need = Max - Allocation}. Maintain \texttt{Work} and \texttt{Finish}. Record the process selected on each pass and the Work vector after its resources are released.
+
+\medskip\noindent\textbf{Task B --- Detection terminology.}\par
+Compare \texttt{task\_1.c} and \texttt{task\_2.c}. Both derive Need from Max. Explain why a strict deadlock-detection algorithm is conceptually different from a Banker's safe-state test.
+
+\medskip\noindent\textbf{Task C --- POSIX threads.}\par
+Create two threads, identify them with \texttt{pthread\_self()}, compare identifiers with \texttt{pthread\_equal()}, and join both before process exit.
+
+\begin{tryit}
+Remove the busy delay and run the thread program several times. Then add a shared counter without a mutex, followed by a mutex-protected version. Compare results.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit one safe and one unsafe Banker's input with full Work/Finish traces, a paragraph distinguishing unsafe from deadlocked, and thread output showing successful creation and joining.
+\end{labdeliverable}

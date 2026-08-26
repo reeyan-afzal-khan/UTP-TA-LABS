@@ -1,0 +1,47 @@
+\chapter*{Course Map: From a Program to a Complete Operating System}
+\addcontentsline{toc}{chapter}{Course Map: From a Program to a Complete Operating System}
+\markboth{Course Map}{}
+
+An operating system sits between application programs and hardware. The course becomes easier when every topic is attached to one of four questions: \emph{what runs, who gets the CPU, where does data live in memory, and how does persistent data reach storage?}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  node distance=0.55cm,
+  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.2cm,minimum height=1.25cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.3mm]},thick,draw=MLTeal}
+]
+\node[stage] (s1) {\textbf{1. Interface to the OS} --- Linux commands, files, directories, processes, \texttt{fork()}, and basic system interfaces.};
+\node[stage,below=of s1] (s2) {\textbf{2. CPU and concurrency} --- scheduling, process interaction, semaphores, shared memory, POSIX threads, mutexes, and deadlock.};
+\node[stage,below=of s2] (s3) {\textbf{3. Memory} --- contiguous allocation, fragmentation, virtual memory, page faults, and replacement policies.};
+\node[stage,below=of s3] (s4) {\textbf{4. Persistent storage} --- directory trees, file records, file-system metadata, and indexed allocation.};
+\draw[arr] (s1) -- (s2); \draw[arr] (s2) -- (s3); \draw[arr] (s3) -- (s4);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{firstread}
+Use the labs as checkpoints rather than isolated programs. Each one exposes a real OS abstraction: a process identifier, an open directory stream, a scheduling queue, a semaphore count, a safe-state test, a memory hole, a page frame, or an indexed block.
+\end{firstread}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.16\linewidth}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Lab & Practical focus & Core OS idea \\
+\midrule
+1 & Directories and \texttt{fork()} & OS services, processes, PIDs \\
+2 & File text processing and directory reading & File I/O and directory APIs \\
+3 & Bash scripting & Command interpreter and automation \\
+4 & FCFS, SJF, Priority, Round Robin & CPU scheduling \\
+5 & Producer-consumer and shared memory & Synchronization and IPC \\
+6 & Banker's algorithm, deadlock detection, threads & Resource safety and concurrency \\
+7 & First, best, and worst fit & Contiguous memory allocation \\
+8 & Mutexes, FIFO, LRU, LFU & Mutual exclusion and page replacement \\
+9 & Directory visualization & Hierarchical file-system namespace \\
+10 & Records and indexed allocation & File organization and block allocation \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Do not memorize the algorithms as unrelated loops. For every algorithm, ask: \textbf{what state does the OS maintain, what event changes that state, and what policy decides the next action?}
+\end{keyidea}

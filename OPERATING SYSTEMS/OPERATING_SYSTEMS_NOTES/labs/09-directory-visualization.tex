@@ -1,0 +1,20 @@
+\labsection{9}{Directory-structure visualization}{sec:lab09}
+\begin{labproject}{Visualize flat and hierarchical directory organizations}
+\textbf{Coverage.} Chapter 9.\\
+\textbf{Source files.} Two OpenGL/freeglut programs in \texttt{source\_code/Lab09}.\\
+\textbf{Goal.} Use graphics to make file-system namespace relationships concrete.
+
+\medskip\noindent\textbf{Task A --- Root with file children.}\par
+The first program draws a root directory and a set of named child file nodes. Identify which parts correspond to namespace data (names, parent-child relations) and which parts are purely presentation (coordinates, colors, shapes).
+
+\medskip\noindent\textbf{Task B --- Interactive tree.}\par
+The second program recursively creates directory/file nodes, lays out children, supports visibility/collapse state, and performs mouse picking. Relate recursion in the program to recursion in pathname traversal.
+
+\begin{tryit}
+Add one metadata field such as file size or permissions and display it without changing the logical parent-child tree. This reinforces the distinction between object metadata and directory hierarchy.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit screenshots of both visualizations and a labeled diagram distinguishing logical directory structure from physical disk-block placement.
+\end{labdeliverable}

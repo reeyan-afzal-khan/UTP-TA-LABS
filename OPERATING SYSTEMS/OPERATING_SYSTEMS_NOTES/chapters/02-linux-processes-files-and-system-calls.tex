@@ -1,0 +1,112 @@
+\chapter{Linux Processes, Files, and System Interfaces}\label{ch:linux}
+\chapterguide{Read Chapter~\ref{ch:overview} first.}{Use process identifiers and \texttt{fork()}, explain directory streams and file I/O, distinguish standard C library calls from kernel system calls, and diagnose common resource-management mistakes.}
+
+\section{The Unix idea: many resources look like files}
+Unix-like systems expose regular files, terminals, pipes, device endpoints, and many kernel objects through file-descriptor based interfaces. At the C library level, a \texttt{FILE *} stream adds buffering and formatted I/O. At the lower POSIX level, integer file descriptors are used by calls such as \texttt{open()}, \texttt{read()}, \texttt{write()}, and \texttt{close()}.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Layer & Examples & Main idea \\
+\midrule
+C standard I/O & \texttt{fopen}, \texttt{fgetc}, \texttt{fgets}, \texttt{fprintf}, \texttt{fclose} & Buffered, portable stream interface \\
+POSIX file API & \texttt{open}, \texttt{read}, \texttt{write}, \texttt{close} & File-descriptor oriented OS interface \\
+Directory API & \texttt{opendir}, \texttt{readdir}, \texttt{closedir} & Traverse directory entries \\
+Process API & \texttt{fork}, \texttt{getpid}, \texttt{wait}, \texttt{exec} family & Create and manage processes \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Reading a directory}
+\texttt{opendir()} opens a directory stream and returns a \texttt{DIR *}. Repeated calls to \texttt{readdir()} return pointers to \texttt{struct dirent} entries until no entries remain. \texttt{closedir()} releases the stream.
+
+\begin{lstlisting}[style=osc]
+DIR *dir = opendir(path);
+if (dir == NULL) {
+    perror("opendir");
+    return 1;
+}
+
+struct dirent *entry;
+while ((entry = readdir(dir)) != NULL) {
+    printf("%s\n", entry->d_name);
+}
+closedir(dir);
+\end{lstlisting}
+
+\begin{pitfall}
+Closing the directory \emph{inside} the \texttt{while (readdir(...))} loop invalidates the stream after the first entry. Resource release belongs after traversal unless the algorithm intentionally stops early.
+\end{pitfall}
+
+\section{Process creation with fork}
+On Unix-like systems, \texttt{fork()} creates a child process by duplicating the calling process's execution context. Both processes return from the same call, but with different return values:
+\begin{itemize}
+  \item negative: process creation failed;
+  \item zero: currently executing in the child;
+  \item positive: currently executing in the parent, and the value is the child's PID.
+\end{itemize}
+
+\begin{lstlisting}[style=osc]
+pid_t pid = fork();
+if (pid < 0) {
+    perror("fork");
+    return 1;
+} else if (pid == 0) {
+    printf("child PID = %ld\n", (long)getpid());
+} else {
+    printf("parent PID = %ld, child PID = %ld\n",
+           (long)getpid(), (long)pid);
+}
+\end{lstlisting}
+
+\begin{intuition}
+After \texttt{fork()}, there are two independently scheduled processes continuing from nearly the same instruction. Therefore output order is not guaranteed unless explicit synchronization is added.
+\end{intuition}
+
+\section{File scanning as an OS exercise}
+The supplied labs count spaces and implement a miniature \texttt{grep}. These examples matter because they combine pathname resolution, file opening, repeated reads, string processing, and clean closure.
+
+A robust loop should test the read operation directly rather than using \texttt{feof()} as the loop condition:
+\begin{lstlisting}[style=osc]
+int ch;
+while ((ch = fgetc(fp)) != EOF) {
+    if (ch == ' ') spaces++;
+}
+\end{lstlisting}
+
+\begin{pitfall}
+\texttt{feof(fp)} becomes true only \emph{after} a read attempts to pass end-of-file. A \texttt{while (!feof(fp))} pattern often processes one invalid or stale value at the end.
+\end{pitfall}
+
+\section{Resource lifetime discipline}
+Operating-system programming is full of acquire-use-release pairs:
+\begin{itemize}
+  \item \texttt{fopen()} / \texttt{fclose()}
+  \item \texttt{opendir()} / \texttt{closedir()}
+  \item \texttt{shmat()} / \texttt{shmdt()}
+  \item \texttt{pthread\_mutex\_init()} / \texttt{pthread\_mutex\_destroy()}
+\end{itemize}
+A reliable program checks the acquire step, avoids using invalid handles, and releases resources along every relevant control path.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What does a positive return value from \texttt{fork()} mean in the parent?
+  \item Why is \texttt{while (!feof(fp))} usually weaker than checking the result of \texttt{fgetc()} or \texttt{fgets()} directly?
+  \item Where should \texttt{closedir()} normally appear relative to a \texttt{readdir()} loop?
+\end{enumerate}
+\end{quickcheck}
+
+\input{chapters/concepts/02-processes-files-deep-dive}
+
+\input{labs/01-linux-processes-and-directories}
+\input{labs/02-file-and-directory-utilities}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Directory streams expose directory entries through \texttt{opendir/readdir/closedir}.
+  \item \texttt{fork()} creates a second process and returns differently in parent and child.
+  \item File-processing loops should be driven by successful reads, not by a pre-checked EOF flag.
+  \item Correct OS code treats every kernel/library handle as a resource with a clear lifetime.
+\end{itemize}
+\end{chapterrecap}

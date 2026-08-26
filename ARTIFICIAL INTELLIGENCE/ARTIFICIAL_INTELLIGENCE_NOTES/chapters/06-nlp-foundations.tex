@@ -1,0 +1,194 @@
+\chapter{Natural Language Processing Foundations}
+\label{ch:nlp-foundations}
+
+\chapterguide%
+  {Be able to run MATLAB and read simple vector, image, and text-processing code.}
+  {explain the purpose and significance of NLP in the Lab 6 framing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build an OCR plus dictionary-translation pipeline.}
+
+Lab 6 defines \term{Natural Language Processing (NLP)} as a subfield of Artificial Intelligence that enables computers to understand, interpret, and generate human language. It combines linguistics, computer science, and machine learning to process text or speech.
+
+\section{Why NLP is needed}
+
+The source contrasts human language with the structured representations computers use. NLP provides a bridge for tasks such as natural-language interaction, automation of language-based work, and extraction of information from unstructured text.
+
+The handout names applications across several areas:
+\begin{itemize}
+  \item healthcare: analyzing patient notes and assisting diagnosis;
+  \item business: chatbots, sentiment analysis, and automated email sorting;
+  \item education: grammar correction and automated essay scoring;
+  \item law: legal-document summarization and contract analysis;
+  \item robotics: verbal commands and real-time interaction.
+\end{itemize}
+
+\begin{keyidea}
+The Lab 6 examples are pipelines: raw text or an image enters the program, a representation is created, and a task-specific output is produced. The same pipeline idea appears again in Lab 7 with summarization, sentiment, and keyword extraction.
+\end{keyidea}
+
+\section{Text similarity with word embeddings}
+
+The first MATLAB example compares
+\begin{quote}
+``The quick brown fox jumps over the lazy dog.''
+\end{quote}
+with
+\begin{quote}
+``A fast brown animal leaps above a sleeping dog.''
+\end{quote}
+using pretrained FastText word embeddings.
+
+The source pipeline has five stages.
+
+\begin{mlsteps}
+  \item Tokenize both sentences.
+  \item Load pretrained FastText embeddings.
+  \item Remove words not available in the embedding vocabulary.
+  \item Convert each word to a vector and average the word vectors for each sentence.
+  \item Compute cosine similarity between the two sentence vectors.
+\end{mlsteps}
+
+\begin{lstlisting}[style=mlmatlab]
+clear; clc;
+
+text1 = "The quick brown fox jumps over the lazy dog.";
+text2 = "A fast brown animal leaps above a sleeping dog.";
+
+documents = tokenizedDocument([text1, text2]);
+emb = fastTextWordEmbedding;
+
+words1 = string(documents(1).Vocabulary);
+words2 = string(documents(2).Vocabulary);
+words1 = words1(isVocabularyWord(emb, words1));
+words2 = words2(isVocabularyWord(emb, words2));
+
+vecs1 = word2vec(emb, words1);
+vecs2 = word2vec(emb, words2);
+vec1 = mean(vecs1, 1);
+vec2 = mean(vecs2, 1);
+
+similarity = dot(vec1, vec2) / (norm(vec1) * norm(vec2));
+fprintf("Cosine Similarity between the two texts: %.4f\n", similarity);
+\end{lstlisting}
+
+\section{Cosine similarity}
+
+For sentence vectors \(\mathbf{u}\) and \(\mathbf{v}\), the code computes
+\[
+\cos(\theta)=\frac{\mathbf{u}\cdot\mathbf{v}}
+{\|\mathbf{u}\|\,\|\mathbf{v}\|}.
+\]
+The handout interprets a value close to 1 as high semantic similarity.
+
+\begin{intuition}
+A word embedding replaces a word with a numerical vector. Averaging the word vectors gives one rough vector for a sentence. Cosine similarity then asks whether the two sentence vectors point in similar directions.
+\end{intuition}
+
+\section{Image captioning using AlexNet: the source simulation}
+
+The second Lab 6 example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
+
+\begin{lstlisting}[style=mlmatlab]
+clear; clc;
+img = imread('plane.jpg');
+imshow(img);
+title('Input Image');
+
+net = alexnet;
+imgResized = imresize(img, net.Layers(1).InputSize(1:2));
+
+featureLayer = 'fc7';
+features = activations(net, imgResized, featureLayer, ...
+    'OutputAs', 'rows');
+
+[label, scores] = classify(net, imgResized);
+disp(['Predicted Object: ', char(label)]);
+
+caption = "This is a picture of a " + lower(char(label)) + ".";
+disp("Generated Caption:");
+disp(caption);
+\end{lstlisting}
+
+\begin{pitfall}
+The handout explicitly presents this as a simple, interpretable simulation of image captioning. The generated sentence is a fixed template built from the classification result; the code does not generate a free-form sentence from image content.
+\end{pitfall}
+
+\section{Scene text detection and translation}
+
+The third Lab 6 pipeline uses OCR to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet API.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.45cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[b] (img) {Scene image};
+\node[b,right=0.30cm of img] (ocr) {OCR\\\scriptsize detected text};
+\node[b,right=0.30cm of ocr] (norm) {Normalize\\\scriptsize uppercase / trim};
+\node[b,right=0.30cm of norm] (dict) {Dictionary lookup};
+\node[b,right=0.30cm of dict] (out) {Translated text};
+\draw[arr] (img)--(ocr); \draw[arr] (ocr)--(norm); \draw[arr] (norm)--(dict); \draw[arr] (dict)--(out);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{lstlisting}[style=mlmatlab]
+img = imread('street.jpg');
+imshow(img);
+title("Scene Text Image");
+
+ocrResult = ocr(img);
+detectedText = upper(strtrim(ocrResult.Text));
+disp("Detected Text:");
+disp(detectedText);
+
+dictionary = containers.Map;
+dictionary("STOP") = "ARRET";
+dictionary("SPEED LIMIT") = "LIMITATION DE VITESSE";
+dictionary("YIELD") = "CEDEZ LE PASSAGE";
+dictionary("NO PARKING") = "STATIONNEMENT INTERDIT";
+dictionary("ONE WAY") = "SENS UNIQUE";
+dictionary("DO NOT ENTER") = "ENTREE INTERDITE";
+dictionary("STREET") = "RUE";
+\end{lstlisting}
+
+The source then scans dictionary keys and replaces a matching English expression with its French translation. A fallback message is used when no entry matches.
+
+\section{Extensions in the OCR examples}
+
+Lab 6 gives three additional variations.
+
+\begin{description}
+  \item[Multi-language dictionary] A STOP sign is mapped independently to French and German dictionaries.
+  \item[Fuzzy keyword matching] Partial keywords such as \texttt{PARK} or \texttt{SPEED} trigger translations even when the OCR text is not an exact dictionary key.
+  \item[ROI selection] The user draws a rectangle around the relevant image region before OCR, reducing the text-recognition area.
+\end{description}
+
+\begin{lstlisting}[style=mlmatlab]
+img = imread('stop.jpg');
+imshow(img); title("Select Region for OCR");
+roi = drawrectangle;
+pause(1);
+ocrRes = ocr(img, roi.Position);
+text = upper(strtrim(ocrRes.Text));
+disp("Detected Text: " + text);
+\end{lstlisting}
+
+\input{labs/06-nlp-part-a}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What role do pretrained FastText vectors play in the similarity example?
+  \item Why are the word vectors averaged before cosine similarity is computed?
+  \item What produces the caption text in the AlexNet example?
+  \item What is the difference between OCR and the dictionary translation step?
+  \item Why can selecting a region of interest change the OCR result?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item NLP connects human-language data with computer representations and tasks.
+  \item Lab 6 uses pretrained embeddings and cosine similarity for semantic comparison.
+  \item The AlexNet example classifies an image and converts the class label into a simple caption template.
+  \item OCR extracts printed text from images; a local dictionary then simulates translation.
+  \item Exact lookup, partial keyword matching, multi-language maps, and ROI selection illustrate different ways to build a practical text pipeline.
+\end{itemize}
+\end{chapterrecap}

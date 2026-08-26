@@ -1,0 +1,86 @@
+\chapter{Dynamic Routing with OSPF}
+\chapterguide{Static routing, interface addressing, routing-table interpretation, and ping verification.}{Configure router IDs, advertise networks into OSPF area 0, inspect OSPF-learned routes and neighbors, and explain why dynamic routing reduces manual route maintenance.}
+\sourcelab{Lab 4 - Dynamic Routing.pptx}
+
+\section{Where OSPF fits among routing approaches}
+The source first contrasts static, default, and dynamic routing, then places OSPF under dynamic, interior, link-state routing. This classification matters because OSPF is not configured as a list of destination/next-hop rules; routers form neighbor relationships and exchange routing information.
+
+\sourceimage[0.88\linewidth]{Routing-protocol classification shown in the supplied Lab 4 slide}{routing-protocols-map.png}
+
+\section{Why dynamic routing is useful}
+The supplied material lists several motivations: routers can respond to topology changes, manual administrative work is reduced, and the approach scales better for larger organizations. OSPF is presented as a link-state, hierarchical routing protocol.
+
+The source also states two area rules: an OSPF design must include \term{area 0}, and other areas connect to area 0. This exercise uses only a single area, so every advertised network belongs to area 0.
+
+\section{Single-area OSPF topology}
+R1 connects to R2 over \cmd{10.0.12.0/24} and to R3 over \cmd{10.0.13.0/24}. Loopbacks provide stable logical networks: \cmd{10.0.1.1/24}, \cmd{10.0.2.2/24}, and \cmd{10.0.3.3/24}. R3 also shows \cmd{172.16.0.1/24} on Loopback2 in the source topology.
+
+\sourceimage[0.79\linewidth]{OSPF single-area topology from the supplied Lab 4 slide}{ospf-topology.png}
+
+\section{Router IDs and OSPF process 1}
+The lab manually assigns router IDs. A router ID is the logical identifier used by the OSPF process; the source deliberately chooses values that match the routers' loopback addresses for clarity.
+
+\begin{lstlisting}[style=dcnterminal]
+[R1] ospf 1 router-id 10.0.1.1
+[R1-ospf-1] area 0
+[R1-ospf-1-area-0.0.0.0] network 10.0.1.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] network 10.0.13.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] network 10.0.12.0 0.0.0.255
+
+[R2] ospf 1 router-id 10.0.2.2
+[R2-ospf-1] area 0
+[R2-ospf-1-area-0.0.0.0] network 10.0.2.0 0.0.0.255
+[R2-ospf-1-area-0.0.0.0] network 10.0.12.0 0.0.0.255
+\end{lstlisting}
+R3 follows the same pattern for the networks connected to it.
+
+\begin{keyidea}
+In the lab workflow, the \cmd{network} statements determine which local interfaces/networks participate in OSPF and which connected network information becomes part of OSPF routing. A correct IP address that is not matched by the intended OSPF statement will not participate as expected.
+\end{keyidea}
+
+\section{Understand the wildcard mask used in the slides}
+The source uses \cmd{0.0.0.255} together with /24 networks. In this lab, read it as the matching range for the corresponding \cmd{x.x.x.0/24} network when entering OSPF network statements.
+
+\section{Verify convergence}
+After configuration, do not jump directly to ping. First verify the control plane.
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ip routing-table
+<R1> display ospf peer
+<R1> display ospf peer brief
+\end{lstlisting}
+The detailed peer output shown in the source includes neighbor router ID, address, state, priority, DR/BDR information, timers, and uptime. The brief command reduces the output to the essential area/interface/neighbor/state view.
+
+\sourceimage[0.74\linewidth]{Condensed OSPF peer information from the supplied Lab 4 material}{ospf-peer-brief.png}
+
+\begin{verifybox}
+A successful OSPF lab should show two kinds of evidence: \textbf{neighbor evidence} (the expected peer is present and Full) and \textbf{routing evidence} (remote networks appear as OSPF routes). Ping then proves that the learned forwarding path works in practice.
+\end{verifybox}
+
+\section{Connectivity test}
+The source tests from R2 toward R1 and toward R3's loopback \cmd{10.0.3.3}. Successful replies after OSPF convergence demonstrate that remote network information has been learned dynamically rather than added as static routes.
+
+\section{Troubleshooting OSPF in the order the evidence suggests}
+\begin{netsteps}
+\item Confirm interface IP addresses and physical/protocol state.
+\item Confirm each required network is matched by the OSPF configuration in area 0.
+\item Use \cmd{display ospf peer brief}. If the expected neighbor is absent or not Full, solve the adjacency problem before studying remote routes.
+\item Use \cmd{display ip routing-table} and locate the OSPF-learned destination.
+\item Only then use ping to verify the data path.
+\end{netsteps}
+
+\begin{pitfall}
+A missing remote route is often a symptom, not the root cause. Adding a static route would hide the OSPF problem rather than fix it. If the neighbor relationship is wrong, inspect the OSPF and interface configuration first.
+\end{pitfall}
+
+\begin{quickcheck}
+\begin{enumerate}
+\item Why does the lab explicitly configure a router ID?
+\item What is the role of area 0 in the source material?
+\item Which command gives the compact neighbor summary?
+\item What two pieces of evidence should be present before you trust a successful OSPF configuration?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+OSPF replaces manually maintained remote routes with neighbor relationships and exchanged routing information. Configure the router ID and area networks, verify the peer state, verify OSPF entries in the routing table, then test end-to-end connectivity.
+\end{chapterrecap}

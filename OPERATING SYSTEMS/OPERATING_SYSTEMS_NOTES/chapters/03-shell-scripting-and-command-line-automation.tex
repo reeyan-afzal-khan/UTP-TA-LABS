@@ -1,0 +1,64 @@
+\chapter{Shell Scripting and Command-Line Automation}\label{ch:shell}
+\chapterguide{You should be able to run commands in a Unix-like terminal.}{Explain the shell's role, use variables, arithmetic, tests, loops and exit status, and write small Bash scripts safely.}
+
+\section{The shell is a command interpreter}
+A shell such as Bash reads commands, performs expansions, starts programs, connects I/O streams, and exposes programming constructs. It is not the kernel; it is an ordinary user-space program that makes system services convenient to invoke.
+
+\section{Variables and input}
+Assignments do not use spaces around \texttt{=}. Values are expanded with \texttt{\$name}. Quoting matters because unquoted expansions can undergo word splitting and wildcard expansion.
+
+\begin{lstlisting}[style=osbash]
+#!/bin/bash
+read -r n
+remainder=$(( n % 2 ))
+if [ "$remainder" -eq 0 ]; then
+    echo "$n is even"
+else
+    echo "$n is odd"
+fi
+\end{lstlisting}
+
+\section{Arithmetic and conditions}
+Modern Bash arithmetic expansion \texttt{\$(( ... ))} is usually clearer than legacy \texttt{expr}. Numeric tests include \texttt{-eq}, \texttt{-ne}, \texttt{-lt}, \texttt{-le}, \texttt{-gt}, and \texttt{-ge}.
+
+\begin{pitfall}
+A year divisible by 4 is not always a leap year. The Gregorian rule is: divisible by 400, or divisible by 4 but not by 100. A lab script using only \texttt{year \% 4} is a useful starting exercise but not the complete calendar rule.
+\end{pitfall}
+
+\section{Loops and factorial}
+A factorial for non-negative integer $n$ is
+\[
+ n! = \prod_{k=1}^{n} k, \qquad 0! = 1.
+\]
+A shell loop can implement the repeated multiplication directly.
+
+\begin{lstlisting}[style=osbash]
+result=1
+for ((i=2; i<=n; i++)); do
+    result=$(( result * i ))
+done
+echo "$result"
+\end{lstlisting}
+
+\section{Exit status and composition}
+Every command returns an integer exit status. By convention, 0 means success and non-zero means some form of failure. Shell operators exploit this: \texttt{cmd1 \&\& cmd2} runs the second command only if the first succeeds; \texttt{cmd1 || cmd2} runs the second only if the first fails.
+
+\section{Pipes and redirection}
+The shell can wire one process's standard output to another process's standard input using \texttt{|}. Redirection changes the source or destination of a standard stream. These features are built on OS primitives such as file descriptors, pipes, \texttt{fork()}, and \texttt{exec()}.
+
+\begin{keyidea}
+Shell scripting is operating-systems practice because it exposes process creation, file descriptors, exit status, and command composition without requiring you to implement the low-level plumbing yourself.
+\end{keyidea}
+
+\input{chapters/concepts/03-shell-deep-dive}
+
+\input{labs/03-shell-scripting}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The shell is a user-space command interpreter, not the kernel.
+  \item Bash scripts combine command execution with variables, tests, loops, and arithmetic.
+  \item Quoting and exit-status checking make scripts more reliable.
+  \item Pipes and redirection are convenient syntax over OS-level I/O and process mechanisms.
+\end{itemize}
+\end{chapterrecap}

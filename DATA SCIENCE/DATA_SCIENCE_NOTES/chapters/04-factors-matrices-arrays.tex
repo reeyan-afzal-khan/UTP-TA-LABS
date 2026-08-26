@@ -1,0 +1,210 @@
+\chapter{Factors, Matrices, and Arrays}
+\label{chap:factors-matrices-arrays}
+
+\chapterguide
+  {You should be comfortable with vectors, lists, indexing, and arithmetic.}
+  {construct and inspect factors; access factor elements and levels; construct matrices by row or column; name and index matrix dimensions; apply element-wise matrix arithmetic; create named multidimensional arrays; access slices and elements; and use \texttt{apply()} as shown in the handout.}
+
+\section{Factors}
+
+Lab 4a creates a character vector containing compass regions and then converts it to a factor:
+
+\begin{lstlisting}[style=dsr]
+data <- c(
+  "East", "West", "East", "North", "North",
+  "East", "West", "West", "West", "East", "North"
+)
+
+print(data)
+print(is.factor(data))
+
+factor_data <- factor(data)
+print(factor_data)
+print(is.factor(factor_data))
+length(factor_data)
+\end{lstlisting}
+
+The before/after \texttt{is.factor()} checks are the key observation: the original vector is not a factor, while the result of \texttt{factor()} is.
+
+\subsection{Accessing and modifying factor values}
+
+\begin{lstlisting}[style=dsr]
+data <- factor(c(
+  "East", "West", "East", "North", "North",
+  "East", "West", "West", "West", "East", "North"
+))
+
+data[3]
+data[3] <- "NorthWest"
+\end{lstlisting}
+
+The modification attempt is intentionally useful: it tests what happens when a value not already represented by the factor's levels is assigned.
+
+\subsection{Changing level order}
+
+\begin{lstlisting}[style=dsr]
+data <- c(
+  "East", "West", "East", "North", "North",
+  "East", "West", "West", "West", "East", "North"
+)
+
+factor_data <- factor(data)
+new_order_data <- factor(
+  factor_data,
+  levels = c("East", "West", "North")
+)
+print(new_order_data)
+\end{lstlisting}
+
+This exercise separates the observed values from the order in which the levels are defined.
+
+\subsection{Generating factor levels}
+
+\begin{lstlisting}[style=dsr]
+v <- gl(3, 4, labels = c("Tampa", "Seattle", "Boston"))
+print(v)
+\end{lstlisting}
+
+The handout uses \texttt{gl()} to generate repeated factor levels programmatically.
+
+\section{Matrices}
+
+A matrix organizes values into rows and columns. Lab 4a contrasts row-wise and column-wise filling:
+
+\begin{lstlisting}[style=dsr]
+M <- matrix(c(3:14), nrow = 4, byrow = TRUE)
+print(M)
+
+N <- matrix(c(3:14), nrow = 4, byrow = FALSE)
+print(N)
+\end{lstlisting}
+
+\subsection{Naming rows and columns}
+
+\begin{lstlisting}[style=dsr]
+rownames <- c("row1", "row2", "row3", "row4")
+colnames <- c("col1", "col2", "col3")
+
+P <- matrix(
+  c(3:14),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(rownames, colnames)
+)
+print(P)
+\end{lstlisting}
+
+Dimension names make later inspection easier because row and column labels appear with the values.
+
+\subsection{Matrix indexing}
+
+\begin{lstlisting}[style=dsr]
+print(P[1, 3])  # row 1, column 3
+print(P[4, 2])  # row 4, column 2
+print(P[2, ])   # all columns from row 2
+print(P[, 3])   # all rows from column 3
+\end{lstlisting}
+
+The index order in the supplied code is \texttt{[row, column]}.
+
+\section{Matrix arithmetic in the handout}
+
+Two 2-by-3 matrices are added, subtracted, multiplied, and divided using ordinary arithmetic operators:
+
+\begin{lstlisting}[style=dsr]
+matrix1 <- matrix(c(3, 9, -1, 4, 2, 6), nrow = 2)
+matrix2 <- matrix(c(5, 2, 0, 9, 3, 4), nrow = 2)
+
+print(matrix1 + matrix2)
+print(matrix1 - matrix2)
+print(matrix1 * matrix2)
+print(matrix1 / matrix2)
+\end{lstlisting}
+
+\begin{keyidea}
+The multiplication and division examples in Lab 4a use \texttt{*} and \texttt{/}. In these notes, ``matrix multiplication'' in the Lab 4 practical is kept consistent with that supplied element-wise operator usage rather than silently replacing it with a different operation.
+\end{keyidea}
+
+\section{Arrays}
+
+Lab 4a extends the row/column idea into a third dimension.
+
+\subsection{Constructing an array}
+
+\begin{lstlisting}[style=dsr]
+vector1 <- c(5, 9, 3)
+vector2 <- c(10, 11, 12, 13, 14, 15)
+
+result <- array(
+  c(vector1, vector2),
+  dim = c(3, 3, 2)
+)
+print(result)
+\end{lstlisting}
+
+The dimensions request 3 rows, 3 columns, and 2 matrix-like layers.
+
+\subsection{Naming array dimensions}
+
+\begin{lstlisting}[style=dsr]
+column.names <- c("COL1", "COL2", "COL3")
+row.names <- c("ROW1", "ROW2", "ROW3")
+matrix.names <- c("Matrix1", "Matrix2")
+
+result <- array(
+  c(vector1, vector2),
+  dim = c(3, 3, 2),
+  dimnames = list(row.names, column.names, matrix.names)
+)
+print(result)
+\end{lstlisting}
+
+\subsection{Accessing array elements and slices}
+
+\begin{lstlisting}[style=dsr]
+print(result[3, , 2])  # third row of second matrix
+print(result[1, 3, 1]) # row 1, column 3, first matrix
+print(result[, , 2])   # entire second matrix
+\end{lstlisting}
+
+The indexing pattern generalizes matrix indexing: \texttt{[row, column, layer]}.
+
+\section{Array manipulation and \texttt{apply()}}
+
+The handout extracts 2D matrices from arrays and adds them. It also demonstrates \texttt{apply()} across rows:
+
+\begin{lstlisting}[style=dsr]
+new.array <- array(
+  c(vector1, vector2),
+  dim = c(3, 3, 2)
+)
+
+result <- apply(new.array, c(1), sum)
+print(result)
+\end{lstlisting}
+
+Here the margin argument \texttt{c(1)} tells the supplied example to calculate sums associated with the row dimension across the array.
+
+\begin{pitfall}
+In Lab 4a section 3.4, \texttt{vector3} and \texttt{vector4} are created, but the printed code then constructs \texttt{array2} from \texttt{vector1} and \texttt{vector2} again. These notes preserve the handout as a source caution rather than silently assuming which vectors were intended.
+\end{pitfall}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which function converts the region vector into a factor?
+  \item What does \texttt{byrow = TRUE} change when constructing a matrix?
+  \item In \texttt{P[4,2]}, which coordinate is the row and which is the column?
+  \item How many dimensions are specified by \texttt{dim = c(3,3,2)}?
+  \item What does \texttt{result[,,2]} select from a three-dimensional array?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Factors represent categorical values and expose levels that can be ordered explicitly.
+  \item Matrices are built with row/column dimensions and can carry dimension names.
+  \item The handout's matrix arithmetic uses ordinary operators element by element.
+  \item Arrays generalize matrix indexing to additional dimensions.
+  \item \texttt{apply()} is introduced as a way to run a function across a selected array margin.
+\end{itemize}
+\end{chapterrecap}

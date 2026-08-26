@@ -1,0 +1,187 @@
+\chapter{Process Modeling, Process Improvement, and ERP Implementation}
+\label{ch:process-modeling}
+
+\chapterguide
+  {You should understand end-to-end business processes and the implementation challenges introduced earlier.}
+  {draw basic flowcharts and swimlane diagrams, use process models to expose hand-offs and delays, distinguish current-state from future-state design, and explain the main phases and change-management needs of an ERP implementation.}
+
+\begin{sourcebasis}
+This chapter follows the process-modelling part of Tutorial 8 and Chapter 7 of the textbook. It also supports Tutorial 2 by expanding the implementation and change-management concepts behind ERP benefits and challenges.
+\end{sourcebasis}
+
+\section{Why model a process before changing it}
+
+A process model turns a verbal description into a visible sequence of events, decisions, responsibilities, and hand-offs. This is useful because many ERP problems are not obvious until the process is drawn.
+
+A model can reveal:
+
+\begin{itemize}
+  \item repeated data entry;
+  \item unnecessary approvals;
+  \item unclear ownership;
+  \item long queues or waiting points;
+  \item hand-offs between departments;
+  \item missing decision rules;
+  \item steps that exist only because old systems were disconnected.
+\end{itemize}
+
+\section{Basic flowchart symbols}
+
+The textbook introduces flowcharts as a simple way to represent a process from beginning to end. For this course, four symbol roles are enough for most tutorial work.
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.22\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Symbol role & Typical shape & Meaning \\
+\midrule
+Start / end & Rounded terminator & Boundary of the process. \\
+Activity & Rectangle & Work performed, such as ``Screen resumes.'' \\
+Decision & Diamond & Branch based on a condition, such as ``Candidate suitable?'' \\
+Flow & Arrow & Direction and sequence of the process. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+The most important rule is semantic clarity: every activity should use a verb and describe one meaningful piece of work.
+
+\section{Swimlane diagrams add responsibility}
+
+A \term{swimlane} or deployment flowchart adds lanes for actors, departments, or roles. This makes cross-functional hand-offs explicit.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  act/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=1.5mm,minimum width=3.0cm,minimum height=0.72cm,align=center,font=\scriptsize\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal}
+]
+\draw[draw=ERPMuted!55] (0,0) rectangle (14,5.4);
+\draw[draw=ERPMuted!55] (0,3.6)--(14,3.6); \draw[draw=ERPMuted!55] (0,1.8)--(14,1.8);
+\node[anchor=west,font=\scriptsize\bfseries\color{ERPNavy}] at (0.2,4.9) {Hiring Manager};
+\node[anchor=west,font=\scriptsize\bfseries\color{ERPNavy}] at (0.2,3.1) {Human Resources};
+\node[anchor=west,font=\scriptsize\bfseries\color{ERPNavy}] at (0.2,1.3) {Candidate};
+\node[act] (a) at (4.1,4.5) {Submit hiring request};
+\node[act] (b) at (7.2,2.7) {Prepare and publish vacancy};
+\node[act] (c) at (10.4,0.9) {Apply / provide evidence};
+\node[act] (d) at (12.5,2.7) {Screen and schedule};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+\end{tikzpicture}
+\end{erpfigure}
+
+A normal flowchart answers ``What happens next?'' A swimlane also answers ``Who is responsible when it happens?''
+
+\section{Current-state and future-state models}
+
+For ERP implementation, teams often need two versions:
+
+\begin{description}
+  \item[As-is model] How the process operates today, including manual workarounds, delays, and system boundaries.
+  \item[To-be model] How the process should operate after redesign and ERP configuration.
+\end{description}
+
+The goal is not simply to redraw the same process with Odoo or another ERP logo. The to-be process should remove waste where possible.
+
+\begin{pitfall}
+If an old process requires a clerk to retype a sales order into Finance because the systems are separate, reproducing that same step after ERP implementation defeats the purpose of integration.
+\end{pitfall}
+
+\section{Process improvement before automation}
+
+A useful improvement sequence is:
+
+\begin{enumerate}
+  \item identify the customer or internal user and the process outcome they value;
+  \item map the current process;
+  \item measure delay, rework, error, cost, and hand-offs;
+  \item challenge steps that do not create value or control risk;
+  \item redesign the process;
+  \item configure the ERP workflow to support the redesigned process;
+  \item measure the outcome after implementation.
+\end{enumerate}
+
+This prevents \emph{automating waste}.
+
+\section{ERP implementation as a staged project}
+
+The textbook presents a five-phase implementation roadmap associated with SAP Solution Manager. The names are useful even when another ERP product is used because they describe general project logic.
+
+\begin{erpfigure}
+\begin{tikzpicture}[
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.28cm
+]
+\node[box] (p1) {1. Project\\Preparation};
+\node[box,right=of p1] (p2) {2. Business\\Blueprint};
+\node[box,right=of p2] (p3) {3. Realization};
+\node[box,right=of p3] (p4) {4. Final\\Preparation};
+\node[box,right=of p4] (p5) {5. Go Live\\\& Support};
+\draw[arr] (p1)--(p2); \draw[arr] (p2)--(p3); \draw[arr] (p3)--(p4); \draw[arr] (p4)--(p5);
+\end{tikzpicture}
+\end{erpfigure}
+
+\subsection{Project Preparation}
+Define scope, objectives, governance, team, technical landscape, high-level schedule, and success measures.
+
+\subsection{Business Blueprint}
+Document business requirements and the intended process design. Process mapping is critical here because the team must agree how the company will operate in the ERP system.
+
+\subsection{Realization}
+Configure the ERP system, build required interfaces or controlled extensions, prepare data, and develop supporting materials.
+
+\subsection{Final Preparation}
+Test critical processes and transaction volume, prepare support, migrate data, train users, and set the go-live date.
+
+\subsection{Go Live and Support}
+Move into production, stabilise the system, resolve issues, and continue improvement.
+
+\section{Scope creep}
+
+\term{Scope creep} is the unplanned expansion of project goals. It increases time, cost, complexity, and risk. The most dangerous form occurs when the project adds new features faster than it completes testing, training, and process readiness.
+
+A practical defence is a change-control rule: every new requirement should state the business value, impact, cost, owner, and whether it is essential for go-live or can wait for a later phase.
+
+\section{Organisational change management}
+
+ERP implementation changes roles, responsibilities, information visibility, and sometimes staffing. The textbook emphasises that people often resist being changed, especially when they feel the project is imposed on them.
+
+Good \term{organisational change management (OCM)} includes:
+
+\begin{itemize}
+  \item involving process owners and end users in design;
+  \item communicating why the process is changing;
+  \item explaining role and responsibility changes;
+  \item training for both system use and new business procedures;
+  \item providing support during the transition;
+  \item measuring adoption rather than assuming it.
+\end{itemize}
+
+\begin{keyidea}
+ERP implementation succeeds when the organisation changes how work is done, not when the technical team merely installs software. Process ownership, training, testing, data quality, and executive sponsorship are therefore core implementation work.
+\end{keyidea}
+
+\section{The ABC recruitment process as a modelling exercise}
+
+Tutorial 8 is ideal for a swimlane because responsibility moves among the hiring manager, HR, candidate, interviewers, and approval stakeholders. The model should expose waiting points such as scheduling interviews, collecting feedback, and conducting checks.
+
+A future-state information system could reduce waiting by making status, documents, interview feedback, and ownership visible in one workflow.
+
+\begin{tryit}
+Draw the ABC recruitment process twice: first as a simple flowchart and then as a swimlane. In the swimlane version, mark every arrow that crosses a lane. Those crossings are the hand-offs most likely to suffer from delay or missing information.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What extra information does a swimlane provide compared with a basic flowchart?
+  \item Why is an as-is process model necessary before configuring an ERP workflow?
+  \item What is scope creep and why can it indirectly reduce testing or training quality?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Process models expose sequence, decisions, responsibilities, hand-offs, and waste.
+  \item Swimlanes are especially useful for cross-functional ERP processes.
+  \item ERP projects should redesign weak processes rather than copy them exactly.
+  \item Implementation proceeds from scope and blueprint through configuration, preparation, go-live, and support.
+  \item Change management, training, data migration, and process ownership are essential because ERP changes how people work.
+\end{itemize}
+\end{chapterrecap}
