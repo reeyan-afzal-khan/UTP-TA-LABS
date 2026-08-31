@@ -5,7 +5,7 @@ This repository collects laboratory materials, tutorial resources, implementatio
 ## Course notes
 
 | Course | Note coverage |
-| --- | --- | --- |
+| --- | --- |
 | [Algorithms and Data Structures](<ALGORITHMS & DATA STRUCTURES/%23NOTES/main.tex>) | Arrays through hashing, algorithm comparison, correctness arguments, complexity models, edge-case testing, and reproducible benchmarking |
 | [Artificial Intelligence](<ARTIFICIAL INTELLIGENCE/%23NOTES/main.tex>) | Search, fuzzy logic, ANFIS, robotics, NLP, genetic algorithms, experimental evaluation, error analysis, and responsible AI practice |
 | [Data Communication and Networking](<DATA COMMUNICATION & NETWORKING/%23NOTES/main.tex>) | Packet analysis, routing, services, switching, WAN links, layered troubleshooting, hardening, change control, and incident records |
