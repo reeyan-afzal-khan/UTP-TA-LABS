@@ -2,8 +2,7 @@
 
 This repository collects laboratory materials, tutorial resources, implementations, and original LaTeX teaching companions from courses taught at Universiti Teknologi PETRONAS.
 
-[YouTube playlist for software installation for these labs](https://youtube.com)](https://youtube.com/playlist?list=PLinUrn8TVRE8TakJwrFYdOsH1i1GBBdVN)
-[YouTube Playlist](https://youtube.com/playlist?list=PLinUrn8TVRE8TakJwrFYdOsH1i1GBBdVN)
+[YouTube playlist for software installation for these labs](https://youtube.com/playlist?list=PLinUrn8TVRE8TakJwrFYdOsH1i1GBBdVN)
 
 
 ## Course notes
