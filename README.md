@@ -15,44 +15,8 @@ This repository collects laboratory materials, tutorial resources, implementatio
 | Machine Learning | Supervised, unsupervised, limited-label, and reinforcement learning, plus leakage prevention, reproducibility, subgroup evaluation, model cards, and monitoring | [Open notes](<MACHINE LEARNING/%23NOTES/main.tex>) |
 | Operating Systems | Processes, scheduling, concurrency, memory, storage, security boundaries, least privilege, defensive programming, and observability | [Open notes](<OPERATING SYSTEMS/%23NOTES/main.tex>) |
 
-Each course remains a self-contained LaTeX project. Its `main.tex` file owns the
-document design and includes the course's chapters, laboratories, and appendices
-from their existing folders.
-
-## Featured notebooks
-
-| Course | Notebook | Purpose |
-| --- | --- | --- |
-| Artificial Intelligence | [Search strategy comparison](<ARTIFICIAL INTELLIGENCE/Lab01/Search_Strategy_Comparison.ipynb>) | Reproducible BFS, uniform-cost, and A* comparison with path, cost, expansion, frontier, and heuristic checks |
-| Artificial Intelligence | [Robotics simulation scenarios](<ARTIFICIAL INTELLIGENCE/Lab05/Lab_5_code.ipynb>) | Clean, output-free collection of eight motion, planning, control, mapping, and reinforcement-learning demonstrations |
-| Data Science | [Reproducible EDA in R](<DATA SCIENCE/Lab Final Project/Reproducible_EDA.ipynb>) | Base-R final-project template for contracts, validation, cleaning logs, summaries, plots, association, and conclusions |
-| Machine Learning | [Audit-ready classification](<MACHINE LEARNING/Lab10/Task02.ipynb>) | NumPy/pandas workflow for deterministic partitions, training-only preprocessing, threshold selection, subgroup checks, calibration, and a model card |
-
-The Machine Learning course also retains its full sequence of task notebooks
-across Labs 1--10. Notebook outputs are omitted where practical so that source,
-not machine-specific execution state, remains canonical.
-
-## Building the notes
-
-From a course's `#NOTES` directory, run either of the following:
-
-```text
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
-tectonic -X compile main.tex
-```
-
-LaTeX build products are intentionally excluded from version control. The
-repository keeps the editable sources as the canonical course notes.
-
-Run the repository-wide structural check after editing any note set:
-
-```text
-pwsh -File scripts/check-latex-notes.ps1
-pwsh -File scripts/check-notebooks.ps1
-```
+Each course remains a self-contained LaTeX project. Its `main.tex` file owns the document design and includes the course's chapters, laboratories, and appendices from their existing folders.
 
 ## Disclaimer
 
-These materials support teaching and independent study. They are not official
-university publications and do not replace the current course outline,
-assessment brief, or institutional policies.
+These materials support teaching and independent study. They are not official university publications and do not replace the current course outline, assessment brief, or institutional policies.
