@@ -1,0 +1,137 @@
+\labsection{8}{Testing whether a cryptocurrency is money}{sec:lab08-crypto}
+
+\begin{labproject}{Apply the three-function test with evidence rather than opinion}
+\textbf{Coverage.} Chapter~\ref{ch:cryptocurrencies}.\\
+\textbf{Source files.} \texttt{Lab08/volatility\_analysis.py}, \texttt{Lab08/price\_series.csv}.\\
+\textbf{Goal.} Measure the properties Chapter~\ref{ch:cryptocurrencies} discusses qualitatively, and reach a defensible verdict on each of money's three functions.
+
+\begin{labmode}
+The price series is synthetic, generated from a seeded random walk calibrated to realistic Bitcoin and fiat volatility. Results are reproducible and the magnitudes are representative, but no figure here is a real historical price --- do not quote one as such.
+
+If you can obtain real daily closes from a public source, rerun the identical script against them. The column layout matches.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Measure volatility properly.}\par
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import pandas as pd
+
+px = pd.read_csv("price_series.csv", parse_dates=["date"]).set_index("date")
+
+# Log returns, because they are additive over time and symmetric in
+# direction: a +50% move followed by -50% is not a round trip in simple
+# returns, but log returns handle it correctly.
+returns = np.log(px / px.shift(1)).dropna()
+
+annualised = returns.std() * np.sqrt(365)   # crypto trades every day
+print((annualised * 100).round(1))
+\end{lstlisting}
+
+On the supplied series:
+
+\begin{lstlisting}[style=mlterminal]
+crypto_usd      69.8%
+equity_index    18.6%
+fiat_eurusd      8.9%
+\end{lstlisting}
+
+The crypto series is roughly eight times as volatile as the currency pair, and nearly four times a broad equity index. That gap is the whole of Part B.
+
+\medskip\noindent\textbf{Part B --- Maximum drawdown.}\par
+Volatility treats gains and losses alike. A holder does not. Drawdown measures the worst peak-to-trough fall --- the loss someone who bought at the wrong moment actually experienced:
+
+\begin{lstlisting}[style=mlpython]
+def max_drawdown(series: pd.Series) -> float:
+    running_peak = series.cummax()
+    drawdown = series / running_peak - 1
+    return drawdown.min()
+
+for col in px.columns:
+    print(f"{col:10s} max drawdown {max_drawdown(px[col]):.1%}")
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlterminal]
+asset             max drawdown   gain to recover
+crypto_usd              -65.8%            192.0%
+fiat_eurusd             -21.1%             26.8%
+equity_index            -21.1%             26.7%
+\end{lstlisting}
+
+\begin{workedexample}
+A 65.8\% drawdown means an asset bought at the peak fell to 34.2\% of its value.
+
+Recovering requires a gain of $1/0.342 - 1 = 192\%$ --- the asset must nearly triple simply to return to where the holder started.
+
+Compare the fiat row: a 21.1\% fall needs only 26.8\% to recover. The relationship is not linear. Halving the drawdown does far more than halve the recovery burden, which is why drawdown matters more than volatility for a store of value.
+\end{workedexample}
+
+\medskip\noindent\textbf{Part C --- The three-function test.}\par
+Chapter~\ref{ch:cryptocurrencies} sets out the standard economic test. Judge each function against a measurement, not an intuition:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Function & Evidence that satisfies it & Measure it with \\
+\midrule
+Medium of exchange & Accepted widely; settles quickly; fees small relative to typical purchase & Confirmation time; fee as \% of a \$20 purchase \\
+Store of value & Purchasing power roughly preserved over the holding period & Annualised volatility; max drawdown \\
+Unit of account & Prices are quoted in it natively & Count real goods priced in the currency rather than pegged to fiat \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{lstlisting}[style=mlpython]
+# Medium of exchange: is the fee proportionate to everyday spending?
+purchase = 20.00
+for fee in [0.15, 1.20, 8.50]:      # low, typical, congested network
+    print(f"fee ${fee:5.2f} = {fee / purchase:6.1%} of a $20 purchase")
+
+# Settlement: six confirmations at ~10 minutes per block.
+print(f"\ntypical settlement: {6 * 10} minutes")
+\end{lstlisting}
+
+\begin{keyidea}
+The three functions are not independent, and the dependency runs in one direction.
+
+Volatility undermines store of value directly. But it also undermines unit of account, because nobody prices a menu in a unit that moves 5\% overnight. And it undermines medium of exchange, because a merchant accepting payment converts to fiat immediately to avoid the exposure --- so the currency is a transfer rail, not money.
+
+Chapter~\ref{ch:cryptocurrencies} presents volatility as one risk among several. Your measurements should show it is the constraint the other two functions hang from.
+\end{keyidea}
+
+\begin{pitfall}
+``Bitcoin has no intrinsic value'' is a weak argument, and using it will cost you marks.
+
+Fiat currency has no intrinsic value either. It is accepted because a state demands taxes in it and enforces it as legal tender. The interesting question is not intrinsic value but what sustains acceptance --- and the honest comparison is between different \emph{sources} of confidence, not between one asset that has backing and one that does not.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part D --- The trade-off nobody escapes.}\par
+Chapter~\ref{ch:cryptocurrencies} raises user control as a benefit. Price it honestly:
+
+\begin{itemize}
+  \item Self-custody means no counterparty can freeze or seize your funds.
+  \item It also means a lost private key is a permanent, unrecoverable loss --- with no fraud department and no chargeback.
+  \item Custodial exchanges restore recovery and support, and reintroduce exactly the trusted intermediary the design set out to remove.
+\end{itemize}
+
+\begin{tryit}
+Estimate how much Bitcoin is permanently lost to forgotten keys. Published estimates cluster around 3--4 million coins; find one and cite it.
+
+Then take a position on the design question that follows: is irreversibility a feature or a defect? Argue it separately for a large cross-border settlement and for a consumer buying coffee. A good answer reaches different conclusions for the two cases and explains why.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Returns are computed as log returns, with the reason stated.
+  \item Volatility is annualised with the correct factor and compared against a fiat baseline.
+  \item Maximum drawdown is reported alongside the gain required to recover from it.
+  \item Each of the three functions receives a separate verdict supported by a specific measurement.
+  \item Synthetic data is identified as synthetic wherever a number is quoted.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the volatility and drawdown output, a completed three-function table with a verdict and supporting measurement for each row, and a two-page assessment: which function the asset satisfies best, which it fails, whether the failures are inherent to the design or fixable, and what would have to change for your verdict to reverse.
+\end{labdeliverable}

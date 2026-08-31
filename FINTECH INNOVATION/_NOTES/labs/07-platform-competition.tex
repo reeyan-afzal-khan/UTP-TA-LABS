@@ -1,0 +1,109 @@
+\labsection{7}{Platform competition and the Big Tech threat}{sec:lab07-platform}
+
+\begin{labproject}{Assess whether a Big Tech entrant can take a bank's customers}
+\textbf{Coverage.} Chapter~\ref{ch:bigtech}.\\
+\textbf{Source files.} \texttt{Lab07/platform\_scorecard.py}, \texttt{Lab07/ecosystem\_map.md}.\\
+\textbf{Goal.} Apply the chapter's ``four assets and one liability'' framework to a real platform, and reach a defensible view on where the competitive boundary actually sits.
+
+\begin{labmode}
+Choose one Big Tech platform with financial ambitions --- Grab, Apple, Alipay, Amazon, or Gojek --- and the incumbent bank you analysed in Lab~\ref{sec:lab01-unbundling}. Analysing the same bank throughout the course means Labs 1, 5, and 7 accumulate into one coherent argument.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- FinTech or TechFin?}\par
+Chapter~\ref{ch:bigtech} draws a distinction that determines everything downstream:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.16\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+ & FinTech & TechFin \\
+\midrule
+Starts from & A financial product & An existing user base \\
+Wants & To win in finance & To strengthen the core platform \\
+Finance is & The business & A retention feature \\
+Can afford & Losses funded by investors & Losses funded by another division \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+A TechFin competitor can price a financial product at zero margin indefinitely, because the product's job is to keep users inside an ecosystem that earns elsewhere.
+
+An incumbent bank cannot match that, and neither can a FinTech. This is the single most important asymmetry in the chapter, and every recommendation you make must account for it.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Score the four assets and the liability.}\par
+Score your chosen platform 1--5 on each asset, and separately assess the liability:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Asset & Evidence to look for \\
+\midrule
+Customer access & Monthly active users; daily open rate; is the app already a habit? \\
+Data & Behavioural signals a bank cannot see --- location, purchases, messages, search \\
+Brand and trust & Would users hand this company their salary? Survey data where available \\
+Capital and talent & Cash reserves; ability to absorb losses; engineering headcount \\
+\midrule
+\rowcolor{MLPaleOrange!70}
+\textbf{The liability} & \textbf{Regulatory exposure.} Banking licences, capital requirements, consumer-protection rules, antitrust attention, data-localisation law \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+The liability is not a tiebreaker to note at the end. It is frequently decisive.
+
+Big Tech firms have repeatedly retreated from regulated banking while expanding in payments --- Google Plex was cancelled, Facebook's Libra/Diem collapsed. Payments need light licensing; deposits and credit need a banking licence, capital adequacy, and a regulator willing to grant one to a foreign technology firm. Trace where your platform stops, and identify which rule stopped it.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Map the ecosystem and find the wedge.}\par
+Super apps do not enter finance through the front door. They start with a payment that removes friction from something the user already does --- a taxi fare, a food order --- and expand outward from the resulting transaction data.
+
+Map your platform's services and mark the sequence in which financial products were added. Then answer: what was the wedge, and what did the wedge make possible next?
+
+\begin{lstlisting}[style=mlterminal]
+$ python platform_scorecard.py --platform grab --incumbent maybank
+
+asset             platform  incumbent  advantage
+customer_access          5          3  platform
+data                     5          3  platform
+brand_trust              3          5  incumbent
+capital_talent           4          4  neutral
+regulatory_position      2          5  incumbent
+
+contested segments : payments, fx, micro-credit
+defensible segments: deposits, mortgages, wealth, corporate
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part D --- What the incumbent still owns.}\par
+Chapter~\ref{ch:bigtech} is clear that banks retain real assets, and a credible analysis names them rather than concluding that banks are doomed:
+
+\begin{itemize}
+  \item A banking licence and the deposit guarantee that comes with it.
+  \item Balance-sheet capacity for lending at scale and long duration.
+  \item Decades of credit-performance data through a full economic cycle --- which no platform has.
+  \item Regulatory relationships and compliance infrastructure that took years to build.
+  \item Trust for large, infrequent, consequential transactions. Users will pay for coffee with a phone; they buy a house through a bank.
+\end{itemize}
+
+\begin{tryit}
+The chapter suggests banks and FinTechs may collaborate against a common Big Tech threat. Design one such partnership: which asset does each side contribute, and what does each give up?
+
+Then stress-test it. Partnerships fail when one side can eventually build what the other supplies. Which side is that here, and how long do they need?
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every asset score cites evidence --- a user figure, a filing, a survey --- not impression.
+  \item The platform is explicitly classified as FinTech or TechFin, with the cross-subsidy consequence stated.
+  \item Regulatory position is assessed against a named licence regime in a named jurisdiction.
+  \item Contested and defensible segments are separated, and the defensible list is non-empty.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the ecosystem map, the completed scorecard with evidence, and a three-page competitive assessment: which segments the platform can realistically take within three years, which the bank can defend and why, the regulatory constraint that binds hardest, and one strategic recommendation for the bank's board.
+\end{labdeliverable}

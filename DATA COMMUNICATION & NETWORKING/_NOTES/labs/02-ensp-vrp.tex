@@ -1,0 +1,130 @@
+\labsection{2}{Build a topology and survive the VRP command line}{sec:lab02-ensp}
+
+\begin{labproject}{Two routers, one cable, and a working ping}
+\textbf{Coverage.} Chapter~\ref{ch:ensp-vrp}.\\
+\textbf{Materials.} \texttt{Lab02/direct\_link.txt}, \texttt{Lab02/vrp\_cheatsheet.md}.\\
+\textbf{Goal.} Learn the view hierarchy well enough that every later lab becomes typing rather than guessing.
+
+\begin{labmode}
+This lab has almost no networking content, and it is the most important one in the course. Every configuration you write for the next seven labs assumes you can move between VRP views without thinking about it.
+
+Do it until it is boring. Then do the troubleshooting section, which is where the actual learning is.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- The view hierarchy.}\par
+VRP puts you in one of several \term{views}, and a command only exists in the view it belongs to. ``Command not found'' almost always means ``right command, wrong view''.
+
+\begin{lstlisting}[style=dcnterminal]
+<Huawei>                        user view      -- look, do not change
+<Huawei> system-view
+[Huawei]                        system view    -- global configuration
+[Huawei] interface GigabitEthernet 0/0/0
+[Huawei-GigabitEthernet0/0/0]   interface view -- this interface only
+[Huawei-GigabitEthernet0/0/0] quit
+[Huawei] quit
+<Huawei>
+\end{lstlisting}
+
+\begin{keyidea}
+The prompt tells you where you are, and it is the only reliable indicator:
+
+\cmd{<angle brackets>} --- user view. Read-only commands: \cmd{display}, \cmd{ping}, \cmd{save}.\\
+\cmd{[square brackets]} --- a configuration view. The text after the hyphen names the exact object you are editing.
+
+If a command is rejected, read the prompt before re-reading the command.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Build the direct link.}\par
+Place two routers, connect \cmd{GE0/0/0} to \cmd{GE0/0/0}, and start both devices. Wait for the interface indicators to turn green before configuring --- eNSP will accept configuration on a booting device and then discard it.
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+sysname R1
+interface GigabitEthernet 0/0/0
+ ip address 192.168.1.1 24
+ undo shutdown
+quit
+\end{lstlisting}
+
+Repeat on R2 with \cmd{192.168.1.2 24}. Then, from R1:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> ping 192.168.1.2
+\end{lstlisting}
+
+\begin{pitfall}
+\cmd{ip address 192.168.1.1 24} uses a prefix length. \cmd{ip address 192.168.1.1 255.255.255.0} uses a mask. Both are accepted and mean the same thing --- but mixing the two styles across a lab report makes it hard to spot a genuine mismatch.
+
+Pick one and use it everywhere. This course uses prefix length.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Verify, never assume.}\par
+Configuration entered without error is not configuration that works.
+
+\begin{commandmap}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.42\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Command} & \bfseries Answers \\
+\midrule
+display ip interface brief & Which interfaces are up, with what addresses \\
+display current-configuration & What is running right now \\
+display saved-configuration & What survives a reboot \\
+display version & VRP version and uptime \\
+display interface GigabitEthernet 0/0/0 & Errors, duplex, and packet counters \\
+\bottomrule
+\end{tabularx}
+\end{commandmap}
+
+The first of these is the one you will use hundreds of times:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ip interface brief
+Interface              IP Address/Mask      Physical  Protocol
+GigabitEthernet0/0/0   192.168.1.1/24       up        up
+GigabitEthernet0/0/1   unassigned           down      down
+\end{lstlisting}
+
+\begin{keyidea}
+Two status columns, two different failures.
+
+\textbf{Physical down} means the cable, the port, or \cmd{shutdown}. It is a layer-1 problem and no amount of IP configuration will fix it.
+
+\textbf{Physical up, protocol down} means the link is electrically fine but the layer-2 or layer-3 configuration disagrees --- a missing address, an encapsulation mismatch, or a failed PPP authentication as in Lab~\ref{sec:lab09-wan}.
+
+Reading these two columns correctly will diagnose most of the faults you meet this semester.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part D --- Save your work.}\par
+\begin{lstlisting}[style=dcnterminal]
+<R1> save
+The current configuration will be written to the device. Continue? [Y/N] y
+\end{lstlisting}
+
+\begin{troubleshoot}
+\textbf{Ping fails but both interfaces are up/up.} Check the addresses are in the same subnet. \cmd{192.168.1.1/24} and \cmd{192.168.2.2/24} are two different networks and will never ping directly.
+
+\textbf{Device will not start in eNSP.} eNSP needs VirtualBox. If routers stay red, VirtualBox is missing, the wrong version, or virtualisation is disabled in BIOS.
+
+\textbf{Configuration vanished after restart.} You did not \cmd{save}. \cmd{display saved-configuration} shows what would actually survive.
+
+\textbf{Command rejected in the right view.} Check the abbreviation is unambiguous --- \cmd{dis} works, \cmd{d} does not.
+\end{troubleshoot}
+
+\begin{tryit}
+Run \cmd{shutdown} on R1's \cmd{GE0/0/0}, then check \cmd{display ip interface brief} on \emph{both} routers. Which columns change on R1, and which on R2? Explain why the far end can tell.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item \cmd{display ip interface brief} shows up/up on both routers.
+  \item A successful ping is captured with its statistics line, not just the prompt.
+  \item The configuration was saved and confirmed with \cmd{display saved-configuration}.
+  \item Address style (prefix length or mask) is consistent throughout.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit the running configuration of both routers, \cmd{display ip interface brief} output from each, a successful ping with its statistics, and a short note explaining the difference between the Physical and Protocol columns using your own \cmd{shutdown} experiment as evidence.
+\end{labdeliverable}

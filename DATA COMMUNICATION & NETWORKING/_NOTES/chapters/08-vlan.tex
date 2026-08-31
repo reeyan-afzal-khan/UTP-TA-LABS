@@ -1,0 +1,146 @@
+\chapter{VLAN Configuration: Access, Trunk, and Hybrid Ports}\label{ch:vlan}
+\chapterguide{Ethernet switch configuration and Eth-Trunk/LACP concepts from Lab 7.}{Create VLANs, bind access ports, turn the inter-switch Eth-Trunk into a VLAN trunk, configure hybrid ports and PVID behavior, and verify same-VLAN and controlled cross-VLAN communication.}
+\sourcelab{Lab 8 - VLAN Configuration.pptx}
+
+\section{What the lab is trying to separate}
+The source uses VLANs to create several logical Layer-2 groups on the same switching infrastructure. Hosts in the same VLAN should share the intended broadcast domain; hosts in different VLANs remain separated unless the exercise deliberately changes port behavior.
+
+\sourceimage[0.88\linewidth]{VLAN topology from the supplied Lab 8 slide}{vlan-topology.png}
+
+\section{Three port behaviors used in the exercise}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.23\linewidth}X}
+\toprule
+Port type & Role in the supplied lab\\\midrule
+Access & Connects a non-VLAN-aware host to one VLAN. Frames from the host are associated with that access VLAN.\\
+Trunk & Carries multiple VLANs between switches. The Eth-Trunk between S1 and S2 is changed to trunk mode and permitted to carry all VLANs in the exercise.\\
+Hybrid & Gives finer control over which VLANs are sent tagged or untagged and which PVID classifies untagged ingress traffic.\\\bottomrule
+\end{tabularx}
+
+\section{Step 1: build the inter-switch Eth-Trunk}
+Lab 8 reuses the link-aggregation ideas from Lab 7. The source builds static LACP Eth-Trunk 1 using G0/0/9 and G0/0/10. One shown method adds each member under the physical interface; another uses \cmd{trunkport} from the Eth-Trunk view.
+\begin{lstlisting}[style=dcnterminal]
+[S1] interface Eth-Trunk 1
+[S1-Eth-Trunk1] mode lacp
+[S1] interface GigabitEthernet 0/0/9
+[S1-GigabitEthernet0/0/9] eth-trunk 1
+[S1] interface GigabitEthernet 0/0/10
+[S1-GigabitEthernet0/0/10] eth-trunk 1
+
+[S2] interface Eth-Trunk 1
+[S2-Eth-Trunk1] mode lacp
+[S2-Eth-Trunk1] trunkport GigabitEthernet 0/0/9
+[S2-Eth-Trunk1] trunkport GigabitEthernet 0/0/10
+\end{lstlisting}
+
+\section{Step 2: make Eth-Trunk 1 a VLAN trunk}
+\begin{lstlisting}[style=dcnterminal]
+[S1] interface Eth-Trunk 1
+[S1-Eth-Trunk1] port link-type trunk
+[S1-Eth-Trunk1] port trunk allow-pass vlan all
+
+[S2] interface Eth-Trunk 1
+[S2-Eth-Trunk1] port link-type trunk
+[S2-Eth-Trunk1] port trunk allow-pass vlan all
+\end{lstlisting}
+
+\begin{keyidea}
+The Eth-Trunk solves the \emph{physical-link aggregation} problem; trunk mode solves the \emph{multiple-VLAN transport} problem. They are different functions applied to the same logical interface.
+\end{keyidea}
+
+\section{Step 3: create VLANs and bind access interfaces}
+The supplied material intentionally demonstrates more than one Huawei VRP configuration style.
+
+On S1, G0/0/13 is associated with VLAN 3 and G0/0/1 with VLAN 4:
+\begin{lstlisting}[style=dcnterminal]
+[S1] interface GigabitEthernet 0/0/13
+[S1-GigabitEthernet0/0/13] port link-type access
+[S1] interface GigabitEthernet 0/0/1
+[S1-GigabitEthernet0/0/1] port link-type access
+[S1] vlan 2
+[S1-vlan2] vlan 3
+[S1-vlan3] port GigabitEthernet 0/0/13
+[S1-vlan3] vlan 4
+[S1-vlan4] port GigabitEthernet 0/0/1
+\end{lstlisting}
+
+On S2, the source uses \cmd{vlan batch} and \cmd{port default vlan}:
+\begin{lstlisting}[style=dcnterminal]
+[S2] vlan batch 2 to 4
+[S2] interface GigabitEthernet 0/0/3
+[S2-GigabitEthernet0/0/3] port link-type access
+[S2-GigabitEthernet0/0/3] port default vlan 4
+[S2] interface GigabitEthernet 0/0/6
+[S2-GigabitEthernet0/0/6] port link-type access
+[S2-GigabitEthernet0/0/6] port default vlan 2
+\end{lstlisting}
+
+\section{Step 4: address the hosts and verify VLAN isolation}
+The slides configure host-side IP addresses so that devices intended to share a VLAN use a common subnet. The first expected result is that R1 and R3 in VLAN 4 can communicate, while devices assigned to different VLANs do not communicate in the basic access/trunk arrangement.
+
+\sourceimage[0.62\linewidth]{Ping evidence used in the supplied VLAN verification sequence}{vlan-connectivity-check.png}
+
+\begin{verifybox}
+A VLAN test must include both a positive and a negative case: prove that two devices in the intended same VLAN can communicate, and prove that a device in a different VLAN remains isolated before hybrid behavior is introduced.
+\end{verifybox}
+
+\section{Step 5: change selected ports to hybrid mode}
+The source then uses hybrid ports to let VLAN 2 and VLAN 4 traffic be delivered untagged toward selected attached devices. G0/0/1 on S1 and G0/0/3 plus G0/0/6 on S2 are changed to hybrid ports.
+\begin{lstlisting}[style=dcnterminal]
+[S1] interface GigabitEthernet 0/0/1
+[S1-GigabitEthernet0/0/1] port link-type hybrid
+[S1-GigabitEthernet0/0/1] port hybrid untagged vlan 2 4
+[S1-GigabitEthernet0/0/1] port hybrid pvid vlan 4
+
+[S2] interface GigabitEthernet 0/0/3
+[S2-GigabitEthernet0/0/3] port link-type hybrid
+[S2-GigabitEthernet0/0/3] port hybrid untagged vlan 2 4
+[S2-GigabitEthernet0/0/3] port hybrid pvid vlan 4
+
+[S2] interface GigabitEthernet 0/0/6
+[S2-GigabitEthernet0/0/6] port link-type hybrid
+[S2-GigabitEthernet0/0/6] port hybrid untagged vlan 2 4
+[S2-GigabitEthernet0/0/6] port hybrid pvid vlan 2
+\end{lstlisting}
+
+\section{Understand PVID and untagged behavior in this lab}
+The source explains the two commands as complementary:
+\begin{itemize}
+\item \cmd{port hybrid pvid vlan <id>} assigns a VLAN classification to untagged frames received from the host.
+\item \cmd{port hybrid untagged vlan 2 4} permits frames from the listed VLANs to leave that host-facing port without a VLAN tag.
+\end{itemize}
+The exercise then retests reachability and expects communication between selected VLAN-2 and VLAN-4 hosts while a VLAN-3 host remains unreachable.
+
+\begin{conceptmap}
+\textbf{Ingress from host, no tag} $\rightarrow$ classify using the port PVID.\\
+\textbf{Frame inside the switch} $\rightarrow$ VLAN membership is tracked logically.\\
+\textbf{Egress toward selected host} $\rightarrow$ listed hybrid VLANs can be sent untagged.
+\end{conceptmap}
+
+\section{Troubleshooting VLAN reachability}
+\begin{netsteps}
+\item Check the host IP/subnet first; VLAN experiments still require correct Layer-3 addressing on the endpoints.
+\item Confirm the host-facing port link type and VLAN/PVID assignment.
+\item Confirm the VLAN exists on both switches where required.
+\item Confirm Eth-Trunk 1 is up and is configured as a trunk carrying the relevant VLANs.
+\item For hybrid ports, inspect both the PVID and the tagged/untagged VLAN lists.
+\item Use ping results as evidence only after the switch configuration matches the intended VLAN path.
+\end{netsteps}
+
+\begin{tryit}
+Complete the source assignment: build a topology with two switches, two routers, and two PCs. Put the routers in VLAN 2 and the PCs in VLAN 3. Verify same-VLAN and different-VLAN connectivity and capture the command-prompt evidence.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+\item Why is the inter-switch Eth-Trunk configured as a trunk rather than an access port?
+\item What does an access port simplify for a non-VLAN-aware host?
+\item In the source exercise, what does the hybrid PVID control?
+\item Why should the lab include both successful and failed ping tests?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+Access ports place hosts into one VLAN, trunk ports carry multiple VLANs between switches, and hybrid ports give explicit control over ingress classification and egress tagging. The lab is strongest when the configuration is paired with positive and negative connectivity tests that prove the intended isolation behavior.
+\end{chapterrecap}
+
+\input{labs/08-vlan}

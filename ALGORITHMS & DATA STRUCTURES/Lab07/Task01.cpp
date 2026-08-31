@@ -52,11 +52,16 @@ public:
         // just recorded from each endpoint's point of view
     }
 
-    int minDistance(int* dist, bool* visited) {
-        int minVal = INT_MAX, minIndex = -1; 
+    // Pick the unvisited vertex with the smallest tentative distance.
+    // Returns -1 when every remaining vertex is unreachable.
+    int minDistance(const int* dist, const bool* visited) const {
+        int minVal = INT_MAX, minIndex = -1;
 
         for (int i = 0; i < V; i++) {
-            if (!visited[i] && dist[i] <= minVal) {
+            // Strictly less-than, and INT_MAX never qualifies: a vertex we
+            // have found no route to must not be selected as the next one
+            // to expand, because dist[u] + weight would then overflow.
+            if (!visited[i] && dist[i] < minVal) {
                 minVal = dist[i];
                 minIndex = i;
             }
@@ -64,55 +69,72 @@ public:
         return minIndex;
     }
 
-    int* dijkstra(int src) {
+    // Caller owns the returned array and must delete[] it.
+    int* dijkstra(int src) const {
         int* dist = new int[V];
         bool* visited = new bool[V];
 
         for (int i = 0; i < V; i++) {
-            dist[i] = INT_MAX;
+            dist[i] = INT_MAX;   // no route found yet
             visited[i] = false;
         }
-        dist[src] = 0;
-        // distance with itself is zero
+        dist[src] = 0;           // the distance from a vertex to itself
 
         for (int count = 0; count < V - 1; count++) {
             int u = minDistance(dist, visited);
-            // find the smallest inside dist,return its index into u
+
+            // Everything still unvisited is unreachable from src, so there
+            // is nothing left to relax. Stopping here is what lets the
+            // algorithm handle a disconnected graph.
+            if (u == -1) break;
+
             visited[u] = true;
 
+            // Relax every edge leaving u: if going through u reaches vtx
+            // more cheaply than the best route known so far, record it.
             for (EdgeNode* current = head[u]; current != nullptr; current = current->next) {
                 int vtx = current->vtx;
                 int weight = current->weight;
 
-                if (!visited[vtx] && dist[u] != INT_MAX && dist[u] + weight < dist[vtx]) {
+                if (!visited[vtx] && dist[u] + weight < dist[vtx]) {
                     dist[vtx] = dist[u] + weight;
                 }
             }
         }
+
+        // visited was scratch space for this call only. The original code
+        // returned dist and left this array allocated, leaking V bools on
+        // every call.
+        delete[] visited;
         return dist;
     }
 
-    // a desctructor is a special member function that is executed when an object of the class 
-    //goes out of scope or is explicitly deleted.
+    // The graph owns every EdgeNode it allocated, plus the array of list
+    // heads. Without this destructor all of it leaks when the Graph goes
+    // out of scope --- the pointers vanish but the memory stays reserved.
     ~Graph() {
-        // to prevent memory leak
-        // without this C++ will forget about the head pointer 
-        // and every EdgeNode that was created with new.
-        // still refer " in use "
         for (int i = 0; i < V; i++) {
             EdgeNode* current = head[i];
             while (current != nullptr) {
                 EdgeNode* temp = current;
-                current = current->next;
+                current = current->next;   // step forward before freeing
                 delete temp;
             }
         }
         delete[] head;
     }   
+
+    // A copied Graph would share the same EdgeNode pointers, and both
+    // copies would free them --- a double delete. Forbid copying outright.
+    Graph(const Graph&)            = delete;
+    Graph& operator=(const Graph&) = delete;
 };
 
 int main() {
-    Graph g(5);
+    // 6 vertices, but vertex 5 is deliberately left unconnected so the
+    // unreachable case is visible in the output.
+    const int V = 6;
+    Graph g(V);
     g.addEdge(0, 1, 4);
     g.addEdge(0, 2, 8);
     g.addEdge(1, 4, 6);
@@ -120,12 +142,20 @@ int main() {
     g.addEdge(2, 3, 2);
     g.addEdge(3, 4, 10);
 
-    int* result = g.dijkstra(0);
+    const int source = 0;
+    int* dist = g.dijkstra(source);
 
-    for (int i = 0; i < 5; i++)
-        cout << result[i] << " ";
-    cout << "\n";
+    cout << "Shortest distance from vertex " << source << ":\n";
+    for (int i = 0; i < V; i++) {
+        cout << "  " << source << " -> " << i << " : ";
 
-    delete[] result;
+        // dist[i] is still INT_MAX for any vertex no path reaches. Printing
+        // the raw number would show 2147483647, which reads like a real
+        // distance rather than "no route exists".
+        if (dist[i] == INT_MAX) cout << "unreachable\n";
+        else                    cout << dist[i] << "\n";
+    }
+
+    delete[] dist;
     return 0;
 }

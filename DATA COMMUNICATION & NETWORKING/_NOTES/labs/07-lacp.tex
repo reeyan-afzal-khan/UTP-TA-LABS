@@ -1,0 +1,129 @@
+\labsection{7}{Link aggregation: several cables, one link}{sec:lab07-lacp}
+
+\begin{labproject}{Bundle physical links, then make the bundle negotiate}
+\textbf{Coverage.} Chapter~\ref{ch:lacp}.\\
+\textbf{Materials.} \texttt{Lab07/manual\_mode.txt}, \texttt{Lab07/lacp\_mode.txt}.\\
+\textbf{Goal.} Build an Eth-Trunk in manual mode, rebuild it in LACP mode, and understand why the second is safer.
+
+\medskip\noindent\textbf{Part A --- Two problems, one solution.}\par
+Aggregation solves bandwidth and redundancy together. Four gigabit links behave as one four-gigabit link, and losing one degrades capacity instead of connectivity.
+
+\begin{keyidea}
+Aggregation also solves a problem you would otherwise create. Connect two switches with four parallel cables and no aggregation, and you have built four loops --- spanning tree will block three of them, leaving you exactly where you started with three cables wasted.
+
+An Eth-Trunk presents the bundle to spanning tree as a single logical interface, so all four links forward.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Traffic does not split evenly.}\par
+
+\begin{pitfall}
+A four-link trunk does not give one flow four times the bandwidth.
+
+The switch hashes header fields --- source and destination MAC, IP, or port depending on configuration --- and every frame in a given conversation lands on the same physical link. This is deliberate: splitting a flow across links would reorder packets and hurt TCP badly.
+
+So a single large file transfer uses one link. Aggregation increases \emph{aggregate} capacity across many flows, not the speed of any one of them. Expect uneven utilisation, and choose a hash that matches your traffic --- MAC-based hashing is useless behind a router, where every frame carries the same router MAC.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Manual mode.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+interface Eth-Trunk 1
+ mode manual load-balance
+quit
+
+interface GigabitEthernet 0/0/1
+ eth-trunk 1
+quit
+interface GigabitEthernet 0/0/2
+ eth-trunk 1
+quit
+\end{lstlisting}
+
+Configure the matching bundle on the far switch, then verify:
+
+\begin{lstlisting}[style=dcnterminal]
+<SW1> display eth-trunk 1
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part D --- Why manual mode is dangerous.}\par
+Manual mode forwards on every member port unconditionally. It never checks that the far end agrees.
+
+\begin{keyidea}
+Miscable one member --- into the wrong switch, or the wrong port --- and manual mode forwards over it anyway. The result is a forwarding loop that spanning tree cannot see, because the trunk hides its members from STP.
+
+That is a broadcast storm, and it takes the segment down. It is the single best argument for LACP.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part E --- Static LACP mode.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+interface Eth-Trunk 1
+ undo mode manual load-balance
+ mode lacp-static
+quit
+\end{lstlisting}
+
+Now each end sends LACP protocol frames announcing its system ID, port priorities, and key. A member joins the bundle only when both ends agree it should. Miscabling produces a port that stays out of the bundle --- a fault that is visible, contained, and safe.
+
+\medskip\noindent\textbf{Part F --- Priorities decide the active links.}\par
+LACP allows more member ports than active links. The rest wait as backups.
+
+\begin{lstlisting}[style=dcnterminal]
+lacp priority 100                    # system priority; lower wins
+interface Eth-Trunk 1
+ max active-linknumber 2
+quit
+
+interface GigabitEthernet 0/0/1
+ lacp priority 100                   # port priority; lower is preferred
+quit
+\end{lstlisting}
+
+\begin{keyidea}
+Two priorities, two different jobs.
+
+\textbf{System priority} decides which switch is in charge of selecting active links. Lower wins; ties break on system MAC. Only one end gets to choose, otherwise the two could disagree.
+
+\textbf{Port priority} is then used by that switch to rank candidate ports. Lower is preferred.
+
+Setting port priorities on the switch that lost the system-priority election has no effect --- a result students often mistake for a broken configuration.
+\end{keyidea}
+
+Verify which end is deciding, and which ports are selected:
+
+\begin{lstlisting}[style=dcnterminal]
+<SW1> display eth-trunk 1
+<SW1> display lacp statistics eth-trunk 1
+\end{lstlisting}
+
+\begin{troubleshoot}
+\textbf{Trunk stays down.} Member ports differ in speed or duplex. All members must match.
+
+\textbf{Members configured but not selected.} Mode mismatch --- one end manual, the other LACP. Both ends must run the same mode.
+
+\textbf{One port never becomes active.} Expected if \cmd{max active-linknumber} is lower than the member count. Confirm it is a backup, not a fault.
+
+\textbf{Port refuses to join.} It probably still carries per-interface configuration. Ports must be cleared before being added to a trunk.
+\end{troubleshoot}
+
+\begin{tryit}
+With the trunk up, shut down one active member and watch \cmd{display eth-trunk 1}. Does a backup take over, and how long does it take?
+
+Then, on the switch that lost the system-priority election, change a port priority and confirm nothing happens. Explain why in one sentence.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item Both manual and LACP modes configured and captured separately.
+  \item Both ends use the same mode.
+  \item \cmd{display eth-trunk 1} shows members Selected, with the count matching \cmd{max active-linknumber}.
+  \item The deciding switch is identified from system priority.
+  \item Failover to a backup member is demonstrated and timed.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit both configurations, \cmd{display eth-trunk} output for each mode, evidence of member failover with timing, and a short note explaining why LACP is preferred to manual mode --- referring specifically to the miscabling scenario.
+\end{labdeliverable}

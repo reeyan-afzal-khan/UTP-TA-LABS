@@ -1,184 +1,190 @@
+// Lab 4, Task 2 --- Doubly linked list (not circular).
+//
+//   nullptr <- [Aimar] <-> [Anjana] <-> [Jessy] -> nullptr
+//
+// Compare this with Task01.cpp. The difference is entirely in the ends:
+// here the first node's prev and the last node's next are nullptr, so every
+// traversal stops at nullptr, and every insert or delete has to ask
+// "am I at an end?" before following a pointer.
+//
+// The circular version removes those special cases at the cost of one
+// invariant to maintain. That trade-off is the point of the two tasks.
+//
+// Build: g++ -std=c++17 -Wall -Wextra Task02.cpp -o task02
+
 #include <iostream>
 #include <string>
 
 using namespace std;
 
 class Node {
-public: 
+public:
     string name;
-    Node* next = NULL; //memory address of the next node
-    Node* prev = NULL;
-    //own next pointer
-    // 
+    Node* next;
+    Node* prev;
 
-    // a constructor for setting up when new node is created
-    Node(string n) {
-        name = n; //the string will pass here to declare first
-        // where to refer? see upper part, it alr declare it, so default is the value
-        next = nullptr;
-        // so this is the Node* by default 
-        prev = nullptr;
-    }
+    explicit Node(const string& n) : name(n), next(nullptr), prev(nullptr) {}
 };
 
-class LinkedList {
-public:
-    Node* head; //memory address of the first node
-    //this belongs to linkedlist, store the first node address
-    // head -----> [Aimar | next] -----> [Ahmad | next] -----> [Anjana | nullptr]
-    //visualize it 
+class DoublyLinkedList {
+private:
+    Node* head;
 
-    LinkedList() {
-        head = nullptr; //empty list
+    Node* find(const string& name) const {
+        // Here nullptr really is the end, so a plain while loop terminates.
+        for (Node* current = head; current != nullptr; current = current->next) {
+            if (current->name == name) return current;
+        }
+        return nullptr;
     }
 
-    void insertEnd(string name) { //insert at the end
+public:
+    DoublyLinkedList() : head(nullptr) {}
+
+    ~DoublyLinkedList() {
+        Node* current = head;
+        while (current != nullptr) {
+            Node* temp = current;
+            current = current->next;
+            delete temp;
+        }
+        head = nullptr;
+    }
+
+    DoublyLinkedList(const DoublyLinkedList&)            = delete;
+    DoublyLinkedList& operator=(const DoublyLinkedList&) = delete;
+
+    bool isEmpty() const { return head == nullptr; }
+
+    void insertEnd(const string& name) {
         Node* newNode = new Node(name);
 
         if (head == nullptr) {
-            //meaning that the list is empty 
             head = newNode;
             return;
         }
 
-        // if not walk to the last node
+        // No tail shortcut in this version: finding the last node costs a
+        // full walk, O(n). The circular list gets it in O(1) from head->prev.
         Node* current = head;
         while (current->next != nullptr) {
             current = current->next;
         }
+
         current->next = newNode;
         newNode->prev = current;
     }
 
-    void insertAfter(string afterName, string newName) {
-        Node* current = head;
-        
-        while (current != nullptr && current->name != afterName) {
-            current = current->next;
-            //find the postition to be inserted
-        }
-
+    void insertAfter(const string& afterName, const string& newName) {
+        Node* current = find(afterName);
         if (current == nullptr) {
-            cout << afterName << "not found." << endl;
+            cout << afterName << " not found.\n";
             return;
         }
 
         Node* newNode = new Node(newName);
         newNode->next = current->next;
-        //Ali points to what Anjana is pointing
         newNode->prev = current;
 
+        // Guard needed: current->next is nullptr when inserting after the
+        // tail, and nullptr->prev would crash.
         if (current->next != nullptr) {
             current->next->prev = newNode;
-            // the node after must point back to the new node if 
-            // after the new node, there is still node there
         }
         current->next = newNode;
-        // four connection new to next, new to prev, prev to new, next to new
-        // right down, left down, right up, left up 
-        // The order must always be, set the new node's links first, then update the existing nodes.
     }
 
-    //delete a node by the name 
-    void deleteByName (string name) {
-        if (head == nullptr) {
-            return; //empty list
-        }
-        if (head->name == name) {
-            Node* temp = head;
-            head = head->next;
-            if (head != nullptr) {
-                head->prev = nullptr;
-            }
-            // new head has no previous node
-            delete temp; // if the deleted one should be head
+    void deleteByName(const string& name) {
+        Node* target = find(name);
+        if (target == nullptr) {
+            cout << name << " not found.\n";
             return;
         }
-        // search the rest of the list 
+
+        // Detach from the left neighbour, or move head if there isn't one.
+        if (target->prev != nullptr) {
+            target->prev->next = target->next;
+        } else {
+            head = target->next;
+        }
+
+        // Detach from the right neighbour, if there is one.
+        if (target->next != nullptr) {
+            target->next->prev = target->prev;
+        }
+
+        delete target;
+    }
+
+    void display() const {
+        if (head == nullptr) {
+            cout << "The list is empty.\n";
+            return;
+        }
+        for (Node* current = head; current != nullptr; current = current->next) {
+            cout << current->name;
+            if (current->next != nullptr) cout << " <-> ";
+        }
+        cout << "\n";
+    }
+
+    void displayReverse() const {
+        if (head == nullptr) {
+            cout << "The list is empty.\n";
+            return;
+        }
+
+        // Walk to the tail, then follow prev back. Being able to do this at
+        // all is the reason for the second pointer: a singly linked list
+        // would have to reverse itself or recurse.
         Node* current = head;
         while (current->next != nullptr) {
-            if (current->next->name == name) {
-                Node* temp = current->next; //using this mean assigned the address to temp
-                current->next = temp->next; 
-                // the address of the next node of current address if the next node of "will be deleted" address
-                // meaning the next of the current node (which is the before being deleted)
-                // is the the next of being deleted one 
-                // so skip the linking directly from the being deleted one
-                if (temp->next != nullptr) {
-                    temp->next->prev = current;
-                    // it is not the last node, need to connect the next node (alr skipped deleted node)
-                    //back to the current, which is the 
-                    // previous of temp (deleted node)
-                }
-                delete temp; 
-                return;
-            }
-            current = current->next; //keep looping to find the matching name
-        }
-    }
-    
-    //display the linked list
-    void display() {
-        Node* current = head;
-        if (current == nullptr) {
-            cout << "The list is empty." << endl;
-            return;
-        }
-        while (current != nullptr) {
-            cout << current->name << endl;
             current = current->next;
         }
-    }
-
-    void displayReverse() {
-        if (head == nullptr) {
-            cout << "The list is empty." << endl;
-            return;
+        for (; current != nullptr; current = current->prev) {
+            cout << current->name;
+            if (current->prev != nullptr) cout << " <-> ";
         }
-
-        // go to the last node first 
-        Node* current = head;
-        while (current->next != nullptr) {
-            current = current->next; 
-        }
-
-        // displaying the node of current and this current will keep referring back when back has node
-        while (current != nullptr) {
-            cout << current->name; 
-            current = current->prev;
-            cout << endl;
-        } 
+        cout << "\n";
     }
 };
 
 int main() {
-    LinkedList list;
+    DoublyLinkedList list;
 
+    cout << "-- Build the list --\n";
     list.insertEnd("Aimar");
     list.insertEnd("Anjana");
     list.insertEnd("Jessy");
-
-    cout << "\nInitial list:" << endl;
     list.display();
 
-    cout << "\nAfter inserting Ali after Anjana:" << endl;
-    list.insertAfter("Anjana","Ali");
+    cout << "\n-- Insert Ali after Anjana --\n";
+    list.insertAfter("Anjana", "Ali");
     list.display();
 
-    // insert Jane at the end
-    cout << "\nAfter inserting Jane at the end:" << endl;
+    cout << "\n-- Insert after a name that is not present --\n";
+    list.insertAfter("Nobody", "Ghost");
+
+    cout << "\n-- Insert Jane at the end --\n";
     list.insertEnd("Jane");
-    list.display();    
+    list.display();
 
-    // delete Jessy
-    cout << "\nAfter deleting Jessy:" << endl;
+    cout << "\n-- Delete Jessy (middle) --\n";
     list.deleteByName("Jessy");
     list.display();
 
-    cout << "\nReverse linkedlist:" << endl;
+    cout << "\n-- Delete Aimar (head) --\n";
+    list.deleteByName("Aimar");
+    list.display();
+
+    cout << "\n-- Reverse traversal --\n";
     list.displayReverse();
 
-    cout << "\nFinal list (in order):" << endl;
+    cout << "\n-- Delete everything --\n";
+    list.deleteByName("Anjana");
+    list.deleteByName("Ali");
+    list.deleteByName("Jane");
     list.display();
-}
 
+    return 0;
+}

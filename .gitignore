@@ -50,6 +50,7 @@ env/
 *.temp
 
 # LaTeX build products (keep source files only)
+.latex-build/
 *.aux
 *.bbl
 *.bcf

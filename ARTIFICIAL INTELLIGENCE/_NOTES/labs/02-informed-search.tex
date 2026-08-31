@@ -1,0 +1,30 @@
+\labsection{2}{Greedy Best-First Search and A*}{sec:lab02-informed}
+
+\begin{labproject}{Heuristic guidance on graphs, grids, cities, and words}
+\textbf{Coverage.} Chapter~\ref{ch:informed} --- Greedy Best-First and A$^\star$.\\
+\textbf{Goal.} Build and inspect priority queues whose ordering is controlled by \(h(n)\) or \(g(n)+h(n)\).
+
+\begin{labmode}
+Keep the supplied heuristics unchanged while tracing each priority-queue decision.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- GBFS.}\par
+Implement and test the four handout problems:
+\begin{enumerate}
+  \item Basic graph from \texttt{A} to \texttt{G} using the supplied heuristic values.
+  \item Maze/grid navigation guided by Manhattan distance.
+  \item City-navigation graph beginning at \texttt{S} with the supplied heuristic dictionary.
+  \item Word ladder from \texttt{hit} to \texttt{cog} using letter mismatch as \(h(w)\).
+\end{enumerate}
+
+\medskip\noindent\textbf{Part B --- A*.}\par
+Use the weighted graph and heuristic dictionary from the handout to recover the reported route \texttt{A -> B -> E -> G} with total cost 4. Then use A* on the weighted \(5\times5\) grid from \((0,0)\) to \((4,4)\).
+
+\begin{tryit}
+Print \(g\), \(h\), and \(f\) for each A* removal and \(h\) for GBFS. Explain one ranking difference.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit both implementations, all six cases, and a table comparing UCS, GBFS, and A* priorities.
+\end{labdeliverable}

@@ -1,0 +1,54 @@
+\labsection{4}{Customer Relationship Management in Odoo}{sec:lab04}
+
+\begin{labproject}{Build a customer opportunity and convert relationship data into a quotation}
+\textbf{Coverage.} Tutorial 4 + Chapter 4.\\
+\textbf{Core system.} Odoo CRM + Sales.\\
+\textbf{Goal.} Demonstrate that CRM manages the relationship before the sales order exists and preserves that context when the deal becomes a quotation.
+
+\begin{labmode}
+Tutorial 4 asks for a CRM proposal for Luna Electronics. The Odoo exercise gives you a working example of pipeline, ownership, expected revenue, stages, and conversion to quotation. Use that hands-on experience when explaining what CRM features actually do.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Create the customer.}
+
+Create \textbf{Seri Iskandar Cycling Club} as a company contact with the location and contact details from the supplied guide.
+
+\medskip\noindent\textbf{Part B --- Create the opportunity.}
+
+Open \odooapp{CRM} and create:
+\begin{itemize}
+  \item Opportunity: Road Bike Order -- Seri Iskandar Cycling Club;
+  \item Customer: Seri Iskandar Cycling Club;
+  \item Expected Revenue: RM 5,000;
+  \item Salesperson: Sales Manager.
+\end{itemize}
+
+Explain why RM 5,000 is an expected amount rather than confirmed sales revenue at this stage.
+
+\medskip\noindent\textbf{Part C --- Move the deal through the pipeline.}
+
+Move the opportunity from New to Qualified and then to Proposition as appropriate. Add an internal note such as ``Customer requested 5 Road Bikes.'' After the sales order is later confirmed, mark the opportunity Won.
+
+\medskip\noindent\textbf{Part D --- Create the quotation from the opportunity.}
+
+Use the opportunity's quotation action. Confirm the customer and salesperson, add 5 Road Bikes, and check RM 1,000 unit price. Save the quotation but do not rush past the CRM meaning: the customer, owner, expected revenue, and sales document are now linked.
+
+\medskip\noindent\textbf{Part E --- Use the experience in the Luna Electronics proposal.}
+
+For each proposal section, connect the claim to a CRM mechanism you saw:
+\begin{itemize}
+  \item customer acquisition: leads/opportunities and pipeline;
+  \item retention: shared interaction history and follow-up;
+  \item service: a common customer record and visible prior interactions;
+  \item sales productivity: ownership, stages, expected revenue, and conversion to quotation;
+  \item management visibility: pipeline and reporting views.
+\end{itemize}
+
+\begin{pitfall}
+Do not present expected revenue as money already earned. Pipeline value is a forecast of potential business and depends on stage quality, probability assumptions, and user discipline.
+\end{pitfall}
+\end{labproject}
+
+\begin{labdeliverable}
+Prepare the 10-slide CRM proposal structure required by Tutorial 4. Include Odoo screenshots of the opportunity/pipeline and quotation as practical evidence of CRM features. The proposal still needs one real-company case study and should explain outcomes, not merely list software functions.
+\end{labdeliverable}

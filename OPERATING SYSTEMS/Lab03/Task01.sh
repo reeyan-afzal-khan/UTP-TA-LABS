@@ -1,18 +1,30 @@
 #!/bin/bash
-#STEP 1: Start the program. 
-#STEP 2: Read the value of n.
-#STEP 3: Calculate, r=$((n % 2))
-#STEP 4: If the value of r equals 0 then print the number is even
-#STEP 5: If the value of r not equal to 0 then print the number is odd.
+# Lab 3, Task 1 --- Decide whether a number is even or odd.
+#
+# STEP 1: Read a number from the user.
+# STEP 2: Reject anything that is not an integer.
+# STEP 3: Compute the remainder r = n mod 2.
+# STEP 4: r == 0 means even, otherwise odd.
+#
+# Run: bash Task01.sh
 
-echo -n "Enter the Number: " 
-read n
+set -u  # abort on an unset variable rather than silently using ""
 
-r=$((n % 2))
+read -r -p "Enter the number: " n
 
-if [ $r -eq 0 ]
-then
-    echo "$n is an Even number"
+# Validate before doing arithmetic. Without this, a word like "abc" makes
+# $(( )) evaluate it as 0 and the script confidently reports "even".
+# The pattern allows an optional sign followed by one or more digits.
+if ! [[ "$n" =~ ^[+-]?[0-9]+$ ]]; then
+    echo "Error: '$n' is not an integer." >&2
+    exit 1
+fi
+
+r=$(( n % 2 ))
+
+# Always quote "$n" so a value containing spaces stays a single word.
+if [ "$r" -eq 0 ]; then
+    echo "$n is an even number"
 else
-    echo "$n is an Odd number"
+    echo "$n is an odd number"
 fi

@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%% 🎯 Function with roots at -2 and 3
+%% * Function with roots at -2 and 3
 fitnessFunc = @(x) (x - 3).^2 .* (x + 2).^2;
 
 popSize = 30;
@@ -45,9 +45,31 @@ for gen = 1:maxGen
     bestFitness(gen) = min(fitnessFunc(pop));
 end
 
-%% 📈 Plot
+%% * Plot
 figure;
 plot(1:maxGen, bestFitness, 'k-', 'LineWidth', 2);
 xlabel('Generation'); ylabel('Best f(x)');
 title('GA: Find Minimum of (x-3)^2(x+2)^2');
 grid on;
+
+%% ---------- Report the solution ----------
+finalObj = fitnessFunc(pop);                 % the ORIGINAL objective
+[bestVal, bestIdx] = min(finalObj);
+bestX = pop(bestIdx);
+
+fprintf('\n=== Result: minimise (x-3)^2 (x+2)^2 ===\n');
+fprintf('  best x         : %.6f\n', bestX);
+fprintf('  f(x)           : %.6e\n', bestVal);
+
+% Part D of the lab asks which root the run converged to. Answer it here
+% rather than leaving the student to eyeball a plot.
+if abs(bestX - 3) < abs(bestX + 2)
+    fprintf('  converged nearer to root :  3\n');
+else
+    fprintf('  converged nearer to root : -2\n');
+end
+
+nearThree = sum(abs(pop - 3) < abs(pop + 2));
+fprintf('  population split : %d near 3, %d near -2\n', nearThree, popSize - nearThree);
+fprintf('\nBoth roots are global minima with f = 0. Which one a run finds\n');
+fprintf('depends entirely on random initialisation -- rerun and compare.\n');

@@ -1,0 +1,23 @@
+\labsection{10}{File records and indexed allocation}{sec:lab10}
+\begin{labproject}{Store application records and simulate indexed file allocation}
+\textbf{Coverage.} Chapter 10.\\
+\textbf{Source files.} Three C programs in \texttt{Lab10}.\\
+\textbf{Goal.} Separate application-level record format from file-system-level block allocation.
+
+\medskip\noindent\textbf{Task A --- Binary student records.}\par
+Write structures with \texttt{fwrite()}, rewind the stream for display/search, and use \texttt{fread()} until it returns fewer than one complete record.
+
+\medskip\noindent\textbf{Task B --- Text employee records.}\par
+Write with \texttt{fprintf()} and parse with \texttt{fscanf()}. Compare readability and portability with raw structure bytes.
+
+\medskip\noindent\textbf{Task C --- Indexed allocation simulation.}\par
+Model an index block pointing to several allocated data blocks. Validate that all requested blocks are free before committing the allocation.
+
+\begin{debugtask}
+Improve the indexed-allocation program so a failed request does not leak the newly marked index block. Implement a two-phase pattern: validate every block first, then mark all blocks allocated only if validation succeeds.
+\end{debugtask}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit binary/text record examples, a search demonstration, and an indexed-allocation trace that includes at least one rejected overlapping request and one successful allocation.
+\end{labdeliverable}

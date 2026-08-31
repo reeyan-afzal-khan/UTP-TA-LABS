@@ -1,0 +1,63 @@
+! ============================================================
+! Lab 8 --- SW1 VLAN configuration
+!
+! VLANs must be created on BOTH switches. Creating them on one
+! and trunking to the other does not propagate them here.
+! ============================================================
+
+system-view
+sysname SW1
+
+vlan batch 10 20 30 999
+
+! ---------- Access ports ----------
+! An access port carries exactly one VLAN. Incoming untagged frames get
+! the port's PVID; outgoing frames have the tag removed.
+interface GigabitEthernet 0/0/1
+ port link-type access
+ port default vlan 10
+quit
+
+interface GigabitEthernet 0/0/2
+ port link-type access
+ port default vlan 20
+quit
+
+interface GigabitEthernet 0/0/3
+ port link-type access
+ port default vlan 30
+quit
+
+! ---------- Trunk to SW2 ----------
+interface Eth-Trunk 1
+ port link-type trunk
+ ! Native VLAN set EXPLICITLY, to an unused VLAN carrying no user data.
+ !
+ ! A trunk sends one VLAN untagged: the native VLAN (the port's PVID),
+ ! default VLAN 1. If the two ends disagree about it, traffic leaks
+ ! silently between VLANs with no error message anywhere.
+ port trunk pvid vlan 999
+ ! NOTE: on some VRP versions allow-pass REPLACES the list rather than
+ ! extending it. Always confirm with  display port vlan.
+ ! VLAN 1 is allowed by default -- a common audit finding.
+ port trunk allow-pass vlan 10 20 30
+quit
+
+! ---------- Hybrid port ----------
+! Decides tagging PER VLAN, which is what lets one cable serve an
+! untagged PC on VLAN 10 and a tagged phone on VLAN 20.
+interface GigabitEthernet 0/0/5
+ port link-type hybrid
+ port hybrid pvid vlan 10
+ port hybrid untagged vlan 10
+ port hybrid tagged vlan 20
+quit
+
+quit
+save
+
+! ---------- Verify ----------
+! display vlan
+! display port vlan
+! display vlan 10 verbose
+! display mac-address vlan 10

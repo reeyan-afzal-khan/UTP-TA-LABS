@@ -1,0 +1,165 @@
+\labsection{9}{WAN links: HDLC, PPP, and authentication}{sec:lab09-wan}
+
+\begin{labproject}{Connect two sites over serial, then make each end prove who it is}
+\textbf{Coverage.} Chapter~\ref{ch:wan}.\\
+\textbf{Materials.} \texttt{Lab09/hq.txt}, \texttt{Lab09/branch.txt}, \texttt{Lab09/chap\_setup.md}.\\
+\textbf{Goal.} Configure serial encapsulation, switch from HDLC to PPP, and compare PAP with CHAP by capturing both.
+
+\medskip\noindent\textbf{Part A --- Serial links are not Ethernet.}\par
+Two differences matter immediately.
+
+There is no MAC addressing and no ARP --- a serial link is point-to-point, so there is only one possible recipient. And one end must supply clocking.
+
+\begin{keyidea}
+On a serial link, one end is \term{DCE} and provides the clock; the other is \term{DTE} and follows it. In eNSP the DCE end is determined by which side you attached the cable from, and it is not obvious by inspection.
+
+Find it before troubleshooting anything else:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display interface Serial 0/0/0
+\end{lstlisting}
+
+No clock rate on the DCE end means the line stays down no matter how correct the IP configuration is.
+\end{keyidea}
+
+\begin{lstlisting}[style=dcnterminal]
+interface Serial 0/0/0
+ ip address 10.0.0.1 30
+ clock rate 64000            # DCE end only
+ undo shutdown
+quit
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- HDLC.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+interface Serial 0/0/0
+ link-protocol hdlc
+quit
+\end{lstlisting}
+
+\begin{pitfall}
+Both ends must run the same encapsulation. HDLC on one end and PPP on the other gives Physical \cmd{up}, Protocol \cmd{down} --- the exact pattern from Lab~\ref{sec:lab02-ensp}, and the reason that lab insisted you learn to read those two columns separately.
+
+Note also that HDLC is vendor-specific in practice. Huawei's and Cisco's implementations do not interoperate, which is one reason PPP is the safer default between equipment from different vendors.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Run OSPF across the WAN.}\par
+Bring up OSPF over the serial links using Lab~\ref{sec:lab04-ospf}'s configuration, and then look at the cost:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ip routing-table protocol ospf
+\end{lstlisting}
+
+The serial path carries a far higher cost than any Ethernet path, because Huawei derives cost from bandwidth. If a parallel Ethernet route exists, OSPF will prefer it automatically --- which is usually correct, and occasionally not what you intended.
+
+\medskip\noindent\textbf{Part D --- Switch to PPP.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+interface Serial 0/0/0
+ link-protocol ppp
+quit
+\end{lstlisting}
+
+VRP asks for confirmation because changing encapsulation drops the link. Change both ends.
+
+\begin{keyidea}
+PPP brings up a link in two phases, and knowing which phase failed halves your troubleshooting.
+
+\textbf{LCP} negotiates the link itself: MTU, magic numbers, and whether authentication is required.\\
+\textbf{NCP} then negotiates each network-layer protocol, IPCP for IPv4.
+
+Authentication sits between them. So a link that completes LCP and never reaches NCP is almost always failing authentication, not addressing.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part E --- PAP.}\par
+On the authenticating side:
+
+\begin{lstlisting}[style=dcnterminal]
+aaa
+ local-user branch password cipher Branch@123
+ local-user branch service-type ppp
+quit
+
+interface Serial 0/0/0
+ ppp authentication-mode pap
+quit
+\end{lstlisting}
+
+On the side being authenticated:
+
+\begin{lstlisting}[style=dcnterminal]
+interface Serial 0/0/0
+ ppp pap local-user branch password cipher Branch@123
+quit
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part F --- CHAP, and why it is better.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+interface Serial 0/0/0
+ ppp authentication-mode chap
+quit
+
+# far end
+interface Serial 0/0/0
+ ppp chap user branch
+ ppp chap password cipher Branch@123
+quit
+\end{lstlisting}
+
+\begin{keyidea}
+PAP sends the password across the link in plaintext, once, at setup. Anyone capturing the link has the credential.
+
+CHAP never sends the password. The authenticator sends a random challenge; the peer replies with a hash of the challenge combined with the secret. The authenticator computes the same hash and compares. A captured exchange yields nothing reusable, because the next challenge differs.
+
+CHAP also re-challenges periodically during the session, so a link cannot be hijacked after setup.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part G --- Prove the difference.}\par
+Capture both. With PAP the password is readable in the capture; with CHAP you see only a challenge and a hash.
+
+\begin{commandmap}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.40\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Command} & \bfseries Shows \\
+\midrule
+display interface Serial 0/0/0 & Encapsulation, clock, LCP state, DCE/DTE \\
+display ppp all & PPP state per interface \\
+debugging ppp all & Live negotiation --- use sparingly \\
+display ip interface brief & Whether the link came up at all \\
+\bottomrule
+\end{tabularx}
+\end{commandmap}
+
+\begin{troubleshoot}
+\textbf{Physical down.} Cable not connected in eNSP, or the device is not started.
+
+\textbf{Physical up, protocol down.} Encapsulation mismatch, missing clock rate on the DCE end, or failed authentication. Check in that order.
+
+\textbf{LCP completes, IPCP never does.} Authentication is failing. The username must match the \cmd{local-user} exactly, and the password on both sides.
+
+\textbf{Works with PAP, fails with CHAP.} CHAP matches on the hostname by default. Confirm the \cmd{ppp chap user} matches the configured \cmd{local-user}.
+\end{troubleshoot}
+
+\begin{tryit}
+Deliberately misconfigure the CHAP password on one end and capture the exchange. How many messages appear before the link gives up, and does the failure say anything useful?
+
+Then relate the answer to Lab~\ref{sec:lab05-ftp}: both labs show a credential crossing a link. Explain which design is safer and why, in two sentences.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item DCE end identified from \cmd{display interface}, with the clock rate set there.
+  \item Both HDLC and PPP configured, each with its own captured output.
+  \item Both PAP and CHAP demonstrated with matching credentials.
+  \item Captures show the PAP password in plaintext and the CHAP challenge-response.
+  \item OSPF adjacency reaches Full across the serial link.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit configurations for both routers in each encapsulation, \cmd{display interface Serial} output showing the DCE end and protocol state, packet captures of both PAP and CHAP with the security difference annotated, and the OSPF routing table showing the serial link's cost relative to Ethernet.
+\end{labdeliverable}

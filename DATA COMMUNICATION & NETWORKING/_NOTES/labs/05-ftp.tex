@@ -1,0 +1,145 @@
+\labsection{5}{FTP: a service on top of a working network}{sec:lab05-ftp}
+
+\begin{labproject}{Turn a router into a file server, in the right order}
+\textbf{Coverage.} Chapter~\ref{ch:ftp}.\\
+\textbf{Materials.} \texttt{Lab05/ftp\_server.txt}, \texttt{Lab05/session\_transcript.md}.\\
+\textbf{Goal.} Configure an FTP server and client, and internalise the habit of proving each layer before building on it.
+
+\begin{labmode}
+This lab is short, and its real lesson is diagnostic order. Every step below verifies the layer beneath it before adding anything. Skip a verification and a later failure becomes ambiguous --- you will not know whether the problem is routing, authentication, or the file system.
+\end{labmode}
+
+\medskip\noindent\textbf{Step 1 --- Prove IP connectivity first.}\par
+Before touching FTP, ping the server from the client.
+
+\begin{keyidea}
+FTP is an application-layer service riding on TCP, riding on IP. If IP does not work, FTP cannot, and every FTP symptom you see will be misleading.
+
+Ping first. Always. It costs five seconds and eliminates three layers of possible causes.
+\end{keyidea}
+
+\medskip\noindent\textbf{Step 2 --- Enable the server and set its directory.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+ftp server enable
+\end{lstlisting}
+
+Confirm the file system has something to serve:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> dir flash:
+\end{lstlisting}
+
+\medskip\noindent\textbf{Step 3 --- Authorise a user.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+aaa
+ local-user ftpuser password cipher Huawei@123
+ local-user ftpuser privilege level 15
+ local-user ftpuser service-type ftp
+ local-user ftpuser ftp-directory flash:
+quit
+\end{lstlisting}
+
+\begin{pitfall}
+All four \cmd{local-user} lines are required, and omitting any one produces a different, confusing failure:
+
+No \cmd{service-type ftp} --- login is refused even with the correct password.\\
+No \cmd{ftp-directory} --- login succeeds, then \cmd{dir} returns nothing or errors.\\
+Insufficient \cmd{privilege level} --- read works, upload is denied.\\
+Wrong password --- the only failure that says what it means.
+
+If login behaves oddly, re-read this block before suspecting the network.
+\end{pitfall}
+
+\medskip\noindent\textbf{Step 4 --- Verify the server is listening.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ftp-server
+\end{lstlisting}
+
+\medskip\noindent\textbf{Step 5 --- Connect from the client.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+<R2> ftp 192.168.1.1
+Trying 192.168.1.1 ...
+Press CTRL+K to abort
+Connected to 192.168.1.1.
+220 FTP service ready.
+User(192.168.1.1:(none)):ftpuser
+331 Password required for ftpuser.
+Enter password:
+230 User logged in.
+[R2-ftp]
+\end{lstlisting}
+
+The numeric codes are the protocol telling you where you are. Learn the four that matter:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\bfseries}p{0.10\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Code} & \bfseries Meaning \\
+\midrule
+220 & Server ready --- TCP reached the FTP service \\
+331 & Username accepted, password required \\
+230 & Authenticated \\
+530 & Login failed --- credentials or \cmd{service-type} \\
+550 & Action not taken --- permissions or missing file \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Reaching \cmd{220} means IP, TCP, and the FTP service are all working. A failure after 220 is authentication or file permissions --- never routing.
+
+That single observation splits your troubleshooting in half.
+\end{keyidea}
+
+\medskip\noindent\textbf{Step 6 --- Transfer in both directions.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+[R2-ftp] dir
+[R2-ftp] binary
+[R2-ftp] get vrpcfg.zip
+[R2-ftp] put test.txt
+[R2-ftp] quit
+\end{lstlisting}
+
+\begin{pitfall}
+Set \cmd{binary} before transferring anything that is not plain text.
+
+ASCII mode rewrites line endings, which silently corrupts compressed files, images, and firmware. The transfer reports success and the file is unusable --- one of the more frustrating faults to diagnose, because nothing announces it.
+\end{pitfall}
+
+\begin{troubleshoot}
+\textbf{Connection refused.} \cmd{ftp server enable} not applied, or you are pinging a different interface than the one you connected to.
+
+\textbf{530 login failed.} Missing \cmd{service-type ftp}, or the password was entered in plaintext where cipher was configured.
+
+\textbf{Logged in but \cmd{dir} is empty.} \cmd{ftp-directory} not set, or set to a path that does not exist.
+
+\textbf{\cmd{put} returns 550.} Privilege level too low, or the flash file system is full. Check with \cmd{dir flash:}.
+\end{troubleshoot}
+
+\begin{tryit}
+Capture the session in Wireshark using the skills from Lab~\ref{sec:lab01-wireshark}, filtered with \cmd{ftp}.
+
+Find your password in the capture. It is there in plaintext, because FTP does not encrypt the control channel. Then state in one sentence why FTP should not cross an untrusted network, and name the protocol you would use instead.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item Ping succeeded before any FTP configuration was attempted.
+  \item \cmd{display ftp-server} confirms the service is enabled.
+  \item Session transcript includes the 220, 331, and 230 codes.
+  \item Both \cmd{get} and \cmd{put} demonstrated, with \cmd{binary} set.
+  \item Wireshark capture shows the credentials in plaintext.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit the server configuration, \cmd{display ftp-server} output, a full session transcript with response codes, evidence of a successful transfer in each direction, and the Wireshark screenshot showing the plaintext password with a one-paragraph security comment.
+\end{labdeliverable}

@@ -1,0 +1,52 @@
+! ============================================================
+! Lab 7 --- Eth-Trunk in MANUAL mode
+!
+! Configure this first, observe it, then rebuild in LACP mode
+! and compare. Manual mode is the "before" half of the lesson.
+! ============================================================
+
+system-view
+sysname SW1
+
+interface Eth-Trunk 1
+ mode manual load-balance
+quit
+
+! Member ports must be cleared of per-interface configuration first,
+! and must match in speed and duplex.
+interface GigabitEthernet 0/0/1
+ eth-trunk 1
+quit
+interface GigabitEthernet 0/0/2
+ eth-trunk 1
+quit
+interface GigabitEthernet 0/0/3
+ eth-trunk 1
+quit
+
+quit
+save
+
+! ---------- Verify ----------
+! display eth-trunk 1
+! display interface eth-trunk 1
+
+! ---------- WHY MANUAL MODE IS DANGEROUS ----------
+! Manual mode forwards on every member port unconditionally. It never
+! checks that the far end agrees.
+!
+! Miscable one member -- into the wrong switch, or the wrong port -- and
+! manual mode forwards over it anyway. The result is a forwarding loop
+! that spanning tree CANNOT SEE, because the trunk hides its members
+! from STP.
+!
+! That is a broadcast storm, and it takes the segment down.
+! It is the single best argument for LACP.
+
+! ---------- Load balancing is per-flow, not per-packet ----------
+! The switch hashes header fields, so every frame in one conversation
+! lands on the same link. A single large transfer uses ONE link.
+! Aggregation raises aggregate capacity, not single-flow speed.
+!
+! MAC-based hashing is useless behind a router -- every frame carries
+! the same router MAC, so everything lands on one member.

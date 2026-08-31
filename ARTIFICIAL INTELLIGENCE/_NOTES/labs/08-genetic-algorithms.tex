@@ -1,0 +1,67 @@
+\labsection{8}{Genetic Algorithm optimization}{sec:lab08-ga}
+
+\begin{labproject}{Five GA formulations in MATLAB}
+\textbf{Coverage.} Chapter~\ref{ch:ga} --- five GA formulations.\\
+\textbf{Goal.} Keep the GA loop recognizable while changing chromosome representation and fitness definition to match each problem.
+
+\begin{labmode}
+Run the five baseline loops first; stochastic initialization and operators may produce different results. Each revised script reports the best final chromosome in problem-specific terms, not only a convergence curve.
+\end{labmode}
+
+\begin{pitfall}
+Without elitism, later variation can remove the best chromosome. Distinguish the best fitness \emph{seen} from the best individual that \emph{survives} in the final population.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part A --- Continuous one- and two-variable objectives.}\par
+Run Code 1 and Code 2. Plot best fitness versus generation and record the best chromosome found at the end of the run.
+
+\medskip\noindent\textbf{Part B --- Linear regression.}\par
+Run Code 3 and report the best discovered slope/intercept together with the final MSE. Compare the values qualitatively with the data-generating parameters \([2.5,5]\).
+
+\medskip\noindent\textbf{Part C --- Binary knapsack.}\par
+Run Code 4. Decode the best chromosome into selected items, total weight, and total value. Confirm that the capacity constraint is satisfied.
+
+Because only $2^4=16$ selections exist, compare the GA result with the brute-force optimum.
+
+\begin{keyidea}
+An over-capacity chromosome receives fitness 0: a \term{penalty}, not a repair. Repairing or rejecting it would produce different search behavior.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part D --- Polynomial roots.}\par
+Run Code 5 and report whether the final population converges nearer to \(-2\) or 3 in that run. Repeat with a different random seed and compare.
+
+\begin{tryit}
+Add elitism to one code by copying the current best chromosome unchanged into the offspring. Compare the original and elitist traces and final solutions.
+\end{tryit}
+
+\begin{troubleshoot}
+\textbf{Minimization.} Roulette selection requires larger scores for better candidates. Codes 2 and 5 transform the objective during selection:
+
+\begin{itemize}
+  \item Code 2 keeps the raw Rosenbrock value, then selects on \texttt{invFitness = 1 ./ (fitness + 1e-6)}, so a smaller objective gives a larger share of the wheel.
+  \item Code 5 negates the objective, then shifts with \texttt{prob = fitness - min(fitness) + eps} so the worst individual sits at zero probability rather than a negative one.
+\end{itemize}
+
+Both transformations assign larger selection scores to better candidates.
+
+\textbf{Run-to-run variation.} GAs are stochastic; report results across several runs.
+
+\textbf{Different roots in Code 5.} Both $-2$ and $3$ are global minima with $f=0$.
+
+\textbf{Suboptimal knapsack result.} Increase population or generations, or add elitism.
+\end{troubleshoot}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Each script reports its decoded solution and convergence plot.
+  \item The knapsack chromosome is decoded into items, weight, and value, and the capacity constraint is checked.
+  \item Code 3's parameters are compared with $[2.5,5]$.
+  \item Code 5 is run more than once, with the root reported for each run.
+  \item Differences between peak and final fitness are explained.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit one MATLAB live script containing all five GA problems, five convergence plots, the final decoded solution for each problem, and a comparison table listing chromosome type, fitness direction, crossover type, and mutation type.
+\end{labdeliverable}

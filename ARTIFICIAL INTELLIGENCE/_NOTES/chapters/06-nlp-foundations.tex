@@ -1,0 +1,262 @@
+\chapter{Natural Language Processing Foundations}
+\label{ch:nlp-foundations}
+
+\chapterguide%
+  {Be able to run MATLAB and read simple vector, image, and text-processing code.}
+  {explain the purpose and significance of natural language processing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build an optical character recognition pipeline with dictionary-based translation.}
+
+\term{Natural Language Processing (NLP)} applies linguistics, computer science, and machine learning to analyze or generate text and speech.
+
+\section{Why NLP is needed}
+
+NLP converts unstructured language into representations suitable for interaction, automation, and information extraction.
+
+Applications include:
+\begin{itemize}
+  \item healthcare: analyzing patient notes and assisting diagnosis;
+  \item business: chatbots, sentiment analysis, and automated email sorting;
+  \item education: grammar correction and automated essay scoring;
+  \item law: legal-document summarization and contract analysis;
+  \item robotics: verbal commands and real-time interaction.
+\end{itemize}
+
+\begin{keyidea}
+Each example follows a pipeline: input, representation, and task-specific output.
+\end{keyidea}
+
+\section{Text similarity with word embeddings}
+
+The first MATLAB example compares
+\begin{quote}
+``The quick brown fox jumps over the lazy dog.''
+\end{quote}
+with
+\begin{quote}
+``A fast brown animal leaps above a sleeping dog.''
+\end{quote}
+using pretrained FastText word embeddings.
+
+The pipeline has five stages.
+
+\begin{mlsteps}
+  \item Tokenize both sentences.
+  \item Load pretrained FastText embeddings.
+  \item Remove words not available in the embedding vocabulary.
+  \item Convert each word to a vector and average the word vectors for each sentence.
+  \item Compute cosine similarity between the two sentence vectors.
+\end{mlsteps}
+
+\begin{lstlisting}[style=mlmatlab]
+clear; clc;
+
+text1 = "The quick brown fox jumps over the lazy dog.";
+text2 = "A fast brown animal leaps above a sleeping dog.";
+
+documents = tokenizedDocument([text1, text2]);
+emb = fastTextWordEmbedding;
+
+words1 = string(documents(1).Vocabulary);
+words2 = string(documents(2).Vocabulary);
+words1 = words1(isVocabularyWord(emb, words1));
+words2 = words2(isVocabularyWord(emb, words2));
+
+if isempty(words1) || isempty(words2)
+    error("A sentence has no words in the embedding vocabulary.");
+end
+
+vecs1 = word2vec(emb, words1);
+vecs2 = word2vec(emb, words2);
+vec1 = mean(vecs1, 1);
+vec2 = mean(vecs2, 1);
+
+similarity = dot(vec1, vec2) / (norm(vec1) * norm(vec2));
+fprintf("Cosine Similarity between the two texts: %.4f\n", similarity);
+\end{lstlisting}
+
+The \texttt{Vocabulary} property contains unique word types, so repeated words do not receive extra weight in this version. A token-level sentence representation would preserve repetition. This distinction matters when word frequency carries meaning.
+
+\section{Cosine similarity}
+
+For sentence vectors \(\mathbf{u}\) and \(\mathbf{v}\), the code computes
+\[
+\cos(\theta)=\frac{\mathbf{u}\cdot\mathbf{v}}
+{\|\mathbf{u}\|\,\|\mathbf{v}\|}.
+\]
+A value near 1 indicates high directional similarity.
+
+\begin{intuition}
+A word embedding replaces a word with a numerical vector. Averaging the word vectors gives one rough vector for a sentence. Cosine similarity then asks whether the two sentence vectors point in similar directions.
+\end{intuition}
+
+\begin{mlfigure}
+\begin{tikzpicture}[x=1.2cm,y=1.2cm]
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.15,0)--(4.2,0) node[right,font=\scriptsize] {dimension 1};
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.15)--(0,2.7) node[above,font=\scriptsize] {dimension 2};
+  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLBlue] (0,0)--(3.4,1.15)
+    node[right,font=\small\bfseries\color{MLBlue}] {$\mathbf{u}$};
+  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLTeal] (0,0)--(2.8,1.75)
+    node[above right,font=\small\bfseries\color{MLTeal}] {$\mathbf{v}$};
+  \draw[-{Stealth[length=1.5mm]},draw=MLOrange,thick]
+    (0.92,0.31) arc[start angle=18.7,end angle=32,radius=0.97];
+  \node[font=\scriptsize\bfseries\color{MLOrange!85!black}] at (1.15,0.55) {$\theta$};
+  \node[align=left,font=\scriptsize\color{MLMuted}] at (3.45,2.35)
+    {small angle $\Rightarrow$\\high cosine similarity};
+\end{tikzpicture}
+\end{mlfigure}
+
+Cosine similarity compares direction, not magnitude. Two sentences can have vectors of different lengths and still be judged similar when the vectors point in nearly the same direction. A vector pointing in the opposite direction has a negative cosine, while perpendicular vectors have cosine zero.
+
+\begin{workedexample}
+For a small numerical check, let \(\mathbf{u}=(1,1)\) and \(\mathbf{v}=(2,1)\). Their dot product is 3, their norms are \(\sqrt{2}\) and \(\sqrt{5}\), and their cosine similarity is
+\[
+\frac{3}{\sqrt{2}\sqrt{5}}=\frac{3}{\sqrt{10}}\approx0.949.
+\]
+The value is high because the vectors point in similar directions; MATLAB applies the same calculation in higher dimensions.
+\end{workedexample}
+
+\section{Image captioning using AlexNet: a classification-based simulation}
+
+The second Lab 6 example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
+
+\begin{lstlisting}[style=mlmatlab]
+clear; clc;
+img = imread('plane.jpg');
+imshow(img);
+title('Input Image');
+
+net = alexnet;
+imgResized = imresize(img, net.Layers(1).InputSize(1:2));
+
+featureLayer = 'fc7';
+features = activations(net, imgResized, featureLayer, ...
+    'OutputAs', 'rows');
+
+[label, scores] = classify(net, imgResized);
+disp(['Predicted Object: ', char(label)]);
+
+caption = "This is a picture of a " + lower(char(label)) + ".";
+disp("Generated Caption:");
+disp(caption);
+\end{lstlisting}
+
+The \texttt{features} variable demonstrates how an intermediate neural representation can be extracted, but the fixed-template caption does not use it directly. The \texttt{classify} call produces the label inserted into the caption.
+
+\begin{pitfall}
+This is classification with a fixed caption template, not free-form image captioning.
+\end{pitfall}
+
+\section{Scene text detection and translation}
+
+The third Lab 6 pipeline uses optical character recognition (OCR) to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet application programming interface (API).
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.45cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+]
+\node[b] (img) {Scene image};
+\node[b,right=0.30cm of img] (ocr) {OCR\\\scriptsize detected text};
+\node[b,right=0.30cm of ocr] (norm) {Normalize\\\scriptsize uppercase / trim};
+\node[b,right=0.30cm of norm] (dict) {Dictionary lookup};
+\node[b,right=0.30cm of dict] (out) {Translated text};
+\draw[arr] (img)--(ocr); \draw[arr] (ocr)--(norm); \draw[arr] (norm)--(dict); \draw[arr] (dict)--(out);
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{lstlisting}[style=mlmatlab]
+img = imread('street.jpg');
+imshow(img);
+title("Scene Text Image");
+
+ocrResult = ocr(img);
+detectedText = upper(strtrim(ocrResult.Text));
+disp("Detected Text:");
+disp(detectedText);
+
+dictionary = containers.Map;
+dictionary("STOP") = "ARRET";
+dictionary("SPEED LIMIT") = "LIMITATION DE VITESSE";
+dictionary("YIELD") = "CEDEZ LE PASSAGE";
+dictionary("NO PARKING") = "STATIONNEMENT INTERDIT";
+dictionary("ONE WAY") = "SENS UNIQUE";
+dictionary("DO NOT ENTER") = "ENTREE INTERDITE";
+dictionary("STREET") = "RUE";
+
+% Try longer phrases first so that a specific phrase wins.
+sourcePhrases = string(keys(dictionary));
+[~, order] = sort(strlength(sourcePhrases), 'descend');
+sourcePhrases = sourcePhrases(order);
+translatedText = "";
+
+for i = 1:numel(sourcePhrases)
+    phrase = char(sourcePhrases(i));
+    if contains(detectedText, string(phrase))
+        translatedText = string(dictionary(phrase));
+        break;
+    end
+end
+
+if translatedText == ""
+    translatedText = "No dictionary translation found";
+end
+disp("French translation:");
+disp(translatedText);
+\end{lstlisting}
+
+The \texttt{contains} check tolerates surrounding OCR text, but translation remains limited to stored dictionary phrases.
+
+\begin{workedexample}
+\texttt{"STOP\textbackslash nAHEAD"} still matches \texttt{STOP} and returns \texttt{ARRET}; \texttt{S70P} requires partial matching or a clearer image.
+\end{workedexample}
+
+\section{Extensions in the OCR examples}
+
+Lab 6 gives three additional variations.
+
+\begin{description}
+  \item[Multi-language dictionary] A STOP sign is mapped independently to French and German dictionaries.
+  \item[Fuzzy keyword matching] Partial keywords such as \texttt{PARK} or \texttt{SPEED} trigger translations even when the OCR text is not an exact dictionary key.
+  \item[Region-of-interest (ROI) selection] The user draws a rectangle around the relevant image region before OCR, reducing the text-recognition area.
+\end{description}
+
+\begin{lstlisting}[style=mlmatlab]
+img = imread('stop.jpg');
+imshow(img); title("Select Region for OCR");
+roi = drawrectangle;
+pause(1);
+ocrRes = ocr(img, roi.Position);
+text = upper(strtrim(ocrRes.Text));
+disp("Detected Text: " + text);
+\end{lstlisting}
+
+\input{labs/06-nlp-part-a}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What role do pretrained FastText vectors play in the similarity example?
+  \item Why are the word vectors averaged before cosine similarity is computed?
+  \item What produces the caption text in the AlexNet example?
+  \item What is the difference between OCR and the dictionary translation step?
+  \item Why can selecting a region of interest change the OCR result?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item FastText maps recognized tokens to semantic vectors learned from a large text corpus.
+  \item Averaging creates one fixed-length sentence representation from a variable number of word vectors.
+  \item A fixed sentence template inserts AlexNet's predicted class label.
+  \item OCR recognizes characters in pixels; the dictionary maps recognized phrases to stored translations.
+  \item A region of interest removes irrelevant pixels and can make the target text larger and less ambiguous to OCR.
+\end{enumerate}
+\end{checkanswers}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item NLP connects human-language data with computer representations and tasks.
+  \item Lab 6 uses pretrained embeddings and cosine similarity for semantic comparison.
+  \item The AlexNet example classifies an image and converts the class label into a simple caption template.
+  \item OCR extracts printed text from images; a local dictionary then simulates translation.
+  \item Dictionary design and ROI selection affect recognition and translation quality.
+\end{itemize}
+\end{chapterrecap}

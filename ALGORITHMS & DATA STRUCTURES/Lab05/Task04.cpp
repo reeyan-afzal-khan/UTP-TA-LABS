@@ -1,77 +1,108 @@
+// Lab 5, Task 4 --- Stack implemented with a linked list.
+//
+// Pushing and popping both happen at the head of the list, which is the
+// cheapest place to insert or remove: no traversal, no shifting.
+// Unlike the array version there is no fixed capacity.
+//
+// Build: g++ -std=c++17 -Wall -Wextra Task04.cpp -o task04
+
 #include <iostream>
 #include <string>
 
 using namespace std;
 
 class Node {
-public: //by default it is private
+public:
     string name;
-    Node* next; //memory address of the next node
-    //own next pointer
-    
-    // a constructor for setting up when new node is created
-    Node(string n) {
-        name = n; //the string will pass here to declare first
-        // where to refer? see upper part, it alr declare it, so default is the value
-        next = nullptr;
-        // so this is the Node* by default 
-    }
+    Node* next;
+
+    explicit Node(const string& n) : name(n), next(nullptr) {}
 };
 
 class Stack {
-public:
-    Node* top; //memory address of the first node
-    //this belongs to linkedlist, store the first node address
-    // head -----> [Aimar | next] -----> [Ahmad | next] -----> [Anjana | nullptr]
-    //visualize it 
+private:
+    Node* top;  // head of the list == top of the stack
 
-    Stack() {
-        top = nullptr;
+public:
+    Stack() : top(nullptr) {}
+
+    ~Stack() {
+        while (top != nullptr) {
+            Node* temp = top;
+            top = top->next;
+            delete temp;
+        }
     }
 
-    void push(string name) {
+    Stack(const Stack&)            = delete;
+    Stack& operator=(const Stack&) = delete;
+
+    bool isEmpty() const { return top == nullptr; }
+
+    void push(const string& name) {
         Node* newNode = new Node(name);
-        newNode->next = top;
-        top = newNode;
+        newNode->next = top;  // the new node points at the old top
+        top = newNode;        // and becomes the new top
     }
 
     void pop() {
-        if (top == nullptr) {
-            cout << "This stack is empty";
+        if (isEmpty()) {
+            cout << "Stack underflow, nothing to pop.\n";
+            // The return is essential, not decoration. Printing the message
+            // and then falling through executes `top = top->next` on a null
+            // pointer, which dereferences address 0 and crashes.
+            return;
         }
+
         Node* temp = top;
         top = top->next;
-        cout << endl;
-        cout << temp->name << " is popped" << endl;
+
+        cout << temp->name << " is popped.\n";  // read before freeing
         delete temp;
     }
 
-    void display() {
-        Node* current = top;
-        if(current == nullptr) {
-            cout << "The stack is empty" << endl;
+    void peek() const {
+        if (isEmpty()) {
+            cout << "Stack is empty, nothing to peek.\n";
             return;
         }
-        while (current != nullptr) {
-            cout << current->name << endl;
-            current = current->next;
+        cout << "Top is " << top->name << ".\n";
+    }
+
+    void display() const {
+        if (isEmpty()) {
+            cout << "Stack is empty.\n";
+            return;
         }
+        cout << "top -> ";
+        for (Node* current = top; current != nullptr; current = current->next) {
+            cout << current->name;
+            if (current->next != nullptr) cout << ", ";
+        }
+        cout << " <- bottom\n";
     }
 };
 
 int main() {
-   Stack s;
+    Stack s;
 
-   s.push("Aimar");
-   s.push("Ahmad");
-   s.push("Anjana");
+    cout << "-- Push three --\n";
+    s.push("Aimar");
+    s.push("Ahmad");
+    s.push("Anjana");
+    s.display();
+    s.peek();
 
-   cout << "Display from top to bottom:" << endl;
-   s.display();
+    cout << "\n-- Pop one --\n";
+    s.pop();
+    s.display();
 
-   s.pop();
-   // print the lastest stack
-   cout << "\nAfter pop:" << endl;
-   s.display();
+    cout << "\n-- Drain completely, then pop once more --\n";
+    while (!s.isEmpty()) {
+        s.pop();
+    }
+    s.display();
+    s.pop();   // previously crashed here; now reports underflow
+
+    return 0;
 }
-

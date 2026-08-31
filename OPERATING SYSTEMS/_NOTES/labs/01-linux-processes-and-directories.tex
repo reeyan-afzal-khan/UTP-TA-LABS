@@ -1,0 +1,88 @@
+\labsection{1}{Directories and process creation}{sec:lab01}
+\begin{labproject}{Explore a directory and create a child process}
+\textbf{Coverage.} Chapters 1--2.\\
+\textbf{Source files.} \texttt{Lab01/Task01.c}, \texttt{Lab01/Task02.c}.\\
+\textbf{Goal.} Observe two fundamental OS abstractions: the directory namespace and process identity.
+
+\begin{labmode}
+Both programs are deliberately tiny. Treat them as instruments rather than as products: run one, read its output, change exactly one thing, and run it again. The value is in connecting a line of C to an effect you can see.
+
+Build either with warnings on. They are worth reading, not silencing:
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra Task01.c -o task01 && ./task01
+\end{lstlisting}
+\end{labmode}
+
+\medskip\noindent\textbf{Task A --- Walking a directory.}\par
+A directory is not a list of files. It is a file that happens to contain name-to-inode mappings, and \texttt{readdir()} is how you step through them.
+
+\begin{lstlisting}[style=osc]
+DIR *dirp = opendir(path);
+if (dirp == NULL) {
+    perror(path);            /* prints the reason, not just "failed" */
+    return EXIT_FAILURE;
+}
+
+struct dirent *entry;
+while ((entry = readdir(dirp)) != NULL) {
+    printf("%s\n", entry->d_name);
+}
+
+closedir(dirp);
+\end{lstlisting}
+
+Three details in that fragment are doing real work.
+
+The extra parentheses around the assignment say ``I meant to assign here.'' Without them the compiler warns, because \texttt{=} inside a condition is far more often a typo for \texttt{==}.
+
+\texttt{perror()} appends the actual reason --- \texttt{No such file or directory}, \texttt{Permission denied} --- which turns a dead end into a diagnosis.
+
+\texttt{closedir()} sits \emph{after} the loop. Putting it inside is the subject of Lab 2, Task B.
+
+\begin{tryit}
+Run it on \texttt{.}, then on \texttt{/etc}, then on a path that does not exist, then on a directory you lack permission to read. Four different outcomes, all handled by the same six lines.
+
+Now answer: why do \texttt{.} and \texttt{..} appear in the listing, and is the order alphabetical? Check by running it twice on a directory you have just added a file to.
+\end{tryit}
+
+\medskip\noindent\textbf{Task B --- Parent and child.}\par
+\texttt{fork()} is the strangest system call you will meet this semester: it is called once and returns twice.
+
+\begin{lstlisting}[style=osc]
+pid_t pid = fork();
+
+if (pid == -1) {
+    perror("fork");                    /* creation failed */
+} else if (pid == 0) {
+    printf("child : pid=%ld\n", (long)getpid());
+} else {
+    printf("parent: pid=%ld, child=%ld\n", (long)getpid(), (long)pid);
+    waitpid(pid, &status, 0);
+}
+\end{lstlisting}
+
+After \texttt{fork()} there are two processes, both sitting on the next line, both holding identical copies of every variable. They are told apart by the return value alone: \texttt{0} in the child, the child's PID in the parent, \texttt{-1} if no child was made.
+
+\begin{pitfall}
+Use \texttt{pid\_t}, not \texttt{int}. The width of a process ID is platform-defined, and \texttt{int} happens to work on Linux today. Cast to \texttt{long} for printing, since there is no portable \texttt{printf} specifier for \texttt{pid\_t}.
+\end{pitfall}
+
+\begin{tryit}
+Comment out the \texttt{waitpid()} call and run the program twenty times in a row:
+\begin{lstlisting}[style=osbash]
+for i in $(seq 20); do ./task02; done
+\end{lstlisting}
+Does the parent line always print first? Put \texttt{waitpid()} back and repeat. You have just observed a race condition and then removed it.
+
+Then try this: put a \texttt{printf()} \emph{before} the \texttt{fork()} without a trailing newline, and run the program with output redirected to a file. Count how many times that line appears. Chapter~\ref{ch:overview} explains why.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit terminal output for both tasks, plus short answers to:
+\begin{enumerate}
+  \item What does \texttt{readdir()} return, and how do you tell end-of-directory from an error?
+  \item What are the three possible return values of \texttt{fork()}, and what does each mean?
+  \item Why can output order vary without \texttt{waitpid()}, and why is that not a bug in your program?
+\end{enumerate}
+\end{labdeliverable}

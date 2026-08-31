@@ -1,0 +1,46 @@
+! ============================================================
+! Lab 6 --- DHCP server: global pool + interface pool
+! ============================================================
+
+system-view
+
+! dhcp enable is REQUIRED globally before any pool works.
+! Forget it and pools configure without complaint, then never respond.
+! This is the most common failure in this lab.
+dhcp enable
+
+! ---------- Global pool ----------
+ip pool LAN1
+ network 192.168.1.0 mask 255.255.255.0
+ gateway-list 192.168.1.1
+ dns-list 8.8.8.8 114.114.114.114
+ ! Exclude anything assigned statically -- including the router itself.
+ ! Without this the pool will hand out an address already in use, giving
+ ! an intermittent duplicate-address fault that is unpleasant to find.
+ excluded-ip-address 192.168.1.2 192.168.1.10
+ lease day 1
+quit
+
+interface GigabitEthernet 0/0/0
+ ip address 192.168.1.1 24
+ dhcp select global
+quit
+
+! ---------- Interface pool ----------
+! Derives its network from the interface address. Use for a single
+! directly attached segment; use a global pool when several interfaces
+! share a definition, or when a relay is involved.
+interface GigabitEthernet 0/0/1
+ ip address 192.168.2.1 24
+ dhcp select interface
+ dhcp server dns-list 8.8.8.8
+ dhcp server excluded-ip-address 192.168.2.2 192.168.2.5
+quit
+
+quit
+save
+
+! ---------- Verify ----------
+! display ip pool
+! display ip pool name LAN1 used
+! display ip interface brief          (on the client)

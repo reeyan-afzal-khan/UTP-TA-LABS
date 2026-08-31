@@ -1,0 +1,49 @@
+! ============================================================
+! Lab 4 --- R1 single-area OSPF
+! Same topology as Lab 3. REMOVE the static routes first.
+! ============================================================
+
+system-view
+
+! ---------- Remove Lab 3 statics ----------
+! Static preference is 60, OSPF internal is 10, so OSPF would win anyway --
+! but leaving statics in place means you cannot tell which mechanism is
+! carrying your traffic.
+undo ip route-static 192.168.3.0 24 10.0.12.2
+undo ip route-static 192.168.3.0 24 10.0.13.3
+
+! ---------- OSPF ----------
+! Set the router ID explicitly. If you do not, VRP derives one from the
+! interface addresses and may pick a different one after a reboot, tearing
+! down every adjacency for no visible reason.
+ospf 1 router-id 1.1.1.1
+ area 0
+  ! Wildcard masks, not subnet masks. 0.0.0.255 == /24, 0.0.0.3 == /30.
+  ! Use  py wildcard_calc.py 10.0.12.0/30  to check.
+  !
+  ! The network statement does not advertise a network -- it selects which
+  ! INTERFACES participate. Any interface whose address falls in the range
+  ! is enabled for OSPF.
+  network 192.168.1.0 0.0.0.255
+  network 10.0.12.0 0.0.0.3
+  network 10.0.13.0 0.0.0.3
+ quit
+quit
+save
+
+! ---------- Verify ----------
+! display ospf peer brief
+!   State must read Full. Anything else is a diagnosis:
+!     Init      hellos sent, not acknowledged -- one-way connectivity
+!     2-Way     neighbours see each other (normal for non-DR on broadcast)
+!     ExStart   stuck here = MTU mismatch
+!     Exchange  stuck here = MTU mismatch
+!     Full      databases synchronised
+!
+! display ip routing-table protocol ospf
+!   Note the Cost column -- Huawei derives it from interface bandwidth,
+!   so a gigabit path beats a serial one without you saying so.
+!
+! Failover test: shut the primary link and count lost pings.
+! Compare against your Lab 3 figure. OSPF's default dead interval is 40s,
+! so recovery is slower -- but it needed no backup route from you.

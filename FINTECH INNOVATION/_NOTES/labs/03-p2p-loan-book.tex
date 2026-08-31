@@ -1,0 +1,165 @@
+\labsection{3}{P2P loan-book economics and diversification}{sec:lab03-p2p}
+
+\begin{labproject}{Price credit risk, then prove diversification does what the chapter claims}
+\textbf{Coverage.} Chapter~\ref{ch:p2p-crowdfunding}.\\
+\textbf{Source files.} \texttt{Lab03/loan\_book.py}, \texttt{Lab03/loans.csv}.\\
+\textbf{Goal.} Compute the return an investor actually receives on a P2P loan book, and demonstrate numerically why concentration is the risk that ruins retail lenders.
+
+\begin{labmode}
+Chapter~\ref{ch:p2p-crowdfunding} states that diversification mitigates risk on a lending platform. That is true, and it is easy to state without understanding. This lab makes you derive it, which is harder and considerably more convincing.
+
+The loan book is synthetic and seeded. Default behaviour is generated from published grade-level default rates, so the magnitudes are realistic even though the individual loans are not.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Advertised yield is not investor return.}\par
+A platform advertising ``up to 12\%'' is quoting a coupon, not a return. Three things sit between the two:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Deduction & What it is \\
+\midrule
+Expected loss & Probability of default $\times$ loss given default. Some borrowers do not repay. \\
+Platform fee & Servicing charge, typically 1\% of outstanding principal per year. \\
+Cash drag & Repaid capital sits uninvested until it is redeployed. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{lstlisting}[style=mlpython]
+import pandas as pd
+
+loans = pd.read_csv("loans.csv")
+
+by_grade = loans.groupby("grade").agg(
+    n=("loan_id", "count"),
+    coupon=("interest_rate", "mean"),
+    default_rate=("defaulted", "mean"),
+    recovery=("recovery_rate", "mean"),
+).round(4)
+
+# Expected loss = PD x LGD, where LGD = 1 - recovery.
+by_grade["expected_loss"] = by_grade["default_rate"] * (1 - by_grade["recovery"])
+by_grade["net_yield"] = by_grade["coupon"] - by_grade["expected_loss"] - 0.01
+
+print(by_grade)
+\end{lstlisting}
+
+\begin{workedexample}
+In the supplied book, grade D carries a 15.02\% coupon, defaults at 13.46\%, and recovers 20.63\% of principal on the loans that default.
+
+\smallskip
+Loss given default $= 1 - 0.2063 = 0.7937$.\\
+Expected loss $= 0.1346 \times 0.7937 = 0.1068$, so 10.68\%.\\
+Net yield $= 0.1502 - 0.1068 - 0.0100 = 0.0334$, so 3.34\%.
+
+\smallskip
+The advertised 15\% becomes 3.3\% before tax --- and that is the \emph{expected} case, achieved only if the book is large enough for the average to hold. A small investor may receive considerably less, or nothing.
+\end{workedexample}
+
+\begin{pitfall}
+Average recovery over \emph{defaulted} loans only. The data records recovery as 0 for performing loans, so averaging across the whole grade divides by the wrong denominator, understates loss given default, and makes every grade look profitable.
+
+The supplied script filters to \texttt{defaulted == 1} before taking that mean. Check that your own code does the same.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part B --- Where the risk-adjusted optimum sits.}\par
+Run the script and read the \texttt{net\_yield} column across all five grades:
+
+\begin{lstlisting}[style=mlterminal]
+grade     n  coupon  default_rate  recovery  expected_loss  net_yield
+A      1733  0.0551        0.0144    0.2932         0.0102     0.0349
+B      2209  0.0791        0.0385    0.2841         0.0275     0.0416
+C      1931  0.1122        0.0839    0.2505         0.0629     0.0393
+D      1382  0.1502        0.1346    0.2063         0.1068     0.0334
+E       745  0.1959        0.2282    0.1480         0.1944    -0.0085
+\end{lstlisting}
+
+Net yield rises from A to B, then falls steadily --- and grade E, the highest-coupon grade on the platform, \emph{loses money}. An investor who chased the 19.6\% headline rate would have earned $-0.85\%$.
+
+\begin{keyidea}
+The highest-coupon grade is almost never the highest-returning grade. If it were, no lender would choose anything else and the platform would have mispriced its entire book.
+
+Note also that recovery falls as grade worsens, from 29\% on A to 15\% on E. Risk compounds: the loans most likely to default are also the ones that return least when they do. That second effect is what pushes grade E below zero, and it is invisible if you look at default rates alone.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Diversification, demonstrated.}\par
+Simulate an investor deploying a fixed \pounds5{,}000 across $n$ loans, for increasing $n$:
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+
+rng = np.random.default_rng(42)
+CAPITAL, TRIALS = 5000, 10_000
+
+for n in [1, 5, 20, 100, 500]:
+    outcomes = []
+    for _ in range(TRIALS):
+        picks = loans.sample(n, replace=True, random_state=rng.integers(1e9))
+        per_loan = CAPITAL / n
+        # Defaulted loans return only the recovered fraction.
+        returned = np.where(
+            picks["defaulted"],
+            per_loan * picks["recovery_rate"],
+            per_loan * (1 + picks["interest_rate"]),
+        ).sum()
+        outcomes.append(returned / CAPITAL - 1)
+
+    outcomes = np.array(outcomes)
+    print(f"n={n:4d}  mean={outcomes.mean():+.2%}  "
+          f"sd={outcomes.std():.2%}  P(loss)={(outcomes < 0).mean():.1%}")
+\end{lstlisting}
+
+The supplied \texttt{loan\_book.py} produces:
+
+\begin{lstlisting}[style=mlterminal]
+n_loans    mean   std_dev      p05      p95   prob_loss
+      1  0.0347    0.2402  -0.7403   0.1939      0.0767
+      5  0.0315    0.1104  -0.2039   0.1303      0.3358
+     20  0.0333    0.0542  -0.0678   0.1085      0.2319
+    100  0.0325    0.0244  -0.0096   0.0704      0.0982
+    500  0.0324    0.0109   0.0137   0.0499      0.0029
+\end{lstlisting}
+
+The mean barely moves --- it stays near 3.3\% throughout. The standard deviation collapses from 24\% to 1.1\%, and the 5th percentile improves from losing 74\% of capital to \emph{gaining} 1.4\%.
+
+\begin{pitfall}
+Look carefully at \texttt{prob\_loss}. It is not monotonic: 7.7\% at $n=1$, then \emph{worse} at 33.6\% for $n=5$, before falling away.
+
+That is not a bug, and explaining it is the best question in this lab. With one loan you most likely draw a performing borrower and collect the coupon --- you lose only if that single loan defaults, roughly 8\% of the time. With five loans you are now \emph{likely} to hit at least one default ($1 - 0.92^5 \approx 34\%$), and four coupons at around 10\% cannot cover one loss of roughly 75\% of a fifth of your capital.
+
+Only past about 20 loans do the winners reliably outnumber and outweigh the losers. Partial diversification is genuinely worse than none for this metric, which is exactly why platform minimums exist.
+\end{pitfall}
+
+\begin{keyidea}
+Diversification does not raise expected return --- it cannot, since the mean of a sum is the sum of the means. It reduces the \emph{variance} around that return.
+
+That is the entire mechanism, and it is why platforms enforce minimum loan counts and offer auto-invest. A retail lender holding five loans is not investing; they are placing five bets whose outcomes they cannot survive individually.
+\end{keyidea}
+
+\begin{pitfall}
+Diversification only works on \emph{independent} risks. In a recession defaults rise across every grade simultaneously, and correlation approaches one.
+
+Rerun the simulation with a 3$\times$ default-rate multiplier applied to all loans at once. The distribution shifts bodily downward and no amount of diversification prevents it. This is precisely what happened to several UK P2P platforms in 2019--2020, and it is the risk the marketing material does not price.
+\end{pitfall}
+
+\begin{tryit}
+Platforms describe themselves as marketplaces that merely match lenders and borrowers, and therefore bear no credit risk themselves. Test that claim against the four crowdfunding models in Chapter~\ref{ch:p2p-crowdfunding}.
+
+Then decide: if the platform's revenue is a percentage of origination volume, what incentive does it have regarding credit standards, and what would you require to be disclosed before investing?
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Net yield is computed from expected loss and fees, never quoted as the coupon.
+  \item Loss given default is stated explicitly as $1 -$ recovery rate.
+  \item The simulation reports mean, standard deviation, and probability of loss --- not the mean alone.
+  \item The correlated-default scenario is run and its result reported separately.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the grade table, the diversification results for all five values of $n$, and a two-page investor note stating: which grade offers the best risk-adjusted return and why, the minimum number of loans you would require before deploying capital, and what the correlated-default scenario does to that recommendation.
+\end{labdeliverable}

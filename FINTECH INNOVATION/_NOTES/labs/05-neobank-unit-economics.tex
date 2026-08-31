@@ -1,0 +1,184 @@
+\labsection{5}{Neobank unit economics}{sec:lab05-unit-economics}
+
+\begin{labproject}{Find out whether a digital-only bank makes money per customer}
+\textbf{Coverage.} Chapter~\ref{ch:digital-banks}.\\
+\textbf{Source files.} \texttt{Lab05/unit\_economics.py}.\\
+\textbf{Goal.} Build the model that answers the chapter's third strategic priority --- expand \emph{profitably} --- and find the assumption the whole business rests on.
+
+\begin{labmode}
+Chapter~\ref{ch:digital-banks} observes that neobanks grow customers quickly and reach profitability slowly. This lab shows why those two facts are connected rather than contradictory.
+
+Every input below is a parameter you will vary. The point is not to produce one answer; it is to find which input the answer is most sensitive to.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- The four quantities that decide everything.}\par
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X p{0.20\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Quantity & Definition & Typical neobank \\
+\midrule
+CAC & Total acquisition spend $\div$ customers acquired & \pounds20--\pounds60 \\
+ARPU & Revenue per user per month & \pounds2--\pounds8 \\
+Cost to serve & Variable cost per user per month & \pounds1--\pounds3 \\
+Churn & Monthly share of customers who leave & 2--5\% \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+From these, two derived numbers decide whether the business exists:
+
+\[
+\text{Contribution} = \text{ARPU} - \text{cost to serve}, \qquad
+\text{Payback (months)} = \frac{\text{CAC}}{\text{Contribution}}
+\]
+
+\[
+\text{LTV} = \frac{\text{Contribution}}{\text{monthly churn}}
+\]
+
+\begin{workedexample}
+CAC \pounds45, ARPU \pounds4.20, cost to serve \pounds1.80, churn 3\%/month.
+
+\smallskip
+Contribution $= 4.20 - 1.80 = \pounds2.40$ per month.\\
+Payback $= 45 \div 2.40 = 18.75$ months.\\
+LTV $= 2.40 \div 0.03 = \pounds80$.\\
+LTV/CAC $= 80 \div 45 = 1.78$.
+
+\smallskip
+The customer is profitable, but only just. A ratio of 1.78 leaves almost nothing for fixed costs --- engineering, compliance, licensing --- which this model has not yet touched. The usual venture benchmark is 3.0.
+\end{workedexample}
+
+\begin{lstlisting}[style=mlpython]
+def unit_economics(cac, arpu, cost_to_serve, monthly_churn):
+    contribution = arpu - cost_to_serve
+    if contribution <= 0:
+        return {"verdict": "loses money on every customer"}
+
+    return {
+        "contribution": round(contribution, 2),
+        "payback_months": round(cac / contribution, 1),
+        "ltv": round(contribution / monthly_churn, 2),
+        "ltv_cac": round((contribution / monthly_churn) / cac, 2),
+        "avg_lifetime_months": round(1 / monthly_churn, 1),
+    }
+
+print(unit_economics(cac=45, arpu=4.20, cost_to_serve=1.80, monthly_churn=0.03))
+\end{lstlisting}
+
+\begin{pitfall}
+$\text{LTV} = \text{contribution} / \text{churn}$ assumes churn is constant forever, which it is not --- it is high early and falls as customers settle.
+
+The formula therefore \emph{understates} the value of a customer who survives the first year and \emph{overstates} the value of a book dominated by new sign-ups. A neobank growing quickly has a young book, so its reported LTV is the least reliable number in its deck. Say so when you quote it.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part B --- Growth can destroy a profitable business.}\par
+Each new customer costs CAC today and repays it over the payback period. So acquisition consumes cash \emph{now} against profit \emph{later}, and the faster you grow, the deeper the hole:
+
+\begin{lstlisting}[style=mlpython]
+def project(months, new_per_month, cac, arpu, cost_to_serve, churn):
+    customers, cash = 0, 0.0
+    for m in range(1, months + 1):
+        customers = customers * (1 - churn) + new_per_month
+        cash += customers * (arpu - cost_to_serve) - new_per_month * cac
+        if m % 6 == 0:
+            print(f"month {m:3d}  customers {customers:9,.0f}  cumulative cash {cash:12,.0f}")
+    return cash
+
+project(36, new_per_month=50_000, cac=45, arpu=4.20, cost_to_serve=1.80, churn=0.03)
+\end{lstlisting}
+
+Run it at 50{,}000 new customers per month, then again at 5{,}000, and compare:
+
+\begin{lstlisting}[style=mlterminal]
+month 60, fast (50,000/mo):  1,398,656 customers    -3,535,671 cash
+month 60, slow ( 5,000/mo):    139,866 customers      -353,567 cash
+
+fast/slow cash ratio: 10.0x   break-even: neither, within 60 months
+\end{lstlisting}
+
+\begin{pitfall}
+It is tempting to conclude that the slower bank is closer to profitability. It is not. The two curves are \emph{exact} multiples of each other --- 10.0$\times$, matching the 10$\times$ difference in acquisition --- and they cross zero in the same month.
+
+Both customers and cash are linear in \texttt{new\_per\_month}, so growth rate changes the \emph{size} of the hole and not its \emph{shape}. Slowing down does not bring profitability forward; it only makes the loss smaller in absolute terms while producing proportionally fewer customers.
+\end{pitfall}
+
+So what does move break-even? Either better unit economics, or stopping acquisition altogether. Run the projection once more with \texttt{stop\_acquiring\_at=24}:
+
+\begin{lstlisting}[style=mlterminal]
+month 24:   814,305 customers   -22,940,039   <- acquisition stops
+month 39:                                 0   <- cash break-even
+month 60:   272,000 customers   +19,142,779
+\end{lstlisting}
+
+The book keeps paying while the CAC stops, and the business turns cash-positive at month 39 --- shedding roughly two-thirds of its customers to churn along the way.
+
+\begin{keyidea}
+This is why a neobank can be simultaneously profitable per customer and heavily loss-making overall, and why growth is funded by equity rather than earnings.
+
+It also explains the strategic sequence the chapter describes: acquire on a free product to drive CAC down, then raise ARPU by cross-selling credit and FX. Neither move works alone. Acquisition without monetisation never repays; monetisation without scale never covers fixed costs.
+
+And it explains what a board does when funding tightens --- cut acquisition and harvest the existing book, trading future scale for present solvency.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Sensitivity: which input actually matters?}\par
+Vary each of the four inputs by $\pm 20\%$ and record the effect on LTV/CAC:
+
+\begin{lstlisting}[style=mlpython]
+base = dict(cac=45, arpu=4.20, cost_to_serve=1.80, monthly_churn=0.03)
+baseline = unit_economics(**base)["ltv_cac"]
+
+for key in base:
+    for factor in (0.8, 1.2):
+        trial = dict(base)
+        trial[key] = base[key] * factor
+        result = unit_economics(**trial)["ltv_cac"]
+        print(f"{key:15s} x{factor}  LTV/CAC {result:5.2f}  "
+              f"({(result / baseline - 1):+.0%})")
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlterminal]
+baseline LTV/CAC: 1.78
+
+input                  -20%       +20%      swing
+arpu                   1.16       2.40       1.24
+monthly_churn          2.22       1.48       0.74
+cac                    2.22       1.48       0.74
+cost_to_serve          2.04       1.51       0.53
+\end{lstlisting}
+
+ARPU dominates, with nearly double the swing of anything else --- and the reason is structural rather than accidental. Churn and CAC each enter LTV/CAC once, so a 20\% change moves the ratio by roughly 20\%. ARPU enters through \emph{contribution}, which is a difference: a 20\% rise in ARPU of \pounds4.20 is \pounds0.84, and against a contribution of only \pounds2.40 that is a 35\% increase. Subtracting a fixed cost amplifies every proportional change in revenue.
+
+\begin{tryit}
+Confirm that reasoning by setting cost to serve to zero and rerunning. The result:
+
+\begin{lstlisting}[style=mlterminal]
+cac             1.30
+monthly_churn   1.30
+arpu            1.24
+\end{lstlisting}
+
+Read it carefully, because the mechanism is not what it first looks like. ARPU's swing does not fall --- it stays at 1.24. The other two \emph{rise} to meet it, because removing the subtraction lifts the baseline ratio from 1.78 to 3.11 and every proportional change is now measured against a larger number.
+
+With nothing subtracted, $\text{LTV}/\text{CAC} = \text{ARPU} / (\text{churn} \times \text{CAC})$ and all three inputs enter multiplicatively, so all three matter roughly equally. CAC and churn edge ahead only because they sit in a denominator, and $1/x$ is convex --- a 20\% cut helps slightly more than a 20\% rise hurts.
+
+ARPU's dominance in the real model is therefore created entirely by the cost-to-serve subtraction. That is a property of the business, not of the arithmetic.
+
+Then connect it to strategy: if that input is the one that matters, which of Chapter~\ref{ch:digital-banks}'s three strategic priorities should the bank fund first? Does your answer match what the chapter recommends?
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Contribution margin is computed before LTV; a non-positive contribution is reported as such rather than producing a meaningless LTV.
+  \item The constant-churn assumption behind LTV is stated whenever LTV is quoted.
+  \item The cash projection is run at two growth rates and the difference explained.
+  \item The sensitivity analysis names one dominant input with a reason drawn from the formula.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the model output, the two cash projections, the sensitivity table, and a two-page memo advising a neobank board: current LTV/CAC, months to cash break-even at present growth, the single input most worth improving, and one action you would take to improve it.
+\end{labdeliverable}

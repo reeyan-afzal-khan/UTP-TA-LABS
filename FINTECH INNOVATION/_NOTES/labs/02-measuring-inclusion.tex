@@ -1,0 +1,131 @@
+\labsection{2}{Measuring financial inclusion}{sec:lab02-inclusion}
+
+\begin{labproject}{Turn an inclusion claim into a number you can defend}
+\textbf{Coverage.} Chapter~\ref{ch:financial-inclusion}.\\
+\textbf{Source files.} \texttt{Lab02/inclusion\_analysis.py}, \texttt{Lab02/findex\_sample.csv}.\\
+\textbf{Goal.} Move from ``FinTech improves financial inclusion'' --- which is untestable as written --- to a specific, measured, falsifiable statement.
+
+\begin{labmode}
+The supplied dataset is \emph{synthetic}, generated from a fixed seed so your results are reproducible and match the worked numbers below. Its structure mirrors the World Bank Global Findex, so the code you write here transfers directly.
+
+If you have network access, download the real Findex microdata and rerun the same script against it. The column names are deliberately identical. Report which of your findings survive the substitution --- that is the most valuable paragraph you will write in this lab.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Account ownership is not one number.}\par
+The supplied population has a national account-ownership rate of 73.3\%. Quoted alone, that is the number a ministry puts in a press release. It conceals everything you actually need:
+
+\begin{lstlisting}[style=mlterminal]
+national account ownership: 73.3%
+
+--- by gender (gap: 11.8%) ---        --- by education (gap: 44.3%) ---
+    female       67.7%                    none          45.1%
+    male         79.5%                    primary       63.7%
+                                          secondary     79.3%
+--- by income_quintile (gap: 34.2%) ---   tertiary      89.4%
+    1            56.4%
+    5            90.6%
+\end{lstlisting}
+
+A 44-point spread by education and a 34-point spread by income are the inclusion problem. The 73.3\% is what lets you avoid looking at them.
+
+\begin{lstlisting}[style=mlpython]
+import pandas as pd
+
+df = pd.read_csv("findex_sample.csv")
+
+# Headline rate --- the number that appears in press releases.
+print("national:", df["has_account"].mean().round(3))
+
+# The same rate, cut by the dimensions that inclusion policy cares about.
+for dim in ["gender", "income_quintile", "urban_rural", "education"]:
+    print(f"\n--- {dim} ---")
+    print(df.groupby(dim)["has_account"].agg(["mean", "count"]).round(3))
+\end{lstlisting}
+
+\begin{keyidea}
+An aggregate rate is a weighted average that hides its own variance. The gap between the best-served and worst-served group is the inclusion problem; the headline number is what lets you ignore it.
+
+Always report the gap alongside the mean. A country at 85\% with a 4-point gender gap and one at 85\% with a 30-point gap have almost nothing in common.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Separate access from usage.}\par
+Chapter~\ref{ch:financial-inclusion} distinguishes the \emph{unbanked} from the \emph{underbanked}, and the distinction has teeth. An account that is opened to receive one government payment and then never touched is a dormant account. It counts in the ownership statistic and delivers none of the benefits inclusion is supposed to produce.
+
+\begin{lstlisting}[style=mlpython]
+# Three progressively stricter definitions of "included".
+df["access"]    = df["has_account"]
+df["active"]    = df["has_account"] & (df["transactions_90d"] >= 3)
+df["meaningful"] = df["active"] & (df["uses_credit"] | df["uses_savings"])
+
+for level in ["access", "active", "meaningful"]:
+    print(f"{level:12s} {df[level].mean():.1%}")
+\end{lstlisting}
+
+On the supplied data the fall is severe:
+
+\begin{lstlisting}[style=mlterminal]
+access         73.3%
+active         38.9%  (-34.5%)
+meaningful     19.4%  (-19.4%)
+\end{lstlisting}
+
+Three quarters of the population hold an account. Fewer than one in five use it for anything that changes their financial position. Report all three numbers --- a proposal that moves \emph{access} without moving \emph{meaningful} has produced a statistic rather than an outcome.
+
+\medskip\noindent\textbf{Part C --- Why people are excluded.}\par
+The chapter lists the standard barriers: cost, distance, documentation, trust, and lack of credit history. These call for completely different interventions, so ranking them for a specific population is the whole job.
+
+\begin{lstlisting}[style=mlpython]
+barriers = ["cost", "distance", "documentation", "trust", "no_credit_history"]
+unbanked = df[~df["has_account"]]
+
+ranked = unbanked[barriers].mean().sort_values(ascending=False)
+print((ranked * 100).round(1))
+\end{lstlisting}
+
+\begin{pitfall}
+Self-reported barriers are stated reasons, not causes. Respondents under-report trust and over-report cost, because cost is socially easier to admit.
+
+Treat the ranking as a hypothesis and triangulate it. If ``distance'' ranks first but mobile penetration in that group is 90\%, distance is probably a proxy for something else --- and finding out what is the interesting part.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part D --- Alternative data and who it excludes.}\par
+The chapter presents alternative data --- phone top-up patterns, utility payments, e-commerce history --- as the mechanism that extends credit to people with no credit file. Test the claim rather than repeating it:
+
+\begin{lstlisting}[style=mlpython]
+# Who gains a credit signal from alternative data, and who still has none?
+thin_file = df[~df["uses_credit"]]
+reachable = thin_file["has_mobile_money"] | thin_file["has_utility_account"]
+
+print("thin-file population:", len(thin_file))
+print("reachable by alternative data:", f"{reachable.mean():.1%}")
+print("still invisible:", f"{(~reachable).mean():.1%}")
+
+print("\nWho remains invisible:")
+print(thin_file[~reachable].groupby(["gender", "urban_rural"]).size())
+\end{lstlisting}
+
+\begin{pitfall}
+Do not read raw group counts as evidence of who is worst affected. The largest group in the invisible population is usually just the largest group overall.
+
+Divide each group's share of the invisible population by its share of the whole population. A ratio above 1 means genuine over-representation; a ratio near 1 means the group is simply large. On the supplied data, rural women appear at 1.31$\times$ their population baseline while urban women appear at 0.81$\times$ --- a finding that the raw counts, which put the two within 60 people of each other, completely obscure.
+\end{pitfall}
+
+\begin{tryit}
+The group that remains invisible after alternative data is applied is the hardest and most important finding in this lab. Characterise it precisely, using the baseline comparison rather than raw counts --- who are they, and why does every proposed signal miss them?
+
+Then take a position: does alternative-data credit scoring reduce exclusion, or does it relocate the boundary while leaving the same people outside it? Argue from your numbers, not from the lecture.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every rate is reported with its denominator, and group sizes are shown alongside group means.
+  \item Access, active, and meaningful usage are reported separately and never conflated.
+  \item The dataset is identified as synthetic wherever a figure is quoted.
+  \item Claims about causes are distinguished from self-reported reasons.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the script output plus a three-page analysis: the headline rate and the largest demographic gap, the drop from access to meaningful usage, the ranked barriers with your triangulation, and a characterisation of the population alternative data still fails to reach. State one intervention you would test and the metric that would tell you it worked.
+\end{labdeliverable}

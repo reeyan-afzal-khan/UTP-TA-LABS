@@ -1,0 +1,95 @@
+\labsection{2}{File scanning and directory utilities}{sec:lab02}
+\begin{labproject}{Build small Unix-style text and directory tools}
+\textbf{Coverage.} Chapter 2.\\
+\textbf{Source files.} \texttt{Lab02/Task01.c}--\texttt{Lab02/Task03.c}.\\
+\textbf{Goal.} Practise robust read loops, pathname arguments, directory traversal, and line-oriented searching.
+
+\begin{labmode}
+Each of these three programs is built around one mistake that is easy to make, hard to spot, and common in production code. The supplied sources show the correct form; this section explains what the wrong form looks like and why it fails, because recognising the wrong form is the transferable skill.
+\end{labmode}
+
+\medskip\noindent\textbf{Task A --- Count spaces, and loop correctly.}\par
+The natural-sounding version is wrong:
+
+\begin{lstlisting}[style=osc]
+/* WRONG --- do not write this */
+while (!feof(fp)) {
+    ch = fgetc(fp);
+    if (ch == ' ') spaces++;
+}
+\end{lstlisting}
+
+\texttt{feof()} does not predict the end of the file; it reports that a read has \emph{already} failed. So on the last iteration \texttt{fgetc()} returns \texttt{EOF}, \texttt{feof()} only becomes true afterwards, and the loop body has already run one extra time on a value that is not a character.
+
+Loop on the read itself:
+
+\begin{lstlisting}[style=osc]
+int ch, spaces = 0;
+while ((ch = fgetc(fp)) != EOF) {
+    if (ch == ' ') spaces++;
+}
+if (ferror(fp)) { perror(filename); }   /* real error, not clean EOF */
+\end{lstlisting}
+
+\begin{pitfall}
+\texttt{ch} must be \texttt{int}, never \texttt{char}.
+
+\texttt{fgetc()} returns 256 possible byte values \emph{plus} the distinct sentinel \texttt{EOF}. That needs more range than a \texttt{char} has. Squeeze it into a \texttt{char} and one real byte becomes indistinguishable from \texttt{EOF} --- the loop then ends early on binary input, or on some platforms never ends at all.
+\end{pitfall}
+
+\medskip\noindent\textbf{Task B --- Release resources once, in the right place.}\par
+The failure here is placement, not logic:
+
+\begin{lstlisting}[style=osc]
+/* WRONG --- closedir() inside the loop */
+while ((link = readdir(dp)) != 0) {
+    printf("%s", link->d_name);
+    closedir(dp);          /* handle is dead after the first pass */
+}
+\end{lstlisting}
+
+The first iteration releases the directory handle. Every \texttt{readdir()} after that reads through a dangling pointer. That is undefined behaviour: it may print rubbish, loop forever, or crash --- and which one you get can change between compilers.
+
+\begin{keyidea}
+Acquire, use, release --- in that order, once each. The release belongs at the same nesting level as the acquire, never inside a loop that the resource is driving.
+
+The same shape governs \texttt{malloc}/\texttt{free}, \texttt{fopen}/\texttt{fclose}, and lock/unlock in Lab 5.
+\end{keyidea}
+
+The corrected program also checks \texttt{opendir()} for \texttt{NULL} and prints one entry per line, so the output is readable rather than a single run-on string.
+
+\medskip\noindent\textbf{Task C --- A miniature grep.}\par
+Read with \texttt{fgets()}, strip the newline, search with \texttt{strstr()}, print with a line number:
+
+\begin{lstlisting}[style=osc]
+while (fgets(line, (int)sizeof line, fp) != NULL) {
+    line_number++;
+
+    char *newline = strchr(line, '\n');
+    if (newline != NULL) *newline = '\0';
+
+    if (strstr(line, word) != NULL) {
+        printf("%s:%ld: %s\n", filename, line_number, line);
+        matches++;
+    }
+}
+\end{lstlisting}
+
+\texttt{fgets()} keeps the newline when the line fits in the buffer and omits it when the line is too long. Stripping it conditionally --- hence the \texttt{NULL} check --- is what makes your own formatting predictable.
+
+\begin{tryit}
+Feed it a file whose longest line exceeds \texttt{MAX\_LINE}. What happens to that line, and does the line counter still tell the truth? Then make the program exit with status 0 when something matched and 1 when nothing did, and confirm with \texttt{echo \$?}. That is what real \texttt{grep} does, and it is what makes it usable in a shell pipeline.
+\end{tryit}
+
+\begin{debugtask}
+Compile all three with diagnostics enabled and read every line of output:
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra -fsanitize=address,undefined Task02.c -o task02
+\end{lstlisting}
+Then deliberately reintroduce one of the three bugs above and run again. AddressSanitizer names the use-after-free in Task B directly, with the line that freed the handle and the line that used it. Record what it printed --- learning to read that output is worth more than the exercise itself.
+\end{debugtask}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit source and output for all three tasks, plus a one-page note explaining why loop-on-the-read beats loop-on-\texttt{feof()}, and why acquire/use/release discipline matters when the resource is owned by the kernel rather than by your program.
+\end{labdeliverable}

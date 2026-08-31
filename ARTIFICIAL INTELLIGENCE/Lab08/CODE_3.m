@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%% 🎯 Simulated dataset
+%% * Simulated dataset
 x = linspace(0, 10, 100)';
 true_w = [2.5, 5];             % True slope and intercept
 y = true_w(1)*x + true_w(2) + randn(size(x));  % Add noise
@@ -52,9 +52,25 @@ for gen = 1:maxGen
     bestFitness(gen) = min(fitness);
 end
 
-%% 📈 Plot
+%% * Plot
 figure;
 plot(1:maxGen, bestFitness, 'g-', 'LineWidth', 2);
 xlabel('Generation'); ylabel('Best MSE');
 title('GA Linear Regression Optimization');
 grid on;
+
+%% ---------- Report the solution ----------
+% fitnessFunc takes one weight vector, so evaluate row by row.
+finalFitness = zeros(popSize, 1);
+for i = 1:popSize
+    finalFitness(i) = fitnessFunc(pop(i,:));
+end
+[bestVal, bestIdx] = min(finalFitness);      % minimising MSE
+
+fprintf('\n=== Result: fit y = w1*x + w2 by GA ===\n');
+fprintf('  best slope     : %8.4f   (data generated with 2.5)\n', pop(bestIdx,1));
+fprintf('  best intercept : %8.4f   (data generated with 5.0)\n', pop(bestIdx,2));
+fprintf('  final MSE      : %8.6f\n', bestVal);
+fprintf('\nThe recovered weights will not match 2.5 and 5.0 exactly --\n');
+fprintf('the data carries noise, so the least-squares optimum is itself\n');
+fprintf('slightly off the generating parameters.\n');

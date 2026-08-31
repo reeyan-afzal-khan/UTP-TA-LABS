@@ -1,0 +1,66 @@
+! ============================================================
+! Lab 5 --- FTP server on R1, client on R2
+!
+! Order matters. Each step verifies the layer beneath it.
+! Skip a verification and a later failure becomes ambiguous.
+! ============================================================
+
+! ---------- STEP 1: prove IP connectivity FIRST ----------
+! From R2:  ping 192.168.1.1
+! FTP rides on TCP rides on IP. If IP does not work, every FTP
+! symptom you see will be misleading. Five seconds, three layers
+! eliminated.
+
+system-view
+
+! ---------- STEP 2: enable the server ----------
+ftp server enable
+
+! Confirm there is something to serve:
+!   dir flash:
+
+! ---------- STEP 3: authorise a user ----------
+! ALL FOUR lines are required. Each omission fails differently:
+!   no service-type ftp  -> login refused even with correct password
+!   no ftp-directory     -> login works, dir returns nothing
+!   privilege too low    -> get works, put denied
+!   wrong password       -> the only failure that says what it means
+aaa
+ local-user ftpuser password cipher Huawei@123
+ local-user ftpuser privilege level 15
+ local-user ftpuser service-type ftp
+ local-user ftpuser ftp-directory flash:
+quit
+quit
+save
+
+! ---------- STEP 4: verify the service ----------
+! display ftp-server
+
+! ---------- STEP 5: connect from R2 ----------
+! <R2> ftp 192.168.1.1
+!   220 FTP service ready.          <- IP + TCP + FTP all working
+!   User: ftpuser
+!   331 Password required           <- username accepted
+!   Password: Huawei@123
+!   230 User logged in.             <- authenticated
+!
+! Reaching 220 means routing is fine. A failure AFTER 220 is
+! authentication or permissions -- never routing. That single
+! observation halves your troubleshooting.
+
+! ---------- STEP 6: transfer ----------
+! [R2-ftp] binary        <- ALWAYS, before any non-text file.
+!                           ASCII mode rewrites line endings and
+!                           silently corrupts archives and images.
+! [R2-ftp] dir
+! [R2-ftp] get vrpcfg.zip
+! [R2-ftp] put test.txt
+! [R2-ftp] quit
+
+! ---------- Response codes worth knowing ----------
+!   220  server ready
+!   331  username ok, password required
+!   230  logged in
+!   530  login failed -- credentials or service-type
+!   550  action not taken -- permissions or missing file

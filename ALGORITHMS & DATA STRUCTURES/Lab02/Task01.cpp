@@ -1,7 +1,9 @@
-#include <bits/stdc++.h>
-// include almost all standard C++ libraries
-using namespace std;
+// bits/stdc++.h is a GCC-only convenience header. Naming the actual headers
+// keeps the file portable to clang and MSVC, and documents the dependencies.
+#include <iostream>
+#include <vector>
 
+using namespace std;
 // to rotate the matrix represented by a vector of vectors
 void rotateMatrix(vector<vector<int>>& mat){
     // mat here is just a variable , and & mean reference to

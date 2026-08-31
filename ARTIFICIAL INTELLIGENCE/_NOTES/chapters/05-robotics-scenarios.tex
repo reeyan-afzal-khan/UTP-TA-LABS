@@ -1,0 +1,486 @@
+\chapter{Robotics Scenarios and Simulation}
+\label{ch:robotics}
+
+\chapterguide%
+  {Know basic Python, NumPy/Matplotlib, and the A* search idea from Chapter 2.}
+  {explain the robot state updates used in Lab 5, simulate straight-line motion and obstacle avoidance, describe proportional--integral--derivative (PID) line following, apply A* to robot path planning, and interpret collision avoidance and 2-link forward kinematics.}
+
+Lab 5 applies AI methods to robot state, motion, feedback, and planning.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.6mm,minimum width=2.1cm,minimum height=0.7cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
+  title/.style={font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+]
+\begin{scope}[xshift=-5cm]
+  \node[title] at (0,1.5) {Reactive control};
+  \node[box] (sense) at (-1.25,0.45) {Local sensor};
+  \node[box] (rule) at (1.25,0.45) {IF--THEN rule};
+  \node[box] (action) at (0,-0.75) {Immediate action};
+  \draw[arr] (sense)--(rule);
+  \draw[arr] (rule)--(action);
+\end{scope}
+\begin{scope}
+  \node[title] at (0,1.5) {Feedback control};
+  \node[box] (target) at (-1.25,0.45) {Desired path};
+  \node[box] (pid) at (1.25,0.45) {PID controller};
+  \node[box] (robot) at (0,-0.75) {Robot state};
+  \draw[arr] (target)--(pid);
+  \draw[arr] (pid)--(robot);
+  \draw[arr] (robot.west) -| node[pos=0.35,left,font=\scriptsize\color{MLMuted}] {error} (target.south);
+\end{scope}
+\begin{scope}[xshift=5cm]
+  \node[title] at (0,1.5) {Planning};
+  \node[box] (map) at (-1.25,0.45) {Map + goal};
+  \node[box] (search) at (1.25,0.45) {A* search};
+  \node[box] (path) at (0,-0.75) {Complete path};
+  \draw[arr] (map)--(search);
+  \draw[arr] (search)--(path);
+\end{scope}
+\end{tikzpicture}
+\end{mlfigure}
+
+Reactive control selects an immediate action, feedback reduces observed error, and planning computes a sequence to the goal.
+
+\section{Scenario 1: simple two-dimensional (2D) robot motion}
+
+The first simulation starts at \((x,y)=(0,0)\), sets the orientation to \(45^\circ\), and moves with constant speed. The update rule in the source is
+\[
+x\leftarrow x+v\cos(\theta)\Delta t,
+\qquad
+ y\leftarrow y+v\sin(\theta)\Delta t,
+\]
+with \(\Delta t=0.1\).
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import matplotlib.pyplot as plt
+
+x, y = 0, 0
+theta = np.pi / 4
+v = 1
+time = np.linspace(0, 10, 100)
+x_path, y_path = [], []
+
+for t in time:
+    x += v * np.cos(theta) * 0.1
+    y += v * np.sin(theta) * 0.1
+    x_path.append(x)
+    y_path.append(y)
+
+plt.plot(x_path, y_path, label='Robot Path')
+plt.title('Simple 2D Robot Motion')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.legend()
+plt.grid(True)
+plt.axis('equal')
+plt.show()
+
+print(f'Final position: ({x:.3f}, {y:.3f})')
+\end{lstlisting}
+
+\begin{intuition}
+This baseline repeatedly updates position from speed and orientation; later controllers modify the resulting trajectory.
+\end{intuition}
+
+\begin{workedexample}
+At \(45^\circ\), each update adds approximately \((0.0707,0.0707)\). After 100 updates, the position is \((7.071,7.071)\).
+\end{workedexample}
+
+\section{Scenario 2: obstacle avoidance by a reactive rule}
+
+The second scenario stores four discrete directions and checks whether the next cell is in a set of static obstacles. If an obstacle is detected, the direction index advances by one. With the usual Cartesian plotting convention, the sequence east, north, west, south produces a 90-degree counterclockwise turn.
+
+\begin{lstlisting}[style=mlpython]
+import matplotlib.pyplot as plt
+
+x, y = [0], [0]
+directions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+dir_index = 0
+obstacles = {(3, 0), (4, 0), (0, 5)}
+
+for _ in range(15):
+    next_x = x[-1] + directions[dir_index][0]
+    next_y = y[-1] + directions[dir_index][1]
+
+    if (next_x, next_y) in obstacles:
+        dir_index = (dir_index + 1) % 4
+        continue
+
+    x.append(next_x)
+    y.append(next_y)
+
+plt.scatter(*zip(*obstacles), marker='s', color='red', label='Obstacles')
+plt.plot(x, y, 'o-', label='Robot path')
+plt.axis('equal')
+plt.grid(True)
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+The robot reaches \((2,0)\), detects the blocked cell \((3,0)\), and turns north. The \texttt{continue} statement consumes that iteration without movement.
+
+\begin{keyidea}
+The controller responds to a blocked next cell without computing a complete route.
+\end{keyidea}
+
+\section{Scenario 3: line following with PID feedback}
+
+The line-following example defines a desired sinusoidal path
+\[
+y_{\text{desired}}=8\sin(0.1x)
+\]
+and updates the robot's vertical position using three error terms.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Term & Source variable & Role in the update \\
+\midrule
+Proportional & \texttt{Kp * error} & Responds to the current difference between desired and actual path. \\
+Integral & \texttt{Ki * error\_sum} & Uses the accumulated error. \\
+Derivative & \texttt{Kd * derivative} & Uses the change in error from the previous step. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The PID update is
+\[
+y_{robot}\leftarrow y_{robot}+K_p e+K_i\sum e+K_d(e-e_{prev}).
+\]
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import matplotlib.pyplot as plt
+
+Kp = 0.5
+Ki = 0.01
+Kd = 0.1
+
+x_positions = np.linspace(0, 100, 300)
+y_desired = 8 * np.sin(0.1 * x_positions)
+y_robot = 0
+error_sum = 0
+prev_error = 0
+y_path = []
+
+for i in range(len(x_positions)):
+    error = y_desired[i] - y_robot
+    error_sum += error
+    derivative = error - prev_error
+    y_robot += Kp * error + Ki * error_sum + Kd * derivative
+    prev_error = error
+    y_path.append(y_robot)
+
+plt.plot(x_positions, y_desired, '--', label='Desired path')
+plt.plot(x_positions, y_path, label='Robot path')
+plt.xlabel('x')
+plt.ylabel('y')
+plt.grid(True)
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+Each PID iteration measures, accumulates, differentiates, and corrects the error before updating \texttt{prev\_error}; updating it earlier would zero the derivative term.
+
+\section{Scenario 4: path planning with A*}
+
+The A* planner uses a priority queue, unit movement costs, and Manhattan distance.
+
+\begin{lstlisting}[style=mlpython]
+import heapq
+
+def heuristic(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+def a_star(grid, start, goal):
+    open_list = []
+    heapq.heappush(
+        open_list,
+        (heuristic(start, goal), 0, start, [])
+    )
+    visited = set()
+
+    while open_list:
+        _, cost, current, path = heapq.heappop(open_list)
+        if current in visited:
+            continue
+        visited.add(current)
+        path = path + [current]
+
+        if current == goal:
+            return path
+
+        for dx, dy in [(0, 1), (1, 0), (-1, 0), (0, -1)]:
+            nx, ny = current[0] + dx, current[1] + dy
+            if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]):
+                if grid[nx][ny] == 0:
+                    heapq.heappush(
+                        open_list,
+                        (cost + 1 + heuristic((nx, ny), goal),
+                         cost + 1,
+                         (nx, ny),
+                         path)
+                    )
+    return []
+
+grid = [
+    [0, 0, 0, 0, 0],
+    [1, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+]
+path = a_star(grid, (0, 0), (4, 4))
+print(path)
+\end{lstlisting}
+
+\begin{intuition}
+The search algorithm is the same idea as Chapter 2, but the state now has a physical interpretation: each node in the search graph is a possible robot location in the workspace grid.
+\end{intuition}
+
+For this grid, one returned route follows the open top row and then the rightmost column. Count the coordinates in the printed list and subtract one to obtain the number of robot moves.
+
+\section{Scenario 5: two robots avoiding collision}
+
+Two robots begin at opposite corners and move toward one another. The short source condition checks their current coordinate-wise separation. A complete simulation should check the \emph{proposed next positions}; otherwise, two robots can move into the same cell between checks.
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import matplotlib.pyplot as plt
+
+r1 = np.array([0, 0])
+r2 = np.array([10, 10])
+goal1 = np.array([10, 10])
+goal2 = np.array([0, 0])
+path1, path2 = [r1.copy()], [r2.copy()]
+
+for _ in range(20):
+    step1 = np.sign(goal1 - r1).astype(int)
+    step2 = np.sign(goal2 - r2).astype(int)
+    next1, next2 = r1 + step1, r2 + step2
+
+    # Stop before the robots enter the same or adjacent cells.
+    if np.max(np.abs(next1 - next2)) <= 1:
+        print('Potential collision detected; both robots stop.')
+        break
+
+    r1, r2 = next1, next2
+    path1.append(r1.copy())
+    path2.append(r2.copy())
+
+p1, p2 = np.array(path1), np.array(path2)
+plt.plot(p1[:, 0], p1[:, 1], 'o-', label='Robot 1')
+plt.plot(p2[:, 0], p2[:, 1], 's-', label='Robot 2')
+plt.axis('equal')
+plt.grid(True)
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+In this run, the robots stop at \((4,4)\) and \((6,6)\), before both propose moving to \((5,5)\).
+
+\begin{pitfall}
+This stopping rule illustrates collision response but is not a complete multi-robot planner.
+\end{pitfall}
+
+\section{Scenario 6: a 2-link planar arm}
+
+For link lengths \(l_1=5\), \(l_2=3\) and joint angles \(\theta_1\), \(\theta_2\), forward kinematics gives
+\begin{align*}
+x_{elbow}&=l_1\cos\theta_1,
+&y_{elbow}&=l_1\sin\theta_1,\\
+x_{tip}&=x_{elbow}+l_2\cos(\theta_1+\theta_2),
+&y_{tip}&=y_{elbow}+l_2\sin(\theta_1+\theta_2).
+\end{align*}
+
+\begin{mlfigure}
+\begin{tikzpicture}[scale=0.85]
+  \coordinate (o) at (0,0);
+  \coordinate (e) at (4,2.3);
+  \coordinate (t) at (4,5.3);
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.3,0)--(6.4,0) node[right,font=\scriptsize] {$x$};
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.3)--(0,5.9) node[above,font=\scriptsize] {$y$};
+  \draw[very thick,draw=MLBlue] (o)--node[midway,below right,font=\small\bfseries\color{MLNavy}] {$l_1$} (e);
+  \draw[very thick,draw=MLTeal] (e)--node[midway,right,font=\small\bfseries\color{MLNavy}] {$l_2$} (t);
+  \draw[dashed,draw=MLMuted] (e)--(6.1,3.5);
+  \fill[MLNavy] (o) circle (2.4mm) node[below left,font=\scriptsize] {base};
+  \fill[MLOrange] (e) circle (2.4mm) node[below right,font=\scriptsize] {elbow};
+  \fill[MLGreen] (t) circle (2.4mm) node[above,font=\scriptsize] {tip};
+  \draw[-{Stealth[length=1.5mm]},draw=MLOrange,thick] (0.9,0) arc[start angle=0,end angle=30,radius=0.9];
+  \node[font=\scriptsize\color{MLOrange!85!black}] at (1.18,0.33) {$\theta_1$};
+  \draw[-{Stealth[length=1.5mm]},draw=MLOrange,thick]
+    ($(e)+(0.75,0.43)$) arc[start angle=30,end angle=90,radius=0.86];
+  \node[font=\scriptsize\color{MLOrange!85!black}] at (4.72,3.2) {$\theta_2$};
+\end{tikzpicture}
+\end{mlfigure}
+
+The first angle is measured from the global \(x\)-axis; the second is relative to link 1, giving absolute orientation \(\theta_1+\theta_2\).
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+import matplotlib.pyplot as plt
+
+l1, l2 = 5, 3
+theta1_range = np.linspace(0, np.pi, 100)
+theta2_range = np.linspace(0, np.pi/2, 100)
+
+x2, y2 = [], []
+for t1, t2 in zip(theta1_range, theta2_range):
+    x_elbow = l1 * np.cos(t1)
+    y_elbow = l1 * np.sin(t1)
+    x_tip = x_elbow + l2 * np.cos(t1 + t2)
+    y_tip = y_elbow + l2 * np.sin(t1 + t2)
+    x2.append(x_tip)
+    y2.append(y_tip)
+
+plt.plot(x2, y2)
+plt.xlabel('End-effector x')
+plt.ylabel('End-effector y')
+plt.title('2-link end-effector trajectory')
+plt.axis('equal')
+plt.grid(True)
+plt.show()
+\end{lstlisting}
+
+\begin{workedexample}
+For \(\theta_1=30^\circ\) and \(\theta_2=60^\circ\), the elbow is
+\((5\cos30^\circ,5\sin30^\circ)\approx(4.330,2.500)\). The second link has absolute angle \(90^\circ\), so it adds \((0,3)\). The end effector is therefore approximately \((4.330,5.500)\).
+\end{workedexample}
+
+\section{Additional scenarios named in the handout}
+
+The final page of the robotics source also outlines two later scenarios without supplying full programs.
+
+\begin{description}
+  \item[Scenario 9: simultaneous localization and mapping (SLAM), static grid] The robot moves and performs simulated scans in four directions. Grid value 1 denotes an obstacle and value 2 marks an obstacle that has been observed by the sensor.
+  \item[Scenario 10: wall avoidance with Q-learning] A Q-table stores action values and updates them from the immediate reward and best next-state value.
+\end{description}
+
+\begin{secondpass}
+The source omits Scenarios 7--8 and only outlines Scenarios 9--10. The complete versions below demonstrate map updates with known robot position and tabular Q-learning; neither is a full physical controller.
+\end{secondpass}
+
+\subsection{Complete static mapping extension}
+
+Unknown cells are \(-1\), observed free cells are 0, and observed obstacles are 2.
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+
+world = np.array([
+    [0, 0, 1, 0, 0],
+    [0, 0, 1, 0, 1],
+    [0, 0, 0, 0, 0],
+    [1, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0],
+])
+route = [(4, 0), (4, 1), (3, 1),
+         (2, 1), (2, 2), (2, 3)]
+known = np.full(world.shape, -1)
+
+for row, col in route:
+    known[row, col] = 0
+    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+        nr, nc = row + dr, col + dc
+        if 0 <= nr < world.shape[0] and 0 <= nc < world.shape[1]:
+            known[nr, nc] = 2 if world[nr, nc] == 1 else 0
+
+print(known)
+\end{lstlisting}
+
+\subsection{Complete Q-learning wall-avoidance extension}
+
+For state \(s\), action \(a\), reward \(r\), and next state \(s'\), the update is
+\[
+Q(s,a)\leftarrow Q(s,a)+\alpha
+\left[r+\gamma\max_{a'}Q(s',a')-Q(s,a)\right].
+\]
+
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+
+grid = np.array([
+    [0, 0, 0, 0, 0],
+    [0, 1, 1, 1, 0],
+    [0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 0],
+    [0, 0, 0, 1, 0],
+])
+start, goal = (4, 0), (0, 4)
+actions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+Q = np.zeros((*grid.shape, len(actions)))
+rng = np.random.default_rng(7)
+alpha, gamma, epsilon = 0.2, 0.95, 0.15
+
+for episode in range(500):
+    state = start
+    for _ in range(100):
+        if rng.random() < epsilon:
+            action = rng.integers(len(actions))
+        else:
+            action = int(np.argmax(Q[state]))
+
+        dr, dc = actions[action]
+        candidate = (state[0] + dr, state[1] + dc)
+        valid = (0 <= candidate[0] < grid.shape[0] and
+                 0 <= candidate[1] < grid.shape[1] and
+                 grid[candidate] == 0)
+        next_state = candidate if valid else state
+        reward = 20 if next_state == goal else (-5 if not valid else -1)
+
+        old = Q[state + (action,)]
+        target = reward + gamma * np.max(Q[next_state])
+        Q[state + (action,)] = old + alpha * (target - old)
+        state = next_state
+        if state == goal:
+            break
+
+state, learned_path = start, [start]
+for _ in range(30):
+    if state == goal:
+        break
+    action = int(np.argmax(Q[state]))
+    dr, dc = actions[action]
+    state = (state[0] + dr, state[1] + dc)
+    learned_path.append(state)
+print(learned_path)
+\end{lstlisting}
+
+Step, wall, and goal rewards shape the policy. Verify that the stochastic result stays in bounds, avoids walls, and reaches the goal.
+
+\input{labs/05-robotics}
+
+\clearpage
+\begin{quickcheck}
+\begin{enumerate}
+  \item In simple 2D motion, what do \(\cos\theta\) and \(\sin\theta\) control?
+  \item What event causes the obstacle-avoidance robot to change its direction index?
+  \item What three forms of error are used by the PID example?
+  \item What search method is reused for grid path planning?
+  \item What two equations determine the tip position of the 2-link arm?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item They resolve the speed into horizontal and vertical displacement.
+  \item The next proposed grid cell is present in the obstacle set.
+  \item Present error, accumulated error, and change in error.
+  \item A* search.
+  \item \(x=l_1\cos\theta_1+l_2\cos(\theta_1+\theta_2)\) and \(y=l_1\sin\theta_1+l_2\sin(\theta_1+\theta_2)\).
+\end{enumerate}
+\end{checkanswers}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Robot behavior is represented through state updates and trajectories.
+  \item Straight-line motion uses velocity and orientation; obstacle avoidance uses a local condition-action rule.
+  \item PID line following feeds current, accumulated, and changing error back into the motion update.
+  \item A* becomes a robot path planner when grid coordinates are interpreted as physical positions.
+  \item Collision avoidance and forward kinematics connect control logic to robot state.
+\end{itemize}
+\end{chapterrecap}

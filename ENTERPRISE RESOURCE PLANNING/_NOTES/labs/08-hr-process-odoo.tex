@@ -1,0 +1,65 @@
+\labsection{8}{Human Resources and Recruitment Process Modelling}{sec:lab08}
+
+\begin{labproject}{Use Odoo organisation data, then model the ABC recruitment process}
+\textbf{Coverage.} Tutorial 8 + Chapters 9--10.\\
+\textbf{Core system.} Odoo Employees + process modelling.\\
+\textbf{Goal.} Connect structured employee/department data to an end-to-end recruitment workflow and identify where information systems reduce delay and inconsistency.
+
+\begin{labmode}
+The supplied Odoo build guide uses Employees rather than a full recruitment workflow. Therefore the Odoo component focuses on organisation structure and operational ownership, while the Tutorial 8 recruitment scenario is modelled as a process. If the class deployment provides additional recruitment functionality, it may be demonstrated as an extension, but it is not required by the supplied guide.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Verify the organisation structure.}
+
+Open the four departments created in Lab 1. Check managers, employee headcount, and one organisation chart. Open the Sales Manager, Purchasing Officer, Production Planner, and Accountant records and confirm the linked user where applicable.
+
+\medskip\noindent\textbf{Part B --- Complete the ``dream job'' activity.}
+
+Choose a role such as ERP Consultant, System Analyst, Database Administrator, or Business Development Manager. List:
+\begin{itemize}
+  \item information needed to judge suitability;
+  \item required technical skills;
+  \item required behavioural/communication skills;
+  \item evidence used to verify each requirement.
+\end{itemize}
+
+\medskip\noindent\textbf{Part C --- Diagnose the ABC recruitment process.}
+
+Identify candidate-experience risks in the scenario. Consider delays in scheduling, repeated requests for information, inconsistent job criteria, lost feedback, weak status communication, and errors in offer details. For each risk, state what an effective information system would change.
+
+\medskip\noindent\textbf{Part D --- Draw a basic flowchart.}
+
+Start with ``Department identifies need'' and end with ``Candidate accepts offer.'' Include at least one decision such as ``Candidate passes screening?'' or ``Candidate accepts offer?''
+
+\medskip\noindent\textbf{Part E --- Draw a swimlane diagram.}
+
+Use lanes for at least:
+\begin{itemize}
+  \item Hiring Manager / Marketing Department;
+  \item Human Resources;
+  \item Candidate;
+  \item Interview/assessment stakeholders.
+\end{itemize}
+
+Mark hand-offs and identify at least three places where a shared workflow could reduce waiting.
+
+\begin{pitfall}
+A swimlane is not just the same flowchart with decorative horizontal lines. Every activity must sit in the lane of the role responsible for performing it, and arrows crossing lanes should represent real hand-offs.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part F --- Connect people to ERP transactions.}
+
+Using prior labs, identify where each operational role appears:
+\begin{itemize}
+  \item Sales Manager $\rightarrow$ opportunity / quotation / Sales Order;
+  \item Purchasing Officer $\rightarrow$ RFQ / Purchase Order;
+  \item Production Planner $\rightarrow$ Manufacturing Order;
+  \item Accountant $\rightarrow$ invoice/payment process.
+\end{itemize}
+
+Explain why this is more useful than creating employee names that never appear in business transactions.
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the Tutorial 8 answers, the flowchart, and the swimlane diagram as instructed by the tutor. Include one Odoo screenshot showing the department/employee structure and one short paragraph explaining the difference between an HR employee record and an operational user/login.
+\end{labdeliverable}

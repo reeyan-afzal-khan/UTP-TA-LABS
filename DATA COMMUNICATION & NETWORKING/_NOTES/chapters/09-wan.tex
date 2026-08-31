@@ -1,0 +1,173 @@
+\chapter{WAN Links: HDLC, PPP, PAP, and CHAP}\label{ch:wan}
+\chapterguide{Routing, OSPF, IPv4 interface addressing, and basic AAA concepts from earlier labs.}{Configure serial addressing, apply HDLC and PPP encapsulation, identify a DCE and set its baud rate, run OSPF across WAN links, configure PAP and CHAP authentication, and use PPP debugging to investigate negotiation.}
+\sourcelab{Lab 9 - WAN.pptx}
+
+\section{Scenario: connect headquarters and branches}
+The supplied scenario places R2 at headquarters and R1/R3 at branch offices. Two serial links connect the sites into one administrative routing domain. The lab progressively changes the WAN data-link configuration from HDLC to PPP and then adds PAP/CHAP authentication.
+
+\sourceimage[0.84\linewidth]{Serial WAN topology from the supplied Lab 9 slide}{wan-topology.png}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+Link & R1/R2/R3 side & Network & Addressing shown\\\midrule
+R1--R2 & S1/0/0 -- S1/0/0 & \cmd{10.0.12.0/24} & R1 .1, R2 .2\\
+R2--R3 & S2/0/0 -- S2/0/0 & \cmd{10.0.23.0/24} & R2 .2, R3 .3\\\bottomrule
+\end{tabular}
+\end{center}
+
+\section{HDLC and PPP in the source material}
+The slides describe HDLC as a bit-oriented data-link protocol and PPP as a point-to-point protocol with support for network-layer protocols and built-in authentication options such as PAP and CHAP. In this lab, both are treated as serial link encapsulations that must match at the two ends of a link.
+
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.22\linewidth}XX}
+\toprule
+Feature & HDLC portion & PPP portion\\\midrule
+Role in lab & Establish the serial Layer-2 link & Replace HDLC and add authentication capability\\
+End agreement & Both ends use HDLC & Both ends use PPP\\
+Authentication & Not used in the HDLC section & PAP between R1--R2 and CHAP between R2--R3\\\bottomrule
+\end{tabularx}
+
+\section{Step 1: configure serial IP addressing}
+\begin{lstlisting}[style=dcnterminal]
+[R1] interface Serial 1/0/0
+[R1-Serial1/0/0] ip address 10.0.12.1 24
+
+[R2] interface Serial 1/0/0
+[R2-Serial1/0/0] ip address 10.0.12.2 24
+[R2] interface Serial 2/0/0
+[R2-Serial2/0/0] ip address 10.0.23.2 24
+
+[R3] interface Serial 2/0/0
+[R3-Serial2/0/0] ip address 10.0.23.3 24
+\end{lstlisting}
+
+\section{Step 2: enable HDLC on both serial links}
+\begin{lstlisting}[style=dcnterminal]
+[R1] interface Serial 1/0/0
+[R1-Serial1/0/0] link-protocol hdlc
+[R2] interface Serial 1/0/0
+[R2-Serial1/0/0] link-protocol hdlc
+[R2] interface Serial 2/0/0
+[R2-Serial2/0/0] link-protocol hdlc
+[R3] interface Serial 2/0/0
+[R3-Serial2/0/0] link-protocol hdlc
+\end{lstlisting}
+The lab checks interface status and then tests directly connected reachability. A serial interface should be physically and logically up before routing is introduced.
+
+\section{Step 3: run OSPF across the WAN links}
+The source advertises the two /24 serial networks into area 0.
+\begin{lstlisting}[style=dcnterminal]
+[R1] ospf 1
+[R1-ospf-1] area 0
+[R1-ospf-1-area-0.0.0.0] network 10.0.12.0 0.0.0.255
+
+[R2] ospf 1
+[R2-ospf-1] area 0
+[R2-ospf-1-area-0.0.0.0] network 10.0.12.0 0.0.0.255
+[R2-ospf-1-area-0.0.0.0] network 10.0.23.0 0.0.0.255
+
+[R3] ospf 1
+[R3-ospf-1] area 0
+[R3-ospf-1-area-0.0.0.0] network 10.0.23.0 0.0.0.255
+\end{lstlisting}
+After routing converges, the lab checks learned routes and pings from R1 toward R3.
+
+\section{Step 4: identify the DCE and change the clock rate}
+One side of a synchronous serial link must provide clocking. The source displays R1 Serial1/0/0, identifies it as a DCE, shows an initial baud rate of 64000 bit/s, and changes that value to 128000 bit/s.
+
+\sourceimage[0.60\linewidth]{Serial interface detail used to identify DCE and clocking}{wan-serial-dce-status.png}
+
+\begin{lstlisting}[style=dcnterminal]
+[R1] interface Serial 1/0/0
+[R1-Serial1/0/0] baudrate 128000
+\end{lstlisting}
+
+\begin{keyidea}
+The clock-rate change belongs on the side identified as DCE in this exercise. Do not configure a baud rate blindly on both ends; first inspect the serial interface and determine which side supplies clocking.
+\end{keyidea}
+
+\section{Step 5: replace HDLC with PPP}
+Both ends of each serial link are changed to PPP.
+\begin{lstlisting}[style=dcnterminal]
+[R1] interface Serial 1/0/0
+[R1-Serial1/0/0] link-protocol ppp
+[R2] interface Serial 1/0/0
+[R2-Serial1/0/0] link-protocol ppp
+[R2] interface Serial 2/0/0
+[R2-Serial2/0/0] link-protocol ppp
+[R3] interface Serial 2/0/0
+[R3-Serial2/0/0] link-protocol ppp
+\end{lstlisting}
+The source warns that mismatched encapsulation can leave the link down, so PPP should be applied to both ends of a link before judging the result.
+
+\section{Step 6: configure PAP on R1--R2}
+The supplied command sequence makes R1 the PAP authenticator and R2 the authenticated device.
+\begin{lstlisting}[style=dcnterminal]
+[R1] interface Serial 1/0/0
+[R1-Serial1/0/0] ppp authentication-mode pap
+[R1] aaa
+[R1-aaa] local-user huawei password cipher huawei123
+[R1-aaa] local-user huawei service-type ppp
+
+[R2] interface Serial 1/0/0
+[R2-Serial1/0/0] ppp pap local-user huawei password cipher huawei123
+\end{lstlisting}
+The lab then retests the R1--R2 link.
+
+\section{Step 7: configure CHAP on R2--R3}
+The source's prose contains a naming inconsistency: one sentence says ``Configure R1 as the authenticator'' inside the R2--R3 CHAP section. The commands and surrounding context instead show CHAP configuration on R3 followed by R2 as the peer supplying CHAP credentials. The notes preserve that source discrepancy rather than silently rewriting it.
+
+\begin{lstlisting}[style=dcnterminal]
+[R3] interface Serial 2/0/0
+[R3-Serial2/0/0] ppp authentication-mode chap
+[R3] aaa
+[R3-aaa] local-user huawei password cipher huawei123
+[R3-aaa] local-user huawei service-type ppp
+
+[R2] interface Serial 2/0/0
+[R2-Serial2/0/0] ppp chap user huawei
+[R2-Serial2/0/0] ppp chap password cipher huawei123
+\end{lstlisting}
+
+\section{Step 8: observe CHAP negotiation with debugging}
+The lab deliberately cycles the serial interface and enables PPP CHAP debugging so that the negotiation messages are generated again. The supplied debug output contains state changes and CHAP-related events, giving evidence about where authentication succeeds or fails.
+
+\sourceimage[0.72\linewidth]{PPP CHAP debugging output shown in the supplied Lab 9 sequence}{chap-debug-output.png}
+
+\begin{verifybox}
+For a WAN link, do not rely on one ping alone. Verify in layers: \textbf{physical serial state} $\rightarrow$ \textbf{clocking/DCE} $\rightarrow$ \textbf{encapsulation} $\rightarrow$ \textbf{IP addressing} $\rightarrow$ \textbf{OSPF routes} $\rightarrow$ \textbf{PPP authentication} $\rightarrow$ \textbf{end-to-end ping}.
+\end{verifybox}
+
+\section{Troubleshooting matrix}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.25\linewidth}X}
+\toprule
+Symptom & First evidence to inspect\\\midrule
+Physical state down & Cabling/serial connection and device/interface state.\\
+Physical up, protocol down & HDLC/PPP encapsulation match, DCE clocking, and PPP authentication if enabled.\\
+Direct ping works, remote ping fails & OSPF neighbor/routes and the destination routing table.\\
+PPP works until authentication is added & PAP/CHAP mode, username, password, AAA local user and service type.\\
+CHAP result unclear & Reinitialize the interface as directed and inspect PPP CHAP debug output.\\\bottomrule
+\end{tabularx}
+
+\begin{pitfall}
+An authentication problem can make the link protocol fail even when the cable and IP address appear correct. Once PAP or CHAP is enabled, the username/password/AAA configuration becomes part of Layer-2 link establishment and must be checked alongside encapsulation.
+\end{pitfall}
+
+\begin{tryit}
+Complete the source assignment: create a three-router WAN using PPP, configure PAP and CHAP authentication on the required links, verify connectivity, and capture command-prompt evidence that demonstrates the working links.
+\end{tryit}
+
+\begin{quickcheck}
+\begin{enumerate}
+\item Why must both ends of a serial link agree on HDLC or PPP encapsulation?
+\item What is the purpose of the DCE side in the supplied serial exercise?
+\item Which link uses PAP and which uses CHAP in the lab?
+\item Why does the debugging procedure cycle the interface before observing CHAP messages?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+The WAN lab separates several concerns that are easy to mix together: serial physical state, DCE clocking, data-link encapsulation, IP routing, and PPP authentication. Diagnose them in that order and use the corresponding display/debug evidence at each stage.
+\end{chapterrecap}
+
+\input{labs/09-wan}

@@ -1,0 +1,108 @@
+\labsection{3}{Static routing and the backup route}{sec:lab03-static}
+
+\begin{labproject}{Three routers, three networks, and one deliberate failure}
+\textbf{Coverage.} Chapter~\ref{ch:static-routing}.\\
+\textbf{Materials.} \texttt{Lab03/topology.md}, \texttt{Lab03/r1.txt}--\texttt{r3.txt}, \texttt{Lab03/verify.md}.\\
+\textbf{Goal.} Make a router forward to a network it is not attached to, then prove a backup route takes over when the primary fails.
+
+\medskip\noindent\textbf{Part A --- Why the first ping fails.}\par
+Configure the interfaces, then ping from R1's LAN to R3's LAN before adding any routes. It will fail, and understanding exactly why is the point of the lab.
+
+\begin{keyidea}
+A router forwards only to networks in its routing table. Directly connected networks appear automatically; everything else must be learned --- statically here, dynamically in Lab~\ref{sec:lab04-ospf}.
+
+R1 has no entry for R3's LAN, so it drops the packet and reports \emph{Destination host unreachable}. The packet never reaches R2. Nothing is broken; the router is doing exactly what it was told.
+\end{keyidea}
+
+Confirm before configuring:
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ip routing-table
+\end{lstlisting}
+
+Count the entries. Every one should be \cmd{Direct}. Record that output --- it is the "before" half of your evidence.
+
+\medskip\noindent\textbf{Part B --- Static route syntax.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+ip route-static <destination> <mask> <next-hop>
+\end{lstlisting}
+
+The next hop must be an address R1 can already reach --- normally the neighbouring router's interface on the shared link. A next hop R1 cannot resolve produces a route that looks correct in the table and silently discards traffic.
+
+\begin{pitfall}
+The destination is a \emph{network} address, not a host address.
+
+\cmd{ip route-static 192.168.3.0 24 10.0.12.2} is a route to a network.\\
+\cmd{ip route-static 192.168.3.1 24 10.0.12.2} is a typo that VRP will accept, normalise, and then behave unexpectedly.
+
+Always write the network address with host bits zeroed.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Routes are one-directional.}\par
+Add routes on R1 so it can reach R3's LAN. Ping again. It still fails.
+
+\begin{keyidea}
+This is the single most common static-routing error, and it is worth meeting deliberately.
+
+Your ping now reaches R3. R3 has no route back to R1's LAN, so the \emph{reply} is dropped. From R1 the symptom looks identical to the original failure, which is why students often conclude their route did not work.
+
+Connectivity requires a route in both directions. Always configure and verify both ends before concluding anything.
+\end{keyidea}
+
+Prove it with \cmd{tracert} from R1: the trace advances further than before, then stops. That is the return path failing, not the forward path.
+
+\medskip\noindent\textbf{Part D --- Backup routes and preference.}\par
+Add a second route to the same destination through a different neighbour, with a worse preference:
+
+\begin{lstlisting}[style=dcnterminal]
+ip route-static 192.168.3.0 24 10.0.12.2              # primary, preference 60
+ip route-static 192.168.3.0 24 10.0.13.3 preference 100  # backup
+\end{lstlisting}
+
+\begin{keyidea}
+\term{Preference} (Huawei's term for administrative distance) ranks \emph{sources} of routing information. Lower wins. Static routes default to 60; OSPF internal routes are 10.
+
+Only the preferred route is installed in the forwarding table. The backup sits inactive until the primary's next hop becomes unreachable, at which point it is installed automatically.
+
+This is failover, not load sharing. Traffic does not split across the two paths --- give them equal preference if that is what you want.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part E --- Prove the failover.}\par
+
+\begin{netsteps}
+  \item \cmd{display ip routing-table} --- confirm only the primary is present, with preference 60.
+  \item Start a long ping from R1's LAN so you can watch the interruption.
+  \item Shut down the primary link: \cmd{interface GigabitEthernet 0/0/0} then \cmd{shutdown}.
+  \item \cmd{display ip routing-table} again --- the backup should now be installed.
+  \item Count how many pings were lost during the transition.
+  \item \cmd{undo shutdown} and confirm the primary returns.
+\end{netsteps}
+
+That lost-ping count is the real result of this lab. Static failover is not instant: the router must first decide the next hop is unreachable.
+
+\begin{troubleshoot}
+\textbf{Route shows in the table but traffic fails.} The next hop is probably unreachable. Ping the next hop itself from the same router.
+
+\textbf{Backup never activates.} Shutting an interface on the far end may leave the local interface up, so the next hop still appears valid. Shut the local interface, or verify with \cmd{display ip routing-table protocol static}.
+
+\textbf{Both routes appear active.} They have equal preference, so you have configured load sharing rather than failover.
+\end{troubleshoot}
+
+\begin{tryit}
+Replace both static routes with one default route, \cmd{ip route-static 0.0.0.0 0 10.0.12.2}. Does connectivity still work? What have you given up, and in what topology would that choice be dangerous?
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item Routing tables captured before routes, after routes, and after the failover.
+  \item Both directions configured, with the one-way failure demonstrated rather than skipped.
+  \item Preference values visible in the table output.
+  \item Packet loss during failover counted and reported.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit configurations for all three routers, the three routing-table captures, evidence of the one-way failure and its fix, and the measured packet loss during failover with one sentence explaining why it is not zero.
+\end{labdeliverable}

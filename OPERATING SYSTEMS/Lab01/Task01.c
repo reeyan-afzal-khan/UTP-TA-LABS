@@ -1,27 +1,52 @@
 /*
-STEP 1: Start the program. 
-STEP 2: Create struct dirent.
-STEP 3: declare the variable buff and pointer dptr. 
-STEP 4: Get the directory name.
-STEP 5: Open the directory.
-STEP 6: Read the contents in the directory and print it. 
-STEP 7: Close the directory.
-*/
+ * Lab 1, Task 1 --- List the entries of a directory.
+ *
+ * STEP 1: Read a directory path from the user.
+ * STEP 2: Open the directory with opendir().
+ * STEP 3: Read entries one at a time with readdir() until it returns NULL.
+ * STEP 4: Print each entry name.
+ * STEP 5: Close the directory with closedir().
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01
+ * Note:  POSIX only (dirent.h). Use Linux or WSL, not native Windows.
+ */
 
-#include<stdio.h> 
-#include<dirent.h>
-#include<cstdlib>
+#include <dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-struct dirent *dptr;
-int main(int argc, char *argv[]){
-    char buff[100]; DIR *dirp;
-    printf("\n\n ENTER DIRECTORY NAME: "); 
-    scanf("%s", buff); 
-    if((dirp=opendir(buff))==NULL){
-        printf("The given directory does not exist"); exit(1);
+#define PATH_MAX_LEN 512
+
+int main(void)
+{
+    char path[PATH_MAX_LEN];
+
+    printf("Enter directory name: ");
+    fflush(stdout);
+
+    /* The width limit stops scanf writing past the end of path[].
+     * Without "%511s" a long input silently overflows the buffer. */
+    if (scanf("%511s", path) != 1) {
+        fprintf(stderr, "No directory name supplied.\n");
+        return EXIT_FAILURE;
     }
-    while(dptr=readdir(dirp)){
-        printf("%s\n",dptr->d_name);
+
+    DIR *dirp = opendir(path);
+    if (dirp == NULL) {
+        /* perror appends the reason: "No such file or directory",
+         * "Permission denied", and so on. */
+        perror(path);
+        return EXIT_FAILURE;
     }
+
+    /* readdir() returns NULL both at end-of-directory and on error.
+     * The extra parentheses mark the assignment as deliberate, which
+     * also silences -Wparentheses. */
+    struct dirent *entry;
+    while ((entry = readdir(dirp)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
     closedir(dirp);
+    return EXIT_SUCCESS;
 }

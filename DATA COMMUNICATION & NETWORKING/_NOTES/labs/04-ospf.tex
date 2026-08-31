@@ -1,0 +1,127 @@
+\labsection{4}{OSPF: let the network work it out}{sec:lab04-ospf}
+
+\begin{labproject}{Replace your static routes with a protocol that adapts}
+\textbf{Coverage.} Chapter~\ref{ch:ospf}.\\
+\textbf{Materials.} \texttt{Lab04/r1.txt}--\texttt{r3.txt}, \texttt{Lab04/wildcard\_calc.py}.\\
+\textbf{Goal.} Configure single-area OSPF, watch adjacencies form, and see the network reroute itself without you.
+
+\begin{labmode}
+Use the same topology as Lab~\ref{sec:lab03-static}. Remove every static route first --- leaving them in place means you will not know which mechanism is carrying your traffic, and static routes have a better preference so they will win.
+
+\begin{lstlisting}[style=dcnterminal]
+undo ip route-static 192.168.3.0 24 10.0.12.2
+\end{lstlisting}
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Why bother.}\par
+Static routing worked in Lab~\ref{sec:lab03-static}. It also required you to configure every route on every router in both directions, and to predict every failure in advance. Add a fourth router and the work grows faster than the network.
+
+\begin{keyidea}
+Static routing scales with the number of \emph{paths}. Dynamic routing scales with the number of \emph{routers}.
+
+OSPF routers describe their own links to each other, and every router independently computes shortest paths across the resulting map. Add a link and it is advertised automatically; lose a link and the recalculation happens without you.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Router IDs.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+ospf 1 router-id 1.1.1.1
+ area 0
+  network 10.0.12.0 0.0.0.255
+  network 192.168.1.0 0.0.0.255
+ quit
+quit
+\end{lstlisting}
+
+\begin{pitfall}
+Set the router ID explicitly. If you do not, VRP picks one from the interface addresses --- and it may pick a different one after a reboot, which tears down every adjacency and produces a fault that looks random.
+
+A router ID is a 32-bit identifier that merely looks like an IP address. It does not need to be reachable, and by convention it is \cmd{1.1.1.1}, \cmd{2.2.2.2}, and so on.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- The wildcard mask.}\par
+OSPF's \cmd{network} statement takes a wildcard mask, which is the bitwise inverse of a subnet mask. This trips up nearly everyone the first time.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.22\linewidth}>{\ttfamily}p{0.26\linewidth}>{\ttfamily}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Prefix} & \textrm{\bfseries Subnet mask} & \textrm{\bfseries Wildcard} & \textrm{\bfseries Matches} \\
+\midrule
+/24 & 255.255.255.0 & 0.0.0.255 & 256 addresses \\
+/30 & 255.255.255.252 & 0.0.0.3 & 4 addresses \\
+/32 & 255.255.255.255 & 0.0.0.0 & exactly one \\
+/16 & 255.255.0.0 & 0.0.255.255 & 65\,536 addresses \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The rule: subtract each octet of the subnet mask from 255. The supplied \cmd{wildcard\_calc.py} does this and shows the working, but do a few by hand first --- it appears in examinations.
+
+\begin{keyidea}
+A 0 bit in a wildcard means ``this bit must match''; a 1 bit means ``do not care''. So \cmd{0.0.0.255} means the first three octets must match and the last is free --- exactly a \cmd{/24}.
+
+The \cmd{network} statement does not advertise a network. It selects which \emph{interfaces} participate in OSPF: any interface whose address falls inside the range is enabled.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part D --- Watch the adjacency form.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ospf peer brief
+ Area Id         Interface              Neighbor id     State
+ 0.0.0.0         GigabitEthernet0/0/0   2.2.2.2         Full
+\end{lstlisting}
+
+\begin{keyidea}
+\cmd{Full} is the only state that means success. Anything else is a diagnosis:
+
+\cmd{Init} --- hellos are being sent but the neighbour is not acknowledging them. Usually one-way connectivity.\\
+\cmd{2-Way} --- neighbours see each other; on a broadcast segment, non-designated routers legitimately stay here.\\
+\cmd{ExStart} / \cmd{Exchange} --- stuck here almost always means an MTU mismatch across the link.\\
+\cmd{Full} --- databases synchronised, routes exchanged.
+
+Neighbours also fail to form if hello and dead intervals differ, if area IDs differ, or if authentication is configured on one side only.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part E --- Read the routing table again.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+<R1> display ip routing-table protocol ospf
+\end{lstlisting}
+
+OSPF routes carry preference 10 against static routing's 60, so OSPF wins wherever both exist. Note the \cmd{Cost} column: Huawei derives it from interface bandwidth, so a gigabit path is preferred over a serial one without you saying so.
+
+\medskip\noindent\textbf{Part F --- Break it, and time the recovery.}\par
+Start a continuous ping, shut down the primary link, and count lost packets --- then compare with the figure from Lab~\ref{sec:lab03-static}.
+
+\begin{troubleshoot}
+\textbf{Neighbour never leaves Init.} Traffic flows one way only. Check masks on both ends and any access lists.
+
+\textbf{Stuck in ExStart or Exchange.} MTU mismatch. Compare \cmd{display interface} on both sides.
+
+\textbf{Adjacency forms but no routes appear.} The \cmd{network} statement covers the link but not the LAN interface. Add a statement covering it.
+
+\textbf{Routes appear then vanish repeatedly.} Duplicate router IDs. Every router in the area must be unique.
+\end{troubleshoot}
+
+\begin{tryit}
+Compare your two failover measurements. OSPF's default dead interval is 40 seconds, so recovery is not instant --- but it required no backup route from you, and it would have handled a failure you never anticipated.
+
+State the trade-off in one sentence, then say which you would deploy on a three-router branch network and why.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item All static routes removed before OSPF is configured.
+  \item Router IDs set explicitly and unique.
+  \item \cmd{display ospf peer brief} shows \cmd{Full} on every adjacency.
+  \item OSPF routes present with preference 10 and their costs.
+  \item Failover time measured and compared against the static-routing result.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit configurations, peer-brief output showing Full adjacencies, the OSPF routing table, your wildcard-mask working for each network statement, and a comparison of static versus OSPF failover with measured packet loss for both.
+\end{labdeliverable}

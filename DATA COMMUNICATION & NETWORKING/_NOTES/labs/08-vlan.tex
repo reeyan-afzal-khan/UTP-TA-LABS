@@ -1,0 +1,148 @@
+\labsection{8}{VLANs: one switch, several networks}{sec:lab08-vlan}
+
+\begin{labproject}{Access, trunk, and hybrid ports --- and what each does to a tag}
+\textbf{Coverage.} Chapter~\ref{ch:vlan}.\\
+\textbf{Materials.} \texttt{Lab08/sw1.txt}, \texttt{Lab08/sw2.txt}, \texttt{Lab08/vlan\_matrix.md}.\\
+\textbf{Goal.} Separate broadcast domains on shared hardware, carry several VLANs over one link, and predict tagging behaviour before configuring it.
+
+\medskip\noindent\textbf{Part A --- What a VLAN actually separates.}\par
+A switch floods broadcasts to every port. A VLAN restricts that flooding to a subset, which means one physical switch behaves as several independent switches.
+
+\begin{keyidea}
+Devices in different VLANs cannot reach each other \emph{at all} without a router, regardless of IP addressing. Putting them in the same subnet changes nothing --- the frames never leave their broadcast domain.
+
+That is the point. VLAN separation is enforced at layer 2, below IP, so it cannot be bypassed by reconfiguring a host.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Three port types.}\par
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{0.13\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Port type & Incoming untagged frame & Outgoing frame \\
+\midrule
+Access & Tagged with the port's PVID & Tag removed \\
+Trunk & Tagged with PVID & Tagged, unless the VLAN is the native VLAN \\
+Hybrid & Tagged with PVID & Tagged \emph{or} untagged, configured per VLAN \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Every port has a \term{PVID} --- the VLAN assigned to arriving untagged frames. For an access port the PVID is simply its VLAN.
+
+The distinction that matters: access and trunk ports decide tagging by \emph{role}; a hybrid port decides per VLAN. That is what lets a hybrid port send VLAN 10 untagged to a PC while sending VLAN 20 tagged to a phone on the same cable.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Create VLANs and assign access ports.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+vlan batch 10 20 30
+
+interface GigabitEthernet 0/0/1
+ port link-type access
+ port default vlan 10
+quit
+
+interface GigabitEthernet 0/0/2
+ port link-type access
+ port default vlan 20
+quit
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part D --- Carry VLANs between switches.}\par
+An access port carries one VLAN. Connecting two switches that share three VLANs would need three cables --- unless the link is a trunk.
+
+\begin{lstlisting}[style=dcnterminal]
+interface Eth-Trunk 1
+ port link-type trunk
+ port trunk allow-pass vlan 10 20 30
+quit
+\end{lstlisting}
+
+\begin{pitfall}
+\cmd{port trunk allow-pass vlan 10 20 30} does not \emph{add} to the allowed list on every VRP version --- on some it replaces it. Always confirm with \cmd{display port vlan} rather than assuming your second command extended the first.
+
+And note that VLAN 1 is allowed by default. Leaving it there is a common audit finding, since it carries management traffic across a link that may not need it.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part E --- The native VLAN trap.}\par
+
+\begin{keyidea}
+A trunk sends one VLAN untagged: the \term{native VLAN}, which is the trunk port's PVID and defaults to VLAN 1.
+
+If the two ends of a trunk disagree about the native VLAN, traffic leaks silently between them. Switch A sends VLAN 1 untagged; switch B receives an untagged frame and assigns it to \emph{its} native VLAN, say VLAN 99. Two supposedly separate VLANs are now joined, with no error message anywhere.
+
+Set the native VLAN explicitly and identically on both ends, and never use a VLAN that carries user data.
+\end{keyidea}
+
+\begin{lstlisting}[style=dcnterminal]
+interface Eth-Trunk 1
+ port trunk pvid vlan 999
+ port trunk allow-pass vlan 10 20 30
+quit
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part F --- Hybrid ports.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+interface GigabitEthernet 0/0/5
+ port link-type hybrid
+ port hybrid pvid vlan 10
+ port hybrid untagged vlan 10
+ port hybrid tagged vlan 20
+quit
+\end{lstlisting}
+
+A PC sending untagged frames lands in VLAN 10 and receives VLAN 10 untagged. A device that understands tags can also use VLAN 20 on the same port.
+
+\medskip\noindent\textbf{Part G --- Verify.}\par
+
+\begin{commandmap}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.40\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Command} & \bfseries Shows \\
+\midrule
+display vlan & Every VLAN and its member ports \\
+display port vlan & Each port's type, PVID, and allowed VLANs \\
+display vlan 10 verbose & Which ports carry VLAN 10, tagged or untagged \\
+display mac-address vlan 10 & Which hosts have been learned in that VLAN \\
+\bottomrule
+\end{tabularx}
+\end{commandmap}
+
+Then test: hosts in VLAN 10 must ping each other across both switches, and must fail to reach VLAN 20 even in the same subnet.
+
+\begin{troubleshoot}
+\textbf{Same VLAN, same switch, ping fails.} Check both ports are access ports in that VLAN with \cmd{display port vlan}.
+
+\textbf{Same VLAN, different switches, ping fails.} The trunk is not allowing that VLAN, or the VLAN does not exist on the second switch. It must be created on both.
+
+\textbf{Different VLANs can reach each other.} Native VLAN mismatch on the trunk --- the leak described in Part E.
+
+\textbf{Trunk works for some VLANs only.} \cmd{allow-pass} replaced rather than extended the list.
+\end{troubleshoot}
+
+\begin{tryit}
+Set the native VLAN to 10 on one switch and 20 on the other, then ping between VLANs. It will work --- which is a security failure, not a success.
+
+Capture it in Wireshark and explain which frames carry a tag and which do not. Then fix it and confirm the isolation returns.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item VLANs created on both switches, not just one.
+  \item Trunk explicitly permits every VLAN that must cross it.
+  \item Native VLAN set identically on both ends and carries no user data.
+  \item Same-VLAN connectivity proven across switches, and cross-VLAN isolation proven to fail.
+  \item Hybrid port demonstrated with one VLAN tagged and one untagged.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit both switch configurations, \cmd{display vlan} and \cmd{display port vlan} output, a connectivity matrix showing which host pairs can reach each other and which cannot, and evidence of the native-VLAN mismatch experiment with an explanation of why it is a security problem.
+\end{labdeliverable}

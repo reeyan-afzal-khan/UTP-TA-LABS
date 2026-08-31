@@ -1,0 +1,32 @@
+\labsection{1}{BFS, DFS, and Uniform-Cost Search}{sec:lab01-search}
+
+\begin{labproject}{Search foundations across graphs, mazes, words, and trees}
+\textbf{Coverage.} Chapter~\ref{ch:uninformed} --- Breadth-First, Depth-First, and Uniform-Cost Search.\\
+\textbf{Goal.} Use the same search vocabulary across four representations and explain how the frontier rule changes behavior.
+
+\begin{labmode}
+Use the supplied problem instances and the reusable implementations in this chapter. Trace each case before running it.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- BFS problem set.}\par
+\begin{enumerate}
+  \item Find a path from \texttt{A} to \texttt{G} in the unweighted interpretation of the supplied graph.
+  \item Find a path from \texttt{S} (start) to \texttt{G} (goal) in the supplied two-dimensional (2D) maze, where ``.'' is open and ``\#'' is a wall.
+  \item Transform \texttt{hit} to \texttt{cog} using the valid word list \texttt{hit, hot, dot, dog, lot, log, cog}.
+  \item Traverse the seven-node binary tree level by level.
+\end{enumerate}
+
+\medskip\noindent\textbf{Part B --- DFS problem set.}\par
+Repeat the graph, maze, word-ladder, and tree tasks using DFS. For the tree, use preorder traversal.
+
+\medskip\noindent\textbf{Part C --- UCS problem set.}\par
+Use the weighted graph from the handout, then solve the weighted grid and the graph with loops. Record both the returned path and its total cost.
+
+\begin{tryit}
+Record the frontier-removal order, then change one neighbor ordering and compare the returned path.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit BFS, DFS, and UCS implementations; successful runs for each representation; and a brief comparison of frontier order, path length, and cost.
+\end{labdeliverable}

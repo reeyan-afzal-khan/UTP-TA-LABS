@@ -1,28 +1,57 @@
 /*
-STEP 1: Start the program
-STEP 2: Declare the variables ch, *fp, sc=0
-STEP 3: Open the file in read mode
-STEP 4: Get the character
-STEP 5: If ch== “ “ then increment sc value by one
-STEP 6: Print no of spaces
-STEP 7: Close the file
-*/
+ * Lab 2, Task 1 --- Count the space characters in a file.
+ *
+ * STEP 1: Take the filename from the command line.
+ * STEP 2: Open it for reading.
+ * STEP 3: Read one character at a time until fgetc() returns EOF.
+ * STEP 4: Count how many of them are ' '.
+ * STEP 5: Print the count and close the file.
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01
+ * Run:   ./task01 somefile.txt
+ */
 
-#include<fcntl.h>
-#include<unistd.h>
-#include<stdio.h>
-int main(int argc,char *argv[]){
-	FILE *fp; char ch; int sc=0;
-	fp=fopen(argv[1],"r");
-	if(fp==NULL)
-		printf("unable to open a file",argv[1]);
-	else{
-		while(!feof(fp)){
-		ch=fgetc(fp); if(ch==' ')
-		sc++;
-	}
-	printf("no of spaces %d",sc);
-	printf("\n");
-	fclose(fp);
-	}
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s FILE\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    FILE *fp = fopen(argv[1], "r");
+    if (fp == NULL) {
+        perror(argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    /* ch must be int, not char. fgetc() returns 0..255 for a real byte and
+     * the separate value EOF (usually -1) at end of file. Storing that in a
+     * char collapses the two, so the loop either ends early or never ends. */
+    int ch;
+    long spaces = 0;
+
+    /* Loop on the result of the read, not on feof().
+     *
+     * "while (!feof(fp))" is the classic bug: feof() only becomes true AFTER
+     * a read has already failed, so the body runs one extra time with a stale
+     * or EOF value and the count comes out wrong. */
+    while ((ch = fgetc(fp)) != EOF) {
+        if (ch == ' ') {
+            spaces++;
+        }
+    }
+
+    /* Distinguish a real read error from a clean end of file. */
+    if (ferror(fp)) {
+        perror(argv[1]);
+        fclose(fp);
+        return EXIT_FAILURE;
+    }
+
+    printf("number of spaces: %ld\n", spaces);
+    fclose(fp);
+    return EXIT_SUCCESS;
 }

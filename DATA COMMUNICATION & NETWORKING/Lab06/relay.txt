@@ -1,0 +1,40 @@
+! ============================================================
+! Lab 6 --- DHCP relay
+!
+! Routers do not forward broadcasts, so a client on one segment
+! cannot reach a DHCP server on another. That is deliberate --
+! and the reason a relay exists.
+! ============================================================
+
+system-view
+dhcp enable
+
+interface GigabitEthernet 0/0/2
+ ip address 192.168.3.1 24
+ dhcp select relay
+ dhcp relay server-ip 192.168.1.1
+quit
+quit
+save
+
+! ---------- How it works ----------
+! The relay receives the broadcast DISCOVER, converts it to a unicast
+! addressed to the server, and records the RECEIVING INTERFACE'S address
+! in the packet's giaddr field.
+!
+! giaddr is how the server knows which pool to draw from. Without it the
+! server would see a request arriving from a router with no idea which
+! subnet the client is on.
+!
+! So the server needs a pool whose network matches the relay interface
+! address -- here, 192.168.3.0/24.
+
+! ---------- Verify ----------
+! display dhcp relay all
+! On the server:  display ip pool name LAN3 used
+! On the client:  display ip interface brief
+!
+! Troubleshooting:
+!   No address at all          -> check dhcp enable, then dhcp select
+!   Address from wrong pool    -> giaddr matches no pool network
+!   Works locally, not relayed -> relay cannot reach the server; ping it

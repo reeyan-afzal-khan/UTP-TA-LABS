@@ -1,0 +1,106 @@
+\chapter{eNSP and Huawei VRP Fundamentals}\label{ch:ensp-vrp}
+\chapterguide{Lab 1 packet observation and basic IPv4 addressing concepts.}{Build and start an eNSP topology, capture packets from an eNSP interface, navigate Huawei VRP views, name devices, configure router interfaces, verify state, ping a neighbor, and save a configuration.}
+\sourcelab{Lab 2A - eNSP Introduction.pptx and Lab 2B - eNSP Introduction.pptx}
+
+\section{eNSP is the course laboratory environment}
+The supplied material describes eNSP as a platform for implementing networks and developing practical knowledge of IP networking. The workflow is visual: place devices on a canvas, connect them, configure the end systems or network devices, start them, generate traffic, and inspect the result.
+
+\sourceimage[0.90\linewidth]{eNSP main workspace shown in the supplied Lab 2A material}{ensp-home.png}
+
+\section{The topology-building loop}
+\begin{netsteps}
+\item Choose an end device, router, or switch from the left-side device list and drag it onto the canvas.
+\item Select the connection tool and connect the required interfaces using the requested physical medium.
+\item Open end-system settings or device consoles and configure the required addresses.
+\item Start the devices. A topology that is correctly drawn but not started cannot generate useful traffic.
+\item To analyze packets, select the interface to be monitored and start capture so Wireshark receives the traffic.
+\item Generate traffic using a command such as \cmd{ping <IP-address>} and inspect the result.
+\end{netsteps}
+
+\begin{keyidea}
+The course repeatedly uses the same engineering cycle: \textbf{build $\rightarrow$ configure $\rightarrow$ display state $\rightarrow$ test $\rightarrow$ save}. The protocol changes from lab to lab, but the workflow does not.
+\end{keyidea}
+
+\section{Huawei VRP views}
+VRP uses hierarchical command views. The prompt tells you where you are and therefore which commands are valid.
+
+\begin{tabularx}{\linewidth}{p{0.40\linewidth}X}
+\toprule
+Prompt pattern & Meaning\\\midrule
+\cmd{<Huawei>} & User view; commonly used for display, ping, save, and entry into system view.\\
+\cmd{[Huawei]} or \cmd{[R1]} & System view; used for device-wide configuration and entry into protocol/interface views.\\
+\cmd{[R1-GigabitEthernet0/0/0]} & Interface view; commands affect the selected interface.\\
+\cmd{[R1-ospf-1]} & Protocol/process view; commands affect the selected routing process.\\\bottomrule
+\end{tabularx}
+
+\section{Direct-link topology used for basic VRP practice}
+The second part of Lab 2 connects R1 and R3 on network \cmd{10.0.13.0/24}. The source topology uses \cmd{10.0.13.1} on R1 and \cmd{10.0.13.3} on R3.
+
+\sourceimage[0.82\linewidth]{Directly connected R1--R3 topology from the supplied Lab 2B slide}{vrp-direct-link-topology.png}
+
+\subsection{Configure R1}
+\begin{lstlisting}[style=dcnterminal]
+<Huawei> system-view
+[Huawei] sysname R1
+[R1] interface GigabitEthernet 0/0/0
+[R1-GigabitEthernet0/0/0] ip address 10.0.13.1 24
+[R1-GigabitEthernet0/0/0] description This interface connects to R3-G0/0/0
+\end{lstlisting}
+
+\subsection{Configure R3}
+\begin{lstlisting}[style=dcnterminal]
+<Huawei> system-view
+[Huawei] sysname R3
+[R3] interface GigabitEthernet 0/0/0
+[R3-GigabitEthernet0/0/0] ip address 10.0.13.3 255.255.255.0
+[R3-GigabitEthernet0/0/0] description This interface connects to R1-G0/0/0
+\end{lstlisting}
+
+The slides demonstrate both prefix length \cmd{24} and decimal mask \cmd{255.255.255.0} as ways to represent the same /24 subnet mask.
+
+\section{Verification commands: never assume the command worked}
+\begin{commandmap}
+\begin{tabularx}{\linewidth}{>{\ttfamily}p{0.38\linewidth}X}
+\toprule
+Command & Evidence it gives you\\\midrule
+ display this & Configuration applied in the current view.\\
+ display interface GigabitEthernet 0/0/0 & Detailed physical/protocol state, address, description, MTU, and interface statistics.\\
+ display ip interface brief & Compact list of interface addresses and physical/protocol states.\\
+ ping 10.0.13.3 & End-to-end Layer-3 reachability from R1 to R3.\\
+ save & Writes the current configuration so it can survive a restart.\\
+ display saved-configuration & Displays the stored configuration.\\\bottomrule
+\end{tabularx}
+\end{commandmap}
+
+\begin{verifybox}
+A healthy direct link should have compatible IPv4 addresses and should report both physical and protocol status as \textbf{up}. The lab's final proof is a successful ping between R1 and R3 followed by a saved configuration.
+\end{verifybox}
+
+\section{Command abbreviations from the lab}
+The source explicitly introduces common shortcuts. These are convenient, but a student should first understand the full command name.
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Full command & Abbreviation shown\\\midrule
+\cmd{system-view} & \cmd{sys}\\
+\cmd{interface GigabitEthernet 0/0/0} & \cmd{int g 0/0/0}\\
+\cmd{ip address 10.0.13.1 24} & \cmd{ip add 10.0.13.1 24}\\
+\cmd{display} & \cmd{disp}\\
+\cmd{quit} & \cmd{q}\\
+\cmd{save} & \cmd{save}\\\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pitfall}
+A failed ping is not enough information to diagnose the problem. Inspect interface state first. If the physical state is down, routing commands will not fix the link. If physical is up but protocol is down, check the configuration and peer-side state. Only after the direct link is healthy should you investigate remote routing.
+\end{pitfall}
+
+\begin{tryit}
+Build the small switch-and-two-PC topology requested in the Lab 2B material. Assign compatible IPv4 addresses, use \cmd{ipconfig} on both PCs, verify connectivity with \cmd{ping}, and capture a readable screenshot of the command panel showing the result.
+\end{tryit}
+
+\begin{chapterrecap}
+eNSP supplies the virtual network; VRP supplies the device CLI. Learn the prompt hierarchy, configure one property at a time, display the resulting state, test connectivity, and save. Those habits are more important than memorizing a long sequence of commands.
+\end{chapterrecap}
+
+\input{labs/02-ensp-vrp}

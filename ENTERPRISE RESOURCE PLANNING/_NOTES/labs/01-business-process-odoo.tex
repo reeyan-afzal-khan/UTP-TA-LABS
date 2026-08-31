@@ -1,0 +1,96 @@
+\labsection{1}{Business Process and Odoo Environment Setup}{sec:lab01}
+
+\begin{labproject}{West End Bicycles: map the organisation, then build the ERP foundation}
+\textbf{Coverage.} Tutorial 1 + Chapters 1--2.\\
+\textbf{Core system.} Odoo 19 Community Edition.\\
+\textbf{Goal.} Connect functional-area theory to a real ERP structure by creating the company, required apps, departments, employees, and operational users.
+
+\begin{labmode}
+The tutorial asks students to identify business functions, discuss cross-functional Sales teams, describe information flow between Sales and Finance, and draw a purchasing process. The Odoo build makes those abstract boxes concrete: departments become records, employees become owners, and later transactions will be assigned to them.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Odoo 19 orientation.}
+
+Use the navigation conventions from the supplied guide:
+\begin{itemize}
+  \item main app grid at the top-left;
+  \item app-specific menu bar across the top;
+  \item breadcrumb trail for moving back through linked records;
+  \item smart buttons for jumping to related documents;
+  \item new records through \textbf{New}; existing records are directly editable;
+  \item cloud/save indicator for unsaved changes, with auto-save when navigating away.
+\end{itemize}
+
+\begin{pitfall}
+Older Odoo tutorials may refer to a separate Edit button or the old ``Storable Product'' type. The supplied Odoo 19 guide states that physical stock items use \textbf{Product Type = Goods} plus \textbf{Track Inventory}.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part B --- Create or access the database.}
+
+For a local Community installation, use the Database Manager route described in the guide and create a database such as \texttt{west\_end\_bicycles}. Use Malaysia as country so the company context matches the supplied build. If the class deployment is already provisioned, use the assigned database instead.
+
+\medskip\noindent\textbf{Part C --- Install the course apps.}
+
+Install or confirm these eight apps:
+
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+App & Role in the course \\
+\midrule
+Contacts & Shared customer and vendor records. \\
+CRM & Opportunities and pipeline. \\
+Employees & Departments, people, managers, and organisation structure. \\
+Inventory & Receipts, deliveries, and on-hand stock. \\
+Invoicing & Customer invoices and payments in the Community workflow. \\
+Manufacturing & BOMs and Manufacturing Orders. \\
+Purchase & RFQs, Purchase Orders, and vendor receipts. \\
+Sales & Quotations and Sales Orders. \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
+
+\medskip\noindent\textbf{Part D --- Create the company and organisation.}
+
+Set the company to \textbf{West End Bicycles}, Ipoh, Perak, Malaysia. Then create four departments:
+\begin{itemize}
+  \item Sales and Marketing;
+  \item Accounting and Finance;
+  \item Supply Chain;
+  \item Human Resources.
+\end{itemize}
+
+Add the sample employees from the supplied guide and set department heads. At minimum, ensure Sales Manager, Purchasing Officer, Production Planner, Accountant/Finance role, and HR Officer are present.
+
+\medskip\noindent\textbf{Part E --- Create operational users.}
+
+The guide distinguishes HR employee records from login users. Create and link user accounts for the operational roles needed later so they can appear in fields such as Salesperson, Buyer, and Responsible.
+
+\medskip\noindent\textbf{Part F --- Answer the Tutorial 1 concept questions.}
+
+Using West End Bicycles, prepare:
+\begin{enumerate}
+  \item at least three business functions for each of the four functional areas;
+  \item a reasoned choice about whether the customer-order Sales team should include only Sales/Marketing staff or cross-functional members;
+  \item a description of information flowing between Marketing/Sales and Accounting/Finance;
+  \item a business-process diagram for ordering 1,000 bicycles from a supplier.
+\end{enumerate}
+
+\begin{tryit}
+For Question 3, do not write only ``Sales sends order data to Finance.'' Include the reverse flow too: customer credit/payment status and invoice/payment information must return to Sales so the customer can receive an accurate answer.
+\end{tryit}
+
+\medskip\noindent\textbf{Evidence to capture.}
+\begin{itemize}
+  \item installed-apps screen;
+  \item completed company profile;
+  \item departments view with managers;
+  \item one organisation-chart view;
+  \item user list showing the operational logins.
+\end{itemize}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit the Tutorial 1 answers plus screenshots proving the Odoo foundation is ready. Your process diagram should show at least the request, supplier/order step, receipt, inventory update, and financial/payment consequence rather than a single departmental box.
+\end{labdeliverable}

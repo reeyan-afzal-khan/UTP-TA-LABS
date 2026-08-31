@@ -1,0 +1,131 @@
+\labsection{6}{DHCP: addresses without a spreadsheet}{sec:lab06-dhcp}
+
+\begin{labproject}{Global pools, interface pools, and the relay that crosses a router}
+\textbf{Coverage.} Chapter~\ref{ch:dhcp}.\\
+\textbf{Materials.} \texttt{Lab06/dhcp\_server.txt}, \texttt{Lab06/relay.txt}.\\
+\textbf{Goal.} Hand out addresses automatically, understand why the process works at all before a client has an address, and extend it across a router.
+
+\medskip\noindent\textbf{Part A --- The four-message exchange.}\par
+A client with no address has to ask for one --- but it cannot address a request to a server it does not know about.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{0.16\linewidth}>{\ttfamily}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Message & \textrm{\bfseries Sent to} & \bfseries Meaning \\
+\midrule
+DISCOVER & broadcast & Is there a DHCP server out there? \\
+OFFER & broadcast & Yes, and here is an address you may have \\
+REQUEST & broadcast & I accept that one \\
+ACK & broadcast & Confirmed, it is yours for the lease duration \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+DISCOVER is broadcast because the client has no address and no server to aim at. It fills the source field with \cmd{0.0.0.0} and the destination with \cmd{255.255.255.255}.
+
+REQUEST is also broadcast, and this is the part students find odd. The client already knows which server it wants --- but if two servers made offers, the broadcast tells the \emph{declined} server to release the address it had reserved. Unicasting the request would leave that address stranded until its offer timed out.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Global pools.}\par
+
+\begin{lstlisting}[style=dcnterminal]
+system-view
+dhcp enable
+
+ip pool LAN1
+ network 192.168.1.0 mask 255.255.255.0
+ gateway-list 192.168.1.1
+ dns-list 8.8.8.8 114.114.114.114
+ excluded-ip-address 192.168.1.2 192.168.1.10
+ lease day 1
+quit
+
+interface GigabitEthernet 0/0/0
+ dhcp select global
+quit
+\end{lstlisting}
+
+\begin{pitfall}
+\cmd{dhcp enable} is required globally before any pool works, and forgetting it is the most common failure in this lab. Pools configure without complaint and simply never respond.
+
+\cmd{excluded-ip-address} matters too. Without it the pool will happily hand a client the address you assigned statically to the router itself, producing a duplicate-address conflict that appears intermittently and is unpleasant to diagnose.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Interface pools.}\par
+A global pool is defined centrally and selected per interface. An interface pool is defined on the interface itself and derives its network from that interface's address:
+
+\begin{lstlisting}[style=dcnterminal]
+interface GigabitEthernet 0/0/1
+ ip address 192.168.2.1 24
+ dhcp select interface
+ dhcp server dns-list 8.8.8.8
+ dhcp server excluded-ip-address 192.168.2.2 192.168.2.5
+quit
+\end{lstlisting}
+
+Use interface pools for a single directly attached segment; use global pools when you need one definition serving several interfaces, or when a relay is involved.
+
+\medskip\noindent\textbf{Part D --- Crossing a router.}\par
+Routers do not forward broadcasts, so a client on one segment cannot reach a DHCP server on another. That is deliberate --- and the reason a relay exists.
+
+\begin{lstlisting}[style=dcnterminal]
+interface GigabitEthernet 0/0/2
+ dhcp select relay
+ dhcp relay server-ip 192.168.1.1
+quit
+\end{lstlisting}
+
+\begin{keyidea}
+The relay receives the broadcast DISCOVER, converts it to a unicast addressed to the server, and --- critically --- records the receiving interface's address in the packet's \cmd{giaddr} field.
+
+That field is how the server knows which pool to draw from. Without it the server would see a request arriving from a router and have no idea which subnet the client is actually on.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part E --- Verify from both ends.}\par
+
+\begin{commandmap}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.44\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\textrm{\bfseries Command} & \bfseries Shows \\
+\midrule
+display ip pool & Pools, sizes, and how many addresses are in use \\
+display ip pool name LAN1 used & Which addresses are leased, and to whom \\
+display dhcp relay all & Relay configuration and target server \\
+display ip interface brief & Whether the client actually received an address \\
+\bottomrule
+\end{tabularx}
+\end{commandmap}
+
+\begin{troubleshoot}
+\textbf{Client gets no address.} Check \cmd{dhcp enable} first --- then that the interface has \cmd{dhcp select} applied at all.
+
+\textbf{Client gets an address from the wrong pool.} On a relayed request, the \cmd{giaddr} does not match any pool network. Confirm the relay interface's address falls inside the intended pool.
+
+\textbf{Address conflicts appear.} Static assignments are inside the pool range and not excluded.
+
+\textbf{Works on the local segment, fails across the router.} Relay not configured, or pointing at an address the relay itself cannot reach. Ping the server from the relay router.
+\end{troubleshoot}
+
+\begin{tryit}
+Capture the exchange in Wireshark with the display filter \cmd{bootp} (Wireshark still uses DHCP's original protocol name).
+
+Find the DISCOVER and read its source address. Then explain, in one sentence, how the server's OFFER reaches a client that does not yet have an address to send it to.
+\end{tryit}
+\end{labproject}
+
+\begin{verifybox}
+\begin{itemize}
+  \item \cmd{dhcp enable} present before any pool configuration.
+  \item Both a global pool and an interface pool demonstrated.
+  \item Static addresses excluded from every pool range.
+  \item \cmd{display ip pool} shows leases actually issued.
+  \item Relay demonstrated with a client on a different segment from the server.
+\end{itemize}
+\end{verifybox}
+
+\begin{labdeliverable}
+Submit configurations for server and relay, \cmd{display ip pool} output showing issued leases, evidence a client on a remote segment received a correct address and gateway, and a Wireshark capture of all four messages with the DISCOVER's source address highlighted.
+\end{labdeliverable}

@@ -1,0 +1,177 @@
+\chapter{Operating Systems at a Glance}\label{ch:overview}
+\chapterguide{You should be comfortable with basic C programs and the idea that a computer has a CPU, memory, and storage.}{Explain why an OS exists, distinguish kernel and user mode, classify OS services, and connect the main course topics into one execution story.}
+
+\section{Start with something you have already done}
+Open a terminal and type \texttt{ls}. A list of filenames appears. Nothing about that is obvious once you look closely:
+
+\begin{itemize}
+  \item Your shell was running. It had to \emph{stop} doing that and start a different program.
+  \item \texttt{ls} needed memory --- but so does every other program currently running, and none of them interfered.
+  \item The filenames live as magnetic or flash state on a disk. Something turned that into text.
+  \item The output reached your screen, which \texttt{ls} does not own and cannot address directly.
+\end{itemize}
+
+Four different subsystems cooperated, and you typed two letters. The \term{operating system (OS)} is the software that made all four happen.
+
+\begin{keyidea}
+An OS does two jobs at once. It is an \emph{abstraction layer}, turning awkward hardware into workable objects like processes, files, and memory addresses. It is also a \emph{resource manager}, deciding who gets what, for how long, and with what permission.
+
+Nearly every design decision in this course comes from those two jobs pulling in different directions.
+\end{keyidea}
+
+\section{The layers involved}
+Your program sits at the top. The hardware sits at the bottom. Everything between is the OS's responsibility.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  layer/.style={draw=MLBlue,rounded corners=2mm,minimum width=11.5cm,minimum height=1.0cm,align=center,font=\bfseries\color{MLNavy}},
+  node distance=0.25cm
+]
+\node[layer,fill=MLPaleBlue] (apps) {Applications: shell, editor, browser, compiler, user programs};
+\node[layer,fill=MLPaleTeal,below=of apps] (sys) {System-call interface and libraries};
+\node[layer,fill=MLPaleOrange,below=of sys] (kernel) {Kernel: processes, scheduler, memory manager, file systems, device drivers};
+\node[layer,fill=MLPaleGray,below=of kernel] (hw) {Hardware: CPU, RAM, storage, timers, network and I/O devices};
+\end{tikzpicture}
+\end{mlfigure}
+
+Read the diagram as a rule about \emph{reach}. An application cannot skip a layer. It cannot address the disk controller, and it cannot read another process's memory. Every downward step goes through the interface directly beneath it.
+
+\section{Kernel mode and user mode}
+That restriction is enforced by the CPU itself, not by good manners.
+
+Modern processors run in at least two privilege levels. Your programs run in \term{user mode}, where privileged instructions and direct hardware access are simply unavailable --- attempting them traps instead of executing. The kernel runs in \term{kernel mode}, where everything is permitted.
+
+Control crosses that boundary in exactly three ways, and it is worth memorising them now because the rest of the course keeps returning to them:
+
+\begin{description}
+  \item[System call] The program \emph{asks}. It wants something only the kernel can do.
+  \item[Exception] The current instruction \emph{cannot proceed} --- divide by zero, bad memory access, page fault.
+  \item[Interrupt] Hardware \emph{demands attention} --- a timer tick, a keypress, a disk finishing a read.
+\end{description}
+
+\begin{intuition}
+User mode is a blast wall. A buggy program should be free to crash itself, and unable to take down the machine, corrupt another process's memory, or reprogram a disk controller on its way out.
+
+This is why an infinite loop in your code does not freeze the whole computer. The timer interrupt fires regardless of what your program is doing, and control returns to the kernel whether your program likes it or not.
+\end{intuition}
+
+\section{System calls are the operating-system API}
+A \term{system call} is a request for a service that needs kernel authority. They group into a handful of families:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X p{0.26\linewidth}@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Family & What it does & Seen in this course \\
+\midrule
+Process control & Create, terminate, wait for, or replace a running program & \texttt{fork()}, \texttt{waitpid()} in Lab 1 \\
+File management & Open, read, write, seek, close, inspect metadata & \texttt{fopen()}, \texttt{fgetc()} in Lab 2 \\
+Device management & Read and write devices, configure device state & Chapters 9--10 \\
+Information & Process identifiers, time, resource limits & \texttt{getpid()} in Lab 1 \\
+Communication & Pipes, shared memory, message queues, sockets, signals & Lab 5 \\
+Protection & Permissions, identities, access checks & Chapter 2 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+\texttt{printf()} is not a system call. It is a C library function that formats your text and then calls \texttt{write()}, which is the system call.
+
+The distinction matters more than it sounds. The library buffers output, so \texttt{printf()} may return long before anything reaches the screen. In Lab 1 you fork a process, and both parent and child inherit a copy of that buffer --- which is how a single \texttt{printf()} can produce output twice. Add \texttt{fflush(stdout)} before \texttt{fork()} and the duplicate disappears.
+\end{pitfall}
+
+\section{One command, every subsystem}
+Return to \texttt{ls}, and trace it properly. The shell creates a process. The scheduler decides when it runs. Virtual memory hands it an address space that appears to start at zero regardless of where it physically sits. The file system turns the pathname into a location. The storage stack reads blocks. An interrupt announces the read finished. The terminal driver receives the output.
+
+\begin{keyidea}
+The topics in this course are not a list of separate features. They are cooperating subsystems, and almost every non-trivial program execution needs all of them at once.
+
+Each later chapter zooms in on one of the steps above.
+\end{keyidea}
+
+\section{Program, process, and thread}
+These three words get used loosely in conversation and precisely in operating systems. The difference is worth getting right early.
+
+A \term{program} is passive: instructions and data sitting in a file. It does nothing. A \term{process} is a running instance of a program, with state --- registers, program counter, address space, open files, scheduling information, credentials. A \term{thread} is a single flow of execution inside a process.
+
+\begin{analogy}
+A program is a recipe. A process is one cook actually working from it, with their own bench space, ingredients, and half-finished pan. A thread is a pair of hands.
+
+Two cooks working from the same recipe do not share a bench --- that is two processes. Two pairs of hands belonging to one cook share everything on that bench --- that is two threads, and it is exactly why threads need locks and processes usually do not.
+\end{analogy}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Concept & Owns / represents & Typical question \\
+\midrule
+Program & Executable instructions and static data & What code could run? \\
+Process & Resource container plus execution state & Which running instance is this? \\
+Thread & Schedulable execution flow & Which sequence of instructions runs now? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Running the same program twice gives two processes. They have different process IDs, separate memory, and no ability to see each other's variables. You will observe this directly in Lab 1: after \texttt{fork()}, parent and child both continue from the same line with the same variables --- and changing a variable in one has no effect on the other.
+
+\section{The process-state model}
+A process is not always running. Most of the time it is waiting for something. The standard five-state model captures that:
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  st/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.1cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=MLTeal,thick}
+]
+\node[st] (new) {New};
+\node[st,right=1.1cm of new] (ready) {Ready};
+\node[st,right=1.1cm of ready] (run) {Running};
+\node[st,below=1.4cm of run] (wait) {Waiting};
+\node[st,right=1.1cm of run] (term) {Terminated};
+\draw[arr] (new)--node[above,font=\scriptsize]{admit}(ready);
+\draw[arr] (ready)--node[above,font=\scriptsize]{dispatch}(run);
+\draw[arr,bend left=25] (run) to node[below,font=\scriptsize]{preempt} (ready);
+\draw[arr] (run)--node[above,font=\scriptsize]{exit}(term);
+\draw[arr] (run)--node[right,font=\scriptsize]{wait for I/O}(wait);
+\draw[arr] (wait)--node[left,font=\scriptsize]{event done}(ready);
+\end{tikzpicture}
+\end{mlfigure}
+
+Two arrows deserve attention, because students routinely confuse them.
+
+\emph{Running to Ready} is \term{preemption}. The process was perfectly able to continue; the OS stopped it anyway, usually because its time slice expired. This is the arrow Round Robin in Chapter 4 depends on.
+
+\emph{Running to Waiting} is \term{blocking}. The process cannot continue --- it asked for data from disk and the data is not there yet. No scheduling policy can help; only the event can.
+
+\begin{pitfall}
+``Ready'' does not mean idle. A ready process wants the CPU right now and cannot have it, because another process is using it. On a busy machine, the ready queue is where processes spend most of their existence.
+\end{pitfall}
+
+\input{chapters/concepts/01-foundations-deep-dive}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does an application need a system call to create another process?
+  \item What do threads in one process share, and what stays private to each?
+  \item Name one event that moves a running process into the waiting state.
+  \item A process sits in Ready for 200\,ms. Is it blocked? What is it waiting for?
+\end{enumerate}
+
+\medskip\noindent\textbf{Answers.}
+\begin{enumerate}
+  \item Creating a process means allocating an address space, a process-table entry, and an identity. All of those are kernel-owned structures, and letting user code write them directly would remove every protection guarantee the OS makes.
+  \item Shared: address space, open-file table, code, globals, and the heap. Private: registers, program counter, and stack. Sharing the heap is exactly why two threads writing one variable need a lock.
+  \item A read from disk, waiting on a child with \texttt{waitpid()}, or blocking on a semaphore --- anything where the process cannot proceed until an external event occurs.
+  \item Not blocked. Ready means it is able to run and is waiting only for a turn on the CPU. A blocked process waits for an event; a ready one waits for the scheduler.
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item The OS provides abstractions while managing and protecting hardware resources; those two goals frequently conflict.
+  \item The CPU enforces the user/kernel boundary. Control crosses it by system call, exception, or interrupt --- and by nothing else.
+  \item A process is a running instance with its own resources; a thread is a flow of execution that shares them.
+  \item Preemption and blocking both stop a running process, for completely different reasons.
+  \item Scheduling, memory, I/O, and file systems all participate in ordinary program execution.
+\end{itemize}
+\end{chapterrecap}

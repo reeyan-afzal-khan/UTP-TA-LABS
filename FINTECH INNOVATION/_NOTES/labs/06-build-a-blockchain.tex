@@ -1,0 +1,180 @@
+\labsection{6}{Build a blockchain from first principles}{sec:lab06-blockchain}
+
+\begin{labproject}{Implement hashing, Merkle roots, chaining, and proof of work --- then break it}
+\textbf{Coverage.} Chapter~\ref{ch:blockchain}.\\
+\textbf{Source files.} \texttt{Lab06/blockchain.py}, \texttt{Lab06/tamper\_demo.py}.\\
+\textbf{Goal.} Build the structure Chapter~\ref{ch:blockchain} describes, in about 120 lines of standard-library Python, and then demonstrate for yourself why altering history is computationally hard.
+
+\begin{labmode}
+This is the one lab in the course where you build the technology rather than analyse a market. Everything uses Python's built-in \texttt{hashlib} --- no packages to install, no network access, no cryptocurrency involved.
+
+Work through the parts in order. Each one adds a single property, and the final property --- immutability --- only emerges once all the earlier ones are in place.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Hashing, and what makes it useful.}\par
+
+\begin{lstlisting}[style=mlpython]
+import hashlib
+
+def sha256(data: str) -> str:
+    return hashlib.sha256(data.encode()).hexdigest()
+
+print(sha256("Alice pays Bob 10"))
+print(sha256("Alice pays Bob 11"))   # one character different
+\end{lstlisting}
+
+Run it. The two outputs share no visible structure despite differing by one character. Four properties matter, and the rest of the lab depends on each:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Property & Why the blockchain needs it \\
+\midrule
+Deterministic & The same input always hashes identically, so any node can verify any block. \\
+Fixed length & A megabyte of transactions and one character both produce 64 hex characters. \\
+Avalanche & One changed bit changes roughly half the output bits, so tampering is never subtle. \\
+One-way & Given a hash you cannot compute the input, so mining must proceed by trial. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\medskip\noindent\textbf{Part B --- The Merkle root.}\par
+A block commits to every transaction it contains through one 64-character value, built by hashing transactions in pairs until one remains:
+
+\begin{lstlisting}[style=mlpython]
+def merkle_root(transactions: list[str]) -> str:
+    if not transactions:
+        return sha256("")
+
+    level = [sha256(tx) for tx in transactions]
+
+    while len(level) > 1:
+        # An odd node is paired with itself so every level halves cleanly.
+        if len(level) % 2 == 1:
+            level.append(level[-1])
+        level = [sha256(level[i] + level[i + 1]) for i in range(0, len(level), 2)]
+
+    return level[0]
+\end{lstlisting}
+
+\begin{keyidea}
+The Merkle root means a block header of fixed size commits to an unlimited number of transactions. Change any transaction and the root changes, so the header no longer matches its own contents.
+
+It also enables a proof that scales logarithmically: to convince someone a transaction is in a block of 1{,}024, you supply 10 hashes rather than all 1{,}024. That is what lets a phone verify a payment without storing the chain.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Chaining blocks.}\par
+Each block header contains the hash of the block before it. That single field is what makes the structure a chain rather than a list:
+
+\begin{lstlisting}[style=mlpython]
+from dataclasses import dataclass, field
+import time
+
+@dataclass
+class Block:
+    index: int
+    transactions: list[str]
+    previous_hash: str
+    nonce: int = 0
+    timestamp: float = field(default_factory=time.time)
+
+    def header(self) -> str:
+        return (f"{self.index}{self.timestamp}{self.previous_hash}"
+                f"{merkle_root(self.transactions)}{self.nonce}")
+
+    def hash(self) -> str:
+        return sha256(self.header())
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part D --- Proof of work.}\par
+Mining searches for a nonce that makes the block's hash start with a required number of zeros. There is no shortcut: because the hash is one-way, the only method is to try values.
+
+\begin{lstlisting}[style=mlpython]
+def mine(block: Block, difficulty: int) -> Block:
+    target = "0" * difficulty
+    while not block.hash().startswith(target):
+        block.nonce += 1
+    return block
+\end{lstlisting}
+
+\begin{tryit}
+Time mining at difficulty 1 through 6 and record the attempts:
+
+\begin{lstlisting}[style=mlpython]
+for d in range(1, 7):
+    b = Block(index=1, transactions=["a pays b 1"], previous_hash="0" * 64)
+    start = time.time()
+    mine(b, d)
+    print(f"difficulty {d}: {b.nonce:>9,} attempts, {time.time() - start:6.3f}s")
+\end{lstlisting}
+
+Each extra zero multiplies the expected work by 16, because each hex digit has 16 possible values.
+
+A single run is very noisy: the nonce you find is a draw from a geometric distribution, so one sample can land at 5$\times$ or 30$\times$ the previous row through luck alone. Average eight trials per difficulty and the ratio settles close to 16 --- the supplied \texttt{blockchain.py} does this, and reports roughly 15.2$\times$ and 15.8$\times$ for the last two steps.
+
+Now connect it to Chapter~\ref{ch:blockchain}: Bitcoin targets one block every ten minutes and adjusts difficulty every 2{,}016 blocks to hold that interval as total mining power changes. Explain what would happen to block times if difficulty were fixed and half the miners left.
+\end{tryit}
+
+\medskip\noindent\textbf{Part E --- Break it.}\par
+This is the part that makes immutability concrete. Build a valid five-block chain, then alter a transaction in block 2:
+
+\begin{lstlisting}[style=mlpython]
+def validate(chain: list[Block], difficulty: int) -> list[str]:
+    """Collect every problem, rather than returning at the first one."""
+    problems = []
+    for i in range(1, len(chain)):
+        current, previous = chain[i], chain[i - 1]
+
+        if not current.hash().startswith("0" * difficulty):
+            problems.append(f"block {i}: proof of work invalid")
+        if current.previous_hash != previous.hash():
+            problems.append(f"block {i}: previous_hash does not match block {i-1}")
+
+    return problems
+
+chain[2].transactions[0] = "carol->mallory 1000"
+for problem in validate(chain, difficulty=4):
+    print(problem)
+\end{lstlisting}
+
+Collecting \emph{all} failures rather than returning at the first one is what makes the cascade visible. One edit produces two distinct errors:
+
+\begin{lstlisting}[style=mlterminal]
+block 2: proof of work invalid
+block 3: previous_hash does not match block 2
+\end{lstlisting}
+
+The altered Merkle root changed block 2's own hash, so its proof of work no longer holds --- and that same changed hash is what block 3 stored, so the link breaks as well.
+
+\begin{keyidea}
+Editing one transaction changes that block's Merkle root, which changes its hash, which breaks the \texttt{previous\_hash} stored in the next block --- and every block after it.
+
+To make the tampered chain valid again you must re-mine block 2 and every subsequent block, while the honest network extends the real chain ahead of you. That is what ``immutable'' means here. Not that the data cannot be altered, but that altering it costs more than the alteration is worth.
+\end{keyidea}
+
+\begin{pitfall}
+A blockchain guarantees that recorded data has not changed. It guarantees nothing about whether the data was true when recorded.
+
+Write a fraudulent transaction into a block, mine it correctly, and it is now permanently, verifiably fraudulent. This is the limit that matters for the supply-chain and land-registry applications in Chapter~\ref{ch:blockchain}: the ledger secures the record, not the fact.
+\end{pitfall}
+
+\begin{tryit}
+Apply the chapter's use-case test to one non-financial application --- land registry, pharmaceutical provenance, or academic credentials.
+
+Ask in order: are there multiple parties who do not trust each other, is a trusted intermediary genuinely absent or unacceptable, and does the record need to be shared rather than merely held? If any answer is no, a database with an audit log is simpler, faster, and cheaper. Say which your case is, and be willing to conclude that blockchain is the wrong tool.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item \texttt{merkle\_root} handles an odd number of transactions and the empty case without crashing.
+  \item Mining timings are recorded for at least difficulty 1--5, with the ratio between rows discussed.
+  \item \texttt{is\_valid} detects both a broken link and invalid proof of work, and reports which block failed.
+  \item The tamper demonstration shows the failure cascading beyond the edited block.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit working \texttt{blockchain.py}, your difficulty-versus-time table with the observed scaling factor, the tamper-detection output, and one page applying the use-case test to a non-financial application --- including an honest verdict on whether a conventional database would serve it better.
+\end{labdeliverable}

@@ -1,0 +1,42 @@
+! ============================================================
+! Lab 2 --- Direct link between two routers
+!
+! Topology:   R1 GE0/0/0 <-----> GE0/0/0 R2
+!             192.168.1.1/24     192.168.1.2/24
+!
+! Paste into the eNSP CLI one block at a time, then verify.
+! Do NOT paste the whole file blind -- the point of the lab is
+! watching the prompt change as you move between views.
+! ============================================================
+
+! ---------- R1 ----------
+system-view
+sysname R1
+interface GigabitEthernet 0/0/0
+ ip address 192.168.1.1 24
+ undo shutdown
+quit
+quit
+save
+
+! ---------- R2 ----------
+system-view
+sysname R2
+interface GigabitEthernet 0/0/0
+ ip address 192.168.1.2 24
+ undo shutdown
+quit
+quit
+save
+
+! ---------- Verify (user view, from R1) ----------
+! display ip interface brief
+!     -> GigabitEthernet0/0/0  192.168.1.1/24  up  up
+!        Both columns must read "up". Physical up + Protocol down
+!        means layer 1 is fine but layer 2/3 disagree.
+!
+! ping 192.168.1.2
+!     -> 5 packets transmitted, 5 received, 0.00% packet loss
+!
+! display current-configuration    (what is running now)
+! display saved-configuration      (what survives a reboot)

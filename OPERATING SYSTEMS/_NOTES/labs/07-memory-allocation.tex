@@ -1,0 +1,20 @@
+\labsection{7}{First fit, best fit, and worst fit}{sec:lab07}
+\begin{labproject}{Compare contiguous allocation policies on identical requests}
+\textbf{Coverage.} Chapter 7.\\
+\textbf{Source files.} Three C programs in \texttt{Lab07}.\\
+\textbf{Goal.} See how a local placement rule changes fragmentation and future choices.
+
+Use the same block and request sequence for all policies. For each request record: selected block, block size, request size, fragment, and whether allocation failed.
+
+\begin{workedexample}
+If free blocks are 120, 500, 250 and the request is 200, first fit chooses 500, best fit chooses 250, and worst fit chooses 500. The immediate fragment is 300 for first/worst fit and 50 for best fit.
+\end{workedexample}
+
+\begin{tryit}
+Find a request sequence for which best fit allocates an early request efficiently but causes a later request to fail while first fit succeeds. Explain the state left after each decision.
+\end{tryit}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit outputs for all three algorithms using one common dataset and a comparison table of total reported fragmentation and number of failed requests.
+\end{labdeliverable}

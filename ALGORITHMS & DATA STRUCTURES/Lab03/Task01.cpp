@@ -1,57 +1,70 @@
+// Lab 3, Task 1 --- Singly linked list.
+//
+//   head -> [Aimar] -> [Anjana] -> [Jessy] -> nullptr
+//
+// Each node stores a value and the address of the next node. The list owns
+// no contiguous block of memory: nodes sit wherever `new` puts them, and the
+// next pointers are what impose an order on them.
+//
+// That is the trade against an array. Inserting in the middle costs no
+// shifting --- just two pointer assignments --- but reaching position i costs
+// a walk from the head, because there is no arithmetic that jumps to it.
+//
+// Build: g++ -std=c++17 -Wall -Wextra Task01.cpp -o task01
+
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-//Aimar
-//Ahmad
-//Anjana (delete this)
-
-//Ali (insert Ali here)
-
-//Jessy
-
-// and then last display all 
-
-//make class instead of struct 
-
 class Node {
-public: 
+public:
     string name;
-    Node* next; //memory address of the next node
-    //own next pointer
-    // 
+    Node* next;
 
-    // a constructor for setting up when new node is created
-    Node(string n) {
-        name = n; //the string will pass here to declare first
-        // where to refer? see upper part, it alr declare it, so default is the value
-        next = nullptr;
-        // so this is the Node* by default 
-    }
+    // The constructor sets next to nullptr so a fresh node is always a
+    // valid one-element list rather than holding an uninitialised pointer.
+    explicit Node(const string& n) : name(n), next(nullptr) {}
 };
 
 class LinkedList {
-public:
-    Node* head; //memory address of the first node
-    //this belongs to linkedlist, store the first node address
-    // head -----> [Aimar | next] -----> [Ahmad | next] -----> [Anjana | nullptr]
-    //visualize it 
+private:
+    Node* head;  // address of the first node; nullptr when the list is empty
 
-    LinkedList() {
-        head = nullptr; //empty list
+public:
+    LinkedList() : head(nullptr) {}
+
+    // Every node came from `new`, so every node needs a `delete`. Letting the
+    // list go out of scope without this leaks all of them.
+    ~LinkedList() {
+        Node* current = head;
+        while (current != nullptr) {
+            // Save the next pointer BEFORE deleting, otherwise you are
+            // reading a field out of freed memory to find where to go next.
+            Node* temp = current;
+            current = current->next;
+            delete temp;
+        }
+        head = nullptr;
     }
 
-    void insertEnd(string name) { //insert at the end
+    // A default copy would duplicate the head pointer, and both objects
+    // would delete the same nodes. Deleting these makes that a compile error.
+    LinkedList(const LinkedList&)            = delete;
+    LinkedList& operator=(const LinkedList&) = delete;
+
+    bool isEmpty() const { return head == nullptr; }
+
+    void insertEnd(const string& name) {
         Node* newNode = new Node(name);
 
         if (head == nullptr) {
-            //meaning that the list is empty 
             head = newNode;
             return;
         }
 
-        // if not walk to the last node
+        // Stop at the last node --- the one whose next is nullptr --- not at
+        // nullptr itself, because we need to write into that node.
         Node* current = head;
         while (current->next != nullptr) {
             current = current->next;
@@ -59,128 +72,105 @@ public:
         current->next = newNode;
     }
 
-    void insertAfter(string afterName, string newName) {
+    void insertAfter(const string& afterName, const string& newName) {
         Node* current = head;
-        
         while (current != nullptr && current->name != afterName) {
             current = current->next;
-            //find the postition to be inserted
         }
 
         if (current == nullptr) {
-            cout << afterName << "not found." << endl;
+            cout << afterName << " not found.\n";
             return;
         }
 
         Node* newNode = new Node(newName);
+
+        // Order matters. Point the new node at the rest of the list first;
+        // if you overwrite current->next first, the tail is unreachable.
         newNode->next = current->next;
-        //Ali points to what Anjana is pointing
-        current->next = newNode; 
-        //Anjana now points to Ali 
+        current->next = newNode;
     }
 
-    //delete a node by the name 
-    void deleteByName (string name) {
+    void deleteByName(const string& name) {
         if (head == nullptr) {
-            return; //empty list
+            cout << name << " not found.\n";
+            return;
         }
+
+        // Deleting the head is the special case: there is no previous node
+        // to redirect, so the head pointer itself has to move.
         if (head->name == name) {
             Node* temp = head;
             head = head->next;
-            delete temp; // if the deleted one should be head
+            delete temp;
             return;
         }
-        // search the rest of the list 
+
+        // Otherwise look one step ahead, so that when we find the match we
+        // are still holding the node that points at it.
         Node* current = head;
         while (current->next != nullptr) {
             if (current->next->name == name) {
-                Node* temp = current->next; //using this mean assigned the address to temp
-                current->next = temp->next; 
-                // the address of the next node of current address if the next node of "will be deleted" address
-                // meaning the next of the current node (which is the before being deleted)
-                // is the the next of being deleted one 
-                // so skip the linking directly from the being deleted one
-                delete temp; 
+                Node* temp = current->next;
+                current->next = temp->next;  // route around the doomed node
+                delete temp;
                 return;
             }
-            current = current->next; //keep looping to find the matching name
-        }
-    }
-    
-    //display the linked list
-    void display() {
-        Node* current = head;
-        if (current == nullptr) {
-            cout << "The list is empty." << endl;
-            return;
-        }
-        while (current != nullptr) {
-            cout << current->name << endl;
             current = current->next;
         }
+
+        cout << name << " not found.\n";
+    }
+
+    void display() const {
+        if (head == nullptr) {
+            cout << "The list is empty.\n";
+            return;
+        }
+        for (Node* current = head; current != nullptr; current = current->next) {
+            cout << current->name;
+            if (current->next != nullptr) cout << " -> ";
+        }
+        cout << "\n";
     }
 };
 
 int main() {
     LinkedList list;
 
+    cout << "-- Build the list --\n";
     list.insertEnd("Aimar");
     list.insertEnd("Anjana");
     list.insertEnd("Jessy");
-
-     cout << "Initial list:" << endl;
     list.display();
 
-    list.insertAfter("Anjana","Ali");
+    cout << "\n-- Insert Ali after Anjana --\n";
+    list.insertAfter("Anjana", "Ali");
+    list.display();
 
-    // insert Jessy at the end
+    cout << "\n-- Insert after a name that is not present --\n";
+    list.insertAfter("Nobody", "Ghost");
+
+    cout << "\n-- Insert Jane at the end --\n";
     list.insertEnd("Jane");
+    list.display();
 
-    // delete Anjana
+    cout << "\n-- Delete Jessy (middle) --\n";
+    list.deleteByName("Jessy");
+    list.display();
+
+    cout << "\n-- Delete Aimar (head) --\n";
+    list.deleteByName("Aimar");
+    list.display();
+
+    cout << "\n-- Delete a name that is not present --\n";
     list.deleteByName("Jessy");
 
-    cout << "\nFinal list:" << endl;
+    cout << "\n-- Delete the rest --\n";
+    list.deleteByName("Anjana");
+    list.deleteByName("Ali");
+    list.deleteByName("Jane");
     list.display();
-    // Node node1, node2, node3; //cannot use this because this is sharing the same address
-    // Node* node1 = new Node(); //Node() is new node address, not the node itself
-    // Node* node2 = new Node();
-    // Node* node3 = new Node();
 
-    // node1->name = "Ali";
-    // node1->next = node2; //memory address of node2
-    // node2->name = "Ahmet";
-    // node2->next = node3; //memory address of node3
-    // node3->name = "Ayse";
-    // node3->next = nullptr; //end of the list
-
-    // //traverse 
-    // Node* current = node1;
-    // while (current != nullptr) {
-    //     cout << current->name << endl;
-    //     current = current->next;
-    // }
-
-    // //pick by number 
-    // Node* arr[] = {node1, node2, node3};
-    // int choice;
-    // cout << "Enter 1-3 to print the name:" << endl;
-    // cin >> choice;
-    // cout << arr[choice - 1]->name << endl; 
-    // because arr[3-1] = arr[2] = &node3.
-
-    // Node nodes[] = {node1, node2, node3};
-
-    // int current = 0;
-    // while (current != -1) {
-    //     cout << current->name << endl;
-    //     current = current->next;
-    // }
-    //insert 
-
-    //delete 
-
-    //display linkedlist
-
-    
+    return 0;
 }
-

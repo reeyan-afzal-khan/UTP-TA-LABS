@@ -1,0 +1,97 @@
+\labsection{1}{Unbundling teardown of an incumbent bank}{sec:lab01-unbundling}
+
+\begin{labproject}{Map a bank's value chain and find where it is being taken apart}
+\textbf{Coverage.} Chapter~\ref{ch:intro-fintech}.\\
+\textbf{Source files.} \texttt{Lab01/unbundling\_scorecard.py}, \texttt{Lab01/value\_chain.csv}.\\
+\textbf{Goal.} Turn the week's mental model --- friction, then technology-enabled redesign, then new value proposition, then new risk --- into a defensible written assessment of one real institution.
+
+\begin{labmode}
+This is an analysis lab, not a coding lab. The script exists to keep your scoring arithmetic honest and reproducible; the marks are in the argument you build around its output.
+
+Choose one incumbent retail bank you can research in English. Maybank, CIMB, DBS, HSBC, and Lloyds all publish enough in their annual reports to work with. Use the same bank for the rest of the course where possible, so later labs compound.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Decompose the value chain.}\par
+A universal bank is not one business. It is roughly seven, bundled together and sold behind one brand:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Value-chain segment & What the bank actually provides & Typical challenger \\
+\midrule
+Payments & Moving money between parties & Wise, Stripe, GrabPay \\
+Deposits & Safekeeping and interest & Neobanks, money-market apps \\
+Lending & Credit assessment and balance sheet & P2P platforms, BNPL \\
+Wealth & Advice and portfolio construction & Robo-advisers \\
+Foreign exchange & Currency conversion & Wise, Revolut \\
+SME services & Accounts, credit, cash management & Tide, Aspire \\
+Trust and compliance & Regulatory licence, KYC, deposit guarantee & Rarely attacked directly \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+For your chosen bank, populate \texttt{value\_chain.csv} with a revenue estimate per segment from the annual report. Where the report does not break the number out, say so explicitly rather than inventing a figure --- an honest gap is worth more than a fabricated precision.
+
+\medskip\noindent\textbf{Part B --- Score disruption likelihood.}\par
+Chapter~\ref{ch:intro-fintech} argues that disruption concentrates where four conditions hold together: high customer friction, weak regulatory moat, low capital intensity, and a data or network advantage available to the entrant.
+
+Score each segment 1--5 on all four, where \textbf{5 always means more favourable to the challenger}. Moat and capital are therefore inverted relative to the bank's strength --- a strong regulatory moat scores 1, not 5. Getting that direction wrong inverts your entire analysis, so state the convention in your write-up.
+
+\begin{lstlisting}[style=mlterminal]
+$ py unbundling_scorecard.py value_chain.csv
+
+segment           fric  moat   cap  data   score     revenue     at risk
+------------------------------------------------------------------------
+fx                   5     2     5     3    3.55         400         110  <-- investigate
+sme_services         4     3     3     4    3.50       1,100         275  <-- investigate
+wealth               4     3     4     3    3.45         900         203  <-- investigate
+payments             4     2     2     4    3.00       1,800           0
+lending              3     2     1     4    2.55       3,100           0
+deposits             2     1     3     2    1.80       2,400           0
+trust_compliance     1     1     2     2    1.35         200           0
+\end{lstlisting}
+
+The script weights the four factors unequally --- moat at 0.35, friction 0.30, data 0.20, capital 0.15 --- because regulatory protection determines whether an entrant can operate at all, while capital intensity merely determines how expensive it is. Change those weights if you disagree, but justify the change.
+
+\begin{tryit}
+Payments lands at exactly 3.00 here and is not flagged, yet payments is the most visibly disrupted segment in the real market. Something is wrong with the model.
+
+Work out what. Is the moat score too generous, is capital intensity mis-scored for a payments challenger who never touches a balance sheet, or is the weighting itself at fault? Adjust one input, justify it, and note how much the ranking moves --- a model that is stable under reasonable disagreement is worth more than one that is not.
+\end{tryit}
+
+\begin{pitfall}
+A high score is a hypothesis, not a finding. The scorecard tells you where to look; it cannot tell you whether anyone has actually succeeded there.
+
+Every segment you rank above 3.0 needs a named challenger and evidence they have taken real volume. If you cannot name one, your score is wrong or the moat is stronger than you assessed --- either way, revise it and say why.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Distinguish disintermediation from unbundling.}\par
+These two words are used interchangeably in casual writing and mean different things here. Classify each challenger you identified:
+
+\begin{itemize}
+  \item \textbf{Unbundling} --- the challenger takes one segment and does it better. The bank keeps the rest. A remittance app does not want your mortgage.
+  \item \textbf{Disintermediation} --- the challenger removes the bank from the transaction entirely. A P2P platform connects lender to borrower with no balance sheet in between.
+\end{itemize}
+
+The distinction matters because the defences differ. Unbundling is answered by improving the attacked segment or partnering. Disintermediation is answered by changing what you are for.
+
+\begin{tryit}
+Find one case where a challenger unbundled a segment and then \emph{rebundled} --- added adjacent products until it resembled a bank again. Revolut and Grab are both defensible choices.
+
+Then answer the question that case raises: if challengers converge on the incumbent model, was the original bundle inefficient, or is bundling simply what customers want once trust is established?
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every revenue figure is sourced to a named report, page, and year.
+  \item Segments where the bank does not disclose a breakdown are marked as estimates, not stated as fact.
+  \item Every segment scored above 3.0 names a real challenger with evidence of volume.
+  \item Each challenger is classified as unbundling or disintermediation, with a reason.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit a four-page assessment: the completed value-chain table with sources, the scorecard output, your two most-at-risk segments argued in full, and one paragraph on what the bank still holds that no challenger has taken. Attach \texttt{value\_chain.csv}.
+\end{labdeliverable}

@@ -1,0 +1,91 @@
+\labsection{3}{Bash scripting fundamentals}{sec:lab03}
+\begin{labproject}{Use the shell as a lightweight programming environment}
+\textbf{Coverage.} Chapter 3.\\
+\textbf{Source files.} Four scripts in \texttt{Lab03}.\\
+\textbf{Goal.} Use input, arithmetic, selection, and loops, while handling the edge cases that separate a demo from a tool.
+
+\begin{labmode}
+Each script is four lines of logic wrapped in the input validation that makes it trustworthy. The validation is the lesson. A script that produces a confident wrong answer on bad input is worse than one that refuses to run.
+\end{labmode}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.06\linewidth}p{0.16\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Task & Topic & The edge case that matters \\
+\midrule
+1 & Even / odd & Non-numeric input evaluates to 0 and is reported ``even'' \\
+2 & Leap year & Testing only \texttt{\% 4} wrongly accepts 1900 and 2100 \\
+3 & Factorial & $0!$ must be 1; negative input has no answer at all \\
+4 & Swap & Losing a value when the temporary is skipped \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\medskip\noindent\textbf{Validate before you calculate.}\par
+Bash arithmetic silently treats a non-numeric word as zero. So an unvalidated even/odd script reports that \texttt{abc} is an even number, with no warning at all.
+
+\begin{lstlisting}[style=osbash]
+if ! [[ "$n" =~ ^[+-]?[0-9]+$ ]]; then
+    echo "Error: '$n' is not an integer." >&2
+    exit 1
+fi
+\end{lstlisting}
+
+Two habits appear there and are worth carrying into every script you write. Errors go to \texttt{>\&2} so they survive a redirect of normal output. Expansions are quoted --- \texttt{"\$n"} --- so a value containing a space stays one word instead of becoming two arguments.
+
+\medskip\noindent\textbf{The Gregorian rule has three clauses, not one.}\par
+A year is a leap year when it is divisible by 400; otherwise not, if divisible by 100; otherwise yes, if divisible by 4.
+
+\begin{lstlisting}[style=osbash]
+if (( y % 400 == 0 || (y % 4 == 0 && y % 100 != 0) )); then
+    echo "$y is a leap year"
+else
+    echo "$y is not a leap year"
+fi
+\end{lstlisting}
+
+The \texttt{\% 100} clause exists because the solar year is slightly under 365.25 days, so a leap day every four years overcorrects. The \texttt{\% 400} clause exists because skipping every century then overcorrects the other way. Testing \texttt{\% 4} alone is not a rounding error --- it is wrong for 1900, 2100, 2200, and 2300.
+
+\medskip\noindent\textbf{Accumulate into a new variable.}\par
+The obvious factorial loop destroys its own input:
+
+\begin{lstlisting}[style=osbash]
+# WRONG --- n is consumed, so the result cannot name the number it came from,
+# and 0! reports 0 because the loop body never runs.
+i=`expr $n - 1`
+while [ $i -ge 1 ]; do n=`expr $n \* $i`; i=`expr $i - 1`; done
+\end{lstlisting}
+
+\begin{lstlisting}[style=osbash]
+# RIGHT --- seed at 1 and leave n alone.
+product=1
+for (( i = 2; i <= n; i++ )); do
+    product=$(( product * i ))
+done
+echo "The factorial of $n is $product"
+\end{lstlisting}
+
+Seeding at 1 handles $0!$ and $1!$ with no special case, because the loop simply does not execute when $n < 2$. That is usually a sign you have chosen the right starting value.
+
+\begin{tryit}
+Verify each script against its edge cases before you believe it:
+
+\begin{lstlisting}[style=osbash]
+for y in 1900 2000 2024 2100; do echo "$y" | bash Task02.sh; done
+for n in 0 1 5 -3 abc;       do echo "$n" | bash Task03.sh; done
+\end{lstlisting}
+
+Expected: not leap, leap, leap, not leap --- then 1, 1, 120, and two refusals.
+
+Now try $21!$. Bash integers are 64-bit, so the answer is silently wrong. Find the largest $n$ that still works, and explain how you would detect the overflow rather than printing a wrong number confidently.
+\end{tryit}
+
+\begin{debugtask}
+Run every script through ShellCheck (\texttt{shellcheck Task01.sh}) or paste it into \texttt{shellcheck.net}. It flags unquoted expansions, deprecated backticks, and \texttt{[ ]} versus \texttt{[[ ]]} misuse. Fix what it reports and note which warnings were real bugs rather than style.
+\end{debugtask}
+\end{labproject}
+
+\begin{labdeliverable}
+Submit all four scripts plus a test table: input, expected output, actual output, one row per edge case above. A row where expected and actual differ is a finding, not a failure --- explain it.
+\end{labdeliverable}

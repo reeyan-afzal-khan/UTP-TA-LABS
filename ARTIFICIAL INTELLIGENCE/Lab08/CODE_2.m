@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-%% 🎯 Objective: Minimize the Rosenbrock function
+%% * Objective: Minimize the Rosenbrock function
 popSize = 30;
 dims = 2;                      % Two variables: x and y
 pop = -2 + 4 * rand(popSize, dims);  % Range: [-2, 2]
@@ -45,9 +45,21 @@ for gen = 1:maxGen
     bestFitness(gen) = min(fitnessFunc(pop));
 end
 
-%% 📈 Plotting
+%% * Plotting
 figure;
 plot(1:maxGen, bestFitness, 'r-', 'LineWidth', 2);
 xlabel('Generation'); ylabel('Best Fitness');
 title('GA Minimization: Rosenbrock Function');
 grid on;
+
+%% ---------- Report the solution ----------
+finalFitness = fitnessFunc(pop);
+[bestVal, bestIdx] = min(finalFitness);      % minimisation problem
+
+fprintf('\n=== Result: minimise the Rosenbrock function ===\n');
+fprintf('  best (x1, x2)  : (%.6f, %.6f)\n', pop(bestIdx,1), pop(bestIdx,2));
+fprintf('  best f         : %.6f\n', bestVal);
+fprintf('  known optimum  : f(1, 1) = 0\n');
+fprintf('\nRosenbrock has a narrow curved valley. Reaching the valley is\n');
+fprintf('easy; travelling along it to (1,1) is the hard part. Expect the\n');
+fprintf('result to sit in the valley but short of the optimum.\n');

@@ -1,95 +1,135 @@
+// Lab 5, Task 2 --- Queue implemented with a linked list.
+//
+// Same FIFO behaviour as the array version, but nodes are allocated on
+// demand, so there is no fixed capacity: the queue grows until memory
+// runs out. That is the trade-off --- no overflow limit, but every node
+// costs an allocation and an extra pointer.
+//
+// Build: g++ -std=c++17 -Wall -Wextra Task02.cpp -o task02
+
 #include <iostream>
 #include <string>
 
 using namespace std;
 
 class Node {
-public: //by default it is private
+public:
     string name;
-    Node* next; //memory address of the next node
-    //own next pointer
-    
-    // a constructor for setting up when new node is created
-    Node(string n) {
-        name = n; //the string will pass here to declare first
-        // where to refer? see upper part, it alr declare it, so default is the value
-        next = nullptr;
-        // so this is the Node* by default 
-    }
+    Node* next;  // address of the following node, or nullptr at the end
+
+    explicit Node(const string& n) : name(n), next(nullptr) {}
 };
 
 class Queue {
+private:
+    Node* front;  // remove from here
+    Node* rear;   // add here
+
 public:
-    Node* front; 
-    Node* rear;
+    Queue() : front(nullptr), rear(nullptr) {}
 
-
-    Queue() {
-        front = nullptr;
+    // Every node reached by `new` must be released exactly once. Without
+    // this destructor the queue leaks one node per item still held at exit.
+    ~Queue() {
+        while (front != nullptr) {
+            Node* temp = front;
+            front = front->next;
+            delete temp;
+        }
         rear = nullptr;
     }
 
-    void enqueue(string name) {
+    // Copying would duplicate the raw pointers, and both copies would then
+    // delete the same nodes. Deleting these two members makes the compiler
+    // reject the mistake instead of letting it crash at run time.
+    Queue(const Queue&)            = delete;
+    Queue& operator=(const Queue&) = delete;
+
+    bool isEmpty() const { return front == nullptr; }
+
+    void enqueue(const string& name) {
         Node* newNode = new Node(name);
+
         if (rear == nullptr) {
-            front = rear = newNode; //move both to one step out
+            // Empty queue: the single node is simultaneously front and rear.
+            front = rear = newNode;
             return;
         }
-        rear->next = newNode; // link the next of rear to new node
-        rear = newNode; //move the rear to the position of the new node
+
+        rear->next = newNode;  // link the old rear to the new node
+        rear = newNode;        // the new node becomes the rear
     }
 
     void dequeue() {
-        if (front == nullptr) {
-            cout << "This queue is empty";
+        if (isEmpty()) {
+            cout << "Queue is empty, nothing to dequeue.\n";
             return;
         }
+
         Node* temp = front;
-        front = front->next; // link the front to the next then only we delett the temp (front)
-        cout << endl;
-        cout << temp->name << " is popped" << endl;
+        front = front->next;
+
+        // Read the name BEFORE delete. Touching temp->name afterwards is
+        // a use-after-free: the memory may hold anything, or the program
+        // may crash outright.
+        cout << temp->name << " is dequeued.\n";
         delete temp;
-        //must display first before delete if not it is not accessed
-        // it is undefined behavior (meaning in crash or garbage alr)
 
-        //check if after delete the front, will t be empty? of empty, move the rear to nullptr if 
-        //front alr link to nullptr which mean empty queue after linking to the front->next
-
-        //you know why ? because default, you see the function above 
-        // next = nullptr as declared
-        // so if we don't assign it to another next, it will set it to nullptr by default, which meaning 
-        // it is not pointing other node
-        if(front == nullptr) {
-            rear = nullptr; //single assign to == ok!
-        } 
+        // Removing the last item leaves front == nullptr, but rear is still
+        // pointing at the node we just freed. Reset it, or the next
+        // enqueue() writes through a dangling pointer.
+        if (front == nullptr) {
+            rear = nullptr;
+        }
     }
 
-    void display() {
-        Node* current = front;
-        if(current == nullptr) {
-            cout << "The queue is empty" << endl;
+    void peek() const {
+        if (isEmpty()) {
+            cout << "Queue is empty, nothing to peek.\n";
             return;
         }
-        while (current != nullptr) {
-            cout << current->name << endl;
-            current = current->next;
+        cout << "Front is " << front->name << ".\n";
+    }
+
+    void display() const {
+        if (isEmpty()) {
+            cout << "Queue is empty.\n";
+            return;
         }
+        cout << "front -> ";
+        for (Node* current = front; current != nullptr; current = current->next) {
+            cout << current->name;
+            if (current->next != nullptr) cout << ", ";
+        }
+        cout << " <- rear\n";
     }
 };
 
 int main() {
-   Queue q;
+    Queue q;
 
-   q.enqueue("Aimar");
-   q.enqueue("Ahmad");
-   q.enqueue("Anjana");
+    cout << "-- Enqueue three --\n";
+    q.enqueue("Aimar");
+    q.enqueue("Ahmad");
+    q.enqueue("Anjana");
+    q.display();
+    q.peek();
 
-   cout << "Display from front to rear (left to right):" << endl;
-   q.display();
+    cout << "\n-- Dequeue one --\n";
+    q.dequeue();
+    q.display();
 
-   q.dequeue();
-   // print the lastest stack
-   cout << "\nAfter dequeue the front:" << endl;
-   q.display();
+    cout << "\n-- Drain completely, then dequeue once more --\n";
+    while (!q.isEmpty()) {
+        q.dequeue();
+    }
+    q.display();
+    q.dequeue();
+
+    cout << "\n-- Reuse after draining (rear was reset correctly) --\n";
+    q.enqueue("Bala");
+    q.enqueue("Chen");
+    q.display();
+
+    return 0;
 }
-

@@ -1,0 +1,136 @@
+\labsection{4}{Mobile banking heuristic audit and funnel analysis}{sec:lab04-mobile}
+
+\begin{labproject}{Score two banking apps against the chapter's five principles, then find where users are lost}
+\textbf{Coverage.} Chapter~\ref{ch:mobile-banking}.\\
+\textbf{Source files.} \texttt{Lab04/funnel\_analysis.py}, \texttt{Lab04/onboarding\_events.csv}, \texttt{Lab04/audit\_template.md}.\\
+\textbf{Goal.} Convert the five usability principles into a repeatable scored instrument, and locate the single step where an onboarding journey loses most of its users.
+
+\begin{labmode}
+Pick two apps you can install and use legitimately: one incumbent bank and one digital-only competitor. Use only publicly available functionality and your own account. Do not create accounts you do not intend to use, and never record another person's screen or data.
+
+Where you cannot complete a journey without funding an account, stop and record the point at which you stopped. That is itself a finding.
+\end{labmode}
+
+\medskip\noindent\textbf{Part A --- Build the instrument.}\par
+Chapter~\ref{ch:mobile-banking} gives five usability principles. On their own they are too vague to score, so each needs observable criteria:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Principle & Observable criteria (score each 1--5) \\
+\midrule
+Intuitive design & Taps to reach balance; taps to send a payment; is the primary action visible without scrolling? \\
+Rich but simple & Number of features on the home screen; is advanced functionality progressively disclosed or all surfaced at once? \\
+Consistency & Do terminology, colour, and iconography match the web channel and card? Is the same word used for the same object throughout? \\
+Alerts & Are notifications configurable? Do they arrive within seconds? Can a fraud alert be actioned inside the notification? \\
+Personalisation & Does the app adapt to observed behaviour, or is ``personalisation'' only the user's name in a greeting? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+A heuristic audit is not a preference survey. ``I like the blue one'' is not a finding.
+
+Every score must cite a specific observation --- a tap count, a timing, a screenshot. If two people applying your instrument to the same app would produce different scores, the criteria are not yet observable enough. Tighten them until they are.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part B --- UX is not CX.}\par
+The chapter separates user experience from customer experience, and the difference shows up exactly when something goes wrong. Score each app on a journey that fails:
+
+\begin{itemize}
+  \item Attempt a payment that will be declined --- wrong details, or an amount above a limit.
+  \item Find how to dispute a transaction.
+  \item Find how to reach a human being, and time how long it takes.
+\end{itemize}
+
+An app can score highly on all five usability principles and still deliver poor CX, because CX includes the moment the customer needs help and the interface has no answer. The chapter's point about live support being retained is tested here, not in the happy path.
+
+\medskip\noindent\textbf{Part C --- Where the funnel leaks.}\par
+The supplied event log contains a synthetic onboarding journey for 50{,}000 users. Compute step-to-step conversion:
+
+\begin{lstlisting}[style=mlpython]
+import pandas as pd
+
+events = pd.read_csv("onboarding_events.csv")
+
+STEPS = ["app_open", "signup_start", "id_upload", "id_verified",
+         "address_entered", "account_funded", "first_payment"]
+
+counts = [events.loc[events["step"] == s, "user_id"].nunique() for s in STEPS]
+funnel = pd.DataFrame({"step": STEPS, "users": counts})
+
+funnel["overall"] = funnel["users"] / funnel["users"].iloc[0]
+funnel["step_conversion"] = funnel["users"] / funnel["users"].shift(1)
+funnel["dropped"] = funnel["users"].shift(1) - funnel["users"]
+
+print(funnel.round(3))
+\end{lstlisting}
+
+\begin{keyidea}
+Read the \emph{step} conversion column, not the overall column. Overall conversion falls monotonically by construction, so the smallest overall number is always the last step --- which tells you nothing.
+
+The step with the lowest step-to-step conversion is where the product is broken. That is where a fix returns the most users per unit of engineering effort.
+\end{keyidea}
+
+The supplied data gives:
+
+\begin{lstlisting}[style=mlterminal]
+step              users  overall  step_conversion  dropped
+app_open          50000   1.0000              NaN        0
+signup_start      35932   0.7186           0.7186    14068
+id_upload         31616   0.6323           0.8799     4316
+id_verified       17616   0.3523           0.5572    14000
+address_entered   16534   0.3307           0.9386     1082
+account_funded    13088   0.2618           0.7916     3446
+first_payment     11824   0.2365           0.9034     1264
+\end{lstlisting}
+
+\begin{workedexample}
+\texttt{id\_upload} $\rightarrow$ \texttt{id\_verified} converts at 55.7\%, losing 14{,}000 users. Nearly half of everyone who submits identity documents never gets past verification.
+
+Note that \texttt{signup\_start} also drops 14{,}068 users --- marginally more in absolute terms. But it converts at 71.9\%, and it sits at the top of the funnel where some drop-off is expected from casual browsers. The verification step is losing users who have already demonstrated intent by uploading a document, which makes each one considerably more expensive to have lost.
+
+Absolute drops and conversion rates answer different questions. Use both.
+\end{workedexample}
+
+\medskip\noindent\textbf{Segment before you build.}\par
+Splitting the failing step by device is what turns a symptom into a diagnosis:
+
+\begin{lstlisting}[style=mlterminal]
+device_type   conversion  users_at_previous_step
+old_android       0.2302                    5860
+ios               0.6060                   13954
+new_android       0.6618                   11802
+
+by hour_of_day:  best 57.6%  worst 50.0%  spread 7.6%  -> no real effect
+\end{lstlisting}
+
+The failure is concentrated, not uniform: old Android handsets convert at 23\% against roughly 61--66\% elsewhere, and time of day explains nothing. That pattern points at camera and image quality rather than at the interface --- so the fix is capture guidance and a lower-resolution fallback, not a redesign.
+
+\begin{pitfall}
+Had the failure been uniform across every device, the same 55.7\% would have demanded the opposite conclusion: a design or copy problem affecting everyone equally.
+
+The number alone does not tell you which. Only the segmentation does, and proposing a fix before running it is guessing with extra steps.
+\end{pitfall}
+
+\begin{tryit}
+Estimate the payoff. If a fix lifted \texttt{old\_android} verification to match \texttt{new\_android}, how many additional users would reach \texttt{first\_payment}? Carry them through the remaining step conversions rather than assuming they all survive.
+
+Then decide whether that recovery justifies the engineering effort, and state what you would measure to confirm the fix worked.
+\end{tryit}
+\end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every heuristic score cites a tap count, a timing, or a screenshot.
+  \item Both apps are scored with the identical instrument.
+  \item The failure journey is audited, not only the successful one.
+  \item The funnel finding names a step by its step-conversion rate, not its overall rate.
+  \item At least one segmentation is applied to the worst step before a fix is proposed.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the completed audit template for both apps with evidence, the funnel table, and a one-page recommendation naming the single step you would fix first, the segment it affects, the expected user recovery, and how you would measure whether the fix worked.
+\end{labdeliverable}
