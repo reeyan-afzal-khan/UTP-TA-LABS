@@ -2,6 +2,8 @@
 
 This repository collects laboratory materials, tutorial resources, implementations, and original LaTeX teaching companions from courses taught at Universiti Teknologi PETRONAS.
 
+[![YouTube Playlist](https://youtube.com)](https://youtube.com/playlist?list=PLinUrn8TVRE8TakJwrFYdOsH1i1GBBdVN)
+
 ## Course notes
 
 | Course | Note coverage |
