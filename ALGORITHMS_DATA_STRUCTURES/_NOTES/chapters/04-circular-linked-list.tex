@@ -8,20 +8,40 @@ A circular linked list changes one crucial link: the last node points back to th
 
 \section{The circular structure}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
- node/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=1mm,minimum width=2.5cm,minimum height=0.9cm,font=\small\bfseries\color{ADSNavy}},
- arr/.style={-{Stealth[length=2.2mm]},thick,draw=ADSTeal}
-]
-\node[node] (a) {10 \quad next};
-\node[node,right=1cm of a] (b) {20 \quad next};
-\node[node,right=1cm of b] (c) {30 \quad next};
-\draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
-\draw[arr] (c.east) -- ++(0.7,0) |- ([yshift=-0.7cm]a.south) -- (a.south);
-\node[above=0.25cm of a,font=\scriptsize\bfseries\color{ADSOrange}] {HEAD};
-\node[above=0.25cm of c,font=\scriptsize\bfseries\color{ADSOrange}] {LAST};
+\begin{adsfig}[A circular linked list]{A circular linked list drawn as the ring it actually is. The single change
+from \figref{fig:sll-anatomy} is the last node's \texttt{next} field: instead of
+\texttt{NULL} it stores the address of the head, so there is no end to stop
+at.}{fig:cll-ring}
+\begin{tikzpicture}[font=\small]
+% ring of four nodes
+\foreach \v/\ang [count=\i from 0] in {10/90, 20/0, 30/270, 40/180}{
+  \node[adsnode,minimum size=9.5mm] (r\i) at (\ang:1.75) {\v};
+}
+\draw[adsarrow] (r0) to[bend left=22] (r1);
+\draw[adsarrow] (r1) to[bend left=22] (r2);
+\draw[adsarrow] (r2) to[bend left=22] (r3);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSOrange] (r3) to[bend left=22] (r0);
+\node[adstag,anchor=south] at (90:2.45) {HEAD};
+\node[adslabel,anchor=east,color=ADSOrange,align=right] at (180:2.5)
+  {LAST\\\texttt{last->next}\\$=$ head};
+\node[adslabel,align=center] at (0,0) {no \texttt{NULL}\\anywhere};
+
+% linear redrawing for comparison
+\begin{scope}[xshift=6.9cm]
+\foreach \v [count=\i from 0] in {10,20,30,40}{
+  \node[adscell,minimum width=0.95cm,minimum height=0.8cm] (s\i) at (1.05*\i,0.55) {\v};
+}
+\foreach \i in {0,1,2}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[adsptr] (s\i)--(s\j);
+}
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSOrange]
+  (s3.south) -- ++(0,-0.62) -| (s0.south);
+\node[adslabel,anchor=north,align=center] at (1.57,-0.85)
+  {the same list drawn flat:\\the wrap link is what makes it circular};
+\end{scope}
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 The Week IV slides emphasize four consequences:
 
@@ -53,6 +73,42 @@ void display(Node* head) {
 \begin{keyidea}
 For a non-empty circular list, the natural traversal invariant is ``keep moving until the pointer returns to the starting node.''
 \end{keyidea}
+
+That invariant explains the unusual loop shape. The test \texttt{current != head} is
+\emph{already false} on the first iteration, because \texttt{current} starts at the head.
+A plain \texttt{while} loop would therefore print nothing at all. The \texttt{do}\,--\,\texttt{while}
+form checks the condition only after the body has run once, which is exactly what a ring
+needs (\figref{fig:cll-traverse}).
+
+\begin{adsfig}[Why circular traversal uses do--while]{Why circular traversal uses \texttt{do}\,--\,\texttt{while}. The pointer
+starts on the head and returns to it, so the stopping condition is true at both the
+beginning and the end of the walk; only the second occurrence should end the
+loop.}{fig:cll-traverse}
+\begin{tikzpicture}[font=\small]
+\foreach \v/\ang [count=\i from 0] in {10/90, 20/0, 30/270, 40/180}{
+  \node[adsnode,minimum size=9mm] (t\i) at (\ang:1.6) {\v};
+}
+\draw[adsarrow] (t0) to[bend left=22] (t1);
+\draw[adsarrow] (t1) to[bend left=22] (t2);
+\draw[adsarrow] (t2) to[bend left=22] (t3);
+\draw[adsarrow] (t3) to[bend left=22] (t0);
+\node[adstag,anchor=south] at (90:2.3) {start \& stop here};
+\node[adslabel,align=center,color=ADSMuted] at (0,0) {visit order\\10, 20, 30, 40};
+
+\begin{scope}[xshift=5.6cm,yshift=0.35cm]
+\node[adsstep,fill=ADSPaleRed,draw=ADSRed,text width=5.3cm,align=left,anchor=north west]
+  (bad) at (0,0.9)
+  {\textcolor{ADSRed}{\bfseries Wrong}\\[1pt]
+   \texttt{while (current != head) \{...\}}\\
+   condition false immediately $\rightarrow$ prints nothing};
+\node[adsstep,fill=ADSPaleTeal,draw=ADSGreen,text width=5.3cm,align=left,anchor=north west]
+  (good) at (0,-0.75)
+  {\textcolor{ADSGreen}{\bfseries Right}\\[1pt]
+   \texttt{do \{...\} while (current != head);}\\
+   body runs first, then the test ends the lap};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
 
 \section{Singly vs doubly vs circular}
 

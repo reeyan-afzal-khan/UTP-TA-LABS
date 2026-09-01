@@ -34,6 +34,35 @@ for i = 1:length(tokens)
 end
 \end{lstlisting}
 
+\figref{fig:ner} shows the mismatch. Splitting on whitespace produces single tokens, but two
+of the three dictionaries hold two-word entries. Those entries can never match, so the loop
+finds only \texttt{Hawaii}.
+
+\begin{aifig}[Why the NER dictionary misses two-word entities]{Tokenising on whitespace
+yields one word per token, while the dictionaries store multi-word names. Only the
+single-word entry \texttt{Hawaii} can ever match. The fix is to compare $n$-grams, not
+tokens --- a representation problem, not a logic error.}{fig:ner}
+\begin{tikzpicture}[font=\small]
+\foreach \w [count=\i from 0] in {Barack, Obama, was, born, in, Hawaii}{
+  \ifnum\i=5
+    \node[aidone,minimum width=1.32cm,minimum height=0.62cm,font=\scriptsize\bfseries]
+      (t\i) at (1.42*\i,0) {\w};
+  \else
+    \node[aicell,minimum width=1.32cm,minimum height=0.62cm,font=\scriptsize\bfseries]
+      (t\i) at (1.42*\i,0) {\w};
+  \fi
+}
+\node[ailabel,anchor=east] at (-0.85,0) {tokens};
+% bracket over the two-word entity
+\draw[decorate,decoration={brace,amplitude=4pt,raise=3pt},draw=MLRed,semithick]
+  (-0.68,0.34) -- (2.08,0.34);
+\node[ailabel,anchor=south,color=MLRed,align=center] at (0.7,0.78)
+  {dictionary holds ``Barack Obama'' as one entry:\\no single token can match it};
+\node[ailabel,anchor=north,color=MLGreen] at (7.1,-0.42) {matches: one word, one entry};
+\draw[aiptr,draw=MLGreen] (7.1,-0.4) -- (t5.south);
+\end{tikzpicture}
+\end{aifig}
+
 \begin{pitfall}
 The original code splits the sentence into single tokens but stores multi-word entities such as ``Barack Obama'' and ``United States'' as whole dictionary entries. Those entries cannot match a single token in the loop. Consequently, the original output contains only \texttt{Location: Hawaii}. This mismatch shows why representation choices matter.
 \end{pitfall}
@@ -59,6 +88,30 @@ end
 This detects \texttt{Barack Obama}, \texttt{Hawaii}, and \texttt{United States}, but cannot identify entities absent from the dictionaries.
 
 \section{Code 2: summarization by keyword frequency}
+
+Before any counting can happen the text must be reduced to comparable units
+(\figref{fig:preprocess}). Each stage throws information away deliberately: case, punctuation,
+common words, and finally word endings.
+
+\begin{aifig}[The text preprocessing pipeline]{Preprocessing reduces raw text to countable
+tokens. Every stage discards something on purpose --- which is also how it goes wrong: stemming
+``organisation'' and ``organ'' to the same root makes them indistinguishable
+downstream.}{fig:preprocess}
+\begin{tikzpicture}[font=\small]
+\node[aibox,minimum width=3.0cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
+  (a) at (0,0) {"The Robots Are Running."};
+\node[aibox,minimum width=2.6cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
+  (b) at (3.7,0) {the robots are running};
+\node[aibox,minimum width=2.3cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
+  (c) at (7.1,0) {robots running};
+\node[aibox,minimum width=2.1cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy},
+      fill=MLPaleTeal,draw=MLGreen] (d) at (10.2,0) {robot run};
+\foreach \x/\y in {a/b, b/c, c/d}{\draw[aiarrow] (\x)--(\y);}
+\node[ailabel,anchor=north,align=center] at (1.85,-0.5) {lowercase,\\strip punctuation};
+\node[ailabel,anchor=north,align=center] at (5.4,-0.5) {remove\\stopwords};
+\node[ailabel,anchor=north,align=center] at (8.65,-0.5) {stem to\\word roots};
+\end{tikzpicture}
+\end{aifig}
 
 The method counts words across the paragraph, scores each sentence by those frequencies, and selects the highest score.
 
@@ -157,6 +210,42 @@ The programmer supplies the tags, so the code demonstrates tagged-text represent
 
 \section{Code 5: simplified Naive Bayes sentiment classification}
 
+Codes 1--4 encode knowledge the programmer already has. Code 5 is the first that does not:
+it counts how often each word appeared in positive and negative training sentences, then
+scores a new sentence by multiplying those counts together (\figref{fig:naive-bayes}). The
+``naive'' assumption is that the words are independent given the label --- which is plainly
+false for language, and works anyway.
+
+\begin{aifig}[How Naive Bayes scores a sentence]{Naive Bayes on a two-class problem. Each
+word contributes an independent likelihood, the products are compared, and the larger one
+wins. Nothing here is a rule the programmer wrote: every number comes from counting the
+training data.}{fig:naive-bayes}
+\begin{tikzpicture}[font=\small]
+\node[ailabel,anchor=east,color=MLNavy] at (-0.8,1.5) {\textbf{sentence}};
+\foreach \w [count=\i from 0] in {this, movie, was, great}{
+  \node[aicell,minimum width=1.25cm,minimum height=0.58cm,font=\scriptsize\bfseries]
+    at (1.35*\i,1.5) {\w};}
+% two class rows
+\foreach \cls/\yy/\col/\vals in {%
+  positive/0.35/MLGreen/{0.12,0.20,0.15,0.30},
+  negative/-0.55/MLRed/{0.11,0.18,0.14,0.03}}{
+  \node[ailabel,anchor=east,color=\col] at (-0.8,\yy) {\textbf{\cls}};
+  \foreach \v [count=\j from 0] in \vals{
+    \node[minimum width=1.25cm,minimum height=0.5cm,draw=\col!55,fill=\col!10,
+          font=\scriptsize\color{MLNavy},inner sep=0pt] at (1.35*\j,\yy) {\v};}
+}
+\foreach \i in {0,...,3}{\draw[aiptr,draw=MLMuted!60] (1.35*\i,1.2) -- (1.35*\i,0.62);}
+\node[ailabel,anchor=west,align=left,color=MLGreen] at (5.5,0.35)
+  {product $=1.08\times10^{-3}$};
+\node[ailabel,anchor=west,align=left,color=MLRed] at (5.5,-0.55)
+  {product $=8.3\times10^{-5}$};
+\node[aibox,fill=MLPaleTeal,draw=MLGreen,minimum width=3.4cm,font=\scriptsize\color{MLNavy}]
+  at (2.05,-1.55) {predicted: \textbf{positive}};
+\node[ailabel,anchor=west,align=left,text width=4.6cm] at (5.5,-1.55)
+  {``great'' does the work: it is ten times more likely under the positive class.};
+\end{tikzpicture}
+\end{aifig}
+
 Five labeled sentences are converted to binary word features, used to train \texttt{fitcnb}, and tested on ``The product is wonderful.''
 
 \begin{lstlisting}[style=mlmatlab]
@@ -203,6 +292,47 @@ For the supplied test sentence, the program reports \texttt{Predicted Sentiment:
 The same \texttt{keep} mask must be applied to both training and test features. Otherwise, the classifier receives a different number or order of columns during prediction.
 
 \section{Code 6: summarization with TF--IDF}
+
+Raw frequency treats every word as equally informative, which is why ``the'' outranks the
+topic. TF--IDF fixes this by scaling each count down by how many documents the word appears
+in (\figref{fig:tfidf}). A word that occurs everywhere carries almost no information about
+\emph{which} document you are reading, and its weight collapses accordingly.
+
+\begin{aifig}[Raw counts versus TF--IDF weights]{The same three-sentence document scored two
+ways. Raw frequency puts the stopword ``the'' on top; TF--IDF divides it out because it
+appears in every sentence, letting the words that actually distinguish the document rise.
+Nothing was removed by hand --- the weighting did the filtering.}{fig:tfidf}
+\begin{tikzpicture}
+\begin{axis}[
+  name=raw, width=6.5cm, height=4.6cm,
+  title={Raw frequency},
+  xbar, y dir=reverse,
+  xmin=0, xmax=6,
+  ytick=data,
+  symbolic y coords={the,robot,sensor,battery,charge},
+  nodes near coords, nodes near coords style={font=\tiny\color{MLMuted}},
+  bar width=7pt, axis lines=left,
+  tick label style={font=\scriptsize\color{MLMuted}},
+  enlarge y limits=0.16]
+\addplot[draw=MLRed,fill=MLPaleRed] coordinates {(5,the) (3,robot) (2,sensor) (2,battery) (1,charge)};
+\end{axis}
+\begin{axis}[
+  at={(raw.right of south east)}, xshift=1.35cm, anchor=left of south west,
+  width=6.5cm, height=4.6cm,
+  title={TF--IDF weight},
+  xbar, y dir=reverse,
+  xmin=0, xmax=1.05,
+  ytick=data,
+  symbolic y coords={the,robot,sensor,battery,charge},
+  nodes near coords, nodes near coords style={font=\tiny\color{MLMuted}},
+  bar width=7pt, axis lines=left,
+  tick label style={font=\scriptsize\color{MLMuted}},
+  enlarge y limits=0.16]
+\addplot[draw=MLGreen,fill=MLPaleTeal] coordinates {(0.00,the) (0.41,robot) (0.62,sensor) (0.62,battery) (0.48,charge)};
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
+
 
 Lab 7 then uses MATLAB's text-processing objects: \texttt{tokenizedDocument}, \texttt{bagOfWords}, and \texttt{tfidf}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the maximum is returned.
 
@@ -333,7 +463,10 @@ A ranking in which almost everything ties is not a ranking. Report the counts al
 
 \section{A taxonomy of the Lab 7 methods}
 
-\begin{mlfigure}
+\begin{aifig}[Where the decision logic comes from]{The nine Lab 7 programs arranged by the
+source of their decision logic. Moving right shifts the work from the programmer to the data.
+The axis is not a quality ranking: a dictionary lookup beats a trained classifier whenever
+the rules are genuinely known.}{fig:nlp-taxonomy}
 \begin{tikzpicture}[
   b/.style={rounded corners=2mm,minimum width=4.0cm,minimum height=1.45cm,align=center,font=\small\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},very thick,draw=MLMuted}
@@ -349,7 +482,7 @@ A ranking in which almost everything ties is not a ranking. Report the counts al
 \node[font=\scriptsize\color{MLMuted}] at ($(stats.south)+(0,-0.55)$)
   {increasing reliance on patterns learned from data};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 The spectrum identifies the source of decision logic: programmer rules, corpus statistics, or labeled training data. It is not a quality ranking.
 

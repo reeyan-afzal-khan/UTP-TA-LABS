@@ -122,6 +122,48 @@ plt.show()
 
 The robot reaches \((2,0)\), detects the blocked cell \((3,0)\), and turns north. The \texttt{continue} statement consumes that iteration without movement.
 
+\figref{fig:reactive} plots both scenarios. Scenario~1 has no sensing at all, so its path is
+a straight line whatever lies ahead. Scenario~2 adds one rule --- turn if the next cell is
+blocked --- and that is enough to route around an obstacle without any plan.
+
+\begin{aifig}[Open-loop motion versus a reactive rule]{Scenario~1 (left) integrates position
+from a fixed heading and would drive straight through an obstacle. Scenario~2 (right) checks
+the next cell first: blocked at $(3,0)$, it turns north once and continues. Both paths are
+the exact output of the lab code.}{fig:reactive}
+\begin{tikzpicture}[font=\small]
+\begin{scope}
+\node[font=\bfseries\color{MLNavy}] at (1.75,4.35) {Scenario 1: open loop};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.25,0)--(3.9,0) node[right,font=\scriptsize] {$x$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.25)--(0,3.9) node[above,font=\scriptsize] {$y$};
+\draw[very thick,draw=MLBlue] (0,0)--(3.3,3.3);
+\node[circle,fill=MLBlue,inner sep=1.8pt] at (0,0) {};
+\node[circle,fill=MLGreen,inner sep=1.8pt] at (3.3,3.3) {};
+\node[ailabel,anchor=west] at (1.4,1.05) {$\theta=45^\circ$, constant $v$};
+\node[ailabel,anchor=north,align=center] at (1.75,-0.55) {no sensing: the path\\never changes};
+\end{scope}
+
+\begin{scope}[xshift=6.1cm]
+\node[font=\bfseries\color{MLNavy}] at (1.6,4.35) {Scenario 2: reactive};
+\begin{scope}[x=0.62cm,y=0.27cm]
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.4,0)--(5.6,0) node[right,font=\scriptsize] {$x$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.6)--(0,14.2) node[above,font=\scriptsize] {$y$};
+\foreach \t in {2,4}{\node[ailabel] at (\t,-1.3) {\t};}
+\foreach \t in {4,8,12}{\node[ailabel,anchor=east] at (-0.3,\t) {\t};}
+\draw[very thick,draw=MLBlue] (0,0) -- (1,0) -- (2,0) -- (2,1) -- (2,2) -- (2,3) -- (2,4) -- (2,5) -- (2,6) -- (2,7) -- (2,8) -- (2,9) -- (2,10) -- (2,11) -- (2,12);
+\foreach \px/\py in {0/0, 1/0, 2/0}{
+  \node[circle,fill=MLBlue,inner sep=1.3pt] at (\px,\py) {};}
+\node[rectangle,fill=MLRed,inner sep=2.2pt] at (3,0) {};
+\node[rectangle,fill=MLRed,inner sep=2.2pt] at (4,0) {};
+\node[circle,draw=MLOrange,line width=1pt,fill=white,inner sep=2.2pt] at (2,0) {};
+\node[ailabel,anchor=west,color=MLRed] at (3.3,1.6) {obstacles};
+\node[ailabel,anchor=west,align=left,color=MLOrange] at (2.4,5.0) {turns north once,\\then runs free};
+\end{scope}
+\node[ailabel,anchor=north,align=center] at (1.6,-0.55)
+  {one rule avoids the obstacle\\($y$ axis compressed)};
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
+
 \begin{keyidea}
 The controller responds to a blocked next cell without computing a complete route.
 \end{keyidea}
@@ -186,6 +228,33 @@ plt.show()
 
 Each PID iteration measures, accumulates, differentiates, and corrects the error before updating \texttt{prev\_error}; updating it earlier would zero the derivative term.
 
+\figref{fig:pid} shows what those three terms buy. Proportional control alone reacts to the
+current error and always trails the target, because the correction shrinks exactly as the
+error does. Adding the integral and derivative terms removes that lag: the integral keeps
+pushing while a steady offset persists, and the derivative damps the overshoot this would
+otherwise cause.
+
+\begin{aifig}[PID line following versus proportional-only control]{The line-following loop
+run twice with the same desired path. Proportional control alone lags behind the sine wave
+permanently; the full PID controller from the lab code tracks it closely. The gap between the
+two curves is what the integral and derivative terms are for.}{fig:pid}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.86\linewidth, height=5.6cm,
+  xlabel={$x$}, ylabel={$y$},
+  xmin=0, xmax=100, ymin=-11, ymax=11,
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
+  legend columns=3, legend style={at={(0.5,-0.26)},anchor=north}]
+\addplot[draw=MLMuted,dashed,thick] coordinates {(0.00,0.000) (1.34,1.067) (2.68,2.115) (4.01,3.125) (5.35,4.080) (6.69,4.961) (8.03,5.754) (9.36,6.444) (10.70,7.019) (12.04,7.468) (13.38,7.784) (14.72,7.961) (16.05,7.995) (17.39,7.887) (18.73,7.638) (20.07,7.252) (21.40,6.737) (22.74,6.101) (24.08,5.356) (25.42,4.516) (26.76,3.595) (28.09,2.609) (29.43,1.577) (30.77,0.517) (32.11,-0.552) (33.44,-1.612) (34.78,-2.643) (36.12,-3.626) (37.46,-4.545) (38.80,-5.383) (40.13,-6.124) (41.47,-6.756) (42.81,-7.267) (44.15,-7.648) (45.48,-7.893) (46.82,-7.996) (48.16,-7.957) (49.50,-7.776) (50.84,-7.455) (52.17,-7.001) (53.51,-6.423) (54.85,-5.729) (56.19,-4.933) (57.53,-4.049) (58.86,-3.092) (60.20,-2.081) (61.54,-1.032) (62.88,0.036) (64.21,1.102) (65.55,2.149) (66.89,3.158) (68.23,4.110) (69.57,4.989) (70.90,5.778) (72.24,6.465) (73.58,7.035) (74.92,7.481) (76.25,7.792) (77.59,7.964) (78.93,7.994) (80.27,7.881) (81.61,7.627) (82.94,7.237) (84.28,6.717) (85.62,6.078) (86.96,5.330) (88.29,4.486) (89.63,3.563) (90.97,2.576) (92.31,1.542) (93.65,0.482) (94.98,-0.588) (96.32,-1.647) (97.66,-2.676) (99.00,-3.658)};
+\addlegendentry{desired path}
+\addplot[draw=MLRed,thick] coordinates {(0.00,0.000) (1.34,0.284) (2.68,0.877) (4.01,1.643) (5.35,2.492) (6.69,3.365) (8.03,4.217) (9.36,5.019) (10.70,5.746) (12.04,6.379) (13.38,6.903) (14.72,7.307) (16.05,7.582) (17.39,7.723) (18.73,7.726) (20.07,7.592) (21.40,7.322) (22.74,6.922) (24.08,6.398) (25.42,5.760) (26.76,5.019) (28.09,4.188) (29.43,3.283) (30.77,2.318) (32.11,1.313) (33.44,0.284) (34.78,-0.751) (36.12,-1.771) (37.46,-2.761) (38.80,-3.700) (40.13,-4.574) (41.47,-5.366) (42.81,-6.062) (44.15,-6.650) (45.48,-7.119) (46.82,-7.460) (48.16,-7.669) (49.50,-7.740) (50.84,-7.673) (52.17,-7.469) (53.51,-7.131) (54.85,-6.666) (56.19,-6.082) (57.53,-5.389) (58.86,-4.600) (60.20,-3.729) (61.54,-2.791) (62.88,-1.803) (64.21,-0.783) (65.55,0.251) (66.89,1.281) (68.23,2.288) (69.57,3.253) (70.90,4.161) (72.24,4.994) (73.58,5.738) (74.92,6.380) (76.25,6.907) (77.59,7.311) (78.93,7.585) (80.27,7.723) (81.61,7.722) (82.94,7.584) (84.28,7.311) (85.62,6.906) (86.96,6.379) (88.29,5.737) (89.63,4.993) (90.97,4.159) (92.31,3.251) (93.65,2.285) (94.98,1.279) (96.32,0.249) (97.66,-0.785) (99.00,-1.805)};
+\addlegendentry{P only ($K_p=0.12$)}
+\addplot[draw=MLGreen,very thick] coordinates {(0.00,0.000) (1.34,0.852) (2.68,1.915) (4.01,2.967) (5.35,3.967) (6.69,4.893) (8.03,5.730) (9.36,6.462) (10.70,7.076) (12.04,7.562) (13.38,7.910) (14.72,8.116) (16.05,8.175) (17.39,8.087) (18.73,7.853) (20.07,7.477) (21.40,6.966) (22.74,6.330) (24.08,5.580) (25.42,4.729) (26.76,3.793) (28.09,2.789) (29.43,1.734) (30.77,0.647) (32.11,-0.452) (33.44,-1.543) (34.78,-2.607) (36.12,-3.625) (37.46,-4.579) (38.80,-5.451) (40.13,-6.226) (41.47,-6.890) (42.81,-7.432) (44.15,-7.841) (45.48,-8.110) (46.82,-8.234) (48.16,-8.211) (49.50,-8.042) (50.84,-7.729) (52.17,-7.279) (53.51,-6.698) (54.85,-5.998) (56.19,-5.191) (57.53,-4.291) (58.86,-3.315) (60.20,-2.279) (61.54,-1.203) (62.88,-0.105) (64.21,0.994) (65.55,2.076) (66.89,3.120) (68.23,4.109) (69.57,5.024) (70.90,5.849) (72.24,6.570) (73.58,7.173) (74.92,7.648) (76.25,7.986) (77.59,8.182) (78.93,8.231) (80.27,8.133) (81.61,7.890) (82.94,7.506) (84.28,6.988) (85.62,6.344) (86.96,5.588) (88.29,4.731) (89.63,3.790) (90.97,2.781) (92.31,1.723) (93.65,0.633) (94.98,-0.467) (96.32,-1.560) (97.66,-2.624) (99.00,-3.642)};
+\addlegendentry{full PID (lab gains)}
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
+
 \section{Scenario 4: path planning with A*}
 
 The A* planner uses a priority queue, unit movement costs, and Manhattan distance.
@@ -242,7 +311,51 @@ print(path)
 The search algorithm is the same idea as Chapter 2, but the state now has a physical interpretation: each node in the search graph is a possible robot location in the workspace grid.
 \end{intuition}
 
-For this grid, one returned route follows the open top row and then the rightmost column. Count the coordinates in the printed list and subtract one to obtain the number of robot moves.
+\figref{fig:astar-grid} shows the result on the lab's own grid. The planner expands 13 cells
+and returns a route of 8 moves, running along row~0 and then down column~4 --- the only
+corridor the walls leave open.
+
+\begin{aifig}[A* path through the workspace grid]{The Scenario~4 grid with the route A*
+actually returns. Dark cells are obstacles, green cells are the returned path. The planner
+never sees a robot: to it these are just graph nodes, which is why the same code from
+\chapref{ch:informed} works unchanged.}{fig:astar-grid}
+\begin{tikzpicture}[font=\small]
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.00,-0.00) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.74,-0.00) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (1.48,-0.00) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.22,-0.00) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.96,-0.00) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.00,-0.74) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.74,-0.74) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (1.48,-0.74) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.22,-0.74) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.96,-0.74) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.00,-1.48) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.74,-1.48) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (1.48,-1.48) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.22,-1.48) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.96,-1.48) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.00,-2.22) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.74,-2.22) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (1.48,-2.22) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.22,-2.22) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.96,-2.22) {};
+\node[aidim,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.00,-2.96) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (0.74,-2.96) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (1.48,-2.96) {};
+\node[aiwall,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.22,-2.96) {};
+\node[aidone,minimum width=0.72cm,minimum height=0.72cm,inner sep=0pt] at (2.96,-2.96) {};
+\draw[draw=MLGreen,line width=1.4pt,opacity=0.55] (0.00,-0.00) -- (0.74,-0.00) -- (1.48,-0.00) -- (2.22,-0.00) -- (2.96,-0.00) -- (2.96,-0.74) -- (2.96,-1.48) -- (2.96,-2.22) -- (2.96,-2.96);
+\node[ainodehot,minimum size=6mm,font=\scriptsize\bfseries] at (0,0) {S};
+\node[ainodedone,minimum size=6mm,font=\scriptsize\bfseries] at (2.96,-2.96) {G};
+\node[ailabel,anchor=west,align=left,text width=5.2cm] at (3.6,-1.48)
+  {Start $(0,0)$, goal $(4,4)$.
+   \\[0.35em]
+   13 cells expanded, 8 moves returned.
+   \\[0.35em]
+   Manhattan distance is admissible here because every move costs exactly~1.};
+\end{tikzpicture}
+\end{aifig}
 
 \section{Scenario 5: two robots avoiding collision}
 
@@ -281,7 +394,33 @@ plt.legend()
 plt.show()
 \end{lstlisting}
 
-In this run, the robots stop at \((4,4)\) and \((6,6)\), before both propose moving to \((5,5)\).
+\figref{fig:two-robots} plots the run. Both robots head straight for their goals along the
+diagonal, and the check fires one step before they would occupy the same cell.
+
+\begin{aifig}[Two robots stopping before a collision]{Scenario~5. The robots advance toward
+opposite corners until their proposed next positions would both be $(5,5)$; the rule halts
+them at $(4,4)$ and $(6,6)$. Note that both then stop permanently --- detecting a collision is
+not the same as resolving one.}{fig:two-robots}
+\begin{tikzpicture}[font=\small]
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.3,0)--(4.0,0) node[right,font=\scriptsize] {$x$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.3)--(0,4.0) node[above,font=\scriptsize] {$y$};
+\draw[very thick,draw=MLBlue] (0.00,0.00) -- (0.34,0.34) -- (0.68,0.68) -- (1.02,1.02) -- (1.36,1.36);
+\draw[very thick,draw=MLTeal] (3.40,3.40) -- (3.06,3.06) -- (2.72,2.72) -- (2.38,2.38) -- (2.04,2.04);
+\foreach \a/\b in {0/0,1/1,2/2,3/3,4/4}{
+  \node[circle,fill=MLBlue,inner sep=1.4pt] at (0.34*\a,0.34*\b) {};}
+\foreach \a/\b in {10/10,9/9,8/8,7/7,6/6}{
+  \node[rectangle,fill=MLTeal,inner sep=1.6pt] at (0.34*\a,0.34*\b) {};}
+\node[circle,draw=MLRed,line width=1pt,fill=MLPaleRed,inner sep=2.4pt] at (1.7,1.7) {};
+% labels in a clean column to the right, with leader lines
+\node[ailabel,anchor=west,color=MLTeal] (L2) at (4.05,2.55) {robot 2 halts $(6,6)$};
+\node[ailabel,anchor=west,color=MLRed]  (LC) at (4.05,1.85) {contested cell $(5,5)$};
+\node[ailabel,anchor=west,color=MLBlue] (L1) at (4.05,1.15) {robot 1 halts $(4,4)$};
+\draw[draw=MLTeal!60,thin] (L2.west) -- (2.12,2.12);
+\draw[draw=MLRed!60,thin]  (LC.west) -- (1.82,1.74);
+\draw[draw=MLBlue!60,thin] (L1.west) -- (1.44,1.32);
+\node[ailabel,anchor=north] at (1.7,-0.55) {both robots stop and neither reaches its goal};
+\end{tikzpicture}
+\end{aifig}
 
 \begin{pitfall}
 This stopping rule illustrates collision response but is not a complete multi-robot planner.
@@ -297,7 +436,10 @@ x_{tip}&=x_{elbow}+l_2\cos(\theta_1+\theta_2),
 &y_{tip}&=y_{elbow}+l_2\sin(\theta_1+\theta_2).
 \end{align*}
 
-\begin{mlfigure}
+\begin{aifig}[Forward kinematics of a 2-link arm]{The 2-link planar arm. Joint angles are
+given as inputs and the tip position follows by trigonometry --- forward kinematics. Going the
+other way, from a desired tip position to the joint angles, is the harder inverse problem and
+may have two solutions or none.}{fig:arm}
 \begin{tikzpicture}[scale=0.85]
   \coordinate (o) at (0,0);
   \coordinate (e) at (4,2.3);
@@ -316,7 +458,7 @@ x_{tip}&=x_{elbow}+l_2\cos(\theta_1+\theta_2),
     ($(e)+(0.75,0.43)$) arc[start angle=30,end angle=90,radius=0.86];
   \node[font=\scriptsize\color{MLOrange!85!black}] at (4.72,3.2) {$\theta_2$};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 The first angle is measured from the global \(x\)-axis; the second is relative to link 1, giving absolute orientation \(\theta_1+\theta_2\).
 

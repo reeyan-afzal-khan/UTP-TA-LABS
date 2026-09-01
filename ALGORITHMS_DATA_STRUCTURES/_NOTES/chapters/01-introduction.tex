@@ -27,11 +27,65 @@ The Week I slides separate two ideas:
 Five student ages are data. Storing them as an array is a structural choice. Storing each student's ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.
 \end{intuition}
 
+\figref{fig:same-data} makes the point concrete. The five values never change, but each layout
+answers a different question cheaply and a different question expensively. Choosing the
+structure \emph{is} choosing which operations will be fast.
+
+\begin{adsfig}[The same data organised three ways]{The same five values under three organisations. Nothing about the data
+changed --- only the relationships that were stored alongside it --- yet the cost of a
+lookup, an insertion, and an ordered scan changes completely.}{fig:same-data}
+\begin{tikzpicture}[font=\small]
+
+% ---------------- ARRAY ----------------
+\node[font=\bfseries\color{ADSNavy}] at (-0.15,0.95) {ARRAY};
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[adscell,minimum width=0.9cm,minimum height=0.75cm] (a\i) at (0.9*\i,0) {\v};
+  \node[adslabel] at (0.9*\i,-0.62) {\i};
+}
+\node[adslabel,align=left,anchor=west] at (5.9,0) {%
+  reach item 4 \cxg{O(1)}\\
+  insert in middle \cxr{O(n)}};
+
+% ---------------- LINKED LIST ----------------
+\begin{scope}[yshift=-2.35cm]
+\node[font=\bfseries\color{ADSNavy}] at (-0.15,0.95) {LINKED LIST};
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[adscell,minimum width=0.72cm,minimum height=0.75cm] (l\i) at (1.06*\i,0) {\v};
+}
+\foreach \i in {0,1,2,3}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[adsptr] (l\i) -- (l\j);
+}
+\node[adslabel,anchor=west] at ([xshift=2mm]l4.east) {\ptrnull};
+\node[adslabel,align=left,anchor=west] at (5.9,0) {%
+  reach item 4 \cxr{O(n)}\\
+  insert once located \cxg{O(1)}};
+\end{scope}
+
+% ---------------- SEARCH TREE ----------------
+\begin{scope}[yshift=-5.4cm,xshift=0.6cm]
+\node[font=\bfseries\color{ADSNavy}] at (-0.75,1.3) {SEARCH TREE};
+\node[adsnode,minimum size=7mm] (t18) at (1.1,0.75) {18};
+\node[adsnode,minimum size=7mm] (t12) at (0.0,-0.25) {12};
+\node[adsnode,minimum size=7mm] (t25) at (2.2,-0.25) {25};
+\node[adsnode,minimum size=7mm] (t22) at (1.5,-1.3) {22};
+\node[adsnode,minimum size=7mm] (t30) at (2.9,-1.3) {30};
+\draw[adsedge] (t18)--(t12); \draw[adsedge] (t18)--(t25);
+\draw[adsedge] (t25)--(t22); \draw[adsedge] (t25)--(t30);
+\node[adslabel,align=left,anchor=west] at (5.3,-0.25) {%
+  search by value \cxg{O(\log n)}\\
+  ordered scan \cxg{O(n)}, sorted};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
 \section{Classification of data structures}
 
 The slides divide data structures into two broad categories: \term{primitive} and \term{non-primitive}.
 
-\begin{mlfigure}
+\begin{adsfig}[Classification of data structures]{The course classification of data structures. Primitive types hold single
+values; non-primitive structures organise collections, and split further by whether the
+elements form a single sequence or a branching relationship.}{fig:ds-classification}
 \begin{tikzpicture}[
   root/.style={draw=ADSNavy,fill=ADSNavy,text=white,rounded corners=2mm,minimum width=4.0cm,minimum height=0.9cm,align=center,font=\bfseries},
   category/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=4.25cm,minimum height=1.25cm,align=center,inner sep=2.5mm,font=\small\color{ADSNavy}},
@@ -67,7 +121,7 @@ The slides divide data structures into two broad categories: \term{primitive} an
 \draw[link] (np) -- (lin);
 \draw[link] (np) -- (nonlin);
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 \subsection{Primitive data structures}
 
@@ -94,36 +148,54 @@ Non-primitive structures are described as structures derived from primitive data
 
 In a linear structure, elements form a sequence or linear series. The slides give stacks, queues, and linked lists as common examples. Arrays, introduced in the next chapter, are another central linear structure in the course.
 
-\begin{mlfigure}
-\begin{tikzpicture}[node distance=0.15cm,
-  cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=1.4cm,minimum height=0.8cm,font=\bfseries\color{ADSNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}]
-\node[cell] (a) {A};
-\node[cell,right=of a] (b) {B};
-\node[cell,right=of b] (c) {C};
-\node[cell,right=of c] (d) {D};
-\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d);
-\node[below=0.35cm of c,anchor=north east,font=\small\color{ADSMuted}] {one sequence of elements};
+\begin{adsfig}[The shape of a linear structure]{In a linear structure every element has at most one predecessor and one
+successor, so there is exactly one path through the data.}{fig:linear-shape}
+\begin{tikzpicture}[node distance=0.5cm]
+\foreach \v [count=\i from 0] in {A,B,C,D}{
+  \node[adscell,minimum width=1.3cm] (c\i) at (1.85*\i,0) {\v};
+}
+\foreach \i in {0,1,2}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[adsarrow] (c\i) -- (c\j);
+}
+\node[adslabel,below=0.5cm of c1,xshift=0.9cm] {one predecessor, one successor: a single chain};
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 \subsection{Non-linear data structures}
 
 A non-linear structure allows one item to connect to several other items. The slides emphasize hierarchical or parent-child relationships and give \term{trees} and \term{graphs} as the main examples.
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=7mm,font=\scriptsize\bfseries\color{ADSNavy}},
-  edge/.style={thick,draw=ADSTeal}
-]
-\node[node] (a) {A};
-\node[node,below left=0.8cm and 1cm of a] (b) {B};
-\node[node,below right=0.8cm and 1cm of a] (c) {C};
-\node[node,below left=0.8cm and 0.4cm of b] (d) {D};
-\node[node,below right=0.8cm and 0.4cm of b] (e) {E};
-\draw[edge] (a)--(b); \draw[edge] (a)--(c); \draw[edge] (b)--(d); \draw[edge] (b)--(e);
+\begin{adsfig}[Tree and graph compared]{Two non-linear shapes. A tree imposes a strict hierarchy with one path
+between any two nodes; a graph allows cycles and several competing paths, which is why
+graph traversal must remember what it has already visited.}{fig:nonlinear-shape}
+\begin{tikzpicture}
+% --- tree ---
+\begin{scope}
+\node[adsnode] (a) at (0,0) {A};
+\node[adsnode] (b) at (-1.1,-1.15) {B};
+\node[adsnode] (c) at (1.1,-1.15) {C};
+\node[adsnode] (d) at (-1.75,-2.3) {D};
+\node[adsnode] (e) at (-0.45,-2.3) {E};
+\draw[adsedge] (a)--(b); \draw[adsedge] (a)--(c);
+\draw[adsedge] (b)--(d); \draw[adsedge] (b)--(e);
+\node[font=\small\bfseries\color{ADSNavy}] at (0,0.85) {TREE};
+\node[adslabel,align=center] at (0,-3.05) {hierarchy\\exactly one path A$\to$E};
+\end{scope}
+% --- graph ---
+\begin{scope}[xshift=6.1cm]
+\node[adsnode] (p) at (0,0) {P};
+\node[adsnode] (q) at (-1.15,-1.3) {Q};
+\node[adsnode] (r) at (1.15,-1.3) {R};
+\node[adsnode] (s) at (0,-2.45) {S};
+\draw[adsedge] (p)--(q); \draw[adsedge] (p)--(r);
+\draw[adsedge] (q)--(s); \draw[adsedge] (r)--(s);
+\draw[adsedge] (q)--(r);
+\node[font=\small\bfseries\color{ADSNavy}] at (0,0.85) {GRAPH};
+\node[adslabel,align=center] at (0,-3.05) {network\\P$\to$Q$\to$S \emph{and} P$\to$R$\to$S};
+\end{scope}
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 \section{Common operations}
 

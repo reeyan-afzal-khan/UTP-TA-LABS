@@ -159,29 +159,17 @@
 \newtcolorbox{mltable}{enhanced,breakable,colback=white,colframe=MLBlue!28,boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm}
 \newtcolorbox{mlfigure}{enhanced,breakable,colback=white,colframe=MLBlue!35,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,before upper={\centering},halign=center}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Data Communication and Networking}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP,\\
+  routing, FTP, DHCP, LACP, VLANs, and WAN configuration.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
-\begin{titlepage}
-\centering\vspace*{1.1cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{MLNavy} Data Communication and Networking Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{MLBlue} A Practical Guide to Packet Analysis, Routing, Services, Switching, and WANs\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[node distance=0.8cm and 0.7cm,box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.8cm,minimum height=1.5cm,align=center,font=\bfseries\small\color{MLNavy}},arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}]
-\node[box] (observe) {OBSERVE\\packets and links};
-\node[box,right=of observe] (configure) {CONFIGURE\\devices and protocols};
-\node[box,right=of configure] (verify) {VERIFY\\routes and connectivity};
-\draw[arr] (observe) -- (configure); \draw[arr] (configure) -- (verify);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]\centering\small
-Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP, static and dynamic routing, FTP, DHCP, LACP, VLANs, and WAN configuration.\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.5cm}{\color{MLMuted} Department of Computing\par}{\color{MLMuted} Universiti Teknologi PETRONAS}
-\vspace{0.8cm}{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 \cleardoublepage\pagenumbering{roman}\setcounter{tocdepth}{0}\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup\newpage\hypersetup{pageanchor=true}
 \input{chapters/course-map}
 \cleardoublepage\pagenumbering{arabic}

@@ -1,0 +1,294 @@
+\chapter{Arrays and Two-Dimensional Arrays}\label{ch:arrays}
+
+\chapterguide%
+  {Know the basic distinction between primitive and non-primitive data structures from \chapref{ch:introduction}.}
+  {define an array, explain contiguous storage and index-based access, distinguish 1D and 2D arrays, trace row/column access, and solve matrix-style tasks with nested loops.}
+
+An \term{array} stores a collection of similar data items of the same type. The Week II slides emphasize three properties: same-type elements, contiguous memory locations, and random access through index positions.
+
+\begin{firstread}
+Remember the sequence \textbf{Store $\rightarrow$ Access $\rightarrow$ Process}. Arrays make the access step simple because an index identifies the position directly.
+\end{firstread}
+
+\section{What is an array?}
+
+Consider the one-dimensional array
+\[
+[12,\ 25,\ 18,\ 30,\ 22].
+\]
+Its indexes are $0,1,2,3,4$ in normal C++ indexing.
+
+\begin{adsfig}[A one-dimensional array]{A one-dimensional array. The index is a position, not a value: index 3 and
+the value 30 are different things stored in different places.}{fig:array-1d}
+\begin{tikzpicture}
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[adscell,minimum width=1.5cm,minimum height=0.95cm] (c\i) at (1.55*\i,0) {\v};
+  \node[adslabel] at (1.55*\i,-0.78) {index \i};
+}
+\node[adslabel,anchor=east] at (-0.95,0) {\texttt{A}};
+\draw[adsbrace] (-0.78,0.62) -- (6.98,0.62);
+\node[adslabel,anchor=south] at (3.1,0.86) {5 elements, all \texttt{int}, stored back to back};
+\end{tikzpicture}
+\end{adsfig}
+
+\subsection{Array properties from the slides}
+
+\begin{itemize}
+  \item Every element has the same data type and therefore the same element size.
+  \item Elements are stored at contiguous memory locations.
+  \item The first element occupies the smallest memory location in the block.
+  \item An element can be accessed directly from its index because its address can be calculated from the base address and element size.
+\end{itemize}
+
+\section{Address calculation}
+
+The slides state that the address of an array element can be calculated from the base address and element size. A standard expression for a one-dimensional, zero-based array is
+\[
+\operatorname{address}(A[i]) = \operatorname{base}(A) + i \times \operatorname{sizeof}(A[0]).
+\]
+
+\begin{workedexample}
+If the base address is 1000 and each integer occupies 4 bytes, then the address of \texttt{A[3]} is
+\[
+1000 + 3(4) = 1012.
+\]
+This arithmetic is the reason direct index access does not require traversing the earlier elements.
+\end{workedexample}
+
+\figref{fig:array-memory} shows why that single multiplication is the whole story. The
+machine never looks at \texttt{A[0]}, \texttt{A[1]}, or \texttt{A[2]} on the way to
+\texttt{A[3]}; it computes one address and reads it.
+
+\begin{adsfig}[Array address calculation]{Contiguous storage turns indexing into arithmetic. Because every element is
+the same size, the address of any element is one multiply-and-add away from the base
+address --- so reaching \texttt{A[3]} costs the same as reaching
+\texttt{A[0]}.}{fig:array-memory}
+\begin{tikzpicture}
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \pgfmathtruncatemacro{\addr}{1000+4*\i}
+  \ifnum\i=3
+    \node[adshot,minimum width=1.62cm,minimum height=0.9cm] (m\i) at (1.68*\i,0) {\v};
+  \else
+    \node[adscell,minimum width=1.62cm,minimum height=0.9cm] (m\i) at (1.68*\i,0) {\v};
+  \fi
+  \node[adslabel] at (1.68*\i,-0.72) {\texttt{\addr}};
+  \node[adslabel] at (1.68*\i,0.75) {\texttt{A[\i]}};
+}
+\node[adslabel,anchor=east,align=right] at (-1.05,-0.72) {byte\\address};
+% offset bracket from base to A[3]
+\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=2pt},draw=ADSOrange,semithick]
+  (-0.86,-1.05) -- (5.9,-1.05);
+\node[adstag,anchor=north,align=center] at (2.5,-1.5)
+  {offset $=3\times4=12$ bytes\qquad address $=1000+12=1012$};
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+The formula above is an explanatory expansion of the slide statement about base address and element size. The slides themselves do not provide a numeric address formula.
+\end{clarification}
+
+\section{One-dimensional vs two-dimensional arrays}
+
+A 1D array forms a single indexed sequence. A 2D array stores values in rows and columns and is commonly used for tables, grids, and matrices.
+
+\begin{adsfig}[Row and column indexing]{A $3\times3$ array. The first index selects the row, the second selects the
+column, so \texttt{matrix[1][2]} is row~1, column~2 --- the value~6.}{fig:array-2d}
+\begin{tikzpicture}
+\foreach \r in {0,1,2}{
+  \foreach \c in {0,1,2}{
+    \pgfmathtruncatemacro{\v}{3*\r+\c+1}
+    \ifnum\r=1 \ifnum\c=2
+      \node[adshot,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \else
+      \node[adscell,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \fi\else
+      \node[adscell,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \fi
+  }
+}
+\foreach \c in {0,1,2}{\node[adslabel] at (1.15*\c,0.68) {col \c};}
+\foreach \r in {0,1,2}{\node[adslabel,anchor=east] at (-0.72,-0.85*\r) {row \r};}
+\node[adstag,anchor=west,align=left] at (2.9,-0.85) {$\leftarrow$ \texttt{matrix[1][2]} $=6$};
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+A 2D array is a convenient \emph{notation}; memory itself is still one flat sequence of
+bytes. C++ stores the rows one after another, an arrangement called \term{row-major order}
+(\figref{fig:row-major}). This is why \texttt{matrix[r][c]} can still be resolved with
+arithmetic, and why walking a matrix row by row is friendlier to the cache than walking it
+column by column.
+\end{clarification}
+
+\begin{adsfig}[Row-major memory layout]{Row-major order: the rows of a two-dimensional array are laid end to end in
+linear memory. The element \texttt{matrix[r][c]} sits at flat offset $r\times3+c$, which is
+how two indices collapse back into one address.}{fig:row-major}
+\begin{tikzpicture}
+\foreach \i in {0,...,8}{
+  \pgfmathtruncatemacro{\v}{\i+1}
+  \pgfmathtruncatemacro{\r}{int(\i/3)}
+  \ifnum\r=0 \def\st{adscell}\fi
+  \ifnum\r=1 \def\st{adsdone}\fi
+  \ifnum\r=2 \def\st{adshot}\fi
+  \node[\st,minimum width=0.92cm,minimum height=0.8cm] (f\i) at (0.94*\i,0) {\v};
+  \node[adslabel] at (0.94*\i,-0.66) {\i};
+}
+\draw[decorate,decoration={brace,amplitude=3.5pt,raise=2pt},draw=ADSBlue,semithick]
+  (-0.45,0.44) -- (2.33,0.44);
+\draw[decorate,decoration={brace,amplitude=3.5pt,raise=2pt},draw=ADSGreen,semithick]
+  (2.37,0.44) -- (5.15,0.44);
+\draw[decorate,decoration={brace,amplitude=3.5pt,raise=2pt},draw=ADSOrange,semithick]
+  (5.19,0.44) -- (7.97,0.44);
+\node[adslabel,anchor=south,color=ADSBlue]   at (0.94,0.72) {row 0};
+\node[adslabel,anchor=south,color=ADSGreen]  at (3.76,0.72) {row 1};
+\node[adslabel,anchor=south,color=ADSOrange] at (6.58,0.72) {row 2};
+\node[adslabel,anchor=north,align=center] at (3.76,-1.0)
+  {flat offset $=r\times\text{(number of columns)}+c$};
+\end{tikzpicture}
+\end{adsfig}
+
+In C++:
+
+\begin{lstlisting}
+int matrix[3][3] = {
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+};
+
+cout << matrix[1][2];   // 6
+\end{lstlisting}
+
+The first index chooses the row; the second chooses the column.
+
+\section{Processing a 2D array with nested loops}
+
+The Week II summary explicitly connects 2D arrays with nested loops.
+
+\begin{lstlisting}
+for (int r = 0; r < 3; ++r) {
+    for (int c = 0; c < 3; ++c) {
+        cout << matrix[r][c] << ' ';
+    }
+    cout << '\n';
+}
+\end{lstlisting}
+
+The outer loop changes rows, while the inner loop visits the columns within the current row.
+
+\begin{workedexample}
+To compute the sum of every element in a $3\times3$ matrix, initialize \texttt{sum = 0}, visit each pair \texttt{[r][c]}, and add the value. The traversal touches each matrix cell once.
+\end{workedexample}
+
+\section{Why arrays are useful}
+
+The Week II slides give three practical motivations:
+
+\begin{itemize}
+  \item multiple values can be stored under one variable name;
+  \item multiple values can be processed quickly and systematically;
+  \item searching and sorting operations can be applied naturally to the indexed sequence.
+\end{itemize}
+
+Arrays are especially useful when the number of elements is known and direct index access is important.
+
+\section{The cost of an insertion}
+
+Contiguity is what makes access cheap, and it is also what makes insertion expensive.
+To place a value in the middle of a full-to-the-left array, every element from that
+position onwards must move up one slot to open a gap
+(\figref{fig:array-insert}). Deletion is the mirror image: the survivors must close the gap.
+
+\begin{adsfig}[The shifting cost of array insertion]{Inserting 99 at index 2. Because the elements must stay contiguous, the tail
+of the array shifts right one position before the new value can be written. Insertion near
+the front of a large array therefore costs \cxr{O(n)} moves, even though \emph{finding}
+index 2 costs nothing.}{fig:array-insert}
+\begin{tikzpicture}
+% before
+\node[adslabel,anchor=east] at (-0.7,0) {before};
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[adscell,minimum width=1.0cm,minimum height=0.8cm] (b\i) at (1.05*\i,0) {\v};
+}
+\node[adsdim,minimum width=1.0cm,minimum height=0.8cm] at (5.25,0) {};
+\foreach \i in {0,...,5}{\node[adslabel] at (1.05*\i,-0.62) {\i};}
+% shift arrows
+\foreach \i in {2,3,4}{
+  \pgfmathsetmacro{\x}{1.05*\i}
+  \draw[adsarrow] (\x,-1.15) -- ++(1.05,0);
+}
+\node[adstag,anchor=east] at (1.6,-1.15) {shift $\rightarrow$};
+% after
+\begin{scope}[yshift=-2.3cm]
+\node[adslabel,anchor=east] at (-0.7,0) {after};
+\node[adscell,minimum width=1.0cm,minimum height=0.8cm] at (0,0) {12};
+\node[adscell,minimum width=1.0cm,minimum height=0.8cm] at (1.05,0) {25};
+\node[adshot,minimum width=1.0cm,minimum height=0.8cm]  at (2.10,0) {99};
+\node[adsdone,minimum width=1.0cm,minimum height=0.8cm] at (3.15,0) {18};
+\node[adsdone,minimum width=1.0cm,minimum height=0.8cm] at (4.20,0) {30};
+\node[adsdone,minimum width=1.0cm,minimum height=0.8cm] at (5.25,0) {22};
+\foreach \i in {0,...,5}{\node[adslabel] at (1.05*\i,-0.62) {\i};}
+\node[adstag,anchor=west] at (6.0,0) {3 elements moved};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Array access vs later pointer-based access}
+
+The next chapter introduces linked lists. The contrast begins here.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Question & Array & Linked-list preview \\
+\midrule
+How do I reach item 4? & Use an index directly. & Start at the head and follow links. \\
+Memory layout & Contiguous. & Non-contiguous is allowed. \\
+Size & Typically fixed for a raw C++ array. & Nodes can be allocated dynamically. \\
+Extra pointer memory & Not needed per element. & Required for links. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Matrix multiplication as a lab-style problem}
+
+The Week II material explicitly points to multi-dimensional array problems such as matrix multiplication. If $A$ is $m\times k$ and $B$ is $k\times n$, then the product $C$ is $m\times n$ with
+\[
+C[i][j] = \sum_{t=0}^{k-1} A[i][t]B[t][j].
+\]
+
+\begin{lstlisting}
+for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < n; ++j) {
+        C[i][j] = 0;
+        for (int t = 0; t < k; ++t) {
+            C[i][j] += A[i][t] * B[t][j];
+        }
+    }
+}
+\end{lstlisting}
+
+\begin{clarification}
+The matrix-multiplication formula and loop structure are an implementation expansion of the Week II lab prompt, which asks for multidimensional-array problems such as matrix multiplication but does not spell out the algorithm.
+\end{clarification}
+
+\begin{pitfall}
+Do not confuse an index with the stored value. In the array \texttt{[12,25,18,30,22]}, index 3 is the position and 30 is the value at that position.
+\end{pitfall}
+
+\begin{quickcheck}
+For a $4\times5$ integer matrix, what do the two indexes in \texttt{A[2][4]} represent? Why can a raw array element be accessed directly without walking through earlier elements?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Arrays store same-type elements in contiguous memory.
+  \item Indexing gives direct access to an element.
+  \item Address calculation depends on base address, index, and element size.
+  \item 2D arrays represent rows and columns.
+  \item Nested loops are the standard course pattern for matrix-style processing.
+  \item Multidimensional arrays support practical tasks such as matrix multiplication.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/02-arrays}

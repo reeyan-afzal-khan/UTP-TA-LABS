@@ -40,7 +40,10 @@ The workflow is:
   \item Repeat until convergence or the maximum generation count is reached.
 \end{mlsteps}
 
-\begin{mlfigure}
+\begin{aifig}[The genetic algorithm loop]{One generation of a genetic algorithm. Selection
+supplies the pressure toward better solutions, crossover recombines what already works, and
+mutation supplies the novelty that stops the population collapsing onto one
+answer.}{fig:ga-loop}
 \begin{tikzpicture}[
   b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
@@ -55,7 +58,7 @@ The workflow is:
 \draw[arr] (mut.south) |- (rep.east);
 \draw[arr] (rep.west) -| (p.south);
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 \begin{keyidea}
 A GA transforms a population: selection favors fitter candidates, crossover recombines them, and mutation adds variation.
@@ -116,6 +119,46 @@ then uses cumulative probabilities and a uniform random number to select each pa
 
 This formula requires nonnegative selection scores with a positive total. If an objective can be negative or if every score is zero, transform or shift the scores before normalizing them.
 
+\figref{fig:roulette} shows the mechanism. Each individual gets an arc proportional to its
+fitness and one random draw picks the owner. Fitter individuals win more often, but weak ones
+are never eliminated --- keeping them preserves the diversity a later crossover may need.
+
+\begin{aifig}[Roulette-wheel selection]{Roulette-wheel selection for four individuals. Arc width is proportional to fitness, so B is picked about four times as often as D --- but D keeps a real chance. The strip is the same distribution as \texttt{cumsum(prob)}.}{fig:roulette}
+\begin{tikzpicture}[font=\small]
+% ---- pie ----
+\def\rad{1.75}
+\foreach \a/\b/\lbl/\col in {0/144/B/MLBlue, 144/252/A/MLTeal, 252/324/C/MLOrange, 324/360/D/MLRed}{
+  \fill[\col!28,draw=\col,thick] (0,0) -- (\a:\rad) arc[start angle=\a,end angle=\b,radius=\rad] -- cycle;
+  \pgfmathsetmacro{\mid}{(\a+\b)/2}
+  \node[font=\small\bfseries\color{MLNavy}] at (\mid:0.65*\rad) {\lbl};
+}
+% spinner
+\draw[-{Stealth[length=3mm]},line width=1.3pt,draw=MLNavy] (0,0) -- (196:1.42);
+\node[circle,fill=MLNavy,inner sep=1.6pt] at (0,0) {};
+\node[ailabel,anchor=north,align=center] at (0,-2.15) {one random spin};
+
+% ---- cumulative strip ----
+\begin{scope}[xshift=4.0cm,yshift=-0.4cm]
+\def\L{7.2}
+\foreach \s/\e/\lbl/\col in {0/0.40/B/MLBlue, 0.40/0.70/A/MLTeal, 0.70/0.90/C/MLOrange, 0.90/1.0/D/MLRed}{
+  \pgfmathsetmacro{\x}{\s*\L}
+  \pgfmathsetmacro{\w}{(\e-\s)*\L}
+  \fill[\col!28,draw=\col,thick] (\x,0) rectangle ++(\w,0.85);
+  \node[font=\small\bfseries\color{MLNavy}] at (\x+\w/2,0.42) {\lbl};
+}
+\foreach \v/\x in {0/0, 0.40/0.40, 0.70/0.70, 0.90/0.90, 1.0/1.0}{
+  \pgfmathsetmacro{\xx}{\x*\L}
+  \node[ailabel] at (\xx,-0.28) {\v};
+}
+\draw[-{Stealth[length=2.4mm]},line width=1.2pt,draw=MLNavy] (0.54*\L,1.5) -- (0.54*\L,0.95);
+\node[ailabel,anchor=south,color=MLNavy] at (0.54*\L,1.55) {\texttt{rand} $=0.54\ \Rightarrow$ pick A};
+\node[ailabel,anchor=north,align=center] at (0.5*\L,-0.62)
+  {cumulative probability, exactly what \texttt{cumsum(prob)} builds};
+\node[ailabel,anchor=east,align=right] at (-0.25,0.42) {fitness\\$4:3:2:1$};
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
+
 \begin{lstlisting}[style=mlmatlab]
 fitness = fitnessFunc(pop);
 prob = fitness / sum(fitness);
@@ -132,6 +175,55 @@ end
 \subsection{Arithmetic crossover and mutation}
 
 The continuous examples blend two parents with a random coefficient \(\alpha\), then occasionally add a small random perturbation.
+
+\figref{fig:crossover} contrasts the two continuous operators with the binary
+single-point crossover used for the knapsack problem in Code~4. Arithmetic crossover produces
+a child \emph{between} its parents, so a population can only ever contract toward the region
+it already occupies; mutation is what lets it reach outside.
+
+\begin{aifig}[Crossover and mutation operators]{Left: arithmetic crossover places the child on the segment between its parents, so it cannot reach new territory alone. Right: single-point crossover swaps tails at a cut, and mutation flips one bit --- the only operator that introduces a value neither parent had.}{fig:crossover}
+\begin{tikzpicture}[font=\small]
+% ---- arithmetic ----
+\begin{scope}
+\node[font=\bfseries\color{MLNavy}] at (2.0,2.15) {Arithmetic (continuous)};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$x_1$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$x_2$};
+\node[circle,fill=MLBlue,inner sep=2.2pt,label={[ailabel,color=MLBlue]above:parent 1}] (P1) at (0.7,1.35) {};
+\node[circle,fill=MLTeal,inner sep=2.2pt,label={[ailabel,color=MLTeal]below:parent 2}] (P2) at (3.6,0.45) {};
+\draw[draw=MLMuted!60,dashed] (P1)--(P2);
+\node[circle,fill=MLOrange,inner sep=2.2pt] (Ch) at (1.86,1.0) {};
+\node[ailabel,anchor=west,color=MLOrange] at (2.0,1.28) {child, $\alpha=0.6$};
+\node[ailabel,anchor=north,align=center] at (2.0,-0.5)
+  {the child always lands \emph{between} the parents};
+\end{scope}
+% ---- binary ----
+\begin{scope}[xshift=6.6cm,yshift=1.15cm]
+\node[font=\bfseries\color{MLNavy}] at (2.55,1.28) {Single-point (binary)};
+\foreach \b [count=\i from 0] in {1,0,1,1,0,1}{
+  \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+    at (0.66*\i,0.3) {\b};}
+\foreach \b [count=\i from 0] in {0,1,1,0,1,0}{
+  \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries,
+        fill=MLPaleTeal,draw=MLTeal] at (0.66*\i,-0.35) {\b};}
+\draw[draw=MLRed,line width=1pt,dashed] (1.65,0.65) -- (1.65,-0.7);
+\node[ailabel,anchor=south,color=MLRed] at (1.65,0.68) {cut};
+\node[ailabel,anchor=west] at (3.82,0.3) {parent 1};
+\node[ailabel,anchor=west] at (3.82,-0.35) {parent 2};
+% child
+\foreach \b [count=\i from 0] in {1,0,1,0,1,0}{
+  \ifnum\i=4
+    \node[aihot,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+      at (0.66*\i,-1.35) {0};
+  \else
+    \node[aidone,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+      at (0.66*\i,-1.35) {\b};
+  \fi}
+\node[ailabel,anchor=west,align=left,color=MLOrange] at (3.82,-1.35)
+  {child, bit 5 mutated};
+\draw[aiarrow] (1.65,-0.75) -- (1.65,-1.05);
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
 
 \begin{lstlisting}[style=mlmatlab]
 alpha = rand;
@@ -206,6 +298,33 @@ If three candidates have fitness \([1,2,1]\), their roulette probabilities are \
 Codes 2--5 retain the loop while changing initialization, fitness conversion, bounds, and mutation.
 \end{firstread}
 
+
+
+\figref{fig:ga-convergence} shows one run of this configuration. Two things stand out. The
+best-so-far curve improves in jumps --- generations 1--3, then 14, 27, and 30--31 --- with
+flat stretches between. And the best individual \emph{present} in each generation keeps
+falling below that line: the supplied code has no elitism, so a good chromosome that is not
+selected simply disappears.
+
+\begin{aifig}[Fitness convergence over generations]{A run of Code~1 on $f(x)=x\sin(10\pi x)+1$. Best-so-far can only rise, and does so in jumps separated by flat stretches. The best individual \emph{present} in each generation keeps dipping below it: without elitism the algorithm loses its best chromosome and has to rediscover it. Axis cropped to $[1.3,1.95]$.}{fig:ga-convergence}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.84\linewidth, height=5.8cm,
+  xlabel={generation}, ylabel={fitness},
+  xmin=0, xmax=49, ymin=1.30, ymax=1.95,
+  ytick={1.4,1.5,1.6,1.7,1.8,1.9},
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
+  legend columns=3, legend style={at={(0.5,-0.26)},anchor=north}]
+\addplot[draw=MLMuted!70,dotted,thick] coordinates {(0,1.8506) (49,1.8506)};
+\addlegendentry{true maximum}
+\addplot[draw=MLOrange,thin] coordinates {(0,1.4353) (1,1.7162) (2,1.8478) (3,1.8495) (4,1.8355) (5,1.8086) (6,1.7750) (7,1.8487) (8,1.8388) (9,1.7485) (10,1.8394) (11,1.8394) (12,1.8394) (13,1.8394) (14,1.8505) (15,1.8437) (16,1.8505) (17,1.8503) (18,1.8489) (19,1.8448) (20,1.8336) (21,1.8293) (22,1.8474) (23,1.8505) (24,1.8497) (25,1.8496) (26,1.8489) (27,1.8506) (28,1.8506) (29,1.8505) (30,1.8506) (31,1.8506) (32,1.8506) (33,1.8505) (34,1.8506) (35,1.8506) (36,1.8506) (37,1.8506) (38,1.8506) (39,1.8504) (40,1.8499) (41,1.8499) (42,1.8467) (43,1.8475) (44,1.8462) (45,1.8410) (46,1.8490) (47,1.8491) (48,1.8501) (49,1.8506)};
+\addlegendentry{best in generation}
+\addplot[draw=MLGreen,very thick] coordinates {(0,1.4353) (1,1.7162) (2,1.8478) (3,1.8495) (4,1.8495) (5,1.8495) (6,1.8495) (7,1.8495) (8,1.8495) (9,1.8495) (10,1.8495) (11,1.8495) (12,1.8495) (13,1.8495) (14,1.8505) (15,1.8505) (16,1.8505) (17,1.8505) (18,1.8505) (19,1.8505) (20,1.8505) (21,1.8505) (22,1.8505) (23,1.8505) (24,1.8505) (25,1.8505) (26,1.8505) (27,1.8506) (28,1.8506) (29,1.8506) (30,1.8506) (31,1.8506) (32,1.8506) (33,1.8506) (34,1.8506) (35,1.8506) (36,1.8506) (37,1.8506) (38,1.8506) (39,1.8506) (40,1.8506) (41,1.8506) (42,1.8506) (43,1.8506) (44,1.8506) (45,1.8506) (46,1.8506) (47,1.8506) (48,1.8506) (49,1.8506)};
+\addlegendentry{best so far}
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
+
 \section{Code 2: minimize the Rosenbrock function}
 
 The second problem minimizes
@@ -266,7 +385,37 @@ A chromosome may encode model parameters directly. Evaluate \texttt{pop(i,1)} an
 
 \section{Code 4: 0--1 knapsack}
 
-The knapsack example uses binary chromosomes. Four genes indicate whether each item is selected.
+The knapsack example uses binary chromosomes. Four genes indicate whether each item is selected. \figref{fig:knapsack} shows the encoding
+and the penalty that keeps infeasible solutions out of the gene pool.
+
+\begin{aifig}[Binary encoding for the knapsack]{Each gene is one item: 1 means packed. The
+chromosome $[1,1,0,0]$ weighs $5$ and fits exactly; $[0,1,1,0]$ weighs $7$ and is over
+capacity, so its fitness is forced to zero and roulette selection never picks it.}{fig:knapsack}
+\begin{tikzpicture}[font=\small]
+\foreach \w/\v [count=\i from 0] in {2/3, 3/4, 4/5, 5/8}{
+  \node[ailabel] at (1.25*\i,1.35) {item \the\numexpr\i+1\relax};
+  \node[ailabel,anchor=north] at (1.25*\i,1.2) {$w=\w,\ v=\v$};
+}
+% feasible chromosome
+\foreach \b [count=\i from 0] in {1,1,0,0}{
+  \ifnum\b=1
+    \node[aidone,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.25*\i,0.35) {\b};
+  \else
+    \node[aidim,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize] at (1.25*\i,0.35) {\b};
+  \fi}
+\node[ailabel,anchor=east,color=MLGreen] at (-0.75,0.35) {feasible};
+\node[ailabel,anchor=west,color=MLGreen] at (4.4,0.35) {weight 5 $\leq$ 5, value 7};
+% infeasible chromosome
+\foreach \b [count=\i from 0] in {0,1,1,0}{
+  \ifnum\b=1
+    \node[aihot,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.25*\i,-0.45) {\b};
+  \else
+    \node[aidim,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize] at (1.25*\i,-0.45) {\b};
+  \fi}
+\node[ailabel,anchor=east,color=MLRed] at (-0.75,-0.45) {infeasible};
+\node[ailabel,anchor=west,color=MLRed] at (4.4,-0.45) {weight 7 $>$ 5, fitness set to 0};
+\end{tikzpicture}
+\end{aifig}
 
 \begin{lstlisting}[style=mlmatlab]
 weights = [2 3 4 5];

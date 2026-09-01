@@ -396,43 +396,20 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{FinTech Innovation}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A structured guide for TFB3323 FinTech Innovation, covering financial
+  inclusion, digital banking, crowdfunding, blockchain, and cryptocurrency.
+  Dated examples and regulatory snapshots are retained as presented in the
+  supplied lecture materials.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.1cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{MLNavy} FinTech Innovation Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{MLBlue} From Financial Inclusion to Digital Banking, Blockchain and Crypto\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[
-  node distance=0.75cm and 0.65cm,
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.35cm,minimum height=1.55cm,align=center,font=\bfseries\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}
-]
-\node[box] (access) {ACCESS\\financial inclusion};
-\node[box,right=of access] (platform) {PLATFORMS\\digital finance};
-\node[box,right=of platform] (infra) {INFRASTRUCTURE\\blockchain and crypto};
-\draw[arr] (access) -- (platform);
-\draw[arr] (platform) -- (infra);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-A structured study guide for TFB3323 FinTech Innovation, reorganized from Weeks 1--9 into concepts, comparisons, diagrams, examples, revision questions, and chapter recaps.\\[0.3em]
-\textbf{Lecture-snapshot rule:} dated statistics, valuations, product examples, and regulatory snapshots are retained as presented in the supplied lecture materials and are not silently updated to current values.
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.5cm}
-{\color{MLMuted} Department of Computing \par}
-{\color{MLMuted} Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage
 \pagenumbering{roman}

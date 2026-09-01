@@ -10,17 +10,43 @@ A \term{stack} is an abstract data type in which access occurs at one end called
 
 If 10 is inserted first, then 20, then 30, the top is 30. Removing an item removes 30 before 20 or 10.
 
-\begin{mlfigure}
-\begin{tikzpicture}[
- cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=2.4cm,minimum height=0.72cm,font=\bfseries\color{ADSNavy}}
-]
-\node[cell] (a) {10};
-\node[cell,above=-\pgflinewidth of a] (b) {20};
-\node[cell,above=-\pgflinewidth of b] (c) {30};
-\node[right=0.5cm of c,font=\small\bfseries\color{ADSOrange}] {TOP};
-\draw[-{Stealth[length=2mm]},thick,draw=ADSTeal] ([xshift=1.1cm]c.north) -- ++(0,0.9) node[above,font=\scriptsize\color{ADSMuted}] {pop removes 30};
+\begin{adsfig}[A stack under push and pop]{A stack under a sequence of operations. Only the top ever changes, and
+\texttt{pop} always returns the most recent survivor --- 30 leaves before 20, which leaves
+before 10.}{fig:stack-trace}
+\begin{tikzpicture}[font=\small]
+\def\cw{1.5}
+\newcommand{\stackframe}[4]{%
+  % #1 = x offset, #2 = caption, #3 = list of values bottom->top, #4 = highlight top?
+  \begin{scope}[xshift=#1 cm]
+    \node[adslabel,anchor=north,align=center] at (0,-0.35) {#2};
+    \foreach \v [count=\k from 0] in {#3}{
+      \node[adscell,minimum width=\cw cm,minimum height=0.62cm] (q\k) at (0,0.66*\k) {\v};
+    }
+  \end{scope}}
+% empty
+\node[adslabel,anchor=north,align=center] at (0,-0.35) {empty};
+\draw[draw=ADSMuted!45] (-0.75,0.34) -- (-0.75,-0.05) -- (0.75,-0.05) -- (0.75,0.34);
+\node[adslabel,color=ADSMuted] at (0,0.75) {top $=-1$};
+% push 10
+\stackframe{2.3}{\texttt{push(10)}}{10}{}
+\node[adstag,anchor=west] at (3.15,0) {top};
+% push 20
+\stackframe{5.2}{\texttt{push(20)}}{10,20}{}
+\node[adstag,anchor=west] at (6.05,0.66) {top};
+% push 30
+\stackframe{8.1}{\texttt{push(30)}}{10,20,30}{}
+\node[adstag,anchor=west] at (8.95,1.32) {top};
+% pop
+\begin{scope}[xshift=11.0cm]
+  \node[adslabel,anchor=north,align=center] at (0,-0.35) {\texttt{pop()} $\rightarrow30$};
+  \node[adscell,minimum width=\cw cm,minimum height=0.62cm] at (0,0) {10};
+  \node[adscell,minimum width=\cw cm,minimum height=0.62cm] at (0,0.66) {20};
+  \node[adsdim,minimum width=\cw cm,minimum height=0.62cm] at (0,1.32) {30};
+  \draw[draw=ADSRed,line width=0.7pt] (-0.42,1.05) -- (0.42,1.59);
+  \node[adstag,anchor=west] at (0.85,0.66) {top};
+\end{scope}
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 The slide deck names the main operations:
 
@@ -146,6 +172,42 @@ Pointer memory & No per-element pointer & One pointer per node \\
 A physical stack of plates behaves like the ADT: adding a plate changes only the top, and removing a plate takes the most recently added plate first.
 \end{intuition}
 
+The same discipline runs underneath every C++ program. Each function call pushes a frame
+holding that call's parameters and local variables; each \texttt{return} pops one
+(\figref{fig:call-stack}). This is why a runaway recursion produces a \emph{stack overflow},
+and why the recursive tree traversals in \chapref{ch:trees-i} return to the correct parent
+without storing one explicitly.
+
+\begin{adsfig}[The call stack during recursion]{The call stack during \texttt{factorial(3)}. Calls pile up until the base case
+is reached, then unwind in reverse order, each frame resuming exactly where it paused. The
+stack is what remembers the half-finished multiplications.}{fig:call-stack}
+\begin{tikzpicture}[font=\small]
+\def\cw{2.75}
+% winding up
+\foreach \lbl [count=\k from 0] in {{factorial(3)},{factorial(2)},{factorial(1)}}{
+  \node[adscell,minimum width=\cw cm,minimum height=0.6cm,font=\scriptsize\ttfamily\color{ADSNavy}]
+    at (0,0.64*\k) {\lbl};
+}
+\node[adslabel,anchor=north,align=center] at (0,-0.42) {calls pile up};
+\node[adstag,anchor=west] at (1.5,1.28) {top};
+\draw[adsarrow] (0,-0.95) -- (0,-1.55);
+\node[adslabel,anchor=west] at (0.15,-1.25) {base case reached};
+
+% unwinding
+\begin{scope}[xshift=5.4cm]
+\node[adsdone,minimum width=\cw cm,minimum height=0.6cm,font=\scriptsize\ttfamily\color{ADSNavy}]
+  at (0,1.28) {returns 1};
+\node[adsdone,minimum width=\cw cm,minimum height=0.6cm,font=\scriptsize\ttfamily\color{ADSNavy}]
+  at (0,0.64) {2 * 1 = 2};
+\node[adsdone,minimum width=\cw cm,minimum height=0.6cm,font=\scriptsize\ttfamily\color{ADSNavy}]
+  at (0,0) {3 * 2 = 6};
+\node[adslabel,anchor=north,align=center] at (0,-0.42) {frames pop, results flow down};
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (1.55,1.28) -- (1.55,0.15);
+\end{scope}
+\node[adslabel,anchor=west,align=center,color=ADSMuted] at (2.85,0.64) {then};
+\end{tikzpicture}
+\end{adsfig}
+
 \section{Lab-manual application: infix to postfix}
 
 The official lab manual adds one stack problem that is not spelled out in the Week V slide deck: \term{conversion of an infix expression to postfix using a stack}. The stack temporarily stores operators while operands are sent directly to the output.
@@ -172,6 +234,38 @@ Multiplication is emitted before addition because it has higher precedence.
 \begin{clarification}
 The lab manual names infix-to-postfix conversion as practice but does not provide the precedence/associativity algorithm in the supplied material. The procedure above is standard supporting context so the named lab task can be implemented.
 \end{clarification}
+
+\figref{fig:infix-trace} traces the whole conversion for a slightly larger expression. Read
+it as a table of states: the stack column is the operator stack from bottom to top, and the
+output column only ever grows.
+
+\begin{adsfig}[Infix to postfix conversion traced]{Converting \texttt{A + B * C - D} to postfix. When \texttt{-} arrives, the
+stack holds \texttt{+} and \texttt{*}; both have precedence at least as high as \texttt{-},
+so both are emitted before \texttt{-} is pushed. That single rule is what encodes operator
+precedence.}{fig:infix-trace}
+\begin{tikzpicture}[font=\small]
+\node[anchor=north west,inner sep=0pt] at (0,0){
+\begin{tabular}{@{}>{\bfseries\color{ADSNavy}}c
+                   >{\raggedright\arraybackslash}p{3.9cm}
+                   >{\ttfamily\color{ADSBlue}}l
+                   >{\ttfamily\color{ADSGreen!70!black}}l@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+\textbf{Read} & \textbf{Action} & \textbf{Stack} & \textbf{Output} \\
+\midrule
+A & operand: emit            & \phantom{x}      & A          \\
++ & stack empty: push        & +                & A          \\
+B & operand: emit            & +                & A B        \\
+* & higher than +: push      & + *              & A B        \\
+C & operand: emit            & + *              & A B C      \\
+- & pop * then +, push -     & -                & A B C * +  \\
+D & operand: emit            & -                & A B C * + D\\
+\midrule
+\textit{end} & pop remaining & \phantom{x}      & A B C * + D -\\
+\bottomrule
+\end{tabular}};
+\end{tikzpicture}
+\end{adsfig}
 
 \begin{quickcheck}
 After \texttt{push(10)}, \texttt{push(20)}, \texttt{push(30)}, \texttt{pop()}, and \texttt{peek()}, what value is returned by \texttt{peek()}? What condition causes underflow?

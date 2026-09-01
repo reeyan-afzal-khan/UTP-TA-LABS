@@ -1,0 +1,136 @@
+\chapter{Quick Reference}\label{ch:reference}
+
+\chapterguide%
+  {Everything in this appendix has appeared earlier with full explanation; nothing here is new material.}
+  {revise before an assessment, choose a structure for the final project, and check a complexity claim quickly.}
+
+This appendix collects the numbers and decisions scattered across the previous chapters into
+one place. Use it for revision, not for first learning: each entry points back to the chapter
+that explains it.
+
+\section{Choosing a data structure}
+
+Most structure choices in this course reduce to a short series of questions about the access
+pattern (\figref{fig:choose}). The pattern matters more than the data: the same student
+records belong in an array, a BST, or a hash table depending entirely on how they will be
+looked up.
+
+\begin{adsfig}[Choosing a data structure]{A decision path for the structures covered in this course. Read it as a set of
+questions about how the data will be \emph{used}, not about what the data
+is.}{fig:choose}
+\begin{tikzpicture}[font=\small,
+  q/.style={draw=ADSOrange,fill=ADSPaleOrange,rounded corners=2mm,text width=3.5cm,
+            align=center,inner sep=2.2mm,font=\scriptsize\color{ADSNavy}},
+  ans/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=2mm,text width=2.8cm,
+            align=center,inner sep=2.2mm,font=\scriptsize\bfseries\color{ADSNavy}},
+  yes/.style={adsarrow,draw=ADSGreen},
+  no/.style={adsarrow,draw=ADSRed}]
+
+\node[q] (q1) at (0,0) {Do you look items up by a \textbf{key}?};
+\node[q] (q2) at (0,-2.4) {Is order (sorted, LIFO, FIFO) part of the requirement?};
+\node[q] (q3) at (0,-4.8) {Do items have \textbf{hierarchical or network} relationships?};
+\node[ans] (a0) at (5.5,0) {Hash table\\{\scriptsize\mdseries\chapref{ch:hashing}}};
+\node[ans] (a1) at (5.5,-2.4) {Stack / Queue / BST\\{\scriptsize\mdseries Ch.~\ref{ch:stacks}, \ref{ch:queues}, \ref{ch:trees-ii}}};
+\node[ans] (a2) at (5.5,-4.8) {Tree / Graph\\{\scriptsize\mdseries Ch.~\ref{ch:trees-i}, \ref{ch:graphs}}};
+\node[ans] (a3) at (0,-7.0) {Array or linked list\\{\scriptsize\mdseries Ch.~\ref{ch:arrays}, \ref{ch:linked-lists}}};
+
+\draw[yes] (q1)--(a0) node[midway,above,adslabel,color=ADSGreen] {yes};
+\draw[yes] (q2)--(a1) node[midway,above,adslabel,color=ADSGreen] {yes};
+\draw[yes] (q3)--(a2) node[midway,above,adslabel,color=ADSGreen] {yes};
+\draw[no] (q1)--(q2) node[midway,left,adslabel,color=ADSRed] {no};
+\draw[no] (q2)--(q3) node[midway,left,adslabel,color=ADSRed] {no};
+\draw[no] (q3)--(a3) node[midway,left,adslabel,color=ADSRed] {no};
+
+\node[adslabel,anchor=west,align=left,text width=5.2cm] at (7.3,-7.0)
+  {Then choose between them on one further question: is the size fixed and is
+   direct index access needed (array), or will there be many insertions and deletions
+   (linked list)?};
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Operation costs by structure}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.20\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Structure & Access & Search & Insert/Delete & Note \\
+\midrule
+Array                  & $O(1)$      & $O(n)$      & $O(n)$      & Shifting dominates insertion \\
+Sorted array           & $O(1)$      & $O(\log n)$ & $O(n)$      & Binary search applies \\
+Singly linked list     & $O(n)$      & $O(n)$      & $O(1)$      & Cost is $O(1)$ \emph{once positioned} \\
+Doubly linked list     & $O(n)$      & $O(n)$      & $O(1)$      & Deletion needs no predecessor search \\
+Stack                  & $O(1)$ top  & ---         & $O(1)$      & Access restricted to the top \\
+Queue                  & $O(1)$ ends & ---         & $O(1)$      & Circular form reuses slots \\
+BST (balanced)         & ---         & $O(\log n)$ & $O(\log n)$ & Degrades to $O(n)$ if unbalanced \\
+Heap                   & $O(1)$ root & $O(n)$      & $O(\log n)$ & Root is min or max only \\
+Hash table             & ---         & $O(1)$ avg  & $O(1)$ avg  & Worst case $O(n)$ under heavy collision \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{clarification}
+These are standard averages for the implementations built in this course, not figures quoted
+from the slide decks. Where a chapter states a different value, the chapter's own
+clarification box explains the discrepancy.
+\end{clarification}
+
+\section{Sorting algorithms at a glance}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.17\linewidth}
+  >{\centering\arraybackslash}p{0.15\linewidth}
+  >{\centering\arraybackslash}p{0.15\linewidth}
+  >{\centering\arraybackslash}p{0.10\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Algorithm & Average & Worst & Stable & Choose it when \\
+\midrule
+Bubble    & $O(n^2)$     & $O(n^2)$     & yes & Teaching only; rarely practical \\
+Insertion & $O(n^2)$     & $O(n^2)$     & yes & Small or nearly-sorted input \\
+Selection & $O(n^2)$     & $O(n^2)$     & no  & Swaps are expensive; only $n-1$ occur \\
+Merge     & $O(n\log n)$ & $O(n\log n)$ & yes & Guaranteed bound and stability needed \\
+Quick     & $O(n\log n)$ & $O(n^2)$     & no  & Fast in practice; in-place \\
+Heap      & $O(n\log n)$ & $O(n\log n)$ & no  & Guaranteed bound with $O(1)$ extra space \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\clearpage
+\section{Traversal orders}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.20\linewidth}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Traversal & Rule & Typical use \\
+\midrule
+Inorder   & left, root, right & Sorted output from a BST \\
+Preorder  & root, left, right & Copying or serialising a tree \\
+Postorder & left, right, root & Deleting or freeing a tree safely \\
+BFS       & queue, level by level & Shortest path in an unweighted graph \\
+DFS       & stack or recursion & Cycle detection, connectivity, backtracking \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Pointer operations that go wrong most often}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.28\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Mistake & What to do instead \\
+\midrule
+Moving \texttt{head} before linking the new node & Set \texttt{n->next = head} first (\figref{fig:sll-insert-head}) \\
+Deleting a node before relinking its predecessor & Redirect \texttt{prev->next}, then \texttt{delete} (\figref{fig:sll-delete}) \\
+Using \texttt{while (p != nullptr)} on a circular list & Use \texttt{do}\,--\,\texttt{while} against the head (\figref{fig:cll-traverse}) \\
+Popping or peeking without an empty check & Test \texttt{isEmpty()} before touching the top \\
+Treating a full linear queue as genuinely full & Use modular arithmetic (\figref{fig:queue-circular}) \\
+Omitting the visited set in graph traversal & Mark on discovery, not on processing (\figref{fig:visited}) \\
+\bottomrule
+\end{tabularx}
+\end{mltable}

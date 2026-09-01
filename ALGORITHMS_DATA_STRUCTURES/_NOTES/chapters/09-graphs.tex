@@ -1,0 +1,408 @@
+\chapter{Graphs}\label{ch:graphs}
+
+\chapterguide%
+  {Understand non-linear structures, linked representations, and queue/stack behavior.}
+  {define $G(V,E)$, distinguish directed and undirected graphs, represent a graph with an adjacency matrix or adjacency list, trace BFS and DFS, and explain the spanning-tree constraints stated in the slides.}
+
+A \term{graph} generalizes the idea of connected data. The graph $G(V,E)$ contains a set of vertices $V$ and a set of edges $E$ that connect vertices.
+
+\section{Vertices and edges}
+
+The graph example in the slides uses
+\[
+V=\{A,B,C,D,E\}
+\]
+and
+\[
+E=\{(A,B),(B,E),(A,D),(A,C),(C,D),(D,E),(B,D)\}.
+\]
+
+\begin{adsfig}[The running example graph]{The running example graph used throughout this chapter: five vertices and
+seven undirected edges. Vertex D is adjacent to every other vertex, while C reaches E only
+by passing through A, B, or D.}{fig:graph-base}
+\begin{tikzpicture}[font=\small]
+\node[adsnode] (A) at (0,1.5) {A};
+\node[adsnode] (B) at (2.4,1.5) {B};
+\node[adsnode] (C) at (0,0) {C};
+\node[adsnode] (D) at (2.4,0) {D};
+\node[adsnode] (E) at (4.2,0.75) {E};
+\foreach \u/\v in {A/B,B/E,A/D,A/C,C/D,D/E,B/D}{\draw[adsedge] (\u)--(\v);}
+\node[adslabel,anchor=west,align=left] at (5.0,0.75)
+  {5 vertices, 7 edges\\degree of D $=4$};
+\end{tikzpicture}
+\end{adsfig}
+
+The slides contrast trees and graphs by noting that a tree is acyclic while a graph may contain cycles. They also motivate graphs with a city-distance example: cities become vertices and distances become edge information.
+
+\section{Directed and undirected graphs}
+
+\begin{description}[leftmargin=1.4in,style=nextline]
+  \item[Directed graph] Edges have direction. $(a,b)$ and $(b,a)$ can represent different relationships.
+  \item[Undirected graph] Edges have no direction. $(a,b)$ and $(b,a)$ are equivalent descriptions of the same connection.
+\end{description}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=8mm,font=\small\bfseries},
+ darr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal},
+ uarr/.style={thick,draw=ADSOrange}
+]
+\node[node] (a) {A}; \node[node,right=1.4cm of a] (b) {B};
+\draw[darr] (a)--(b);
+\node[above=0.3cm of a,xshift=0.7cm,font=\scriptsize\color{ADSMuted}] {directed};
+\node[node,right=4.2cm of a] (c) {A}; \node[node,right=1.4cm of c] (d) {B};
+\draw[uarr] (c)--(d);
+\node[above=0.3cm of c,xshift=0.7cm,font=\scriptsize\color{ADSMuted}] {undirected};
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Weighted and unweighted graphs}
+
+The official lab manual extends the graph classification beyond direction.
+
+\begin{description}[leftmargin=1.45in,style=nextline]
+  \item[Weighted graph] Each edge carries an associated value such as distance or cost. The manual's examples include distances between cities and communication cost between workstations.
+  \item[Unweighted graph] Edges indicate that two vertices are related, but no numerical edge weight is attached.
+\end{description}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+ node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=8mm,font=\small\bfseries},
+ edge/.style={thick,draw=ADSTeal}
+]
+\node[node] (A) at (0,0) {A};
+\node[node] (B) at (2.0,0.8) {B};
+\node[node] (C) at (2.0,-0.8) {C};
+\draw[edge] (A)-- node[above,sloped,font=\scriptsize\color{ADSOrange}] {7} (B);
+\draw[edge] (A)-- node[below,sloped,font=\scriptsize\color{ADSOrange}] {3} (C);
+\draw[edge] (B)-- node[right,font=\scriptsize\color{ADSOrange}] {4} (C);
+\node[right=1.0cm of B,font=\small\color{ADSMuted},align=left] {The same topology can be\\weighted by distance, cost, time, etc.};
+\end{tikzpicture}
+\end{mlfigure}
+
+\begin{keyidea}
+Direction and weight are separate properties. A graph can be directed and weighted, directed and unweighted, undirected and weighted, or undirected and unweighted.
+\end{keyidea}
+
+\section{Graph representations}
+
+The graph deck teaches two storage strategies:
+
+\begin{itemize}
+  \item sequential or \term{adjacency matrix} representation;
+  \item linked or \term{adjacency list} representation.
+\end{itemize}
+
+\subsection{Adjacency matrix}
+
+An adjacency matrix uses a matrix entry $A_{ij}$ to represent the connection or associated edge weight from node $i$ to node $j$.
+
+For the undirected example above, a simple unweighted 0/1 matrix is
+
+\begin{mltable}
+\begin{tabular}{@{}cccccc@{}}
+\toprule
+ & A & B & C & D & E \\
+\midrule
+A & 0 & 1 & 1 & 1 & 0 \\
+B & 1 & 0 & 0 & 1 & 1 \\
+C & 1 & 0 & 0 & 1 & 0 \\
+D & 1 & 1 & 1 & 0 & 1 \\
+E & 0 & 1 & 0 & 1 & 0 \\
+\bottomrule
+\end{tabular}
+\end{mltable}
+
+\begin{clarification}
+The slide image appears to show a 1 on the $D,D$ diagonal entry, while the edge set printed on the preceding slide does not list a self-loop $(D,D)$. The matrix above follows the printed edge set. This discrepancy is made explicit rather than silently copied.
+\end{clarification}
+
+\figref{fig:graph-repr} puts both representations of \figref{fig:graph-base} side by side.
+They hold identical information; they differ in what they make cheap. The matrix answers
+``is A adjacent to E?'' in one lookup but always occupies $V^2$ cells. The list stores only
+the edges that exist, so it is far smaller on a sparse graph, but the same question requires
+scanning A's neighbours.
+
+\begin{adsfig}[Adjacency matrix versus adjacency list]{The same graph as an adjacency matrix and an adjacency list. Row A of the
+matrix and the chain hanging off A carry exactly the same fact --- that A neighbours B, C,
+and D --- but the matrix also stores the two zeros recording what A is \emph{not} connected
+to.}{fig:graph-repr}
+\begin{tikzpicture}[font=\small]
+% ---- matrix ----
+\begin{scope}
+\node[font=\bfseries\color{ADSNavy}] at (1.4,1.55) {Adjacency matrix};
+\foreach \c [count=\j from 0] in {A,B,C,D,E}{
+  \node[adslabel,font=\scriptsize\bfseries\color{ADSNavy}] at (0.56*\j,0.95) {\c};
+  \node[adslabel,font=\scriptsize\bfseries\color{ADSNavy}] at (-0.56,0.39-0.56*\j) {\c};
+}
+\foreach \row [count=\i from 0] in {{0,1,1,1,0},{1,0,0,1,1},{1,0,0,1,0},{1,1,1,0,1},{0,1,0,1,0}}{
+  \foreach \val [count=\j from 0] in \row{
+    \ifnum\val=1
+      \node[adscell,minimum width=0.56cm,minimum height=0.56cm,font=\scriptsize\bfseries\color{ADSNavy}]
+        at (0.56*\j,0.39-0.56*\i) {\val};
+    \else
+      \node[adsdim,minimum width=0.56cm,minimum height=0.56cm,font=\scriptsize\color{ADSMuted}]
+        at (0.56*\j,0.39-0.56*\i) {\val};
+    \fi
+  }
+}
+\draw[draw=ADSOrange,line width=1pt,rounded corners=1pt]
+  (-0.31,0.66) rectangle (2.53,0.12);
+\node[adslabel,anchor=north,align=center] at (1.12,-2.15)
+  {$V^2=25$ cells always stored\\``A--E?'' is one lookup: \cxg{O(1)}};
+\end{scope}
+
+% ---- list ----
+\begin{scope}[xshift=6.3cm,yshift=0.15cm]
+\node[font=\bfseries\color{ADSNavy}] at (2.3,1.4) {Adjacency list};
+\foreach \v/\nbrs [count=\i from 0] in {A/{B,C,D}, B/{A,D,E}, C/{A,D}, D/{A,B,C,E}, E/{B,D}}{
+  \node[adscell,minimum width=0.56cm,minimum height=0.52cm,font=\scriptsize\bfseries]
+    (h\i) at (0,0.62-0.62*\i) {\v};
+  \foreach \n [count=\k from 0] in \nbrs{
+    \node[adscell,minimum width=0.52cm,minimum height=0.52cm,fill=white,
+          font=\scriptsize\color{ADSNavy}] (c\i\k) at (0.95+0.78*\k,0.62-0.62*\i) {\n};
+  }
+}
+\foreach \i/\last in {0/2,1/2,2/1,3/3,4/1}{
+  \draw[adsptr] (h\i.east) -- (c\i0.west);
+  \foreach \k in {0,1,2}{
+    \ifnum\k<\last
+      \pgfmathtruncatemacro{\m}{\k+1}
+      \draw[adsptr] (c\i\k.east) -- (c\i\m.west);
+    \fi
+  }
+}
+\node[adslabel,anchor=north,align=center] at (1.6,-2.3)
+  {only the 14 directed entries stored\\``A--E?'' scans A's list: \cxo{O(\deg)}};
+\draw[draw=ADSOrange,line width=1pt,rounded corners=1pt]
+  (-0.32,0.88) rectangle (2.78,0.36);
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\subsection{Adjacency list}
+
+An adjacency list stores, for each vertex, the vertices connected to it. The slides emphasize that it is storage-efficient because values are stored for edges rather than allocating a full matrix.
+
+\begin{lstlisting}
+vector<vector<int>> adj(5);
+
+// A=0, B=1, C=2, D=3, E=4
+adj[0] = {1, 2, 3};
+adj[1] = {0, 3, 4};
+adj[2] = {0, 3};
+adj[3] = {0, 1, 2, 4};
+adj[4] = {1, 3};
+\end{lstlisting}
+
+\section{Breadth-first search (BFS)}
+
+The slide deck states that BFS traverses breadth-wise and uses a queue to move to the next node.
+
+\begin{lstlisting}
+void bfs(const vector<vector<int>>& adj, int start) {
+    vector<bool> visited(adj.size(), false);
+    queue<int> q;
+
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        cout << u << ' ';
+
+        for (int v : adj[u]) {
+            if (!visited[v]) {
+                visited[v] = true;
+                q.push(v);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+For the slide example, one shown BFS order is $A,B,C,D,E$.
+
+BFS spreads outward in rings: every vertex at distance~1 is visited before any vertex at
+distance~2. The queue is what enforces that, because it hands back discovered vertices in
+the order they were found (\figref{fig:bfs}).
+
+\begin{adsfig}[BFS with queue states]{BFS from A, with the queue shown after each step. Vertices are shaded as they
+are discovered and outlined once processed. Because the queue is FIFO, the whole of level~1
+is drained before E --- the only level-2 vertex --- is reached.}{fig:bfs}
+\begin{tikzpicture}[font=\small]
+% graph with BFS levels
+\begin{scope}
+\node[adsnodedone] (A) at (0,1.5) {A};
+\node[adsnodehot] (B) at (2.1,1.5) {B};
+\node[adsnodehot] (C) at (0,0) {C};
+\node[adsnodehot] (D) at (2.1,0) {D};
+\node[adsnode] (E) at (3.9,0.75) {E};
+\foreach \u/\v in {B/E,C/D,D/E,B/D}{\draw[adsedge,draw=ADSMuted!40] (\u)--(\v);}
+\foreach \u/\v in {A/B,A/C,A/D}{\draw[adsedge,draw=ADSOrange,line width=1.1pt] (\u)--(\v);}
+\draw[adsedge,draw=ADSGreen,line width=1.1pt] (B)--(E);
+\node[adslabel,anchor=south,color=ADSGreen] at (0,2.05) {level 0};
+\node[adslabel,anchor=south,color=ADSOrange] at (2.1,2.05) {level 1};
+\node[adslabel,anchor=south,color=ADSBlue] at (3.9,1.35) {level 2};
+\end{scope}
+% queue trace
+\begin{scope}[xshift=6.9cm,yshift=1.35cm]
+\foreach \act/\qs [count=\i from 0] in {%
+  {visit A}/{B C D},
+  {pop B, find E}/{C D E},
+  {pop C}/{D E},
+  {pop D}/{E},
+  {pop E}/{empty}}{
+  \node[adslabel,anchor=east,font=\scriptsize\ttfamily] at (0,-0.56*\i) {\act};
+  \node[adscell,minimum width=2.1cm,minimum height=0.44cm,
+        font=\scriptsize\ttfamily\color{ADSNavy}] at (1.35,-0.56*\i) {\qs};
+}
+\node[adslabel,anchor=south,color=ADSNavy] at (1.35,0.32) {\textbf{queue after step}};
+\node[adslabel,anchor=north,align=center] at (0.9,-2.75) {output: A B C D E};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Depth-first search (DFS)}
+
+The slides state that DFS traverses depth-wise and uses a stack to reach the next nodes. Recursion is another way to obtain stack behavior.
+
+\begin{lstlisting}
+void dfs(const vector<vector<int>>& adj,
+         int u, vector<bool>& visited) {
+    visited[u] = true;
+    cout << u << ' ';
+
+    for (int v : adj[u]) {
+        if (!visited[v]) dfs(adj, v, visited);
+    }
+}
+\end{lstlisting}
+
+One DFS order shown by the deck is $A,B,E,D,C$.
+
+DFS commits to one branch and follows it as far as it goes before considering any
+alternative. The stack holds the trail of vertices it may still need to back up through
+(\figref{fig:dfs}). Comparing it against \figref{fig:bfs} on the same graph isolates the one
+thing that differs: a queue returns the \emph{oldest} discovered vertex, a stack returns the
+\emph{newest}.
+
+\begin{adsfig}[DFS with stack states]{DFS from A, with the stack shown after each step. The walk plunges
+A$\to$B$\to$E$\to$D before backtracking to pick up C. Swapping the queue in
+\figref{fig:bfs} for a stack is the entire difference between the two
+algorithms.}{fig:dfs}
+\begin{tikzpicture}[font=\small]
+% graph with DFS path
+\begin{scope}
+\node[adsnodedone] (A) at (0,1.5) {A};
+\node[adsnodedone] (B) at (2.1,1.5) {B};
+\node[adsnodehot]  (C) at (0,0) {C};
+\node[adsnodedone] (D) at (2.1,0) {D};
+\node[adsnodedone] (E) at (3.9,0.75) {E};
+\foreach \u/\v in {A/C,A/D,C/D,B/D}{\draw[adsedge,draw=ADSMuted!40] (\u)--(\v);}
+\foreach \u/\v in {A/B,B/E,D/E}{\draw[adsedge,draw=ADSGreen,line width=1.1pt] (\u)--(\v);}
+\draw[adsedge,draw=ADSOrange,line width=1.1pt,dashed] (D)--(C);
+\foreach \n/\ord in {A/1,B/2,E/3,D/4,C/5}{
+  \node[circle,fill=ADSNavy,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+    at ($(\n.north east)+(0.06,0.06)$) {\ord};
+}
+\node[adslabel,anchor=north,align=center,color=ADSGreen] at (1.95,-0.55)
+  {solid: the descent \quad dashed: backtrack};
+\end{scope}
+% stack trace
+\begin{scope}[xshift=6.9cm,yshift=1.35cm]
+\foreach \act/\ss [count=\i from 0] in {%
+  {visit A}/{A},
+  {visit B}/{A B},
+  {visit E}/{A B E},
+  {visit D}/{A B E D},
+  {visit C}/{A B E D C}}{
+  \node[adslabel,anchor=east,font=\scriptsize\ttfamily] at (0,-0.56*\i) {\act};
+  \node[adscell,minimum width=2.1cm,minimum height=0.44cm,
+        font=\scriptsize\ttfamily\color{ADSNavy}] at (1.35,-0.56*\i) {\ss};
+}
+\node[adslabel,anchor=south,color=ADSNavy] at (1.35,0.32) {\textbf{stack after step}};
+\node[adslabel,anchor=north,align=center] at (0.9,-2.75) {output: A B E D C};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+BFS and DFS traversal orders are not unique unless the neighbor-visiting order is fixed. The sequences in the slides are valid for a particular ordering of adjacent vertices; different adjacency-list orderings can produce different, equally valid traversals.
+\end{clarification}
+
+\section{Why a visited set matters}
+
+Graphs may contain cycles. Without a visited marker, a traversal could keep moving around a cycle indefinitely.
+
+\figref{fig:visited} shows the loop. In a tree, moving away from the root can never bring you
+back to it, so recursion terminates on its own. A graph has no such guarantee: the cycle
+A$\to$B$\to$D$\to$A returns the traversal to a vertex it has already processed, and without a
+record of that fact the program will circle forever.
+
+\begin{adsfig}[Why traversal needs a visited set]{Why traversal needs a visited set. Following edges from A around the cycle
+leads back to A. The visited markers are the only thing that distinguishes ``arrive at A for
+the first time'' from ``arrive at A again'', and therefore the only thing that terminates the
+walk.}{fig:visited}
+\begin{tikzpicture}[font=\small]
+\node[adsnodedone] (a) at (0,0.9) {A};
+\node[adsnodedone] (b) at (1.7,0.9) {B};
+\node[adsnodedone] (d) at (0.85,-0.5) {D};
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSRed] (a) to[bend left=18] (b);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSRed] (b) to[bend left=18] (d);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSRed] (d) to[bend left=18] (a);
+\node[adslabel,anchor=west,align=left,color=ADSRed] at (2.7,0.2)
+  {without \texttt{visited}:\\A, B, D, A, B, D, \dots\\the loop never ends};
+
+\begin{scope}[xshift=8.2cm]
+\node[adslabel,anchor=south,color=ADSNavy] at (0.9,1.35) {\textbf{visited array}};
+\foreach \v [count=\i from 0] in {A,B,C,D,E}{
+  \node[adscell,minimum width=0.6cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+    at (0.62*\i,0.75) {\v};
+}
+\foreach \m [count=\i from 0] in {T,T,F,T,F}{
+  \ifx\mT
+    \node[adsdone,minimum width=0.6cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+      at (0.62*\i,0.25) {\m};
+  \else
+    \node[adsdim,minimum width=0.6cm,minimum height=0.5cm,font=\scriptsize] at (0.62*\i,0.25) {\m};
+  \fi
+}
+\node[adslabel,anchor=north,align=center] at (1.24,-0.15)
+  {second arrival at A finds \texttt{true}\\and the branch is abandoned};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{keyidea}
+The queue or stack determines \emph{which discovered vertex to process next}. The visited structure determines \emph{whether a vertex should be processed again}.
+\end{keyidea}
+
+\section{Spanning trees}
+
+The slides define a spanning tree as a subset of a graph that covers all vertices using the minimum possible number of edges, has no cycles, and is connected.
+
+For a connected graph with $|V|$ vertices, a spanning tree has $|V|-1$ edges.
+
+The lab then asks students to find a \term{minimum spanning tree} of an undirected graph using a greedy approach.
+
+\begin{clarification}
+The deck requests a greedy minimum-spanning-tree implementation but does not name a specific algorithm. Common textbook choices are Prim's algorithm and Kruskal's algorithm; naming them here is additional context, not material explicitly taught in the supplied slides.
+\end{clarification}
+
+\begin{quickcheck}
+Why is an adjacency matrix often more wasteful for a sparse graph than an adjacency list? Which earlier ADT is directly reused by BFS, and which is reused by DFS?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A graph is represented as $G(V,E)$ with vertices and edges.
+  \item Directed edges have orientation; undirected edges do not.
+  \item Graphs can be stored with adjacency matrices or adjacency lists.
+  \item BFS uses queue behavior; DFS uses stack behavior.
+  \item A spanning tree is connected, acyclic, covers every vertex, and uses $|V|-1$ edges.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/09-graphs}

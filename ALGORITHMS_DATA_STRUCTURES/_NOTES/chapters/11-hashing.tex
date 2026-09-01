@@ -1,0 +1,320 @@
+\chapter{Hashing}\label{ch:hashing}
+
+\chapterguide%
+  {Know direct array indexing, searching, and why reducing search time is valuable.}
+  {explain a hash function, trace a modular hash, identify collisions, and implement the three collision-resolution techniques named in the slides: linear probing, quadratic hashing, and double hashing.}
+
+Hashing is used for fast access to elements. The slide deck describes the core idea as converting a key into a smaller value $I$ with a \term{hash function}, then using $I$ as an index where the key is stored or searched.
+
+\section{Hash function and table index}
+
+A simple modular hash function has the form
+\[
+h(k)=k\bmod m,
+\]
+where $m$ is the number of table slots.
+
+The slide's hashing example uses $H(x)=x\bmod5$ for keys 10, 12, and 14.
+
+\begin{workedexample}
+\[
+10\bmod5=0,\qquad 12\bmod5=2,\qquad 14\bmod5=4.
+\]
+So the keys occupy indices 0, 2, and 4.
+\end{workedexample}
+
+\begin{adsfig}[Hash function mapping keys to slots]{The hash function maps an unbounded key space onto a small fixed range of
+table indices. Because the arrow is computed rather than searched for, a lookup goes straight
+to the slot instead of scanning.}{fig:hash-map}
+\begin{tikzpicture}[font=\small]
+% keys
+\foreach \k [count=\i from 0] in {10,12,14}{
+  \node[adscell,minimum width=1.0cm,minimum height=0.62cm] (k\i) at (0,-0.85*\i) {\k};
+}
+\node[adslabel,anchor=south,color=ADSNavy] at (0,0.55) {\textbf{keys}};
+% hash box
+\node[adsstep,fill=ADSPaleTeal,draw=ADSTeal,minimum width=2.1cm,minimum height=1.1cm,
+      font=\small\bfseries\color{ADSNavy}] (h) at (2.6,-0.85) {$H(x)=x\bmod5$};
+\foreach \i in {0,1,2}{\draw[adsptr] (k\i.east) -- (h.west);}
+% table
+\begin{scope}[xshift=5.6cm,yshift=0.85cm]
+\foreach \i in {0,...,4}{
+  \node[adsdim,minimum width=1.1cm,minimum height=0.62cm] (t\i) at (0,-0.7*\i) {};
+  \node[adslabel,anchor=east] at (-0.68,-0.7*\i) {\i};
+}
+\node[adscell,minimum width=1.1cm,minimum height=0.62cm] at (0,0)     {10};
+\node[adscell,minimum width=1.1cm,minimum height=0.62cm] at (0,-1.4)  {12};
+\node[adscell,minimum width=1.1cm,minimum height=0.62cm] at (0,-2.8)  {14};
+\node[adslabel,anchor=south,color=ADSNavy] at (0,0.55) {\textbf{table}};
+\end{scope}
+\draw[adsptr,draw=ADSTeal] (h.east) -- (4.85,-0.85);
+\node[adslabel,anchor=north,align=center] at (5.6,-2.6) {index computed, not searched};
+\end{tikzpicture}
+\end{adsfig}
+
+The slides state that a simple modular hash calculation can be $O(1)$ and therefore supports very efficient storage and access in the intended hashing model.
+
+\begin{clarification}
+The slide's $O(1)$ statement describes the intended constant-time hash calculation and typical fast table access. Actual access time depends on collision handling and table load; heavy collisions can require multiple probes.
+\end{clarification}
+
+\section{Collision}
+
+A \term{collision} occurs when two different keys produce the same hash value and therefore target the same table slot.
+
+The slide example asks what happens when key 15 is inserted:
+\[
+15\bmod5=0,
+\]
+which conflicts with key 10 already at index 0.
+
+\figref{fig:collision} shows the conflict. The hash function compresses a large key space
+into $m$ slots, so once more than $m$ distinct keys are in play collisions are not merely
+likely --- they are unavoidable. Every practical hash table therefore needs a rule for what
+to do when the target slot is taken.
+
+\begin{adsfig}[A hash collision]{A collision. Keys 10 and 15 both hash to index 0, because $10\bmod5$ and
+$15\bmod5$ are both zero. The hash function cannot be blamed and cannot be fixed: any
+function mapping many keys onto five slots must send some of them to the same
+place.}{fig:collision}
+\begin{tikzpicture}[font=\small]
+\node[adscell,minimum width=1.0cm,minimum height=0.62cm] (a) at (0,0.45) {10};
+\node[adshot,minimum width=1.0cm,minimum height=0.62cm] (b) at (0,-0.45) {15};
+\node[adsstep,fill=ADSPaleTeal,draw=ADSTeal,minimum width=1.9cm,minimum height=0.95cm,
+      font=\small\bfseries\color{ADSNavy}] (h) at (2.4,0) {$x\bmod5$};
+\draw[adsptr] (a.east) -- (h.west);
+\draw[adsptr,draw=ADSRed] (b.east) -- (h.west);
+\begin{scope}[xshift=5.4cm,yshift=0.7cm]
+\foreach \i in {0,...,4}{
+  \node[adsdim,minimum width=1.1cm,minimum height=0.6cm] (t\i) at (0,-0.66*\i) {};
+  \node[adslabel,anchor=east] at (-0.68,-0.66*\i) {\i};
+}
+\node[adshot,minimum width=1.1cm,minimum height=0.6cm] at (0,0) {10};
+\end{scope}
+\draw[adsptr,draw=ADSRed,line width=1pt] (h.east) -- (4.65,0.35);
+\node[adslabel,anchor=west,color=ADSRed,align=left] at (6.3,0.4)
+  {both want slot 0:\\\textbf{collision}};
+\end{tikzpicture}
+\end{adsfig}
+
+The deck names three collision-handling techniques:
+
+\begin{itemize}
+  \item linear probing;
+  \item double hashing;
+  \item quadratic hashing.
+\end{itemize}
+
+\section{Linear probing}
+
+Linear probing checks the next slot, then the next, wrapping around the table if required.
+
+A probe sequence can be written as
+\[
+(h(k)+i)\bmod m,\qquad i=0,1,2,\dots
+\]
+
+\begin{workedexample}
+With $m=5$, key 15 hashes to 0. If index 0 is occupied, linear probing tries 1, then 2, then 3, then 4 until an empty slot is found.
+\end{workedexample}
+
+\figref{fig:probing} traces a sequence of insertions and shows the characteristic weakness of
+linear probing: \term{clustering}. Because every displaced key lands immediately next to the
+block it collided with, occupied slots grow into runs, and each new collision must walk the
+whole run before finding space.
+
+\begin{adsfig}[Linear probing and clustering]{Inserting 10, 12, 14, 15, 20 into a five-slot table with $H(x)=x\bmod5$ and
+linear probing. Keys 15 and 20 both hash to slot 0 and must walk forward, forming a cluster.
+By the last insertion a single probe has become four.}{fig:probing}
+\begin{tikzpicture}[font=\small]
+\foreach \row/\hot/\lbl [count=\r from 0] in {%
+  {10,{},12,{},14}/{9}/{10, 12, 14 land directly: 1 probe each},
+  {10,15,12,{},14}/{1}/{$15\bmod5=0$ taken $\rightarrow$ probe 1: free},
+  {10,15,12,20,14}/{3}/{$20\bmod5=0$ taken $\rightarrow$ probes 1, 2, 3}}{
+  \begin{scope}[yshift=-1.35*\r cm]
+    \foreach \v [count=\i from 0] in \row{
+      \node[adslabel] at (1.2*\i,0.58) {\i};
+      \ifnum\i=\hot
+        \node[adshot,minimum width=1.12cm,minimum height=0.72cm] at (1.2*\i,0) {\v};
+      \else
+        \ifx\v\empty
+          \node[adsdim,minimum width=1.12cm,minimum height=0.72cm] at (1.2*\i,0) {};
+        \else
+          \node[adscell,minimum width=1.12cm,minimum height=0.72cm] at (1.2*\i,0) {\v};
+        \fi
+      \fi
+    }
+    \node[adslabel,anchor=west,align=left] at (5.4,0) {\lbl};
+  \end{scope}
+}
+% cluster bracket on last row
+\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=3pt},draw=ADSRed,semithick]
+  (-0.62,-3.11) -- (4.42,-3.11);
+\node[adslabel,anchor=north,color=ADSRed] at (1.9,-3.55)
+  {a cluster: no free slot until the table wraps};
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{lstlisting}
+int insertLinear(vector<int>& table, int key, int EMPTY) {
+    int m = static_cast<int>(table.size());
+    int start = key % m;
+
+    for (int i = 0; i < m; ++i) {
+        int idx = (start + i) % m;
+        if (table[idx] == EMPTY) {
+            table[idx] = key;
+            return idx;
+        }
+    }
+    return -1;  // no free slot
+}
+\end{lstlisting}
+
+\section{Quadratic hashing / quadratic probing}
+
+Quadratic probing changes the step size quadratically, for example
+\[
+(h(k)+i^2)\bmod m.
+\]
+
+\begin{lstlisting}
+int insertQuadratic(vector<int>& table, int key, int EMPTY) {
+    int m = static_cast<int>(table.size());
+    int h = key % m;
+
+    for (int i = 0; i < m; ++i) {
+        int idx = (h + i * i) % m;
+        if (table[idx] == EMPTY) {
+            table[idx] = key;
+            return idx;
+        }
+    }
+    return -1;
+}
+\end{lstlisting}
+
+\begin{clarification}
+The slide calls the technique ``quadratic hashing.'' In common data-structures terminology, the collision-resolution method is usually called \emph{quadratic probing}. The notes keep both labels visible.
+\end{clarification}
+
+\section{Double hashing}
+
+Double hashing uses one hash function for the initial position and another to choose the probe step.
+
+One illustrative form is
+\[
+\operatorname{index}_i=(h_1(k)+i\,h_2(k))\bmod m.
+\]
+
+\begin{lstlisting}
+int insertDoubleHash(vector<int>& table, int key, int EMPTY) {
+    int m = static_cast<int>(table.size());
+    int h1 = key % m;
+    int h2 = 1 + (key % (m - 1));
+
+    for (int i = 0; i < m; ++i) {
+        int idx = (h1 + i * h2) % m;
+        if (table[idx] == EMPTY) {
+            table[idx] = key;
+            return idx;
+        }
+    }
+    return -1;
+}
+\end{lstlisting}
+
+\begin{clarification}
+The hashing deck names double hashing but does not specify a second hash function. The formula above is an implementation example for the lab, not a formula taken from the slide.
+\end{clarification}
+
+\section{Searching under open addressing}
+
+The probe rule used for insertion must also be used for searching. Otherwise the program may stop before reaching the slot where a collided key was placed.
+
+\begin{keyidea}
+A hash table does not eliminate the need for searching logic; it changes the search space from ``scan the whole collection'' to ``calculate an index, then follow the collision-resolution probe sequence if necessary.''
+\end{keyidea}
+
+\section{Separate chaining as an alternative}
+
+All three techniques above are forms of \term{open addressing}: every key lives in the table
+itself, so the table can fill up and clustering degrades every probe. The main alternative
+stores a linked list at each slot instead, letting colliding keys share a slot rather than
+compete for others (\figref{fig:chaining}).
+
+\begin{adsfig}[Open addressing versus separate chaining]{Separate chaining. Colliding keys are appended to a list hanging off their
+slot, so an insertion never disturbs another slot and the table cannot overflow. The cost is
+one pointer per entry and a short list walk on lookup.}{fig:chaining}
+\begin{tikzpicture}[font=\small]
+% open addressing
+\begin{scope}
+\node[font=\bfseries\color{ADSNavy}] at (1.4,1.15) {Open addressing};
+\foreach \v [count=\i from 0] in {10,15,12,20,14}{
+  \node[adscell,minimum width=1.05cm,minimum height=0.62cm] at (0.7,0.45-0.66*\i) {\v};
+  \node[adslabel,anchor=east] at (0.05,0.45-0.66*\i) {\i};
+}
+\node[adslabel,anchor=north,align=center] at (0.7,-3.1)
+  {table full at 5 keys;\\probes lengthen as it fills};
+\end{scope}
+% chaining
+\begin{scope}[xshift=5.0cm]
+\node[font=\bfseries\color{ADSNavy}] at (2.2,1.15) {Separate chaining};
+\foreach \i in {0,...,4}{
+  \node[adscell,minimum width=0.62cm,minimum height=0.56cm] (b\i) at (0,0.45-0.66*\i) {};
+  \node[adslabel,anchor=east] at (-0.42,0.45-0.66*\i) {\i};
+}
+% slot 0: 10 -> 15 -> 20
+\foreach \v [count=\k from 0] in {10,15,20}{
+  \node[adscell,minimum width=0.85cm,minimum height=0.56cm,fill=white] (z\k) at (1.15+1.15*\k,0.45) {\v};
+}
+\draw[adsptr] (b0.east) -- (z0.west);
+\draw[adsptr] (z0.east) -- (z1.west);
+\draw[adsptr] (z1.east) -- (z2.west);
+\node[adslabel,anchor=west] at (4.05,0.45) {\ptrnull};
+% slot 2: 12
+\node[adscell,minimum width=0.85cm,minimum height=0.56cm,fill=white] (y0) at (1.15,-0.87) {12};
+\draw[adsptr] (b2.east) -- (y0.west);
+\node[adslabel,anchor=west] at (1.75,-0.87) {\ptrnull};
+% slot 4: 14
+\node[adscell,minimum width=0.85cm,minimum height=0.56cm,fill=white] (x0) at (1.15,-2.19) {14};
+\draw[adsptr] (b4.east) -- (x0.west);
+\node[adslabel,anchor=west] at (1.75,-2.19) {\ptrnull};
+\node[adslabel,anchor=north,align=center] at (1.9,-3.1)
+  {never full; lookup walks one short list};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+Separate chaining is not named in the supplied hashing slides, which cover linear probing,
+quadratic hashing, and double hashing. It is included here because it is the standard
+alternative and because it explains the deletion problem described in the next section: a
+chained table has no tombstone issue, since removing a node from a list leaves no gap in a
+probe sequence.
+\end{clarification}
+
+\section{Deletion caution}
+
+With open addressing, simply marking a deleted slot as never-used can incorrectly terminate a later search whose probe sequence must pass through that slot.
+
+\begin{clarification}
+Deletion behavior and tombstone markers are not covered in the supplied hashing slides. This caution is included only to explain why a complete open-addressing implementation needs more than insertion logic.
+\end{clarification}
+
+\begin{quickcheck}
+Using $H(x)=x\bmod5$, where do keys 10, 12, 14, and 15 initially hash? Which pair collides? How does linear probing react?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A hash function converts a key into a table index.
+  \item The slide example uses modular hashing and highlights $O(1)$ hash calculation / fast-access intent.
+  \item A collision occurs when multiple keys map to the same slot.
+  \item Linear probing checks consecutive slots.
+  \item Quadratic probing changes the probe distance quadratically.
+  \item Double hashing uses a second hash function to determine the probe step.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/11-hashing}

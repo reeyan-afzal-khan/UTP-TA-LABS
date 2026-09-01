@@ -1,0 +1,146 @@
+\chapter{Quick Reference}\label{ch:reference}
+
+\chapterguide%
+  {Everything here has appeared earlier with full explanation; nothing in this appendix is new material.}
+  {revise before an assessment, pick a method for a new problem, and check a property claim quickly.}
+
+This appendix gathers the decisions and numbers spread across the previous chapters. Use it
+for revision rather than first learning: every entry points back to the chapter that explains
+it.
+
+\section{Choosing a search algorithm}
+
+The five search algorithms in Chapters~\ref{ch:uninformed}--\ref{ch:searchpatterns} differ in
+one respect only --- what the frontier is sorted on --- so the choice reduces to a short chain
+of questions about the problem (\figref{fig:choose-search}).
+
+\begin{aifig}[Choosing a search algorithm]{A decision path for the five search algorithms in
+this course. Each question is about the \emph{problem}, not the code: whether the steps cost
+the same, and whether a usable estimate of remaining distance exists.}{fig:choose-search}
+\begin{tikzpicture}[font=\small,
+  q/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=3.7cm,
+            align=center,inner sep=2.2mm,font=\scriptsize\color{MLNavy}},
+  ans/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=3.0cm,
+            align=center,inner sep=2.2mm,font=\scriptsize\bfseries\color{MLNavy}},
+  yes/.style={aiarrow,draw=MLGreen},
+  no/.style={aiarrow,draw=MLRed}]
+
+\node[q] (q1) at (0,0) {Do you have a usable estimate $h(n)$ of the distance remaining?};
+\node[q] (q2) at (0,-2.5) {Do all steps cost the same?};
+\node[q] (q3) at (6.0,0) {Is the estimate \emph{admissible} (never overestimates)?};
+\node[ans] (astar) at (11.4,0.6) {A*\\{\scriptsize\mdseries optimal, \chapref{ch:informed}}};
+\node[ans] (gbfs)  at (11.4,-1.1) {GBFS\\{\scriptsize\mdseries fast, not optimal}};
+\node[ans] (bfs)   at (6.0,-2.5) {BFS\\{\scriptsize\mdseries \chapref{ch:uninformed}}};
+\node[ans] (ucs)   at (6.0,-4.2) {UCS\\{\scriptsize\mdseries \chapref{ch:uninformed}}};
+
+\draw[yes] (q1)--(q3) node[midway,above,ailabel,color=MLGreen] {yes};
+\draw[no]  (q1)--(q2) node[midway,left,ailabel,color=MLRed] {no};
+\draw[yes] (q3)--(astar) node[midway,above,ailabel,color=MLGreen] {yes};
+\draw[no]  (q3)--(gbfs) node[midway,below,ailabel,color=MLRed] {no};
+\draw[yes] (q2)--(bfs) node[midway,above,ailabel,color=MLGreen] {yes};
+\draw[no]  (q2.south) |- (ucs.west) node[pos=0.25,left,ailabel,color=MLRed] {no};
+
+\node[ailabel,anchor=north west,align=left,text width=5.0cm] at (-1.9,-5.3)
+  {DFS does not appear on this path because it is never the choice when a
+   \emph{good} path is wanted. Use it when memory is the binding constraint,
+   or when any reachable solution will do.};
+\end{tikzpicture}
+\end{aifig}
+
+\section{Search algorithm properties}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}
+  p{0.13\linewidth}p{0.15\linewidth}p{0.16\linewidth}p{0.12\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Sorts on & Complete? & Optimal? & Space & Use when \\
+\midrule
+BFS   & depth      & yes, finite $b$ & only if equal costs & $O(b^{d})$ & fewest steps wanted \\
+DFS   & recency    & no, in general  & no                  & $O(bm)$    & memory is tight \\
+UCS   & $g(n)$     & yes, costs $\ge\varepsilon$ & yes, non-negative costs & large & weighted, no heuristic \\
+GBFS  & $h(n)$     & no              & no                  & large      & speed matters more than cost \\
+A*    & $g+h$      & yes             & yes, if $h$ admissible & large   & weighted, heuristic available \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{keyidea}
+Read the space column first. BFS, UCS, GBFS, and A* all store the whole frontier; on a large
+problem it is memory, not time, that stops them. DFS is the only one that does not, and it
+pays for that with both completeness and optimality.
+\end{keyidea}
+
+\section{Fuzzy logic, Mamdani, Sugeno, and ANFIS}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}
+  p{0.22\linewidth}p{0.22\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+& Mamdani & Sugeno & ANFIS \\
+\midrule
+Output form  & fuzzy set, then defuzzified & constant or linear function & Sugeno only \\
+Rules from   & an expert & an expert & learned from data \\
+MF shapes from & an expert & an expert & learned from data \\
+Best for     & interpretable control & optimisation, computation & data-driven modelling \\
+Needs data?  & no & no & yes, and enough of it \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{The Lab 7 NLP methods by mechanism}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}
+  p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Mechanism & Examples & Fails when \\
+\midrule
+Rules and dictionaries & NER, grammar correction, lexicon sentiment, language detection
+  & the input contains anything not in the list \\
+Text statistics & frequency summarisation, TF--IDF, keyword extraction
+  & the corpus is too small for the counts to mean anything \\
+Trained model & Naive Bayes sentiment
+  & the training data does not resemble the input \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Genetic algorithm settings}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}
+  p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Setting & Typical effect of raising it & Symptom that it is wrong \\
+\midrule
+Population size   & better coverage, slower generations & premature convergence if too small \\
+Mutation rate     & more exploration, less stability & fitness oscillates and never settles \\
+Crossover rate    & faster mixing of good material & diversity collapses if selection is also strong \\
+Generations       & more refinement & best-so-far curve flat for many generations \\
+Elitism           & guarantees the best is never lost & population converges on one answer early \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Mistakes that recur across the labs}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Mistake & What to do instead \\
+\midrule
+Marking BFS states visited on removal & Mark on insertion, or the same state enters the queue repeatedly \\
+Assuming a heuristic is admissible & Compare $h(n)$ against the true $h^\star(n)$ before trusting A* (\chapref{ch:informed}) \\
+Expecting BFS to return the cheapest path & BFS counts edges, not cost (\figref{fig:ucs-vs-bfs}) \\
+Normalising fitness that can be negative & Shift or transform scores before dividing (\figref{fig:roulette}) \\
+Updating \texttt{prev\_error} too early in PID & The derivative term becomes zero (\chapref{ch:robotics}) \\
+Judging a controller from one input & Sweep the whole range and check the shape (\chapref{ch:fuzzy}) \\
+Scaling train and test data separately & Fit the scaler on training data only, then apply it \\
+\bottomrule
+\end{tabularx}
+\end{mltable}

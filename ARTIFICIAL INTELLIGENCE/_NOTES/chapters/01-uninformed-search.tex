@@ -40,21 +40,30 @@ Most graph-search implementations maintain two central structures.
   \item[Visited set] States already processed. It prevents repeated work and is essential when the graph contains cycles or loops.
 \end{description}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
-]
-\node[box] (start) {Start state};
-\node[box,right=1cm of start] (front) {Frontier};
-\node[box,right=1cm of front] (expand) {Expand one state};
-\node[box,right=1cm of expand] (goal) {Goal test};
-\draw[arr] (start)--(front);
-\draw[arr] (front)--(expand);
-\draw[arr] (expand)--(goal);
-\draw[arr] (expand.south) -- ++(0,-0.65) -| node[pos=0.25,below,font=\scriptsize\color{MLMuted}] {add legal successors} (front.south);
+\begin{aifig}[The general graph-search loop]{The graph-search loop shared by BFS, DFS, and
+UCS. Only the shaded box differs between the three algorithms: BFS takes the oldest frontier
+entry, DFS the newest, UCS the cheapest. Everything else --- the successor generation, the
+goal test, the visited check --- is identical code.}{fig:search-loop}
+\begin{tikzpicture}[font=\small]
+\node[aibox,minimum width=2.3cm] (start) at (0,0) {Start\\state};
+\node[aibox,minimum width=2.6cm,fill=MLPaleOrange,draw=MLOrange,line width=1pt]
+  (pick) at (3.6,0) {\textbf{Select from}\\\textbf{frontier}};
+\node[aibox,minimum width=2.4cm] (goal) at (7.2,0) {Goal\\test?};
+\node[aibox,minimum width=2.6cm,fill=MLPaleTeal,draw=MLGreen] (done) at (10.7,0) {Return\\the path};
+\node[aibox,minimum width=2.6cm] (expand) at (7.2,-2.1) {Generate\\successors};
+\node[aibox,minimum width=2.6cm] (vis) at (3.6,-2.1) {Not already\\visited?};
+
+\draw[aiarrow] (start)--(pick);
+\draw[aiarrow] (pick)--(goal);
+\draw[aiarrow] (goal)--(done) node[midway,above,ailabel,color=MLGreen] {yes};
+\draw[aiarrow] (goal)--(expand) node[midway,right,ailabel,color=MLRed] {no};
+\draw[aiarrow] (expand)--(vis);
+\draw[aiarrow] (vis) -- (pick) node[midway,right,ailabel,color=MLGreen] {keep};
+\node[ailabel,anchor=south,align=center,color=MLOrange] at (3.6,0.72)
+  {\textbf{the only line that changes:} FIFO / LIFO / min-cost};
+\node[ailabel,anchor=east,align=right] at (2.15,-2.1) {discard\\duplicates};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 \section{Breadth-First Search}
 
@@ -120,6 +129,43 @@ def bfs_grid(grid, start, goal):
     return None
 \end{lstlisting}
 
+\figref{fig:bfs-wave} shows why this works. BFS reaches every cell at distance~1 before any
+at distance~2, so the first time it touches the goal it has arrived by a shortest route.
+
+\begin{aifig}[BFS expanding as a wavefront in a grid]{BFS in a grid, shaded by distance from the start. The frontier is always one connected ring, so the goal is first touched at its true shortest distance. Dark cells are walls.}{fig:bfs-wave}
+\begin{tikzpicture}[font=\small]
+\def\W{0.72}
+\def\wallmark{W}
+% grid: 0 = open, 1 = wall; distances precomputed
+\foreach \r [count=\ri from 0] in {%
+  {0,1,2,3,4},
+  {1,W,3,W,5},
+  {2,3,4,5,6},
+  {3,W,W,W,7},
+  {4,5,6,7,8}}{
+  \foreach \v [count=\ci from 0] in \r{
+    \ifx\v\wallmark
+      \node[aiwall,minimum width=\W cm,minimum height=\W cm] at (\W*\ci,-\W*\ri) {};
+    \else
+      \pgfmathsetmacro{\shade}{12+10*\v}
+      \node[draw=MLBlue!45,fill=MLBlue!\shade,minimum width=\W cm,minimum height=\W cm,
+            font=\scriptsize\bfseries\color{MLNavy},inner sep=0pt]
+            at (\W*\ci,-\W*\ri) {\v};
+    \fi
+  }
+}
+\node[ainodehot,minimum size=6.5mm] at (0,0) {S};
+\node[ainodedone,minimum size=6.5mm] at (4*\W,-4*\W) {G};
+\node[ailabel,anchor=west,align=left,text width=5.4cm] at (4.05,-1.1)
+  {Each number is the step at which BFS first reaches that cell.
+   \\[0.4em]
+   The goal is found at distance~8, and no shorter route exists:
+   BFS could not have reached it earlier without skipping a ring.
+   \\[0.4em]
+   Dark cells are walls and are never entered.};
+\end{tikzpicture}
+\end{aifig}
+
 \begin{pitfall}
 Mark a state visited when it is inserted into the BFS queue, not only when it is removed. Otherwise the same state can be inserted many times by different parents.
 \end{pitfall}
@@ -163,36 +209,52 @@ def dfs_maze(grid, x, y, path, visited, goal):
 BFS expands a wavefront; DFS follows one branch. DFS does not guarantee a minimum-edge path.
 \end{intuition}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  n/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=7mm,font=\scriptsize\bfseries\color{MLNavy}},
-  edge/.style={draw=MLMuted!75,thick},
-  title/.style={font=\small\bfseries\color{MLNavy}}
-]
-\begin{scope}[xshift=-3.8cm]
-  \node[title] at (0,2.1) {BFS visit order};
-  \node[n] (ba) at (0,1.35) {A\,1};
-  \node[n] (bb) at (-1.45,0.3) {B\,2};
-  \node[n] (bc) at (1.45,0.3) {C\,3};
-  \node[n] (bd) at (-2.1,-0.85) {D\,4};
-  \node[n] (be) at (-0.75,-0.85) {E\,5};
-  \node[n] (bf) at (0.75,-0.85) {F\,6};
-  \node[n] (bg) at (2.1,-0.85) {G\,7};
-  \draw[edge] (ba)--(bb) (ba)--(bc) (bb)--(bd) (bb)--(be) (bc)--(bf) (bc)--(bg);
+\begin{aifig}[BFS and DFS visit order compared]{BFS and DFS on one tree, each node numbered by visit order. BFS finishes a level before descending; DFS exhausts \texttt{B}'s subtree before touching \texttt{C}. The frontier column is the memory argument: wide for BFS, shallow for DFS.}{fig:bfs-dfs-order}
+\begin{tikzpicture}[font=\small]
+\newcommand{\ordertree}[7]{%
+  \node[ainode,minimum size=7.5mm] (#1a) at (0,1.3) {A};
+  \node[ainode,minimum size=7.5mm] (#1b) at (-1.3,0.25) {B};
+  \node[ainode,minimum size=7.5mm] (#1c) at (1.3,0.25) {C};
+  \node[ainode,minimum size=7.5mm] (#1d) at (-1.95,-0.8) {D};
+  \node[ainode,minimum size=7.5mm] (#1e) at (-0.65,-0.8) {E};
+  \node[ainode,minimum size=7.5mm] (#1f) at (0.65,-0.8) {F};
+  \node[ainode,minimum size=7.5mm] (#1g) at (1.95,-0.8) {G};
+  \draw[aiedge] (#1a)--(#1b) (#1a)--(#1c) (#1b)--(#1d) (#1b)--(#1e)
+                (#1c)--(#1f) (#1c)--(#1g);
+  \foreach \n/\o in {#1a/#2,#1b/#3,#1c/#4,#1d/#5,#1e/#6,#1f/#7}{
+    \node[circle,fill=MLOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+      at ($(\n.north east)+(0.055,0.055)$) {\o};}
+}
+% ---- BFS ----
+\begin{scope}
+\node[font=\bfseries\color{MLNavy}] at (0,2.05) {BFS (queue)};
+\ordertree{b}{1}{2}{3}{4}{5}{6}
+\node[circle,fill=MLOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+  at ($(bg.north east)+(0.055,0.055)$) {7};
+\node[ailabel,anchor=north,align=center] at (0,-1.35) {order: A B C D E F G};
 \end{scope}
-\begin{scope}[xshift=3.8cm]
-  \node[title] at (0,2.1) {DFS preorder};
-  \node[n] (da) at (0,1.35) {A\,1};
-  \node[n] (db) at (-1.45,0.3) {B\,2};
-  \node[n] (dc) at (1.45,0.3) {C\,5};
-  \node[n] (dd) at (-2.1,-0.85) {D\,3};
-  \node[n] (de) at (-0.75,-0.85) {E\,4};
-  \node[n] (df) at (0.75,-0.85) {F\,6};
-  \node[n] (dg) at (2.1,-0.85) {G\,7};
-  \draw[edge] (da)--(db) (da)--(dc) (db)--(dd) (db)--(de) (dc)--(df) (dc)--(dg);
+% ---- DFS ----
+\begin{scope}[xshift=5.6cm]
+\node[font=\bfseries\color{MLNavy}] at (0,2.05) {DFS (stack)};
+\ordertree{d}{1}{2}{5}{3}{4}{6}
+\node[circle,fill=MLOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+  at ($(dg.north east)+(0.055,0.055)$) {7};
+\node[ailabel,anchor=north,align=center] at (0,-1.35) {order: A B D E C F G};
+\end{scope}
+% ---- frontier comparison ----
+\begin{scope}[xshift=9.05cm,yshift=1.35cm]
+\node[ailabel,anchor=west,color=MLNavy] at (0,0.5) {\textbf{frontier at step 2}};
+\node[aicell,minimum width=1.9cm,minimum height=0.5cm,font=\scriptsize\bfseries]
+  at (1.05,0) {C D E};
+\node[ailabel,anchor=west,color=MLBlue] at (2.15,0) {BFS: wide};
+\node[aicell,minimum width=1.9cm,minimum height=0.5cm,font=\scriptsize\bfseries,
+      fill=MLPaleTeal,draw=MLGreen] at (1.05,-0.75) {C D E};
+\node[ailabel,anchor=west,color=MLGreen] at (2.15,-0.75) {DFS: same};
+\node[ailabel,anchor=west,align=left,text width=3.15cm] at (0,-1.95)
+  {On a deep space BFS holds $O(b^d)$ states; DFS holds only $O(bm)$.};
 \end{scope}
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 With left children first, BFS completes each depth while DFS completes the left branch first. Neighbor order changes the sequence, not this distinction.
 
@@ -255,6 +317,57 @@ def ucs(graph, start, goal):
     return None
 \end{lstlisting}
 
+\figref{fig:ucs-vs-bfs} puts the two answers side by side. Both paths use three edges, so
+BFS sees no reason to prefer either; UCS adds the weights and finds one costs twice the
+other. That is what ``BFS is optimal only for equal step costs'' means in practice.
+
+\begin{aifig}[BFS and UCS on the same weighted graph]{The same weighted graph solved twice.
+BFS returns the first three-edge path it encounters, costing 8. UCS orders its frontier by
+accumulated cost $g(n)$ and returns the three-edge path costing 4. Neither algorithm is
+wrong; they are answering different questions.}{fig:ucs-vs-bfs}
+\begin{tikzpicture}[font=\small]
+\newcommand{\wgraph}[1]{%
+  \node[ainode,minimum size=7mm] (#1A) at (0,0) {A};
+  \node[ainode,minimum size=7mm] (#1B) at (1.5,0.95) {B};
+  \node[ainode,minimum size=7mm] (#1C) at (1.5,-0.95) {C};
+  \node[ainode,minimum size=7mm] (#1D) at (3.0,1.6) {D};
+  \node[ainode,minimum size=7mm] (#1E) at (3.0,0.35) {E};
+  \node[ainode,minimum size=7mm] (#1F) at (3.0,-0.95) {F};
+  \node[ainode,minimum size=7mm] (#1G) at (4.5,0) {G};
+}
+% ---- BFS ----
+\begin{scope}
+\node[font=\bfseries\color{MLNavy}] at (2.25,2.35) {BFS: fewest edges};
+\wgraph{p}
+\draw[aiedge,draw=MLMuted!45] (pA)--(pC) node[midway,below,ailabel] {4};
+\draw[aiedge,draw=MLMuted!45] (pB)--(pE) node[midway,above,ailabel] {2};
+\draw[aiedge,draw=MLMuted!45] (pC)--(pF) node[midway,below,ailabel] {5};
+\draw[aiedge,draw=MLMuted!45] (pE)--(pG) node[midway,below,ailabel] {1};
+\draw[aiedge,draw=MLMuted!45] (pF)--(pG) node[midway,below,ailabel] {2};
+\draw[aiedge,draw=MLRed,line width=1.2pt] (pA)--(pB) node[midway,above,ailabel,color=MLRed] {1};
+\draw[aiedge,draw=MLRed,line width=1.2pt] (pB)--(pD) node[midway,above,ailabel,color=MLRed] {3};
+\draw[aiedge,draw=MLRed,line width=1.2pt] (pD)--(pG) node[midway,above,ailabel,color=MLRed] {4};
+\node[ailabel,anchor=north,align=center,color=MLRed] at (2.25,-1.75)
+  {A $\to$ B $\to$ D $\to$ G\\3 edges, cost $1+3+4=\mathbf{8}$};
+\end{scope}
+% ---- UCS ----
+\begin{scope}[xshift=6.5cm]
+\node[font=\bfseries\color{MLNavy}] at (2.25,2.35) {UCS: cheapest total};
+\wgraph{q}
+\draw[aiedge,draw=MLMuted!45] (qA)--(qC) node[midway,below,ailabel] {4};
+\draw[aiedge,draw=MLMuted!45] (qB)--(qD) node[midway,above,ailabel] {3};
+\draw[aiedge,draw=MLMuted!45] (qC)--(qF) node[midway,below,ailabel] {5};
+\draw[aiedge,draw=MLMuted!45] (qD)--(qG) node[midway,above,ailabel] {4};
+\draw[aiedge,draw=MLMuted!45] (qF)--(qG) node[midway,below,ailabel] {2};
+\draw[aiedge,draw=MLGreen,line width=1.2pt] (qA)--(qB) node[midway,above,ailabel,color=MLGreen] {1};
+\draw[aiedge,draw=MLGreen,line width=1.2pt] (qB)--(qE) node[midway,above,ailabel,color=MLGreen] {2};
+\draw[aiedge,draw=MLGreen,line width=1.2pt] (qE)--(qG) node[midway,below,ailabel,color=MLGreen] {1};
+\node[ailabel,anchor=north,align=center,color=MLGreen] at (2.25,-1.75)
+  {A $\to$ B $\to$ E $\to$ G\\3 edges, cost $1+2+1=\mathbf{4}$};
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
+
 \begin{keyidea}
 BFS orders the frontier by depth, DFS by recency/depth, and UCS by accumulated path cost. The graph representation may stay the same while only the frontier policy changes.
 \end{keyidea}
@@ -301,6 +414,32 @@ UCS & Yes, if step costs \(\geq\varepsilon>0\) & Yes, for any non-negative costs
 \end{mltable}
 
 Here \(C^\star\) is the cost of the optimal solution and \(\varepsilon\) the smallest step cost.
+
+\figref{fig:branching} shows what $O(b^d)$ costs in practice. At branching factor 3, a goal
+eight levels down puts about 9\,800 states in memory; at branching factor 5 the same depth
+needs nearly 500\,000. This is why the space column, not the time column, decides which
+algorithm survives.
+
+\begin{aifig}[Frontier growth with depth]{States a BFS frontier may hold at depth $d$, for
+three branching factors. The vertical axis is logarithmic: each straight line is exponential
+growth. DFS stores $O(bm)$ instead, which on these scales is a flat line near the
+bottom.}{fig:branching}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=5.2cm,
+  xlabel={depth $d$}, ylabel={states stored},
+  xmin=1, xmax=10, ymin=1, ymax=2e7,
+  ymode=log, log basis y=10,
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
+  legend columns=4, legend style={at={(0.5,-0.28)},anchor=north},
+  domain=1:10, samples=10]
+\addplot[draw=MLGreen,very thick] {2^x};   \addlegendentry{$b=2$}
+\addplot[draw=MLBlue,very thick]  {3^x};   \addlegendentry{$b=3$}
+\addplot[draw=MLRed,very thick]   {5^x};   \addlegendentry{$b=5$}
+\addplot[draw=MLMuted,dashed,thick] {5*x}; \addlegendentry{DFS, $O(bm)$}
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
 
 \begin{keyidea}
 Read the space column first. BFS and UCS store the whole frontier, which grows exponentially --- memory, not time, is what usually stops them on a real problem. DFS needs only the current branch, \(O(bm)\), which is why it survives on deep spaces that exhaust BFS.

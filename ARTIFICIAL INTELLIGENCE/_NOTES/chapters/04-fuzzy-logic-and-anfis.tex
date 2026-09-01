@@ -19,6 +19,43 @@ For example, ``the water is hot'' may have membership \(0.7\).
 Human descriptions often use graded language: somewhat cold, very fast, mostly full. Fuzzy logic turns that kind of gradual description into numerical membership values that a rule system can process.
 \end{intuition}
 
+\figref{fig:crisp-fuzzy} shows the difference. A crisp set has a cliff: not hot at
+$29.9^\circ$, fully hot at $30.0^\circ$. A fuzzy set replaces it with a ramp, so a small
+change in temperature produces a small change in membership. That continuity is the practical
+advantage: it stops a controller juddering when a reading hovers near a threshold.
+
+\begin{aifig}[Crisp versus fuzzy membership]{``Hot'' as a crisp set and as a fuzzy set. The crisp version forces a decision at one point; the fuzzy version reports a degree, so $35^\circ$ is hot to degree $0.5$.}{fig:crisp-fuzzy}
+\begin{tikzpicture}
+\begin{axis}[
+  name=crisp, width=6.6cm, height=4.2cm,
+  xlabel={temperature ($^\circ$C)}, ylabel={$\mu(x)$},
+  title={Crisp set: ``hot''},
+  xmin=0, xmax=60, ymin=-0.08, ymax=1.18,
+  ytick={0,0.5,1}, xtick={0,20,30,40,60},
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue}]
+\addplot[MLRed,thick] coordinates {(0,0) (30,0)};
+\addplot[MLRed,thick] coordinates {(30,1) (60,1)};
+\addplot[MLRed,dashed,thin] coordinates {(30,0) (30,1)};
+\addplot[only marks,mark=*,MLRed,mark size=1.4pt] coordinates {(30,1)};
+\addplot[only marks,mark=o,MLRed,mark size=1.4pt] coordinates {(30,0)};
+\end{axis}
+\begin{axis}[
+  at={(crisp.right of south east)}, xshift=1.15cm, anchor=left of south west,
+  width=6.6cm, height=4.2cm,
+  xlabel={temperature ($^\circ$C)}, ylabel={$\mu(x)$},
+  title={Fuzzy set: ``hot''},
+  xmin=0, xmax=60, ymin=-0.08, ymax=1.18,
+  ytick={0,0.5,1}, xtick={0,20,30,40,60},
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue}]
+\addplot[MLGreen,thick] coordinates {(0,0) (25,0) (45,1) (60,1)};
+\addplot[MLOrange,dashed,thin] coordinates {(35,0) (35,0.5)};
+\addplot[MLOrange,dashed,thin] coordinates {(0,0.5) (35,0.5)};
+\addplot[only marks,mark=*,MLOrange,mark size=1.6pt] coordinates {(35,0.5)};
+\node[font=\scriptsize\color{MLOrange}] at (axis cs:46,0.38) {$\mu(35)=0.5$};
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
+
 \section{Why fuzzy logic is used}
 
 Fuzzy logic supports:
@@ -30,20 +67,35 @@ Fuzzy logic supports:
 
 \section{The four components of a Fuzzy Inference System}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
-]
-\node[b] (fuzz) {Fuzzification\\\scriptsize crisp input $\to$ memberships};
-\node[b,right=0.65cm of fuzz] (rules) {Rule base\\\scriptsize IF--THEN rules};
-\node[b,right=0.65cm of rules] (infer) {Inference engine\\\scriptsize apply rules};
-\node[b,right=0.65cm of infer] (defuzz) {Defuzzification\\\scriptsize fuzzy output $\to$ crisp value};
-\draw[arr] (fuzz)--(rules);
-\draw[arr] (rules)--(infer);
-\draw[arr] (infer)--(defuzz);
+\begin{aifig}[The four stages of a fuzzy inference system]{A fuzzy inference system traced on one reading. A crisp $35^\circ$ enters, becomes membership degrees, fires the rules those degrees activate, and collapses back to one fan speed. Fuzziness exists only inside; both ends are ordinary numbers.}{fig:fis-pipeline}
+\begin{tikzpicture}[font=\small]
+\node[aibox,minimum width=1.55cm,minimum height=0.9cm,fill=MLPaleGray,draw=MLMuted,
+      font=\scriptsize\color{MLNavy}] (in) at (0,0) {crisp in\\\textbf{$35^\circ$}};
+\node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
+  (fz) at (2.45,0) {\textbf{Fuzzification}\\$\to$ degrees};
+\node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
+  (rb) at (5.15,0) {\textbf{Rule base}\\IF--THEN};
+\node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
+  (ie) at (7.85,0) {\textbf{Inference}\\combine rules};
+\node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
+  (df) at (10.55,0) {\textbf{Defuzzification}\\$\to$ one number};
+\node[aibox,minimum width=1.55cm,minimum height=0.9cm,fill=MLPaleTeal,draw=MLGreen,
+      font=\scriptsize\color{MLNavy}] (out) at (12.95,0) {crisp out\\\textbf{6.2}};
+\foreach \a/\b in {in/fz, fz/rb, rb/ie, ie/df, df/out}{\draw[aiarrow] (\a)--(\b);}
+% under-labels showing the actual values flowing
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (2.45,-0.6)
+  {Warm $0.5$\\Hot $0.5$};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (5.15,-0.6)
+  {R2 fires $0.5$\\R3 fires $0.5$};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (7.85,-0.6)
+  {aggregated\\output set};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (10.55,-0.6)
+  {centroid of\\that set};
+\draw[aibrace] (1.35,0.68) -- (11.75,0.68);
+\node[ailabel,anchor=south,color=MLNavy] at (6.55,1.0)
+  {everything inside this brace is fuzzy; the two ends are not};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
@@ -83,7 +135,10 @@ fis = addMF(fis, 'FanSpeed', 'trimf', [5 10 10], ...
     'Name', 'High');
 \end{lstlisting}
 
-\begin{mlfigure}
+\begin{aifig}[Overlapping membership functions]{The three temperature membership functions.
+They deliberately overlap: at $70^\circ$ the reading is simultaneously Warm to degree $0.2$
+and Hot to degree $0.4$, so two rules fire at once and the controller blends their outputs
+instead of switching abruptly between them.}{fig:membership}
 \begin{tikzpicture}
 \begin{axis}[
   width=0.90\linewidth,
@@ -108,9 +163,43 @@ fis = addMF(fis, 'FanSpeed', 'trimf', [5 10 10], ...
 \node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:71,0.43) {$\mu_{Hot}=0.4$};
 \end{axis}
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 At a temperature of 70, overlapping memberships activate both Warm and Hot rules; fuzzy inference combines their contributions.
+
+Combining them produces a fuzzy \emph{set}, not a number, and a fan needs a number.
+\figref{fig:defuzz} shows the last stage: each firing rule clips its output set to the
+strength of its rule, the clipped shapes are merged, and the centroid of the merged area is
+reported as the answer.
+
+\begin{aifig}[Defuzzification by centroid]{Defuzzifying the $70^\circ$ reading. Medium is clipped at $0.2$ and High at $0.4$; the centre of area of their union gives the crisp fan speed. A stronger Hot rule pulls the centroid right.}{fig:defuzz}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.82\linewidth, height=5.4cm,
+  xmin=0, xmax=10, ymin=0, ymax=1.12,
+  xlabel={Fan speed}, ylabel={Membership},
+  xtick={0,2.5,5,6.4,7.5,10}, ytick={0,0.2,0.4,0.6,0.8,1},
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
+  clip=false]
+% full output sets, faint
+\addplot[draw=MLMuted!45,thin] coordinates {(0,0) (2.5,1) (5,0)};
+\addplot[draw=MLMuted!45,thin] coordinates {(2.5,0) (5,1) (7.5,0)};
+\addplot[draw=MLMuted!45,thin] coordinates {(5,0) (7.5,1) (10,0)};
+% clipped + aggregated region
+\addplot[draw=MLTeal,very thick,fill=MLPaleTeal,fill opacity=0.75]
+  coordinates {(2.5,0) (3,0.2) (4.5,0.2) (5.6,0.4) (8.5,0.4) (10,0) (2.5,0)};
+% centroid
+\addplot[MLRed,dashed,thick] coordinates {(6.4,0) (6.4,0.62)};
+\addplot[only marks,mark=*,mark size=2.4pt,MLRed] coordinates {(6.4,0.4)};
+\node[font=\scriptsize\color{MLRed},anchor=south] at (axis cs:6.4,0.65)
+  {centroid $=6.4$};
+\node[font=\scriptsize\color{MLTeal},anchor=west] at (axis cs:0.2,0.28)
+  {Medium clipped at $0.2$};
+\node[font=\scriptsize\color{MLOrange},anchor=west] at (axis cs:8.6,0.52)
+  {High clipped at $0.4$};
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
 
 The rule list maps each input term to its corresponding output term.
 
@@ -140,7 +229,41 @@ The Medium and High rules fire at strengths 0.2 and 0.4. Default Mamdani inferen
 
 \section{Mamdani and Sugeno FIS}
 
-Lab 4 distinguishes two types of Fuzzy Inference System.
+Lab 4 distinguishes two types of Fuzzy Inference System. They differ only in what a rule's
+\emph{then} clause produces (\figref{fig:mamdani-sugeno}).
+
+\begin{aifig}[Mamdani versus Sugeno rule output]{The same rule under both systems. Mamdani's
+consequent is a fuzzy set that must be aggregated and defuzzified; Sugeno's is a formula that
+evaluates straight to a number. Sugeno skips the centroid step, which is why it is the form
+ANFIS can train.}{fig:mamdani-sugeno}
+\begin{tikzpicture}[font=\small]
+\begin{scope}
+\node[font=\bfseries\color{MLNavy}] at (2.5,2.2) {Mamdani};
+\node[aibox,minimum width=4.6cm,font=\scriptsize\color{MLNavy}] (r1) at (2.5,1.5)
+  {IF Speed is Fast THEN Brake is \textbf{High}};
+\node[ailabel,anchor=north,color=MLOrange] at (2.5,1.05) {\textbf{High} is a fuzzy set};
+\begin{scope}[xshift=1.35cm,yshift=-0.55cm,x=0.6cm,y=0.6cm]
+\draw[draw=MLMuted!60,-{Stealth[length=1.6mm]}] (-0.2,0)--(4.0,0);
+\draw[draw=MLMuted!60,-{Stealth[length=1.6mm]}] (0,-0.2)--(0,1.35);
+\draw[very thick,draw=MLOrange] (0.4,0)--(1.8,1.1)--(3.2,0);
+\fill[MLOrange,opacity=0.2] (0.4,0)--(1.8,1.1)--(3.2,0)--cycle;
+\end{scope}
+\node[ailabel,anchor=north,align=center] at (2.5,-1.35)
+  {needs aggregation, then a centroid};
+\end{scope}
+\begin{scope}[xshift=7.6cm]
+\node[font=\bfseries\color{MLNavy}] at (2.5,2.2) {Sugeno};
+\node[aibox,minimum width=4.9cm,font=\scriptsize\color{MLNavy},
+      fill=MLPaleTeal,draw=MLGreen] (r2) at (2.5,1.5)
+  {IF Speed is Fast THEN Brake $=0.006s+0.3$};
+\node[ailabel,anchor=north,color=MLGreen] at (2.5,1.05) {the consequent is a formula};
+\node[aicell,minimum width=2.4cm,minimum height=0.65cm,fill=MLPaleTeal,draw=MLGreen,
+      font=\scriptsize\bfseries] at (2.5,0.15) {$s=60 \Rightarrow 0.66$};
+\node[ailabel,anchor=north,align=center] at (2.5,-1.35)
+  {weighted average, no centroid};
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
@@ -215,6 +338,58 @@ ANFIS can be summarized as
 \text{ANFIS}=\text{neural-network learning}+\text{fuzzy-logic representation}.
 \]
 It uses a Sugeno FIS and learns rule and membership-function parameters from data, commonly through least squares and gradient descent.
+
+\figref{fig:anfis} unpacks that sum. The five layers are the stages of
+\figref{fig:fis-pipeline} redrawn as a network. Once each stage is a differentiable node, the
+membership shapes and rule outputs become parameters gradient descent can adjust. The fuzzy
+reasoning is unchanged --- only who chooses the numbers.
+
+\begin{aifig}[The five layers of an ANFIS network]{ANFIS for two inputs and two rules. Shaded layers (1 and 4) hold the trainable parameters; layers 2, 3, and 5 are fixed arithmetic. Same stages as \figref{fig:fis-pipeline}, drawn so a learning algorithm can reach inside.}{fig:anfis}
+\begin{tikzpicture}[font=\small,
+  L/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=7.5mm,
+            font=\scriptsize\color{MLNavy},inner sep=0.5pt},
+  T/.style={circle,draw=MLOrange,fill=MLPaleOrange,minimum size=7.5mm,line width=0.9pt,
+            font=\scriptsize\color{MLNavy},inner sep=0.5pt}]
+\def\dx{2.45}
+% inputs
+\node[ailabel,font=\small\bfseries\color{MLNavy}] (x) at (-\dx,0.75) {$x$};
+\node[ailabel,font=\small\bfseries\color{MLNavy}] (y) at (-\dx,-0.75) {$y$};
+% layer 1 (trainable MFs)
+\node[T] (A1) at (0,1.35) {$A_1$};
+\node[T] (A2) at (0,0.45) {$A_2$};
+\node[T] (B1) at (0,-0.45) {$B_1$};
+\node[T] (B2) at (0,-1.35) {$B_2$};
+% layer 2 (rule firing)
+\node[L] (P1) at (\dx,0.9) {$\Pi$};
+\node[L] (P2) at (\dx,-0.9) {$\Pi$};
+% layer 3 (normalise)
+\node[L] (N1) at (2*\dx,0.9) {$N$};
+\node[L] (N2) at (2*\dx,-0.9) {$N$};
+% layer 4 (trainable consequents)
+\node[T] (C1) at (3*\dx,0.9) {$f_1$};
+\node[T] (C2) at (3*\dx,-0.9) {$f_2$};
+% layer 5 (sum)
+\node[L] (S) at (4*\dx,0) {$\Sigma$};
+\node[ailabel,font=\small\bfseries\color{MLNavy}] (out) at (4*\dx+1.15,0) {output};
+
+\foreach \t in {A1,A2}{\draw[aiptr] (x)--(\t);}
+\foreach \t in {B1,B2}{\draw[aiptr] (y)--(\t);}
+\draw[aiptr] (A1)--(P1); \draw[aiptr] (B1)--(P1);
+\draw[aiptr] (A2)--(P2); \draw[aiptr] (B2)--(P2);
+\draw[aiptr] (P1)--(N1); \draw[aiptr] (P2)--(N2);
+\draw[aiptr] (P1)--(N2); \draw[aiptr] (P2)--(N1);
+\draw[aiptr] (N1)--(C1); \draw[aiptr] (N2)--(C2);
+\draw[aiptr] (C1)--(S);  \draw[aiptr] (C2)--(S);
+\draw[aiptr] (S)--(out);
+
+\foreach \i/\lbl in {0/{1. fuzzify}, 1/{2. rule\\strength}, 2/{3. normalise},
+                     3/{4. rule\\output}, 4/{5. aggregate}}{
+  \node[ailabel,anchor=north,align=center] at (\i*\dx,-1.95) {\lbl};
+}
+\node[ailabel,anchor=west,color=MLOrange] at (-\dx-0.55,-3.15)
+  {shaded nodes hold the parameters ANFIS trains; the rest is fixed arithmetic};
+\end{tikzpicture}
+\end{aifig}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.32\linewidth}X@{}}

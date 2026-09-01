@@ -432,42 +432,19 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Operating Systems}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A lab-aligned guide to Linux system interfaces, process management, CPU
+  scheduling, synchronization, deadlocks, memory management, virtual memory,
+  and file-system organization.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.1cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{MLNavy} Operating Systems Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{MLBlue} From Processes and Scheduling to Memory and File Systems\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[
-  node distance=0.8cm and 0.65cm,
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.45cm,minimum height=1.5cm,align=center,font=\bfseries\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}
-]
-\node[box] (proc) {PROCESSES\\execution and CPU};
-\node[box,right=of proc] (mem) {MEMORY\\allocation and pages};
-\node[box,right=of mem] (fs) {STORAGE\\files and directories};
-\draw[arr] (proc) -- (mem);
-\draw[arr] (mem) -- (fs);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-A lab-aligned guide to Linux system interfaces, process management, CPU scheduling, synchronization, deadlocks, memory management, virtual memory, and file-system organization.\\[0.25em]
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.5cm}
-{\color{MLMuted} Department of Computing \par}
-{\color{MLMuted} Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage
 \pagenumbering{roman}

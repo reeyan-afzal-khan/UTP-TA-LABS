@@ -28,6 +28,41 @@ Quantity & Meaning & Used by \\
 Greedy Best-First Search asks, ``Which frontier state appears closest to the goal?'' A* asks, ``Which frontier state gives the best combination of cost already paid and estimated cost still remaining?''
 \end{keyidea}
 
+\figref{fig:fgh} shows the three quantities on a single node. The distinction is entirely
+about which part of the journey each algorithm is willing to look at: UCS looks only
+backwards, GBFS only forwards, and A* at both.
+
+\begin{aifig}[The three quantities $g$, $h$, and $f$]{The decomposition $f(n)=g(n)+h(n)$.
+The cost $g$ behind the node is known exactly; the estimate $h$ ahead of it is a guess.
+Each algorithm is defined by which half it sorts the frontier on.}{fig:fgh}
+\begin{tikzpicture}[font=\small]
+\node[ainodedone,minimum size=9mm] (S) at (0,0) {S};
+\node[ainodehot,minimum size=9mm] (N) at (3.6,0) {$n$};
+\node[ainode,minimum size=9mm,fill=MLPaleTeal,draw=MLGreen] (G) at (7.6,0) {G};
+% travelled path
+\draw[aiedge,draw=MLBlue,line width=1.3pt] (S) -- (1.2,0.55) -- (2.4,-0.4) -- (N);
+% estimated remainder
+\draw[aiedge,draw=MLMuted!55,line width=1.2pt,dashed] (N) -- (G);
+\draw[aibrace,draw=MLBlue] (-0.3,0.95) -- (3.9,0.95);
+\draw[decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=MLOrange,semithick]
+  (3.9,-0.85) -- (7.9,-0.85);
+\node[ailabel,anchor=south,color=MLBlue,align=center] at (1.8,1.25)
+  {$g(n)$ --- cost \emph{already paid}\\known exactly};
+\node[ailabel,anchor=north,color=MLOrange,align=center] at (5.9,-1.15)
+  {$h(n)$ --- cost \emph{still estimated}\\a guess, never measured};
+\node[ailabel,anchor=north,align=center,color=MLNavy] at (3.6,-0.55) {$f(n)=g(n)+h(n)$};
+
+\begin{scope}[yshift=-2.9cm]
+\node[aistage,fill=MLPaleBlue,draw=MLBlue,text width=3.1cm,anchor=north west] at (-0.6,0)
+  {\textbf{UCS} sorts on $g$\\ignores the goal};
+\node[aistage,fill=MLPaleOrange,draw=MLOrange,text width=3.1cm,anchor=north west] at (2.9,0)
+  {\textbf{GBFS} sorts on $h$\\ignores what it spent};
+\node[aistage,fill=MLPaleTeal,draw=MLGreen,text width=3.1cm,anchor=north west] at (6.4,0)
+  {\textbf{A*} sorts on $g+h$\\balances both};
+\end{scope}
+\end{tikzpicture}
+\end{aifig}
+
 \section{Greedy Best-First Search}
 
 \term{Greedy Best-First Search (GBFS)} orders the frontier by heuristic value only. It ignores the cost already spent reaching a node.
@@ -69,6 +104,32 @@ GBFS may prefer a low-heuristic state reached by an expensive path because it ra
 \end{pitfall}
 
 \section{Manhattan distance in a grid}
+
+The choice of distance formula must match the moves the robot can actually make
+(\figref{fig:manhattan}). With four-direction movement, Manhattan distance is the exact
+number of steps needed on an empty grid, so it is admissible and tight. Euclidean distance
+cuts the corner and always \emph{under}-estimates, which is still admissible but weaker: it
+guides the search less and A* expands more cells.
+
+\begin{aifig}[Manhattan versus Euclidean distance]{Two estimates from $(1,1)$ to $(4,3)$. With four-direction movement the true cost is 5 steps, which Manhattan reports exactly. Euclidean reports $3.6$: admissible, but a looser guide, so A* expands more cells.}{fig:manhattan}
+\begin{tikzpicture}[font=\small]
+\def\W{0.72}
+\foreach \r in {0,...,4}{\foreach \c in {0,...,5}{
+  \node[draw=MLMuted!30,fill=white,minimum width=\W cm,minimum height=\W cm,inner sep=0pt]
+    at (\W*\c,-\W*\r) {};}}
+% manhattan route
+\draw[very thick,draw=MLBlue]
+  (\W*1,-\W*3) -- (\W*4,-\W*3) -- (\W*4,-\W*1);
+% euclidean straight line
+\draw[very thick,draw=MLOrange,dashed] (\W*1,-\W*3) -- (\W*4,-\W*1);
+\node[ainodehot,minimum size=6mm,font=\scriptsize\bfseries] at (\W*1,-\W*3) {S};
+\node[ainodedone,minimum size=6mm,font=\scriptsize\bfseries] at (\W*4,-\W*1) {G};
+\node[ailabel,anchor=west,align=left,color=MLBlue] at (\W*5.6,-\W*3)
+  {Manhattan $=|4-1|+|3-1|=5$\\exact for 4-direction moves};
+\node[ailabel,anchor=west,align=left,color=MLOrange] at (\W*5.6,-\W*1.4)
+  {Euclidean $=\sqrt{3^2+2^2}=3.6$\\admissible but loose};
+\end{tikzpicture}
+\end{aifig}
 
 The Lab 2 robot-maze problem uses the Manhattan-distance heuristic. For two grid coordinates \(a=(x_a,y_a)\) and \(b=(x_b,y_b)\),
 \[
@@ -167,6 +228,38 @@ G & 0 & 0 & yes \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
+
+\figref{fig:admissible} plots the table. Any bar rising above the diagonal is a node where
+the estimate exceeds the truth, and a single such node is enough to void the guarantee.
+
+\begin{aifig}[Checking admissibility node by node]{The handout's heuristic against the true
+remaining cost. Admissibility requires every point to lie on or below the dashed line;
+A, B, and F sit above it. Halving the heuristic --- the largest factor the worst node allows
+--- pulls all of them under.}{fig:admissible}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.62\linewidth, height=5.4cm,
+  xlabel={true remaining cost $h^\star(n)$}, ylabel={heuristic $h(n)$},
+  xmin=0, xmax=7, ymin=0, ymax=7.6,
+  xtick={0,1,...,7}, ytick={0,2,4,6},
+  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
+  clip=false]
+\addplot[draw=MLMuted,dashed,thick] coordinates {(0,0) (7,7)};
+\addplot[only marks,mark=*,mark size=2.4pt,MLRed]
+  coordinates {(4,7) (3,6) (1,2)};
+\addplot[only marks,mark=*,mark size=2.4pt,MLGreen]
+  coordinates {(6,4) (2,2) (0,0)};
+\node[font=\scriptsize\color{MLRed}] at (axis cs:4.75,7.15) {A};
+\node[font=\scriptsize\color{MLRed}] at (axis cs:3.7,6.1) {B};
+\node[font=\scriptsize\color{MLRed}] at (axis cs:1.35,2.55) {F};
+\node[font=\scriptsize\color{MLGreen}] at (axis cs:6.0,3.4) {C};
+\node[font=\scriptsize\color{MLGreen}] at (axis cs:2.55,1.5) {E};
+\node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:4.4,4.1) {$h=h^\star$};
+\node[font=\scriptsize\color{MLRed},anchor=west,align=left] at (axis cs:0.3,6.2)
+  {above the line:\\overestimates};
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
 
 \begin{pitfall}
 This heuristic is \textbf{not admissible}, so A* carries no optimality guarantee on this graph. It still returns \texttt{A -> B -> E -> G} at cost 4, which happens to be optimal --- but that is luck, not proof, and a differently shaped graph with the same style of heuristic can return a worse path.
@@ -296,6 +389,73 @@ A* & \(g(n)+h(n)\) & Cost and heuristic & Balances cost-so-far with estimated re
 \bottomrule
 \end{tabularx}
 \end{mltable}
+
+The table states the rule; \figref{fig:expansion} shows the consequence. All three find a
+path, but they examine very different numbers of cells doing it.
+
+\begin{aifig}[Cells expanded by UCS, GBFS, and A*]{Cells expanded before the goal is reached, on an identical grid. UCS spreads in all directions because it cannot see the goal. GBFS runs almost straight at it but is drawn into the dead end. A* expands a narrow corridor and still returns the optimal path.}{fig:expansion}
+\begin{tikzpicture}[font=\small]
+\def\W{0.46}
+\def\wallmark{W}
+% helper: draw a 7x5 grid; arg2 = expansion map (E = expanded, . = untouched, W = wall)
+\newcommand{\gridpanel}[3]{%
+  \begin{scope}[xshift=#1 cm]
+    \node[font=\bfseries\color{MLNavy}] at (1.38,1.0) {#2};
+    \foreach \row [count=\ri from 0] in #3{
+      \foreach \c [count=\ci from 0] in \row{
+        \ifx\c\wallmark
+          \node[aiwall,minimum width=\W cm,minimum height=\W cm,inner sep=0pt]
+            at (\W*\ci,-\W*\ri) {};
+        \else
+          \ifx\c\expmark
+            \node[draw=MLBlue!45,fill=MLBlue!38,minimum width=\W cm,minimum height=\W cm,
+                  inner sep=0pt] at (\W*\ci,-\W*\ri) {};
+          \else
+            \node[draw=MLMuted!30,fill=white,minimum width=\W cm,minimum height=\W cm,
+                  inner sep=0pt] at (\W*\ci,-\W*\ri) {};
+          \fi
+        \fi
+      }
+    }
+    \node[ainodehot,minimum size=5mm,font=\tiny\bfseries] at (0,0) {S};
+    \node[ainodedone,minimum size=5mm,font=\tiny\bfseries] at (6*\W,-4*\W) {G};
+  \end{scope}}
+\def\expmark{E}
+
+\gridpanel{0}{UCS (sorts on $g$)}{{%
+  {E,E,E,E,E,E,E},
+  {E,E,W,E,E,E,E},
+  {E,E,W,E,E,E,E},
+  {E,E,W,E,E,E,E},
+  {E,E,E,E,E,E,E}}}
+\node[ailabel,anchor=north,align=center] at (1.38,-2.35) {31 cells expanded\\optimal path};
+
+\gridpanel{4.3}{GBFS (sorts on $h$)}{{%
+  {E,E,E,.,.,.,.},
+  {E,E,W,.,.,.,.},
+  {E,E,W,.,.,.,.},
+  {E,E,W,E,E,E,E},
+  {E,E,E,E,E,E,E}}}
+\node[xshift=4.3cm,ailabel,anchor=north,align=center] at (1.38,-2.35)
+  {21 cells expanded\\path not guaranteed optimal};
+
+\gridpanel{8.6}{A* (sorts on $g+h$)}{{%
+  {E,E,.,.,.,.,.},
+  {E,E,W,.,.,.,.},
+  {E,E,W,.,.,.,.},
+  {E,E,W,E,E,E,.},
+  {E,E,E,E,E,E,E}}}
+\node[xshift=8.6cm,ailabel,anchor=north,align=center] at (1.38,-2.35)
+  {19 cells expanded\\optimal path};
+\end{tikzpicture}
+\end{aifig}
+
+\begin{keyidea}
+Shaded cells are wasted work. UCS wastes it exploring away from the goal; GBFS wastes less
+but forfeits optimality. Only A* spends little \emph{and} promises the cheapest path --- and
+only while the heuristic stays admissible. That is why the admissibility check earlier is not
+a formality.
+\end{keyidea}
 
 \input{labs/02-informed-search}
 

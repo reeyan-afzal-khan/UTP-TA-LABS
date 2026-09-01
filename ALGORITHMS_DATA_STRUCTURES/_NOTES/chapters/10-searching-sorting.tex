@@ -1,0 +1,572 @@
+\chapter{Searching and Sorting}\label{ch:search-sort}
+
+\chapterguide%
+  {Know arrays, tree/heap concepts, and the Big-O notation used throughout earlier chapters.}
+  {trace linear and binary search, distinguish internal and external sorting, explain bubble/insertion/selection/merge/quick/heap sort at the level of the slides, and compare their stated running-time behavior.}
+
+Searching retrieves an element from a data structure. Sorting rearranges data into a specified order. The Searching \& Sorting deck places these topics together because sorted order can make some searches much faster.
+
+\section{Linear search}
+
+Linear search checks elements one by one until the target is found or the sequence ends.
+
+\begin{lstlisting}
+int linearSearch(const vector<int>& a, int target) {
+    for (int i = 0; i < static_cast<int>(a.size()); ++i) {
+        if (a[i] == target) return i;
+    }
+    return -1;
+}
+\end{lstlisting}
+
+The slides give linear search time complexity as $O(n)$ because the whole array may need to be traversed.
+
+\begin{workedexample}
+Search for 30 in $[12,25,18,30,22]$. Compare with 12, 25, 18, then 30. The target is found at index 3 after four comparisons.
+\end{workedexample}
+
+\section{Binary search}
+
+Binary search requires the array to be sorted. It compares the target with the middle element, then discards the half that cannot contain the target.
+
+\begin{lstlisting}
+int binarySearch(const vector<int>& a, int target) {
+    int left = 0;
+    int right = static_cast<int>(a.size()) - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (a[mid] == target) return mid;
+        if (target < a[mid]) right = mid - 1;
+        else left = mid + 1;
+    }
+    return -1;
+}
+\end{lstlisting}
+
+The slides give binary search time complexity as $O(\log n)$.
+
+\begin{keyidea}
+Binary search gains speed by using sorted order. Without sorted order, the ``discard half'' decision is not valid.
+\end{keyidea}
+
+\figref{fig:binary-search} traces the collapse of the search window. Each comparison removes
+half of what remains, so a 16-element array needs at most 4 comparisons and a million-element
+array at most 20. That is the whole difference between \cxr{O(n)} and \cxg{O(\log n)}.
+
+\begin{adsfig}[Binary search halving the window]{Binary search for 23 in a sorted 10-element array. Greyed cells have been
+eliminated without ever being examined --- three comparisons rule out nine of the ten
+positions.}{fig:binary-search}
+\begin{tikzpicture}[font=\small]
+\def\vals{2,5,8,12,16,23,38,56,72,91}
+% pass 1: lo=0 hi=9 mid=4 (16) -> 23>16, go right
+\begin{scope}
+\node[adslabel,anchor=east,align=right] at (-0.65,0) {\textbf{1.}};
+\foreach \v [count=\i from 0] in \vals{
+  \ifnum\i=4
+    \node[adshot,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+  \else
+    \node[adscell,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+  \fi
+}
+\node[adslabel,anchor=west,color=ADSOrange] at (8.55,0) {mid $=16$, $23>16$ $\Rightarrow$ keep right};
+\end{scope}
+% pass 2: lo=5 hi=9 mid=7 (56) -> 23<56, go left
+\begin{scope}[yshift=-1.15cm]
+\node[adslabel,anchor=east,align=right] at (-0.65,0) {\textbf{2.}};
+\foreach \v [count=\i from 0] in \vals{
+  \ifnum\i<5
+    \node[adsdim,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+  \else
+    \ifnum\i=7
+      \node[adshot,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+    \else
+      \node[adscell,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+    \fi
+  \fi
+}
+\node[adslabel,anchor=west,color=ADSOrange] at (8.55,0) {mid $=56$, $23<56$ $\Rightarrow$ keep left};
+\end{scope}
+% pass 3: lo=5 hi=6 mid=5 (23) found
+\begin{scope}[yshift=-2.3cm]
+\node[adslabel,anchor=east,align=right] at (-0.65,0) {\textbf{3.}};
+\foreach \v [count=\i from 0] in \vals{
+  \ifnum\i=5
+    \node[adsdone,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+  \else
+    \node[adsdim,minimum width=0.86cm,minimum height=0.72cm] at (0.9*\i,0) {\v};
+  \fi
+}
+\node[adslabel,anchor=west,color=ADSGreen] at (8.55,0) {mid $=23$: found at index 5};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Sorting categories}
+
+The slide deck distinguishes two broad contexts.
+
+\begin{description}[leftmargin=1.35in,style=nextline]
+  \item[Internal sorting] All data to be sorted is placed in memory.
+  \item[External sorting] The full dataset cannot be placed in memory at once; the method must work with data that is partly external to memory.
+\end{description}
+
+The rest of the deck focuses on named sorting algorithms rather than external-sorting implementation details.
+
+\section{Bubble sort}
+
+Bubble sort is comparison-based. Adjacent elements are compared and swapped when they are out of order.
+
+\begin{lstlisting}
+void bubbleSort(vector<int>& a) {
+    int n = static_cast<int>(a.size());
+    for (int pass = 0; pass < n - 1; ++pass) {
+        for (int i = 0; i < n - 1 - pass; ++i) {
+            if (a[i] > a[i + 1]) {
+                swap(a[i], a[i + 1]);
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+The slide states $O(n^2)$ time and notes that bubble sort is not suitable for large data sizes.
+
+The name describes the motion: on each pass the largest remaining value is carried to the
+right-hand end, the way a bubble rises (\figref{fig:bubble}). After pass $k$ the last $k$
+positions are finished, which is why the inner loop shrinks each time.
+
+\begin{adsfig}[One pass of bubble sort]{One full pass of bubble sort over $[5,1,4,2]$. Each adjacent pair is compared
+and swapped when out of order; by the end of the pass the maximum, 5, has been pushed into
+its final position. Three more passes finish the array.}{fig:bubble}
+\begin{tikzpicture}[font=\small]
+\foreach \row/\lbl [count=\r from 0] in {%
+  {5,1,4,2}/{compare 5\,\&\,1: swap},
+  {1,5,4,2}/{compare 5\,\&\,4: swap},
+  {1,4,5,2}/{compare 5\,\&\,2: swap},
+  {1,4,2,5}/{pass complete}}{
+  \begin{scope}[yshift=-0.95*\r cm]
+    \foreach \v [count=\i from 0] in \row{
+      \ifnum\r=3
+        \ifnum\i=3
+          \node[adsdone,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+        \else
+          \node[adscell,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+        \fi
+      \else
+        \ifnum\i=\r
+          \node[adshot,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+        \else
+          \pgfmathtruncatemacro{\nx}{\r+1}
+          \ifnum\i=\nx
+            \node[adshot,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+          \else
+            \node[adscell,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+          \fi
+        \fi
+      \fi
+    }
+    \node[adslabel,anchor=west] at (3.05,0) {\lbl};
+  \end{scope}
+}
+\node[adslabel,anchor=west,color=ADSGreen] at (6.1,-2.85) {5 is now in place};
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Insertion sort}
+
+Insertion sort maintains a sorted subarray and inserts the next element into its proper location in that sorted part.
+
+\begin{lstlisting}
+void insertionSort(vector<int>& a) {
+    for (int i = 1; i < static_cast<int>(a.size()); ++i) {
+        int key = a[i];
+        int j = i - 1;
+
+        while (j >= 0 && a[j] > key) {
+            a[j + 1] = a[j];
+            --j;
+        }
+        a[j + 1] = key;
+    }
+}
+\end{lstlisting}
+
+The slides state worst-case $O(n^2)$ and give $O(n)$ comparisons in the best case versus $O(n^2)$ in the worst case.
+
+\figref{fig:insertion} shows why the best case is so much better than the worst. The inner
+\texttt{while} loop stops as soon as it meets a smaller value, so on already-sorted input it
+never executes at all and the algorithm makes a single sweep. This is the same reason
+insertion sort is the method of choice for small or nearly-sorted arrays.
+
+\begin{adsfig}[Insertion sort traced]{Insertion sort on $[5,1,4,2]$. The green region on the left is always sorted;
+each step lifts the next value out and slides it back until it lands in order. The lifted
+value is shown above the array while the gap it left is being shifted.}{fig:insertion}
+\begin{tikzpicture}[font=\small]
+\foreach \sorted/\rest/\key/\lbl [count=\r from 0] in {%
+  {5}/{1,4,2}/{1}/{take 1, slide 5 right},
+  {1,5}/{4,2}/{4}/{take 4, slide 5 right},
+  {1,4,5}/{2}/{2}/{take 2, slide 5 and 4 right},
+  {1,2,4,5}/{}/{}/{sorted}}{
+  \begin{scope}[yshift=-1.62*\r cm]
+    \pgfmathtruncatemacro{\ns}{\r+1}
+    \foreach \v [count=\i from 0] in \sorted{
+      \node[adsdone,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+    }
+    \ifx\rest\empty\else
+      \foreach \v [count=\j from 0] in \rest{
+        \pgfmathtruncatemacro{\pos}{\ns+\j}
+        \node[adscell,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\pos,0) {\v};
+      }
+    \fi
+    \ifx\key\empty\else
+      \node[adshot,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\ns,0.66) {\key};
+      \draw[adsptr,draw=ADSOrange] (0.85*\ns,0.31) -- (0.85*\ns,0.36);
+    \fi
+    \node[adslabel,anchor=west] at (3.05,0) {\lbl};
+  \end{scope}
+}
+\node[adslabel,anchor=west,color=ADSGreen,align=left] at (5.3,-4.86)
+  {green $=$ sorted region,\\which grows by one each step};
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Selection sort}
+
+Selection sort divides the list into a sorted part on the left and an unsorted part on the right. At each step, it finds the smallest element in the unsorted region and swaps it into the next sorted position.
+
+\begin{lstlisting}
+void selectionSort(vector<int>& a) {
+    int n = static_cast<int>(a.size());
+    for (int i = 0; i < n - 1; ++i) {
+        int minPos = i;
+        for (int j = i + 1; j < n; ++j) {
+            if (a[j] < a[minPos]) minPos = j;
+        }
+        swap(a[i], a[minPos]);
+    }
+}
+\end{lstlisting}
+
+The slide gives average and worst-case complexity $O(n^2)$ and says the method is not suitable for large datasets.
+
+Insertion and selection sort both grow a sorted region on the left, but they pay for it
+differently (\figref{fig:selection}). Selection sort scans the whole unsorted region to find
+the minimum, then performs exactly one swap; insertion sort takes whatever value comes next
+and pays with shifts. Selection sort therefore always makes $n-1$ swaps regardless of the
+input, which matters when a swap is expensive.
+
+\begin{adsfig}[Selection sort traced]{Selection sort on $[5,1,4,2]$. Each pass scans the unsorted region for its
+smallest value and swaps it into the boundary position. Unlike insertion sort, the number of
+comparisons is the same whether the input is sorted or reversed.}{fig:selection}
+\begin{tikzpicture}[font=\small]
+\foreach \row/\ndone/\minpos/\lbl [count=\r from 0] in {%
+  {5,1,4,2}/{0}/{1}/{min of all four is 1: swap into slot 0},
+  {1,5,4,2}/{1}/{3}/{min of the rest is 2: swap into slot 1},
+  {1,2,4,5}/{2}/{2}/{min of the rest is 4: already in place},
+  {1,2,4,5}/{4}/{9}/{sorted}}{
+  \begin{scope}[yshift=-0.95*\r cm]
+    \foreach \v [count=\i from 0] in \row{
+      \ifnum\i<\ndone
+        \node[adsdone,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+      \else
+        \ifnum\i=\minpos
+          \node[adshot,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+        \else
+          \node[adscell,minimum width=0.8cm,minimum height=0.66cm] at (0.85*\i,0) {\v};
+        \fi
+      \fi
+    }
+    \node[adslabel,anchor=west] at (3.05,0) {\lbl};
+  \end{scope}
+}
+\end{tikzpicture}
+\end{adsfig}
+
+\section{Merge sort}
+
+Merge sort follows divide and conquer. The slide description repeatedly divides the array into two halves until subarrays contain one element, then merges sorted subarrays to build the complete sorted array.
+
+\begin{adsfig}[Merge sort: divide and merge]{Merge sort on $[8,3,6,2,7,1,5,4]$. The array is halved until every piece has
+one element --- which is trivially sorted --- and the pieces are then merged back in order.
+The tree has $\log n$ levels and each level does $O(n)$ work merging, which is where
+$O(n\log n)$ comes from.}{fig:merge-sort}
+\begin{tikzpicture}[font=\small,
+  msb/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=1mm,minimum height=0.55cm,
+              font=\scriptsize\bfseries\color{ADSNavy},inner sep=2.5pt},
+  msg/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=1mm,minimum height=0.55cm,
+              font=\scriptsize\bfseries\color{ADSNavy},inner sep=2.5pt}]
+% ---- divide phase (top down) ----
+\node[msb] (l0) at (0,0) {8 3 6 2 7 1 5 4};
+\node[msb] (l1a) at (-2.3,-1.0) {8 3 6 2};
+\node[msb] (l1b) at ( 2.3,-1.0) {7 1 5 4};
+\node[msb] (l2a) at (-3.45,-2.0) {8 3};
+\node[msb] (l2b) at (-1.15,-2.0) {6 2};
+\node[msb] (l2c) at ( 1.15,-2.0) {7 1};
+\node[msb] (l2d) at ( 3.45,-2.0) {5 4};
+\foreach \x/\v in {-4.02/8,-2.88/3,-1.72/6,-0.58/2,0.58/7,1.72/1,2.88/5,4.02/4}{
+  \node[msb] at (\x,-3.0) {\v};
+}
+\draw[adsarrow] (l0)--(l1a); \draw[adsarrow] (l0)--(l1b);
+\draw[adsarrow] (l1a)--(l2a); \draw[adsarrow] (l1a)--(l2b);
+\draw[adsarrow] (l1b)--(l2c); \draw[adsarrow] (l1b)--(l2d);
+\foreach \p/\x in {l2a/-4.02, l2a/-2.88, l2b/-1.72, l2b/-0.58,
+                   l2c/0.58, l2c/1.72, l2d/2.88, l2d/4.02}{
+  \draw[adsarrow] (\p) -- (\x,-2.75);
+}
+\node[adslabel,anchor=east,color=ADSBlue,align=right] at (-4.75,-1.5) {DIVIDE\\$\log n$\\levels};
+
+% ---- merge phase (bottom up) ----
+\begin{scope}[yshift=-7.0cm]
+\foreach \x/\v in {-4.02/8,-2.88/3,-1.72/6,-0.58/2,0.58/7,1.72/1,2.88/5,4.02/4}{
+  \node[msg] at (\x,0) {\v};
+}
+\node[msg] (m2a) at (-3.45,1.0) {3 8};
+\node[msg] (m2b) at (-1.15,1.0) {2 6};
+\node[msg] (m2c) at ( 1.15,1.0) {1 7};
+\node[msg] (m2d) at ( 3.45,1.0) {4 5};
+\node[msg] (m1a) at (-2.3,2.0) {2 3 6 8};
+\node[msg] (m1b) at ( 2.3,2.0) {1 4 5 7};
+\node[msg] (m0)  at (0,3.0) {1 2 3 4 5 6 7 8};
+\foreach \p/\x in {m2a/-4.02, m2a/-2.88, m2b/-1.72, m2b/-0.58,
+                   m2c/0.58, m2c/1.72, m2d/2.88, m2d/4.02}{
+  \draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (\x,0.28) -- (\p);
+}
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m2a)--(m1a);
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m2b)--(m1a);
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m2c)--(m1b);
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m2d)--(m1b);
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m1a)--(m0);
+\draw[-{Stealth[length=2.2mm]},thick,draw=ADSGreen] (m1b)--(m0);
+\node[adslabel,anchor=east,color=ADSGreen,align=right] at (-4.75,1.5)
+  {MERGE\\$O(n)$ per\\level};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+The supplied merge-sort slide explains the divide-and-conquer process but does not state a time complexity. Standard analysis gives $O(n\log n)$ time; that value is additional context rather than text copied from the slide.
+\end{clarification}
+
+\section{Quick sort}
+
+Quick sort also follows divide and conquer. The deck describes partitioning the array around a \term{pivot}: values smaller than the pivot go to one side, values greater than the pivot to the other, then the resulting subarrays are sorted recursively.
+
+\begin{lstlisting}
+int partition(vector<int>& a, int low, int high) {
+    int pivot = a[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; ++j) {
+        if (a[j] <= pivot) {
+            ++i;
+            swap(a[i], a[j]);
+        }
+    }
+    swap(a[i + 1], a[high]);
+    return i + 1;
+}
+
+void quickSort(vector<int>& a, int low, int high) {
+    if (low >= high) return;
+    int p = partition(a, low, high);
+    quickSort(a, low, p - 1);
+    quickSort(a, p + 1, high);
+}
+\end{lstlisting}
+
+\figref{fig:quick-partition} traces one partition step. The pivot ends up at the index that
+splits the array into ``everything smaller'' and ``everything larger'', so the pivot is
+placed correctly and never moves again. Quick sort then recurses on the two sides.
+
+\begin{adsfig}[Quick sort partitioning]{Partitioning $[7,2,9,4,6]$ around the pivot 6. The pointer \texttt{i} marks
+the end of the ``smaller than pivot'' region; each value at \texttt{j} that is smaller is
+swapped up into it. The final swap drops the pivot into the boundary, at which point index~2
+holds its permanently correct value.}{fig:quick-partition}
+\begin{tikzpicture}[font=\small]
+\foreach \row/\hot/\lbl [count=\r from 0] in {%
+  {7,2,9,4,6}/{4}/{pivot $=6$ (last element)},
+  {2,7,9,4,6}/{0}/{$2<6$: swap into the small region},
+  {2,4,9,7,6}/{1}/{$4<6$: swap into the small region},
+  {2,4,6,7,9}/{2}/{place the pivot at the boundary}}{
+  \begin{scope}[yshift=-0.98*\r cm]
+    \foreach \v [count=\i from 0] in \row{
+      \ifnum\i=\hot
+        \node[adshot,minimum width=0.82cm,minimum height=0.68cm] at (0.87*\i,0) {\v};
+      \else
+        \node[adscell,minimum width=0.82cm,minimum height=0.68cm] at (0.87*\i,0) {\v};
+      \fi
+    }
+    \node[adslabel,anchor=west] at (4.0,0) {\lbl};
+  \end{scope}
+}
+% final annotation
+\begin{scope}[yshift=-2.94cm]
+\draw[decorate,decoration={brace,mirror,amplitude=3.5pt,raise=3pt},draw=ADSBlue,semithick]
+  (-0.44,-0.38) -- (1.31,-0.38);
+\draw[decorate,decoration={brace,mirror,amplitude=3.5pt,raise=3pt},draw=ADSRed,semithick]
+  (2.19,-0.38) -- (3.93,-0.38);
+\node[adslabel,anchor=north,color=ADSBlue] at (0.44,-0.78) {all $<6$};
+\node[adslabel,anchor=north,color=ADSRed]  at (3.06,-0.78) {all $>6$};
+\node[adslabel,anchor=north,color=ADSGreen] at (1.74,-0.78) {6 is final};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{clarification}
+The quick-sort slide says its ``average and worst-case complexities are $O(n^2)$, respectively,'' and gives best-case $O(n\log n)$. Standard algorithm analysis is: best $O(n\log n)$, average $O(n\log n)$, and worst $O(n^2)$. The discrepancy is surfaced explicitly here rather than silently changing the source.
+\end{clarification}
+
+\section{Heap sort}
+
+The heap-sort slide connects sorting with the heap from Trees II. It describes building a min-heap or max-heap from the array, then repeatedly eliminating elements from the heap portion and inserting them into the sorted portion.
+
+The slide states that heap sort is in-place and has time complexity $O(n\log n)$.
+
+\begin{lstlisting}
+void heapify(vector<int>& a, int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && a[left] > a[largest]) largest = left;
+    if (right < n && a[right] > a[largest]) largest = right;
+
+    if (largest != i) {
+        swap(a[i], a[largest]);
+        heapify(a, n, largest);
+    }
+}
+
+void heapSort(vector<int>& a) {
+    int n = static_cast<int>(a.size());
+    for (int i = n / 2 - 1; i >= 0; --i)
+        heapify(a, n, i);
+
+    for (int end = n - 1; end > 0; --end) {
+        swap(a[0], a[end]);
+        heapify(a, end, 0);
+    }
+}
+\end{lstlisting}
+
+\clearpage
+\section{Why the growth rate is what matters}
+
+Complexity classes are easy to treat as labels attached to algorithms. \figref{fig:bigo}
+shows what they actually claim. For a handful of items the difference is invisible --- at
+$n=10$ every one of these curves is small. The classes separate as $n$ grows, and they
+separate violently.
+
+\begin{adsfig}[Growth of the complexity classes]{Operation counts for the complexity classes in this chapter. At $n=100$ a
+quadratic algorithm already does roughly 15 times the work of an $n\log n$ one; at $n=1000$
+it does about 100 times as much. This is why bubble sort and merge sort are not
+interchangeable even though both sort correctly.}{fig:bigo}
+\begin{tikzpicture}
+\begin{axis}[
+  width=11.2cm, height=6.4cm,
+  xlabel={input size $n$}, ylabel={operations},
+  xlabel style={font=\small\color{ADSMuted}},
+  ylabel style={font=\small\color{ADSMuted}},
+  tick label style={font=\scriptsize\color{ADSMuted}},
+  xmin=1, xmax=100, ymin=0, ymax=1000,
+  axis lines=left,
+  axis line style={draw=ADSMuted!60},
+  grid=major, grid style={draw=ADSPaleBlue},
+  legend style={font=\scriptsize, draw=ADSBlue!30, fill=white,
+                at={(1.02,1.0)}, anchor=north west},
+  legend cell align=left,
+  samples=100, domain=1:100
+]
+\addplot[very thick,ADSGreen] {ln(x)/ln(2)};       \addlegendentry{$O(\log n)$ binary search}
+\addplot[very thick,ADSBlue] {x};                  \addlegendentry{$O(n)$ linear search}
+\addplot[very thick,ADSTeal] {x*ln(x)/ln(2)};      \addlegendentry{$O(n\log n)$ merge, heap}
+\addplot[very thick,ADSRed] {x^2};                 \addlegendentry{$O(n^2)$ bubble, insertion}
+\end{axis}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{keyidea}
+Constant factors and hardware speed shift these curves up or down; they do not change their
+shape. A faster computer running an $O(n^2)$ sort still loses to a slower computer running an
+$O(n\log n)$ sort once $n$ is large enough --- and ``large enough'' arrives sooner than most
+people expect.
+\end{keyidea}
+
+\section{Algorithm comparison}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.18\linewidth}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Algorithm & Complexity stated in slides & Main slide idea \\
+\midrule
+Linear search & $O(n)$ & Check items one by one. \\
+Binary search & $O(\log n)$ & Sorted input; repeatedly choose one half. \\
+Bubble sort & $O(n^2)$ & Swap adjacent out-of-order elements. \\
+Insertion sort & Best comparisons $O(n)$; worst $O(n^2)$ & Insert into a growing sorted subarray. \\
+Selection sort & Average/worst $O(n^2)$ & Select smallest remaining item. \\
+Merge sort & Not stated & Divide, sort halves, merge. \\
+Quick sort & Slide wording has a complexity inconsistency & Partition around a pivot and recurse. \\
+Heap sort & $O(n\log n)$ & Use heap ordering to extract elements. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\subsection{Standard analysis for reference}
+
+The table above records what the slides state. The one below gives the conventional
+textbook analysis of the same algorithms, including two properties the slides do not
+discuss: extra space, and \term{stability} --- whether equal elements keep their original
+relative order, which matters when sorting records by a secondary key.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.155\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}
+  >{\centering\arraybackslash}p{0.135\linewidth}
+  >{\centering\arraybackslash}p{0.10\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Algorithm & Best & Average & Worst & Space & Stable \\
+\midrule
+Bubble sort    & $O(n)$        & $O(n^2)$      & $O(n^2)$      & $O(1)$      & yes \\
+Insertion sort & $O(n)$        & $O(n^2)$      & $O(n^2)$      & $O(1)$      & yes \\
+Selection sort & $O(n^2)$      & $O(n^2)$      & $O(n^2)$      & $O(1)$      & no  \\
+Merge sort     & $O(n\log n)$  & $O(n\log n)$  & $O(n\log n)$  & $O(n)$      & yes \\
+Quick sort     & $O(n\log n)$  & $O(n\log n)$  & $O(n^2)$      & $O(\log n)$ & no  \\
+Heap sort      & $O(n\log n)$  & $O(n\log n)$  & $O(n\log n)$  & $O(1)$      & no  \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{clarification}
+This table is standard algorithm analysis, not slide content. It is included because the
+slide deck states complexities inconsistently for quick sort and omits merge sort entirely.
+Where the two tables disagree, the discrepancy is the point: check which convention your
+assessment expects.
+\end{clarification}
+
+\begin{intuition}
+Bubble and insertion sort reach $O(n)$ in the best case only because they can detect that
+the data is already ordered and stop early. Selection sort cannot: it must scan the entire
+unsorted region to be sure it has found the minimum, so its best case is no better than its
+worst.
+\end{intuition}
+
+\begin{quickcheck}
+Why does binary search require sorted data? Explain in one sentence how insertion sort and selection sort differ in the way they grow the sorted portion.
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Linear search scans; binary search repeatedly halves a sorted search range.
+  \item Internal sorting fits the dataset in memory; external sorting addresses data too large to fit at once.
+  \item Bubble, insertion, and selection sort are comparison-based methods with quadratic worst-case behavior in the slides.
+  \item Merge sort and quick sort use divide and conquer.
+  \item Heap sort reuses the heap structure and is stated as $O(n\log n)$.
+  \item Complexity claims must be read with their assumptions; the quick-sort slide discrepancy is explicitly noted.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/10-searching-sorting}

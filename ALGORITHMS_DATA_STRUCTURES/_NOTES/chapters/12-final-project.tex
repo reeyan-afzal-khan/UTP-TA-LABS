@@ -125,21 +125,30 @@ A practical screen flow is:
   \item Show a comparison table and one plain-language interpretation.
 \end{mlsteps}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=3.1cm,minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
-]
-\node[box] (input) {Input / Generate Data};
-\node[box,right=0.7cm of input] (run) {Run Both Algorithms};
-\node[box,right=0.7cm of run] (metrics) {Collect Metrics};
-\node[box,below=0.8cm of run] (compare) {Side-by-Side Result + Visual};
-\draw[arr] (input)--(run);
-\draw[arr] (run)--(metrics);
-\draw[arr] (metrics.south) |- (compare.east);
-\draw[arr] (run)--(compare);
+\begin{adsfig}[Comparison application screen flow]{Screen flow for the comparison application. The two algorithms must receive
+equivalent copies of the same input, or the measured difference reflects the data rather
+than the algorithms.}{fig:app-flow}
+\begin{tikzpicture}[font=\small,
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=2.9cm,
+              minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}},
+  outbox/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=2mm,minimum width=6.4cm,
+              minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}}]
+\node[box] (input) at (0,0) {Input / Generate\\Data};
+\node[box,fill=ADSPaleOrange,draw=ADSOrange] (val) at (3.5,0) {Validate\\preconditions};
+\node[box] (a1) at (7.4,0.75) {Run Algorithm 1};
+\node[box] (a2) at (7.4,-0.75) {Run Algorithm 2};
+\node[outbox] (out) at (3.5,-2.3) {Side-by-side result: steps, time, visual trace};
+\draw[adsarrow] (input)--(val);
+\draw[adsarrow] (val.east) -- ++(0.4,0) |- (a1.west);
+\draw[adsarrow] (val.east) -- ++(0.4,0) |- (a2.west);
+\draw[adsarrow] (a1.east) -- ++(0.4,0) |- (0,-2.3) -- (out.west);
+\draw[adsarrow] (a2.east) -- ++(0.4,0) |- (0,-2.3);
+\node[adslabel,anchor=south,align=center,color=ADSOrange] at (3.5,0.62)
+  {e.g. ``binary search\\requires sorted data''};
+\node[adslabel,anchor=north,align=center] at (3.5,-3.0)
+  {identical input copies $\rightarrow$ any difference is the algorithm};
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 \section{Report structure required by the guideline}
 

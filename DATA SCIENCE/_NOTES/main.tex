@@ -196,43 +196,18 @@
 \newenvironment{dssteps}{\begin{enumerate}[label=\textcolor{DSBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}{\end{enumerate}}
 \newcommand{\term}[1]{\textbf{\color{DSNavy}#1}}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Introduction to Data Science}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  Concise, lab-aligned notes on R programming, data structures, data management,
+  visualization, correlation, transformation, and scaling.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.0cm}
-{\color{DSTeal}\rule{0.72\linewidth}{2pt}}\\[0.9cm]
-{\Huge\bfseries\color{DSNavy} Introduction to Data Science Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{DSBlue} R Programming, Data Management, Visualization, and Analysis\par}
-\vspace{0.35cm}
-{\large\color{DSMuted} TEB2164\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[
-  node distance=0.65cm,
-  box/.style={draw=DSBlue,fill=DSPaleBlue,rounded corners=2mm,minimum width=3.35cm,minimum height=1.35cm,align=center,font=\bfseries\small\color{DSNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=DSTeal}
-]
-\node[box] (code) {R BASICS\\syntax and control};
-\node[box,right=of code] (data) {DATA\\structures and frames};
-\node[box,right=of data] (insight) {INSIGHT\\plots and analysis};
-\draw[arr] (code) -- (data);
-\draw[arr] (data) -- (insight);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=DSPaleOrange,colframe=DSOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-Concise, lab-aligned notes on R programming, data structures, data management, visualization, correlation, transformation, and scaling.
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par Mohd Safuwan Shahabudin\par}
-\vspace{0.5cm}
-{\color{DSMuted} Department of Computing\par Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
-{\color{DSTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage
 \pagenumbering{roman}

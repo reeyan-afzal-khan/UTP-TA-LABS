@@ -393,42 +393,19 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Machine Learning}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A step-by-step path through data preparation, shared mathematical
+  foundations, supervised and unsupervised learning, and directions for
+  further study.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.1cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{MLNavy} Machine Learning Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{MLBlue} A Step-by-Step Guide from Foundations to Learning Paradigms\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[
-  node distance=0.8cm and 0.7cm,
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=4.0cm,minimum height=1.5cm,align=center,font=\bfseries\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}
-]
-\node[box] (data) {DATA\\rows and features};
-\node[box,right=of data] (learn) {LEARN\\patterns and rules};
-\node[box,right=of learn] (predict) {USE\\predict or discover};
-\draw[arr] (data) -- (learn);
-\draw[arr] (learn) -- (predict);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.80\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-A step-by-step path through data preparation, shared mathematical foundations, supervised and unsupervised learning, and directions for further study\\[0.25em]
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.5cm}
-{\color{MLMuted} Graduate Research Assistant, Department of Computing \par}
-{\color{MLMuted} Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage
 \pagenumbering{roman}

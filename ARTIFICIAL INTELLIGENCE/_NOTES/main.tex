@@ -25,8 +25,13 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
 \usepackage{listings}
+\usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds,
+  matrix,decorations.pathreplacing,decorations.pathmorphing,patterns,chains,angles,quotes}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{multirow}
 \usepackage{pgfplots}
 \pgfplotsset{
   compat=1.18,
@@ -64,7 +69,7 @@
 
 \color{MLInk}
 \hypersetup{
-  pdftitle={Artificial Intelligence Notes: Course Edition},
+  pdftitle={Artificial Intelligence},
   pdfauthor={Reeyan Afzal Khan},
   pdfsubject={Artificial intelligence laboratory notes covering search, fuzzy systems, robotics, natural language processing, and genetic algorithms},
   pdfkeywords={artificial intelligence, search, fuzzy logic, adaptive neuro-fuzzy inference system, robotics, natural language processing, genetic algorithm},
@@ -376,6 +381,73 @@
 }
 
 % ---------- Standalone lab breaks inside the full book ----------
+% ---------- Captioned figures ----------
+\captionsetup{
+  hypcap=false,
+  font={small},
+  labelfont={bf,color=MLNavy},
+  textfont={color=MLInk},
+  labelsep=period,
+  justification=centering,
+  skip=4pt
+}
+% #1 (optional) short caption for the List of Figures; #2 full caption; #3 label
+\newenvironment{aifig}[3][\relax]
+  {\def\aifigshort{#1}\def\aifigcap{#2}\def\aifiglab{#3}%
+   \par\addvspace{0.55em}%
+   \begin{tcolorbox}[enhanced,breakable,colback=white,colframe=MLBlue!32,
+     boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.6mm,bottom=2.2mm]
+   \centering}
+  {\par\vspace{0.45em}%
+   \begingroup\setlength{\parskip}{0pt}%
+   \ifx\aifigshort\relax
+     \captionof{figure}{\aifigcap}%
+   \else
+     \captionof{figure}[\aifigshort]{\aifigcap}%
+   \fi
+   \label{\aifiglab}%
+   \endgroup
+   \end{tcolorbox}%
+   \par\addvspace{0.55em}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+
+% ---------- Complexity / quality badges ----------
+\newcommand{\cxg}[1]{{\color{MLGreen}\bfseries $#1$}}
+\newcommand{\cxo}[1]{{\color{MLOrange}\bfseries $#1$}}
+\newcommand{\cxr}[1]{{\color{MLRed}\bfseries $#1$}}
+
+% ---------- Shared TikZ styles ----------
+\tikzset{
+  aicell/.style={draw=MLBlue,fill=MLPaleBlue,minimum width=1.0cm,minimum height=0.8cm,
+                 font=\small\bfseries\color{MLNavy},inner sep=1pt},
+  aihot/.style={draw=MLOrange,fill=MLPaleOrange,minimum width=1.0cm,minimum height=0.8cm,
+                 font=\small\bfseries\color{MLNavy},line width=1pt,inner sep=1pt},
+  aidone/.style={draw=MLGreen,fill=MLPaleTeal,minimum width=1.0cm,minimum height=0.8cm,
+                 font=\small\bfseries\color{MLNavy},inner sep=1pt},
+  aidim/.style={draw=MLMuted!45,fill=MLPaleGray,minimum width=1.0cm,minimum height=0.8cm,
+                 font=\small\color{MLMuted},inner sep=1pt},
+  aiwall/.style={draw=MLNavy,fill=MLNavy!82,minimum width=1.0cm,minimum height=0.8cm,
+                 inner sep=1pt},
+  ainode/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=8mm,
+                 font=\small\bfseries\color{MLNavy},inner sep=0.5pt},
+  ainodehot/.style={circle,draw=MLOrange,fill=MLPaleOrange,minimum size=8mm,line width=1pt,
+                 font=\small\bfseries\color{MLNavy},inner sep=0.5pt},
+  ainodedone/.style={circle,draw=MLGreen,fill=MLPaleTeal,minimum size=8mm,
+                 font=\small\bfseries\color{MLNavy},inner sep=0.5pt},
+  ainodedim/.style={circle,draw=MLMuted!45,fill=MLPaleGray,minimum size=8mm,
+                 font=\small\color{MLMuted},inner sep=0.5pt},
+  aiarrow/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal},
+  aiptr/.style={-{Stealth[length=2mm]},semithick,draw=MLBlue},
+  aiedge/.style={thick,draw=MLTeal},
+  ailabel/.style={font=\scriptsize\color{MLMuted},inner sep=1pt},
+  aitag/.style={font=\scriptsize\bfseries\color{MLOrange},inner sep=1pt},
+  aibrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=MLMuted,semithick},
+  aibox/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,align=center,
+                font=\small\color{MLNavy},inner sep=2.2mm},
+  aistage/.style={draw=MLNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
+                 font=\scriptsize\color{MLNavy},align=center,inner sep=2pt}
+}
+
 \newcommand{\labsection}[3]{%
   \clearpage
   \phantomsection
@@ -426,42 +498,18 @@
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Artificial Intelligence}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  Eight laboratory-guided modules covering search, fuzzy systems, robotics,\\
+  natural language processing, and evolutionary optimization.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.1cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{MLNavy} Artificial Intelligence Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{MLBlue} Search, Reasoning, Robotics, Language, and Evolutionary Optimization\par}
-\vspace{0.8cm}
-\begin{tikzpicture}[
-  node distance=0.8cm and 0.55cm,
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=4.55cm,minimum height=1.75cm,inner xsep=4mm,inner ysep=2.5mm,align=center,font=\bfseries\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=MLTeal}
-]
-\node[box] (represent) {REPRESENT\\states, costs, language};
-\node[box,right=of represent] (reason) {REASON\\search, rules, optimization};
-\node[box,right=of reason] (act) {ACT\\predict, control, decide};
-\draw[arr] (represent) -- (reason);
-\draw[arr] (reason) -- (act);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=MLPaleOrange,colframe=MLOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-Eight laboratory-guided modules covering search, fuzzy systems, robotics, natural language processing, and evolutionary optimization.\\[0.25em]
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.5cm}
-{\color{MLMuted} Graduate Research Assistant, Department of Computing \par}
-{\color{MLMuted} Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
-{\color{MLTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage
 \pagenumbering{roman}
@@ -470,6 +518,11 @@ Eight laboratory-guided modules covering search, fuzzy systems, robotics, natura
 \small
 \setlength{\parskip}{0pt}
 \tableofcontents
+\endgroup
+\newpage
+\begingroup
+\small
+\setlength{\parskip}{0pt}
 \endgroup
 \newpage
 \hypersetup{pageanchor=true}
@@ -495,5 +548,8 @@ Eight laboratory-guided modules covering search, fuzzy systems, robotics, natura
 
 \part{Evolutionary Optimization}
 \input{chapters/08-genetic-algorithms}
+
+\appendix
+\input{chapters/appendix-reference}
 
 \end{document}

@@ -108,23 +108,66 @@ A value near 1 indicates high directional similarity.
 A word embedding replaces a word with a numerical vector. Averaging the word vectors gives one rough vector for a sentence. Cosine similarity then asks whether the two sentence vectors point in similar directions.
 \end{intuition}
 
-\begin{mlfigure}
+\figref{fig:embedding} shows why that averaging step is defensible. In a trained embedding
+space, words used in similar contexts end up close together, so the average of a sentence's
+word vectors lands in the region of meaning that the sentence is about. The space in the lab
+has hundreds of dimensions; the two drawn here stand in for that.
+
+\begin{aifig}[Words clustered in embedding space]{A two-dimensional sketch of an embedding
+space. Words that appear in similar contexts sit near one another, and a sentence vector ---
+the average of its word vectors --- lands inside the relevant cluster. This is what makes
+comparing two averaged sentences meaningful at all.}{fig:embedding}
+\begin{tikzpicture}[font=\small,x=1cm,y=1cm]
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(8.4,0) node[right,font=\scriptsize] {dim 1};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,4.0) node[above,font=\scriptsize] {dim 2};
+% cluster 1: animals
+\begin{scope}
+\fill[MLPaleBlue,opacity=0.85] (1.75,2.85) circle (1.15);
+\foreach \x/\y/\w in {1.15/2.75/cat, 2.05/3.35/dog, 2.35/2.45/puppy, 1.35/2.15/kitten}{
+  \node[circle,fill=MLBlue,inner sep=1.4pt] at (\x,\y) {};
+  \node[font=\scriptsize\color{MLNavy},anchor=west] at (\x+0.12,\y) {\w};}
+\node[font=\scriptsize\bfseries\color{MLBlue}] at (1.75,4.25) {animals};
+\end{scope}
+% cluster 2: vehicles
+\begin{scope}
+\fill[MLPaleTeal,opacity=0.85] (6.1,1.35) circle (1.15);
+\foreach \x/\y/\w in {5.45/1.15/car, 6.35/1.85/truck, 6.55/0.85/van, 5.65/1.95/bus}{
+  \node[circle,fill=MLTeal,inner sep=1.4pt] at (\x,\y) {};
+  \node[font=\scriptsize\color{MLNavy},anchor=west] at (\x+0.12,\y) {\w};}
+\node[font=\scriptsize\bfseries\color{MLTeal}] at (6.1,-0.35) {vehicles};
+\end{scope}
+% sentence vector
+\draw[-{Stealth[length=2.5mm]},very thick,draw=MLOrange] (0,0)--(1.72,2.68);
+\node[circle,fill=MLOrange,inner sep=2pt] at (1.72,2.68) {};
+\node[font=\scriptsize\bfseries\color{MLOrange},anchor=west,align=left] at (2.9,3.75)
+  {average of ``the cat and\\the dog'' lands here};
+\draw[draw=MLOrange,thin,dashed] (1.9,2.75) -- (2.85,3.6);
+\end{tikzpicture}
+\end{aifig}
+
+\begin{aifig}[Cosine similarity measures angle, not length]{Cosine compares direction only. $\mathbf{u}$ and $\mathbf{v}$ sit $13^\circ$ apart and score $0.97$. $\mathbf{w}$ has almost the same \emph{length} as $\mathbf{u}$ ($3.58$ against $3.59$) yet scores $0.56$ --- length carries no weight.}{fig:cosine}
 \begin{tikzpicture}[x=1.2cm,y=1.2cm]
-  \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.15,0)--(4.2,0) node[right,font=\scriptsize] {dimension 1};
-  \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.15)--(0,2.7) node[above,font=\scriptsize] {dimension 2};
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.15,0)--(4.3,0) node[right,font=\scriptsize] {dimension 1};
+  \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.15)--(0,3.1) node[above,font=\scriptsize] {dimension 2};
   \draw[-{Stealth[length=2.5mm]},very thick,draw=MLBlue] (0,0)--(3.4,1.15)
     node[right,font=\small\bfseries\color{MLBlue}] {$\mathbf{u}$};
   \draw[-{Stealth[length=2.5mm]},very thick,draw=MLTeal] (0,0)--(2.8,1.75)
     node[above right,font=\small\bfseries\color{MLTeal}] {$\mathbf{v}$};
+  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLRed] (0,0)--(0.95,3.45)
+    node[left,font=\small\bfseries\color{MLRed}] {$\mathbf{w}$};
   \draw[-{Stealth[length=1.5mm]},draw=MLOrange,thick]
     (0.92,0.31) arc[start angle=18.7,end angle=32,radius=0.97];
-  \node[font=\scriptsize\bfseries\color{MLOrange!85!black}] at (1.15,0.55) {$\theta$};
-  \node[align=left,font=\scriptsize\color{MLMuted}] at (3.45,2.35)
-    {small angle $\Rightarrow$\\high cosine similarity};
+  \node[font=\scriptsize\bfseries\color{MLOrange!85!black}] at (1.18,0.56) {$\theta$};
+  \node[align=left,font=\scriptsize\color{MLMuted},anchor=west] at (3.55,2.35)
+    {$\cos\theta=0.97$\\$13^\circ$ apart: similar};
+  \node[align=left,font=\scriptsize\color{MLRed},anchor=west] at (1.35,3.25)
+    {$\cos=0.56$ against $\mathbf{u}$\\same length, different direction};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
-Cosine similarity compares direction, not magnitude. Two sentences can have vectors of different lengths and still be judged similar when the vectors point in nearly the same direction. A vector pointing in the opposite direction has a negative cosine, while perpendicular vectors have cosine zero.
+Cosine similarity compares direction, not magnitude: opposite vectors score negative,
+perpendicular ones score zero, and length is ignored entirely. In \figref{fig:cosine},
+$\mathbf{u}$ and $\mathbf{w}$ are almost the same length yet score only $0.56$.
 
 \begin{workedexample}
 For a small numerical check, let \(\mathbf{u}=(1,1)\) and \(\mathbf{v}=(2,1)\). Their dot product is 3, their norms are \(\sqrt{2}\) and \(\sqrt{5}\), and their cosine similarity is
@@ -135,6 +178,33 @@ The value is high because the vectors point in similar directions; MATLAB applie
 \end{workedexample}
 
 \section{Image captioning using AlexNet: a classification-based simulation}
+
+\figref{fig:alexnet} shows what the pipeline really does. AlexNet returns one class label;
+the ``caption'' is that label dropped into a fixed sentence template. Nothing in the system
+describes a scene --- it names an object and wraps it in words.
+
+\begin{aifig}[Classification dressed as captioning]{The Lab 6 captioning pipeline. A real
+captioning model generates a sentence conditioned on the image; this one substitutes a class
+label into a template, so it can only ever say one thing per label.}{fig:alexnet}
+\begin{tikzpicture}[font=\small]
+\node[aibox,minimum width=1.9cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
+  (im) at (0,0) {image\\\texttt{plane.jpg}};
+\node[aibox,minimum width=2.3cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy},
+      fill=MLPaleOrange,draw=MLOrange] (net) at (2.85,0) {AlexNet\\1000 classes};
+\node[aibox,minimum width=2.1cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
+  (lab) at (5.75,0) {label\\\texttt{"airliner"}};
+\node[aibox,minimum width=2.6cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
+  (tpl) at (8.75,0) {template\\\texttt{"This is a \_\_"}};
+\node[aibox,minimum width=3.1cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy},
+      fill=MLPaleTeal,draw=MLGreen] (out) at (12.2,0) {\texttt{"This is a airliner"}};
+\foreach \a/\b in {im/net, net/lab, lab/tpl, tpl/out}{\draw[aiarrow] (\a)--(\b);}
+\node[ailabel,anchor=north,color=MLOrange] at (2.85,-0.62) {learned};
+\node[ailabel,anchor=north,color=MLMuted] at (8.75,-0.62) {hard-coded};
+\node[ailabel,anchor=north,align=center,color=MLRed] at (6.1,-1.35)
+  {one label per image means one possible sentence per label:
+   the model cannot mention colour, count, or relationship};
+\end{tikzpicture}
+\end{aifig}
 
 The second Lab 6 example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
 
@@ -169,7 +239,10 @@ This is classification with a fixed caption template, not free-form image captio
 
 The third Lab 6 pipeline uses optical character recognition (OCR) to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet application programming interface (API).
 
-\begin{mlfigure}
+\begin{aifig}[The OCR and translation pipeline]{The scene-text pipeline. Only the OCR stage
+is a learned model; normalisation and lookup are ordinary string handling, which is why the
+whole thing runs without a network connection --- and why an unseen word simply fails to
+translate.}{fig:ocr-pipeline}
 \begin{tikzpicture}[
   b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.45cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
@@ -180,8 +253,10 @@ The third Lab 6 pipeline uses optical character recognition (OCR) to extract pri
 \node[b,right=0.30cm of norm] (dict) {Dictionary lookup};
 \node[b,right=0.30cm of dict] (out) {Translated text};
 \draw[arr] (img)--(ocr); \draw[arr] (ocr)--(norm); \draw[arr] (norm)--(dict); \draw[arr] (dict)--(out);
+\node[font=\scriptsize\color{MLOrange}] at (2.75,-0.85) {learned};
+\node[font=\scriptsize\color{MLMuted}] at (8.3,-0.85) {hard-coded};
 \end{tikzpicture}
-\end{mlfigure}
+\end{aifig}
 
 \begin{lstlisting}[style=mlmatlab]
 img = imread('street.jpg');

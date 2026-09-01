@@ -8,21 +8,23 @@ A \term{queue} is a linear data structure that follows \term{FIFO}: First In, Fi
 
 \section{Front and rear}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
- cell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=1.55cm,minimum height=0.82cm,font=\bfseries\color{ADSNavy}},
- arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
-]
-\node[cell] (a) {A};
-\node[cell,right=-\pgflinewidth of a] (b) {B};
-\node[cell,right=-\pgflinewidth of b] (c) {C};
-\node[cell,right=-\pgflinewidth of c] (d) {D};
-\node[below=0.35cm of a,font=\scriptsize\bfseries\color{ADSOrange}] {FRONT};
-\node[below=0.35cm of d,font=\scriptsize\bfseries\color{ADSOrange}] {REAR};
-\draw[arr] ([xshift=-1.3cm]a.west) -- (a.west) node[midway,above,font=\scriptsize\color{ADSMuted}] {dequeue};
-\draw[arr] (d.east) -- ++(1.3,0) node[midway,above,font=\scriptsize\color{ADSMuted}] {enqueue};
+\begin{adsfig}[The two ends of a queue]{A queue has two active ends. Items join at the rear and leave from the
+front, so the order of departure matches the order of arrival --- the opposite discipline
+to a stack.}{fig:queue-fifo}
+\begin{tikzpicture}
+\foreach \v [count=\i from 0] in {A,B,C,D}{
+  \node[adscell,minimum width=1.5cm,minimum height=0.82cm] (c\i) at (1.5*\i,0) {\v};
+}
+\node[adstag,anchor=north] at (0,-0.6) {FRONT};
+\node[adstag,anchor=north] at (4.5,-0.6) {REAR};
+\draw[adsarrow] (c0.west) -- ++(-1.5,0)
+  node[midway,above,adslabel] {dequeue}
+  node[midway,below,adslabel] {oldest leaves};
+\draw[adsarrow] (6.0,0) -- (c3.east)
+  node[midway,above,adslabel] {enqueue}
+  node[midway,below,adslabel] {newest joins};
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 The Week VI slides use the terms \term{Create Q}, \term{Enqueue(Q,item)}, and \term{Dequeue(Q)}. The enqueue operation is stated as $O(1)$ in the slide implementation model.
 
@@ -69,19 +71,83 @@ public:
 
 This model exposes the limitation described by the slides: after repeated dequeues, unused positions may exist at the beginning even though \texttt{rear} has reached the end of the array.
 
+\figref{fig:queue-falsefull} shows the failure. Both \texttt{front} and \texttt{rear} only
+ever move right, so the queue drifts up the array and eventually reports itself full while
+sitting on empty slots. Shifting everything back down would fix it, but that costs
+\cxr{O(n)} on every dequeue and throws away the whole point of the structure.
+
+\begin{adsfig}[The ``false full'' problem]{The ``false full'' problem in a linear array queue. After three enqueues and
+two dequeues, \texttt{rear} has reached the last index and further enqueues are rejected ---
+even though indices 0 and 1 are free. The array is not full; the queue has merely walked off
+the end of it.}{fig:queue-falsefull}
+\begin{tikzpicture}[font=\small]
+% state after 5 enqueues, 2 dequeues (capacity 5)
+\foreach \v [count=\i from 0] in {{},{},C,D,E}{
+  \ifx\v\empty
+    \node[adsdim,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {};
+  \else
+    \node[adscell,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {\v};
+  \fi
+  \node[adslabel] at (1.2*\i,-0.68) {\i};
+}
+\node[adstag,anchor=south] at (2.4,0.55) {front};
+\draw[adsptr,draw=ADSOrange] (2.4,0.52) -- (z2.north);
+\node[adstag,anchor=south] at (4.8,0.55) {rear};
+\draw[adsptr,draw=ADSOrange] (4.8,0.52) -- (z4.north);
+\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=3pt},draw=ADSGreen,semithick]
+  (-0.62,-0.9) -- (0.62,-0.9);
+\node[adslabel,anchor=north,color=ADSGreen,align=center] at (0,-1.3) {free, but\\unreachable};
+\node[adslabel,anchor=west,color=ADSRed,align=left] at (5.7,0)
+  {\texttt{enqueue(F)} fails:\\\texttt{rear} is at the last index};
+\end{tikzpicture}
+\end{adsfig}
+
 \section{Circular queue: reusing array space}
 
 The circular queue addresses that limitation by connecting the logical last position back to the first. The slides call this a \term{ring buffer} and state that modular arithmetic is used for enqueue and dequeue.
 
-\begin{mlfigure}
-\begin{tikzpicture}[font=\small\bfseries]
-\foreach \ang/\val in {90/0,30/1,-30/2,-90/3,-150/4,150/5}{
-  \node[circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=9mm] at (\ang:1.8cm) {\val};
+\begin{adsfig}[Circular queue wraparound]{The same five slots viewed as a ring. Advancing with $(\text{index}+1)\bmod N$
+sends \texttt{rear} from index 4 back to index 0, so the free space at the front of the array
+is reclaimed instead of stranded.}{fig:queue-circular}
+\begin{tikzpicture}[font=\small]
+% ring
+\foreach \idx/\ang in {0/90, 1/18, 2/-54, 3/-126, 4/162}{
+  \ifnum\idx<2
+    \node[adsdim,circle,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
+  \else
+    \node[adsnode,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
+  \fi
 }
-\draw[-{Stealth[length=2mm]},thick,draw=ADSTeal] (105:2.35cm) arc[start angle=105,end angle=-220,radius=2.35cm];
-\node at (0,0) {wrap around};
+\draw[adsarrow] (k0) to[bend left=20] (k1);
+\draw[adsarrow] (k1) to[bend left=20] (k2);
+\draw[adsarrow] (k2) to[bend left=20] (k3);
+\draw[adsarrow] (k3) to[bend left=20] (k4);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSOrange] (k4) to[bend left=20] (k0);
+\node[adslabel,align=center,color=ADSOrange] at (0,0) {$(4+1)\bmod5$\\$=0$};
+\node[adstag,anchor=east] at (162:2.5) {rear};
+\node[adstag,anchor=north west] at (-54:2.35) {front};
+
+% flat equivalent
+\begin{scope}[xshift=6.4cm,yshift=0.15cm]
+\foreach \v [count=\i from 0] in {F,{},C,D,E}{
+  \ifx\v\empty
+    \node[adsdim,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {};
+  \else
+    \ifnum\i=0
+      \node[adshot,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
+    \else
+      \node[adscell,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
+    \fi
+  \fi
+  \node[adslabel] at (1.05*\i,-0.62) {\i};
+}
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSOrange]
+  (w4.east) -- (4.98,0) -- (4.98,-1.3) -- (-0.98,-1.3) -- (-0.98,0) -- (w0.west);
+\node[adslabel,anchor=north,align=center] at (2.1,-1.42)
+  {\texttt{enqueue(F)} now succeeds: \texttt{rear} wraps to index 0};
+\end{scope}
 \end{tikzpicture}
-\end{mlfigure}
+\end{adsfig}
 
 For capacity $N$, moving to the next slot uses
 \[

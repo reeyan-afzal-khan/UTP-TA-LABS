@@ -24,10 +24,15 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
 \usepackage{listings}
+\usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds,matrix}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds,matrix,decorations.pathreplacing,decorations.pathmorphing,patterns,chains,shadows.blur}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepackage{float}
+\usepackage{caption}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{multirow}
 
 % ---------- Visual system ----------
 \definecolor{ADSNavy}{HTML}{18324A}
@@ -36,6 +41,7 @@
 \definecolor{ADSGreen}{HTML}{2D7D46}
 \definecolor{ADSOrange}{HTML}{C86B24}
 \definecolor{ADSRed}{HTML}{B34843}
+\definecolor{UTPGold}{HTML}{D4A13E}
 \definecolor{ADSInk}{HTML}{263238}
 \definecolor{ADSMuted}{HTML}{60717C}
 \definecolor{ADSPaleBlue}{HTML}{EEF6FB}
@@ -48,7 +54,7 @@
 \hypersetup{
   pdftitle={Algorithms and Data Structures Notes: Course Edition},
   pdfauthor={Reeyan Afzal Khan},
-  pdfsubject={TEB1113/TFB2023 Algorithms and Data Structures notes},
+  pdfsubject={Algorithms and Data Structures notes},
   pdfkeywords={algorithms, data structures, C++, arrays, linked lists, stacks, queues, trees, graphs, sorting, hashing},
   pdflang={en-US},
   bookmarksnumbered=true,
@@ -250,6 +256,82 @@
   fonttitle=\bfseries\color{white},colbacktitle=ADSOrange,title=Recommended workflow (added guidance)
 }
 
+% ---------- Captioned figures ----------
+\captionsetup{
+  hypcap=false,
+  font={small},
+  labelfont={bf,color=ADSNavy},
+  textfont={color=ADSInk},
+  labelsep=period,
+  justification=centering,
+  skip=4pt
+}
+% #1 (optional) short caption for the List of Figures; #2 full caption; #3 label
+\newenvironment{adsfig}[3][\relax]
+  {\def\adsfigshort{#1}\def\adsfigcap{#2}\def\adsfiglab{#3}%
+   \par\addvspace{0.55em}%
+   \begin{tcolorbox}[enhanced,breakable,colback=white,colframe=ADSBlue!32,
+     boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.6mm,bottom=2.2mm]
+   \centering}
+  {\par\vspace{0.45em}%
+   \begingroup\setlength{\parskip}{0pt}%
+   \ifx\adsfigshort\relax
+     \captionof{figure}{\adsfigcap}%
+   \else
+     \captionof{figure}[\adsfigshort]{\adsfigcap}%
+   \fi
+   \label{\adsfiglab}%
+   \endgroup
+   \end{tcolorbox}%
+   \par\addvspace{0.55em}}
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+
+% ---------- Pseudocode ----------
+\SetAlCapNameFnt{\bfseries\color{ADSNavy}}
+\SetAlCapFnt{\bfseries\color{ADSNavy}}
+\SetAlgoCaptionSeparator{.}
+\SetKwInput{KwIn}{Input}
+\SetKwInput{KwOut}{Output}
+\SetNlSty{color}{ADSMuted}{}
+\SetCommentSty{\itshape\color{ADSMuted}}
+\SetKwSty{bfseries\color{ADSBlue}}
+\SetArgSty{}
+\newcommand{\algostyle}{\small\SetAlgoNlRelativeSize{-1}\DontPrintSemicolon\SetAlgoVlined}
+
+% ---------- Complexity badges ----------
+\newcommand{\cxg}[1]{{\color{ADSGreen}\bfseries $#1$}}
+\newcommand{\cxo}[1]{{\color{ADSOrange}\bfseries $#1$}}
+\newcommand{\cxr}[1]{{\color{ADSRed}\bfseries $#1$}}
+
+% ---------- Shared TikZ styles ----------
+\tikzset{
+  adscell/.style={draw=ADSBlue,fill=ADSPaleBlue,minimum width=1.05cm,minimum height=0.85cm,
+                  font=\small\bfseries\color{ADSNavy},inner sep=1pt},
+  adshot/.style={draw=ADSOrange,fill=ADSPaleOrange,minimum width=1.05cm,minimum height=0.85cm,
+                  font=\small\bfseries\color{ADSNavy},line width=1pt,inner sep=1pt},
+  adsdone/.style={draw=ADSGreen,fill=ADSPaleTeal,minimum width=1.05cm,minimum height=0.85cm,
+                  font=\small\bfseries\color{ADSNavy},inner sep=1pt},
+  adsdim/.style={draw=ADSMuted!45,fill=ADSPaleGray,minimum width=1.05cm,minimum height=0.85cm,
+                  font=\small\color{ADSMuted},inner sep=1pt},
+  adsnode/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=8mm,
+                  font=\small\bfseries\color{ADSNavy},inner sep=0.5pt},
+  adsnodehot/.style={circle,draw=ADSOrange,fill=ADSPaleOrange,minimum size=8mm,line width=1pt,
+                  font=\small\bfseries\color{ADSNavy},inner sep=0.5pt},
+  adsnodedone/.style={circle,draw=ADSGreen,fill=ADSPaleTeal,minimum size=8mm,
+                  font=\small\bfseries\color{ADSNavy},inner sep=0.5pt},
+  adsarrow/.style={-{Stealth[length=2.2mm]},thick,draw=ADSTeal},
+  adsptr/.style={-{Stealth[length=2mm]},semithick,draw=ADSBlue},
+  adsdash/.style={-{Stealth[length=2mm]},semithick,draw=ADSRed,dashed},
+  adsedge/.style={thick,draw=ADSTeal},
+  adslabel/.style={font=\scriptsize\color{ADSMuted},inner sep=1pt},
+  adstag/.style={font=\scriptsize\bfseries\color{ADSOrange},inner sep=1pt},
+  adsbrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=ADSMuted,semithick},
+  adsstep/.style={draw=ADSNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
+                  font=\scriptsize\color{ADSNavy},align=center,inner sep=2pt},
+  adspanel/.style={draw=ADSBlue!30,fill=white,rounded corners=1.5mm,inner sep=2.5mm}
+}
+\newcommand{\ptrnull}{{\scriptsize\color{ADSMuted}NULL}}
+
 \newcommand{\labsection}[3]{%
   \clearpage
   \phantomsection%
@@ -284,44 +366,18 @@
 \newcommand{\chapref}[1]{Chapter~\ref{#1}}
 \newcommand{\secref}[1]{Section~\ref{#1}}
 
+% ---------- Course-specific cover content ----------
+\newcommand{\covercoursetitle}{Algorithms and Data Structures}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  C++ examples, guided laboratories, and comparative projects connect\\
+  data-structure choices with correctness and performance.%
+}
+
 \begin{document}
 \hypersetup{pageanchor=false}
 
-% ---------- Cover ----------
-\begin{titlepage}
-\centering
-\vspace*{1.1cm}
-{\color{ADSTeal}\rule{0.72\linewidth}{2pt}}\\[1.0cm]
-{\Huge\bfseries\color{ADSNavy} Algorithms and Data Structures Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{ADSBlue} A Step-by-Step C++ Guide from Arrays to Hashing\par}
-\vspace{0.9cm}
-\begin{tikzpicture}[
-  node distance=0.65cm and 0.45cm,
-  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=1.35cm,align=center,font=\bfseries\small\color{ADSNavy}},
-  arr/.style={-{Stealth[length=2.4mm]},very thick,draw=ADSTeal}
-]
-\node[box] (linear) {LINEAR\\arrays, lists, stacks};
-\node[box,right=of linear] (hier) {HIERARCHICAL\\trees};
-\node[box,right=of hier] (network) {NETWORK\\graphs};
-\node[box,right=of network] (access) {FAST ACCESS\\search, sort, hash};
-\draw[arr] (linear) -- (hier);
-\draw[arr] (hier) -- (network);
-\draw[arr] (network) -- (access);
-\end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=ADSPaleOrange,colframe=ADSOrange,arc=2mm,boxrule=0.16pt]
-\centering\small
-Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides, the official lab manual, and the final-project guidelines. Source terminology and required tasks are preserved; where standard computer-science conventions or teaching guidance add context, the addition is explicitly labelled.
-\end{tcolorbox}
-\vfill
-{\Large\bfseries Reeyan Afzal Khan\par}
-\vspace{0.35cm}
-{\color{ADSMuted} Department of Computing\par}
-{\color{ADSMuted} Universiti Teknologi PETRONAS\par}
-\vspace{0.8cm}
-{\color{ADSTeal}\rule{0.72\linewidth}{2pt}}
-\end{titlepage}
+\input{cover}
 
 \cleardoublepage%
 \pagenumbering{roman}
@@ -330,6 +386,12 @@ Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides,
 \small
 \setlength{\parskip}{0pt}
 \tableofcontents
+\endgroup
+\newpage
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\renewcommand{\cftloftitlefont}{\Huge\bfseries\color{ADSNavy}}
 \endgroup
 \newpage
 \hypersetup{pageanchor=true}
@@ -362,5 +424,9 @@ Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides,
 
 \part{Course Project and Synthesis}
 \input{chapters/12-final-project}
+
+\appendix
+\renewcommand{\cftchappresnum}{Appendix~}
+\input{chapters/appendix-reference}
 
 \end{document}

@@ -1,0 +1,350 @@
+\chapter{Linked Lists I: Singly and Doubly Linked Lists}\label{ch:linked-lists}
+
+\chapterguide%
+  {Know how arrays store data contiguously and provide direct index access.}
+  {explain nodes, head pointers, and address fields; compare arrays and linked lists; distinguish singly and doubly linked lists; and trace insertion, deletion, and traversal.}
+
+A linked list is a linear data structure made of a sequence of \term{nodes}. Each node stores data and one or more addresses that connect it to adjacent nodes. Unlike an array, the nodes do not need to occupy one contiguous block of memory.
+
+\section{The basic node model}
+
+The Week III slides describe a node as having two conceptual parts: a data field and an address field. The address field stores where an adjacent node can be found.
+
+\begin{adsfig}[Anatomy of a singly linked list]{Anatomy of a singly linked list. Each node is split into a data field and a
+\texttt{next} field holding the address of its successor. Note the addresses: the nodes are
+scattered across memory, and the list holds together only because each one records where
+the next lives.}{fig:sll-anatomy}
+\begin{tikzpicture}[font=\small]
+\def\nw{1.15}
+\foreach \v/\addr/\nxt [count=\i from 0] in {10/2040/3160, 20/3160/1004, 30/1004/{}}{
+  \pgfmathsetmacro{\x}{4.3*\i}
+  \node[adscell,minimum width=\nw cm,minimum height=0.9cm] (d\i) at (\x,0) {\v};
+  \ifx\nxt\empty
+    \node[adscell,minimum width=\nw cm,minimum height=0.9cm,fill=ADSPaleGray,
+          font=\scriptsize\color{ADSMuted}] (p\i) at (\x+\nw,0) {NULL};
+  \else
+    \node[adscell,minimum width=\nw cm,minimum height=0.9cm,fill=white,
+          font=\scriptsize\color{ADSBlue}] (p\i) at (\x+\nw,0) {\nxt};
+  \fi
+  \node[adslabel,anchor=north,align=center] at (\x+0.575*\nw,-0.58) {node at \texttt{\addr}};
+}
+\node[adslabel,anchor=south] at (0,0.52) {data};
+\node[adslabel,anchor=south] at (\nw,0.52) {next};
+\foreach \i in {0,1}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[adsptr] (p\i.south) -- ++(0,-0.34) -| (d\j.south);
+}
+\node[adstag,anchor=east] at (-0.85,0) {HEAD};
+\draw[adsptr,draw=ADSOrange] (-0.8,0) -- (d0.west);
+\end{tikzpicture}
+\end{adsfig}
+
+The \term{head} identifies the first node. From the head, the remaining nodes are reached by repeatedly following the stored links.
+
+\begin{keyidea}
+An array answers ``where is item $i$?'' by index arithmetic. A linked list answers it by following a chain of pointers from the head.
+\end{keyidea}
+
+\section{Why use a linked list?}
+
+The Week III slides give four advantages.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Advantage & Meaning \\
+\midrule
+Dynamic size & Memory can be allocated when a new node is needed. \\
+Easy insertion/deletion & Nodes can be added or removed by changing pointers rather than shifting a whole block of elements. \\
+Flexible memory use & Nodes do not need to occupy contiguous addresses. \\
+Useful for ADTs & Linked nodes can support stacks, queues, and graph representations later in the course. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Limitations of linked lists}
+
+The slide deck also emphasizes three disadvantages:
+
+\begin{itemize}
+  \item \term{No random access.} Reaching a node normally starts from the head.
+  \item \term{Search is slower than direct array access.} A sequential search takes $O(n)$ in the stated model.
+  \item \term{Extra memory is required.} Every node stores one or more pointer fields.
+\end{itemize}
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\small]
+\node[draw=ADSBlue,fill=ADSPaleBlue,rounded corners=1mm,minimum width=5.3cm,minimum height=0.8cm,align=center] (a) {Array: \texttt{A[3]} $\rightarrow$ direct access};
+\node[draw=ADSTeal,fill=ADSPaleTeal,rounded corners=1mm,minimum width=9.4cm,minimum height=0.8cm,align=center,below=0.45cm of a] (b) {Linked list: Head $\rightarrow$ Node1 $\rightarrow$ Node2 $\rightarrow$ Node3};
+\end{tikzpicture}
+\end{mlfigure}
+
+\section{Singly linked lists}
+
+A singly linked list node contains a data field and a \texttt{next} pointer. From a given node, the list can move forward to the next node, but there is no direct link back to the previous one.
+
+\begin{lstlisting}
+struct Node {
+    int data;
+    Node* next;
+};
+\end{lstlisting}
+
+The slide deck names three basic operations: insertion, deletion, and traversal.
+
+\subsection{Traversal}
+
+\begin{lstlisting}
+void display(Node* head) {
+    Node* current = head;
+    while (current != nullptr) {
+        cout << current->data << ' ';
+        current = current->next;
+    }
+    cout << '\n';
+}
+\end{lstlisting}
+
+Every visited node advances the pointer one link. If the desired element is near the end, most of the list may need to be visited.
+
+\subsection{Insert at the beginning}
+
+\begin{mlsteps}
+  \item Allocate a new node.
+  \item Point the new node's \texttt{next} to the current head.
+  \item Move \texttt{head} to the new node.
+\end{mlsteps}
+
+\begin{lstlisting}
+void pushFront(Node*& head, int value) {
+    Node* n = new Node{value, head};
+    head = n;
+}
+\end{lstlisting}
+
+\figref{fig:sll-insert-head} shows why the order of those two assignments matters. The new
+node must be told about the old first node \emph{before} \texttt{head} is moved. Reversing
+the steps overwrites the only reference to the rest of the list.
+
+\begin{adsfig}[Insertion at the head, step by step]{Inserting 5 at the front. Step~2 must happen before step~3: once \texttt{head}
+has been reassigned, nothing else points at node 10, and the remainder of the list is
+unreachable.}{fig:sll-insert-head}
+\begin{tikzpicture}[font=\small]
+\def\dx{1.62}
+% ---- state 1 ----
+\node[adslabel,anchor=east,align=right] at (-1.15,0) {\textbf{1.} allocate\\the new node};
+\node[adsnode,minimum size=8.5mm,draw=ADSMuted!60,fill=white] (n5) at (-0.35,0) {5};
+\node[adslabel,anchor=north,color=ADSMuted] at (-0.35,-0.52) {\texttt{next} = ?};
+\foreach \v [count=\i from 0] in {10,20,30}{
+  \node[adsnode,minimum size=8.5mm] (a\i) at (1.35+\dx*\i,0) {\v};
+}
+\draw[adsarrow] (a0)--(a1); \draw[adsarrow] (a1)--(a2);
+\node[adslabel,anchor=west] at ([xshift=1.5mm]a2.east) {\ptrnull};
+\node[adstag,anchor=south] at (1.35,0.72) {HEAD};
+\draw[adsptr,draw=ADSOrange] (1.35,0.68) -- (a0.north);
+
+% ---- state 2 ----
+\begin{scope}[yshift=-2.75cm]
+\node[adslabel,anchor=east,align=right] at (-1.15,0) {\textbf{2.} link it to\\the old head};
+\node[adsnodehot,minimum size=8.5mm] (m5) at (-0.35,0) {5};
+\foreach \v [count=\i from 0] in {10,20,30}{
+  \node[adsnode,minimum size=8.5mm] (b\i) at (1.35+\dx*\i,0) {\v};
+}
+\draw[adsarrow] (b0)--(b1); \draw[adsarrow] (b1)--(b2);
+\node[adslabel,anchor=west] at ([xshift=1.5mm]b2.east) {\ptrnull};
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSOrange] (m5) -- (b0);
+\node[adstag,anchor=south] at (1.35,0.72) {HEAD};
+\draw[adsptr,draw=ADSOrange] (1.35,0.68) -- (b0.north);
+\node[adslabel,anchor=north,color=ADSOrange] at (0.5,-0.42) {\texttt{n->next = head}};
+\end{scope}
+
+% ---- state 3 ----
+\begin{scope}[yshift=-5.5cm]
+\node[adslabel,anchor=east,align=right] at (-1.15,0) {\textbf{3.} move the\\head pointer};
+\node[adsnodedone,minimum size=8.5mm] (c5) at (-0.35,0) {5};
+\foreach \v [count=\i from 0] in {10,20,30}{
+  \node[adsnode,minimum size=8.5mm] (c\i) at (1.35+\dx*\i,0) {\v};
+}
+\draw[adsarrow] (c0)--(c1); \draw[adsarrow] (c1)--(c2);
+\node[adslabel,anchor=west] at ([xshift=1.5mm]c2.east) {\ptrnull};
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSGreen] (c5) -- (c0);
+\node[adstag,anchor=south,color=ADSGreen] at (-0.35,0.72) {HEAD};
+\draw[adsptr,draw=ADSGreen] (-0.35,0.68) -- (c5.north);
+\node[adslabel,anchor=north,color=ADSGreen] at (0.5,-0.42) {\texttt{head = n}};
+% ghost of the old head pointer
+\draw[adsptr,draw=ADSMuted!45,dashed] (1.35,0.68) -- (c0.north);
+\node[adslabel,anchor=south,color=ADSMuted!70] at (1.35,0.72) {\scriptsize was};
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\subsection{Delete by value}
+
+The Week III lab asks for deletion by value. A singly linked list must preserve access to the previous node so its \texttt{next} link can bypass the deleted node.
+
+\figref{fig:sll-delete} shows the reason. Deleting node 20 means node 10 must be made to
+point at node 30 --- but from node 20 there is no way back to node 10. The traversal must
+therefore stop one node \emph{early}, which is why the loop above tests
+\texttt{current->next->data} rather than \texttt{current->data}.
+
+\begin{adsfig}[Deletion by pointer bypass]{Deleting the node holding 20. The predecessor is redirected past the target,
+and only then is the target freed. Deleting before relinking would leave
+\texttt{current->next} pointing into released memory.}{fig:sll-delete}
+\begin{tikzpicture}[font=\small]
+% before
+\node[adslabel,anchor=east,align=right] at (-0.6,0) {before};
+\node[adsnode,minimum size=8.5mm] (x0) at (0,0) {10};
+\node[adsnodehot,minimum size=8.5mm] (x1) at (2.1,0) {20};
+\node[adsnode,minimum size=8.5mm] (x2) at (4.2,0) {30};
+\draw[adsarrow] (x0)--(x1); \draw[adsarrow] (x1)--(x2);
+\node[adslabel,anchor=west] at ([xshift=1.5mm]x2.east) {\ptrnull};
+\node[adslabel,anchor=north,color=ADSBlue] at (0,-0.6) {\texttt{current}};
+\node[adstag,anchor=north] at (2.1,-0.6) {target};
+% after
+\begin{scope}[yshift=-2.35cm]
+\node[adslabel,anchor=east,align=right] at (-0.6,0) {after};
+\node[adsnode,minimum size=8.5mm] (y0) at (0,0) {10};
+\node[adsdim,circle,minimum size=8.5mm] (y1) at (2.1,0) {20};
+\node[adsnode,minimum size=8.5mm] (y2) at (4.2,0) {30};
+\draw[adsarrow,draw=ADSGreen,line width=1pt] (y0) to[bend left=42] (y2);
+\node[adslabel,anchor=west] at ([xshift=1.5mm]y2.east) {\ptrnull};
+\node[adslabel,anchor=north,color=ADSGreen,align=center] at (2.1,-0.62)
+  {\texttt{current->next = old->next}\\then \texttt{delete old}};
+\draw[draw=ADSRed,line width=0.8pt] (1.72,-0.38) -- (2.48,0.38);
+\draw[draw=ADSRed,line width=0.8pt] (1.72,0.38) -- (2.48,-0.38);
+\end{scope}
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{lstlisting}
+bool deleteValue(Node*& head, int value) {
+    if (head == nullptr) return false;
+
+    if (head->data == value) {
+        Node* old = head;
+        head = head->next;
+        delete old;
+        return true;
+    }
+
+    Node* current = head;
+    while (current->next != nullptr &&
+           current->next->data != value) {
+        current = current->next;
+    }
+
+    if (current->next == nullptr) return false;
+
+    Node* old = current->next;
+    current->next = old->next;
+    delete old;
+    return true;
+}
+\end{lstlisting}
+
+\section{Doubly linked lists}
+
+A doubly linked list stores two links in every node: \texttt{prev} and \texttt{next}. This supports both forward and backward traversal.
+
+\begin{adsfig}[A doubly linked list]{A doubly linked list. Every node carries a backward link as well as a forward
+one, so the list can be walked from either end and a node can be removed without first
+locating its predecessor. The price is one extra pointer per node.}{fig:dll}
+\begin{tikzpicture}[font=\small]
+\def\fw{0.78}
+\foreach \v [count=\i from 0] in {10,20,30}{
+  \pgfmathsetmacro{\x}{3.55*\i}
+  \ifnum\i=0
+    \node[adscell,minimum width=\fw cm,minimum height=0.9cm,fill=ADSPaleGray,
+          font=\scriptsize\color{ADSMuted}] (pv\i) at (\x,0) {NULL};
+  \else
+    \node[adscell,minimum width=\fw cm,minimum height=0.9cm,fill=white] (pv\i) at (\x,0) {};
+  \fi
+  \node[adscell,minimum width=1.0cm,minimum height=0.9cm] (dt\i) at (\x+0.89,0) {\v};
+  \ifnum\i=2
+    \node[adscell,minimum width=\fw cm,minimum height=0.9cm,fill=ADSPaleGray,
+          font=\scriptsize\color{ADSMuted}] (nx\i) at (\x+1.78,0) {NULL};
+  \else
+    \node[adscell,minimum width=\fw cm,minimum height=0.9cm,fill=white] (nx\i) at (\x+1.78,0) {};
+  \fi
+}
+\node[adslabel,anchor=south] at (0,0.52) {prev};
+\node[adslabel,anchor=south] at (0.89,0.52) {data};
+\node[adslabel,anchor=south] at (1.78,0.52) {next};
+% forward links (teal, above)
+\foreach \i in {0,1}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[adsarrow] (nx\i.north) to[bend left=38] (dt\j.north);
+}
+% backward links (orange, below)
+\foreach \i in {1,2}{
+  \pgfmathtruncatemacro{\j}{\i-1}
+  \draw[-{Stealth[length=2.2mm]},thick,draw=ADSOrange] (pv\i.south) to[bend left=38] (dt\j.south);
+}
+\node[adslabel,anchor=west,color=ADSTeal]   at (7.6,1.05) {forward: \texttt{next}};
+\node[adslabel,anchor=west,color=ADSOrange] at (7.6,-1.05) {backward: \texttt{prev}};
+\end{tikzpicture}
+\end{adsfig}
+
+\begin{lstlisting}
+struct DNode {
+    int data;
+    DNode* prev;
+    DNode* next;
+};
+\end{lstlisting}
+
+\section{Singly vs doubly linked lists}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Feature & Singly linked list & Doubly linked list \\
+\midrule
+Pointers per node & One: \texttt{next} & Two: \texttt{prev}, \texttt{next} \\
+Direction & Forward only & Forward and backward \\
+Memory use & Lower & Higher \\
+Deletion & Often needs previous-node tracking & Easier when the target node is already known \\
+Complexity of representation & Simpler & More flexible \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Array vs linked list}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.20\linewidth}X X@{}}
+\toprule
+\rowcolor{ADSPaleBlue!92}
+Feature & Array & Linked list \\
+\midrule
+Memory layout & Contiguous & Non-contiguous allowed \\
+Size & Fixed for a raw array or resized manually & Dynamic through node allocation \\
+Access & Direct using index & Sequential from head \\
+Insertion/deletion & Can require shifting elements & Pointer updates can avoid shifting \\
+Extra memory & No per-element pointer overhead & Pointer fields are stored in each node \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+``Insertion is easy in a linked list'' does not mean ``finding the insertion position is always fast.'' If the program must first search through $n$ nodes to locate the position, that search still costs traversal time.
+\end{pitfall}
+
+\begin{quickcheck}
+Why can a doubly linked list move backward while a singly linked list cannot? If you already have a pointer to a middle node, which representation stores more information that can help with deletion?
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item A linked list is made of nodes connected by pointers.
+  \item The first node is identified by the head pointer.
+  \item Singly linked lists support forward traversal through \texttt{next}.
+  \item Doubly linked lists add \texttt{prev} and can traverse in both directions.
+  \item Linked lists are dynamic and flexible but require pointer memory and sequential access.
+  \item Common operations are insertion, traversal, and deletion.
+\end{itemize}
+\end{chapterrecap}
+
+\input{labs/03-linked-lists}
