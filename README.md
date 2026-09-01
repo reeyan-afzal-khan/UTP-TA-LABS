@@ -18,31 +18,6 @@ This repository collects laboratory materials, tutorial resources, implementatio
 
 Each course remains a self-contained LaTeX project. Its `main.tex` file owns the document design and includes the course's chapters, laboratories, and appendices from their existing folders.
 
-## Building the notes
-
-Each book compiles with any TeX distribution (tested on MiKTeX). Run three
-passes so the table of contents and cross-references settle:
-
-```bash
-cd "OPERATING SYSTEMS/_NOTES" && pdflatex -interaction=nonstopmode main.tex
-```
-
-## Running the labs
-
-| Course | Language | How to run |
-| --- | --- | --- |
-| Algorithms and Data Structures | C++17 | `g++ -std=c++17 -Wall -Wextra Task01.cpp -o task01 && ./task01` |
-| Operating Systems | C (POSIX), Bash | `gcc -Wall -Wextra -pthread Task01.c -o task01` — needs Linux or WSL. Lab 9 also needs freeglut: add `-lglut -lGLU -lGL -lm` |
-| Data Science | R | `Rscript Task01.R` — the input-driven scripts also work under RStudio |
-| Machine Learning | Python (Jupyter) | open the notebook, or `jupyter nbconvert --execute Task01.ipynb` |
-| Artificial Intelligence | Python (Labs 1–3), MATLAB (Labs 4–8) | `py search_uninformed.py`; MATLAB parts need the Fuzzy Logic and Text Analytics toolboxes |
-| FinTech Innovation | Python | `py inclusion_analysis.py`; regenerate the synthetic data with `tools/generate_datasets.py` |
-| Enterprise Resource Planning | Python + Odoo 19 | Build each lab in the Odoo browser interface, then prove it: `py check_setup.py --password ...`. Master data imports from the supplied CSVs. See [the ERP README](<ENTERPRISE RESOURCE PLANNING/README.md>) |
-| Data Communication and Networking | Huawei VRP (eNSP) | paste the `.txt` configs one block at a time; `Lab04/wildcard_calc.py` is a helper |
-
-Python labs need `pandas`, `numpy`, `matplotlib`, and `scikit-learn`; the R
-labs need `dplyr` for Lab 7 only.
-
 ## Disclaimer
 
 These materials support teaching and independent study. They are not official university publications and do not replace the current course outline, assessment brief, or institutional policies.
