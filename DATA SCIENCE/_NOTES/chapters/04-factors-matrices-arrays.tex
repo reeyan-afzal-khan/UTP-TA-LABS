@@ -3,11 +3,11 @@
 
 \chapterguide
   {You should be comfortable with vectors, lists, indexing, and arithmetic.}
-  {construct and inspect factors; access factor elements and levels; construct matrices by row or column; name and index matrix dimensions; apply element-wise matrix arithmetic; create named multidimensional arrays; access slices and elements; and use \texttt{apply()} as shown in the handout.}
+  {create and inspect factors, matrices, and arrays; index their dimensions; perform element-wise arithmetic; and use \texttt{apply()}.}
 
 \section{Factors}
 
-Lab 4a creates a character vector containing compass regions and then converts it to a factor:
+Convert a character vector of regions to a factor:
 
 \begin{lstlisting}[style=dsr]
 data <- c(
@@ -24,7 +24,7 @@ print(is.factor(factor_data))
 length(factor_data)
 \end{lstlisting}
 
-The before/after \texttt{is.factor()} checks are the key observation: the original vector is not a factor, while the result of \texttt{factor()} is.
+\texttt{is.factor()} confirms the conversion.
 
 \subsection{Accessing and modifying factor values}
 
@@ -38,7 +38,7 @@ data[3]
 data[3] <- "NorthWest"
 \end{lstlisting}
 
-The modification attempt is intentionally useful: it tests what happens when a value not already represented by the factor's levels is assigned.
+Assigning a value outside the existing levels produces \texttt{NA} with a warning. Add the level first if it is valid.
 
 \subsection{Changing level order}
 
@@ -56,7 +56,7 @@ new_order_data <- factor(
 print(new_order_data)
 \end{lstlisting}
 
-This exercise separates the observed values from the order in which the levels are defined.
+The \texttt{levels} argument controls category order independently of observation order.
 
 \subsection{Generating factor levels}
 
@@ -65,11 +65,11 @@ v <- gl(3, 4, labels = c("Tampa", "Seattle", "Boston"))
 print(v)
 \end{lstlisting}
 
-The handout uses \texttt{gl()} to generate repeated factor levels programmatically.
+\texttt{gl()} generates repeated factor levels.
 
 \section{Matrices}
 
-A matrix organizes values into rows and columns. Lab 4a contrasts row-wise and column-wise filling:
+A matrix stores one data type in rows and columns. \texttt{byrow} controls the fill direction:
 
 \begin{lstlisting}[style=dsr]
 M <- matrix(c(3:14), nrow = 4, byrow = TRUE)
@@ -94,7 +94,7 @@ P <- matrix(
 print(P)
 \end{lstlisting}
 
-Dimension names make later inspection easier because row and column labels appear with the values.
+Dimension names improve readability and indexing.
 
 \subsection{Matrix indexing}
 
@@ -105,11 +105,11 @@ print(P[2, ])   # all columns from row 2
 print(P[, 3])   # all rows from column 3
 \end{lstlisting}
 
-The index order in the supplied code is \texttt{[row, column]}.
+Matrix indices follow \texttt{[row, column]}.
 
-\section{Matrix arithmetic in the handout}
+\section{Element-wise matrix arithmetic}
 
-Two 2-by-3 matrices are added, subtracted, multiplied, and divided using ordinary arithmetic operators:
+Ordinary operators act element by element on conformable matrices:
 
 \begin{lstlisting}[style=dsr]
 matrix1 <- matrix(c(3, 9, -1, 4, 2, 6), nrow = 2)
@@ -122,12 +122,12 @@ print(matrix1 / matrix2)
 \end{lstlisting}
 
 \begin{keyidea}
-The multiplication and division examples in Lab 4a use \texttt{*} and \texttt{/}. In these notes, ``matrix multiplication'' in the Lab 4 practical is kept consistent with that supplied element-wise operator usage rather than silently replacing it with a different operation.
+\texttt{*} performs element-wise multiplication; true matrix multiplication uses \texttt{\%*\%}.
 \end{keyidea}
 
 \section{Arrays}
 
-Lab 4a extends the row/column idea into a third dimension.
+Arrays extend matrices to additional dimensions.
 
 \subsection{Constructing an array}
 
@@ -142,7 +142,7 @@ result <- array(
 print(result)
 \end{lstlisting}
 
-The dimensions request 3 rows, 3 columns, and 2 matrix-like layers.
+The dimensions specify 3 rows, 3 columns, and 2 layers. Because only 9 values are supplied for 18 positions, R recycles them once.
 
 \subsection{Naming array dimensions}
 
@@ -167,11 +167,11 @@ print(result[1, 3, 1]) # row 1, column 3, first matrix
 print(result[, , 2])   # entire second matrix
 \end{lstlisting}
 
-The indexing pattern generalizes matrix indexing: \texttt{[row, column, layer]}.
+Array indices follow \texttt{[row, column, layer]}.
 
 \section{Array manipulation and \texttt{apply()}}
 
-The handout extracts 2D matrices from arrays and adds them. It also demonstrates \texttt{apply()} across rows:
+\texttt{apply()} runs a function across selected dimensions:
 
 \begin{lstlisting}[style=dsr]
 new.array <- array(
@@ -183,10 +183,10 @@ result <- apply(new.array, c(1), sum)
 print(result)
 \end{lstlisting}
 
-Here the margin argument \texttt{c(1)} tells the supplied example to calculate sums associated with the row dimension across the array.
+Margin \texttt{1} calculates one sum per row across columns and layers.
 
 \begin{pitfall}
-In Lab 4a section 3.4, \texttt{vector3} and \texttt{vector4} are created, but the printed code then constructs \texttt{array2} from \texttt{vector1} and \texttt{vector2} again. These notes preserve the handout as a source caution rather than silently assuming which vectors were intended.
+Lab 4a defines \texttt{vector3} and \texttt{vector4} but constructs \texttt{array2} from the earlier vectors. Confirm the intended inputs before reproducing that step.
 \end{pitfall}
 
 \begin{quickcheck}
@@ -201,10 +201,8 @@ In Lab 4a section 3.4, \texttt{vector3} and \texttt{vector4} are created, but th
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Factors represent categorical values and expose levels that can be ordered explicitly.
-  \item Matrices are built with row/column dimensions and can carry dimension names.
-  \item The handout's matrix arithmetic uses ordinary operators element by element.
-  \item Arrays generalize matrix indexing to additional dimensions.
-  \item \texttt{apply()} is introduced as a way to run a function across a selected array margin.
+  \item Factors store categorical values through defined levels.
+  \item Matrices and arrays use dimension-based indexing and may carry names.
+  \item Ordinary arithmetic is element-wise; \texttt{apply()} summarizes selected dimensions.
 \end{itemize}
 \end{chapterrecap}

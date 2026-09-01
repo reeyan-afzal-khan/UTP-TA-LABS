@@ -2,11 +2,11 @@
 
 \begin{labproject}{Lab 7b analysis workflow}
 \textbf{Coverage.} Chapter~\ref{chap:managing-data-frames}.\\
-\textbf{Required source files in the handout.} \texttt{uforeport.xls} and \texttt{titanic.csv}.\\
-\textbf{Goal.} Clean both datasets and create as many defensible observations as possible using the Lab 7a tools.
+\textbf{Required files.} \texttt{uforeport.xls} and \texttt{titanic.csv}.\\
+\textbf{Goal.} Clean both datasets and report reproducible observations.
 
 \begin{pitfall}
-The two dataset files themselves were not included with the supplied materials for this notes build. Therefore these notes do not fabricate counts, percentages, or row-level findings. The statement in Lab 7b that ``80\% who embark from Cherbourg survived and 25\% are from Third Class'' is treated only as the handout's example of the style of insight expected, not as a result verified from the missing files.
+The required datasets were not included in this notes build, so no numerical findings are asserted here. Verify every result against the files supplied in class.
 \end{pitfall}
 
 \textbf{Part A --- Import and clean.}
@@ -31,7 +31,7 @@ names(uforeport_cleaned) <- gsub(
 
 \textbf{Part B --- Build an evidence table before writing conclusions.}
 
-Use the column names available in your actual imported files and compute counts before percentages. For example:
+Inspect the imported schema and calculate counts before percentages:
 
 \begin{lstlisting}[style=dsr]
 # Confirm actual column names first.
@@ -74,16 +74,16 @@ write.csv(
 )
 \end{lstlisting}
 
-\textbf{Suggested report structure.}
+\textbf{Report structure.}
 \begin{enumerate}
   \item State the original and cleaned dimensions of both datasets.
   \item Report which columns contained missing values and how many rows were removed by \texttt{na.omit()}.
-  \item Present several filtered or grouped observations supported by printed counts.
+  \item Present filtered or grouped observations supported by printed counts.
   \item Distinguish a raw count from a percentage and show the denominator used for each percentage.
   \item Export at least one useful filtered/sorted result as evidence of the data-management workflow.
 \end{enumerate}
 \end{labproject}
 
 \begin{labdeliverable}
-Submit a cleaned-data report for both external files using the libraries and operations introduced in Lab 7a. Every numerical insight should be reproducible from code and the actual files supplied in your class environment.
+Submit a cleaned-data report for both files. Every numerical claim must be reproducible from the submitted code.
 \end{labdeliverable}

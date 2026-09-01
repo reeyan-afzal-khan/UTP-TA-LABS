@@ -1,12 +1,8 @@
 \labsection{6}{Build and extend a student data frame}{sec:lab06}
 
-\begin{labproject}{Lab 6 practical guided practice}
+\begin{labproject}{Lab 6 guided practice}
 \textbf{Coverage.} Chapter~\ref{chap:data-frames}.\\
-\textbf{Goal.} Reproduce the student table shown in the supplied practical, add a qualification column and a new row, then inspect structure, summary, and dimensions.
-
-\begin{referencebox}
-The uploaded practical file is titled as a Lab 5b handout, but its content and learning outcomes are the direct continuation of Lab 6a on data frames. In this course edition it is therefore placed as Lab 6.
-\end{referencebox}
+\textbf{Goal.} Build and extend a student table, then inspect its structure and summaries.
 
 \textbf{Task 1 --- Create the base data frame.}
 
@@ -23,7 +19,7 @@ students <- data.frame(
 print(students)
 \end{lstlisting}
 
-\textbf{Task 2 --- Add the \texttt{qualify} column shown in the handout.}
+\textbf{Task 2 --- Add the specified \texttt{qualify} column.}
 
 \begin{lstlisting}[style=dsr]
 students$qualify <- c(
@@ -56,16 +52,16 @@ nrow(students)
 ncol(students)
 \end{lstlisting}
 
-The handout specifically suggests changing column data types to observe how \texttt{summary()} changes. For example, converting \texttt{qualify} to a factor makes its categories explicit:
+Convert \texttt{qualify} to a factor to see how its summary changes:
 
 \begin{lstlisting}[style=dsr]
 students$qualify <- factor(students$qualify)
 summary(students)
 \end{lstlisting}
 
-For the final eight-row table, the numeric score values range from 8.0 to 19.0, and the table has 8 rows and 4 columns.
+The final table has 8 rows, 4 columns, and scores from 8.0 to 19.0.
 \end{labproject}
 
 \begin{labdeliverable}
-Submit the data frame before and after the added column/row, followed by \texttt{str()}, \texttt{summary()}, and the row/column counts with a short observation about what changed after the column-type conversion.
+Submit the table before and after modification, its structure and summaries, dimensions, and a brief note on the factor conversion.
 \end{labdeliverable}

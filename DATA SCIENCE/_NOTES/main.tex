@@ -49,8 +49,8 @@
 \hypersetup{
   pdftitle={TEB2164 Introduction to Data Science Notes},
   pdfauthor={Reeyan Afzal Khan and Mohd Safuwan Shahabudin},
-  pdfsubject={R programming, data structures, data frames, visualization, correlation, normalization},
-  pdfkeywords={data science, R, RStudio, data frame, visualization, correlation, normalization},
+  pdfsubject={R programming, data structures, data management, visualization, correlation, transformation, and scaling},
+  pdfkeywords={data science, R, RStudio, data frame, visualization, correlation, transformation, scaling},
   pdflang={en-US},
   bookmarksnumbered=true,
   bookmarksopen=true
@@ -162,14 +162,14 @@
 \newtcolorbox{dstable}{enhanced,width=\linewidth,colback=white,colframe=DSTeal!32,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
 \newtcolorbox{keyidea}{enhanced,breakable,colback=DSPaleTeal,colframe=DSTeal,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Key idea}
 \newtcolorbox{workedexample}{enhanced,breakable,colback=DSPaleBlue,colframe=DSBlue,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Worked example}
-\newtcolorbox{pitfall}{enhanced,breakable,colback=DSPaleRed,colframe=DSRed,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Source / coding caution}
+\newtcolorbox{pitfall}{enhanced,breakable,colback=DSPaleRed,colframe=DSRed,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Technical note}
 \newtcolorbox{referencebox}{enhanced,breakable,colback=white,colframe=DSMuted!58,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{DSMuted},title=Reference note}
 \newtcolorbox{quickcheck}{enhanced,breakable,colback=white,colframe=DSOrange,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=DSOrange,title=Check your understanding}
 \newtcolorbox{chapterrecap}{enhanced,breakable,colback=DSPaleTeal,colframe=DSGreen,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=DSGreen,title=Chapter recap}
 \newtcolorbox{tryit}{enhanced,breakable,colback=white,colframe=DSTeal,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=DSTeal,title=Try it yourself}
 \newtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=DSBlue,boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,fonttitle=\bfseries\color{white},colbacktitle=DSBlue,title={#1}}
 \newtcolorbox{labdeliverable}{enhanced,breakable,colback=white,colframe=DSGreen,boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,fonttitle=\bfseries\color{white},colbacktitle=DSGreen,title=Lab deliverable}
-\newtcolorbox{labmode}{enhanced,breakable,colback=DSPaleBlue!52,colframe=DSBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=DSBlue,title=How to use this lab}
+\newtcolorbox{labmode}{enhanced,breakable,colback=DSPaleBlue!52,colframe=DSBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=DSBlue,title=Lab guidance}
 
 \newcommand{\labsection}[3]{%
   \clearpage
@@ -205,7 +205,7 @@
 {\color{DSTeal}\rule{0.72\linewidth}{2pt}}\\[0.9cm]
 {\Huge\bfseries\color{DSNavy} Introduction to Data Science Notes\par}
 \vspace{0.35cm}
-{\LARGE\color{DSBlue} R Programming, Data Management, Visualization and Analysis\par}
+{\LARGE\color{DSBlue} R Programming, Data Management, Visualization, and Analysis\par}
 \vspace{0.35cm}
 {\large\color{DSMuted} TEB2164\par}
 \vspace{0.8cm}
@@ -223,7 +223,7 @@
 \vfill
 \begin{tcolorbox}[width=0.82\linewidth,colback=DSPaleOrange,colframe=DSOrange,arc=2mm,boxrule=0.16pt]
 \centering\small
-A lab-aligned course edition built from the supplied TEB2164 handouts: RStudio and R foundations, strings and logic, R data structures, control flow, data frames, data management, visualization, correlation and normalization.
+Concise, lab-aligned notes on R programming, data structures, data management, visualization, correlation, transformation, and scaling.
 \end{tcolorbox}
 \vfill
 {\Large\bfseries Reeyan Afzal Khan\par Mohd Safuwan Shahabudin\par}
@@ -274,7 +274,5 @@ A lab-aligned course edition built from the supplied TEB2164 handouts: RStudio a
 \input{labs/08-visualization}
 \input{chapters/09-correlation-normalization}
 \input{labs/09-correlation-normalization}
-
-\input{chapters/source-notes}
 
 \end{document}

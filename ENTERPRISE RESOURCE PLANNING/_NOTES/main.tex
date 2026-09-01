@@ -188,36 +188,45 @@
 
 % ---------- Cover ----------
 \begin{titlepage}
+\thispagestyle{empty}
 \centering
-\vspace*{1.05cm}
-{\color{ERPTeal}\rule{0.72\linewidth}{2pt}}\\[0.95cm]
-{\Huge\bfseries\color{ERPNavy} Enterprise Resource Planning Notes\par}
-\vspace{0.35cm}
-{\LARGE\color{ERPBlue} Business Processes, Integrated Information, and Odoo 19 Community\par}
-\vspace{0.8cm}
+\vspace*{1.15cm}
+{\color{ERPTeal}\rule{0.72\linewidth}{2pt}}\par
+\vspace{0.78cm}
+{\small\bfseries\color{ERPTeal} COURSE NOTES\par}
+\vspace{0.22cm}
+{\Huge\bfseries\color{ERPNavy} Enterprise Resource Planning\par}
+\vspace{0.30cm}
+{\Large\color{ERPBlue} Business Processes and Integrated Information\par}
+\vspace{0.12cm}
+{\large\color{ERPMuted} Odoo 19 Community Edition\par}
+\vspace{0.92cm}
 \begin{tikzpicture}[
-  node distance=0.65cm and 0.52cm,
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.1cm,minimum height=1.25cm,align=center,font=\bfseries\scriptsize\color{ERPNavy}},
+  node distance=0.62cm,
+  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.25cm,minimum height=1.28cm,align=center,font=\bfseries\scriptsize\color{ERPNavy}},
   arr/.style={-{Stealth[length=2.2mm]},very thick,draw=ERPTeal}
 ]
 \node[box] (sales) {SALES \& CRM\\customer demand};
-\node[box,right=of sales] (ops) {SUPPLY \& MAKE\\materials and stock};
+\node[box,right=of sales] (ops) {OPERATIONS\\materials and stock};
 \node[box,right=of ops] (fin) {FINANCE\\invoice and payment};
 \draw[arr] (sales) -- (ops);
 \draw[arr] (ops) -- (fin);
-\draw[arr,bend left=35] (fin.north) to node[above,font=\scriptsize\color{ERPMuted}] {shared data} (sales.north);
+\draw[arr]
+  (fin.north) .. controls +(0,0.78) and +(0,0.78) ..
+  node[above,font=\scriptsize\color{ERPMuted}] {shared data} (sales.north);
 \end{tikzpicture}
-\vfill
-\begin{tcolorbox}[width=0.82\linewidth,colback=ERPPaleOrange,colframe=ERPOrange,arc=2mm,boxrule=0.16pt]
+\vspace{0.95cm}
+\begin{tcolorbox}[width=0.76\linewidth,colback=ERPPaleOrange,colframe=ERPOrange,arc=2mm,boxrule=0.35pt,left=5mm,right=5mm,top=3mm,bottom=3mm]
 \centering\small
-A concept-first course edition that explains why ERP integration matters, then turns the ideas into an end-to-end Odoo workflow for West End Bicycles.
+ERP concepts followed by an integrated Odoo workflow for West End Bicycles.
 \end{tcolorbox}
 \vfill
-{\Large\bfseries Reeyan Afzal Khan\par Mohd Safuwan Shahabudin\par}
-\vspace{0.5cm}
-{\color{ERPMuted}Graduate Research Assistant, Department of Computing\par}
-{\color{ERPMuted}Universiti Teknologi PETRONAS}
-\vspace{0.8cm}
+{\large\bfseries\color{ERPInk}Reeyan Afzal Khan\par}
+\vspace{0.12cm}
+{\small\color{ERPMuted}Graduate Research Assistant, Department of Computing\par}
+\vspace{0.08cm}
+{\small\color{ERPMuted}Universiti Teknologi PETRONAS\par}
+\vspace{0.72cm}
 {\color{ERPTeal}\rule{0.72\linewidth}{2pt}}
 \end{titlepage}
 

@@ -2,11 +2,11 @@
 
 \begin{labproject}{Lab 9b guided workflow}
 \textbf{Coverage.} Chapter~\ref{chap:correlation-normalization}.\\
-\textbf{Goal.} Apply correlation analysis to \texttt{ToothGrowth} and compare three normalization methods on \texttt{mtcars}.
+\textbf{Goal.} Analyze \texttt{ToothGrowth} correlations and compare three transformations of \texttt{mtcars}.
 
 \textbf{Task 1 --- \texttt{ToothGrowth}: correlation and heatmap.}
 
-Lab 9b asks for a correlation analysis and heatmap but does not specify which columns to include. Correlation in the Lab 9a examples is applied to numeric data, so first inspect the dataset and select the numeric columns actually present in your R installation.
+Inspect the dataset and select its numeric columns before calculating correlation.
 
 \begin{lstlisting}[style=dsr]
 data(ToothGrowth)
@@ -23,11 +23,11 @@ library(corrplot)
 corrplot(corr_tooth, type = "upper")
 \end{lstlisting}
 
-Then discuss only what the resulting coefficients and heatmap support: identify the strongest positive/negative relationships, note weak relationships, and connect each claim to the displayed coefficient rather than to visual color alone.
+Interpret coefficients, not color alone. Note that excluding the categorical \texttt{supp} variable means this simple correlation does not adjust for supplement type.
 
-\textbf{Task 2 --- \texttt{mtcars}: three normalization methods.}
+\textbf{Task 2 --- \texttt{mtcars}: transformation and scaling.}
 
-The source asks for log transformation, standard scaling, and min--max scaling. Start by inspecting the data before applying transformations:
+Inspect the data before applying the three requested methods:
 
 \begin{lstlisting}[style=dsr]
 data(mtcars)
@@ -35,11 +35,11 @@ str(mtcars)
 summary(mtcars)
 \end{lstlisting}
 
-A direct adaptation of the three Lab 9a methods is:
+Use \texttt{log1p()} because \texttt{mtcars} contains zeros:
 
 \begin{lstlisting}[style=dsr]
-# Log transformation
-mtcars_log <- log(mtcars)
+# Log transformation that handles zero values
+mtcars_log <- log1p(mtcars)
 
 # Standard scaling
 mtcars_standard <- as.data.frame(scale(mtcars))
@@ -53,7 +53,7 @@ mtcars_minmax <- predict(minmax_model, mtcars)
 \end{lstlisting}
 
 \begin{pitfall}
-Before interpreting \texttt{mtcars\_log}, inspect the original columns for zero values. A direct logarithm of zero does not produce an ordinary finite transformed value. Lab 9b does not specify a zero-handling rule, so your report should explicitly state what you observed and what implementation choice you made rather than hiding the issue.
+\texttt{log1p(x)} computes \(\log(1+x)\), so it remains finite at zero. State this choice because it differs from applying \texttt{log()} directly.
 \end{pitfall}
 
 Compare the representations using the same variables and the same descriptive functions:
@@ -65,7 +65,7 @@ summary(mtcars_standard)
 summary(mtcars_minmax)
 \end{lstlisting}
 
-A useful comparison table in your report should include:
+A concise comparison should include:
 \begin{itemize}
   \item the range/center of selected raw columns;
   \item the corresponding summary after log transformation;
@@ -76,5 +76,5 @@ A useful comparison table in your report should include:
 \end{labproject}
 
 \begin{labdeliverable}
-Submit a \texttt{ToothGrowth} correlation matrix plus heatmap with a short evidence-based discussion, and an \texttt{mtcars} comparison of the three requested normalization methods with explicit notes on any transformation issues you observe.
+Submit the \texttt{ToothGrowth} matrix and heatmap with a brief interpretation, plus an \texttt{mtcars} comparison of all three methods and stated implementation choices.
 \end{labdeliverable}

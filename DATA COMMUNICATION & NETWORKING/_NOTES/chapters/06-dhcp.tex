@@ -1,36 +1,35 @@
 \chapter{DHCP Address Allocation}\label{ch:dhcp}
 \chapterguide{Router and switch interface configuration, IPv4 subnetting, and basic reachability.}{Explain DHCP's purpose, enable DHCP, build global and interface-based pools, configure switches to request addresses, reserve/exclude addresses, set leases and DNS information, and verify allocation state.}
-\sourcelab{Lab 6 - DHCP server\_1.pdf and Lab 6 - DHCP server\_2.pdf}
 
 \section{What DHCP automates}
-The supplied overview defines Dynamic Host Configuration Protocol (DHCP) as a client/server protocol that automatically provides a host with an IP address and related configuration such as a subnet mask and default gateway. The source highlights two benefits: \textbf{reliable IP address configuration} and \textbf{reduced network administration}.
+Dynamic Host Configuration Protocol (DHCP) assigns clients an IP address and options such as a subnet mask, gateway, and DNS server. It improves consistency and reduces manual administration.
 
 \sourceimage[0.66\linewidth]{DHCP server-and-clients illustration from the supplied overview}{dhcp-overview-diagram.png}
 
 \section{The detailed lab topology}
-The implementation lab uses R1 and R3 as DHCP servers and S1/S2 as access-layer clients. It deliberately exercises two allocation methods: a named global pool and an interface-based pool.
+R1 and R3 act as DHCP servers; S1 and S2 are clients. The lab compares named global pools with interface-based pools.
 
 \sourceimage[0.82\linewidth]{DHCP topology used in the detailed supplied lab}{dhcp-topology.png}
 
 \begin{tabularx}{\linewidth}{>{\bfseries}p{0.24\linewidth}X}
 \toprule
 Mechanism & How the source configures it\\\midrule
-Global pool & Create a named \cmd{ip pool}, define network/gateway/lease, then select it on an interface using \cmd{dhcp select global}.\\
-Interface-based pool & Enter the routed interface and use \cmd{dhcp select interface}; pool parameters such as excluded addresses, DNS, and lease are configured under the interface.\\\bottomrule
+Global pool & Define a named \cmd{ip pool}, then select it with \cmd{dhcp select global}.\\
+Interface-based pool & Use \cmd{dhcp select interface}; configure exclusions, DNS, and lease settings under that interface.\\\bottomrule
 \end{tabularx}
 
 \section{Step 1: prepare interfaces and isolate the intended path}
-The detailed lab first configures the addressing and shuts selected interfaces so that only the intended DHCP path is active. It also disables several unused switch ports to prevent other devices or links from interfering with the experiment. The important lesson is methodological: \emph{control the topology before testing dynamic allocation}.
+Configure addressing and disable unused paths before testing, so only the intended DHCP server can respond.
 
 \section{Step 2: enable DHCP globally on the routers}
-The source states that DHCP is not enabled by default.
+Enable DHCP globally before configuring pools.
 \begin{lstlisting}[style=dcnterminal]
 [R1] dhcp enable
 [R3] dhcp enable
 \end{lstlisting}
 
 \section{Step 3: create the global address pools}
-R1 creates \cmd{pool1} for \cmd{10.0.12.0/24}; R3 creates \cmd{pool2} for \cmd{10.0.23.0/24}. Both examples use a lease of 1 day and 12 hours.
+R1 creates \cmd{pool1} for \cmd{10.0.12.0/24}; R3 creates \cmd{pool2} for \cmd{10.0.23.0/24}. Each lease lasts 1 day and 12 hours.
 
 \begin{lstlisting}[style=dcnterminal]
 [R1] ip pool pool1
@@ -49,27 +48,27 @@ R1 creates \cmd{pool1} for \cmd{10.0.12.0/24}; R3 creates \cmd{pool2} for \cmd{1
 \end{lstlisting}
 
 \section{Step 4: make the switches DHCP clients}
-The management interface requests an address dynamically.
+Configure the management interface as a DHCP client.
 \begin{lstlisting}[style=dcnterminal]
 [S1] dhcp enable
 [S1] interface Vlanif 1
 [S1-Vlanif1] ip address dhcp-alloc
 <S1> display ip interface brief
 \end{lstlisting}
-The source performs the equivalent operation on S2. It then verifies the allocation from the corresponding router pool.
+Repeat on S2, then inspect the corresponding server pool.
 
 \begin{commandmap}
 \begin{tabularx}{\linewidth}{>{\ttfamily}p{0.42\linewidth}X}
 \toprule
 Command & What it proves\\\midrule
- display ip pool name pool1 & Pool network, gateway, lease, and allocation counters on R1.\\
- display ip pool name pool2 & Equivalent pool state on R3.\\
- display ip interface brief & The switch Vlanif1 actually received an address and is up.\\\bottomrule
+ display ip pool name pool1 & R1 pool settings and allocation counters.\\
+ display ip pool name pool2 & R3 pool settings and allocation counters.\\
+ display ip interface brief & Address and state of the switch Vlanif1.\\\bottomrule
 \end{tabularx}
 \end{commandmap}
 
 \section{Step 5: build interface-based address pools}
-The second part of the lab changes which router interfaces are active and then configures DHCP directly under those interfaces.
+Next, configure DHCP directly under the active routed interfaces.
 \begin{lstlisting}[style=dcnterminal]
 [R1] interface GigabitEthernet 0/0/2
 [R1-GigabitEthernet0/0/2] dhcp select interface
@@ -85,11 +84,11 @@ The second part of the lab changes which router interfaces are active and then c
 \end{lstlisting}
 
 \begin{keyidea}
-The \cmd{excluded-ip-address} command protects a specific address from dynamic assignment. In the lab, the same address is also configured as the DNS server value for clients, so excluding it prevents the DHCP allocator from handing that address to an ordinary client.
+\cmd{excluded-ip-address} prevents the DNS server address from being leased to a client.
 \end{keyidea}
 
 \section{Step 6: force a fresh client request}
-The source flushes the existing Vlanif1 state by shutting and re-enabling it, then activates the appropriate router interface. This forces the switch to request a new address from the interface-based pool.
+Cycle Vlanif1 to force a fresh request from the interface-based pool.
 \begin{lstlisting}[style=dcnterminal]
 [S2] interface Vlanif 1
 [S2-Vlanif1] shutdown
@@ -98,10 +97,10 @@ The source flushes the existing Vlanif1 state by shutting and re-enabling it, th
 [R1] interface GigabitEthernet 0/0/2
 [R1-GigabitEthernet0/0/2] undo shutdown
 \end{lstlisting}
-The lab repeats the process for S1 and R3 on the other subnet.
+Repeat for S1 and R3 on the other subnet.
 
 \begin{verifybox}
-Do not treat ``DHCP enabled'' as success. The real evidence is: a client Vlanif receives an address, the address belongs to the expected subnet/pool, and the router's pool statistics show a used lease.
+Success requires a client address from the expected subnet and a matching used lease in the server pool.
 \end{verifybox}
 
 \section{Troubleshooting DHCP}
@@ -118,13 +117,13 @@ Do not treat ``DHCP enabled'' as success. The real evidence is: a client Vlanif 
 \begin{enumerate}
 \item What is the difference between a named global pool and an interface-based pool in this lab?
 \item Why does the source exclude \cmd{10.0.23.254} and \cmd{10.0.12.254} from allocation?
-\item Which command proves that a pool has actually allocated an address?
+\item Which command proves that a pool has allocated an address?
 \item Why does the lab shut down unused links during preparation?
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
-DHCP converts manual host addressing into a controlled allocation service. The lab practices both named global pools and interface-based pools, then verifies the result from both sides: the client shows a dynamically assigned address and the server pool shows that a lease is in use.
+DHCP automates address allocation through global or interface pools. Verify both sides: the client has the expected address and the server records the lease.
 \end{chapterrecap}
 
 \input{labs/06-dhcp}

@@ -1,23 +1,23 @@
-\chapter{Creating, Displaying, Accessing, and Modifying Data Frames}
+\chapter{Data Frame Fundamentals}
 \label{chap:data-frames}
 
 \chapterguide
-  {You should already understand vectors, lists, indexing, and basic control flow.}
-  {create data frames directly and from matrices/lists; display values and structure; inspect dimensions and summary output; select columns and rows; add columns and rows; and remove rows or columns.}
+  {You should understand vectors, lists, indexing, and basic control flow.}
+  {create, inspect, index, extend, and reduce data frames.}
 
 \section{Creating a data frame}
 
-Lab 6a starts with a small employee table. Each column is created from a vector of equal length:
+Create an employee table from equal-length vectors:
 
 \begin{lstlisting}[style=dsr]
 emp.data <- data.frame(
-  emp_id = c(1:5),
+  emp_id = 1:5,
   emp_name = c("Rick", "Dan", "Michelle", "Ryan", "Gary"),
   salary = c(623.3, 515.2, 611.0, 729.0, 843.25)
 )
 \end{lstlisting}
 
-A data frame therefore gives the course a tabular structure in which named columns can hold different kinds of data.
+A data frame stores named, equal-length columns that may have different types.
 
 \section{Creating a data frame from another structure}
 
@@ -34,7 +34,7 @@ names(df_from_matrix) <- c("col_1", "col_2", "col_3")
 print(df_from_matrix)
 \end{lstlisting}
 
-The exercise converts an existing matrix to a data frame and then replaces the automatically generated column names.
+The generated column names are then replaced.
 
 \subsection{From a list of vectors}
 
@@ -51,17 +51,17 @@ super_sleepers <- data.frame(my_list)
 print(super_sleepers)
 \end{lstlisting}
 
-This connects Lab 3's list concept with a rectangular data structure.
+The equal-length list components become columns.
 
 \section{Displaying and inspecting a data frame}
 
-The handout first prints the employee table:
+Print the table directly:
 
 \begin{lstlisting}[style=dsr]
 print(emp.data)
 \end{lstlisting}
 
-It also points to RStudio's table-view icon and asks you to identify the Console command produced by that interface. The learning objective is to distinguish textual Console output from a table viewer while recognizing that both display the same data-frame object.
+RStudio's viewer displays the same object in a spreadsheet-like window.
 
 \subsection{Structure}
 
@@ -69,11 +69,11 @@ It also points to RStudio's table-view icon and asks you to identify the Console
 str(emp.data)
 \end{lstlisting}
 
-The structure output is used to inspect columns and their stored types.
+\texttt{str()} reports columns and stored types.
 
 \subsection{Summary and dimensions}
 
-The supplied handout presents these commands in adjacent subsections:
+Use summary and dimension functions for different purposes:
 
 \begin{lstlisting}[style=dsr]
 print(summary(emp.data))
@@ -83,10 +83,10 @@ print(ncol(emp.data))
 print(nrow(emp.data))
 \end{lstlisting}
 
-\texttt{summary()} produces per-column summaries, while \texttt{dim()}, \texttt{ncol()}, and \texttt{nrow()} report the table shape.
+\texttt{summary()} describes columns; \texttt{dim()}, \texttt{ncol()}, and \texttt{nrow()} report shape.
 
 \begin{pitfall}
-The Lab 6a subsection labels appear swapped: the heading ``Display the number of rows and columns'' is followed by \texttt{summary()}, while ``Display the summary'' is followed by \texttt{dim()}, \texttt{ncol()}, and \texttt{nrow()}. These notes organize the functions by what their code actually requests, while preserving this mismatch as a source note.
+Lab 6a appears to swap the headings for summary and dimension output. The functions above are organized by their actual behavior.
 \end{pitfall}
 
 \section{Accessing columns and rows}
@@ -99,7 +99,7 @@ print(emp.data[["salary"]])
 print(emp.data[3])
 \end{lstlisting}
 
-The first two forms directly access the named column contents. The third selects the third column using data-frame indexing.
+\texttt{\$} and \texttt{[[} return a column vector; \texttt{[3]} returns a one-column data frame.
 
 The first two rows with all columns are selected using:
 
@@ -108,18 +108,18 @@ result <- emp.data[1:2, ]
 print(result)
 \end{lstlisting}
 
-The same row/column coordinate idea seen in matrices is reused, but the result remains tabular.
+Data frames use \texttt{[row, column]} indexing.
 
 \section{Adding columns}
 
-Lab 6a adds a department column by assigning a new named component:
+Add a column by assigning a new name:
 
 \begin{lstlisting}[style=dsr]
 emp.data$dept <- c("IT", "Operations", "IT", "HR", "Finance")
 print(emp.data)
 \end{lstlisting}
 
-It also demonstrates \texttt{cbind()} to attach a start-date column:
+\texttt{cbind()} can attach another column:
 
 \begin{lstlisting}[style=dsr]
 emp.newdata <- cbind(
@@ -134,11 +134,11 @@ emp.newdata <- cbind(
 )
 \end{lstlisting}
 
-This example is the handout's explicit invitation to store multiple data types in one table, including dates.
+The resulting table includes character, numeric, and date columns.
 
 \section{Adding rows}
 
-The supplied pattern creates a second data frame with the same structure and then combines it with \texttt{rbind()}:
+Append compatible rows with \texttt{rbind()}:
 
 \begin{lstlisting}[style=dsr]
 emp.newdata <- data.frame(
@@ -152,23 +152,22 @@ emp.finaldata <- rbind(emp.data, emp.newdata)
 print(emp.finaldata)
 \end{lstlisting}
 
-The handout explicitly notes that rows being appended should have the same structure as the existing data frame.
+The column names and compatible types must match.
 
 \section{Removing rows and columns}
 
-Negative indexing is reused to exclude a row and a column:
+Negative indices exclude rows or columns:
 
 \begin{lstlisting}[style=dsr]
 # Remove the second row and first column
-result <- emp.data[-c(2), -c(1)]
+result <- emp.data[-2, -1]
 print(result)
 \end{lstlisting}
 
-This connects directly to the negative-index vector behavior introduced in Lab 3.
 
 \section{Extra practice table}
 
-Lab 6a ends with a friend table containing \texttt{friend\_id}, \texttt{friend\_name}, and \texttt{location}, then asks students to extend the structure with additional rows, columns, and data types.
+Extend this practice table with additional rows, columns, and types:
 
 \begin{lstlisting}[style=dsr]
 friends <- data.frame(
@@ -191,10 +190,8 @@ print(friends)
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Data frames can be created directly, from matrices, or from lists of equal-length vectors.
-  \item Use \texttt{str()} for structure, \texttt{summary()} for summaries, and \texttt{dim()}/\texttt{nrow()}/\texttt{ncol()} for shape.
-  \item Columns can be selected by \texttt{\$}, double brackets, or index position.
-  \item Add columns with named assignment or \texttt{cbind()}, and add compatible rows with \texttt{rbind()}.
-  \item Negative row/column indices remove selected portions in the handout example.
+  \item Data frames combine equal-length columns of potentially different types.
+  \item Inspect structure, summaries, and dimensions with dedicated functions.
+  \item Index with \texttt{\$}, brackets, or row/column coordinates; extend with \texttt{cbind()} and \texttt{rbind()}.
 \end{itemize}
 \end{chapterrecap}

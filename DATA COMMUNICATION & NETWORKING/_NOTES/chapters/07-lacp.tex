@@ -1,26 +1,25 @@
 \chapter{Ethernet Link Aggregation and LACP}\label{ch:lacp}
 \chapterguide{Switch CLI navigation and Ethernet interface configuration.}{Set interface speed manually, create an Eth-Trunk, compare manual aggregation with static LACP, explain system/interface priority, and verify active member links.}
-\sourcelab{Lab 7 - LACP (Ethernet \& VLAN).pptx}
 
 \section{Why aggregate Ethernet links?}
-The supplied slides introduce link aggregation as a way to treat several physical Ethernet links as one logical connection. LACP automates membership/maintenance of the aggregate, including adding links and responding to recovered or failed member links.
+Link aggregation combines physical Ethernet links into one logical connection. LACP coordinates membership and reacts to member failure or recovery.
 
 \sourceimage[0.86\linewidth]{Link aggregation between a switch and a server}{lacp-switch-server.png}
 
 \compactsourceimage[0.82\linewidth]{Two physical links presented as one logical link between switches}{lacp-switch-switch.png}
 
 \begin{keyidea}
-An Eth-Trunk is the logical bundle. The physical interfaces are members of that bundle. With LACP, the devices exchange protocol information so that the active member set is coordinated rather than being only a local manual configuration.
+An Eth-Trunk is the logical bundle; its physical interfaces are members. LACP coordinates the active set between peers.
 \end{keyidea}
 
 \section{Priority concepts used by the source}
-The Lab 7 slides distinguish two numerical priorities and explicitly state that \textbf{smaller values mean higher priority}.
+The lab uses two priorities; for both, \textbf{smaller values have higher priority}.
 
 \begin{tabularx}{\linewidth}{>{\bfseries}p{0.35\linewidth}X}
 \toprule
 Priority & Role in the lab\\\midrule
-LACP system priority & Helps determine which device takes the leading role in selecting the active interfaces for the aggregation group.\\
-LACP interface priority & Influences which member interfaces are preferred as active links inside the Eth-Trunk.\\\bottomrule
+LACP system priority & Helps select the device that controls active-link selection.\\
+LACP interface priority & Ranks candidate member interfaces.\\\bottomrule
 \end{tabularx}
 
 \section{Lab topology}
@@ -29,7 +28,7 @@ S1 and S2 are connected using two member links, \cmd{G0/0/9} and \cmd{G0/0/10}. 
 \sourceimage[0.76\linewidth]{Ethernet link-aggregation topology from the supplied Lab 7 slide}{lacp-topology.png}
 
 \section{Prepare the physical interfaces}
-The source states that Huawei switch interfaces use auto-negotiation by default. The exercise disables auto-negotiation and forces the two member links to 100 Mbit/s on both switches.
+The exercise disables auto-negotiation and sets both member links to 100 Mbit/s on each switch.
 \begin{lstlisting}[style=dcnterminal]
 [S1] interface GigabitEthernet 0/0/9
 [S1-GigabitEthernet0/0/9] undo negotiation auto
@@ -38,10 +37,10 @@ The source states that Huawei switch interfaces use auto-negotiation by default.
 [S1-GigabitEthernet0/0/10] undo negotiation auto
 [S1-GigabitEthernet0/0/10] speed 100
 \end{lstlisting}
-S2 is configured the same way. The lab verifies the detailed interface state with \cmd{display interface GigabitEthernet 0/0/9} and the equivalent command for G0/0/10.
+Configure S2 identically, then verify both interfaces with \cmd{display interface}.
 
 \section{Manual link aggregation}
-The first aggregation exercise creates Eth-Trunk 1 and adds the two interfaces manually.
+First create Eth-Trunk 1 and add both interfaces manually.
 \begin{lstlisting}[style=dcnterminal]
 [S1] interface Eth-Trunk 1
 [S1-Eth-Trunk1] quit
@@ -50,10 +49,10 @@ The first aggregation exercise creates Eth-Trunk 1 and adds the two interfaces m
 [S1] interface GigabitEthernet 0/0/10
 [S1-GigabitEthernet0/0/10] eth-trunk 1
 \end{lstlisting}
-The same member relationship is configured on S2.
+Repeat on S2.
 
 \section{Rebuild the bundle in static LACP mode}
-Before changing aggregation mode, the source removes the previous member association using \cmd{undo eth-trunk}. The trunk is then recreated in LACP mode.
+Remove the manual memberships with \cmd{undo eth-trunk}, then rebuild the trunk in LACP mode.
 \begin{lstlisting}[style=dcnterminal]
 [S1] interface Eth-Trunk 1
 [S1-Eth-Trunk1] mode lacp
@@ -62,10 +61,10 @@ Before changing aggregation mode, the source removes the previous member associa
 [S1] interface GigabitEthernet 0/0/10
 [S1-GigabitEthernet0/0/10] eth-trunk 1
 \end{lstlisting}
-S2 follows the same configuration sequence.
+Repeat on S2.
 
 \section{Manipulate LACP priorities}
-The exercise sets S1's system priority to 100 and gives the two member interfaces priority 100.
+Set S1's system and member-interface priorities to 100.
 \begin{lstlisting}[style=dcnterminal]
 [S1] lacp priority 100
 [S1] interface GigabitEthernet 0/0/9
@@ -85,12 +84,12 @@ $\downarrow$\\
 \end{conceptmap}
 
 \section{Verify the Eth-Trunk}
-The source uses Eth-Trunk display output to confirm the working mode and member state. The captured output below shows the trunk in static LACP mode and lists the member interfaces with actor/partner information.
+Eth-Trunk output confirms the mode, member state, and actor/partner information.
 
 \sourceimage[0.66\linewidth]{Eth-Trunk/LACP status output taken from the supplied Lab 7 material}{lacp-ethtrunk-status.png}
 
 \begin{verifybox}
-A complete verification should confirm: Eth-Trunk 1 exists on both switches, the mode is LACP, G0/0/9 and G0/0/10 belong to the bundle, and the member links appear in the expected active/selected state.
+Confirm that Eth-Trunk 1 exists on both switches, uses LACP, contains G0/0/9 and G0/0/10, and shows the expected selected members.
 \end{verifybox}
 
 \section{Troubleshooting order}
@@ -103,7 +102,7 @@ A complete verification should confirm: Eth-Trunk 1 exists on both switches, the
 \end{netsteps}
 
 \begin{pitfall}
-A physical link can be up but still fail to participate correctly in the bundle if the Eth-Trunk membership or LACP mode does not match the peer. Treat the logical trunk as a configuration object that must be correct on both ends.
+A physical link may be up but excluded from the bundle when membership or LACP mode differs across peers. Verify the logical trunk on both ends.
 \end{pitfall}
 
 \begin{quickcheck}
@@ -116,7 +115,7 @@ A physical link can be up but still fail to participate correctly in the bundle 
 \end{quickcheck}
 
 \begin{chapterrecap}
-The lab moves from raw Ethernet settings to a two-link logical Eth-Trunk, then rebuilds the bundle using static LACP. Verification should focus on the logical trunk's mode and member state, not only whether the individual cables are physically up.
+Build the two-link Eth-Trunk first manually, then with LACP. Verify the logical mode and member state as well as physical links.
 \end{chapterrecap}
 
 \input{labs/07-lacp}

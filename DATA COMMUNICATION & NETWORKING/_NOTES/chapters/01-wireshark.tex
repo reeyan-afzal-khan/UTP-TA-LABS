@@ -1,13 +1,12 @@
 \chapter{Packet Sniffing and Wireshark}\label{ch:wireshark}
 \chapterguide{A basic understanding of hosts, switches, IP traffic, and why packets move through an interface.}{Define packet sniffing and a network traffic trace, navigate the Wireshark interface, capture packets, and connect a packet-list entry to protocol details and raw bytes.}
-\sourcelab{Lab 1 - Wireshark.pptx}
 
-\section{What this lab is building}
-The first lab is about \emph{visibility}. Before configuring routes, services, VLANs, or WAN links, you need a way to observe what the network actually carries. The supplied slides introduce three linked ideas:
+\section{Purpose and core terms}
+Before configuring a network, you need a way to observe its traffic. This lab introduces three linked ideas:
 \begin{description}
-  \item[Packet sniffing] tapping or observing packets while they flow across a network.
-  \item[Network traffic trace] a recording of packets received and transmitted by a network interface.
-  \item[Wireshark] a graphical packet analyzer used in the course to inspect packets, troubleshoot network problems, and investigate suspicious traffic.
+  \item[Packet sniffing] observing packets as they cross a network.
+  \item[Network traffic trace] a time-ordered record of packets seen by an interface.
+  \item[Wireshark] a graphical analyzer for inspecting and troubleshooting packet traffic.
 \end{description}
 
 \begin{conceptmap}
@@ -16,24 +15,24 @@ The first lab is about \emph{visibility}. Before configuring routes, services, V
 
 \sourceimage[0.64\linewidth]{Packet-sniffing illustration from the supplied slide}{wireshark-sniffing.png}
 
-The illustration emphasizes the reason capture placement matters: packets must be observable on the interface or network segment being monitored. A capture taken elsewhere may be valid but irrelevant to the event you are trying to analyze.
+Capture placement matters: the chosen interface must carry the traffic being investigated.
 
 \section{A traffic trace is evidence, not just a screenshot}
-A trace is useful because it preserves a time-ordered sequence of network events. In later labs, the same idea becomes a troubleshooting method: if a ping fails, if a routing adjacency is missing, or if an application session does not establish, the trace can show what was transmitted and what response, if any, returned.
+A trace records the sequence of events. If a ping, adjacency, or application session fails, it shows what was sent and whether a reply returned.
 
 \compactsourceimage[0.64\linewidth]{Network-traffic trace concept used in the source material}{wireshark-traffic-trace.png}
 
 \section{The Wireshark workspace}
-The ``Basic UI'' slide labels the main working areas directly. The exact version of Wireshark may look different, but the analysis pattern is the same.
+Wireshark versions differ visually, but the three-pane workflow is consistent.
 
 \sourceimage[0.94\linewidth]{Wireshark packet list, packet details, and packet bytes panes}{wireshark-ui.png}
 
 \begin{tabularx}{\linewidth}{>{\bfseries}p{0.22\linewidth}X}
 \toprule
 Pane & What you use it for\\\midrule
-Packet list & One row per captured packet/frame. Typical columns include time, source, destination, protocol, length, and an information summary.\\
-Packet details & A decoded protocol tree for the selected packet. Expand layers to inspect addresses, control flags, protocol fields, and encapsulation.\\
-Packet bytes & The raw captured bytes, normally shown in hexadecimal with an ASCII representation beside them.\\\bottomrule
+Packet list & One row per frame, with time, endpoints, protocol, length, and summary.\\
+Packet details & Decoded protocol layers, addresses, flags, and fields for the selected frame.\\
+Packet bytes & Raw bytes in hexadecimal and ASCII.\\\bottomrule
 \end{tabularx}
 
 \section{A disciplined capture workflow}
@@ -43,23 +42,23 @@ Packet bytes & The raw captured bytes, normally shown in hexadecimal with an ASC
 \item Generate a small, known event such as a ping so you have a clear reference point.
 \item Find the corresponding packet in the packet list using addresses, protocol, and timing.
 \item Expand the relevant protocol layers in Packet Details.
-\item Compare decoded fields with Packet Bytes only when byte-level evidence is required.
-\item Stop the capture once enough evidence has been collected; a smaller trace is easier to reason about.
+\item Consult Packet Bytes only when byte-level evidence is needed.
+\item Stop after collecting enough evidence; small traces are easier to analyze.
 \end{netsteps}
 
 \begin{workedexample}
-Suppose Host A pings Host B. In Wireshark, locate ICMP traffic and identify the request and reply. Check the source/destination addresses in each direction and confirm that the reply reverses the endpoints. The important result is not ``Wireshark shows packets''; it is that the trace proves which host sent the request, whether the peer answered, and how the protocol exchange unfolded.
+If Host A pings Host B, locate the ICMP request and reply. Confirm that the endpoints reverse direction. The trace should prove who sent the request and whether the peer answered.
 \end{workedexample}
 
 \section{What to record in a lab submission}
-A useful packet-analysis screenshot should make the evidence readable. Capture enough of the interface to show the selected packet and the relevant decoded fields, and annotate or explain what the packet proves. If a filter is used, include the filter expression or describe it in the report.
+A useful screenshot shows the selected packet, relevant decoded fields, and filter expression. Explain what the evidence proves.
 
 \begin{verifybox}
 For this lab, convincing evidence is a capture in which you can point to a known traffic event and identify at least the source, destination, protocol, and the relevant request/reply relationship.
 \end{verifybox}
 
 \begin{pitfall}
-A technically successful capture can still be useless if it was taken on the wrong interface or contains too much unrelated traffic. Generate controlled traffic and narrow the view with protocol or address filters instead of searching blindly through a large capture.
+A capture from the wrong interface, or one buried in unrelated traffic, is poor evidence. Generate controlled traffic and filter by protocol or address.
 \end{pitfall}
 
 \begin{quickcheck}
@@ -72,7 +71,7 @@ A technically successful capture can still be useless if it was taken on the wro
 \end{quickcheck}
 
 \begin{chapterrecap}
-Packet sniffing provides visibility, a traffic trace records the evidence, and Wireshark organizes that evidence into packet summaries, decoded protocol fields, and raw bytes. This observation skill is reused throughout the course whenever a configuration must be verified or debugged.
+Wireshark organizes a traffic trace into packet summaries, decoded fields, and raw bytes. This evidence supports verification and troubleshooting throughout the course.
 \end{chapterrecap}
 
 \input{labs/01-wireshark-capture}

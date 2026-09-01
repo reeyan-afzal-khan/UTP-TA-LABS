@@ -1,13 +1,13 @@
-\chapter{Selection and Repetition Statements}
+\chapter{Control Flow}
 \label{chap:control-flow}
 
 \chapterguide
-  {You should be able to construct logical expressions with comparison operators.}
-  {use \texttt{if}, \texttt{if...else}, \texttt{if...else if...else}, and \texttt{switch()}; build \texttt{repeat}, \texttt{while}, and \texttt{for} loops; and use \texttt{break} and \texttt{next} in the patterns supplied by the lab.}
+  {You should be able to construct logical expressions.}
+  {use conditional statements, \texttt{switch()}, loops, \texttt{break}, and \texttt{next}.}
 
 \section{Selection statements}
 
-Selection statements determine which block of code executes. The handout introduces them in increasing complexity.
+Conditional statements select which code block runs.
 
 \subsection{Simple \texttt{if}}
 
@@ -19,7 +19,7 @@ if (is.integer(x)) {
 }
 \end{lstlisting}
 
-The condition is evaluated first. In the supplied example, the message is printed only when \texttt{is.integer(x)} is TRUE.
+The body runs only when the condition is TRUE.
 
 \subsection{\texttt{if...else}}
 
@@ -33,7 +33,7 @@ if ("Truth" %in% x) {
 }
 \end{lstlisting}
 
-This example also reinforces that character comparison is case-sensitive in the supplied code: \texttt{"Truth"} and \texttt{"truth"} are different strings.
+Character comparison is case-sensitive: \texttt{"Truth"} and \texttt{"truth"} differ.
 
 \subsection{\texttt{if...else if...else}}
 
@@ -49,11 +49,11 @@ if ("Truth" %in% x) {
 }
 \end{lstlisting}
 
-The conditions are checked in order. This structure is useful when several mutually exclusive outcomes are possible.
+Conditions are checked in order until one succeeds.
 
 \section{\texttt{switch()}}
 
-The handout uses a numeric selector:
+With a numeric selector, \texttt{switch()} returns the matching position:
 
 \begin{lstlisting}[style=dsr]
 x <- switch(
@@ -66,11 +66,11 @@ x <- switch(
 print(x)
 \end{lstlisting}
 
-With selector \texttt{3}, the third listed value is returned.
+Selector \texttt{3} returns \texttt{"third"}.
 
 \section{Repetition statements}
 
-Loops repeat a set of statements. Lab 5a presents three forms.
+R provides \texttt{repeat}, \texttt{while}, and \texttt{for} loops.
 
 \subsection{\texttt{repeat} loop}
 
@@ -88,7 +88,7 @@ repeat {
 }
 \end{lstlisting}
 
-The loop itself has no condition in its header. Termination is controlled inside the body using \texttt{break}.
+\texttt{repeat} requires an internal exit such as \texttt{break}.
 
 \subsection{\texttt{while} loop}
 
@@ -102,11 +102,11 @@ while (cnt < 7) {
 }
 \end{lstlisting}
 
-The condition is checked before each iteration. The counter update is essential to eventually make the condition false.
+\texttt{while} checks its condition before each iteration; the update prevents an infinite loop.
 
 \subsection{\texttt{for} loop}
 
-The handout uses \texttt{for} with letters, numbers, and list elements:
+\texttt{for} iterates over vectors or lists:
 
 \begin{lstlisting}[style=dsr]
 v <- LETTERS[1:4]
@@ -139,7 +139,7 @@ for (x in fruits) {
 }
 \end{lstlisting}
 
-\texttt{next} skips the remainder of the current iteration and continues with the next element:
+\texttt{next} skips the rest of the current iteration:
 
 \begin{lstlisting}[style=dsr]
 for (x in fruits) {
@@ -166,7 +166,7 @@ for (x in dice) {
 }
 \end{lstlisting}
 
-This is a useful model for many practical problems: iterate through values, test each value, and produce an output based on the condition.
+This pattern iterates, tests, and produces a conditional result.
 
 \section{Nested loops}
 
@@ -183,7 +183,7 @@ for (x in adj) {
 }
 \end{lstlisting}
 
-Each adjective is paired with each fruit. The inner loop completes its cycle for every value of the outer loop.
+The nested loops generate every adjective--fruit pair.
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -197,10 +197,8 @@ Each adjective is paired with each fruit. The inner loop completes its cycle for
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Selection statements choose among code paths using logical conditions.
-  \item \texttt{switch()} can select a result by position in the supplied example.
-  \item \texttt{repeat} relies on an internal \texttt{break}; \texttt{while} checks a condition before each iteration; \texttt{for} iterates over supplied values.
-  \item \texttt{break} stops a loop and \texttt{next} skips one iteration.
-  \item Loops and selection statements can be nested or combined to solve multi-step tasks.
+  \item Conditionals and \texttt{switch()} select code paths.
+  \item \texttt{repeat}, \texttt{while}, and \texttt{for} express different repetition patterns.
+  \item \texttt{break} exits a loop; \texttt{next} skips one iteration.
 \end{itemize}
 \end{chapterrecap}

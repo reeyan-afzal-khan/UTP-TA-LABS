@@ -2,13 +2,13 @@
 
 \begin{labproject}{Lab 8b visualization workflow}
 \textbf{Coverage.} Chapter~\ref{chap:visualization} and the cleaned-data workflow from Lab 7.\\
-\textbf{Goal.} Improve the Lab 7 report with at least two different plot types, then use one built-in R dataset to tell a data story.
+\textbf{Goal.} Add two useful plots to Lab 7 and present a concise story from a built-in dataset.
 
 \textbf{Part A --- Add visual evidence to the external-file report.}
 
-The source requires at least two different plot/chart/graph types using the same external files as Lab 7. Because those external datasets were not supplied with this notes build, use the actual cleaned objects from your Lab 7 environment and choose plots that match the columns you have verified.
+Use the cleaned Lab 7 objects and choose two plot types that match the verified columns.
 
-Example patterns from the plot families taught in Lab 8a:
+Example patterns:
 
 \begin{lstlisting}[style=dsr]
 # Example: categorical count bar chart
@@ -28,11 +28,11 @@ hist(
 )
 \end{lstlisting}
 
-Do not state an insight until you have inspected the actual resulting counts/plot in your class dataset.
+Base each claim on the computed counts or visible plot.
 
 \textbf{Part B --- Storytelling with a built-in dataset.}
 
-The handout allows any built-in dataset and gives \texttt{BJsales} as an example. Since \texttt{mtcars} is already used throughout Lab 8a, it is a natural option for a coherent practice story:
+Any built-in dataset is acceptable. This example uses \texttt{mtcars}:
 
 \begin{lstlisting}[style=dsr]
 data(mtcars)
@@ -54,15 +54,15 @@ plot(
 )
 \end{lstlisting}
 
-Use the displayed patterns to write the story in this order:
+Structure the discussion as follows:
 \begin{enumerate}
   \item Identify what each axis or group represents.
-  \item Describe the strongest visible pattern without overstating causation.
+  \item Describe the strongest pattern without claiming causation.
   \item Connect the plot to a practical question a manager or analyst might ask.
   \item If a second plot supports the same observation, explain how the evidence complements the first plot.
 \end{enumerate}
 \end{labproject}
 
 \begin{labdeliverable}
-Submit the improved Lab 7 report with at least two different visualization types and a separate built-in-dataset story supported by plots produced from the Lab 8a functions.
+Submit the revised Lab 7 report with two plot types and a separate evidence-based story using a built-in dataset.
 \end{labdeliverable}

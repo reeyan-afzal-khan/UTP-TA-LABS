@@ -2,12 +2,12 @@
 \label{chap:vectors-lists}
 
 \chapterguide
-  {You should be able to create variables, call functions, and use logical/relational operators.}
-  {construct vectors and lists; access elements using position, logical, negative, and name-based indexing; perform vector arithmetic; recognize vector recycling in the supplied example; sort vectors; name list elements; and add, remove, or update list entries.}
+  {You should be able to create variables, call functions, and use logical operators.}
+  {construct, index, sort, and calculate with vectors; and create, name, access, and modify lists.}
 
 \section{R vectors}
 
-Lab 3a begins with vector construction. The examples emphasize that a vector holds a sequence of values and can be generated either with the colon operator, \texttt{seq()}, or \texttt{c()}.
+A vector stores values of a common type and can be created with \texttt{:}, \texttt{seq()}, or \texttt{c()}.
 
 \subsection{Constructing vectors}
 
@@ -28,22 +28,20 @@ print(v)
 print(seq(5, 9, by = 0.4))
 \end{lstlisting}
 
-The handout also demonstrates type coercion by mixing text, a number, and a logical value in one \texttt{c()} call:
+Mixing character, numeric, and logical values triggers type coercion:
 
 \begin{lstlisting}[style=dsr]
 s <- c('apple', 'red', 5, TRUE)
 print(s)
 \end{lstlisting}
 
-The supplied note states that the numeric and logical values are converted to characters in this mixed vector.
-
 \begin{keyidea}
-In the handout's mixed-vector example, all elements end up represented as character values. This is one reason the course later introduces lists: lists can keep different element types together without forcing them into a single common representation.
+All elements in the mixed vector become character values. Use a list when components must retain different types.
 \end{keyidea}
 
 \subsection{Accessing vector elements}
 
-Lab 3a gives four indexing patterns using a days-of-week vector:
+The days vector demonstrates positive, logical, and negative indexing:
 
 \begin{lstlisting}[style=dsr]
 t <- c("Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat")
@@ -60,16 +58,20 @@ print(v)
 x <- t[c(-2, -5)]
 print(x)
 
-# 0/1 indexing example from the handout
-y <- t[c(0, 0, 0, 0, 0, 0, 1)]
+# Select the seventh element
+y <- t[7]
 print(y)
 \end{lstlisting}
 
-These examples show different ways to express the same general operation: choose which positions should be returned.
+Positive indices select positions, logical indices select TRUE positions, and negative indices exclude positions.
+
+\begin{pitfall}
+Numeric 0/1 indexing is not a Boolean mask in R: zeros are ignored and each 1 selects position 1. Use TRUE/FALSE values or explicit positions instead.
+\end{pitfall}
 
 \section{Vector arithmetic}
 
-The handout creates two vectors of equal length and applies arithmetic directly:
+Arithmetic on equal-length vectors is element-wise:
 
 \begin{lstlisting}[style=dsr]
 v1 <- c(3, 8, 4, 5, 0, 11)
@@ -81,7 +83,7 @@ print(v1 * v2)
 print(v1 / v2)
 \end{lstlisting}
 
-The operations are applied element by element. The division example includes division by a zero element in \texttt{v2}; observe R's output rather than assuming every element will be a finite ordinary number.
+Division by zero produces a non-finite result such as \texttt{Inf} or \texttt{NaN}.
 
 \subsection{Vector element recycling}
 
@@ -96,7 +98,7 @@ print(v1 + v2)
 print(v1 - v2)
 \end{lstlisting}
 
-The exercise explicitly explains the repeated form of \texttt{v2}. This is the vector-recycling behavior the lab wants you to notice.
+R recycles the shorter vector. A warning occurs when the longer length is not a multiple of the shorter length.
 
 \section{Sorting vectors}
 
@@ -110,7 +112,7 @@ print(sort(v))
 print(sort(v, decreasing = TRUE))
 \end{lstlisting}
 
-The same \texttt{sort()} function is used for numeric and character vectors, with \texttt{decreasing = TRUE} reversing the order requested.
+\texttt{sort()} handles numeric and character vectors; \texttt{decreasing = TRUE} reverses the order.
 
 \section{R lists}
 
@@ -128,7 +130,7 @@ list_data <- list(
 print(list_data)
 \end{lstlisting}
 
-This contrasts with the mixed vector: the list is explicitly intended to hold heterogeneous components.
+Unlike a vector, a list preserves heterogeneous component types.
 
 \subsection{Naming list elements}
 
@@ -142,11 +144,11 @@ names(list_data) <- c("1st Quarter", "A Inner list")
 print(list_data)
 \end{lstlisting}
 
-Names make later access more readable than relying only on positions.
+Names make list access more readable.
 
 \subsection{Accessing list elements}
 
-The handout uses numeric position and name-based access:
+Lists support position- and name-based access:
 
 \begin{lstlisting}[style=dsr]
 list_data <- list(
@@ -161,7 +163,11 @@ print(list_data$A_Inner_list)
 print(which(list_data$`1st_Quarter` == "Feb"))
 \end{lstlisting}
 
-The \texttt{which()} line combines list-name access with a relational test to find the position of \texttt{"Feb"}.
+\texttt{which()} returns the position of \texttt{"Feb"} within the named component.
+
+\begin{keyidea}
+Single brackets return a sublist; double brackets or \texttt{\$} return the component itself.
+\end{keyidea}
 
 \subsection{Manipulating a list}
 
@@ -185,7 +191,7 @@ list_data[2] <- "updated_element"
 print(list_data[2])
 \end{lstlisting}
 
-The exercise intentionally uses the same indexing form for adding and updating, and assigns \texttt{NULL} to remove an element.
+Assignment adds or updates an element; assigning \texttt{NULL} removes it.
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -199,10 +205,8 @@ The exercise intentionally uses the same indexing form for adding and updating, 
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Vectors are built with \texttt{:}, \texttt{seq()}, and \texttt{c()} in the supplied exercises.
-  \item Vector indexing can be position-based, logical, negative, or expressed through the 0/1 example in the handout.
-  \item Arithmetic on equal-length vectors is element-wise; the handout also demonstrates recycling of a shorter vector.
-  \item \texttt{sort()} orders numeric and character vectors and can reverse the direction.
-  \item Lists are used for heterogeneous components and can be named, accessed, extended, updated, and shortened.
+  \item Vectors use a common type and support positive, logical, and negative indexing.
+  \item Vector arithmetic is element-wise and may recycle shorter operands.
+  \item Lists preserve mixed types and support named access and modification.
 \end{itemize}
 \end{chapterrecap}

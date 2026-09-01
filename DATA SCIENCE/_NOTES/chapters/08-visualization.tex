@@ -1,13 +1,13 @@
-\chapter{Built-in Datasets and Data Visualization in R}
+\chapter{Data Visualization in R}
 \label{chap:visualization}
 
 \chapterguide
-  {You should be able to load data frames and inspect their columns.}
-  {load built-in datasets; create pie charts, box plots, histograms, scatterplots, bar charts, and line graphs; add labels, titles, legends, colors, and multiple series using the exact families of functions shown in Lab 8a.}
+  {You should be able to load and inspect data frames.}
+  {create and interpret pie charts, box plots, histograms, scatterplots, bar charts, and line graphs.}
 
 \section{Using built-in datasets}
 
-The handout begins with \texttt{data()} to list available sample datasets and then loads \texttt{mtcars}:
+List built-in datasets, then load and inspect \texttt{mtcars}:
 
 \begin{lstlisting}[style=dsr]
 data()
@@ -19,7 +19,7 @@ input <- mtcars[, c("mpg", "cyl")]
 print(head(input))
 \end{lstlisting}
 
-This creates a simple workflow for visualization practice: load a known dataset, inspect a subset, and pass selected columns into plotting functions.
+The workflow is: load, inspect, select, then plot.
 
 \section{Built-in graphics demonstrations}
 
@@ -28,11 +28,11 @@ demo(graphics)
 demo(image)
 \end{lstlisting}
 
-The Lab 8a instruction notes that pressing Enter advances through the demonstrations.
+Press Enter to advance through each demonstration.
 
 \section{Pie charts}
 
-The basic pie chart uses a vector of values and labels:
+A basic pie chart uses values and labels:
 
 \begin{lstlisting}[style=dsr]
 x <- c(21, 62, 10, 53)
@@ -41,7 +41,7 @@ labels <- c("London", "New York", "Singapore", "Mumbai")
 pie(x, labels)
 \end{lstlisting}
 
-The handout then saves the chart to a PNG file:
+Save the plot by opening a graphics device and closing it afterward:
 
 \begin{lstlisting}[style=dsr]
 png(file = "city.png")
@@ -76,31 +76,30 @@ legend(
 )
 \end{lstlisting}
 
-The percentage expression explicitly converts each value into its share of the total before plotting.
+The labels show each value as a percentage of the total.
 
 \subsection{3D pie chart}
 
-The handout introduces \texttt{plotrix} and \texttt{pie3D()}:
+The optional \texttt{plotrix} example requires defined labels:
 
 \begin{lstlisting}[style=dsr]
 library(plotrix)
 
-# As printed in the handout:
 pie3D(
   x,
-  labels = lbl,
+  labels = labels,
   explode = 0.1,
   main = "Pie Chart of Countries"
 )
 \end{lstlisting}
 
 \begin{pitfall}
-The Lab 8a 3D pie-chart fragment uses \texttt{lbl}, but no \texttt{lbl} object is defined in the supplied sequence. A student must define the desired labels (for example from the earlier \texttt{labels} vector) before this fragment can run as written.
+The source uses an undefined object, \texttt{lbl}; the working example reuses \texttt{labels}. Prefer a clear 2D chart when depth adds no information.
 \end{pitfall}
 
 \section{Box plots}
 
-The handout uses a formula to compare mileage across cylinder counts:
+Compare mileage across cylinder groups with formula notation:
 
 \begin{lstlisting}[style=dsr]
 boxplot(
@@ -124,7 +123,7 @@ boxplot(
   notch = TRUE,
   varwidth = TRUE,
   col = c("green", "yellow", "purple"),
-  names = c("High", "Medium", "Low")
+  names = c("4 cylinders", "6 cylinders", "8 cylinders")
 )
 \end{lstlisting}
 
@@ -141,24 +140,22 @@ hist(
 )
 \end{lstlisting}
 
-The next handout fragment adds axis limits and a requested break count. Its printed argument contains a spacing/wording issue:
+Add axis limits and a requested break count:
 
 \begin{lstlisting}[style=dsr]
-# Handout text shows: n breaks = 5
-# Working form for the intended argument:
 hist(
   v,
   xlab = "Weight",
   col = "green",
   border = "red",
-  xlim = c(0, 40),
+  xlim = c(0, 50),
   ylim = c(0, 5),
   breaks = 5
 )
 \end{lstlisting}
 
 \begin{pitfall}
-The source prints \texttt{n breaks = 5}, which is not a valid named argument in that form. The listing above clearly labels \texttt{breaks = 5} as the working interpretation rather than silently reproducing the typo.
+The source prints the invalid argument \texttt{n breaks = 5}; the correct argument is \texttt{breaks = 5}.
 \end{pitfall}
 
 \section{Scatterplots}
@@ -172,10 +169,10 @@ plot(
   x = input$wt,
   y = input$mpg,
   xlab = "Weight",
-  ylab = "Milage",
+  ylab = "Mileage",
   xlim = c(2.5, 5),
   ylim = c(15, 30),
-  main = "Weight vs Milage"
+  main = "Weight versus mileage"
 )
 \end{lstlisting}
 
@@ -191,7 +188,7 @@ pairs(
 
 \section{Bar charts}
 
-The simplest bar chart is:
+A basic bar chart is:
 
 \begin{lstlisting}[style=dsr]
 H <- c(7, 12, 28, 3, 41)
@@ -215,7 +212,7 @@ barplot(
 )
 \end{lstlisting}
 
-\subsection{Grouped / stacked-style matrix input}
+\subsection{Stacked matrix input}
 
 Lab 8a constructs a 3-by-5 matrix of values and passes it to \texttt{barplot()} with a region legend:
 
@@ -233,10 +230,10 @@ Values <- matrix(
 
 barplot(
   Values,
-  main = "total revenue",
+  main = "Total revenue",
   names.arg = months,
-  xlab = "month",
-  ylab = "revenue",
+  xlab = "Month",
+  ylab = "Revenue",
   col = colors
 )
 
@@ -250,7 +247,7 @@ v <- c(7, 12, 28, 3, 41)
 plot(v, type = "o")
 \end{lstlisting}
 
-The handout then adds title, labels, and color:
+Add a title, labels, and color:
 
 \begin{lstlisting}[style=dsr]
 plot(
@@ -258,8 +255,8 @@ plot(
   type = "o",
   col = "red",
   xlab = "Month",
-  ylab = "Rain fall",
-  main = "Rain fall chart"
+  ylab = "Rainfall",
+  main = "Rainfall chart"
 )
 \end{lstlisting}
 
@@ -273,8 +270,8 @@ plot(
   type = "o",
   col = "red",
   xlab = "Month",
-  ylab = "Rain fall",
-  main = "Rain fall chart"
+  ylab = "Rainfall",
+  main = "Rainfall chart"
 )
 lines(t, type = "o", col = "blue")
 \end{lstlisting}
@@ -294,7 +291,7 @@ lines(t, type = "o", col = "blue")
 \end{tikzpicture}
 \end{dsfigure}
 
-The diagram is only a study organizer for the plot families present in the handout; it does not replace the requirement to explain why a particular chart supports the observation you are making.
+Choose a chart that matches the analytical question, then explain the visible evidence.
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -308,10 +305,8 @@ The diagram is only a study organizer for the plot families present in the hando
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Lab 8a covers six plot families: pie, box, histogram, scatter, bar, and line.
-  \item Plot customization includes titles, axis labels, legends, colors, limits, and multiple series.
-  \item Built-in datasets such as \texttt{mtcars} provide ready-made material for practicing visual analysis.
-  \item The handout also demonstrates saving a chart to PNG and using package-specific 3D pie charts.
-  \item A visualization in Lab 8b is expected to support an observation or story, not merely exist as decoration.
+  \item Match the chart type to composition, distribution, comparison, relationship, or trend.
+  \item Use titles, labels, legends, and colors to clarify the evidence.
+  \item Every visualization should support a specific analytical claim.
 \end{itemize}
 \end{chapterrecap}

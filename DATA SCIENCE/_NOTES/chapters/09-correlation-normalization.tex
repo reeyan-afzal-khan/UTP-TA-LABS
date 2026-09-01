@@ -1,13 +1,13 @@
-\chapter{Correlation Analyses and Normalization in R}
+\chapter{Correlation, Transformation, and Scaling}
 \label{chap:correlation-normalization}
 
 \chapterguide
-  {You should be comfortable loading datasets, selecting columns, installing packages, and creating visualizations.}
-  {compute Pearson correlation using \texttt{cor()} and \texttt{cor.test()}; visualize correlation matrices using the packages shown in the handout; construct correlation heatmaps; and compare log transformation, standard scaling, and min--max scaling using the supplied examples.}
+  {You should be comfortable loading data, selecting columns, using packages, and creating plots.}
+  {compute and test Pearson correlation, visualize correlation matrices, and compare log transformation, standardization, and min--max scaling.}
 
 \section{Pearson correlation with \texttt{cor()}}
 
-The handout begins with two vectors:
+Compute a Pearson coefficient for two paired vectors:
 
 \begin{lstlisting}[style=dsr]
 x <- c(1, 2, 3, 4, 5, 6, 7)
@@ -17,22 +17,26 @@ result <- cor(x, y, method = "pearson")
 cat("Pearson correlation coefficient is:", result)
 \end{lstlisting}
 
-The purpose is to obtain a single Pearson correlation coefficient describing the linear association between the paired values.
+The coefficient summarizes their linear association from -1 to 1.
 
 \section{Pearson correlation with \texttt{cor.test()}}
 
-The next example uses the same vectors but requests a full test object:
+\texttt{cor.test()} adds inferential output:
 
 \begin{lstlisting}[style=dsr]
 result <- cor.test(x, y, method = "pearson")
 print(result)
 \end{lstlisting}
 
-The handout therefore distinguishes a direct coefficient calculation from a more detailed statistical-test output.
+Its output includes the estimate, test statistic, p-value, and confidence interval.
+
+\begin{pitfall}
+Correlation measures association, not causation. Inspect the data and assumptions before interpreting the coefficient or p-value.
+\end{pitfall}
 
 \section{Correlation matrix with \texttt{corrplot}}
 
-Using \texttt{mtcars}, the source computes a correlation matrix and visualizes it:
+Compute and visualize the \texttt{mtcars} correlation matrix:
 
 \begin{lstlisting}[style=dsr]
 install.packages("corrplot")
@@ -54,11 +58,11 @@ corrplot(
 )
 \end{lstlisting}
 
-The progression adds hierarchical ordering and then a color palette.
+Hierarchical ordering places variables with similar correlation patterns together.
 
 \section{Building a heatmap-ready correlation table}
 
-Lab 9a next uses the built-in \texttt{environmental} data from the \texttt{lattice} package:
+Use the \texttt{environmental} dataset to prepare a clustered heatmap:
 
 \begin{lstlisting}[style=dsr]
 install.packages("lattice")
@@ -74,12 +78,12 @@ head(corr_mat)
 The matrix is reordered using a distance derived from correlation values and hierarchical clustering:
 
 \begin{lstlisting}[style=dsr]
-dist <- as.dist((1 - corr_mat) / 2)
-hc <- hclust(dist)
+corr_dist <- as.dist((1 - corr_mat) / 2)
+hc <- hclust(corr_dist)
 corr_mat <- corr_mat[hc$order, hc$order]
 \end{lstlisting}
 
-Then \texttt{reshape2::melt()} converts the matrix into a longer form:
+Convert the matrix to long form for \texttt{ggplot2}:
 
 \begin{lstlisting}[style=dsr]
 install.packages("reshape2")
@@ -89,7 +93,6 @@ melted_corr_mat <- melt(corr_mat)
 head(melted_corr_mat)
 \end{lstlisting}
 
-This transformed table is the input for the following \texttt{ggplot2} heatmap.
 
 \section{Correlation heatmaps}
 
@@ -105,13 +108,13 @@ ggplot(
 ) +
   geom_tile() +
   geom_text(
-    aes(Var2, Var1, label = value),
+    aes(label = value),
     color = "white",
     size = 4
   )
 \end{lstlisting}
 
-The heatmap encodes each correlation value as a tile and overlays the numeric value as text.
+Tile color and overlaid text both encode the correlation value.
 
 \subsection{Using \texttt{heatmaply}}
 
@@ -130,22 +133,19 @@ heatmaply_cor(
 
 \subsection{Using \texttt{ggcorrplot}}
 
-The handout's package-installation line and library name do not match exactly:
+Use the correctly named package:
 
 \begin{lstlisting}[style=dsr]
-# Printed package name in the handout:
-install.packages("ggcorplot")
-
-# Printed library/function name:
+install.packages("ggcorrplot")
 library(ggcorrplot)
 ggcorrplot::ggcorrplot(cor(data))
 \end{lstlisting}
 
 \begin{pitfall}
-Lab 9a prints \texttt{install.packages("ggcorplot")} but immediately uses \texttt{library(ggcorrplot)} and \texttt{ggcorrplot::ggcorrplot()}. These notes preserve the mismatch as a source caution. Verify the package name in your R environment before installation rather than assuming the two spellings are equivalent.
+The source misspells the installation name as \texttt{ggcorplot}. The package and namespace are \texttt{ggcorrplot}.
 \end{pitfall}
 
-\section{Normalization by log transformation}
+\section{Log transformation}
 
 The supplied numeric vector is:
 
@@ -156,22 +156,21 @@ scaled_data <- log(mydata)
 print(scaled_data)
 \end{lstlisting}
 
-The lab labels this as normalization with log transformation and asks students to inspect how the values change.
+Log transformation compresses large values and can reduce right skew; it does not constrain values to a fixed range.
 
-\section{Standard scaling}
+\section{Standardization}
 
-The handout uses \texttt{scale()} and converts the result to a data frame:
+\texttt{scale()} centers values at approximately zero and scales them to unit standard deviation:
 
 \begin{lstlisting}[style=dsr]
 scaled_data2 <- as.data.frame(scale(mydata))
 print(scaled_data2)
 \end{lstlisting}
 
-This gives a second transformed representation of exactly the same source values.
 
 \section{Min--max scaling}
 
-The third method uses \texttt{caret::preProcess()} with the \texttt{"range"} method:
+Min--max scaling maps values to a fixed range, normally 0 to 1:
 
 \begin{lstlisting}[style=dsr]
 install.packages("caret")
@@ -191,17 +190,17 @@ print(scaled_data3)
 
 \section{Comparing summaries}
 
-The final Lab 9a step is to compare summary statistics for the raw and transformed data:
+Compare the raw and transformed summaries:
 
 \begin{lstlisting}[style=dsr]
 summary(mydata)
-summary(scaled_data1)
+summary(scaled_data)
 summary(scaled_data2)
 summary(scaled_data3)
 \end{lstlisting}
 
 \begin{pitfall}
-The log-transformation code stores its result in \texttt{scaled\_data}, but the final comparison calls \texttt{summary(scaled\_data1)}. The source does not define \texttt{scaled\_data1}. To execute the intended comparison, either use \texttt{summary(scaled\_data)} or explicitly assign \texttt{scaled\_data1 <- scaled\_data} before the summary calls. This is an explicit implementation note, not a silent source correction.
+The source calls an undefined object, \texttt{scaled\_data1}. The corrected comparison uses \texttt{scaled\_data}.
 \end{pitfall}
 
 \begin{dsfigure}
@@ -219,7 +218,7 @@ The log-transformation code stores its result in \texttt{scaled\_data}, but the 
 \end{tikzpicture}
 \end{dsfigure}
 
-The three branches represent the three transformation methods explicitly requested in Lab 9a; the final exercise compares their summary output against the raw data.
+Compare each method with the raw data because the resulting scales have different interpretations.
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -233,10 +232,8 @@ The three branches represent the three transformation methods explicitly request
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Pearson correlation is computed directly with \texttt{cor()} and examined more fully with \texttt{cor.test()}.
-  \item The source demonstrates several correlation visualizations: \texttt{corrplot}, a \texttt{ggplot2} tile heatmap, \texttt{heatmaply}, and \texttt{ggcorrplot}.
-  \item Correlation matrices can be reordered before plotting to group similar relationships visually.
-  \item The normalization section compares log transformation, standard scaling, and min--max scaling on the same data.
-  \item Lab 9a contains a few naming/package inconsistencies that should be checked explicitly when reproducing the code.
+  \item \texttt{cor()} estimates association; \texttt{cor.test()} adds inferential statistics.
+  \item Clustered heatmaps group variables with similar correlation patterns.
+  \item Log transformation, standardization, and min--max scaling serve different purposes.
 \end{itemize}
 \end{chapterrecap}

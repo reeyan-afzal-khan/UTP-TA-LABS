@@ -1,6 +1,6 @@
 \chapter*{Command Quick Reference}
 \addcontentsline{toc}{chapter}{Command Quick Reference}\markboth{Command Quick Reference}{}
-This appendix consolidates the commands that appear throughout the supplied labs. It is intended as a lookup aid, not a substitute for understanding which VRP view a command belongs to.
+This appendix is a lookup aid. Confirm the required VRP view before entering a command.
 
 \section*{Core VRP and interface commands}
 \begin{tabularx}{\linewidth}{>{\ttfamily}p{0.42\linewidth}X}
@@ -28,7 +28,7 @@ ip route-static ... preference 80 & Add a less-preferred backup static route.\\
 display ip routing-table & Inspect direct, static, and dynamic routes.\\
 ospf 1 router-id 10.0.1.1 & Create/select OSPF process 1 with a router ID.\\
 area 0 & Enter OSPF area 0.\\
-network 10.0.12.0 0.0.0.255 & Match/advertise the /24 network in the lab.\\
+network 10.0.12.0 0.0.0.255 & Enable matching interfaces for OSPF.\\
 display ospf peer & Detailed OSPF neighbor state.\\
 display ospf peer brief & Condensed OSPF neighbor summary.\\\bottomrule
 \end{tabularx}
@@ -74,7 +74,7 @@ undo negotiation auto & Disable Ethernet auto-negotiation.\\
 speed 100 & Force the lab member-link speed.\\
 interface Eth-Trunk 1 & Enter/create the logical bundle.\\
 eth-trunk 1 & Add a physical interface to Eth-Trunk 1.\\
-mode lacp & Enable static LACP on the Eth-Trunk.\\
+mode lacp & Enable static LACP on the Eth-Trunk (syntax varies by VRP image).\\
 lacp priority 100 & Set LACP system/interface priority depending on view.\\
 port link-type access & Configure a host-facing access port.\\
 port default vlan 4 & Bind an access port to VLAN 4.\\
@@ -101,5 +101,5 @@ ppp chap password cipher ... & Configure CHAP password.\\\bottomrule
 \end{tabularx}
 
 \begin{pitfall}
-Many VRP commands are view-dependent. If a command is rejected, first check the prompt and confirm that you are in the correct system, interface, protocol, AAA, or FTP view before changing the syntax.
+If a command is rejected, check the prompt and required view before changing its syntax.
 \end{pitfall}

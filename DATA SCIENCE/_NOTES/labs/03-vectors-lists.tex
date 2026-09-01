@@ -2,7 +2,7 @@
 
 \begin{labproject}{Lab 3b guided practice}
 \textbf{Coverage.} Chapter~\ref{chap:vectors-lists}.\\
-\textbf{Goal.} Use vectors for grade counting and logical pass/fail checks, then use named lists for student records and subject scores.
+\textbf{Goal.} Use vectors for grade analysis and named lists for student records.
 
 \textbf{Task 1 --- Grade distribution and pass/fail values.}
 
@@ -26,7 +26,7 @@ pass <- scores > 49
 print(pass)
 \end{lstlisting}
 
-For the supplied 20 scores, the grade counts are A=3, B=1, C=3, D=2, E=2, and F=9.
+The counts are A=3, B=1, C=3, D=2, E=2, and F=9.
 
 \textbf{Task 2 --- Named list of students and exam scores.}
 
@@ -55,7 +55,7 @@ print(paste("Student with lowest score:",
                   collapse = ", ")))
 \end{lstlisting}
 
-The supplied data contain a tie for the highest exam score: Paul and Simu both have 92. The lowest score is Larson's 57. The average is 70.8.
+Paul and Simu share the highest score (92); Larson has the lowest (57); the mean is 70.8.
 
 \textbf{Task 3 --- Append Chemistry and Physics scores.}
 
@@ -75,13 +75,13 @@ print(records$student_name[records$chemistry == chem_best])
 print(records$student_name[records$physics == phys_best])
 \end{lstlisting}
 
-For the supplied values, no student fails Chemistry and one student (Holland) fails Physics. The best Chemistry score is shared by Paul and Simu; the best Physics score is Simu's 90.
+No student fails Chemistry; Holland alone fails Physics. Paul and Simu share the top Chemistry score, and Simu leads Physics with 90.
 
 \begin{referencebox}
-The phrase ``who got the highest/best score for both subjects'' in Lab 3b can be read in more than one way. The code above reports the highest scorer for each subject separately because that conclusion is directly supported by the two score vectors. If your GA intends a combined-score ranking instead, define that rule explicitly before computing it.
+The phrase ``best score for both subjects'' is ambiguous. This solution reports each subject separately; define a combined-score rule if required.
 \end{referencebox}
 \end{labproject}
 
 \begin{labdeliverable}
-Submit the grade counts and 20 pass/fail values, the named student record with summary statistics, and the Chemistry/Physics failure and highest-score analysis.
+Submit the grade distribution, pass/fail vector, student summary, and subject-level failure and top-score analysis.
 \end{labdeliverable}

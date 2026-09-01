@@ -2,7 +2,7 @@
 
 \begin{labproject}{Lab 5b guided practice}
 \textbf{Coverage.} Chapter~\ref{chap:control-flow}.\\
-\textbf{Goal.} Use conditions and loops to implement the three programming problems in the supplied handout.
+\textbf{Goal.} Solve three problems with conditions and loops.
 
 \textbf{Task 1 --- Check whether a year is a leap year.}
 
@@ -17,14 +17,14 @@ if ((year %% 400 == 0) ||
 }
 \end{lstlisting}
 
-This produces the handout's intended outcomes for the two sample years: 2004 is reported as a leap year, while 1900 is not.
+The sample classifies 2004 as a leap year and 1900 as a common year.
 
 \textbf{Task 2 --- Display cubes up to an input integer.}
 
 \begin{lstlisting}[style=dsr]
 n <- as.integer(readline("Input an integer: "))
 
-for (i in 1:n) {
+for (i in seq_len(n)) {
   cube <- i ^ 3
   print(paste(
     "Number is:", i,
@@ -33,11 +33,11 @@ for (i in 1:n) {
 }
 \end{lstlisting}
 
-For input \texttt{5}, the sequence of cube values is 1, 8, 27, 64, and 125, matching the sample output.
+For \texttt{n = 5}, the cubes are 1, 8, 27, 64, and 125.
 
 \textbf{Task 3 --- Check an Armstrong number.}
 
-The handout calls this an ``Armstrong number of n digits'' but also says digits are raised to power three, while its example uses \texttt{1634}. Those statements are internally inconsistent. The following implementation makes the supplied \texttt{1634} example work by using the number of digits as the exponent.
+An Armstrong number equals the sum of its digits raised to the number of digits. This definition correctly classifies the supplied example \texttt{1634}.
 
 \begin{lstlisting}[style=dsr]
 number <- as.integer(readline("Input an integer: "))
@@ -61,10 +61,10 @@ if (sum_power == original) {
 \end{lstlisting}
 
 \begin{pitfall}
-The source text says ``sum of digits raised to the power three'' and then gives 1634 as the example. Raising 1, 6, 3, and 4 to the third power does not produce 1634. The guided solution above is explicitly an implementation choice made to reconcile the ``n digits'' wording with the supplied sample result; confirm the expected definition with the GA if the assessment requires the literal handout wording.
+The source also says ``power three,'' which conflicts with its four-digit example. Confirm the required definition with your instructor.
 \end{pitfall}
 \end{labproject}
 
 \begin{labdeliverable}
-Submit three working R programs and demonstrate them using the sample inputs shown in Lab 5b where applicable.
+Submit all three programs with representative test results.
 \end{labdeliverable}

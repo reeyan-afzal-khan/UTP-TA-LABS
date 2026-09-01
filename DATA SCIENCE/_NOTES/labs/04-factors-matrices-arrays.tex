@@ -2,7 +2,7 @@
 
 \begin{labproject}{Lab 4b guided practice}
 \textbf{Coverage.} Chapter~\ref{chap:factors-matrices-arrays}.\\
-\textbf{Goal.} Summarize factor levels, manipulate a transposed matrix pair, and construct arrays with the dimensions shown in the supplied expected output.
+\textbf{Goal.} Summarize factor levels, compare a matrix with its transpose, and construct multidimensional arrays.
 
 \textbf{Task 1 --- Retirement-age factor levels.}
 
@@ -19,7 +19,7 @@ print(levels(age_factor))
 print(table(age_factor))
 \end{lstlisting}
 
-The exact-age counts for the supplied vector are:
+The exact-age counts are:
 
 \begin{dstable}
 \begin{tabular}{@{}rrrrrrrrrrrr@{}}
@@ -31,7 +31,7 @@ Count & 2 & 4 & 4 & 3 & 2 & 5 & 4 & 5 & 3 & 2 & 6 \\
 \end{tabular}
 \end{dstable}
 
-The handout displays the ranges 50--52, 52--54, 54--56, 56--58, and 58--60. Those displayed ranges overlap at 52, 54, 56, and 58. A faithful direct count is therefore:
+The requested ranges overlap at 52, 54, 56, and 58. Direct inclusive counts are:
 
 \begin{lstlisting}[style=dsr]
 range_counts <- c(
@@ -44,10 +44,10 @@ range_counts <- c(
 print(range_counts)
 \end{lstlisting}
 
-These counts are 10, 9, 11, 12, and 11 respectively, but they should not be added as though they were mutually exclusive groups because the handout's endpoints overlap.
+The counts are 10, 9, 11, 12, and 11. Do not total them because the groups overlap.
 
 \begin{pitfall}
-If the intention is to divide staff into five non-overlapping groups, the supplied ranges need an explicit boundary convention. The handout does not provide one, so these notes do not invent it silently.
+Non-overlapping groups require an explicit boundary convention; the source does not provide one.
 \end{pitfall}
 
 \textbf{Task 2 --- Create a 3-by-3 matrix and transpose it.}
@@ -69,7 +69,7 @@ print(Matrix1 * Matrix2)
 print(Matrix1 / Matrix2)
 \end{lstlisting}
 
-The arithmetic operators match the element-wise usage shown in Lab 4a.
+These operators are element-wise.
 
 \textbf{Task 3 --- Construct the two arrays shown in the expected output.}
 
@@ -83,15 +83,15 @@ print(Array2)
 print("The second row of the second matrix of the first array:")
 print(Array1[2, , 2])
 
-print("The element corresponding to the supplied sample output 30:")
+print("The element corresponding to sample output 30:")
 print(Array2[3, 2, 1])
 \end{lstlisting}
 
 \begin{pitfall}
-Lab 4b asks for the element in the ``3rd row and 3rd column'' of the first matrix of Array2, while Array2 is specified to have only 2 columns. The supplied expected output is 30, which corresponds to \texttt{Array2[3,2,1]} in the displayed 3-row by 2-column matrix. The guided code follows the dimensions and sample output rather than inventing a nonexistent third column.
+Array2 has only two columns, although the task requests column 3. The expected value 30 corresponds to \texttt{Array2[3,2,1]}.
 \end{pitfall}
 \end{labproject}
 
 \begin{labdeliverable}
-Submit the exact-age factor summary and your interpretation of the requested ranges, the two named 3-by-3 matrices with four arithmetic results, and the two multidimensional arrays with the requested selections.
+Submit the factor summary, range interpretation, matrix results, arrays, and requested selections.
 \end{labdeliverable}
