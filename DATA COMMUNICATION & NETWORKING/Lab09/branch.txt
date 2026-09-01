@@ -1,0 +1,79 @@
+! ============================================================
+! Lab 9 --- Branch router, far end of the serial WAN link
+!
+! Build this alongside hq.txt. A serial link has settings that must
+! MATCH (link-protocol, authentication scheme) and settings that must
+! DIFFER (only one end supplies clocking).
+! ============================================================
+
+system-view
+sysname Branch
+
+! ---------- Check which end you are ----------
+! display interface Serial 0/0/0
+!   Look for DCE or DTE in the output. If HQ turned out to be the DTE
+!   end, then THIS end is DCE and the clock rate belongs here instead.
+!   Exactly one end sets it; setting both, or neither, leaves the line
+!   protocol down while every IP address looks perfectly correct.
+
+interface Serial 0/0/0
+ ip address 10.0.0.2 30       ! same /30 as HQ: .1 and .2 are the only hosts
+ ! clock rate 64000           ! UNCOMMENT ONLY IF THIS END IS DCE
+ link-protocol hdlc           ! must match HQ exactly
+ undo shutdown
+quit
+
+interface GigabitEthernet 0/0/0
+ ip address 192.168.200.1 24
+ undo shutdown
+quit
+
+! ---------- OSPF across the WAN ----------
+ospf 1 router-id 20.20.20.20   ! unique in the area; HQ uses 10.10.10.10
+ area 0
+  network 10.0.0.0 0.0.0.3
+  network 192.168.200.0 0.0.0.255
+ quit
+quit
+
+quit
+save
+
+! ---------- Then switch to PPP (BOTH ends, or the link drops) ----------
+! system-view
+! interface Serial 0/0/0
+!  link-protocol ppp
+! quit
+
+! ---------- PAP: the side that PROVES its identity ----------
+! PAP sends the username and password across the link in the clear.
+! Capture it in Wireshark --- the password is plainly readable. That
+! single observation is the reason PAP is not used in practice.
+! interface Serial 0/0/0
+!  ppp pap local-user branch password cipher Branch@123
+! quit
+
+! ---------- CHAP: the side that answers the challenge ----------
+! CHAP never sends the password. HQ sends a random challenge; this end
+! returns a hash of (challenge + secret). An eavesdropper sees only the
+! hash, and the challenge changes every time, so a captured response
+! cannot be replayed.
+! interface Serial 0/0/0
+!  ppp chap user branch
+!  ppp chap password cipher Branch@123
+! quit
+
+! ---------- Verify ----------
+! display interface Serial 0/0/0
+!   "Serial0/0/0 current state : UP"  and  "Line protocol ... is UP"
+!   Physical UP with line protocol DOWN = clocking or encapsulation
+!   mismatch, NOT an addressing problem.
+!
+! display ppp all
+!   Watch LCP reach Opened before IPCP does. If LCP opens and IPCP
+!   never follows, authentication is failing --- check the username and
+!   password here against the local-user entry on HQ.
+!
+! display ip routing-table protocol ospf
+!   192.168.100.0/24 (HQ's LAN) should appear. Then ping from a Branch
+!   PC to an HQ PC to confirm end to end.

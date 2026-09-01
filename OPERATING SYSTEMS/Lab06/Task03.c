@@ -1,11 +1,17 @@
 /*
-Step 1: Start the process
-Step 2: Declare process thread, thread-id.
-Step 3: Read the process thread and thread state.
-Step 4: Check the process thread equals to thread-id by using if condition. 
-Step 5: Check the error state of the thread.
-Step 6: Display the completed thread process. Step 7: Stop the process
- */ 
+ * Lab 6, Task 3 --- POSIX thread creation, identity, and joining.
+ *
+ * STEP 1: Create two threads with pthread_create(), both running the same
+ *         function.
+ * STEP 2: Inside the function, each thread finds its own identity with
+ *         pthread_self() and matches it against the stored ids using
+ *         pthread_equal() (thread ids are opaque --- never compare with ==).
+ * STEP 3: Each thread simulates work, then reports completion.
+ * STEP 4: main() joins both threads so the process cannot exit while they
+ *         are still running.
+ *
+ * Build: gcc -Wall -Wextra -pthread Task03.c -o task03
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +24,7 @@ pthread_t tid[2];  // Global thread IDs
 // Thread function
 void* doSomeThing(void *arg)
 {
+    (void)arg;   // required by the pthread signature; unused here
     unsigned long i = 0;
     pthread_t id = pthread_self();
 

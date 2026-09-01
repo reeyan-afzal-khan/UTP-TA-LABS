@@ -1,14 +1,23 @@
 /*
-Step 1: Start the process 
-Step 2: Declare the size
-Step 3: Get the number of pages
-Step 4: Get the reference string values
-Step 5: Declare counters and frame stack
-Step 6: Select the least recently used page by counter distance
-Step 7: Replace using LRU
-Step 8: Display the results
-Step 9: Stop
-*/
+ * Lab 8, Task 3 --- LRU page replacement.
+ *
+ * STEP 1: Read the page count, the reference string, and the frame count.
+ * STEP 2: Mark all frames empty (-1).
+ * STEP 3: For each referenced page:
+ *           - resident        -> hit;
+ *           - free frame left -> load it there;
+ *           - otherwise       -> for every resident page, scan BACKWARDS
+ *                                through the references already processed
+ *                                and count how far back its last use was.
+ *                                Evict the page with the largest distance.
+ * STEP 4: Report the total page faults.
+ *
+ * LRU evicts the page whose last reference is farthest in the PAST. It
+ * approximates the optimal policy (which looks into the future) and, unlike
+ * FIFO, is a stack algorithm, so it never suffers Belady's anomaly.
+ *
+ * Build: gcc -Wall -Wextra Task03.c -o task03
+ */
 
 #include <stdio.h>
 
@@ -27,6 +36,12 @@ int main()
 
     printf("Enter no of frames: ");
     scanf("%d", &f);
+
+    // Mark every frame empty. Without this, the presence check below reads
+    // uninitialized memory, and a page number that happens to match garbage
+    // (page 0 is the classic victim) is treated as a hit and never loaded.
+    for(j = 0; j < f; j++)
+        q[j] = -1;
 
     // Load first page
     q[k] = p[k];

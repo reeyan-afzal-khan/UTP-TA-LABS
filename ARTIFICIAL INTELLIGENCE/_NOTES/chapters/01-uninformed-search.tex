@@ -274,6 +274,48 @@ UCS & Lowest \(g(n)\) & Min-priority queue & Least-cost path in a weighted graph
 \end{tabularx}
 \end{mltable}
 
+\subsection{The four properties every search algorithm is judged on}
+
+Choosing between these methods means asking four standard questions, not just ``which one found a path''.
+
+\begin{description}
+  \item[Completeness] If a solution exists, is the algorithm guaranteed to find it?
+  \item[Optimality] Is the solution it returns guaranteed to be the cheapest one?
+  \item[Time complexity] How many states might it expand?
+  \item[Space complexity] How many states might it hold in memory at once?
+\end{description}
+
+Write \(b\) for the \term{branching factor} (successors per state), \(d\) for the depth of the shallowest goal, and \(m\) for the maximum depth of the search space.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.09\linewidth}p{0.15\linewidth}p{0.20\linewidth}p{0.15\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Complete? & Optimal? & Time & Space \\
+\midrule
+BFS & Yes, if \(b\) is finite & Yes, but only when every step costs the same & \(O(b^{d})\) & \(O(b^{d})\) \\
+DFS & Not in general & No & \(O(b^{m})\) & \(O(bm)\) \\
+UCS & Yes, if step costs \(\geq\varepsilon>0\) & Yes, for any non-negative costs & \(O(b^{1+\lfloor C^\star/\varepsilon\rfloor})\) & same as time \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Here \(C^\star\) is the cost of the optimal solution and \(\varepsilon\) the smallest step cost.
+
+\begin{keyidea}
+Read the space column first. BFS and UCS store the whole frontier, which grows exponentially --- memory, not time, is what usually stops them on a real problem. DFS needs only the current branch, \(O(bm)\), which is why it survives on deep spaces that exhaust BFS.
+
+That is the trade: DFS buys its small memory footprint by giving up both completeness and optimality.
+\end{keyidea}
+
+\begin{pitfall}
+Two entries above are easy to misread.
+
+\textbf{``BFS is optimal''} holds only for \emph{equal} step costs. On the weighted Lab~1 graph, BFS returns \texttt{A -> B -> D -> G} costing 8 while UCS returns \texttt{A -> B -> E -> G} costing 4 --- both use three edges. Fewest edges and cheapest are different questions, and BFS only answers the first.
+
+\textbf{``DFS is not complete''} refers to spaces that are infinite or contain cycles: DFS can descend forever and never come back. On a \emph{finite} graph with a visited set --- every graph in this lab --- DFS does terminate and will find a goal if one is reachable. It still gives no guarantee about which one.
+\end{pitfall}
+
 \input{labs/01-search-foundations}
 
 \begin{quickcheck}

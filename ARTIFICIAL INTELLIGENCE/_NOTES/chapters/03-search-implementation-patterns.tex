@@ -186,7 +186,30 @@ heapq.heappush(pq, (new_g + heuristic((nx, ny), goal),
                     path + [(nx, ny)]))
 \end{lstlisting}
 
-The first tuple element sets priority; later fields carry cost or path data. For stable ties, insert an increasing counter after the priority.
+The first tuple element sets priority; later fields carry cost or path data.
+
+\begin{pitfall}
+When two priorities tie, Python moves on to the \emph{next} tuple element --- and in the code above that is the path list. Comparing two lists compares their elements, so this only works while every state is mutually comparable.
+
+The lab states are homogeneous (all strings, or all coordinate tuples), so the ties resolve quietly and the code runs. Mix the types and the same line raises at run time:
+
+\begin{lstlisting}[style=mlpython]
+heapq.heappush(pq, (4, ['A', 1]))
+heapq.heappush(pq, (4, ['A', 'B']))
+# TypeError: '<' not supported between instances of 'str' and 'int'
+\end{lstlisting}
+
+It is also a correctness smell even when it works: the tie is broken by whichever path happens to sort first, so the algorithm's output depends on state names rather than on the search.
+
+The fix is one unique increasing integer between the priority and the payload, which makes ties resolve by insertion order and stops the payload from ever being compared:
+
+\begin{lstlisting}[style=mlpython]
+counter = 0
+...
+counter += 1
+heapq.heappush(pq, (cost + weight, counter, path + [neighbor]))
+\end{lstlisting}
+\end{pitfall}
 
 \section{A single comparison harness}
 

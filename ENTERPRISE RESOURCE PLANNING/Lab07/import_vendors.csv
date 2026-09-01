@@ -1,0 +1,4 @@
+name,is_company,city,country_id,supplier_rank
+Ipoh Metal Supply,TRUE,Ipoh,Malaysia,1
+RubberWheel Co.,TRUE,Ipoh,Malaysia,1
+BikeParts Supplier,TRUE,Ipoh,Malaysia,1

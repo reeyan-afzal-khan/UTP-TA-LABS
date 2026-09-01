@@ -1,14 +1,20 @@
 /*
-Step 1: Start the process 
-Step 2: Declare the size
-Step 3: Get number of pages
-Step 4: Get values
-Step 5: Declare counter and stack
-Step 6: Select the least frequently used page
-Step 7: Stack them according to selection
-Step 8: Display values
-Step 9: Stop the process
-*/
+ * Lab 8, Task 4 --- LFU page replacement.
+ *
+ * STEP 1: Read the frame count, the page count, and the reference string.
+ * STEP 2: Keep a reference COUNT for every resident page.
+ * STEP 3: On a hit, increment that page's count.
+ *         On a fault with no free frame, evict the page with the SMALLEST
+ *         count; this code breaks ties using recency information.
+ * STEP 4: Report page hits and page faults.
+ *
+ * State the tie-breaker explicitly in your report: "least frequently used"
+ * alone does not define a unique victim when several pages share the lowest
+ * count. LFU's other weakness is stale history --- a page referenced heavily
+ * early on keeps a high count long after it stops being needed.
+ *
+ * Build: gcc -Wall -Wextra Task04.c -o task04
+ */
 
 #include <stdio.h>
 

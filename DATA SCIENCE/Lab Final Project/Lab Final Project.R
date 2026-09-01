@@ -1,14 +1,37 @@
+# Data Science final project --- clean a deliberately messy student dataset.
+#
+# Run with the working directory set to this folder:
+#     setwd("path/to/DATA SCIENCE/Lab Final Project")   # or use RStudio's
+#     source("Lab Final Project.R")                     # Session > Set
+#                                                       # Working Directory
+# From a terminal:
+#     Rscript "Lab Final Project.R"
+#
+# Requires tidyverse and lubridate. They are NOT installed automatically:
+# a script that silently installs packages can rewrite a shared lab machine's
+# library. Install them yourself once, then run this.
 
-if (!require("tidyverse")) install.packages("tidyverse")
-if (!require("lubridate")) install.packages("lubridate")
+for (pkg in c("tidyverse", "lubridate")) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    stop("Package '", pkg, "' is not installed. Run: install.packages(\"", pkg, "\")")
+  }
+}
 library(tidyverse)
 library(lubridate)
+
+INPUT_FILE  <- "Unclean Dataset.csv"
+OUTPUT_FILE <- "Cleaned Dataset.csv"
+
+if (!file.exists(INPUT_FILE)) {
+  stop("Cannot find '", INPUT_FILE, "' in the working directory:\n  ", getwd(),
+       "\nSet the working directory to the folder holding this script.")
+}
 
 #LOADING AND SPLITTING THE DATA FOR CLEANING
 #load the data set
 #ISO-8859-1 encoding is used to safely read all currency symbols without crashing
 #read_lines is used instead of read_csv because the data is messy, not in perfect tables
-raw_lines <- read_lines("D:/Data Science Lab/Lab Project 1/Unclean Dataset.csv", locale = locale(encoding = "ISO-8859-1"))
+raw_lines <- read_lines(INPUT_FILE, locale = locale(encoding = "ISO-8859-1"))
 
 #extract features (columns), separate by ","
 #%>% = pipe operator, think of it like step 1 and then?
@@ -123,5 +146,23 @@ clean_df <- full_df %>%
 #prints the first 6 rows of the clean dataset, something like a preview to check
 print(head(clean_df))
 
-#writes Cleaned_Dataset.csv into the folder
-write_csv(clean_df, "D:/Data Science Lab/Lab Project 1/Cleaned Dataset.csv")
+#report what the cleaning actually did, so the result can be checked rather
+#than trusted. A cleaning script that only prints the clean rows hides how
+#many it silently discarded.
+cat("\n--- cleaning summary ---\n")
+cat("raw data lines read      :", length(data_lines), "\n")
+cat("  pipe-delimited         :", length(pipe_lines), "\n")
+cat("  comma-delimited        :", length(comma_lines), "\n")
+cat("rows after merge         :", nrow(full_df), "\n")
+cat("rows after clean/dedupe  :", nrow(clean_df), "\n")
+cat("dropped                  :", nrow(full_df) - nrow(clean_df), "\n\n")
+
+cat("Courses after spelling repair:\n")
+print(table(clean_df$Course, useNA = "ifany"))
+cat("\nGender after standardisation:\n")
+print(table(clean_df$Gender, useNA = "ifany"))
+cat("\nDates that failed to parse:", sum(is.na(clean_df$Enrollment_Date)), "\n")
+
+#writes the cleaned file beside the input
+write_csv(clean_df, OUTPUT_FILE)
+cat("\nWrote", OUTPUT_FILE, "with", nrow(clean_df), "rows.\n")

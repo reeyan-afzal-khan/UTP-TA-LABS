@@ -15,6 +15,40 @@ Trunk & Carries multiple VLANs between switches.\\
 Hybrid & Controls tagging per VLAN and classifies untagged ingress by PVID.\\\bottomrule
 \end{tabularx}
 
+\begin{netfigure}{Where the VLAN tag is added, carried, and removed}
+\begin{tikzpicture}[node distance=0.9cm and 1.5cm]
+\node[host] (pc1) {PC1};
+\node[switch,right=1.5cm of pc1] (sw1) {SW1};
+\node[switch,right=2.9cm of sw1] (sw2) {SW2};
+\node[host,right=1.5cm of sw2] (pc3) {PC3};
+
+\draw[flowarrow] (pc1) -- node[netlabel,above]{access} (sw1);
+\draw[flowarrow] (sw1) -- node[netlabel,above]{trunk} (sw2);
+\draw[flowarrow] (sw2) -- node[netlabel,above]{access} (pc3);
+
+\node[frame,below=0.8cm of pc1,text width=1.9cm,align=center]
+  {\textbf{no tag}\\ \tiny the host has no idea VLANs exist};
+\node[frame,below=0.8cm of $(sw1)!0.5!(sw2)$,text width=2.5cm,align=center,
+      draw=MLBlue,fill=MLPaleBlue]
+  {\textbf{tag = VLAN 10}\\ \tiny added on entry, so the far switch knows};
+\node[frame,below=0.8cm of pc3,text width=1.9cm,align=center]
+  {\textbf{no tag}\\ \tiny stripped again on the way out};
+
+\draw[->,draw=MLMuted,dotted] ($(pc1)+(0,-0.35)$) -- ($(pc1)+(0,-0.75)$);
+\draw[->,draw=MLMuted,dotted] ($(sw1)!0.5!(sw2)+(0,-0.2)$) -- ($(sw1)!0.5!(sw2)+(0,-0.68)$);
+\draw[->,draw=MLMuted,dotted] ($(pc3)+(0,-0.35)$) -- ($(pc3)+(0,-0.75)$);
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize The tag exists only \emph{between} the switches. Hosts never see it,
+which is why a VLAN needs no configuration on the PC --- and why the switch,
+not the host, decides which VLAN a frame belongs to.}
+\end{netfigure}
+
+\begin{keyidea}
+A VLAN is enforced by the switch, not by the host's IP address. Two PCs can share a subnet and still be unable to reach each other if they sit in different VLANs --- changing the PC's address cannot bypass the separation.
+\end{keyidea}
+
 \section{Step 1: build the inter-switch Eth-Trunk}
 Build static-LACP Eth-Trunk 1 with G0/0/9 and G0/0/10. The source shows both physical-interface membership and \cmd{trunkport} from the Eth-Trunk view.
 \begin{lstlisting}[style=dcnterminal]
@@ -78,9 +112,9 @@ Hosts in the same VLAN use a common subnet. Initially, R1 and R3 in VLAN 4 shoul
 
 \sourceimage[0.62\linewidth]{Ping evidence used in the supplied VLAN verification sequence}{vlan-connectivity-check.png}
 
-\begin{verifybox}
+\begin{verification}
 Test both outcomes: same-VLAN connectivity and different-VLAN isolation before adding hybrid behavior.
-\end{verifybox}
+\end{verification}
 
 \section{Step 5: change selected ports to hybrid mode}
 Hybrid ports then deliver VLAN 2 and VLAN 4 traffic untagged to selected devices.
@@ -114,6 +148,37 @@ Retest reachability: the selected VLAN-2 and VLAN-4 hosts should communicate, wh
 \textbf{Frame inside the switch} $\rightarrow$ VLAN membership is tracked logically.\\
 \textbf{Egress toward selected host} $\rightarrow$ listed hybrid VLANs can be sent untagged.
 \end{conceptmap}
+
+\section{The native-VLAN mismatch: a leak that reports no error}
+A trunk sends exactly one VLAN \emph{untagged} --- the native VLAN, taken from the port's PVID. If the two ends disagree about which VLAN that is, each switch files the untagged frames into a different VLAN, and two supposedly isolated VLANs are joined.
+
+\begin{netfigure}{Mismatched native VLAN silently merges two VLANs}
+\begin{tikzpicture}[node distance=1.1cm and 2.6cm]
+\node[switch] (s1) {SW1};
+\node[switch,right=3.4cm of s1] (s2) {SW2};
+\node[vlanA,left=1.3cm of s1] (h1) {VLAN 10};
+\node[vlanB,right=1.3cm of s2] (h2) {VLAN 20};
+
+\draw[flowarrow] (h1) -- (s1);
+\draw[very thick,draw=MLRed,-{Stealth[length=2.2mm]}]
+   (s1) -- node[netlabel,above,text width=3.2cm,align=center]
+   {frame crosses with \textbf{no tag}} (s2);
+\draw[flowarrow] (s2) -- (h2);
+
+\node[netlabel,below=2mm of s1,text width=3.0cm,align=center]
+  {PVID 10\\ \tiny ``VLAN 10 goes untagged''};
+\node[netlabel,below=2mm of s2,text width=3.0cm,align=center]
+  {PVID 20\\ \tiny ``untagged means VLAN 20''};
+\node[below=1.35cm of $(s1)!0.5!(s2)$,font=\scriptsize\bfseries\color{MLRed},
+      text width=6.4cm,align=center]
+  {Result: VLAN 10 traffic is delivered into VLAN 20.\\
+   Both switches log nothing. Both configurations look correct.};
+\end{tikzpicture}
+\end{netfigure}
+
+\begin{pitfall}
+If a cross-VLAN ping unexpectedly \emph{succeeds}, that is not a success --- it is this bug. Set the native VLAN explicitly, to an unused VLAN carrying no user data (999 in the lab files), on \emph{both} ends. Confirm with \cmd{display port vlan} rather than assuming, because nothing else will tell you.
+\end{pitfall}
 
 \section{Troubleshooting VLAN reachability}
 \begin{netsteps}

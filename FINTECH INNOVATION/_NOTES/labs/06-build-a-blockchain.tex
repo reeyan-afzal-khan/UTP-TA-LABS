@@ -2,7 +2,6 @@
 
 \begin{labproject}{Implement hashing, Merkle roots, chaining, and proof of work --- then break it}
 \textbf{Coverage.} Chapter~\ref{ch:blockchain}.\\
-\textbf{Source files.} \texttt{Lab06/blockchain.py}, \texttt{Lab06/tamper\_demo.py}.\\
 \textbf{Goal.} Build the structure Chapter~\ref{ch:blockchain} describes, in about 120 lines of standard-library Python, and then demonstrate for yourself why altering history is computationally hard.
 
 \begin{labmode}
@@ -26,7 +25,7 @@ print(sha256("Alice pays Bob 11"))   # one character different
 Run it. The two outputs share no visible structure despite differing by one character. Four properties matter, and the rest of the lab depends on each:
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Property & Why the blockchain needs it \\

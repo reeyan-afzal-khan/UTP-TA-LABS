@@ -1,0 +1,60 @@
+! ============================================================
+! Lab 8 --- SW2 VLAN configuration
+!
+! The VLANs are created AGAIN here. VLAN membership does not travel
+! across a trunk: the trunk carries tagged frames, but the receiving
+! switch must already know the VLAN or it discards them.
+! ============================================================
+
+system-view
+sysname SW2
+
+! Same VLAN IDs as SW1. A VLAN that exists on only one switch is the
+! second most common failure in this lab (after native-VLAN mismatch).
+vlan batch 10 20 30 999
+
+! ---------- Access ports ----------
+interface GigabitEthernet 0/0/1
+ port link-type access
+ port default vlan 10                 ! PC3, 192.168.10.2/24
+quit
+
+interface GigabitEthernet 0/0/2
+ port link-type access
+ port default vlan 20                 ! PC4, 192.168.20.2/24
+quit
+
+! ---------- Trunk to SW1 ----------
+! Every setting here must MIRROR SW1. The trunk is a negotiation
+! between two ends; a value that differs is not overridden, it just
+! produces a fault whose symptom appears somewhere else.
+interface Eth-Trunk 1
+ port link-type trunk
+ ! Native VLAN 999, identical to SW1. If SW1 said 999 and this said
+ ! the default 1, VLAN 999 frames from SW1 would arrive untagged and
+ ! be filed into VLAN 1 here --- a silent cross-VLAN leak.
+ port trunk pvid vlan 999
+ port trunk allow-pass vlan 10 20 30
+quit
+
+quit
+save
+
+! ---------- Verify ----------
+! display vlan
+!   VLANs 10, 20, 30, 999 all present. Compare against SW1.
+!
+! display port vlan
+!   Confirm the trunk's PVID reads 999 on BOTH switches, and that the
+!   allow-pass list really contains 10, 20 and 30 --- on some VRP
+!   versions a second allow-pass REPLACES the list instead of adding
+!   to it, silently dropping the VLANs you configured first.
+!
+! ---------- The experiment from vlan_matrix.md ----------
+! Temporarily set  port trunk pvid vlan 20  here while SW1 stays at 10,
+! then ping between VLAN 10 and VLAN 20. It will SUCCEED --- and that
+! success is the bug: SW1 sends VLAN 10 untagged, SW2 receives an
+! untagged frame and assigns it to VLAN 20. Two isolated VLANs joined,
+! with no error logged on either switch.
+!
+! Set both ends back to 999 and confirm isolation returns.

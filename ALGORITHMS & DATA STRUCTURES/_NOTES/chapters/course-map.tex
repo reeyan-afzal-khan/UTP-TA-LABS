@@ -1,27 +1,31 @@
 \chapter*{Course Map}
-\phantomsection
+\phantomsection%
 \addcontentsline{toc}{chapter}{Course Map}
 
-The course moves from the question ``how should data be organized?'' to the question ``which organization makes a particular operation efficient?'' The lecture sequence builds that idea in five technical stages, then the final project asks students to synthesize the course through an evidence-based algorithm comparison.
+The course progresses from data organization to algorithm selection. Five stages build core skills; the final project compares algorithms with evidence.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
-  node distance=0.45cm and 0.45cm,
-  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{ADSNavy}},
+  node distance=0.48cm and 0.72cm,
+  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=5.15cm,minimum height=0.92cm,align=left,inner xsep=4mm,font=\small\color{ADSNavy}},
   arr/.style={-{Stealth[length=2.2mm]},thick,draw=ADSTeal}
 ]
-\node[box] (a) {1. Foundations\\data structures and arrays};
-\node[box,right=of a] (b) {2. Linear dynamic structures\\linked lists, stacks, queues};
-\node[box,right=of b] (c) {3. Hierarchies\\trees, BSTs, heaps};
-\node[box,below=0.65cm of c] (d) {4. Networks\\graphs and traversal};
-\node[box,left=of d] (e) {5. Core algorithms\\search, sort, hash};
-\node[box,left=of e] (f) {6. Synthesis\\algorithm comparison project};
-\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d); \draw[arr] (d) -- (e); \draw[arr] (e) -- (f);
+\node[box] (a) {\textbf{\color{ADSBlue}1. Foundations}\\[-0.15em]{\scriptsize Arrays and memory}};
+\node[box,right=of a] (b) {\textbf{\color{ADSBlue}2. Linear structures}\\[-0.15em]{\scriptsize Lists, stacks, and queues}};
+\node[box,below=of b] (c) {\textbf{\color{ADSBlue}3. Hierarchies}\\[-0.15em]{\scriptsize Trees, BSTs, and heaps}};
+\node[box,left=of c] (d) {\textbf{\color{ADSBlue}4. Networks}\\[-0.15em]{\scriptsize Graph representation and traversal}};
+\node[box,below=of d] (e) {\textbf{\color{ADSBlue}5. Core algorithms}\\[-0.15em]{\scriptsize Searching, sorting, and hashing}};
+\node[box,right=of e] (f) {\textbf{\color{ADSBlue}6. Synthesis}\\[-0.15em]{\scriptsize Evidence-based comparison}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
+\draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
+\draw[arr] (e) -- (f);
 \end{tikzpicture}
 \end{mlfigure}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.13\linewidth}p{0.26\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.13\linewidth}p{0.26\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
 Stage & Main structures & Central question \\
@@ -44,19 +48,72 @@ A few slide statements need context to avoid ambiguity in implementation. These 
 \end{clarification}
 
 \section*{Complexity vocabulary used across the course}
-The slides use $O(1)$, $O(n)$, $O(\log n)$, $O(n\log n)$, and $O(n^2)$ when discussing operations. Read $n$ as the amount of input data relevant to the operation.
+Big-O notation describes an asymptotic upper bound on how resource use grows with input size $n$; it is not an exact operation count. The table and chart use representative functions $f(n)$ to compare growth rates consistently.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.16\linewidth}X p{0.26\linewidth}@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.11\linewidth}p{0.16\linewidth}p{0.21\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
-Notation & Informal meaning & Course examples \\
+Class & Growth rate & Function plotted & Typical examples \\
 \midrule
-$O(1)$ & Work does not grow with the number of stored items. & Array index access, queue enqueue under the stated implementation assumptions, hash calculation. \\
-$O(\log n)$ & Repeatedly reduce the remaining search space. & Binary search; BST search under the balanced-tree assumption. \\
-$O(n)$ & Work grows roughly in proportion to the number of items. & Linear search, linked-list traversal. \\
-$O(n\log n)$ & Common efficient comparison-sorting scale. & Heap sort; standard merge-sort and average quicksort context. \\
-$O(n^2)$ & Nested or repeated scans over much of the input. & Bubble, insertion worst case, and selection sort. \\
+$O(1)$ & Constant & $f(n)=1$ & Array access; hash computation. \\
+$O(\log n)$ & Logarithmic & $f(n)=\log_2 n$ & Binary search; balanced-BST lookup. \\
+$O(n)$ & Linear & $f(n)=n$ & Linear search; linked-list traversal. \\
+$O(n\log n)$ & Linearithmic & $f(n)=n\log_2 n$ & Merge sort; heap sort. \\
+$O(n^2)$ & Quadratic & $f(n)=n^2$ & Bubble sort; selection sort. \\
+$O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling salesperson search. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
+
+\begin{mlfigure}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.94\linewidth,
+  height=7.6cm,
+  domain=2:10,
+  samples=120,
+  xmin=2,xmax=12.7,
+  ymin=0.8,ymax=10000000,
+  ymode=log,
+  log basis y=10,
+  xtick={2,4,6,8,10},
+  ytick={1,10,100,1000,10000,100000,1000000,10000000},
+  xlabel={Input size, $n$},
+  ylabel={Representative operations, $f(n)$ (log scale)},
+  title={Representative growth by complexity class},
+  title style={font=\bfseries\color{ADSNavy}},
+  label style={font=\small\color{ADSNavy}},
+  tick label style={font=\scriptsize\color{ADSMuted}},
+  grid=major,
+  grid style={draw=ADSPaleBlue},
+  axis line style={draw=ADSMuted},
+  axis x line*=bottom,
+  axis y line*=left,
+  clip=false
+]
+\addplot[very thick,draw=ADSMuted,densely dotted] {1};
+\addplot[very thick,draw=ADSTeal,dashdotted] {ln(x)/ln(2)};
+\addplot[very thick,draw=ADSBlue] {x};
+\addplot[very thick,draw=ADSOrange,dashed] {x*ln(x)/ln(2)};
+\addplot[very thick,draw=ADSRed,densely dashed] {x^2};
+\addplot[very thick,draw=ADSNavy,mark=*,mark size=1.5pt] coordinates {
+  (2,2) (3,6) (4,24) (5,120) (6,720) (7,5040) (8,40320) (9,362880) (10,3628800)
+};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSMuted] at (axis cs:10.15,1) {$O(1)$};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSTeal] at (axis cs:10.15,3.322) {$O(\log n)$};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSBlue] at (axis cs:10.15,10) {$O(n)$};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSOrange] at (axis cs:10.15,33.22) {$O(n\log n)$};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSRed] at (axis cs:10.15,100) {$O(n^2)$};
+\node[anchor=west,font=\scriptsize\bfseries,text=ADSNavy] at (axis cs:10.15,3628800) {$O(n!)$};
+\end{axis}
+\end{tikzpicture}
+
+\smallskip
+{\small\color{ADSMuted}The logarithmic vertical scale keeps all six functions visible. Each curve follows the representative function listed in the table; actual running time depends on the implementation and hardware.}
+\end{mlfigure}
+
+\begin{keyidea}
+Factorial complexity, $O(n!)$, arises when an algorithm examines every ordering of $n$ items. It becomes impractical very quickly: $10! = 3{,}628{,}800$ possible orderings, while $15!$ exceeds one trillion. Brute-force permutation problems and exhaustive solutions to the traveling salesperson problem are common examples.
+\end{keyidea}

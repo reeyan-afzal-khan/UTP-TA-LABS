@@ -1,64 +1,102 @@
 /*
-Step-1: Start the program.
-Step-2: Get the number of records user want to store in the system.
-Step-3: Using Standard Library function open the file to write the data into the file. 
-Step-4: Store the entered information in the system.
-Step-5: Using do..While statement and switch case to create the options such as 1-DISPLAY, 2.SEARCH, 3.EXIT.
-Step-6: Close the file using fclose() function. 
-Step-7: Process it and display the result.
-Step-8: Stop the program.
-*/
+ * Lab 10, Task 3 --- Indexed file-allocation simulation.
+ *
+ *   index block p  ->  [ b1, b2, ..., bn ]     (n data blocks)
+ *
+ * A disk of 50 blocks is modelled by f[]: f[b] == 1 means block b is taken.
+ * Each "file" claims one index block plus the data blocks that the index
+ * points at.
+ *
+ * The allocation is TWO-PHASE, and that is the point of the exercise:
+ *   Phase 1: validate the index block and EVERY data block while touching
+ *            nothing.
+ *   Phase 2: only if all of them are free, mark them allocated together.
+ * The naive version marked the index block first and then bailed out when a
+ * data block was taken, leaking the index block --- a request that failed
+ * still changed the disk state. Validate-then-commit is the standard cure,
+ * and the same pattern appears in databases as a transaction.
+ *
+ * Build: gcc -Wall -Wextra Task03.c -o task03
+ */
 
 #include <stdio.h>
-#include <stdlib.h>
 
-int f[50], i, k, j, inde[50], n, c, p;
+#define DISK_BLOCKS 50
 
-int main()
+/* Read one int; returns 0 on EOF/bad input so menus can exit cleanly
+ * instead of spinning forever on a failed scanf. */
+static int readInt(const char *prompt, int *out)
 {
-    for (i = 0; i < 50; i++)
-        f[i] = 0;
+    printf("%s", prompt);
+    if (scanf("%d", out) == 1)
+        return 1;
+    printf("\n(no more input)\n");
+    return 0;
+}
 
-START:
-    printf("Enter index block: ");
-    scanf("%d", &p);
-
-    if (f[p] == 0) {
-        f[p] = 1;
-        printf("Enter number of blocks in the index: ");
-        scanf("%d", &n);
-    } else {
-        printf("Block already allocated!\n");
-        goto START;
+static int validBlock(int b)
+{
+    if (b < 0 || b >= DISK_BLOCKS) {
+        printf("Block %d does not exist (disk has blocks 0..%d).\n",
+               b, DISK_BLOCKS - 1);
+        return 0;
     }
+    return 1;
+}
 
-    printf("Enter %d block numbers:\n", n);
-    for (i = 0; i < n; i++)
-        scanf("%d", &inde[i]);
+int main(void)
+{
+    int f[DISK_BLOCKS] = {0};   /* 0 = free, 1 = allocated */
+    int index[DISK_BLOCKS];
 
-    for (i = 0; i < n; i++) {
-        if (f[inde[i]] == 1) {
-            printf("Block %d already allocated!\n", inde[i]);
-            goto START;
+    for (;;) {
+        int p, n, i, ok = 1;
+
+        /* ---------- Phase 1: validate everything, allocate nothing ------- */
+        if (!readInt("Enter index block: ", &p))
+            break;
+        if (!validBlock(p) || f[p]) {
+            if (validBlock(p))
+                printf("Block %d already allocated!\n", p);
+            continue;               /* nothing was marked, nothing to undo */
         }
+
+        if (!readInt("Enter number of blocks in the index: ", &n))
+            break;
+        if (n < 1 || n > DISK_BLOCKS) {
+            printf("Invalid block count.\n");
+            continue;
+        }
+
+        printf("Enter %d block numbers:\n", n);
+        for (i = 0; i < n && ok; i++) {
+            if (!readInt("", &index[i]))
+                return 0;
+            if (!validBlock(index[i]) || f[index[i]] || index[i] == p) {
+                if (validBlock(index[i]))
+                    printf("Block %d already allocated!\n", index[i]);
+                ok = 0;             /* reject the whole request */
+            }
+        }
+        if (!ok) {
+            printf("Request rejected; disk state unchanged.\n\n");
+            continue;
+        }
+
+        /* ---------- Phase 2: commit the whole request at once ------------ */
+        f[p] = 1;
+        for (i = 0; i < n; i++)
+            f[index[i]] = 1;
+
+        printf("\nAllocated Successfully!\n");
+        printf("Indexed File Structure:\n");
+        for (i = 0; i < n; i++)
+            printf("%d -> %d : allocated\n", p, index[i]);
+
+        int more;
+        if (!readInt("\nEnter 1 to enter more files or 0 to exit: ", &more)
+            || more != 1)
+            break;
     }
-
-    for (j = 0; j < n; j++)
-        f[inde[j]] = 1;
-
-    printf("\nAllocated Successfully!\n");
-    printf("Indexed File Structure:\n");
-
-    for (k = 0; k < n; k++)
-        printf("%d -> %d : allocated\n", p, inde[k]);
-
-    printf("\nEnter 1 to enter more files or 0 to exit: ");
-    scanf("%d", &c);
-
-    if (c == 1)
-        goto START;
-    else
-        exit(0);
-
     return 0;
 }

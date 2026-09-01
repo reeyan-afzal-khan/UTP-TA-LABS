@@ -2,6 +2,7 @@
 
 \begin{labproject}{Heuristic guidance on graphs, grids, cities, and words}
 \textbf{Coverage.} Chapter~\ref{ch:informed} --- Greedy Best-First and A$^\star$.\\
+\textbf{Source files.} \texttt{Lab02/search\_informed.py} --- run it with \texttt{py search\_informed.py}.\\
 \textbf{Goal.} Build and inspect priority queues whose ordering is controlled by \(h(n)\) or \(g(n)+h(n)\).
 
 \begin{labmode}
@@ -23,6 +24,24 @@ Use the weighted graph and heuristic dictionary from the handout to recover the 
 \begin{tryit}
 Print \(g\), \(h\), and \(f\) for each A* removal and \(h\) for GBFS. Explain one ranking difference.
 \end{tryit}
+
+\begin{pitfall}
+\textbf{Check the supplied heuristic before trusting A*'s answer.} A* is only guaranteed to return an optimal path when \(h\) is \emph{admissible} --- never larger than the true remaining cost \(h^\star\). The handout's Part B heuristic is not:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Node & \(h(n)\) & true \(h^\star(n)\) & admissible? \\
+\midrule
+A & 7 & 4 & \textbf{no} \\
+B & 6 & 3 & \textbf{no} \\
+F & 2 & 1 & \textbf{no} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The search still returns \texttt{A -> B -> E -> G} at cost 4, which happens to be optimal --- but that is luck, not the guarantee. \texttt{search\_informed.py} computes \(h^\star\) by searching backwards from the goal and prints this table, so you can verify the claim rather than accept it. Report which heuristics in the lab are admissible and which are not.
+\end{pitfall}
 \end{labproject}
 
 \begin{labdeliverable}

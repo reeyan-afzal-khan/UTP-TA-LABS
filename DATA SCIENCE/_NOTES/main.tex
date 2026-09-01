@@ -70,6 +70,7 @@
 \makeatother
 \AtBeginEnvironment{tabular}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{DSPaleBlue!72}{white}}
 \AtBeginEnvironment{tabularx}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{DSPaleBlue!72}{white}}
+\AtBeginEnvironment{figure}{\centering}
 \emergencystretch=1.5em
 \hbadness=10000
 \hfuzz=8pt
@@ -158,7 +159,7 @@
 }
 
 % ---------- Reusable learning blocks ----------
-\newtcolorbox{dsfigure}{enhanced,width=\linewidth,colback=white,colframe=DSBlue!28,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
+\newtcolorbox{dsfigure}{enhanced,width=\linewidth,colback=white,colframe=DSBlue!28,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,before upper={\centering},halign=center}
 \newtcolorbox{dstable}{enhanced,width=\linewidth,colback=white,colframe=DSTeal!32,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
 \newtcolorbox{keyidea}{enhanced,breakable,colback=DSPaleTeal,colframe=DSTeal,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Key idea}
 \newtcolorbox{workedexample}{enhanced,breakable,colback=DSPaleBlue,colframe=DSBlue,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{DSNavy},title=Worked example}
@@ -274,5 +275,8 @@ Concise, lab-aligned notes on R programming, data structures, data management, v
 \input{labs/08-visualization}
 \input{chapters/09-correlation-normalization}
 \input{labs/09-correlation-normalization}
+
+\part{Capstone}
+\input{chapters/capstone-project}
 
 \end{document}

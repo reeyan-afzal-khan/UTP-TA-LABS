@@ -4,7 +4,26 @@
 \section{The topology: three routers and three transit networks}
 Three routers form a triangle, and each has a loopback network. Routers learn directly connected networks automatically; remote networks require a route.
 
-\sourceimage[0.87\linewidth]{Static-routing topology from the supplied Lab 3 slide}{static-routing-topology.png}
+\begin{netfigure}{The triangle: every router has two ways to reach the third}
+\begin{tikzpicture}[node distance=2.0cm and 3.0cm]
+\node[router] (r1) {R1};
+\node[router,right=of r1] (r2) {R2};
+\node[router,below=1.7cm of $(r1)!0.5!(r2)$] (r3) {R3};
+
+\draw[link] (r1) -- node[netlabel,above]{10.0.12.0/24} (r2);
+\draw[link] (r1) -- node[netlabel,left,xshift=-1mm]{10.0.13.0/24} (r3);
+\draw[link] (r2) -- node[netlabel,right,xshift=1mm]{10.0.23.0/24} (r3);
+
+\node[netlabel,above=1mm of r1]{Lo0 10.0.1.1};
+\node[netlabel,above=1mm of r2]{Lo0 10.0.2.2};
+\node[netlabel,below=1mm of r3]{Lo0 10.0.3.3};
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize The third octet of each transit network names its two routers:
+10.0.\textbf{12}.0 joins R1 and R2. A router's own address ends in its
+number, so R2 is 10.0.12.\textbf{2} and 10.0.23.\textbf{2}.}
+\end{netfigure}
 
 \begin{center}
 \begin{tabular}{lll}
@@ -18,6 +37,8 @@ R2 Loopback0 & \cmd{10.0.2.0/24} & \cmd{10.0.2.2}\\
 R3 Loopback0 & \cmd{10.0.3.0/24} & \cmd{10.0.3.3}\\\bottomrule
 \end{tabular}
 \end{center}
+
+\sourceimage[0.87\linewidth]{Static-routing topology from the supplied Lab 3 slide}{static-routing-topology.png}
 
 \section{Why the first remote ping fails}
 After addressing, each router can reach its direct neighbors. R2 cannot reach R3's loopback \cmd{10.0.3.0/24} until its routing table identifies a path.
@@ -56,10 +77,40 @@ The alternate path through R1 uses a higher, less-preferred value, so it remains
 \end{lstlisting}
 The route through R3 (preference 60) wins over the backup through R1 (80) until the primary path fails.
 
-\begin{conceptmap}
-\textbf{Primary path present} $\rightarrow$ preference 60 route is installed.\\
-\textbf{Primary path unavailable} $\rightarrow$ the less-preferred route with preference 80 can become usable, providing redundancy.
-\end{conceptmap}
+\begin{netfigure}{Only ONE route is installed at a time; the other waits}
+\begin{tikzpicture}[node distance=1.5cm and 2.4cm]
+% --- before failure ---
+\node[font=\bfseries\scriptsize\color{MLNavy}] (t1) {Primary up};
+\node[router,below=4mm of t1] (a2) {R2};
+\node[router,above right=0.9cm and 2.1cm of a2] (a1) {R1};
+\node[router,below right=0.9cm and 2.1cm of a2] (a3) {R3};
+\draw[activepath] (a2) -- node[netlabel,below,sloped]{pref 60} (a3);
+\draw[backuppath] (a2) -- node[netlabel,above,sloped]{pref 80} (a1);
+\node[netlabel,right=2mm of a3,text width=2.3cm]{\textcolor{MLGreen}{\textbf{installed}}};
+\node[netlabel,right=2mm of a1,text width=2.3cm]{\textcolor{MLOrange}{\textbf{held in reserve}}};
+
+% --- after failure ---
+\begin{scope}[xshift=7.6cm]
+\node[font=\bfseries\scriptsize\color{MLNavy}] (t2) {Primary down};
+\node[router,below=4mm of t2] (b2) {R2};
+\node[router,above right=0.9cm and 2.1cm of b2] (b1) {R1};
+\node[router,below right=0.9cm and 2.1cm of b2] (b3) {R3};
+\draw[deadpath] (b2) -- node[netlabel,below,sloped]{link fails} (b3);
+\draw[activepath] (b2) -- node[netlabel,above,sloped]{pref 80} (b1);
+\node[netlabel,right=2mm of b1,text width=2.3cm]{\textcolor{MLGreen}{\textbf{now installed}}};
+\end{scope}
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize \textbf{Lower preference wins.} Both routes are configured the whole
+time, but the routing table shows only the better one. The backup is not a
+second path carrying traffic --- it is a replacement that appears when the
+first is withdrawn.}
+\end{netfigure}
+
+\begin{pitfall}
+Failover is not instant. The router must first decide the next hop is unreachable, and only then install the backup. Expect to lose several pings during the switch --- that gap is the cost of detection, and it is why fast-converging protocols like OSPF (Chapter~\ref{ch:ospf}) exist.
+\end{pitfall}
 
 \begin{pitfall}
 One supplied slide shows \cmd{255.255.25.0} while explaining a /24 mask. Elsewhere the same lab consistently uses /24, whose decimal form is \cmd{255.255.255.0}. The notes follow the lab's /24 objective and flag the source typo rather than treating it as a new subnet mask.
@@ -74,9 +125,9 @@ One supplied slide shows \cmd{255.255.25.0} while explaining a /24 mask. Elsewhe
 \item For the backup-route portion, make the primary path unavailable as directed in the lab and confirm the alternate route becomes effective.
 \end{netsteps}
 
-\begin{verifybox}
+\begin{verification}
 Use both routing-table and ping evidence: one proves the route is installed; the other proves forwarding works.
-\end{verifybox}
+\end{verification}
 
 \begin{quickcheck}
 \begin{enumerate}

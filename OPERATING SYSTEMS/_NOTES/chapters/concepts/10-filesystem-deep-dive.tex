@@ -25,7 +25,7 @@ Each block contains a pointer/reference to the next. A file can grow by allocati
 Store block pointers in a dedicated index structure. This supports direct lookup of logical blocks and non-contiguous placement. Large files may require multi-level indexing or multiple index blocks.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.18\linewidth}p{0.25\linewidth}p{0.25\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.25\linewidth}p{0.25\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Method & Random access & Growth & Main overhead/risk \\

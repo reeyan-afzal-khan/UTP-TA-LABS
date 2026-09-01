@@ -46,6 +46,7 @@
 \makeatletter\g@addto@macro\@arrayparboxrestore{\RaggedRight\arraybackslash}\makeatother
 \AtBeginEnvironment{tabular}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{MLPaleBlue!72}{white}}
 \AtBeginEnvironment{tabularx}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{MLPaleBlue!72}{white}}
+\AtBeginEnvironment{figure}{\centering}
 \emergencystretch=1.8em
 \hbadness=10000
 
@@ -88,12 +89,12 @@
 \newtcolorbox{quickcheck}{enhanced,breakable,colback=white,colframe=MLOrange,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=MLOrange,title=Check your understanding}
 \newtcolorbox{chapterrecap}{enhanced,breakable,colback=MLPaleTeal,colframe=MLGreen,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Lab recap}
 \newtcolorbox{sourcebasis}{enhanced,breakable,colback=white,colframe=MLMuted!55,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{MLMuted},title=Source basis}
-\newtcolorbox{sourcevisual}[1]{enhanced,width=\linewidth,colback=white,colframe=MLBlue!30,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.9em,fonttitle=\bfseries\color{MLNavy},title={Source visual --- #1},halign=center}
+\newtcolorbox{sourcevisual}[1]{enhanced,width=\linewidth,colback=white,colframe=MLBlue!30,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.9em,fonttitle=\bfseries\color{MLNavy},title={Source visual --- #1},before upper={\centering},halign=center}
 \newtcolorbox{conceptmap}{enhanced,breakable,colback=MLPaleBlue!45,colframe=MLBlue!55,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{MLNavy},title=Concept map}
-\newtcolorbox{verifybox}{enhanced,breakable,colback=white,colframe=MLGreen,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Verification evidence}
+\newtcolorbox{verification}{enhanced,breakable,colback=white,colframe=MLGreen,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Verification evidence}
 \newtcolorbox{commandmap}{enhanced,breakable,colback=MLPaleGray!55,colframe=MLMuted!55,boxrule=0.6pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{MLNavy},title=Command map}
-\newcommand{\sourceimage}[3][0.9\linewidth]{\begin{sourcevisual}{#2}\includegraphics[width=#1,height=0.56\textheight,keepaspectratio]{#3}\end{sourcevisual}}
-\newcommand{\compactsourceimage}[3][0.78\linewidth]{\begin{sourcevisual}{#2}\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#3}\end{sourcevisual}}
+\newcommand{\sourceimage}[3][0.9\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.56\textheight,keepaspectratio]{#3}\end{sourcevisual}}
+\newcommand{\compactsourceimage}[3][0.78\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#3}\end{sourcevisual}}
 \newtcolorbox{labdeliverable}{enhanced,breakable,colback=white,colframe=MLGreen,boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,fonttitle=\bfseries\color{white},colbacktitle=MLGreen,title=Lab deliverable}
 \newcommand{\chapterguide}[2]{\begin{tcolorbox}[enhanced,breakable,colback=white,colframe=MLNavy,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=2mm,bottom=2mm,title=Lab at a glance,fonttitle=\bfseries\color{white},colbacktitle=MLNavy]\textbf{Before you start:} #1\par\textbf{By the end, you can:} #2\end{tcolorbox}}
 \newenvironment{netsteps}{\begin{enumerate}[label=\textcolor{MLBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}{\end{enumerate}}
@@ -103,6 +104,24 @@
 
 % Simple topology node styles
 \tikzset{router/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=10mm,font=\bfseries\small\color{MLNavy}},switch/.style={rectangle,rounded corners=1mm,draw=MLTeal,fill=MLPaleTeal,minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{MLNavy}},host/.style={rectangle,draw=MLOrange,fill=MLPaleOrange,minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{MLNavy}},link/.style={thick,draw=MLMuted}}
+% Extra styles for the drawn (non-screenshot) figures
+\tikzset{
+  netlabel/.style={font=\scriptsize\color{MLMuted},inner sep=1pt},
+  activepath/.style={very thick,draw=MLGreen},
+  backuppath/.style={very thick,draw=MLOrange,dashed},
+  deadpath/.style={very thick,draw=MLRed,dash pattern=on 2pt off 2pt},
+  flowarrow/.style={-{Stealth[length=2.2mm]},thick,draw=MLBlue},
+  vlanA/.style={rectangle,rounded corners=1mm,draw=MLBlue,fill=MLPaleBlue,minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{MLNavy}},
+  vlanB/.style={rectangle,rounded corners=1mm,draw=MLOrange,fill=MLPaleOrange,minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{MLNavy}},
+  frame/.style={rectangle,draw=MLMuted,fill=white,minimum height=6mm,font=\scriptsize\color{MLInk}}
+}
+
+% A drawn diagram, as opposed to a screenshot of a source slide.
+\newtcolorbox{netfigure}[1]{enhanced,breakable,colback=white,colframe=MLTeal!45,
+  boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
+  before skip=0.75em,after skip=0.9em,
+  fonttitle=\bfseries\color{white},colbacktitle=MLTeal,title={#1},
+  before upper={\centering},halign=center}
 
 
 % ---------- Lab machinery ----------
@@ -138,7 +157,7 @@
 \newtcolorbox{labmode}{enhanced,breakable,colback=MLPaleBlue!52,colframe=MLBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=MLBlue,title=How to use this lab}
 \newtcolorbox{troubleshoot}{enhanced,breakable,colback=MLPaleOrange!70,colframe=MLOrange,boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=MLOrange,title=When it does not work}
 \newtcolorbox{mltable}{enhanced,breakable,colback=white,colframe=MLBlue!28,boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm}
-\newtcolorbox{mlfigure}{enhanced,breakable,colback=white,colframe=MLBlue!35,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm}
+\newtcolorbox{mlfigure}{enhanced,breakable,colback=white,colframe=MLBlue!35,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,before upper={\centering},halign=center}
 
 \begin{document}
 \hypersetup{pageanchor=false}

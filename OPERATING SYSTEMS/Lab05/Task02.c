@@ -18,11 +18,11 @@ Step 7: Stop the process
 
 #define SEGSIZE 100
 
-int main(int argc, char *argv[]) {
+int main(void) {
     int shmid;
     key_t key;
     char *segptr;
-    char buff[] = "poooda";
+    char buff[] = "Hello from shared memory";
 
     // Step 1: Generate a unique key
     key = ftok(".", 's');

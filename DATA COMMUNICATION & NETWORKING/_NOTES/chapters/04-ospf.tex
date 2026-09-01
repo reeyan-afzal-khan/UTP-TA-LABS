@@ -9,6 +9,39 @@ OSPF is a dynamic, interior, link-state routing protocol. Instead of configuring
 \section{Why dynamic routing is useful}
 Dynamic routing reduces manual maintenance and adapts to topology changes. OSPF uses a hierarchy centered on \term{area 0}; this exercise places every participating interface in that single area.
 
+\subsection{What changes compared with Chapter~\ref{ch:static-routing}}
+In the static lab you wrote a route on R1 and a mirror route on R3, then a backup pair on top, and a ping only worked once every one of them was present. Here you tell each router which of \emph{its own} interfaces take part, and reachability follows.
+
+\begin{netfigure}{Every router holds the same map, then computes its own routes}
+\begin{tikzpicture}[node distance=1.0cm and 1.5cm,
+  db/.style={rectangle,rounded corners=1mm,draw=MLTeal,fill=MLPaleTeal,
+             minimum width=2.5cm,minimum height=0.95cm,align=center,
+             font=\scriptsize\color{MLNavy}},
+  ml/.style={font=\scriptsize\color{MLMuted},align=center}]
+
+\node[router] (r1) {R1};
+\node[router,right=2.2cm of r1] (r2) {R2};
+\node[router,right=2.2cm of r2] (r3) {R3};
+\draw[link] (r1) -- (r2);
+\draw[link] (r2) -- (r3);
+\draw[link] (r1) to[bend right=32] (r3);
+
+\node[db,below=1.15cm of r1] (d1) {identical\\ link-state DB};
+\node[db,below=1.15cm of r2] (d2) {identical\\ link-state DB};
+\node[db,below=1.15cm of r3] (d3) {identical\\ link-state DB};
+\draw[<->,thick,draw=MLTeal] (d1) -- node[ml,above]{flood} (d2);
+\draw[<->,thick,draw=MLTeal] (d2) -- node[ml,above]{flood} (d3);
+
+\node[ml,below=0.45cm of d2,text width=9.5cm]
+  {Same database everywhere. Each router then runs Dijkstra \textbf{from itself},
+   so the routing tables all differ --- and all agree.};
+\end{tikzpicture}
+\end{netfigure}
+
+\begin{keyidea}
+A static route states a \emph{conclusion} (``send this network that way''). OSPF distributes the \emph{evidence} --- which links exist and what they cost --- and lets each router reach its own conclusion. That is why a failed link needs no new configuration: the evidence changes, and every router recomputes.
+\end{keyidea}
+
 \section{Single-area OSPF topology}
 R1 connects to R2 over \cmd{10.0.12.0/24} and R3 over \cmd{10.0.13.0/24}. Loopbacks provide stable networks at \cmd{10.0.1.1/24}, \cmd{10.0.2.2/24}, and \cmd{10.0.3.3/24}; the source also shows \cmd{172.16.0.1/24} on R3's Loopback2.
 
@@ -49,9 +82,9 @@ The detailed output includes neighbor ID, address, state, priority, DR/BDR data,
 
 \sourceimage[0.74\linewidth]{Condensed OSPF peer information from the supplied Lab 4 material}{ospf-peer-brief.png}
 
-\begin{verifybox}
+\begin{verification}
 Require three checks: the expected neighbor is \textbf{Full}, remote networks appear as OSPF routes, and ping succeeds.
-\end{verifybox}
+\end{verification}
 
 \section{Connectivity test}
 The lab pings from R2 to R1 and R3's loopback \cmd{10.0.3.3}, confirming that OSPF learned the remote paths.

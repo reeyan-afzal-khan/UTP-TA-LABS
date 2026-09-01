@@ -26,6 +26,8 @@
 \usepackage{listings}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc,shapes.misc,shapes.geometric,fit,backgrounds,matrix}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 
 % ---------- Visual system ----------
 \definecolor{ADSNavy}{HTML}{18324A}
@@ -160,7 +162,8 @@
 % ---------- Boxes ----------
 \newtcolorbox{mlfigure}{
   enhanced,breakable,colback=white,colframe=ADSBlue!35,
-  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm
+  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,
+  halign=center
 }
 \newtcolorbox{mltable}{
   enhanced,breakable,colback=white,colframe=ADSBlue!28,
@@ -249,7 +252,7 @@
 
 \newcommand{\labsection}[3]{%
   \clearpage
-  \phantomsection
+  \phantomsection%
   \addcontentsline{toc}{lab}{Lab #1 of 11 --- #2}%
   \markboth{Lab #1 of 11 --- #2}{}%
   \begin{tcolorbox}[
@@ -261,7 +264,7 @@
     {\Huge\bfseries\color{white} Lab #1 of 11\par}
     \vspace{0.20em}
     {\Large\bfseries\color{white} #2\par}
-  \end{tcolorbox}
+  \end{tcolorbox}%
   \label{#3}%
 }
 
@@ -320,7 +323,7 @@ Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides,
 {\color{ADSTeal}\rule{0.72\linewidth}{2pt}}
 \end{titlepage}
 
-\cleardoublepage
+\cleardoublepage%
 \pagenumbering{roman}
 \setcounter{tocdepth}{0}
 \begingroup
@@ -333,7 +336,7 @@ Course-edition notes developed from the provided TEB1113/TFB2023 lecture slides,
 
 \input{chapters/course-map}
 
-\cleardoublepage
+\cleardoublepage%
 \pagenumbering{arabic}
 
 \part{Foundations}

@@ -149,7 +149,7 @@ Then relate the answer to Lab~\ref{sec:lab05-ftp}: both labs show a credential c
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item DCE end identified from \cmd{display interface}, with the clock rate set there.
   \item Both HDLC and PPP configured, each with its own captured output.
@@ -157,7 +157,7 @@ Then relate the answer to Lab~\ref{sec:lab05-ftp}: both labs show a credential c
   \item Captures show the PAP password in plaintext and the CHAP challenge-response.
   \item OSPF adjacency reaches Full across the serial link.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit configurations for both routers in each encapsulation, \cmd{display interface Serial} output showing the DCE end and protocol state, packet captures of both PAP and CHAP with the security difference annotated, and the OSPF routing table showing the serial link's cost relative to Ethernet.

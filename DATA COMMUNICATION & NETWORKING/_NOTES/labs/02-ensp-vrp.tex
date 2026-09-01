@@ -115,14 +115,14 @@ Run \cmd{shutdown} on R1's \cmd{GE0/0/0}, then check \cmd{display ip interface b
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item \cmd{display ip interface brief} shows up/up on both routers.
   \item A successful ping is captured with its statistics line, not just the prompt.
   \item The configuration was saved and confirmed with \cmd{display saved-configuration}.
   \item Address style (prefix length or mask) is consistent throughout.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the running configuration of both routers, \cmd{display ip interface brief} output from each, a successful ping with its statistics, and a short note explaining the difference between the Physical and Protocol columns using your own \cmd{shutdown} experiment as evidence.

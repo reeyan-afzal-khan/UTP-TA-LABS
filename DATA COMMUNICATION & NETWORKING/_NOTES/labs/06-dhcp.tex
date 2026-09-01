@@ -115,7 +115,7 @@ Find the DISCOVER and read its source address. Then explain, in one sentence, ho
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item \cmd{dhcp enable} present before any pool configuration.
   \item Both a global pool and an interface pool demonstrated.
@@ -123,7 +123,7 @@ Find the DISCOVER and read its source address. Then explain, in one sentence, ho
   \item \cmd{display ip pool} shows leases actually issued.
   \item Relay demonstrated with a client on a different segment from the server.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit configurations for server and relay, \cmd{display ip pool} output showing issued leases, evidence a client on a remote segment received a correct address and gateway, and a Wireshark capture of all four messages with the DISCOVER's source address highlighted.

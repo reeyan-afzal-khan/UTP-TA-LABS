@@ -93,14 +93,14 @@ Replace both static routes with one default route, \cmd{ip route-static 0.0.0.0 
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item Routing tables captured before routes, after routes, and after the failover.
   \item Both directions configured, with the one-way failure demonstrated rather than skipped.
   \item Preference values visible in the table output.
   \item Packet loss during failover counted and reported.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit configurations for all three routers, the three routing-table captures, evidence of the one-way failure and its fix, and the measured packet loss during failover with one sentence explaining why it is not zero.

@@ -20,7 +20,7 @@ For process $i$, write $A_i$ for arrival time, $B_i$ for total CPU burst, $S_i$ 
 These are not three ways of saying the same thing.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.17\linewidth}X X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}X X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Quantity & What it measures & What the user notices \\
@@ -54,7 +54,7 @@ Sanity check: it existed for 9 units, ran for 4, so it must have waited 5. If yo
 Everything below uses the same three processes, all arriving at time 0. Using one workload throughout is what makes the policies comparable.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.16\linewidth}p{0.16\linewidth}p{0.16\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.16\linewidth}p{0.16\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Process & Arrival $A$ & Burst $B$ & Priority (lower = more urgent) \\
@@ -79,7 +79,7 @@ P3 & 0 & 1 & 2 \\
 \end{mlfigure}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Process & $B$ & $C$ & $T=C-A$ & $W=T-B$ & $R=S-A$ \\
@@ -108,7 +108,7 @@ P3 needs one unit of CPU and waits eight to get it. That is the \term{convoy eff
 \end{mlfigure}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Process & $B$ & $C$ & $T$ & $W$ & $R$ \\
@@ -170,7 +170,7 @@ Priority scheduling can starve a low-priority process indefinitely if urgent wor
 Note that P3 finishes early at time 5 despite only getting the CPU third: it needed one unit, which is less than the quantum, so it ran to completion in its first turn.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.13\linewidth}XXXXX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Process & $B$ & $C$ & $T$ & $W$ & $R$ \\
@@ -186,7 +186,7 @@ P3 & 1 & 5 & 5 & 4 & 4 \\
 
 \section{Reading the comparison honestly}
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.20\linewidth}XXX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}XXX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Policy & Avg turnaround & Avg waiting & Avg response \\

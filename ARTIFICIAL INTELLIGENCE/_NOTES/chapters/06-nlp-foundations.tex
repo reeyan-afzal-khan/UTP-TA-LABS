@@ -75,6 +75,26 @@ fprintf("Cosine Similarity between the two texts: %.4f\n", similarity);
 
 The \texttt{Vocabulary} property contains unique word types, so repeated words do not receive extra weight in this version. A token-level sentence representation would preserve repetition. This distinction matters when word frequency carries meaning.
 
+\begin{pitfall}
+\textbf{Averaging word vectors throws away word order.} The mean of a set of vectors does not depend on the order they were added, so
+
+\begin{center}
+``dog bites man'' \qquad and \qquad ``man bites dog''
+\end{center}
+
+produce \emph{exactly} the same sentence vector and a cosine similarity of 1.000. The two sentences describe opposite events, and this representation cannot tell them apart at all.
+
+Because the code averages over \texttt{Vocabulary} rather than tokens, it is also blind to repetition: ``very very good'' and ``very good'' are identical too.
+
+Try it --- it takes one line to change the input, and seeing 1.000 come back makes the limitation concrete in a way that reading about it does not.
+\end{pitfall}
+
+\begin{keyidea}
+This is the \term{bag-of-embeddings} trade. Averaging is cheap, needs no training, and works surprisingly well for topic-level similarity --- which is what the lab example measures. It is the wrong tool the moment meaning depends on \emph{arrangement}: negation, subject versus object, or word order generally.
+
+Models that do handle order (recurrent networks, transformers) exist precisely because this limitation is fundamental rather than a detail of the implementation. Say which kind of similarity your result supports before quoting the number.
+\end{keyidea}
+
 \section{Cosine similarity}
 
 For sentence vectors \(\mathbf{u}\) and \(\mathbf{v}\), the code computes

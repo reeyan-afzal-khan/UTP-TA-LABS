@@ -8,7 +8,7 @@ Processes often alternate between \term{CPU bursts} and \term{I/O bursts}. An I/
 A \term{non-preemptive} scheduler allows a running process to keep the CPU until it blocks or terminates. A \term{preemptive} scheduler may interrupt it and return it to the ready queue. Preemption improves responsiveness and fairness but introduces context-switch overhead and concurrency concerns because a task can be interrupted between operations.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.23\linewidth}XX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.23\linewidth}XX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Metric & What it measures & Usually desirable \\

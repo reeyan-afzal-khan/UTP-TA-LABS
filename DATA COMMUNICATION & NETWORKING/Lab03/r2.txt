@@ -1,0 +1,45 @@
+! ============================================================
+! Lab 3 --- R2 static routing (transit router)
+!
+! R2 carries traffic between R1 and R3 but owns NO LAN of its own.
+! That makes it the clearest illustration of the rule: a router
+! forwards only what it has a route for, in BOTH directions.
+! ============================================================
+
+system-view
+sysname R2
+
+interface GigabitEthernet 0/0/0
+ ip address 10.0.12.2 30
+ undo shutdown
+quit
+
+interface GigabitEthernet 0/0/1
+ ip address 10.0.23.2 30
+ undo shutdown
+quit
+
+! ---------- STOP. Verify before adding routes. ----------
+! display ip routing-table
+!   Two Direct entries, nothing else. R2 can reach both its
+!   neighbours and neither LAN.
+
+! ---------- Routes for BOTH LANs ----------
+! A transit router needs a route toward every destination it must
+! carry --- one for the forward path, one for the return path.
+! Configure only the first and PC1 -> PC3 still fails: the request
+! arrives at LAN 3 and the reply dies here at R2.
+ip route-static 192.168.3.0 24 10.0.23.3      ! toward LAN 3, via R3
+ip route-static 192.168.1.0 24 10.0.12.1      ! back toward LAN 1, via R1
+
+quit
+save
+
+! ---------- Verify ----------
+! display ip routing-table protocol static
+!   Two static entries, both preference 60.
+!
+! On the failover test in r1.txt, watch this router: when R1's
+! GE0/0/0 goes down, traffic stops arriving here entirely and takes
+! the R1 <-> R3 backup link instead. R2 is simply bypassed --- its
+! routing table does not change at all.

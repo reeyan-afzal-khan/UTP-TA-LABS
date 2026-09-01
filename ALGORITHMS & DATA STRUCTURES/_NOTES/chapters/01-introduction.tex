@@ -1,5 +1,4 @@
-\chapter{Introduction to Data Structures}
-\label{ch:introduction}
+\chapter{Introduction to Data Structures}\label{ch:introduction}
 
 \chapterguide%
   {Basic C++ variables and control flow are useful, but the chapter starts from the course definition of data and data structures.}
@@ -34,17 +33,39 @@ The slides divide data structures into two broad categories: \term{primitive} an
 
 \begin{mlfigure}
 \begin{tikzpicture}[
-  node distance=0.55cm and 1.0cm,
-  top/.style={draw=ADSNavy,fill=ADSNavy,text=white,rounded corners=2mm,minimum width=3.2cm,minimum height=0.8cm,align=center,font=\bfseries},
-  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=4.0cm,minimum height=1.0cm,align=center,font=\small\color{ADSNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+  root/.style={draw=ADSNavy,fill=ADSNavy,text=white,rounded corners=2mm,minimum width=4.0cm,minimum height=0.9cm,align=center,font=\bfseries},
+  category/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=4.25cm,minimum height=1.25cm,align=center,inner sep=2.5mm,font=\small\color{ADSNavy}},
+  branch/.style={draw=ADSTeal,fill=ADSPaleTeal,rounded corners=2mm,text width=3.8cm,minimum height=1.45cm,align=center,inner sep=2.5mm,font=\small\color{ADSNavy}},
+  link/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
 ]
-\node[top] (ds) {Data Structures};
-\node[box,below left=0.8cm and 0.6cm of ds] (p) {Primitive\\basic machine-level values};
-\node[box,below right=0.8cm and 0.6cm of ds] (np) {Non-Primitive\\structures derived from primitive values};
-\node[box,below left=0.7cm and 0.15cm of np] (lin) {Linear\\array, linked list, stack, queue};
-\node[box,below right=0.7cm and 0.15cm of np] (nonlin) {Non-Linear\\tree, graph};
-\draw[arr] (ds) -- (p); \draw[arr] (ds) -- (np); \draw[arr] (np) -- (lin); \draw[arr] (np) -- (nonlin);
+\node[root] (ds) at (0,0) {Data Structures};
+
+\node[category] (p) at (-3.8,-1.85) {
+  \textbf{\color{ADSBlue}Primitive}\\[-0.1em]
+  {\scriptsize Basic values handled directly\\
+  integer, floating-point, character,\\string constant, pointer}
+};
+\node[category] (np) at (3.0,-1.85) {
+  \textbf{\color{ADSBlue}Non-Primitive}\\[-0.1em]
+  {\scriptsize Structures built from primitive values\\
+  to store collections or relationships}
+};
+
+\node[branch] (lin) at (0.65,-4.05) {
+  \textbf{\color{ADSTeal}Linear}\\[-0.1em]
+  {\scriptsize Elements form a sequence\\
+  array, linked list, stack, queue}
+};
+\node[branch] (nonlin) at (5.35,-4.05) {
+  \textbf{\color{ADSTeal}Non-Linear}\\[-0.1em]
+  {\scriptsize Elements form hierarchical or\\network relationships\\
+  tree, graph}
+};
+
+\draw[link] (ds) -- (p);
+\draw[link] (ds) -- (np);
+\draw[link] (np) -- (lin);
+\draw[link] (np) -- (nonlin);
 \end{tikzpicture}
 \end{mlfigure}
 
@@ -109,7 +130,7 @@ A non-linear structure allows one item to connect to several other items. The sl
 For non-primitive structures, the Week I slides list the following common operations:
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.19\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.19\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
 Operation & Meaning in the course context \\
@@ -130,7 +151,7 @@ These operation names recur throughout the course. The important change from cha
 \section{Primitive vs non-primitive structures}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ADSNavy}}p{0.18\linewidth}p{0.31\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.18\linewidth}p{0.31\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
 Feature & Primitive & Non-primitive \\

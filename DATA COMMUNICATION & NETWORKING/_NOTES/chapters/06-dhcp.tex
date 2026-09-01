@@ -4,6 +4,34 @@
 \section{What DHCP automates}
 Dynamic Host Configuration Protocol (DHCP) assigns clients an IP address and options such as a subnet mask, gateway, and DNS server. It improves consistency and reduces manual administration.
 
+\subsection{The four-message exchange}
+A client with no address cannot yet be addressed, so the conversation begins as a broadcast. The four steps are remembered as \term{DORA}.
+
+\begin{netfigure}{DORA --- how a client with no address gets one}
+\begin{tikzpicture}[node distance=1.0cm,
+  msg/.style={-{Stealth[length=2.2mm]},thick},
+  ml/.style={font=\scriptsize\color{MLInk},inner sep=1.5pt}]
+\node[host] (c) {Client};
+\node[router,right=6.4cm of c] (s) {Server};
+\draw[draw=MLMuted,dashed] (c) -- ++(0,-4.0);
+\draw[draw=MLMuted,dashed] (s) -- ++(0,-4.0);
+
+\draw[msg,draw=MLOrange] ($(c)+(0,-0.75)$) -- node[ml,above]{\textbf{D}iscover \ \tiny broadcast: ``anyone there?''} ($(s)+(0,-0.75)$);
+\draw[msg,draw=MLBlue]   ($(s)+(0,-1.65)$) -- node[ml,above]{\textbf{O}ffer \ \tiny ``you may have 10.0.12.20''} ($(c)+(0,-1.65)$);
+\draw[msg,draw=MLOrange] ($(c)+(0,-2.55)$) -- node[ml,above]{\textbf{R}equest \ \tiny broadcast: ``I accept that one''} ($(s)+(0,-2.55)$);
+\draw[msg,draw=MLGreen]  ($(s)+(0,-3.45)$) -- node[ml,above]{\textbf{A}cknowledge \ \tiny lease confirmed, clock starts} ($(c)+(0,-3.45)$);
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize The \textbf{Request} is broadcast, not sent directly to the chosen
+server. That is deliberate: if two servers made offers, the broadcast tells
+the one that was \emph{not} chosen to release the address it had reserved.}
+\end{netfigure}
+
+\begin{keyidea}
+Discover and Request are broadcasts. Routers do not forward broadcasts, so a client and its DHCP server must share a broadcast domain --- or something must carry the request across. That ``something'' is the relay, in Section~\ref{sec:dhcp-relay}.
+\end{keyidea}
+
 \sourceimage[0.66\linewidth]{DHCP server-and-clients illustration from the supplied overview}{dhcp-overview-diagram.png}
 
 \section{The detailed lab topology}
@@ -99,9 +127,45 @@ Cycle Vlanif1 to force a fresh request from the interface-based pool.
 \end{lstlisting}
 Repeat for S1 and R3 on the other subnet.
 
-\begin{verifybox}
+\begin{verification}
 Success requires a client address from the expected subnet and a matching used lease in the server pool.
-\end{verifybox}
+\end{verification}
+
+\section{DHCP relay: reaching a server on another segment}\label{sec:dhcp-relay}
+
+Everything above assumes the client and the server share a segment. Real networks centralise the DHCP server, so the client's broadcast has to cross a router that, by design, will not forward it.
+
+A \term{relay agent} solves this by translating the conversation. The router receives the broadcast on the client side, rewrites it as a \emph{unicast} to the configured server, and inserts the receiving interface's address so the server knows which pool to allocate from.
+
+\begin{netfigure}{The relay converts a broadcast into a unicast, and back}
+\begin{tikzpicture}[node distance=1.0cm and 2.1cm,
+  ml/.style={font=\scriptsize\color{MLInk},align=center,inner sep=1.5pt}]
+\node[host] (c) {Client};
+\node[router,right=2.6cm of c] (r) {Relay};
+\node[router,right=3.0cm of r] (s) {Server};
+
+\draw[flowarrow,draw=MLOrange] (c) -- node[ml,above,text width=2.3cm]{broadcast\\ \tiny stops here} (r);
+\draw[flowarrow,draw=MLGreen] (r) -- node[ml,above,text width=2.6cm]{unicast to server\\ \tiny + ``I am 192.168.3.1''} (s);
+
+\node[ml,below=0.9cm of r,text width=8.2cm]
+ {The server picks the pool matching \textbf{192.168.3.1}, so the client gets an
+  address on its \emph{own} subnet --- not the server's.};
+\node[below=0.35cm of c,font=\scriptsize\color{MLMuted}]{192.168.3.0/24};
+\node[below=0.35cm of s,font=\scriptsize\color{MLMuted}]{different segment};
+\end{tikzpicture}
+\end{netfigure}
+
+\begin{lstlisting}[style=dcnterminal]
+[R1] dhcp enable
+[R1] interface GigabitEthernet 0/0/2
+[R1-GigabitEthernet0/0/2] ip address 192.168.3.1 24
+[R1-GigabitEthernet0/0/2] dhcp select relay
+[R1-GigabitEthernet0/0/2] dhcp relay server-ip 10.0.12.1
+\end{lstlisting}
+
+\begin{pitfall}
+The relay must still be able to reach the server by ordinary routing, and the server needs a \emph{return} route to the client subnet. A relay that is configured correctly but has no return path produces the same silent symptom as no relay at all: the client waits and eventually gives up.
+\end{pitfall}
 
 \section{Troubleshooting DHCP}
 \begin{netsteps}

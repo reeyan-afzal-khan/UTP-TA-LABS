@@ -1,0 +1,40 @@
+! ============================================================
+! Lab 4 --- R2 single-area OSPF (transit router)
+! Same topology as Lab 3. REMOVE the static routes first.
+! ============================================================
+
+system-view
+
+! ---------- Remove Lab 3 statics ----------
+! Leaving them installed hides which mechanism is actually carrying
+! traffic, because both would appear to work.
+undo ip route-static 192.168.3.0 24 10.0.23.3
+undo ip route-static 192.168.1.0 24 10.0.12.1
+
+! ---------- OSPF ----------
+! Router IDs must be UNIQUE in the area. Two routers sharing an ID
+! produce adjacencies that flap without any obvious cause, so the
+! 1.1.1.1 / 2.2.2.2 / 3.3.3.3 convention is worth keeping.
+ospf 1 router-id 2.2.2.2
+ area 0
+  ! Only the two transit links: R2 owns no LAN in this topology.
+  network 10.0.12.0 0.0.0.3
+  network 10.0.23.0 0.0.0.3
+ quit
+quit
+save
+
+! ---------- Verify ----------
+! display ospf peer brief
+!   Two neighbours (R1 and R3), both Full.
+!
+! display ip routing-table protocol ospf
+!   R2 learns BOTH LANs without a single route typed by hand. That is
+!   the contrast with Lab 3, where every direction needed its own
+!   statement on every router.
+!
+! display ospf lsdb
+!   Every router in the area holds an IDENTICAL database and then runs
+!   Dijkstra on it independently. Compare this output with R1's and R3's:
+!   the LSDB matches, the resulting routing tables do not, because each
+!   router computes shortest paths from ITSELF.

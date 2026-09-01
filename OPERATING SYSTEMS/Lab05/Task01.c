@@ -1,13 +1,21 @@
 /*
- Step 1: Start the program.
- Step 2: Declare the required variables.
- Step 3: Initialize the buffer size and get maximum item you want to produce.
- Step 4: Get the option, which you want to do either producer, consumer or exit from the operation.
- Step 5: If you select the producer, check the buffer size if it is full the producer should not produce the item or otherwise produce the item and increase the value buffer size.
- Step 6: If you select the consumer, check the buffer size if it is empty the consumer should not consume the item or otherwise consume the item and decrease the value of buffer size.
- Step 7: If you select exit come out of the program.
- Step 8: Stop the program.
-*/
+ * Lab 5, Task 1 --- Producer-consumer counters (menu-driven simulation).
+ *
+ * STEP 1: Model a buffer of capacity 3 with three integers:
+ *           empty = free slots, full = filled slots, mutex = 1 when free.
+ * STEP 2: Offer a menu: 1 produce, 2 consume, 3 exit.
+ * STEP 3: Produce only while empty != 0; consume only while full != 0.
+ * STEP 4: Each action moves one unit between empty and full, so the
+ *         invariant  empty + full = 3  holds after every valid action.
+ *         Check it after each step --- that is the deliverable.
+ *
+ * IMPORTANT: wait() and signal() here are ordinary integer decrements and
+ * increments in a single-threaded menu loop. They illustrate the counting
+ * bookkeeping only --- they are NOT atomic and provide no real mutual
+ * exclusion. A genuine semaphore needs kernel or atomic support.
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -6,12 +6,13 @@
 //     everything in the left subtree  <  this node  <  everything in the right
 //
 // Inserting {4, 2, 6, 1, 3, 5, 7} in that order gives:
-//
-//              4
-//            /   \
-//           2     6
-//          / \   / \
-//         1   3 5   7
+/*
+              4
+            /   \
+           2     6
+          / \   / \
+         1   3 5   7
+*/
 //
 // Because the rule holds at every node, a search can discard half the
 // remaining tree at each step --- O(log n) when the tree is balanced.

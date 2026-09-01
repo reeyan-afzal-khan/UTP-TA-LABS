@@ -51,6 +51,24 @@ private:
         return nullptr;
     }
 
+    // Remove one exact node from the ring. All deletes funnel through here
+    // so the one-node case and the moving-head case are handled once.
+    void unlink(Node* target) {
+        if (target == nullptr) {
+            cout << "The list is empty, nothing to delete.\n";
+            return;
+        }
+        if (target->next == target) {   // last remaining node
+            delete target;
+            head = nullptr;
+            return;
+        }
+        target->prev->next = target->next;
+        target->next->prev = target->prev;
+        if (target == head) head = target->next;
+        delete target;
+    }
+
 public:
     CircularList() : head(nullptr) {}
 
@@ -96,6 +114,19 @@ public:
         head->prev    = newNode;   // the new node is the tail now
     }
 
+    void insertFront(const string& name) {
+        // In a ring, "the position before head" and "the position after the
+        // tail" are the same place. So: insert at the end, then declare the
+        // new node to be the head. No pointer surgery beyond insertEnd's.
+        insertEnd(name);
+        head = head->prev;
+    }
+
+    // Positional deletes unlink an exact node (not a name), so they stay
+    // correct even when several nodes carry the same name.
+    void deleteFront() { unlink(head); }
+    void deleteBack()  { unlink(head == nullptr ? nullptr : head->prev); }
+
     void insertAfter(const string& afterName, const string& newName) {
         Node* current = find(afterName);
 
@@ -128,29 +159,14 @@ public:
             return;
         }
 
-        // Only one node left: the list becomes empty.
-        if (target->next == target) {
-            delete target;
-            head = nullptr;
-            return;
-        }
-
-        // Unlink by joining the two neighbours to each other. Because the
-        // list is circular this single pair of assignments is correct even
-        // when the target is the head or the tail --- there is no end of
-        // the list to special-case.
-        target->prev->next = target->next;
-        target->next->prev = target->prev;
-
-        // The one thing that DOES need care: if we removed the head, the
-        // head pointer itself must move. The original code instead set
-        // head->prev = nullptr here, which cut the ring open and broke
-        // every later insertEnd() and displayReverse().
-        if (target == head) {
-            head = target->next;
-        }
-
-        delete target;
+        // unlink() joins the two neighbours to each other. Because the list
+        // is circular that single pair of assignments is correct even when
+        // the target is the head or the tail --- there is no end of the list
+        // to special-case. The one thing that DOES need care (and unlink
+        // handles): if the head is removed, the head pointer must move.
+        // The original code instead set head->prev = nullptr, which cut the
+        // ring open and broke every later insertEnd() and displayReverse().
+        unlink(target);
     }
 
     void display() const {
@@ -190,9 +206,19 @@ public:
 int main() {
     CircularList list;
 
-    cout << "-- Build the list --\n";
-    list.insertEnd("Aimar");
+    cout << "-- Build the list (front and end insertions) --\n";
     list.insertEnd("Anjana");
+    list.insertFront("Aimar");   // insertion at the beginning
+    list.insertEnd("Jessy");
+    list.display();
+
+    cout << "\n-- Delete from the beginning and the end --\n";
+    list.deleteFront();
+    list.deleteBack();
+    list.display();
+
+    cout << "\n-- Rebuild --\n";
+    list.insertFront("Aimar");
     list.insertEnd("Jessy");
     list.display();
 

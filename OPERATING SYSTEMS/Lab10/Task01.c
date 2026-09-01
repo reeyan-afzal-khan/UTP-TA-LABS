@@ -1,13 +1,22 @@
 /*
-Step-1: Start the program.
-Step-2: Get the number of records user want to store in the system.
-Step-3: Using Standard Library function open the file to write the data into the file. 
-Step-4: Store the entered information in the system.
-Step-5: Using do..While statement and switch case to create the options such as 1-DISPLAY, 2.SEARCH, 3.EXIT.
-Step-6: Close the file using fclose() function. 
-Step-7: Process it and display the result.
-Step-8: Stop the program.
-*/ 
+ * Lab 10, Task 1 --- Student records in a BINARY file.
+ *
+ * STEP 1: Read how many student records to store.
+ * STEP 2: Open the file in binary write mode and write each struct with
+ *         fwrite() --- the raw bytes of the structure go straight to disk.
+ * STEP 3: Reopen for reading and offer a menu: 1 DISPLAY, 2 SEARCH, 3 EXIT.
+ * STEP 4: To display, rewind and fread() until it returns fewer than one
+ *         complete record --- that short read, not EOF alone, is the
+ *         correct stopping condition.
+ * STEP 5: Close the file.
+ *
+ * Binary records are compact and read back in one call, but the file is
+ * not human-readable and is NOT portable: struct padding, field sizes, and
+ * endianness all differ across machines. Compare with Task02.c, which
+ * stores the same kind of data as text.
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

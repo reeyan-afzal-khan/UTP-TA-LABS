@@ -9,6 +9,17 @@
 The required datasets were not included in this notes build, so no numerical findings are asserted here. Verify every result against the files supplied in class.
 \end{pitfall}
 
+\begin{pitfall}
+\textbf{Check what the label column actually is before you interpret it.} The Titanic file used in the lab folder (\texttt{tested.csv}) comes from the Kaggle \emph{test} set, where \texttt{Survived} is a placeholder in which every female is 1 and every male is 0. One line of code proves it:
+
+\begin{lstlisting}[style=dsr]
+all((titanic$Sex == "female") == (titanic$Survived == 1))
+# TRUE  -> the column carries no independent information
+\end{lstlisting}
+
+Reporting ``100\% of women survived'' from that file is reading the labelling rule back out, not discovering anything about 1912. Use \texttt{train.csv}, which holds the real outcomes, before making any survival claim. Run this identity check on any dataset whose target column you did not create yourself.
+\end{pitfall}
+
 \textbf{Part A --- Import and clean.}
 
 \begin{lstlisting}[style=dsr]

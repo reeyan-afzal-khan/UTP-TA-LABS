@@ -15,6 +15,61 @@ If the page table maps that page to frame $f$, then
 \text{physical address} = fP + \text{offset}.
 \]
 
+\begin{mlfigure}
+\centering
+\begin{tikzpicture}[
+  cell/.style={draw=MLBlue,fill=MLPaleBlue,minimum width=1.6cm,minimum height=0.7cm,
+               font=\small\color{MLNavy},align=center},
+  off/.style={draw=MLOrange,fill=MLPaleOrange,minimum width=1.6cm,minimum height=0.7cm,
+              font=\small\color{MLNavy},align=center},
+  pte/.style={draw=MLTeal,fill=MLPaleTeal,minimum width=1.2cm,minimum height=0.58cm,
+              font=\scriptsize\color{MLNavy}},
+  lab/.style={font=\scriptsize\color{MLMuted},align=center},
+  ar/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+]
+% The two address fields are STACKED, not side by side, so the page-number
+% path and the offset path never cross each other or the page table.
+
+% ---- headings ----
+\node[lab] at (0,3.5)   {\textbf{Virtual address}\\ $v = 9\,000$, \ $P = 4\,096$};
+\node[lab] at (4.9,4.0) {\textbf{Page table}};
+\node[lab] at (9.6,3.5) {\textbf{Physical address}};
+
+% ---- page table, positioned so entry 2 lines up with the page row ----
+\node[pte] (p0) at (4.9,3.2) {0 $\to$ 7};
+\node[pte] (p1) at (4.9,2.6) {1 $\to$ 3};
+\node[pte,draw=MLRed,fill=MLPaleRed,very thick] (p2) at (4.9,2.0) {2 $\to$ 5};
+\node[pte] (p3) at (4.9,1.4) {3 $\to$ 1};
+
+% ---- page row (y = 2.0) and offset row (y = 0.5) ----
+\node[cell] (vp) at (0,2.0) {page 2};
+\node[off]  (vo) at (0,0.5) {offset 808};
+\node[cell] (pf) at (9.6,2.0) {frame 5};
+\node[off]  (po) at (9.6,0.5) {offset 808};
+
+% ---- arithmetic, below its own column ----
+\node[lab] at (0,-0.35)   {$\lfloor 9000/4096 \rfloor = 2$\\ $9000 \bmod 4096 = 808$};
+\node[lab] at (9.6,-0.35) {$5 \times 4096 + 808$\\ $= 21\,288$};
+
+% ---- translated: page number in, frame out ----
+\draw[ar] (vp.east) -- node[lab,above]{look up} (p2.west);
+\draw[ar] (p2.east) -- node[lab,above]{gives frame} (pf.west);
+
+% ---- untranslated: the offset passes straight under the table ----
+\draw[ar,draw=MLOrange] (vo.east) --
+      node[lab,above]{copied unchanged --- it never enters the page table} (po.west);
+\end{tikzpicture}
+
+\smallskip
+{\scriptsize Only the \emph{page number} is translated. The offset passes through
+untouched, which is why the page size fixes how many bits each part uses --- and
+why page size is always a power of two.}
+\end{mlfigure}
+
+\begin{keyidea}
+Translation replaces the page number and copies the offset. If a virtual address is contiguous inside one page, its physical address is contiguous too; across a page boundary it need not be, because the next page may live in any frame.
+\end{keyidea}
+
 \section{Page faults}
 A \term{page fault} occurs when a referenced virtual page is not currently resident in a usable physical frame. The OS must locate the page on backing storage (or otherwise materialize it), obtain a frame, update mapping metadata, and restart/resume the faulting instruction as appropriate.
 
@@ -22,7 +77,7 @@ A \term{page fault} occurs when a referenced virtual page is not currently resid
 When no free frame exists, the OS needs a victim page.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.16\linewidth}p{0.29\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.29\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Policy & Victim rule & State required \\

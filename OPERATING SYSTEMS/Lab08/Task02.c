@@ -1,15 +1,21 @@
 /*
-Step 1: Start the program.
-Step 2: Declare the necessary variables. 
-Step 3: Enter the number of frames.
-Step 4: Enter the reference string ending with zero.
-Step 5: FIFO page replacement selects the page that has been in memory the longest time.
-Step 6: When a page is brought into memory, it is inserted at the tail of the queue. 
-Step 7: Initially all the frames are empty.
-Step 8: The page fault count increases when allocated frames increase.
-Step 9: Print total number of page faults.
-Step 10: Stop the program.
-*/
+ * Lab 8, Task 2 --- FIFO page replacement.
+ *
+ * STEP 1: Read the frame count and a reference string terminated by 0.
+ * STEP 2: Start with every frame empty.
+ * STEP 3: For each referenced page:
+ *           - already resident  -> hit, change nothing;
+ *           - not resident      -> fault, overwrite the frame at the
+ *                                  circular pointer, then advance the
+ *                                  pointer modulo the frame count.
+ * STEP 4: Report the total page faults.
+ *
+ * FIFO evicts whichever page has been resident LONGEST, regardless of how
+ * often or how recently it was used. That is why it can suffer Belady's
+ * anomaly: adding a frame can increase the number of faults.
+ *
+ * Build: gcc -Wall -Wextra Task02.c -o task02
+ */
 
 #include <stdio.h>
 

@@ -5,7 +5,7 @@ Threads allow multiple execution flows to share one process's address space and 
 Threads in one process usually share code, global data, heap, and open files. Each thread requires its own execution state: program counter, registers, scheduling state, and stack. The shared address space makes communication easy but also creates race conditions.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{MLNavy}}p{0.25\linewidth}XX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}XX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Resource & Same-process threads & Separate processes \\

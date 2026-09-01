@@ -1,13 +1,19 @@
 /*
-Step-1: Start the program.
-Step-2: Declare the count, file name, graphical interface. 
-Step-3: Read the number of files
-Step-4: Read the file name
-Step-5: Declare the root directory
-Step-6: Using the file eclipse function define the files in a single level 
-Step-7: Display the files
-Step-8: Stop the program
-*/ 
+ * Lab 9, Task 2 --- Interactive hierarchical directory-tree visualization.
+ *
+ * STEP 1: Build a directory/file tree recursively from console input
+ *         (each directory asks for its children, exactly the way pathname
+ *         traversal recurses).
+ * STEP 2: Lay the tree out level by level and draw it with freeglut.
+ * STEP 3: Interact: click a directory to collapse/expand it, drag to pan,
+ *         and use the mouse wheel to zoom toward the cursor.
+ *
+ * The recursion in buildTree() mirrors the recursion in path lookup; the
+ * layout, animation, and picking code is presentation only.
+ *
+ * Build: gcc -Wall -Wextra Task02.c -o task02 -lglut -lGLU -lGL -lm
+ * Note:  needs freeglut (apt install freeglut3-dev) and a display.
+ */
 
 #include <GL/freeglut.h>
 #include <stdio.h>
@@ -344,20 +350,19 @@ void idle_func() {
 }
 
 void mouse_wheel(int wheel, int dir, int x, int y) {
-    // freeglut provides wheel callback: dir = +/-1
-    float oldZoom = zoom;
+    (void)wheel;   // freeglut passes a wheel id; only the direction matters
+
+    // Zoom toward the cursor: capture the world point under the cursor with
+    // the OLD zoom, apply the new zoom, recompute the same screen point, and
+    // pan the camera by the difference so that world point stays put.
+    float wx_before, wy_before, wx_after, wy_after;
+    screenToWorld(x, y, &wx_before, &wy_before);
+
     if (dir > 0) zoom *= 1.12f;
     else zoom *= 0.88f;
     zoom = clampf(zoom, 0.2f, 3.5f);
 
-    // zoom to cursor position: adjust camX/camY so that world pos under cursor remains under cursor
-    float wx_before, wy_before, wx_after, wy_after;
-    screenToWorld(x, y, &wx_before, &wy_before);
-    // apply new zoom temporarily to compute after:
-    float savedZoom = zoom;
-    // compute world after with new zoom (we already updated zoom)
     screenToWorld(x, y, &wx_after, &wy_after);
-    // adjust camera by delta
     camX += (wx_after - wx_before);
     camY += (wy_after - wy_before);
 }

@@ -1,12 +1,21 @@
 /*
-Step-1: Start the program.
-Step-2: Declare the memory for the process.
-Step-3: Read the number of process, resources, allocation matrix and available matrix. 
-Step-4: Compare each and every process using the banker‟s algorithm.
-Step-5: If the process is in safe state then it is a not a deadlock process otherwise itis a deadlock process
-Step-6: produce the result of state of process 
-Step-7: Stop the program
-*/ 
+ * Lab 6, Task 2 --- Deadlock detection via the same matrix machinery.
+ *
+ * STEP 1: Read processes, resource types, MAX, ALLOCATION, and AVAILABLE.
+ * STEP 2: Derive Need = Max - Allocation.
+ * STEP 3: Run the Work/Finish reduction: any process whose Need <= Work is
+ *         assumed able to finish and returns its allocation to Work.
+ * STEP 4: Every process left unfinished at the end is reported as
+ *         potentially deadlocked.
+ *
+ * Note the conceptual difference from Task01.c: true deadlock DETECTION
+ * reasons about outstanding REQUESTS that already exist, while a Banker's
+ * safety test reasons about worst-case future claims (Max). This program
+ * derives Need from Max, so strictly it performs a safety-style test and
+ * labels the pessimistic result "deadlock" --- compare and discuss.
+ *
+ * Build: gcc -Wall -Wextra Task02.c -o task02
+ */
 
 #include <stdio.h>
 
@@ -90,7 +99,7 @@ void show() {
 void detectDeadlock() {
     int finish[100] = {0}, dead[100];
     int work[100];
-    int i, j, k, count = 0, deadCount = 0;
+    int i, j, k, deadCount = 0;
 
     // Step 1: Calculate NEED matrix
     for (i = 0; i < n; i++) {

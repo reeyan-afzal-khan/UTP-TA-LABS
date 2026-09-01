@@ -137,11 +137,57 @@ A&\to B:1, & A&\to C:4,\\
 B&\to D:3, & B&\to E:1,\\
 E&\to G:2, & C&\to F:5, & F&\to G:1.
 \end{align*}
+with the handout's heuristic
+\[
+h(A)=7,\; h(B)=6,\; h(C)=4,\; h(D)=3,\; h(E)=2,\; h(F)=2,\; h(G)=0.
+\]
 The optimal route is
 \[
 A\to B\to E\to G
 \]
 with path cost \(1+1+2=4\).
+
+\subsection{Is that heuristic admissible? Check, do not assume}
+
+The condition above is worth applying to the handout's own numbers rather than reading past it. Let \(h^\star(n)\) be the \emph{true} cheapest cost from \(n\) to the goal, obtained by searching backwards from \(G\). Admissibility requires \(h(n)\leq h^\star(n)\) at every node.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}p{0.13\linewidth}p{0.15\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Node & \(h(n)\) & true \(h^\star(n)\) & Admissible? \\
+\midrule
+A & 7 & 4 & \textbf{no} --- overestimates by 3 \\
+B & 6 & 3 & \textbf{no} --- overestimates by 3 \\
+C & 4 & 6 & yes \\
+D & 3 & --- & \(G\) is unreachable from \(D\) \\
+E & 2 & 2 & yes (exact) \\
+F & 2 & 1 & \textbf{no} --- overestimates by 1 \\
+G & 0 & 0 & yes \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+This heuristic is \textbf{not admissible}, so A* carries no optimality guarantee on this graph. It still returns \texttt{A -> B -> E -> G} at cost 4, which happens to be optimal --- but that is luck, not proof, and a differently shaped graph with the same style of heuristic can return a worse path.
+
+Report which heuristics in the lab are admissible and which are not. ``A* found it, so it must be optimal'' is exactly the reasoning the admissibility condition exists to prevent.
+\end{pitfall}
+
+\begin{tryit}
+\texttt{Lab02/search\_informed.py} computes the \(h^\star\) column by running a backwards search from the goal and prints this table, so you can verify the claim instead of taking it on trust.
+
+Then repair the heuristic by scaling every value by a constant \(k\). Admissibility needs \(k\,h(n)\leq h^\star(n)\) at every node, so \(k\) is limited by the worst node:
+\[
+k\leq\min_n \frac{h^\star(n)}{h(n)}
+=\min\left(\tfrac{4}{7},\tfrac{3}{6},\tfrac{6}{4},\tfrac{2}{2},\tfrac{1}{2}\right)=\tfrac12,
+\]
+with \(B\) and \(F\) both binding. Halving the heuristic makes the whole table read yes. Scaling by \(4/7\) --- the factor that fixes the largest single error, at \(A\) --- is not enough, and checking that for yourself is the point of the exercise.
+\end{tryit}
+
+\begin{intuition}
+An inadmissible heuristic makes A* behave more like Greedy Best-First Search: it trusts the estimate too much and can commit to a branch before the cost evidence says it should. Admissibility is what keeps the \(g\) term in charge when the two disagree.
+\end{intuition}
 
 \begin{mlfigure}
 \begin{tikzpicture}[

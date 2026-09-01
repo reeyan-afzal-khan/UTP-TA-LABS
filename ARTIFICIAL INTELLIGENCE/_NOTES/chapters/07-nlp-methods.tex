@@ -292,22 +292,44 @@ The zero-match and tie checks prevent the program from reporting English merely 
 The final example tokenizes a paragraph, removes stop words and punctuation, builds a bag-of-words model, sorts vocabulary counts in descending order, and returns the top five words.
 
 \begin{lstlisting}[style=mlmatlab]
-text = "Data science involves extracting useful insights from data. " + ...
-       "Data analysis and machine learning support better decisions.";
+text = "Data science involves extracting insights from structured " + ...
+       "and unstructured data using statistical and machine " + ...
+       "learning techniques.";
+
 document = tokenizedDocument(text);
-document = removeStopWords(document);
-document = erasePunctuation(document);
+document = lower(document);            % fold case BEFORE counting
+document = erasePunctuation(document); % strip punctuation ...
+document = removeStopWords(document);  % ... then remove stop words
 
 bow = bagOfWords(document);
 [sortedCounts, sortedIndex] = sort(bow.Counts, 'descend');
 sortedWords = bow.Vocabulary(sortedIndex);
-keywords = sortedWords(1:min(5, end));
-keywordCounts = sortedCounts(1:min(5, end));
-disp(table(keywords', keywordCounts', ...
+
+n = min(5, numel(sortedWords));
+disp(table(sortedWords(1:n)', sortedCounts(1:n)', ...
     'VariableNames', {'Keyword', 'Count'}));
 \end{lstlisting}
 
-For the supplied paragraph, the output includes the terms Data, science, involves, extracting, and insights.
+\begin{pitfall}
+\textbf{Two preprocessing details decide whether this ranking means anything.}
+
+\emph{Case.} \texttt{tokenizedDocument} is case sensitive, so \texttt{Data} at the start of a sentence and \texttt{data} in the middle are different tokens. In the supplied paragraph ``data'' occurs three times but is counted as \texttt{Data}\,=\,2 and \texttt{data}\,=\,1 --- the most important keyword in the text, understated by a third. Call \texttt{lower(document)} before counting.
+
+\emph{Order.} Strip punctuation \emph{before} removing stop words. A token still carrying a full stop does not match the stop-word list, so \texttt{and.} survives a removal that \texttt{and} would not.
+
+\begin{lstlisting}[style=mlmatlab]
+document = tokenizedDocument(text);
+document = lower(document);          % fold case first
+document = erasePunctuation(document);
+document = removeStopWords(document); % then remove stop words
+\end{lstlisting}
+\end{pitfall}
+
+\begin{pitfall}
+\textbf{Print the counts, not only the words.} After case folding, ``data'' appears 3 times and every other term appears once. A top-five list built from that is one real keyword followed by four arbitrary ties, resolved by whatever order the tokenizer happened to produce.
+
+A ranking in which almost everything ties is not a ranking. Report the counts alongside the words so the reader can see how thin the evidence is, and do not present all five as findings.
+\end{pitfall}
 
 \section{A taxonomy of the Lab 7 methods}
 

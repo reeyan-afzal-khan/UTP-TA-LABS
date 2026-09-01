@@ -1,0 +1,126 @@
+\chapter*{Capstone: Cleaning a Real Messy Dataset}
+\label{chap:capstone}
+\addcontentsline{toc}{chapter}{Capstone: Cleaning a Real Messy Dataset}
+\markboth{Capstone: Cleaning a Messy Dataset}{}
+
+Every earlier lab handed you data that was already tidy. This one does not.
+\texttt{Unclean Dataset.csv} is a student enrolment file that has been through
+several careless hands, and the task is to turn it into something a database
+could accept --- then say honestly what the cleaning cost.
+
+\textbf{Source files.} \texttt{Lab Final Project/Lab Final Project.R},
+\texttt{Unclean Dataset.csv} (136 data rows), and
+\texttt{Cleaned Dataset.csv} (the expected 64-row result).\\
+\textbf{Goal.} Repair a file with mixed delimiters, shifted columns, inconsistent
+categories, three date formats, and currency text, and report what was
+discarded.
+
+\begin{labmode}
+Run it from the folder that holds it, so the relative paths resolve:
+
+\begin{lstlisting}[style=dsr]
+setwd("path/to/DATA SCIENCE/Lab Final Project")
+source("Lab Final Project.R")
+\end{lstlisting}
+
+It needs \texttt{tidyverse} and \texttt{lubridate}. The script checks for them
+and stops with instructions rather than installing them, because a lab script
+that silently writes to a shared machine's package library is bad manners.
+\end{labmode}
+
+\section*{Seven defects, and what each one teaches}
+
+\begin{dstable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{DSNavy}}p{0.21\linewidth}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Defect in the file & Why it cannot simply be read with \texttt{read.csv()} \\
+\midrule
+Two delimiters & Some rows use \texttt{|}, others use \texttt{,}. One
+\texttt{read\_csv()} call cannot parse both, so the script splits the lines
+first and parses each group with the right delimiter. \\
+Trailing commas & Pipe rows end in \texttt{\$1200,,,,,,,}, which would create
+phantom empty columns. \\
+Shifted columns & In some comma rows the age has slipped into the
+\texttt{Gender} field, so a value like \texttt{M24} holds two variables at once. \\
+Inconsistent categories & Gender appears as \texttt{M}, \texttt{Male},
+\texttt{male}, \texttt{F}, \texttt{Female}; the script folds case and keys on
+the first letter. \\
+Misspelt courses & \texttt{Machine Learnin}, \texttt{Web Develpment}. Repaired
+by pattern, not by a lookup table, because the truncations vary. \\
+Three date formats & \texttt{ymd}, \texttt{dmy}, and \texttt{mdy} in one column.
+\texttt{parse\_date\_time()} is given all three orders. \\
+Currency as text & \texttt{\$1,200} is a string. Strip every non-digit, then
+convert. \\
+\bottomrule
+\end{tabularx}
+\end{dstable}
+
+\begin{keyidea}
+Notice the order the script works in. It repairs \emph{structure} first (split
+the delimiters, unshift the columns), then \emph{values} (categories, dates,
+currency), and only then drops rows. Reversing that order throws away rows that
+were merely mis-parsed rather than genuinely bad.
+\end{keyidea}
+
+\section*{The number that matters most}
+
+The script now prints a cleaning summary. On the supplied file it reads:
+
+\begin{lstlisting}[style=dsr]
+raw data lines read      : 136
+  pipe-delimited         : 76
+  comma-delimited        : 60
+rows after merge         : 136
+rows after clean/dedupe  : 64
+dropped                  : 72
+Dates that failed to parse: 7
+\end{lstlisting}
+
+\begin{pitfall}
+\textbf{53\% of the rows did not survive.} A cleaning script that printed only
+\texttt{head(clean\_df)} would look like a complete success while discarding
+more than half the dataset, and nobody reading the tidy output would know.
+
+Before you present the cleaned file, account for those 72 rows. How many were
+true duplicates removed by \texttt{distinct()}? How many failed the
+\texttt{!is.na(Student\_ID)} filter, and were those genuinely unusable or just
+parsed badly? Seven enrolment dates are still \texttt{NA} even in the output
+you keep.
+
+``Rows dropped'' is not a footnote. It is the main finding of a cleaning
+exercise, and it belongs in the report next to the row count you kept.
+\end{pitfall}
+
+\begin{tryit}
+Add one line before the \texttt{distinct()} call to count exact duplicates
+separately from rows removed by the \texttt{is.na} filter:
+
+\begin{lstlisting}[style=dsr]
+cat("exact duplicates:", nrow(full_df) - nrow(distinct(full_df)), "\n")
+\end{lstlisting}
+
+Then inspect the seven unparsed dates and decide whether a fourth format order
+would rescue them, or whether they are genuinely unreadable:
+
+\begin{lstlisting}[style=dsr]
+full_df$Enrollment_Date[is.na(clean_df$Enrollment_Date)]
+\end{lstlisting}
+
+Either answer is acceptable in the report. Not looking is not.
+\end{tryit}
+
+\begin{keyidea}
+The script also adds a \texttt{System\_Record\_ID} surrogate key, because
+\texttt{Student\_ID} repeats in this file. A natural key that is not actually
+unique will break the first join you attempt, so a cleaning step that will feed
+a database should end by giving every row an identifier it controls.
+\end{keyidea}
+
+\begin{labdeliverable}
+Submit the cleaned CSV, the script, and a short data-quality note stating: the
+original and final row counts, how many rows each cleaning rule removed and
+why, which fields you standardised and to what convention, how many dates
+remain unparsed, and one sentence on whether the surviving 64 rows are still
+representative of the original file.
+\end{labdeliverable}

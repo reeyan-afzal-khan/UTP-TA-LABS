@@ -1,13 +1,20 @@
 /*
-Step-1: Start the program.
-Step-2: Get the number of records user want to store in the system.
-Step-3: Using Standard Library function open the file to write the data into the file. 
-Step-4: Store the entered information in the system.
-Step-5: Using do..While statement and switch case to create the options such as 1-DISPLAY, 2.SEARCH, 3.EXIT.
-Step-6: Close the file using fclose() function. 
-Step-7: Process it and display the result.
-Step-8: Stop the program.
-*/ 
+ * Lab 10, Task 2 --- Employee records in a TEXT file.
+ *
+ * STEP 1: Read how many employee records to store.
+ * STEP 2: Write each one with fprintf() as a line of text.
+ * STEP 3: Reopen for reading; to fetch record number k, rewind and parse
+ *         forward with fscanf() until record k has been read.
+ * STEP 4: Keep asking for a record number until -1 is entered.
+ *
+ * Text records are human-readable, portable across machines, and easy to
+ * diff or repair by hand. The cost: parsing on every read, larger files,
+ * and no constant-time seek to record k --- notice this program must scan
+ * from the start each time, while the binary version in Task01.c could
+ * compute a byte offset directly.
+ *
+ * Build: gcc -Wall -Wextra Task02.c -o task02
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

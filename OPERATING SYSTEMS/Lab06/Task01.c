@@ -1,12 +1,21 @@
-/* 
-Step-1: Start the program.
-Step-2: Declare the memory for the process.
-Step-3: Read the number of process, resources, allocation matrix and available matrix. 
-Step-4: Compare each and every process using the banker‟s algorithm.
-Step-5: If the process is in safe state then it is a not a deadlock process otherwise it is a deadlock process
-Step-6: produce the result of state of process 
-Step-7: Stop the program
- */ 
+/*
+ * Lab 6, Task 1 --- Banker's safety algorithm.
+ *
+ * STEP 1: Read the number of processes and resource types.
+ * STEP 2: Read the MAX and ALLOCATION matrices and the AVAILABLE vector.
+ * STEP 3: Compute Need = Max - Allocation for every entry.
+ * STEP 4: Repeatedly pick any unfinished process whose Need <= Work,
+ *         pretend it runs to completion, and release its allocation
+ *         back into Work.
+ * STEP 5: If every process can finish this way, the state is SAFE and the
+ *         order found is a safe sequence; otherwise the state is UNSAFE.
+ *
+ * Unsafe does not mean deadlocked --- it means the system can no longer
+ * GUARANTEE that every process finishes. That distinction is the point
+ * of comparing this program with Task02.c.
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01
+ */
 
 #include <stdio.h>
 

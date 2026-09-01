@@ -113,7 +113,7 @@ Then, on the switch that lost the system-priority election, change a port priori
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item Both manual and LACP modes configured and captured separately.
   \item Both ends use the same mode.
@@ -121,7 +121,7 @@ Then, on the switch that lost the system-priority election, change a port priori
   \item The deciding switch is identified from system priority.
   \item Failover to a backup member is demonstrated and timed.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit both configurations, \cmd{display eth-trunk} output for each mode, evidence of member failover with timing, and a short note explaining why LACP is preferred to manual mode --- referring specifically to the miscabling scenario.

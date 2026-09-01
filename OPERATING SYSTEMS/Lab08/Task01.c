@@ -1,12 +1,20 @@
 /*
-Step 1: Start the process
-Step 2: Declare page number, page table, frame number and process size. 
-Step 3: Read the process size, total number of pages
-Step 4: Read the relative address
-Step 5: Calculate the physical address 
-Step 6: Display the address
-Step 7: Stop the process
-*/
+ * Lab 8, Task 1 --- Two threads serialized by a pthread mutex.
+ *
+ * STEP 1: Initialize one mutex.
+ * STEP 2: Create two threads running the same job function.
+ * STEP 3: Each thread locks the mutex, does its whole simulated job
+ *         (start message, delay loop, finish message), then unlocks.
+ * STEP 4: Join both threads and destroy the mutex.
+ *
+ * Because the lock is held around the ENTIRE job, the two jobs cannot
+ * interleave: "Job 1 started / Job 1 finished / Job 2 started / Job 2
+ * finished" appears in strict sequence even though two threads exist.
+ * The mutex trades away the concurrency to guarantee the critical section
+ * is never entered twice at once.
+ *
+ * Build: gcc -Wall -Wextra -pthread Task01.c -o task01
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +28,8 @@ pthread_mutex_t lock;
 
 void* doSomeThing(void *arg)
 {
+    (void)arg;   // required by the pthread signature; unused here
+
     pthread_mutex_lock(&lock);
 
     counter++;

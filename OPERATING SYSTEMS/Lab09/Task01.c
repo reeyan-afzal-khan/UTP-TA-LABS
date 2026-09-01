@@ -1,13 +1,17 @@
 /*
-Step-1: Start the program.
-Step-2: Declare the count, file name, graphical interface. 
-Step-3: Read the number of files
-Step-4: Read the file name
-Step-5: Declare the root directory
-Step-6: Using the file eclipse function define the files in a single level 
-Step-7: Display the files
-Step-8: Stop the program
-*/ 
+ * Lab 9, Task 1 --- Single-level (flat) directory visualization.
+ *
+ * STEP 1: Read the number of files and each file name from the console.
+ * STEP 2: Draw one root-directory node.
+ * STEP 3: Draw every file as a child node on a single level below the root,
+ *         connected by a line --- a flat namespace has exactly one level.
+ *
+ * The names and the parent-child relation are the DIRECTORY data; the
+ * ellipse shapes, colors, and coordinates are pure presentation.
+ *
+ * Build: gcc -Wall -Wextra Task01.c -o task01 -lglut -lGLU -lGL -lm
+ * Note:  needs freeglut (apt install freeglut3-dev) and a display.
+ */
 
 #include <GL/freeglut.h>
 #include <stdio.h>

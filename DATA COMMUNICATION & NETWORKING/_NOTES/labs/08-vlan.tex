@@ -2,8 +2,6 @@
 
 \begin{labproject}{Access, trunk, and hybrid ports --- and what each does to a tag}
 \textbf{Coverage.} Chapter~\ref{ch:vlan}.\\
-\textbf{Goal.} Separate broadcast domains on shared hardware, carry several VLANs over one link, and predict tagging behaviour before configuring it.
-
 \medskip\noindent\textbf{Part A --- What a VLAN actually separates.}\par
 A switch floods broadcasts to every port. A VLAN restricts that flooding to a subset, which means one physical switch behaves as several independent switches.
 
@@ -132,7 +130,7 @@ Capture it in Wireshark and explain which frames carry a tag and which do not. T
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item VLANs created on both switches, not just one.
   \item Trunk explicitly permits every VLAN that must cross it.
@@ -140,7 +138,7 @@ Capture it in Wireshark and explain which frames carry a tag and which do not. T
   \item Same-VLAN connectivity proven across switches, and cross-VLAN isolation proven to fail.
   \item Hybrid port demonstrated with one VLAN tagged and one untagged.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit both switch configurations, \cmd{display vlan} and \cmd{display port vlan} output, a connectivity matrix showing which host pairs can reach each other and which cannot, and evidence of the native-VLAN mismatch experiment with an explanation of why it is a security problem.

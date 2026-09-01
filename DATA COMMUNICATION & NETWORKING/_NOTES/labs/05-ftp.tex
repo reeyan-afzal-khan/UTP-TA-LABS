@@ -129,7 +129,7 @@ Find your password in the capture. It is there in plaintext, because FTP does no
 \end{tryit}
 \end{labproject}
 
-\begin{verifybox}
+\begin{verification}
 \begin{itemize}
   \item Ping succeeded before any FTP configuration was attempted.
   \item \cmd{display ftp-server} confirms the service is enabled.
@@ -137,7 +137,7 @@ Find your password in the capture. It is there in plaintext, because FTP does no
   \item Both \cmd{get} and \cmd{put} demonstrated, with \cmd{binary} set.
   \item Wireshark capture shows the credentials in plaintext.
 \end{itemize}
-\end{verifybox}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the server configuration, \cmd{display ftp-server} output, a full session transcript with response codes, evidence of a successful transfer in each direction, and the Wireshark screenshot showing the plaintext password with a one-paragraph security comment.

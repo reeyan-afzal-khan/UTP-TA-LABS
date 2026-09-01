@@ -32,25 +32,57 @@ Each step creates information needed by another function. If the organisation tr
 
 \section{Fitter Snacker: what goes wrong without integration}
 
-The textbook describes Fitter Snacker as using separate sales order, warehouse, and accounting systems. Data moves through periodic file transfers and paper reports rather than a shared real-time system. This creates several recurring problems.
+Fitter Snacker runs separate sales, warehouse, and accounting systems. Data crosses between them by fax, paper report, and periodic file transfer. Every one of its recurring problems traces back to a single structural fact: \textbf{each department holds its own copy of the order, and the copies drift apart.}
 
-\subsection{Quotation and pricing problems}
-Salespeople can make arithmetic errors, combine discounts incorrectly, or create terms that the office does not yet know about. Handwritten and faxed quotations can be difficult to read. A customer may therefore need to repeat information or may accidentally create a duplicate order.
+\begin{erpfigure}
+\begin{tikzpicture}[
+  sys/.style={draw=ERPRed,fill=ERPPaleRed,rounded corners=1.5mm,minimum width=2.1cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  good/.style={draw=ERPGreen,fill=ERPPaleTeal,rounded corners=1.5mm,minimum width=2.1cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  hub/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=1.5cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
+  slow/.style={-{Stealth[length=2mm]},thick,draw=ERPRed,dashed},
+  fast/.style={-{Stealth[length=2mm]},thick,draw=ERPGreen},
+  note/.style={font=\scriptsize\color{ERPMuted},align=center}
+]
+% --- left: siloed ---
+\node[note,font=\scriptsize\bfseries\color{ERPRed}] (t1) {Separate systems};
+\node[sys,below=0.3cm of t1] (s1) {Sales\\ \tiny own order copy};
+\node[sys,below=0.5cm of s1] (s2) {Warehouse\\ \tiny own stock copy};
+\node[sys,below=0.5cm of s2] (s3) {Accounting\\ \tiny own invoice copy};
+\draw[slow] (s1) -- node[note,right=0.5mm,text width=1.9cm]{fax, batch\\ \tiny hours or days} (s2);
+\draw[slow] (s2) -- node[note,right=0.5mm,text width=1.9cm]{re-keyed\\ \tiny may not match} (s3);
 
-\subsection{Availability and delivery-date problems}
-The sales clerk must ask the warehouse for an estimated shipping date. If stock data and pending orders are not current, the estimate may be unreliable. The customer receives a promise based on incomplete visibility.
+% --- right: integrated ---
+\begin{scope}[xshift=6.6cm]
+\node[note,font=\scriptsize\bfseries\color{ERPGreen}] (t2) {One shared record};
+\node[hub,below=1.35cm of t2] (h) {Shared\\ transaction\\ data};
+\node[good,above left=0.35cm and 0.6cm of h] (g1) {Sales};
+\node[good,below left=0.35cm and 0.6cm of h] (g2) {Warehouse};
+\node[good,right=0.75cm of h] (g3) {Accounting};
+\draw[fast] (g1) -- (h); \draw[fast] (g2) -- (h); \draw[fast] (h) -- (g3);
+\node[note,below=0.3cm of g2,text width=4.2cm]{every function reads and writes the \emph{same} order};
+\end{scope}
+\end{tikzpicture}
+\end{erpfigure}
 
-\subsection{Credit problems}
-Existing customers are checked against a periodic printed credit report. A recent payment may not yet appear, so the company might reject a good customer unnecessarily. The reverse can also happen: stale information may allow an order that pushes the customer beyond the intended credit exposure.
+Read the five textbook symptoms as one cause seen from five desks:
 
-\subsection{Order-filling and inventory problems}
-Paper packing lists move to the warehouse in batches. Manual handling increases delay, and inventory changes may be missed if staff do not update the records after opening cases or moving stock.
-
-\subsection{Accounting and invoicing problems}
-Sales-order data is periodically moved into the accounting system. If warehouse fulfilment changes after the data transfer, the invoice may not match what was actually shipped. Payment allocation and returns can also become difficult when records are incomplete or handwriting is unclear.
+\begin{erptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.20\linewidth}X>{\itshape}p{0.26\linewidth}@{}}
+\toprule
+\rowcolor{ERPPaleBlue!92}
+Symptom & What actually happens & The stale copy \\
+\midrule
+Quotation and pricing & Arithmetic slips, discounts combined wrongly, terms the office has not seen; faxes misread into duplicate orders. & price \\
+Availability and dates & The clerk asks the warehouse for a ship date built on stock figures that are already out of date. & stock \\
+Credit & The customer is judged against a periodic printed report, so a recent payment is invisible --- good customers refused, over-exposed ones approved. & receivables \\
+Order filling & Paper picking lists travel in batches; stock moves that nobody writes down never reach the records. & inventory \\
+Invoicing & Order data is transferred to accounting on a schedule, so fulfilment changes after the transfer are billed wrongly. & shipped quantity \\
+\bottomrule
+\end{tabularx}
+\end{erptable}
 
 \begin{pitfall}
-Many of these problems are not caused by careless employees. They are process-design problems. If a process requires people to repeatedly copy, fax, re-key, reconcile, and remember data across systems, errors and delays are predictable outcomes.
+None of this is careless staff; it is process design. A process that requires people to copy, fax, re-key, and reconcile the same fact across systems will produce errors and delays no matter how conscientious they are. Fix the structure, not the people.
 \end{pitfall}
 
 \section{What an integrated ERP changes}
@@ -74,7 +106,7 @@ A strong sales-order system therefore performs several checks at the time of the
 The term \term{order-to-cash} emphasises that the process is not complete when the sales order is confirmed. The business has not earned the operational outcome it wants until the product is fulfilled and the money is collected.
 
 \begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.19\linewidth}p{0.24\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.19\linewidth}p{0.24\linewidth}X@{}}
 \toprule
 \rowcolor{ERPPaleBlue!92}
 Stage & Primary owner & Information created or consumed \\
@@ -121,7 +153,7 @@ The guide emphasises that the price is set in Sales and then flows into the invo
 The Odoo guide gives a useful general rule: business records move through a lifecycle. A draft is still editable; a confirmed or posted record represents a commitment; a done or paid state represents completion of the real-world event.
 
 \begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\color{ERPNavy}}p{0.25\linewidth}p{0.23\linewidth}p{0.23\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.25\linewidth}p{0.23\linewidth}p{0.23\linewidth}X@{}}
 \toprule
 \rowcolor{ERPPaleBlue!92}
 Document & Draft-like state & Committed state & Final state \\
