@@ -1,7 +1,0 @@
-name,type,is_storable,list_price,standard_price,sale_ok,purchase_ok
-Road Bike,consu,TRUE,1000.00,650.00,TRUE,FALSE
-Aluminium Frame,consu,TRUE,0.00,250.00,FALSE,TRUE
-Rubber Tires,consu,TRUE,0.00,45.00,FALSE,TRUE
-Brake Set,consu,TRUE,0.00,80.00,FALSE,TRUE
-Gear Set,consu,TRUE,0.00,120.00,FALSE,TRUE
-Bicycle Chain,consu,TRUE,0.00,35.00,FALSE,TRUE
