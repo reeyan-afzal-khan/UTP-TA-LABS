@@ -1,9 +1,10 @@
 # Adding a course
 
 A course book is a folder at the repository root holding chapters, labs, and
-one `main-<code>.tex` that binds them together. Everything the eight existing
-books have in common lives here in `.shared/`, so a new course is mostly a
-matter of filling in a template.
+one `main.tex` that binds them together. Everything the eight existing books
+have in common lives here in `.shared/`, so a new course is mostly a matter of
+filling in a template: now that the shared preamble owns the cover, the front
+matter and the boxes, a `main.tex` is configuration plus a list of chapters.
 
 Work down this list. Each step says what to do and how to check it.
 
@@ -27,45 +28,45 @@ Two folders are required, and every existing course has them:
 
 Add more only when the book needs them. Two courses do: Data Communication
 keeps screenshots in `assets/`, and Enterprise Resource Planning keeps
-reference material in `appendices/`. If you add an image folder, name it in
-`\graphicspath` alongside `../.shared/`.
+reference material in `appendices/`. If you add an image folder, name it
+in `\utpextragraphicspath`; the shared folder is already on the path.
 
 Pick a short code for the course — `ads`, `ai`, `dcn`, `ds`, `erp`, `fi`,
-`ml`, `os` are taken. It becomes the filename suffix and the prefix on any
-course-specific macro.
+`ml`, `os` are taken. It prefixes any course-specific macro, box or listing
+style, which is what keeps two books from claiming the same name.
 
 ## 2. Copy the template
 
 ```bash
-cp .shared/TEMPLATE-main.tex "NEW COURSE/main-abc.tex"
+cp .shared/TEMPLATE-main.tex "NEW COURSE/main.tex"
 ```
 
 The template is commented top to bottom, and every decision point is marked
 `REQUIRED` or `OPTIONAL`. Do not edit the template itself — it is the
 starting point for the next course too.
 
-Add the editor entry point every other course has, so an IDE that expects a
-`main.tex` finds one:
-
-```bash
-printf '%% Canonical editor entry point.\n\\input{main-abc.tex}' > "NEW COURSE/main.tex"
-```
-
 ## 3. Fill in the REQUIRED blocks
 
 In order, as they appear in the file:
 
-1. **Course configuration** — `\utprunninghead` and `\utplabtotal`.
-2. **PDF metadata** — title, subject, keywords.
-3. **Listing styles** — rename `abccode` and `abcterminal` to your code, and
-   set the language. Both build on the shared bases, so the frame and colours
-   match the other books for free.
-4. **Cover content** — the course title and a two-line outline. The title page
-   layout itself is in `.shared/cover.tex` and should not be copied.
-5. **Chapters** — one `\input` per chapter, in reading order.
+1. **Course configuration** — `\utprunninghead` and `\utplabtotal`, then the
+   cover text: `\utpcoursetitle` and `\utpcourseoutline`. The title page layout
+   itself is in `.shared/cover.tex` and should not be copied.
+2. **Chapters** — one `\input` per chapter, in reading order, after the
+   `\utpfrontmatter` line that prints the cover, contents and course map.
 
-Delete the `OPTIONAL` blocks you do not use. A short `main-<code>.tex` is the
-goal; `MACHINE LEARNING/main-ml.tex` is the one to imitate.
+Then the optional blocks you actually need. Listing styles are one line each
+and build on the shared bases, so the frame and colours match the other books
+for free:
+
+```latex
+\lstdefinestyle{abccode}{style=utpcode,language=Python}
+\lstdefinestyle{abcterminal}{style=utpterminal}
+```
+
+Delete the `OPTIONAL` blocks you do not use. A short `main.tex` is the goal;
+`MACHINE LEARNING/main.tex` is the one to imitate — it is configuration and a
+chapter list, nothing else.
 
 ## 4. Write the first chapter
 
@@ -92,8 +93,9 @@ A chapter opens with a guide box and closes with a recap:
 \end{chapterrecap}
 ```
 
-The boxes available to you are listed in section 8 of `utpnotes.tex`. The
-common ones:
+The boxes available to you are listed in section 8 of `utpnotes.tex`, and a
+book declares one of its own with `\utpnewcallout` or `\utpnewquietbox` rather
+than by writing out the geometry. The common ones:
 
 | Box              | Use it for                                          |
 | ---------------- | --------------------------------------------------- |
@@ -106,10 +108,16 @@ common ones:
 | `chapterrecap`   | the closing summary                                 |
 | `mlfigure`       | a centred frame around a TikZ diagram               |
 | `mltable`        | a frame around a table                              |
+| `utpfig`         | the same frame, with a numbered, referable caption  |
+| `verification`   | the evidence that a lab step actually worked        |
+| `troubleshoot`   | what to do when it did not                          |
 
 Prefer a diagram to a paragraph wherever the idea is spatial, sequential, or
-comparative. The existing chapters use TikZ directly; the libraries are
-already loaded in section 2 of the shared preamble.
+comparative. The existing chapters use TikZ directly; the libraries are already
+loaded in section 2 of the shared preamble, and one line in `main.tex`
+— `\utpdiagramstyles{abc}{1.0cm}{0.8cm}` — gives the book the
+node styles the other diagrams are drawn with (`abccell`, `abcnode`,
+`abcarrow`, and the rest, listed in section 10 of `utpnotes.tex`).
 
 ## 5. Write the labs
 
@@ -136,7 +144,7 @@ From inside the course folder, three passes — once to typeset, once to place
 the contents entries, once to settle the page numbers:
 
 ```bash
-cd "NEW COURSE" && pdflatex main-abc.tex && pdflatex main-abc.tex && pdflatex main-abc.tex
+cd "NEW COURSE" && pdflatex main.tex && pdflatex main.tex && pdflatex main.tex
 ```
 
 Paths in the course file are relative, so building from the repository root
@@ -145,13 +153,13 @@ will not find `.shared/`.
 Check the log for the things a first build usually gets wrong:
 
 ```bash
-grep -n "Undefined control sequence\|LaTeX Warning: Reference\|not found" main-abc.log
+grep -n "Undefined control sequence\|LaTeX Warning: Reference\|not found" main.log
 ```
 
 ## 7. Register the course
 
 Add a row to the table in the repository `README.md`, linking to
-`NEW COURSE/main-abc.tex` with a one-line description of what the notes cover.
+`NEW COURSE/main.tex` with a one-line description of what the notes cover.
 
 ---
 
@@ -165,13 +173,24 @@ already exists:
 | --------------------------------- | -------------------------------------------------- |
 | rename a box                       | `\def\utptitlepitfall{...}` before the `\input`    |
 | restyle a box in one book          | `\renewtcolorbox{pitfall}{...}` after the `\input` |
-| add a box only one book needs      | `\newtcolorbox` in that book                       |
+| break figure frames over a page    | `\utpbreakableframes` after the `\input`           |
+| put titles in a solid bar          | `\utpheavycallouts` after the `\input`             |
+| recolour the lab banner            | `\utplabprojectcolour{UTPNavy}` after the `\input` |
+| call a shared box by a local name  | `\utpaliasenv{abctable}{mltable}`                  |
+| add a box only one book needs      | `\utpnewcallout` or `\utpnewquietbox` in that book |
+| draw diagrams in the house style   | `\utpdiagramstyles{abc}{1.0cm}{0.8cm}`             |
+| colour pseudocode                  | `\utpalgorithmstyle` after loading algorithm2e     |
 | add a package only one book needs  | `\usepackage` in that book                         |
 | change something for every book    | edit the matching section of `utpnotes.tex`        |
+
+A rule of thumb: when a second book wants what the first one wrote, move it
+into `utpnotes.tex` and leave both books calling it by name. That is how
+`verification`, `troubleshoot`, `utpfig` and the running-text shorthand
+(`\figref`, `\lib`, `\given`, `\coretag`) came to be shared.
 
 Editing `utpnotes.tex` changes all eight books at once, so rebuild them and
 compare before and after. Text comparison catches what a page count misses:
 
 ```bash
-pdftotext -layout main-abc.pdf - > after.txt && diff before.txt after.txt
+pdftotext -layout main.pdf - > after.txt && diff before.txt after.txt
 ```

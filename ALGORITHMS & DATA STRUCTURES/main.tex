@@ -1,194 +1,49 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Algorithms \& Data Structures Notes}
+\def\utprunninghead{Algorithms \& Data Structures}
 \def\utplabtotal{11}
-
-% ---------- everything shared with the other courses ----------
-\input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- packages only this book needs ----------
-\usepackage{float}
-\usepackage{caption}
-\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
-\usepackage{multirow}
-
-% ---------- boxes this book styles differently ----------
-\renewtcolorbox{mlfigure}{
-  enhanced,breakable,colback=white,colframe=UTPBlue!35,
-  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,
-  halign=center
-}
-\renewtcolorbox{mltable}{
-  enhanced,breakable,colback=white,colframe=UTPBlue!28,
-  boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm
-}
-\renewtcolorbox{keyidea}{
-  enhanced,breakable,colback=UTPPaleTeal,colframe=UTPTeal,
-  boxrule=0.85pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title=Key idea
-}
-\renewtcolorbox{workedexample}{
-  enhanced,breakable,colback=UTPPaleBlue,colframe=UTPBlue,
-  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=Worked example
-}
-\renewtcolorbox{intuition}{
-  enhanced,breakable,colback=UTPPaleOrange,colframe=UTPOrange,
-  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=Intuition
-}
-\renewtcolorbox{firstread}{
-  enhanced,breakable,colback=white,colframe=UTPBlue,
-  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{UTPBlue},title=Core path
-}
-\renewtcolorbox{labproject}[1]{
-  enhanced,breakable,colback=white,colframe=UTPNavy,
-  boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=2mm,bottom=2mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPNavy,title={#1}
-}
-\renewtcolorbox{labmode}{
-  enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,
-  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=How to use this lab
-}
-
-% ---------- boxes used only in this book ----------
-\newtcolorbox{clarification}{
-  enhanced,breakable,colback=UTPPaleOrange!65,colframe=UTPOrange,
-  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=Clarification beyond the slide wording
-}
-\newtcolorbox{sourcealignment}[1]{
-  enhanced,breakable,colback=UTPPaleGray!72,colframe=UTPMuted!75,
-  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPMuted!88!UTPNavy,title={Source alignment --- #1}
-}
-\newtcolorbox{verification}{
-  enhanced,breakable,colback=UTPPaleTeal!65,colframe=UTPGreen,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification checklist
-}
-\newtcolorbox{projectrequirement}{
-  enhanced,breakable,colback=UTPPaleBlue,colframe=UTPNavy,
-  boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=1.9mm,bottom=1.9mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPNavy,title=Final-project requirement
-}
-\newtcolorbox{recommendedworkflow}{
-  enhanced,breakable,colback=UTPPaleOrange,colframe=UTPOrange,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=Recommended workflow (added guidance)
-}
-
-% ---------- commands used only in this book ----------
-\newcommand{\figref}[1]{Figure~\ref{#1}}
-\newcommand{\algostyle}{\small\SetAlgoNlRelativeSize{-1}\DontPrintSemicolon\SetAlgoVlined}
-\newcommand{\cxg}[1]{{\color{UTPGreen}\bfseries $#1$}}
-\newcommand{\cxo}[1]{{\color{UTPOrange}\bfseries $#1$}}
-\newcommand{\cxr}[1]{{\color{UTPRed}\bfseries $#1$}}
-\newcommand{\ptrnull}{{\scriptsize\color{UTPMuted}NULL}}
-\newenvironment{adsfig}[3][\relax]
-  {\def\adsfigshort{#1}\def\adsfigcap{#2}\def\adsfiglab{#3}%
-   \par\addvspace{0.55em}%
-   \begin{tcolorbox}[enhanced,breakable,colback=white,colframe=UTPBlue!32,
-     boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.6mm,bottom=2.2mm]
-   \centering}
-  {\par\vspace{0.45em}%
-   \begingroup\setlength{\parskip}{0pt}%
-   \ifx\adsfigshort\relax
-     \captionof{figure}{\adsfigcap}%
-   \else
-     \captionof{figure}[\adsfigshort]{\adsfigcap}%
-   \fi
-   \label{\adsfiglab}%
-   \endgroup
-   \end{tcolorbox}%
-   \par\addvspace{0.55em}}
-
-% ---------- other settings used only in this book ----------
-\tikzset{
-  adscell/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=1.05cm,minimum height=0.85cm,
-                  font=\small\bfseries\color{UTPNavy},inner sep=1pt},
-  adshot/.style={draw=UTPOrange,fill=UTPPaleOrange,minimum width=1.05cm,minimum height=0.85cm,
-                  font=\small\bfseries\color{UTPNavy},line width=1pt,inner sep=1pt},
-  adsdone/.style={draw=UTPGreen,fill=UTPPaleTeal,minimum width=1.05cm,minimum height=0.85cm,
-                  font=\small\bfseries\color{UTPNavy},inner sep=1pt},
-  adsdim/.style={draw=UTPMuted!45,fill=UTPPaleGray,minimum width=1.05cm,minimum height=0.85cm,
-                  font=\small\color{UTPMuted},inner sep=1pt},
-  adsnode/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=8mm,
-                  font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  adsnodehot/.style={circle,draw=UTPOrange,fill=UTPPaleOrange,minimum size=8mm,line width=1pt,
-                  font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  adsnodedone/.style={circle,draw=UTPGreen,fill=UTPPaleTeal,minimum size=8mm,
-                  font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  adsarrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal},
-  adsptr/.style={-{Stealth[length=2mm]},semithick,draw=UTPBlue},
-  adsdash/.style={-{Stealth[length=2mm]},semithick,draw=UTPRed,dashed},
-  adsedge/.style={thick,draw=UTPTeal},
-  adslabel/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
-  adstag/.style={font=\scriptsize\bfseries\color{UTPOrange},inner sep=1pt},
-  adsbrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=UTPMuted,semithick},
-  adsstep/.style={draw=UTPNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
-                  font=\scriptsize\color{UTPNavy},align=center,inner sep=2pt},
-  adspanel/.style={draw=UTPBlue!30,fill=white,rounded corners=1.5mm,inner sep=2.5mm}
-}
-\lstset{style=adscpp}
-\captionsetup{
-  hypcap=false,
-  font={small},
-  labelfont={bf,color=UTPNavy},
-  textfont={color=UTPInk},
-  labelsep=period,
-  justification=centering,
-  skip=4pt
-}
-\SetAlCapNameFnt{\bfseries\color{UTPNavy}}
-\SetAlCapFnt{\bfseries\color{UTPNavy}}
-\SetAlgoCaptionSeparator{.}
-\SetKwInput{KwIn}{Input}
-\SetKwInput{KwOut}{Output}
-\SetNlSty{color}{UTPMuted}{}
-\SetCommentSty{\itshape\color{UTPMuted}}
-\SetKwSty{bfseries\color{UTPBlue}}
-\SetArgSty{}
-
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Algorithms \& Data Structures}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
+\def\utpcoursetitle{Algorithms \& Data Structures}
+\def\utpcourseoutline{%
   C++ examples, guided laboratories, and comparative projects connect\\
   data-structure choices with correctness and performance.%
 }
 
+% ---------- boxes this book renames ----------
+\def\utptitleintuition{Intuition}
+\def\utptitlelabmode{How to use this lab}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+
+% ---------- packages only this book needs ----------
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\utpalgorithmstyle
+
+% ---------- boxes this book styles differently ----------
+\utpheavycallouts
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+
+% ---------- boxes used only in this book ----------
+\utpnewcallout[left=2.5mm,right=2.5mm]{clarification}{UTPPaleOrange!65}{UTPOrange}{Clarification beyond the slide wording}
+\utpnewcallout{recommendedworkflow}{UTPPaleOrange}{UTPOrange}{Recommended workflow (added guidance)}
+\utpnewcallout[boxrule=0.9pt,left=2.7mm,right=2.7mm,top=1.9mm,bottom=1.9mm]{projectrequirement}{UTPPaleBlue}{UTPNavy}{Final-project requirement}
+\newtcolorbox{sourcealignment}[1]{enhanced,breakable,colback=UTPPaleGray!72,colframe=UTPMuted!75,
+  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=UTPMuted!88!UTPNavy,title={Source alignment --- #1}}
+
+% ---------- commands used only in this book ----------
+\newcommand{\ptrnull}{{\scriptsize\color{UTPMuted}NULL}}
+
+% ---------- other settings used only in this book ----------
+\utpfigalias{adsfig}
+\utpdiagramstyles{ads}{1.05cm}{0.85cm}
+\lstset{style=adscpp}
+
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage%
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\tableofcontents
-\endgroup
-\newpage
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\renewcommand{\cftloftitlefont}{\Huge\bfseries\color{ADSNavy}}
-\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage%
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{Foundations}
 \input{chapters/01-introduction}
@@ -216,6 +71,5 @@
 
 \appendix
 \renewcommand{\cftchappresnum}{Appendix~}
-\input{chapters/appendix-reference}
 
 \end{document}

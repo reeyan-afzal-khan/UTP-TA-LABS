@@ -1,53 +1,32 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Enterprise Resource Planning Notes}
+\def\utprunninghead{Enterprise Resource Planning}
 \def\utplabtotal{8}
+\def\utpcoursetitle{Enterprise Resource Planning}
+\def\utpcourseoutline{%
+  ERP concepts, business processes, and integrated Odoo 19 Community Edition
+  practicals for West End Bicycles.%
+}
+\def\utptitlelabmode{How the practical connects to the concept}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- boxes this book styles differently ----------
-\renewtcolorbox{labmode}{enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=How the practical connects to the concept}
 
 % ---------- boxes used only in this book ----------
-\newtcolorbox{erpfigure}{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,before upper={\centering},halign=center}
-\newtcolorbox{erptable}{enhanced,width=\linewidth,colback=white,colframe=UTPTeal!32,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
-\newtcolorbox{sourcebasis}{enhanced,breakable,colback=UTPPaleGray!82,colframe=UTPMuted!70,boxrule=0.55pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPNavy},title=Source basis}
-\newtcolorbox{odoobox}{enhanced,breakable,colback=white,colframe=UTPBlue,boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=Odoo 19 Community}
+\utpnewquietbox[colback=UTPPaleGray!82,boxrule=0.55pt]{sourcebasis}{UTPMuted!70}{UTPNavy}{Source basis}
+\utpnewcallout[boxrule=0.9pt,top=1.9mm,bottom=1.9mm]{odoobox}{white}{UTPBlue}{Odoo 19 Community}
 
 % ---------- commands used only in this book ----------
 \newcommand{\odooapp}[1]{\textbf{\color{UTPBlue}#1}}
 \newcommand{\pathmenu}[1]{\textbf{\color{UTPTeal}#1}}
+
 % ---------- other settings used only in this book ----------
 \lstset{style=erpterminal}
 
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Enterprise Resource Planning}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
-  ERP concepts, business processes, and integrated Odoo 19 Community Edition
-  practicals for West End Bicycles.%
-}
-
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{ERP Foundations and Business Processes}
 \input{chapters/01-business-processes}

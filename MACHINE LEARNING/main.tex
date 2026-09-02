@@ -3,59 +3,19 @@
 % ---------- course configuration ----------
 \def\utprunninghead{Machine Learning Notes}
 \def\utplabtotal{10}
-
-% ---------- everything shared with the other courses ----------
-\input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- boxes this book styles differently ----------
-% This book gives the lab banner a blue frame rather than the shared navy.
-\renewtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=UTPBlue,
-  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}}
-
-% ---------- commands used only in this book ----------
-\newcommand{\kagglesource}[2]{%
-  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
-}
-\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
-\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
-\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
-\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
-\newcommand{\given}{\mathrel{|}}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
-
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Machine Learning}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
+\def\utpcoursetitle{Machine Learning}
+\def\utpcourseoutline{%
   A step-by-step path through data preparation, shared mathematical
   foundations, supervised and unsupervised learning, and directions for
   further study.%
 }
 
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\tableofcontents
-\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{Orientation and Tools}
 \input{chapters/01-where-to-begin}

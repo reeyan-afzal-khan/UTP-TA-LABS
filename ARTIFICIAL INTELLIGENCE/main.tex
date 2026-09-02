@@ -1,178 +1,34 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Artificial Intelligence Notes}
+\def\utprunninghead{Artificial Intelligence}
 \def\utplabtotal{8}
-
-% ---------- everything shared with the other courses ----------
-\input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- packages only this book needs ----------
-\usepackage{float}
-\usepackage{caption}
-\usepackage{multirow}
-
-% ---------- boxes this book styles differently ----------
-\renewtcolorbox{mlfigure}{
-  enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28,
-  boxrule=0.7pt,arc=2mm,
-  left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,
-  before skip=0.75em,after skip=0.85em,
-  halign=center
-}
-\renewtcolorbox{intuition}{
-  enhanced,breakable,colback=white,colframe=UTPOrange!42,
-  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
-  fonttitle=\bfseries\color{UTPOrange!85!black},title=Conceptual intuition
-}
-\renewtcolorbox{firstread}{
-  enhanced,breakable,colback=white,colframe=UTPBlue!42,
-  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
-  fonttitle=\bfseries\color{UTPBlue},
-  title=Core material
-}
-\renewtcolorbox{optionaltopic}{
-  enhanced,breakable,colback=white,colframe=UTPMuted!58,
-  boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,
-  fonttitle=\bfseries\color{UTPMuted},title=Extension
-}
-\renewtcolorbox{tryit}{
-  enhanced,breakable,colback=white,colframe=UTPTeal,
-  boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title=Practice
-}
-\renewtcolorbox{labmode}{
-  enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,
-  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=Scaffolding
-}
-
-% ---------- boxes used only in this book ----------
-\newtcolorbox{checkanswers}{
-  enhanced,breakable,colback=UTPPaleGray!72,colframe=UTPMuted!62,
-  boxrule=0.65pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.6mm,bottom=1.6mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPMuted,title=Quick-check answers
-}
-\newtcolorbox{verification}{
-  enhanced,breakable,colback=UTPPaleTeal!65,colframe=UTPGreen,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification checklist
-}
-\newtcolorbox{troubleshoot}{
-  enhanced,breakable,colback=UTPPaleOrange!70,colframe=UTPOrange,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=Troubleshooting
-}
-
-% ---------- commands used only in this book ----------
-\newcommand{\kagglesource}[2]{%
-  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
-}
-\newcommand{\figref}[1]{Figure~\ref{#1}}
-\newcommand{\cxg}[1]{{\color{UTPGreen}\bfseries $#1$}}
-\newcommand{\cxo}[1]{{\color{UTPOrange}\bfseries $#1$}}
-\newcommand{\cxr}[1]{{\color{UTPRed}\bfseries $#1$}}
-\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
-\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
-\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
-\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
-\newcommand{\given}{\mathrel{|}}
-\newenvironment{aifig}[3][\relax]
-  {\def\aifigshort{#1}\def\aifigcap{#2}\def\aifiglab{#3}%
-   \par\addvspace{0.55em}%
-   \begin{tcolorbox}[enhanced,breakable,colback=white,colframe=UTPBlue!32,
-     boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.6mm,bottom=2.2mm]
-   \centering}
-  {\par\vspace{0.45em}%
-   \begingroup\setlength{\parskip}{0pt}%
-   \ifx\aifigshort\relax
-     \captionof{figure}{\aifigcap}%
-   \else
-     \captionof{figure}[\aifigshort]{\aifigcap}%
-   \fi
-   \label{\aifiglab}%
-   \endgroup
-   \end{tcolorbox}%
-   \par\addvspace{0.55em}}
-
-% ---------- other settings used only in this book ----------
-\tikzset{
-  aicell/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=1.0cm,minimum height=0.8cm,
-                 font=\small\bfseries\color{UTPNavy},inner sep=1pt},
-  aihot/.style={draw=UTPOrange,fill=UTPPaleOrange,minimum width=1.0cm,minimum height=0.8cm,
-                 font=\small\bfseries\color{UTPNavy},line width=1pt,inner sep=1pt},
-  aidone/.style={draw=UTPGreen,fill=UTPPaleTeal,minimum width=1.0cm,minimum height=0.8cm,
-                 font=\small\bfseries\color{UTPNavy},inner sep=1pt},
-  aidim/.style={draw=UTPMuted!45,fill=UTPPaleGray,minimum width=1.0cm,minimum height=0.8cm,
-                 font=\small\color{UTPMuted},inner sep=1pt},
-  aiwall/.style={draw=UTPNavy,fill=UTPNavy!82,minimum width=1.0cm,minimum height=0.8cm,
-                 inner sep=1pt},
-  ainode/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=8mm,
-                 font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  ainodehot/.style={circle,draw=UTPOrange,fill=UTPPaleOrange,minimum size=8mm,line width=1pt,
-                 font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  ainodedone/.style={circle,draw=UTPGreen,fill=UTPPaleTeal,minimum size=8mm,
-                 font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
-  ainodedim/.style={circle,draw=UTPMuted!45,fill=UTPPaleGray,minimum size=8mm,
-                 font=\small\color{UTPMuted},inner sep=0.5pt},
-  aiarrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal},
-  aiptr/.style={-{Stealth[length=2mm]},semithick,draw=UTPBlue},
-  aiedge/.style={thick,draw=UTPTeal},
-  ailabel/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
-  aitag/.style={font=\scriptsize\bfseries\color{UTPOrange},inner sep=1pt},
-  aibrace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=UTPMuted,semithick},
-  aibox/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,align=center,
-                font=\small\color{UTPNavy},inner sep=2.2mm},
-  aistage/.style={draw=UTPNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
-                 font=\scriptsize\color{UTPNavy},align=center,inner sep=2pt}
-}
-\captionsetup{
-  hypcap=false,
-  font={small},
-  labelfont={bf,color=UTPNavy},
-  textfont={color=UTPInk},
-  labelsep=period,
-  justification=centering,
-  skip=4pt
-}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
-
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Artificial Intelligence}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
+\def\utpcoursetitle{Artificial Intelligence}
+\def\utpcourseoutline{%
   Eight laboratory-guided modules covering search, fuzzy systems, robotics,\\
   natural language processing, and evolutionary optimization.%
 }
 
+% ---------- boxes this book renames ----------
+\def\utptitleintuition{Conceptual intuition}
+\def\utptitlefirstread{Core material}
+\def\utptitleoptional{Extension}
+\def\utptitletryit{Practice}
+\def\utptitlelabmode{Scaffolding}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+
+% ---------- boxes used only in this book ----------
+\utpnewcallout[boxrule=0.65pt,left=2.5mm,right=2.5mm,top=1.6mm,bottom=1.6mm,colbacktitle=UTPMuted]{checkanswers}{UTPPaleGray!72}{UTPMuted!62}{Quick-check answers}
+
+% ---------- other settings used only in this book ----------
+\utpfigalias{aifig}
+\utpdiagramstyles{ai}{1.0cm}{0.8cm}
+
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\tableofcontents
-\endgroup
-\newpage
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{Search and Problem Solving}
 \input{chapters/01-uninformed-search}

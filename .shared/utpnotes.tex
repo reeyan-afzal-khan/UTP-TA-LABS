@@ -5,7 +5,7 @@
 %  All eight books include this file. It owns everything they have in
 %  common, so a change here reaches every course at once. Anything a
 %  single book needs differently is overridden in that book's own
-%  main-<code>.tex, AFTER the \input line.
+%  main.tex, AFTER the \input line.
 %
 %  ------------------------------------------------------------------
 %  HOW A COURSE USES THIS FILE
@@ -14,9 +14,16 @@
 %
 %      \def\utprunninghead{Machine Learning Notes}   % see section 1
 %      \def\utplabtotal{10}
+%      \def\utpcoursetitle{Machine Learning}
+%      \def\utpcourseoutline{One or two lines for the cover.}
 %
 %      \input{../.shared/utpnotes}
-%      \graphicspath{{../.shared/}}
+%
+%      \begin{document}
+%      \utpfrontmatter                     % cover, contents, map
+%      \part{Orientation}
+%      \input{chapters/01-where-to-begin}
+%      \end{document}
 %
 %  Configuration goes BEFORE the \input; overrides go AFTER it.
 %  Paths are relative, so compile from inside the course folder.
@@ -36,37 +43,74 @@
 %    7  Page furniture           running heads and footers
 %    8  Learning boxes           key idea, pitfall, try it, and friends
 %    9  Small commands           \term, \cmd, \chapterguide, \mlsteps
-%   10  Lab milestone banner     the full-width "Lab N of M" page break
-%   11  Stage divider            the part-opening page in longer books
-%   12  Listing styles           the base code and terminal styles
+%   10  Diagram node styles      the TikZ vocabulary the diagrams share
+%   11  Captioned figure frame   \begin{utpfig} and its course aliases
+%   12  Lab milestone banner     the full-width "Lab N of M" page break
+%   13  Stage divider            the part-opening page in longer books
+%   14  Front matter             \utpfrontmatter: cover, contents, map
+%   15  Listing, algorithm styles  the code, terminal and pseudocode look
 % =====================================================================
 
 % --------------------------------------------------------------------
 %  1.  COURSE CONFIGURATION
 % --------------------------------------------------------------------
-%  The three knobs below, plus \utpstyleparts in section 5 and the box
-%  titles in section 8, are the whole configuration surface. A book
-%  sets what it needs BEFORE the \input and inherits the rest.
+%  The knobs below, plus \utpstyleparts in section 5 and the box titles
+%  in section 8, are the whole configuration surface. A book sets what
+%  it needs BEFORE the \input and inherits the rest.
 %
+%  \providecommand means "define unless the book already did", which is
+%  what makes the \def-before-\input pattern work.
+%
+%  Running text
 %    \utprunninghead   the left running head on every page.
 %    \utpchapterlabel  the word in the chapter badge. CHAPTER by
 %                      default; a book whose chapters are labs sets LAB.
 %    \utplabtotal      the N in the "Lab 3 of N" banners.
-%
-%  \providecommand means "define unless the book already did", which is
-%  what makes the \def-before-\input pattern work.
 
 \providecommand{\utprunninghead}{Course Notes}
 \providecommand{\utpchapterlabel}{CHAPTER}
 \providecommand{\utplabtotal}{10}
+
+%  Cover, printed by section 13
+%    \utpcoursetitle     the title on the title page.
+%    \utpcourseoutline   the sentence or two below it; \ breaks a line.
+%    \utpoutlineheading  the small heading above that sentence.
+%    \utpauthor          the name in the PREPARED BY block.
+%    \utpauthorrole      the line under the name.
+
+\providecommand{\utpcoursetitle}{\utprunninghead}
+\providecommand{\utpcourseoutline}{}
+\providecommand{\utpoutlineheading}{COURSE OUTLINE}
+\providecommand{\utpauthor}{Reeyan Afzal Khan}
+\providecommand{\utpauthorrole}{Graduate Research Assistant}
+
+%  Files and folders
+%    \utpextragraphicspath  image folders to search before the shared
+%                           one, as brace groups: {{assets/}}.
+%    \utpcoursemap          the overview chapter \utpfrontmatter inputs
+%                           after the contents. Empty means none.
+
+\providecommand{\utpextragraphicspath}{}
+\providecommand{\utpcoursemap}{chapters/course-map}
+
+%  Contents entries for chapters (section 5 applies them). A book whose
+%  chapters are labs says so once here rather than restating the three
+%  tocloft settings after the input.
+%    \utpchaptertocword      Chapter~ by default, Lab~ in one book.
+%    \utpchaptertocindent    left indent of the entry.
+%    \utpchaptertocnumwidth  room reserved for the word and number.
+
+\providecommand{\utpchaptertocword}{Chapter~}
+\providecommand{\utpchaptertocindent}{1.5em}
+\providecommand{\utpchaptertocnumwidth}{6em}
 
 % --------------------------------------------------------------------
 %  2.  PACKAGES
 % --------------------------------------------------------------------
 %  The union of what the eight books need. A course that needs
 %  something extra loads it in its own file, under the heading
-%  "packages only this book needs" (algorithm2e, caption, float and
-%  multirow are the only current examples).
+%  "packages only this book needs" (algorithm2e is the only current
+%  example).
 %
 %  The tikz library list is the union across all books, so a diagram
 %  copied from one course compiles in another.
@@ -98,9 +142,15 @@
 \usepackage{bookmark}
 \usepackage{listings}
 \usepackage{graphicx}
+\usepackage{caption}
 \usepackage{tikz}
 \usetikzlibrary{angles,arrows.meta,backgrounds,calc,chains,decorations.pathmorphing,decorations.pathreplacing,fit,matrix,patterns,positioning,quotes,shadows.blur,shapes.geometric,shapes.misc}
 \usepackage{pgfplots}
+
+% Images: the book's own folders first, then the shared one, which is
+% where the logos live. A book adds to the front of the list with
+% \def\utpextragraphicspath{{assets/}} before the input.
+\expandafter\graphicspath\expandafter{\utpextragraphicspath{../.shared/}}
 
 % --------------------------------------------------------------------
 %  3.  COLOUR PALETTE
@@ -214,10 +264,10 @@
 \renewcommand{\cftpartpagefont}{\normalsize\bfseries\color{UTPNavy}}
 \renewcommand{\cftpartleader}{\hfill}
 \fi
-\renewcommand{\cftchappresnum}{Chapter~}
+\renewcommand{\cftchappresnum}{\utpchaptertocword}
 \renewcommand{\cftchapaftersnum}{\quad}
-\setlength{\cftchapindent}{1.5em}
-\setlength{\cftchapnumwidth}{6em}
+\setlength{\cftchapindent}{\utpchaptertocindent}
+\setlength{\cftchapnumwidth}{\utpchaptertocnumwidth}
 \setlength{\cftbeforechapskip}{0pt}
 \renewcommand{\cftchapfont}{\normalfont}
 \renewcommand{\cftchappagefont}{\normalfont}
@@ -301,6 +351,9 @@
 \providecommand{\utptitlefirstread}{Core path}
 \providecommand{\utptitleglance}{Chapter at a glance}
 \providecommand{\utptitledebug}{Debugging task}
+\providecommand{\utptitleoptional}{Beyond the core}
+\providecommand{\utptitleverification}{Verification checklist}
+\providecommand{\utptitletroubleshoot}{Troubleshooting}
 
 % Explaining an idea
 \newtcolorbox{keyidea}{enhanced,breakable,colback=UTPPaleTeal,colframe=UTPTeal, boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{UTPNavy},title=\utptitlekeyidea}
@@ -324,12 +377,65 @@
 \newtcolorbox{miniproject}{enhanced,breakable,colback=UTPPaleTeal!52,colframe=UTPGreen, boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm, fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Mini-project}
 % Boxes that take a title argument
 \newtcolorbox{modelcard}[1]{enhanced,breakable,colback=white,colframe=UTPBlue, boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=#1}
-\newtcolorbox{optionaltopic}{enhanced,breakable,colback=white,colframe=UTPMuted!58, boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm, fonttitle=\bfseries\color{UTPMuted},title=Beyond the core}
+\newtcolorbox{optionaltopic}{enhanced,breakable,colback=white,colframe=UTPMuted!58, boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm, fonttitle=\bfseries\color{UTPMuted},title=\utptitleoptional}
 \newtcolorbox{secondpass}{enhanced,breakable,colback=UTPPaleGray!82,colframe=UTPMuted, boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm, fonttitle=\bfseries\color{white},colbacktitle=UTPMuted,title=Second pass}
 \newtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=UTPBlue, boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm, fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}}
 % Frames for a figure or a table
 \newtcolorbox{mlfigure}{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28, boxrule=0.7pt,arc=2mm, left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm, before skip=0.75em,after skip=0.85em, before upper={\centering}, halign=center}
 \newtcolorbox{mltable}{enhanced,width=\linewidth,colback=white,colframe=UTPTeal!32, boxrule=0.7pt,arc=2mm, left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm, before skip=0.75em,after skip=0.85em, halign=center}
+% Evidence that a lab worked, and what to do when it did not
+\newtcolorbox{verification}{enhanced,breakable,colback=UTPPaleTeal!65,colframe=UTPGreen, boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=\utptitleverification}
+\newtcolorbox{troubleshoot}{enhanced,breakable,colback=UTPPaleOrange!70,colframe=UTPOrange, boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=\utptitletroubleshoot}
+
+% Course-prefixed names for boxes and lists that already exist. An
+% alias shares one definition instead of copying its geometry, so a
+% chapter moved between books keeps the look it had.
+\newcommand{\utpaliasenv}[2]{\newenvironment{#1}{\begin{#2}}{\end{#2}}}
+\utpaliasenv{dsfigure}{mlfigure}
+\utpaliasenv{erpfigure}{mlfigure}
+\utpaliasenv{dstable}{mltable}
+\utpaliasenv{erptable}{mltable}
+
+% Two variations a book asks for by name, after the input.
+%
+%   \utpbreakableframes        let figure and table frames split over a
+%                              page break, in a lighter blue.
+%   \utplabprojectcolour{...}  the lab banner in another colour, with a
+%                              little more room inside.
+\newcommand{\utpbreakableframes}{%
+  \renewtcolorbox{mlfigure}{enhanced,breakable,colback=white,colframe=UTPBlue!35, boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm, halign=center}%
+  \renewtcolorbox{mltable}{enhanced,breakable,colback=white,colframe=UTPBlue!28, boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm}%
+}
+\newcommand{\utplabprojectcolour}[1]{%
+  \renewtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=#1, boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=2mm,bottom=2mm, fonttitle=\bfseries\color{white},colbacktitle=#1,title={##1}}%
+}
+
+% The heavier callout set: a solid colour bar behind each title, and a
+% firmer frame. One book is typeset this way; call it after the input.
+\newcommand{\utpheavycallouts}{%
+  \renewtcolorbox{keyidea}{enhanced,breakable,colback=UTPPaleTeal,colframe=UTPTeal, boxrule=0.85pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title=\utptitlekeyidea}%
+  \renewtcolorbox{workedexample}{enhanced,breakable,colback=UTPPaleBlue,colframe=UTPBlue, boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=\utptitleworked}%
+  \renewtcolorbox{intuition}{enhanced,breakable,colback=UTPPaleOrange,colframe=UTPOrange, boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=\utptitleintuition}%
+  \renewtcolorbox{firstread}{enhanced,breakable,colback=white,colframe=UTPBlue, boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{UTPBlue},title=\utptitlefirstread}%
+}
+
+% Declaring a box a single book needs. Both constructors take the house
+% geometry and let a trailing key list override any of it, so a new box
+% is one line and still matches the others:
+%
+%   \utpnewcallout{odoobox}{white}{UTPBlue}{Odoo 19 Community}
+%   \utpnewcallout[boxrule=0.9pt]{name}{back}{frame}{Title}
+%   \utpnewquietbox{referencebox}{UTPMuted!58}{UTPMuted}{Reference note}
+%
+% A callout is a tinted box under a solid title bar, for something the
+% reader has to act on. A quiet box is a light frame with coloured
+% title text, for an aside they can read past.
+\newcommand{\utpnewcallout}[5][]{%
+  \newtcolorbox{#2}{enhanced,breakable,colback=#3,colframe=#4, boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm, fonttitle=\bfseries\color{white},colbacktitle=#4,title={#5},#1}%
+}
+\newcommand{\utpnewquietbox}[5][]{%
+  \newtcolorbox{#2}{enhanced,breakable,colback=white,colframe=#3, boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm, fonttitle=\bfseries\color{#4},title={#5},#1}%
+}
 
 % --------------------------------------------------------------------
 %  9.  SMALL COMMANDS
@@ -343,6 +449,16 @@
 %      \secref{sec:pruning}        "Section 12.3"
 %      \chapterguide{prior}{outcomes}   the box that opens a chapter
 %      \begin{mlsteps} ... \end{mlsteps}  a numbered Step 1/Step 2 list
+%
+%  The second group is the shorthand the chapters use in running text:
+%
+%      \figref{fig:tree}           "Figure 4.2"
+%      \chapsref{ch:a}{ch:b}       "Chapters 3--5"
+%      \lib{pandas}                a library name
+%      \cxg{x}, \cxo{x}, \cxr{x}   maths coloured green/orange/red
+%      \given                      the bar in P(a \given b)
+%      \coretag, \latertag         read-now / come-back-to markers
+%      \kagglesource{url}{name}    the dataset a lab is built on
 
 \newcommand{\term}[1]{\textbf{\color{UTPNavy}#1}}
 \newcommand{\cmd}[1]{\texttt{#1}}
@@ -358,9 +474,125 @@
 \newenvironment{mlsteps}
   {\begin{enumerate}[label=\textcolor{UTPBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}
   {\end{enumerate}}
+\utpaliasenv{netsteps}{mlsteps}
+
+\newcommand{\figref}[1]{Figure~\ref{#1}}
+\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
+\newcommand{\cxg}[1]{{\color{UTPGreen}\bfseries $#1$}}
+\newcommand{\cxo}[1]{{\color{UTPOrange}\bfseries $#1$}}
+\newcommand{\cxr}[1]{{\color{UTPRed}\bfseries $#1$}}
+\newcommand{\given}{\mathrel{|}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
+\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
+\newcommand{\kagglesource}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
+}
 
 % --------------------------------------------------------------------
-%  10.  LAB MILESTONE BANNER
+%  10.  DIAGRAM NODE STYLES
+% --------------------------------------------------------------------
+%  The vocabulary the hand-drawn TikZ diagrams are built from: a cell
+%  in an array, the one cell under the cursor, a circular graph node,
+%  the arrow between two of them. Declared once for a course prefix:
+%
+%      \utpdiagramstyles{ads}{1.05cm}{0.85cm}
+%
+%  gives that book adscell, adshot, adsdone, adsdim, adswall, adsnode,
+%  adsnodehot, adsnodedone, adsnodedim, adsarrow, adsptr, adsdash,
+%  adsedge, adslabel, adstag, adsbrace, adsstep, adsstage, adspanel and
+%  adsbox. The two lengths are the size of one cell; everything else is
+%  the shared palette, so two books drawing the same idea look alike.
+%  Unused styles cost nothing, which is why the whole set is declared.
+
+\newcommand{\utpdiagramstyles}[3]{%
+  \tikzset{
+    #1cell/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=#2,minimum height=#3,
+                   font=\small\bfseries\color{UTPNavy},inner sep=1pt},
+    #1hot/.style={draw=UTPOrange,fill=UTPPaleOrange,minimum width=#2,minimum height=#3,
+                  font=\small\bfseries\color{UTPNavy},line width=1pt,inner sep=1pt},
+    #1done/.style={draw=UTPGreen,fill=UTPPaleTeal,minimum width=#2,minimum height=#3,
+                   font=\small\bfseries\color{UTPNavy},inner sep=1pt},
+    #1dim/.style={draw=UTPMuted!45,fill=UTPPaleGray,minimum width=#2,minimum height=#3,
+                  font=\small\color{UTPMuted},inner sep=1pt},
+    #1wall/.style={draw=UTPNavy,fill=UTPNavy!82,minimum width=#2,minimum height=#3,
+                   inner sep=1pt},
+    #1node/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=8mm,
+                   font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
+    #1nodehot/.style={circle,draw=UTPOrange,fill=UTPPaleOrange,minimum size=8mm,line width=1pt,
+                      font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
+    #1nodedone/.style={circle,draw=UTPGreen,fill=UTPPaleTeal,minimum size=8mm,
+                       font=\small\bfseries\color{UTPNavy},inner sep=0.5pt},
+    #1nodedim/.style={circle,draw=UTPMuted!45,fill=UTPPaleGray,minimum size=8mm,
+                      font=\small\color{UTPMuted},inner sep=0.5pt},
+    #1arrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal},
+    #1ptr/.style={-{Stealth[length=2mm]},semithick,draw=UTPBlue},
+    #1dash/.style={-{Stealth[length=2mm]},semithick,draw=UTPRed,dashed},
+    #1edge/.style={thick,draw=UTPTeal},
+    #1label/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
+    #1tag/.style={font=\scriptsize\bfseries\color{UTPOrange},inner sep=1pt},
+    #1brace/.style={decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=UTPMuted,semithick},
+    #1step/.style={draw=UTPNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
+                   font=\scriptsize\color{UTPNavy},align=center,inner sep=2pt},
+    #1stage/.style={draw=UTPNavy,fill=white,rounded corners=1.5mm,minimum height=0.75cm,
+                    font=\scriptsize\color{UTPNavy},align=center,inner sep=2pt},
+    #1panel/.style={draw=UTPBlue!30,fill=white,rounded corners=1.5mm,inner sep=2.5mm},
+    #1box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,align=center,
+                  font=\small\color{UTPNavy},inner sep=2.2mm}
+  }%
+}
+
+% --------------------------------------------------------------------
+%  11.  CAPTIONED FIGURE FRAME
+% --------------------------------------------------------------------
+%  A framed, centred diagram that carries a numbered caption:
+%
+%      \begin{utpfig}[short entry]{The caption.}{fig:label}
+%        \begin{tikzpicture} ... \end{tikzpicture}
+%      \end{utpfig}
+%
+%  The optional first argument is the short form for a list of figures.
+%  A book whose chapters call this by a course name declares the alias
+%  once, after the input:  \utpfigalias{adsfig}
+
+\captionsetup{
+  hypcap=false,
+  font={small},
+  labelfont={bf,color=UTPNavy},
+  textfont={color=UTPInk},
+  labelsep=period,
+  justification=centering,
+  skip=4pt
+}
+
+\newenvironment{utpfig}[3][\relax]
+  {\def\utpfigshort{#1}\def\utpfigcap{#2}\def\utpfiglab{#3}%
+   \par\addvspace{0.55em}%
+   \begin{tcolorbox}[enhanced,breakable,colback=white,colframe=UTPBlue!32,
+     boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.6mm,bottom=2.2mm]
+   \centering}
+  {\par\vspace{0.45em}%
+   \begingroup\setlength{\parskip}{0pt}%
+   \ifx\utpfigshort\relax
+     \captionof{figure}{\utpfigcap}%
+   \else
+     \captionof{figure}[\utpfigshort]{\utpfigcap}%
+   \fi
+   \label{\utpfiglab}%
+   \endgroup
+   \end{tcolorbox}%
+   \par\addvspace{0.55em}}
+
+\newcommand{\utpfigalias}[1]{%
+  \newenvironment{#1}[3][\relax]
+    {\begin{utpfig}[##1]{##2}{##3}}
+    {\end{utpfig}}%
+}
+
+% --------------------------------------------------------------------
+%  12.  LAB MILESTONE BANNER
 % --------------------------------------------------------------------
 %  The full-width page break that opens each lab. Called from the lab
 %  files as \labsection{number}{title}{label}.
@@ -386,7 +618,7 @@
 }
 
 % --------------------------------------------------------------------
-%  11.  STAGE DIVIDER
+%  13.  STAGE DIVIDER
 % --------------------------------------------------------------------
 %  A full-page divider used by the longer books to open a part:
 %  \substage{3A}{Supervised Workflow}{one-line summary}.
@@ -413,7 +645,39 @@
 }
 
 % --------------------------------------------------------------------
-%  12.  LISTING STYLES
+%  14.  FRONT MATTER
+% --------------------------------------------------------------------
+%  The opening every book shares: the cover, the contents in roman
+%  numerals, the course map, then chapter one on an arabic page 1.
+%
+%      \begin{document}
+%      \utpfrontmatter
+%
+%  What it prints comes from the configuration in section 1 --- the
+%  cover text from \utpcoursetitle and \utpcourseoutline, the overview
+%  chapter from \utpcoursemap. A book with no overview chapter sets
+%  \def\utpcoursemap{} and the step is skipped.
+%
+%  Page anchors are off across the cover so hyperref does not warn
+%  about the unnumbered pages, and back on before the contents links
+%  are used.
+
+\newcommand{\utpfrontmatter}{%
+  \hypersetup{pageanchor=false}%
+  \input{../.shared/cover}%
+  \cleardoublepage
+  \pagenumbering{roman}%
+  \setcounter{tocdepth}{0}%
+  \begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup
+  \newpage
+  \hypersetup{pageanchor=true}%
+  \ifx\utpcoursemap\empty\else\input{\utpcoursemap}\fi
+  \cleardoublepage
+  \pagenumbering{arabic}%
+}
+
+% --------------------------------------------------------------------
+%  15.  LISTING AND ALGORITHM STYLES
 % --------------------------------------------------------------------
 %  Two base styles. A course builds its own on top of them so the
 %  colours and frame stay consistent:
@@ -455,255 +719,39 @@
   belowskip=0.7em
 }
 
-\lstdefinestyle{adscpp}{
-  language=C++,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
+% The course styles below are the two bases plus a language. Chapters
+% ask for them by name, so the names stay even where two are identical.
+\lstdefinestyle{adscpp}{style=utpcode,language=C++}
+\lstdefinestyle{mlpython}{style=utpcode,language=Python}
+\lstdefinestyle{mlmatlab}{style=utpcode,language=Matlab}
+\lstdefinestyle{dsr}{style=utpcode,language=R,tabsize=2}
+\lstdefinestyle{osc}{style=utpcode,language=C}
+\lstdefinestyle{osbash}{style=utpcode,language=bash,
+  rulecolor=\color{UTPMuted!35},aboveskip=0.6em,belowskip=0.7em}
 
-\lstdefinestyle{mlpython}{
-  language=Python,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
+\lstdefinestyle{mlterminal}{style=utpterminal}
+\lstdefinestyle{dsterminal}{style=utpterminal}
+\lstdefinestyle{dcnterminal}{style=utpterminal}
+\lstdefinestyle{erpterminal}{style=utpterminal,
+  rulecolor=\color{UTPBlue!28},tabsize=4,aboveskip=0.7em,belowskip=0.8em}
 
-\lstdefinestyle{mlmatlab}{
-  language=Matlab,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
+% algorithm2e is loaded by the one book that sets pseudocode, and this
+% is how that pseudocode is coloured. Call it after the \usepackage:
+%
+%     \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+%     \utpalgorithmstyle
+%
+% It also provides \algostyle, for an algorithm environment that should
+% sit a size smaller than the text around it.
+\newcommand{\utpalgorithmstyle}{%
+  \SetAlCapNameFnt{\bfseries\color{UTPNavy}}%
+  \SetAlCapFnt{\bfseries\color{UTPNavy}}%
+  \SetAlgoCaptionSeparator{.}%
+  \SetKwInput{KwIn}{Input}%
+  \SetKwInput{KwOut}{Output}%
+  \SetNlSty{color}{UTPMuted}{}%
+  \SetCommentSty{\itshape\color{UTPMuted}}%
+  \SetKwSty{bfseries\color{UTPBlue}}%
+  \SetArgSty{}%
+  \providecommand{\algostyle}{\small\SetAlgoNlRelativeSize{-1}\DontPrintSemicolon\SetAlgoVlined}%
 }
-
-\lstdefinestyle{mlterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-
-  \lstdefinestyle{dcnterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-
-\lstdefinestyle{dsr}{
-  language=R,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=2,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
-
-\lstdefinestyle{dsterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-
-\lstdefinestyle{erpterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
-
-\lstdefinestyle{mlpython}{
-  language=Python,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
-\lstdefinestyle{mlterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-
-\lstdefinestyle{mlpython}{
-  language=Python,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  breakatwhitespace=false,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
-\lstdefinestyle{mlterminal}{
-  basicstyle=\ttfamily\scriptsize,
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-\lstdefinestyle{osc}{
-  language=C,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPBlue!28},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  tabsize=4,
-  aboveskip=0.7em,
-  belowskip=0.8em
-}
-\lstdefinestyle{osbash}{
-  language=bash,
-  basicstyle=\ttfamily\scriptsize,
-  keywordstyle=\bfseries\color{UTPBlue},
-  commentstyle=\itshape\color{UTPMuted},
-  stringstyle=\color{UTPGreen!70!black},
-  backgroundcolor=\color{UTPPaleGray!72},
-  frame=single,
-  rulecolor=\color{UTPMuted!35},
-  framesep=5pt,
-  breaklines=true,
-  showstringspaces=false,
-  keepspaces=true,
-  columns=fullflexible,
-  upquote=true,
-  aboveskip=0.6em,
-  belowskip=0.7em
-}
-
-

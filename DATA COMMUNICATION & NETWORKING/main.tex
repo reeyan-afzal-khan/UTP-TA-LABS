@@ -1,20 +1,31 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
+% Every chapter of this book is a lab, so the badge, the contents
+% entries and the box titles all say Lab rather than Chapter.
 \def\utprunninghead{Data Communication \& Networking Notes}
 \def\utplabtotal{9}
 \def\utpstyleparts{0}
 \def\utpchapterlabel{LAB}
+\def\utpchaptertocword{Lab~}
+\def\utpchaptertocindent{0em}
+\def\utpchaptertocnumwidth{5.3em}
+\def\utpextragraphicspath{{assets/}}
+\def\utpcoursetitle{Data Communication \& Networking}
+\def\utpcourseoutline{%
+  Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP,\\
+  routing, FTP, DHCP, LACP, VLANs, and WAN configuration.%
+}
+
+% ---------- boxes this book renames ----------
 \def\utptitleglance{Lab at a glance}
+\def\utptitlerecap{Lab recap}
+\def\utptitleworked{Worked configuration}
+\def\utptitlelabmode{How to use this lab}
+\def\utptitletroubleshoot{When it does not work}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
-\graphicspath{{assets/}{../.shared/}}
-
-% This book presents each chapter as a lab, so the contents say Lab N.
-\renewcommand{\cftchappresnum}{Lab~}
-\setlength{\cftchapnumwidth}{5.3em}
-\setlength{\cftchapindent}{0em}
 
 % Slightly tighter tables and a looser line-breaking allowance than the
 % shared default, which this book was originally typeset with.
@@ -26,60 +37,61 @@
 \titlespacing*{\subsection}{0pt}{0.9em}{0.2em}
 
 % ---------- boxes this book styles differently ----------
-\renewtcolorbox{workedexample}{enhanced,breakable,colback=UTPPaleBlue,colframe=UTPBlue,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{UTPNavy},title=Worked configuration}
-\renewtcolorbox{chapterrecap}{enhanced,breakable,colback=UTPPaleTeal,colframe=UTPGreen,boxrule=0.9pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Lab recap}
-\renewtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=UTPNavy,boxrule=0.9pt,arc=2mm,left=2.7mm,right=2.7mm,top=2mm,bottom=2mm,fonttitle=\bfseries\color{white},colbacktitle=UTPNavy,title={#1}}
-\renewtcolorbox{labmode}{enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=How to use this lab}
-\renewtcolorbox{mltable}{enhanced,breakable,colback=white,colframe=UTPBlue!28,boxrule=0.45pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm}
-\renewtcolorbox{mlfigure}{enhanced,breakable,colback=white,colframe=UTPBlue!35,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,before upper={\centering},halign=center}
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+\renewtcolorbox{verification}{enhanced,breakable,colback=white,colframe=UTPGreen,
+  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification evidence}
 
 % ---------- boxes used only in this book ----------
-\newtcolorbox{sourcebasis}{enhanced,breakable,colback=white,colframe=UTPMuted!55,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPMuted},title=Source basis}
-\newtcolorbox{sourcevisual}[1]{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!30,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.9em,fonttitle=\bfseries\color{UTPNavy},title={Source visual --- #1},before upper={\centering},halign=center}
-\newtcolorbox{conceptmap}{enhanced,breakable,colback=UTPPaleBlue!45,colframe=UTPBlue!55,boxrule=0.7pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{UTPNavy},title=Concept map}
-\newtcolorbox{verification}{enhanced,breakable,colback=white,colframe=UTPGreen,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification evidence}
-\newtcolorbox{commandmap}{enhanced,breakable,colback=UTPPaleGray!55,colframe=UTPMuted!55,boxrule=0.6pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{UTPNavy},title=Command map}
+\utpnewquietbox{sourcebasis}{UTPMuted!55}{UTPMuted}{Source basis}
+\utpnewquietbox[colback=UTPPaleBlue!45,boxrule=0.7pt,top=1.8mm,bottom=1.8mm]{conceptmap}{UTPBlue!55}{UTPNavy}{Concept map}
+\utpnewquietbox[colback=UTPPaleGray!55,boxrule=0.6pt,top=1.8mm,bottom=1.8mm]{commandmap}{UTPMuted!55}{UTPNavy}{Command map}
+% Two framed figures that take their title as an argument: a screenshot
+% lifted from the course slides, and a diagram drawn for these notes.
+\newtcolorbox{sourcevisual}[1]{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!30,
+  boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
+  before skip=0.75em,after skip=0.9em,
+  fonttitle=\bfseries\color{UTPNavy},title={Source visual --- #1},
+  before upper={\centering},halign=center}
 \newtcolorbox{netfigure}[1]{enhanced,breakable,colback=white,colframe=UTPTeal!45,
   boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
   before skip=0.75em,after skip=0.9em,
   fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title={#1},
   before upper={\centering},halign=center}
-\newtcolorbox{troubleshoot}{enhanced,breakable,colback=UTPPaleOrange!70,colframe=UTPOrange,boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title=When it does not work}
 
 % ---------- commands used only in this book ----------
 \newcommand{\sourceimage}[3][0.9\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.56\textheight,keepaspectratio]{#3}\end{sourcevisual}}
 \newcommand{\compactsourceimage}[3][0.78\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#3}\end{sourcevisual}}
 \newcommand{\sourcelab}[1]{\begin{sourcebasis}This chapter is derived from the supplied course material: \textbf{#1}. Explanations keep the lab's terminology and configuration sequence; where the supplied slides are internally inconsistent, the note flags that rather than silently rewriting the source.\end{sourcebasis}}
-\newenvironment{netsteps}{\begin{enumerate}[label=\textcolor{UTPBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}{\end{enumerate}}
 
 % ---------- other settings used only in this book ----------
-\tikzset{router/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=10mm,font=\bfseries\small\color{UTPNavy}},switch/.style={rectangle,rounded corners=1mm,draw=UTPTeal,fill=UTPPaleTeal,minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},host/.style={rectangle,draw=UTPOrange,fill=UTPPaleOrange,minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},link/.style={thick,draw=UTPMuted}}
+% The network vocabulary: devices, links, and the state of a path.
 \tikzset{
+  router/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=10mm,
+                 font=\bfseries\small\color{UTPNavy}},
+  switch/.style={rectangle,rounded corners=1mm,draw=UTPTeal,fill=UTPPaleTeal,
+                 minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},
+  host/.style={rectangle,draw=UTPOrange,fill=UTPPaleOrange,
+               minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},
+  link/.style={thick,draw=UTPMuted},
   netlabel/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
   activepath/.style={very thick,draw=UTPGreen},
   backuppath/.style={very thick,draw=UTPOrange,dashed},
   deadpath/.style={very thick,draw=UTPRed,dash pattern=on 2pt off 2pt},
   flowarrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPBlue},
-  vlanA/.style={rectangle,rounded corners=1mm,draw=UTPBlue,fill=UTPPaleBlue,minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
-  vlanB/.style={rectangle,rounded corners=1mm,draw=UTPOrange,fill=UTPPaleOrange,minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
-  frame/.style={rectangle,draw=UTPMuted,fill=white,minimum height=6mm,font=\scriptsize\color{UTPInk}}
-}
-
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Data Communication \& Networking}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
-  Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP,\\
-  routing, FTP, DHCP, LACP, VLANs, and WAN configuration.%
+  vlanA/.style={rectangle,rounded corners=1mm,draw=UTPBlue,fill=UTPPaleBlue,
+                minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
+  vlanB/.style={rectangle,rounded corners=1mm,draw=UTPOrange,fill=UTPPaleOrange,
+                minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
+  frame/.style={rectangle,draw=UTPMuted,fill=white,minimum height=6mm,
+                font=\scriptsize\color{UTPInk}}
 }
 
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-\input{../.shared/cover}
-\cleardoublepage\pagenumbering{roman}\setcounter{tocdepth}{0}\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup\newpage\hypersetup{pageanchor=true}
-\input{chapters/course-map}
-\cleardoublepage\pagenumbering{arabic}
+\utpfrontmatter
+
 \input{chapters/01-wireshark}
 \input{chapters/02-ensp-vrp}
 \input{chapters/03-static-routing}
@@ -91,4 +103,5 @@
 \input{chapters/09-wan}
 \input{chapters/capstone-project}
 \input{chapters/command-reference}
+
 \end{document}

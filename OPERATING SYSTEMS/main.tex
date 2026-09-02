@@ -3,50 +3,19 @@
 % ---------- course configuration ----------
 \def\utprunninghead{Operating Systems}
 \def\utplabtotal{10}
-
-% ---------- everything shared with the other courses ----------
-\input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- commands used only in this book ----------
-\newcommand{\kagglesource}[2]{%
-  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
-}
-\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
-\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
-\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
-\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
-\newcommand{\given}{\mathrel{|}}
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Operating Systems}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
+\def\utpcoursetitle{Operating Systems}
+\def\utpcourseoutline{%
   A lab-aligned guide to Linux system interfaces, process management, CPU
   scheduling, synchronization, deadlocks, memory management, virtual memory,
   and file-system organization.%
 }
 
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\tableofcontents
-\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{Operating-System Foundations}
 \input{chapters/01-operating-systems-at-a-glance}

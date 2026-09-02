@@ -1,55 +1,26 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{TEB2164 Data Science Notes}
+\def\utprunninghead{Introduction to Data Science }
 \def\utplabtotal{9}
 \def\utpstyleparts{0}
-
-% ---------- everything shared with the other courses ----------
-\input{../.shared/utpnotes}
-\graphicspath{{../.shared/}}
-
-% ---------- boxes this book styles differently ----------
-\renewtcolorbox{pitfall}{enhanced,breakable,colback=UTPPaleRed,colframe=UTPRed,boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,fonttitle=\bfseries\color{UTPNavy},title=Technical note}
-\renewtcolorbox{labmode}{enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=Lab guidance}
-
-% ---------- boxes used only in this book ----------
-\newtcolorbox{dsfigure}{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,before upper={\centering},halign=center}
-\newtcolorbox{dstable}{enhanced,width=\linewidth,colback=white,colframe=UTPTeal!32,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
-\newtcolorbox{referencebox}{enhanced,breakable,colback=white,colframe=UTPMuted!58,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPMuted},title=Reference note}
-
-% ---------- commands used only in this book ----------
-\newenvironment{dssteps}{\begin{enumerate}[label=\textcolor{UTPBlue}{\bfseries Step~\arabic*:},leftmargin=4.5em,itemsep=0.38em]}{\end{enumerate}}
-
-% ---------- cover content ----------
-\newcommand{\covercoursetitle}{Introduction to Data Science}
-\newcommand{\coveroutlineheading}{COURSE OUTLINE}
-\newcommand{\covercourseoutline}{%
+\def\utpcoursetitle{Introduction to Data Science}
+\def\utpcourseoutline{%
   Concise, lab-aligned notes on R programming, data structures, data management,
   visualization, correlation, transformation, and scaling.%
 }
+\def\utptitlepitfall{Technical note}
+\def\utptitlelabmode{Lab guidance}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+
+% ---------- boxes used only in this book ----------
+\utpnewquietbox{referencebox}{UTPMuted!58}{UTPMuted}{Reference note}
 
 % ---------- the book ----------
 \begin{document}
-\hypersetup{pageanchor=false}
-
-\input{../.shared/cover}
-
-\cleardoublepage
-\pagenumbering{roman}
-\setcounter{tocdepth}{0}
-\begingroup
-\small
-\setlength{\parskip}{0pt}
-\tableofcontents
-\endgroup
-\newpage
-\hypersetup{pageanchor=true}
-
-\input{chapters/course-map}
-
-\cleardoublepage
-\pagenumbering{arabic}
+\utpfrontmatter
 
 \part{R Orientation and Language Foundations}
 \input{chapters/01-rstudio-r-basics}

@@ -1,0 +1,104 @@
+% =====================================================================
+%  TEMPLATE-main.tex
+%  Starting point for a new course book. Copy it, do not edit it:
+%
+%      cp .shared/TEMPLATE-main.tex "NEW COURSE/main.tex"
+%
+%  Work down the file. Fill in every REQUIRED block, delete every
+%  OPTIONAL block you do not use. A short main.tex is the goal --- the
+%  shared preamble in .shared/utpnotes.tex owns everything the eight
+%  existing books have in common, and section numbers below refer to
+%  its table of contents.
+%
+%  Build from inside the course folder; the paths here are relative:
+%
+%      cd "NEW COURSE" && pdflatex main.tex   (three times)
+% =====================================================================
+\documentclass[11pt,oneside,a4paper]{report}
+
+% ---------- course configuration ----------
+% REQUIRED. The running head, the lab count in the "Lab 3 of N"
+% banners, and the cover text. See section 1 of utpnotes.tex for the
+% rest of the knobs, including \utpauthor and \utpextragraphicspath.
+\def\utprunninghead{New Course Notes}
+\def\utplabtotal{8}
+\def\utpcoursetitle{New Course}
+\def\utpcourseoutline{%
+  One or two lines on what the book covers. A \ breaks the line.%
+}
+
+% OPTIONAL. A book with no \part divisions.
+% \def\utpstyleparts{0}
+%
+% OPTIONAL. A book whose chapters are each a lab, so the badge and the
+% contents say Lab rather than Chapter.
+% \def\utpchapterlabel{LAB}
+% \def\utpchaptertocword{Lab~}
+% \def\utpchaptertocindent{0em}
+% \def\utpchaptertocnumwidth{5.3em}
+%
+% OPTIONAL. An image folder of your own, searched before .shared/.
+% \def\utpextragraphicspath{{assets/}}
+%
+% OPTIONAL. Rename a box without restating its geometry. The full list
+% of titles is in section 8 of utpnotes.tex.
+% \def\utptitlepitfall{Technical note}
+% \def\utptitlelabmode{How the practical connects to the concept}
+
+% ---------- everything shared with the other courses ----------
+% REQUIRED, and everything below it is an override of what it sets.
+\input{../.shared/utpnotes}
+
+% ---------- packages only this book needs ----------
+% OPTIONAL. The shared set is the union of what the books use; add
+% here only what is genuinely yours.
+% \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+% ---------- boxes this book styles differently ----------
+% OPTIONAL. Prefer the named hooks over a hand-written \renewtcolorbox:
+% \utpbreakableframes             figure and table frames may split
+% \utpheavycallouts               solid title bars, firmer frames
+% \utplabprojectcolour{UTPNavy}   the lab banner in another colour
+%
+% Anything else is a \renewtcolorbox naming the box you want to change:
+% \renewtcolorbox{keyidea}{...}
+
+% ---------- boxes used only in this book ----------
+% OPTIONAL. Declare them with the shared constructors so they match the
+% others; a trailing key list overrides any of the house geometry. If a
+% second book ever wants one, move it to section 8 of utpnotes.tex.
+% \utpnewcallout{mybox}{UTPPaleBlue}{UTPBlue}{Something to act on}
+% \utpnewquietbox{myaside}{UTPMuted!55}{UTPMuted}{Something to read past}
+
+% ---------- other settings used only in this book ----------
+% OPTIONAL. A listing style built on a shared base, the TikZ diagram
+% vocabulary under your own prefix, a captioned-figure alias, and the
+% default style for \begin{lstlisting}.
+% \lstdefinestyle{abccode}{style=utpcode,language=Python}
+% \lstdefinestyle{abcterminal}{style=utpterminal}
+% \lstset{style=abccode}
+% \utpdiagramstyles{abc}{1.0cm}{0.8cm}
+% \utpfigalias{abcfig}
+%
+% Pseudocode, if the book sets any:
+% \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+% \utpalgorithmstyle
+
+% ---------- the book ----------
+\begin{document}
+% \utpfrontmatter prints the cover, the contents, and the overview
+% chapter named by \utpcoursemap (chapters/course-map by default; set
+% \def\utpcoursemap{} if the book has none), then starts page 1.
+\utpfrontmatter
+
+% REQUIRED. One \input per chapter, in reading order. \part divisions
+% are optional; drop them and set \utpstyleparts to 0 if unused.
+\part{First Stage}
+\input{chapters/01-first-chapter}
+
+% OPTIONAL. Appendices, with contents entries reading "Appendix A".
+% \appendix
+% \renewcommand{\cftchappresnum}{Appendix~}
+% \input{appendices/reference}
+
+\end{document}
