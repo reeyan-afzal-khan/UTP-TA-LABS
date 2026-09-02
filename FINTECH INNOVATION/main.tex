@@ -1,0 +1,84 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+% ---------- course configuration ----------
+\def\utprunninghead{FinTech Innovation Notes}
+\def\utplabtotal{8}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+\graphicspath{{../.shared/}}
+
+% ---------- boxes this book styles differently ----------
+\renewtcolorbox{mlfigure}{
+  enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28,
+  boxrule=0.7pt,arc=2mm,
+  left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,
+  before skip=0.75em,after skip=0.85em,
+  halign=center
+}
+
+% ---------- boxes used only in this book ----------
+\newtcolorbox{verification}{
+  enhanced,breakable,colback=UTPPaleTeal!65,colframe=UTPGreen,
+  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
+  fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification checklist
+}
+
+% ---------- commands used only in this book ----------
+\newcommand{\kagglesource}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
+}
+\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
+\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
+\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
+\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand{\given}{\mathrel{|}}
+% ---------- cover content ----------
+\newcommand{\covercoursetitle}{FinTech Innovation}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A structured guide for TFB3323 FinTech Innovation, covering financial
+  inclusion, digital banking, crowdfunding, blockchain, and cryptocurrency.
+  Dated examples and regulatory snapshots are retained as presented in the
+  supplied lecture materials.%
+}
+
+% ---------- the book ----------
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\input{../.shared/cover}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{FinTech Foundations and Access}
+\input{chapters/01-introduction-to-fintech}
+\input{chapters/02-financial-inclusion}
+
+\part{Alternative Finance and Digital Banking}
+\input{chapters/03-p2p-and-crowdfunding}
+\input{chapters/04-mobile-and-internet-banking}
+\input{chapters/05-digital-only-banks}
+
+\part{Distributed Infrastructure and Platform Competition}
+\input{chapters/06-blockchain}
+\input{chapters/07-big-tech-in-fintech}
+\input{chapters/08-cryptocurrencies}
+
+\input{chapters/final-revision-map}
+
+\end{document}

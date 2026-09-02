@@ -1,0 +1,73 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+% ---------- course configuration ----------
+\def\utprunninghead{Operating Systems}
+\def\utplabtotal{10}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+\graphicspath{{../.shared/}}
+
+% ---------- commands used only in this book ----------
+\newcommand{\kagglesource}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
+}
+\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
+\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
+\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
+\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand{\given}{\mathrel{|}}
+% ---------- cover content ----------
+\newcommand{\covercoursetitle}{Operating Systems}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A lab-aligned guide to Linux system interfaces, process management, CPU
+  scheduling, synchronization, deadlocks, memory management, virtual memory,
+  and file-system organization.%
+}
+
+% ---------- the book ----------
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\input{../.shared/cover}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{Operating-System Foundations}
+\input{chapters/01-operating-systems-at-a-glance}
+\input{chapters/02-linux-processes-files-and-system-calls}
+
+\part{Shell, Processes, and CPU Management}
+\input{chapters/03-shell-scripting-and-command-line-automation}
+\input{chapters/04-cpu-scheduling}
+
+\part{Concurrency and Resource Management}
+\input{chapters/05-interprocess-communication-and-synchronization}
+\input{chapters/06-threads-and-deadlocks}
+
+\part{Memory Management}
+\input{chapters/07-contiguous-memory-allocation}
+\input{chapters/08-virtual-memory-and-page-replacement}
+
+\part{File Systems and Storage}
+\input{chapters/09-directory-structures}
+\input{chapters/10-file-organization-and-allocation}
+
+\input{chapters/11-exam-map-and-capstone}
+
+\end{document}

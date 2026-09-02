@@ -7,16 +7,18 @@ This repository collects laboratory materials, tutorial resources, implementatio
 
 | Course | Note coverage |
 | --- | --- |
-| [Algorithms and Data Structures](ALGORITHMS_DATA_STRUCTURES/_NOTES/main.tex) | Arrays through hashing, algorithm comparison, correctness arguments, complexity models, edge-case testing, and reproducible benchmarking |
-| [Artificial Intelligence](<ARTIFICIAL INTELLIGENCE/_NOTES/main.tex>) | Search, fuzzy logic, ANFIS, robotics, NLP, genetic algorithms, experimental evaluation, error analysis, and responsible AI practice |
-| [Data Communication and Networking](<DATA COMMUNICATION & NETWORKING/_NOTES/main.tex>) | Packet analysis, routing, services, switching, WAN links, layered troubleshooting, hardening, change control, and incident records |
-| [Data Science](<DATA SCIENCE/_NOTES/main.tex>) | R foundations, data structures, data frames, visualization, correlation, normalization, data contracts, reproducible EDA, and evidence-based communication |
-| [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/_NOTES/main.tex>) | Integrated processes, Odoo practice, governance, segregation of duties, master-data controls, audit trails, and process analytics |
-| [FinTech Innovation](<FINTECH INNOVATION/_NOTES/main.tex>) | Inclusion, alternative finance, digital banking, blockchain, Big Tech, cryptocurrencies, product economics, risk governance, and operational resilience |
-| [Machine Learning](<MACHINE LEARNING/_NOTES/main.tex>) | Supervised, unsupervised, limited-label, and reinforcement learning, plus leakage prevention, reproducibility, subgroup evaluation, model cards, and monitoring |
-| [Operating Systems](<OPERATING SYSTEMS/_NOTES/main.tex>) | Processes, scheduling, concurrency, memory, storage, security boundaries, least privilege, defensive programming, and observability |
+| [Algorithms and Data Structures](<ALGORITHMS & DATA STRUCTURES/main-ads.tex>) | Arrays through hashing, algorithm comparison, correctness arguments, complexity models, edge-case testing, and reproducible benchmarking |
+| [Artificial Intelligence](<ARTIFICIAL INTELLIGENCE/main-ai.tex>) | Search, fuzzy logic, ANFIS, robotics, NLP, genetic algorithms, experimental evaluation, error analysis, and responsible AI practice |
+| [Data Communication and Networking](<DATA COMMUNICATION & NETWORKING/main-dcn.tex>) | Packet analysis, routing, services, switching, WAN links, layered troubleshooting, hardening, change control, and incident records |
+| [Data Science](<DATA SCIENCE/main-ds.tex>) | R foundations, data structures, data frames, visualization, correlation, normalization, data contracts, reproducible EDA, and evidence-based communication |
+| [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/main-erp.tex>) | Integrated processes, Odoo practice, governance, segregation of duties, master-data controls, audit trails, and process analytics |
+| [FinTech Innovation](<FINTECH INNOVATION/main-fi.tex>) | Inclusion, alternative finance, digital banking, blockchain, Big Tech, cryptocurrencies, product economics, risk governance, and operational resilience |
+| [Machine Learning](<MACHINE LEARNING/main-ml.tex>) | Supervised, unsupervised, limited-label, and reinforcement learning, plus leakage prevention, reproducibility, subgroup evaluation, model cards, and monitoring |
+| [Operating Systems](<OPERATING SYSTEMS/main-os.tex>) | Processes, scheduling, concurrency, memory, storage, security boundaries, least privilege, defensive programming, and observability |
 
-Each course owns its `main.tex`, which sets that book's document design and pulls in its chapters, laboratories, and appendices.
+## Adding a course
+
+Copy [`.shared/TEMPLATE-main.tex`](.shared/TEMPLATE-main.tex), which is commented top to bottom with every decision marked `REQUIRED` or `OPTIONAL`, and follow [`.shared/ADDING-A-COURSE.md`](.shared/ADDING-A-COURSE.md) for the folders, the first chapter, the labs, and the build.
 
 ## Disclaimer
 

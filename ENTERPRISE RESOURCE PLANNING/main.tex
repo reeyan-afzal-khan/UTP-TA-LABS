@@ -1,0 +1,84 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+% ---------- course configuration ----------
+\def\utprunninghead{Enterprise Resource Planning Notes}
+\def\utplabtotal{8}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+\graphicspath{{../.shared/}}
+
+% ---------- boxes this book styles differently ----------
+\renewtcolorbox{labmode}{enhanced,breakable,colback=UTPPaleBlue!52,colframe=UTPBlue,boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.7mm,bottom=1.7mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=How the practical connects to the concept}
+
+% ---------- boxes used only in this book ----------
+\newtcolorbox{erpfigure}{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!28,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=2.2mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,before upper={\centering},halign=center}
+\newtcolorbox{erptable}{enhanced,width=\linewidth,colback=white,colframe=UTPTeal!32,boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,before skip=0.75em,after skip=0.85em,halign=center}
+\newtcolorbox{sourcebasis}{enhanced,breakable,colback=UTPPaleGray!82,colframe=UTPMuted!70,boxrule=0.55pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPNavy},title=Source basis}
+\newtcolorbox{odoobox}{enhanced,breakable,colback=white,colframe=UTPBlue,boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title=Odoo 19 Community}
+
+% ---------- commands used only in this book ----------
+\newcommand{\odooapp}[1]{\textbf{\color{UTPBlue}#1}}
+\newcommand{\pathmenu}[1]{\textbf{\color{UTPTeal}#1}}
+% ---------- other settings used only in this book ----------
+\lstset{style=erpterminal}
+
+% ---------- cover content ----------
+\newcommand{\covercoursetitle}{Enterprise Resource Planning}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  ERP concepts, business processes, and integrated Odoo 19 Community Edition
+  practicals for West End Bicycles.%
+}
+
+% ---------- the book ----------
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\input{../.shared/cover}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{ERP Foundations and Business Processes}
+\input{chapters/01-business-processes}
+\input{chapters/02-erp-development}
+
+\part{Customer, Sales, and Revenue}
+\input{chapters/03-sales-order-process}
+\input{chapters/04-crm}
+
+\part{Planning, Production, and Supply Chain}
+\input{chapters/05-production-planning}
+\input{chapters/06-forecasting-sop}
+\input{chapters/07-supply-chain-mrp}
+
+\part{Finance, People, and Process Improvement}
+\input{chapters/08-accounting-integration}
+\input{chapters/09-human-resources}
+\input{chapters/10-process-modeling-implementation}
+
+\part{Integrated Odoo Practicals}
+\input{labs/01-business-process-odoo}
+\input{labs/02-erp-development-odoo}
+\input{labs/03-production-planning-odoo}
+\input{labs/04-crm-odoo}
+\input{labs/05-sales-order-odoo}
+\input{labs/06-forecast-sop-odoo}
+\input{labs/07-scm-odoo}
+\input{labs/08-hr-process-odoo}
+
+\input{chapters/capstone-odoo}
+\input{appendices/odoo-quick-reference}
+\input{appendices/source-map}
+
+\end{document}

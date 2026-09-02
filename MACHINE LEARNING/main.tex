@@ -1,0 +1,98 @@
+\documentclass[11pt,oneside,a4paper]{report}
+
+% ---------- course configuration ----------
+\def\utprunninghead{Machine Learning Notes}
+\def\utplabtotal{10}
+
+% ---------- everything shared with the other courses ----------
+\input{../.shared/utpnotes}
+\graphicspath{{../.shared/}}
+
+% ---------- boxes this book styles differently ----------
+% This book gives the lab banner a blue frame rather than the shared navy.
+\renewtcolorbox{labproject}[1]{enhanced,breakable,colback=white,colframe=UTPBlue,
+  boxrule=0.9pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.9mm,bottom=1.9mm,
+  fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}}
+
+% ---------- commands used only in this book ----------
+\newcommand{\kagglesource}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle source:} \href{#1}{#2}\par
+}
+\newcommand{\coretag}{\par\smallskip\noindent\colorbox{UTPPaleBlue}{\strut\small\bfseries\color{UTPBlue}CORE NOW}\par\smallskip}
+\newcommand{\latertag}{\par\smallskip\noindent\colorbox{UTPPaleGray}{\strut\small\bfseries\color{UTPMuted}RETURN LATER}\par\smallskip}
+\newcommand{\lib}[1]{\textbf{\color{UTPBlue}\texttt{#1}}}
+\newcommand{\chapsref}[2]{Chapters~\ref{#1}--\ref{#2}}
+\newcommand{\given}{\mathrel{|}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% ---------- cover content ----------
+\newcommand{\covercoursetitle}{Machine Learning}
+\newcommand{\coveroutlineheading}{COURSE OUTLINE}
+\newcommand{\covercourseoutline}{%
+  A step-by-step path through data preparation, shared mathematical
+  foundations, supervised and unsupervised learning, and directions for
+  further study.%
+}
+
+% ---------- the book ----------
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\input{../.shared/cover}
+
+\cleardoublepage
+\pagenumbering{roman}
+\setcounter{tocdepth}{0}
+\begingroup
+\small
+\setlength{\parskip}{0pt}
+\tableofcontents
+\endgroup
+\newpage
+\hypersetup{pageanchor=true}
+
+\input{chapters/course-map}
+
+\cleardoublepage
+\pagenumbering{arabic}
+
+\part{Orientation and Tools}
+\input{chapters/01-where-to-begin}
+\input{chapters/algorithm-map}
+\input{chapters/02-your-python-toolkit}
+
+\part{Foundations Shared by Machine Learning}
+\input{chapters/03-understanding-and-preparing-data}
+\input{chapters/04-how-machine-learning-works}
+\input{chapters/05-statistics-geometry-and-similarity}
+
+\part{Supervised Learning}
+\substage{3A}{Supervised Workflow}{Learn how supervised problems are framed, evaluated, and selected before changing model families.}
+\input{chapters/06-how-supervised-learning-works}
+\input{chapters/07-evaluating-supervised-models}
+\input{chapters/08-training-generalization-and-model-selection}
+\substage{3B}{Supervised Model Families}{Hold the workflow fixed and change one model family at a time so comparisons stay meaningful.}
+\input{chapters/09-linear-models-for-regression}
+\input{chapters/10-linear-models-for-classification}
+\input{chapters/11-nearest-neighbors-and-naive-bayes}
+\input{chapters/12-decision-trees}
+\input{chapters/13-ensemble-methods}
+\input{chapters/14-support-vector-machines}
+
+\part{Unsupervised Learning}
+\substage{4A}{Unsupervised Workflow}{Reset the objective: no label is supplied during fitting, so validation must focus on structure, stability, usefulness, and domain evidence.}
+\input{chapters/15-how-unsupervised-learning-works}
+\substage{4B}{Unsupervised Model Families}{Apply the unsupervised workflow to clustering, representation learning, and anomaly detection without pretending that internal structure is automatically ground truth.}
+\input{chapters/16-clustering}
+\input{chapters/17-dimensionality-reduction-and-representation}
+\input{chapters/18-anomaly-detection}
+
+\part{Advanced Concepts}
+\input{chapters/19-semi-supervised-and-active-learning}
+\input{chapters/20-reinforcement-learning}
+
+\input{chapters/capstone-project}
+\input{chapters/epilogue-where-to-go-next}
+
+\end{document}
