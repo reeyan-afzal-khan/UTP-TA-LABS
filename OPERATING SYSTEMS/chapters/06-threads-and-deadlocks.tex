@@ -20,6 +20,39 @@ Thread identifiers are opaque values. Portable code compares them with \texttt{p
 \section{Mutexes}
 A \term{mutex} protects a critical section so only one thread owns the lock at a time. The normal lifecycle is initialize, lock, access shared state, unlock, then destroy after all users are finished.
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  seg/.style={draw=MLBlue,fill=MLPaleBlue,minimum width=3.0cm,minimum height=0.8cm,
+              font=\scriptsize\color{MLNavy}},
+  shared/.style={seg,fill=MLPaleOrange,draw=MLOrange},
+  stk/.style={draw=MLTeal,fill=MLPaleTeal,minimum width=1.7cm,minimum height=0.8cm,
+              font=\scriptsize\color{MLNavy}},
+  lab/.style={font=\scriptsize\color{MLMuted},align=center},
+  warn/.style={font=\scriptsize\color{MLOrange},align=center}]
+
+\draw[draw=MLNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.35) rectangle (8.5,1.55);
+\node[font=\small\bfseries\color{MLNavy},anchor=north west] at (-2.0,1.45) {one process};
+
+\node[seg]    at (-0.4,0.75) {code (text)};
+\node[shared] at (-0.4,-0.20) {globals};
+\node[shared] at (-0.4,-1.15) {heap};
+\node[lab,text width=2.6cm] at (-0.4,-1.95) {one copy, seen by every thread};
+
+\foreach \i/\x in {1/3.0, 2/5.0, 3/7.0} {
+  \node[stk] at (\x,0.75) {stack \i};
+  \node[stk] at (\x,-0.20) {registers \i};
+  \node[lab] at (\x,-0.85) {thread \i};
+}
+\node[lab,text width=5.6cm] at (5.0,-1.75) {private to each thread --- no synchronisation needed};
+
+\node[warn,text width=11cm] at (3.2,-3.05)
+  {The orange region is the whole reason a mutex exists. Two threads writing a
+   global without one is a data race, and the outcome depends on scheduling ---
+   which is why such a bug reproduces only sometimes.};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \section{What deadlock means}
 A \term{deadlock} is a state in which a set of processes or threads are permanently blocked because each waits for an event that only another member of the set can cause.
 
@@ -31,6 +64,38 @@ Four Coffman conditions must hold simultaneously for resource deadlock:
   \item \textbf{Circular wait}: a cycle of processes each waits for a resource held by the next.
 \end{enumerate}
 Breaking any one condition prevents this class of deadlock.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  proc/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=1.05cm,
+               font=\small\bfseries\color{MLNavy}},
+  res/.style={draw=MLNavy,fill=white,minimum width=1.05cm,minimum height=0.9cm,
+              font=\small\bfseries\color{MLNavy}},
+  cyc/.style={-{Stealth[length=2.3mm]},line width=1pt,draw=MLRed},
+  lab/.style={font=\scriptsize\color{MLMuted}},
+  note/.style={font=\scriptsize\color{MLInk},align=center}]
+
+\node[proc] (p1) at (0,2.5)   {P1};
+\node[res]  (r2) at (5.0,2.5) {R2};
+\node[proc] (p2) at (5.0,0)   {P2};
+\node[res]  (r1) at (0,0)     {R1};
+
+\draw[cyc] (p1) -- node[lab,above]{requests} (r2);
+\draw[cyc] (r2) -- node[lab,right]{assigned to} (p2);
+\draw[cyc] (p2) -- node[lab,below]{requests} (r1);
+\draw[cyc] (r1) -- node[lab,left]{assigned to} (p1);
+
+\node[note,text width=4.2cm] at (2.5,1.25)
+  {the cycle \emph{is} the circular wait --- neither process can move, and
+   nothing outside the cycle will move them};
+
+\node[note,text width=11cm,text=MLMuted] at (2.5,-1.15)
+  {Each resource has one instance, so this cycle is a deadlock. Remove any one
+   arrow --- by preemption, by releasing before requesting, or by ordering the
+   resources --- and the cycle opens.};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \section{Prevention, avoidance, and detection}
 \begin{mltable}
@@ -56,6 +121,40 @@ The safety algorithm starts with \texttt{Work = Available}. It repeatedly finds 
 \begin{workedexample}
 Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while P2 has Need $(2,1)$ and Allocation $(1,0)$. P1 can finish first because $(1,0)\le(1,1)$. Work becomes $(2,2)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.
 \end{workedexample}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  wk/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,
+             minimum height=0.75cm,font=\small\bfseries\color{MLNavy}},
+  test/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,text width=3.0cm,
+               minimum height=1.15cm,align=center,font=\scriptsize\color{MLNavy}},
+  go/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal},
+  wcap/.style={font=\scriptsize\bfseries\color{MLMuted}},
+  rel/.style={font=\scriptsize\color{MLGreen},align=center}]
+
+\node[wcap] at (0,1.15) {Work = Available};
+\node[wk] (w0) at (0,0.35) {(1,\,1)};
+
+\node[test] (t1) at (3.5,0.35) {P1 needs (1,\,0)\\$(1,0)\le(1,1)$ --- P1 can finish};
+\node[wk]   (w1) at (7.0,0.35) {(2,\,2)};
+\node[rel]  at (7.0,-0.62) {P1 releases (1,\,1)};
+
+\node[test] (t2) at (10.5,0.35) {P2 needs (2,\,1)\\$(2,1)\le(2,2)$ --- P2 can finish};
+\node[wk]   (w2) at (14.0,0.35) {(3,\,2)};
+
+\draw[go] (w0) -- (t1);
+\draw[go] (t1) -- (w1);
+\draw[go] (w1) -- (t2);
+\draw[go] (t2) -- (w2);
+
+\node[font=\scriptsize\color{MLInk},align=center,text width=13cm] at (7.0,-1.55)
+  {Every process fits into the order, so the state is \textbf{safe} and the
+   safe sequence is P1, P2. Had P1 failed its test as well, no order would
+   exist and the request would be refused --- not because deadlock had
+   happened, but because it could no longer be ruled out.};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \begin{pitfall}
 An \term{unsafe state} is not identical to an already existing deadlock. Unsafe means the OS can no longer guarantee that every future maximum claim can be satisfied in some order. Deadlock is an actual circular waiting condition.

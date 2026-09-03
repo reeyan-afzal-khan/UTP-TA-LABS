@@ -32,6 +32,49 @@ The ABC Company scenario in Tutorial 8 can be expressed as a sequence of busines
   \item HR issues the offer with salary, benefits, and start date.
 \end{enumerate}
 
+\begin{erpfig}[The ABC recruitment swimlane]{The eleven events of the ABC Company scenario, each drawn in the lane of whoever performs it. The value of the lane form is in the crossings: every arrow that changes column is a handover, and every handover is a place where a paper process loses a form, stalls a decision, or leaves the candidate without news.}{fig:hr-swimlane}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  lane/.style={font=\small\bfseries\color{white},align=center},
+  act/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=1.5mm,text width=3.1cm,
+              minimum height=0.82cm,align=center,font=\scriptsize\color{ERPNavy},
+              inner sep=2pt},
+  hr/.style={act,fill=ERPPaleTeal,draw=ERPTeal},
+  cd/.style={act,fill=ERPPaleOrange,draw=ERPOrange},
+  pn/.style={act,fill=white,draw=ERPNavy},
+  hand/.style={-{Stealth[length=2mm]},semithick,draw=ERPMuted},
+  num/.style={font=\tiny\bfseries\color{ERPMuted}}]
+
+% lane headers and dividers
+\foreach \t/\x in {{Department / manager}/0, {Human Resources}/4.0,
+                   {Candidate}/8.0, {Selection panel}/12.0} {
+  \fill[ERPNavy,rounded corners=1.2mm] (\x-1.65,0.42) rectangle (\x+1.65,1.12);
+  \node[lane,text width=3.1cm] at (\x,0.77) {\t};
+}
+\foreach \x in {2.0, 6.0, 10.0}
+  \draw[ERPMuted!35,dashed] (\x,0.30) -- (\x,-10.15);
+
+\node[act] (s1)  at (0,-0.35)     {identify a staffing need};
+\node[act] (s2)  at (0,-1.32)     {raise a hiring request with requirements};
+\node[hr]  (s3)  at (4.0,-2.29)   {perform job analysis, prepare the posting};
+\node[hr]  (s4)  at (4.0,-3.26)   {advertise the vacancy};
+\node[cd]  (s5)  at (8.0,-4.23)   {submit an application};
+\node[hr]  (s6)  at (4.0,-5.20)   {receive and screen applications};
+\node[pn]  (s7)  at (12.0,-6.17)  {interview the shortlist};
+\node[cd]  (s8)  at (8.0,-7.14)   {complete the skills assessment};
+\node[hr]  (s9)  at (4.0,-8.11)   {complete references and background checks};
+\node[pn]  (s10) at (12.0,-9.08)  {review the evidence, select a candidate};
+\node[hr]  (s11) at (4.0,-10.05)  {issue the offer: salary, benefits, start date};
+
+\foreach \a/\b in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6, s6/s7, s7/s8, s8/s9, s9/s10, s10/s11}
+  \draw[hand] (\a) -- (\b);
+
+\foreach \n/\s in {1/s1, 2/s2, 3/s3, 4/s4, 5/s5, 6/s6, 7/s7, 8/s8, 9/s9, 10/s10, 11/s11}
+  \node[num,anchor=east] at ($(\s.west)+(-0.10,0)$) {\n};
+
+\end{tikzpicture}
+\end{erpfig}
+
 The textbook's Fitter Snacker example shows how a paper-based version of this process can fail: forms may be inconsistent or lost, applications can be misfiled, reviews happen sequentially because paper copies must circulate, interview scheduling is slow, and promising candidates can accept another offer while the company is still coordinating internally.
 
 \section{Candidate experience is an information-flow problem}

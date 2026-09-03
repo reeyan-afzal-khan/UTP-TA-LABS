@@ -32,7 +32,7 @@ the next lives.}{fig:sll-anatomy}
 \node[adslabel,anchor=south] at (\nw,0.52) {next};
 \foreach \i in {0,1}{
   \pgfmathtruncatemacro{\j}{\i+1}
-  \draw[adsptr] (p\i.south) -- ++(0,-0.34) -| (d\j.south);
+  \draw[adsptr] (p\i.east) -- (d\j.west);
 }
 \node[adstag,anchor=east] at (-0.85,0) {HEAD};
 \draw[adsptr,draw=ADSOrange] (-0.8,0) -- (d0.west);

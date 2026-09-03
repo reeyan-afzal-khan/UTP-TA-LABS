@@ -175,9 +175,76 @@ python3 -m pip install -r requirements.txt
 
 Package installation is normally a one-time setup. On later study sessions, activate \texttt{.venv} again; you do not need to reinstall the requirements each time.
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  font=\small,
+  pystep/.style={draw=MLBlue, fill=white, rounded corners=2pt, align=center,
+               inner sep=4pt, minimum width=3.3cm, minimum height=1.05cm,
+               font=\scriptsize\ttfamily\color{MLNavy}},
+  pyonce/.style={pystep, fill=MLPaleBlue},
+  pyevery/.style={pystep, fill=MLPaleTeal, draw=MLTeal},
+  pycap/.style={font=\scriptsize\bfseries\color{MLMuted}},
+  pynote/.style={font=\scriptsize\color{MLMuted}, align=center},
+  pygo/.style={-{Stealth[length=2.2mm]}, thick, draw=MLTeal}]
+
+\node[pyonce]  (venv) at (0,0)     {py -m venv .venv};
+\node[pyevery] (act)  at (4.05,0)  {activate};
+\node[pyonce]  (inst) at (8.10,0)  {pip install -r\\requirements.txt};
+\node[pyevery] (work) at (12.15,0) {run notebooks in\\all\_experiments/};
+
+\draw[pygo] (venv) -- (act);
+\draw[pygo] (act)  -- (inst);
+\draw[pygo] (inst) -- (work);
+
+\node[pycap] at (0,0.92)     {once per project};
+\node[pycap] at (4.05,0.92)  {every session};
+\node[pycap] at (8.10,0.92)  {once};
+\node[pycap] at (12.15,0.92) {every session};
+
+% the return path: a later session rejoins at activation, not at install
+\draw[pygo, draw=MLOrange]
+  (work.south) -- ++(0,-0.85) -| (act.south);
+\node[pynote, text=MLOrange] at (8.10,-1.15)
+  {next study session --- reactivate, do not reinstall};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \begin{keyidea}
 Do not install packages globally simply because a tutorial requests them. Activate the project environment first, then install the packages inside it.
 \end{keyidea}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  font=\small,
+  envbox/.style={draw=MLBlue, fill=MLPaleBlue, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  sysbox/.style={draw=MLMuted, fill=MLPaleGray, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  pkg/.style={font=\scriptsize\ttfamily, align=center},
+  lbl/.style={font=\scriptsize\color{MLMuted}, align=center},
+  hit/.style={-{Stealth[length=2.2mm]}, thick, draw=MLTeal}]
+
+\node[sysbox] (sys) at (0,2.45) {system Python};
+\node[pkg,text=MLMuted,anchor=west] at (2.35,2.45) {leave this alone};
+
+\node[envbox] (a) at (-2.80,0) {\texttt{UTP\_MACHINE\_LEARNING/.venv}};
+\node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
+
+\node[envbox] (b) at (2.80,0) {\texttt{some\_other\_project/.venv}};
+\node[pkg,anchor=north] at (2.80,-0.52) {its own versions\\of the same names};
+
+\draw[hit] (sys) -- (a);
+\draw[hit] (sys) -- (b);
+
+\node[lbl,text width=11.5cm] at (0,-2.60)
+  {\textbf{\color{MLNavy}Activate first, then install.} \texttt{pip install}
+   writes into whichever environment is active. With none active it writes
+   into the system Python, and every project on the machine shares the
+   result.};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \section{Verify the scientific stack}
 

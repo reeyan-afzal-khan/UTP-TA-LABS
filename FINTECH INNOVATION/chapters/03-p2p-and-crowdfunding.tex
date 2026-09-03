@@ -46,6 +46,40 @@ Traditional intermediaries pool savings and loans. The Week 3 slides highlight t
 
 However, lenders have little flexibility to choose their own desired risk/return profile, and a bank that focuses on low-risk lending may exclude higher-risk borrowers.
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.6cm,
+            minimum height=1.15cm,align=center,font=\small\bfseries\color{MLNavy}},
+  mid/.style={draw=MLNavy,fill=white,rounded corners=2mm,text width=3.4cm,
+              minimum height=1.4cm,align=center,font=\small\bfseries\color{MLNavy}},
+  arr/.style={-{Stealth[length=2.1mm]},thick,draw=MLTeal},
+  head/.style={font=\small\bfseries\color{MLNavy}},
+  risk/.style={font=\scriptsize\color{MLRed},align=center,text width=4.4cm},
+  ring/.style={draw=MLRed,dashed,rounded corners=2.5mm,line width=0.8pt}]
+
+% ---- traditional intermediation ---------------------------------
+\node[head] at (0,1.55) {Traditional intermediation};
+\node[p]   (s1) at (-4.6,0) {Savers};
+\node[mid] (k1) at (0,0)    {Bank\\own balance sheet};
+\node[p]   (b1) at (4.6,0)  {Borrowers};
+\draw[arr] (s1)--node[above,font=\scriptsize]{deposits}(k1);
+\draw[arr] (k1)--node[above,font=\scriptsize]{loans}(b1);
+\draw[ring] (-1.85,-0.78) rectangle (1.85,0.78);
+\node[risk] at (0,-1.20) {a default is absorbed here, behind reserves and deposit insurance};
+
+% ---- marketplace funding ----------------------------------------
+\node[head] at (0,-2.55) {Marketplace funding};
+\node[p]   (s2) at (-4.6,-4.05) {Lenders};
+\node[mid] (k2) at (0,-4.05)    {Platform\\matches, scores, services};
+\node[p]   (b2) at (4.6,-4.05)  {Borrowers};
+\draw[arr] (s2)--node[above,font=\scriptsize]{capital}(k2);
+\draw[arr] (k2)--node[above,font=\scriptsize]{loans}(b2);
+\draw[ring] (-6.0,-4.83) rectangle (-3.2,-3.27);
+\node[risk] at (-4.6,-5.25) {a default is absorbed here, by the individual lender};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \subsection{Alternative lending platforms}
 
 Alternative platforms seek to reduce transaction costs and give underserved borrowers access to funding while allowing investors with different risk appetites to participate. Their major limitations are also explicit in the lecture:
@@ -131,6 +165,38 @@ The central P2P advantage is not simply ``the internet.'' It is the combination 
 \section{The four main crowdfunding models}
 
 The lecture distinguishes four models by what the contributor expects in return.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  m/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.9cm,
+            minimum height=0.95cm,align=center,font=\small\bfseries\color{MLNavy}},
+  fin/.style={m,fill=MLPaleTeal,draw=MLTeal},
+  got/.style={font=\scriptsize\color{MLInk},align=center,text width=3.1cm,anchor=north},
+  grp/.style={font=\scriptsize\bfseries\color{MLMuted}},
+  br/.style={decorate,decoration={brace,amplitude=4pt},draw=MLMuted,semithick}]
+
+\node[m]   (don) at (0,0)    {Donation};
+\node[m]   (rew) at (3.6,0)  {Reward};
+\node[fin] (p2p) at (7.2,0)  {P2P lending};
+\node[fin] (eq)  at (10.8,0) {Equity};
+
+\node[got] at (0,-0.62)    {no return};
+\node[got] at (3.6,-0.62)  {a product or other tangible benefit};
+\node[got] at (7.2,-0.62)  {principal plus interest --- a debt claim};
+\node[got] at (10.8,-0.62) {a stake in the company --- an ownership claim};
+
+\draw[br] (-1.50,0.62) -- (5.10,0.62);
+\node[grp] at (1.80,1.02) {community crowdfunding --- non-financial return};
+
+\draw[br] (5.70,0.62) -- (12.30,0.62);
+\node[grp] at (9.00,1.02) {financial return};
+
+\node[font=\scriptsize\color{MLRed},align=center,text width=6.4cm] at (7.20,-1.95)
+  {a reward can be valuable, but it is never a financial claim --- that is the
+   line between reward and equity};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}X@{}}

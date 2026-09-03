@@ -128,6 +128,37 @@ Week 5 explicitly warns against confusing a polished interface with a complete c
 
 These operational questions often matter more than visual design when something goes wrong.
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  outer/.style={draw=MLNavy,line width=1pt,rounded corners=3mm},
+  item/.style={draw=MLBlue!55,fill=white,rounded corners=1.5mm,text width=3.2cm,
+               minimum height=1.05cm,align=center,font=\scriptsize\color{MLNavy},
+               inner sep=3pt},
+  ux/.style={item,fill=MLPaleOrange,draw=MLOrange,line width=0.9pt},
+  hd/.style={font=\small\bfseries\color{MLNavy}},
+  nb/.style={font=\scriptsize\color{MLMuted},align=center}]
+
+\draw[outer] (-2.20,-2.55) rectangle (12.20,1.35);
+\node[hd,anchor=north west] at (-2.05,1.20) {Customer experience (CX)};
+
+\node[ux]   at (0.00,0.10)  {the interface itself\ \textbf{(UX)}};
+\node[item] at (3.70,0.10)  {how quickly money can be accessed and moved};
+\node[item] at (7.40,0.10)  {stability and predictability of service};
+\node[item] at (11.10,0.10) {friction created by risk and compliance controls};
+\node[item] at (2.30,-1.55)  {availability of live human support};
+\node[item] at (6.00,-1.55)  {security of customer data and money};
+\node[nb,text width=4.6cm] at (9.90,-1.55)
+  {when something goes wrong, these five decide whether the customer stays};
+
+\node[nb,text width=13cm] at (5.00,-3.20)
+  {A polished interface is one box of six. Week~5's warning is that a bank can
+   win on UX and still lose the customer on any of the other five --- which is
+   why CX, not UX, is the thing being competed over.};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \section{Digital-only banking and financial inclusion}
 
 The lecture links branchless economics to financial inclusion. If servicing costs are lower, the bank may be able to accept customers with weak credit history or low balances who are unattractive to branch-heavy institutions.
@@ -237,6 +268,58 @@ Why?
 \end{itemize}
 
 The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate the industry's shift from ``growth at all costs'' toward profitability.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  rev/.style={draw=MLTeal,fill=MLPaleTeal,line width=0.8pt},
+  cst/.style={draw=MLRed,fill=MLPaleRed,line width=0.8pt},
+  bl/.style={font=\tiny\color{MLMuted},align=center},
+  hd/.style={font=\small\bfseries\color{MLNavy}},
+  gap/.style={font=\tiny\bfseries\color{MLRed},align=center},
+  lev/.style={draw=MLGreen,fill=white,rounded corners=1.5mm,text width=3.5cm,
+              minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
+  go/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}]
+
+% ---------- one customer ----------
+\node[hd] at (1.35,2.55) {One active customer};
+\filldraw[rev] (0.55,0) rectangle (1.15,0.95);
+\filldraw[cst] (1.55,0) rectangle (2.15,1.75);
+\draw[MLMuted!60] (0.35,0) -- (2.45,0);
+\node[bl] at (0.85,-0.30) {revenue};
+\node[bl] at (1.85,-0.30) {cost to serve};
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=MLRed]
+  (2.35,0.95) -- (2.35,1.75);
+\node[gap,anchor=west] at (2.45,1.35) {loss};
+
+% ---------- a million customers ----------
+\node[hd] at (6.55,2.55) {One million active customers};
+\filldraw[rev] (5.75,0) rectangle (6.35,0.95);
+\filldraw[cst] (6.75,0) rectangle (7.35,1.75);
+\draw[MLMuted!60] (5.55,0) -- (7.65,0);
+\node[bl] at (6.05,-0.30) {revenue};
+\node[bl] at (7.05,-0.30) {cost to serve};
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=MLRed]
+  (7.55,0.95) -- (7.55,1.75);
+\node[gap,anchor=west] at (7.65,1.35) {loss $\times\,10^{6}$};
+
+\draw[go] (3.55,0.90) -- node[bl,above]{growth} (5.05,0.90);
+\node[bl,text width=1.9cm] at (4.30,0.28) {the shape does not change};
+
+% ---------- what does change the shape ----------
+\node[lev] at (1.75,-1.60)  {lower the cost to serve};
+\node[lev] at (5.75,-1.60)  {raise revenue per customer};
+\node[lev] at (9.75,-1.60)  {shift into lending, paid tiers, and other margin};
+\node[font=\scriptsize\bfseries\color{MLGreen},anchor=east] at (-0.15,-1.60) {levers};
+
+\node[font=\scriptsize\color{MLInk},align=center,text width=12.6cm] at (5.30,-2.85)
+  {Adding customers repeats the left-hand picture; it does not redraw it. Only
+   the three levers change the relative height of the two bars, which is why
+   Week~5 treats user growth as evidence of demand rather than evidence of a
+   viable bank.};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \subsection{Paths toward better economics}
 

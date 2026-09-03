@@ -129,24 +129,44 @@ A practical screen flow is:
 equivalent copies of the same input, or the measured difference reflects the data rather
 than the algorithms.}{fig:app-flow}
 \begin{tikzpicture}[font=\small,
-  box/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,minimum width=2.9cm,
-              minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}},
-  outbox/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=2mm,minimum width=6.4cm,
-              minimum height=0.95cm,align=center,font=\small\bfseries\color{ADSNavy}}]
-\node[box] (input) at (0,0) {Input / Generate\\Data};
-\node[box,fill=ADSPaleOrange,draw=ADSOrange] (val) at (3.5,0) {Validate\\preconditions};
-\node[box] (a1) at (7.4,0.75) {Run Algorithm 1};
-\node[box] (a2) at (7.4,-0.75) {Run Algorithm 2};
-\node[outbox] (out) at (3.5,-2.3) {Side-by-side result: steps, time, visual trace};
-\draw[adsarrow] (input)--(val);
-\draw[adsarrow] (val.east) -- ++(0.4,0) |- (a1.west);
-\draw[adsarrow] (val.east) -- ++(0.4,0) |- (a2.west);
-\draw[adsarrow] (a1.east) -- ++(0.4,0) |- (0,-2.3) -- (out.west);
-\draw[adsarrow] (a2.east) -- ++(0.4,0) |- (0,-2.3);
-\node[adslabel,anchor=south,align=center,color=ADSOrange] at (3.5,0.62)
-  {e.g. ``binary search\\requires sorted data''};
-\node[adslabel,anchor=north,align=center] at (3.5,-3.0)
-  {identical input copies $\rightarrow$ any difference is the algorithm};
+  stage/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,
+                minimum width=3.0cm,minimum height=1.0cm,align=center,
+                font=\small\bfseries\color{ADSNavy},inner sep=1.8mm},
+  result/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=2mm,
+                 minimum width=7.7cm,minimum height=1.2cm,align=center,
+                 font=\small\bfseries\color{ADSNavy},inner sep=1.8mm},
+  flow/.style={-{Stealth[length=2.3mm]},line width=0.95pt,draw=ADSTeal,
+               rounded corners=1.5mm}]
+% Collect and validate one master input before making the two test copies.
+\node[stage] (input) at (1.75,2.25)
+  {\textbf{1. Input / generate}\\[-0.12em]{\scriptsize dataset}};
+\node[stage,draw=ADSOrange,fill=ADSPaleOrange,minimum width=3.35cm] (validate)
+  at (5.75,2.25)
+  {\textbf{2. Validate input}\\[-0.12em]
+   {\scriptsize e.g. sorted-data requirement}};
+\draw[flow] (input.east) -- (validate.west);
+
+% Fork the validated input into two equivalent copies.
+\coordinate (fork) at ([yshift=-5.5mm]validate.south);
+\draw[flow,-] (validate.south) -- (fork);
+\fill[ADSTeal] (fork) circle (1.3pt);
+\node[adslabel,anchor=south,color=ADSTeal,fill=white,inner sep=0.8pt]
+  at ([yshift=1.2mm]fork) {equivalent input copies};
+
+\node[stage] (a1) at (3.65,0.35) {\textbf{3A. Run Algorithm 1}};
+\node[stage] (a2) at (7.85,0.35) {\textbf{3B. Run Algorithm 2}};
+\draw[flow] (fork) -| (a1.north);
+\draw[flow] (fork) -| (a2.north);
+
+% Merge both measurements into one comparison panel.
+\node[result] (out) at (5.75,-1.55)
+  {\textbf{4. Side-by-side comparison}\\[-0.12em]
+   {\scriptsize result \textbullet{} operations \textbullet{} time \textbullet{} visual trace}\\[-0.12em]
+   {\scriptsize\color{ADSGreen!45!black}same input $\rightarrow$ the measured difference belongs to the algorithm}};
+\draw[flow] (a1.south) -- ++(0,-0.38) -|
+  ([xshift=-1.65cm]out.north);
+\draw[flow] (a2.south) -- ++(0,-0.38) -|
+  ([xshift=1.65cm]out.north);
 \end{tikzpicture}
 \end{adsfig}
 

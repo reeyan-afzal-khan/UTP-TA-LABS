@@ -58,6 +58,52 @@ print(v || t)
 \texttt{\&} and \texttt{|} operate element by element. \texttt{\&\&} and \texttt{||} inspect only the first element and may skip evaluation of the second expression. Use the double-character forms for scalar control-flow conditions.
 \end{keyidea}
 
+\begin{utpfig}[Element-wise versus short-circuit]{The same two vectors, read by
+two different operators. \texttt{\&} pairs every position and returns a vector
+as long as its inputs. \texttt{\&\&} reads position~1 only and returns a single
+value, which is why the double forms belong in \texttt{if} conditions --- those
+expect exactly one \texttt{TRUE} or \texttt{FALSE}.}{fig:logic-elementwise}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+% ---- left panel: element-wise & ---------------------------------
+\node[tagb] at (1.35,1.15) {\texttt{c \& d}};
+\node[tag]  at (1.35,0.78) {every position};
+
+\node[tag,anchor=east] at (-0.10,0) {\texttt{c}};
+\node[cell] at (0.68,0) {TRUE};
+\node[cell] at (2.02,0) {FALSE};
+
+\node[tagb,anchor=east] at (-0.10,-0.85) {\texttt{\&}};
+\node[cell] at (0.68,-0.85) {FALSE};
+\node[cell] at (2.02,-0.85) {FALSE};
+
+\draw[semithick,draw=UTPMuted!65] (0.16,-1.30) -- (2.54,-1.30);
+
+\node[cellout] at (0.68,-1.80) {FALSE};
+\node[cellout] at (2.02,-1.80) {FALSE};
+\node[tag] at (1.35,-2.38) {a vector of length 2};
+
+% ---- right panel: short-circuit && ------------------------------
+\node[tagb] at (5.75,1.15) {\texttt{c \&\& d}};
+\node[tag]  at (5.75,0.78) {position 1 only};
+
+\node[tag,anchor=east] at (4.30,0) {\texttt{c}};
+\node[cell]      at (5.08,0) {TRUE};
+\node[cellghost] at (6.42,0) {FALSE};
+
+\node[tagb,anchor=east] at (4.30,-0.85) {\texttt{\&\&}};
+\node[cell]      at (5.08,-0.85) {FALSE};
+\node[cellghost] at (6.42,-0.85) {FALSE};
+
+\draw[semithick,draw=UTPMuted!65] (4.56,-1.30) -- (5.60,-1.30);
+
+\node[cellout] at (5.08,-1.80) {FALSE};
+\node[tag] at (5.08,-2.38) {one value};
+\node[tag,text width=1.7cm,align=center] at (6.48,-1.80) {not evaluated};
+
+\end{tikzpicture}
+\end{utpfig}
+
 \section{Relational operations}
 
 Relational operators compare values and return logical results.
@@ -175,6 +221,45 @@ print(paste(a, b, c, sep = "", collapse = ""))
 
 \texttt{sep} joins arguments within each result; \texttt{collapse} joins multiple result elements.
 
+\begin{utpfig}[\texttt{sep} joins across, \texttt{collapse} joins down]{The two
+arguments answer different questions. \texttt{sep} sits between the pieces that
+form one result element; \texttt{collapse} sits between the result elements
+themselves. Supply \texttt{sep} alone and the result stays a vector. Supply
+\texttt{collapse} as well and it becomes a single string.}{fig:paste-sep-collapse}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+\node[tag,anchor=east] at (-0.10,0)     {\texttt{x}};
+\node[tag,anchor=east] at (-0.10,-0.80) {\texttt{y}};
+
+\node[cell]    at (0.70,0)     {\texttt{"A"}};
+\node[cell]    at (0.70,-0.80) {\texttt{"1"}};
+\node[cellalt] at (2.05,0)     {\texttt{"B"}};
+\node[cellalt] at (2.05,-0.80) {\texttt{"2"}};
+
+\draw[decorate,decoration={brace,amplitude=3pt},draw=UTPBlue,semithick]
+  (0.28,0.36) -- (0.28,-1.16);
+\draw[decorate,decoration={brace,amplitude=3pt},draw=UTPOrange,semithick]
+  (1.63,0.36) -- (1.63,-1.16);
+
+\node[tag,text width=2.4cm,align=center] at (1.38,-1.62)
+  {\texttt{sep} joins within a position};
+
+% first result: a vector of two strings
+\node[tagb,anchor=west] at (4.05,0.62) {\texttt{paste(x, y, sep = "-")}};
+\node[cellout] at (4.95,0)     {\texttt{"A-1"}};
+\node[cellout] at (6.35,0)     {\texttt{"B-2"}};
+\node[tag,anchor=west] at (7.10,0) {a vector of 2};
+\draw[rarrow] (2.80,0) -- (4.20,0);
+
+% second result: collapsed to one string
+\draw[rarrow] (5.65,-0.42) -- (5.65,-1.06);
+\node[tagb] at (5.65,-1.34) {\texttt{..., collapse = "+"}};
+\node[cellout,minimum width=22mm] at (5.65,-1.94) {\texttt{"A-1+B-2"}};
+\node[tag,anchor=west] at (7.05,-1.94) {one string};
+
+\end{tikzpicture}
+\end{utpfig}
+
 \section{Formatting numbers and strings}
 
 \texttt{format()} controls display without changing the underlying numeric value:
@@ -218,7 +303,7 @@ library(stringr)
 str_length(str)
 \end{lstlisting}
 
-Case conversion is demonstrated with:
+Case conversion:
 
 \begin{lstlisting}[style=dsr]
 print(toupper("Changing To Upper"))
@@ -241,13 +326,40 @@ result <- substr("Learn Code Tech", 1, 1)
 print(result)
 \end{lstlisting}
 
-Both functions use starting and ending positions.
+\begin{utpfig}[Character positions in a string]{\texttt{substring()} and
+\texttt{substr()} count characters from~1, and both endpoints are included. The
+call keeps positions 5, 6 and 7, so seven characters become three. Counting
+from~0, as several other languages do, is the usual source of an off-by-one
+result here.}{fig:substring}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+\foreach \ch/\i in {E/1, x/2, t/3, r/4} {
+  \node[cell] at (\i*0.92,0) {\texttt{\ch}};
+  \node[tag]  at (\i*0.92,-0.62) {\i};
+}
+\foreach \ch/\i in {a/5, c/6, t/7} {
+  \node[cellout] at (\i*0.92,0) {\texttt{\ch}};
+  \node[tagb]    at (\i*0.92,-0.62) {\i};
+}
+
+\node[tag,anchor=east] at (0.46,0) {\texttt{"Extract"}};
+
+\draw[decorate,decoration={brace,amplitude=4pt,mirror},draw=UTPTeal,semithick]
+  (4.28,-0.90) -- (6.76,-0.90);
+
+\node[tagb,anchor=north] at (5.52,-1.16) {\texttt{substring("Extract", 5, 7)}};
+
+\node[cellout] at (8.55,0) {\texttt{"act"}};
+\draw[rarrow] (7.28,0) -- (8.05,0);
+
+\end{tikzpicture}
+\end{utpfig}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What type of value is returned by a relational comparison such as \texttt{x < y}?
   \item Why does \texttt{x == z} evaluate as true in the handout example?
-  \item What is the role of a backslash in \texttt{\"Vikings\"} inside a double-quoted string?
+  \item What is the role of a backslash in \texttt{\textbackslash"Vikings\textbackslash"} inside a double-quoted string?
   \item Which function in the handout converts text to uppercase?
   \item Which functions are used to extract character ranges from a string?
 \end{enumerate}

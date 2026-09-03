@@ -4,6 +4,42 @@
 \section{The Unix idea: many resources look like files}
 Unix-like systems expose regular files, terminals, pipes, device endpoints, and many kernel objects through file-descriptor based interfaces. At the C library level, a \texttt{FILE *} stream adds buffering and formatted I/O. At the lower POSIX level, integer file descriptors are used by calls such as \texttt{open()}, \texttt{read()}, \texttt{write()}, and \texttt{close()}.
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  lay/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=8.6cm,
+              minimum height=1.0cm,align=center,font=\scriptsize\color{MLNavy}},
+  usr/.style={lay,fill=MLPaleTeal,draw=MLTeal},
+  ker/.style={lay,fill=MLNavy!12,draw=MLNavy},
+  side/.style={font=\scriptsize\color{MLMuted},align=left,text width=4.5cm,anchor=west},
+  go/.style={-{Stealth[length=2.2mm]},thick,draw=MLOrange}]
+
+\node[lay] (a) at (0,3.15) {your program \quad \texttt{printf()}, \texttt{fgets()}, \texttt{fopen()}};
+\node[usr] (b) at (0,1.90) {C standard library --- buffered streams, \texttt{FILE\,*}};
+\node[lay] (c) at (0,0.65) {POSIX interface --- \texttt{open()}, \texttt{read()}, \texttt{write()}, \texttt{close()} on an integer fd};
+\node[ker] (d) at (0,-0.60) {kernel --- regular files, terminals, pipes, devices};
+
+\draw[go] (a) -- (b);
+\draw[go] (b) -- (c);
+\draw[go] (c) -- (d);
+
+\draw[MLMuted!55,dashed] (-4.6,0.02) -- (5.9,0.02);
+\node[font=\scriptsize\bfseries\color{MLMuted},anchor=west] at (4.45,0.30) {user space};
+\node[font=\scriptsize\bfseries\color{MLMuted},anchor=west] at (4.45,-0.26) {kernel space};
+
+\node[side] at (4.45,1.90) {the buffer lives here, which is why output can appear late};
+\node[side] at (4.45,-1.15) {one interface, many kinds of object};
+
+\node[font=\scriptsize\color{MLInk},align=center,text width=12.6cm] at (0.65,-2.35)
+  {A \texttt{printf()} does not reach the kernel directly. It fills a user-space
+   buffer, and only when that buffer is flushed --- by a newline on a terminal,
+   by filling up, or by \texttt{fclose()} --- does it become a \texttt{write()}
+   system call. That gap is the whole explanation for output that arrives out of
+   order or not at all after a crash.};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.31\linewidth}X@{}}
 \toprule
@@ -46,6 +82,46 @@ On Unix-like systems, \texttt{fork()} creates a child process by duplicating the
   \item zero: currently executing in the child;
   \item positive: currently executing in the parent, and the value is the child's PID.
 \end{itemize}
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  pr/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=4.6cm,
+             minimum height=1.15cm,align=center,font=\scriptsize\color{MLNavy}},
+  ch/.style={pr,fill=MLPaleOrange,draw=MLOrange},
+  cl/.style={draw=MLNavy,fill=white,rounded corners=2mm,text width=3.4cm,
+             minimum height=0.85cm,align=center,font=\scriptsize\ttfamily\color{MLNavy}},
+  go/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal},
+  rv/.style={font=\scriptsize\bfseries\color{MLTeal}},
+  nb/.style={font=\scriptsize\color{MLMuted},align=center}]
+
+\node[pr] (p0) at (0,2.55) {one process, PID 100};
+\node[cl] (fk) at (0,1.30) {pid = fork();};
+\draw[go] (p0) -- (fk);
+
+\node[pr] (par) at (-3.35,-0.40) {parent, still PID 100};
+\node[ch] (chd) at (3.35,-0.40)  {child, new PID 101};
+
+\draw[go] (fk.south) -- ++(0,-0.30) -| (par.north);
+\draw[go] (fk.south) -- ++(0,-0.30) -| (chd.north);
+
+\node[rv,anchor=east] at (-1.85,0.20) {returns 101};
+\node[rv,anchor=west] at (1.85,0.20)  {returns 0};
+
+\node[cl,fill=MLPaleGray] (bp) at (-3.35,-1.85) {else \{ ... \}};
+\node[cl,fill=MLPaleGray] (bc) at (3.35,-1.85)  {if (pid == 0) \{ ... \}};
+\draw[go,draw=MLMuted] (par) -- (bp);
+\draw[go,draw=MLMuted] (chd) -- (bc);
+
+\node[nb,text width=12.6cm] at (0,-3.05)
+  {Both processes resume at the very same instruction, with the same code and a
+   copy of the same variables. The only thing that differs is the value
+   \texttt{fork()} handed back --- which is how a single \texttt{if} sends each
+   process down its own branch. A negative return means no child was created at
+   all, and only the parent continues.};
+
+\end{tikzpicture}
+\end{mlfigure}
 
 \begin{lstlisting}[style=osc]
 pid_t pid = fork();

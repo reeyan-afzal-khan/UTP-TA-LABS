@@ -138,6 +138,73 @@ Labels $y=(3,5,8,10)$. Round 0 predicts the mean: $F_0=6.5$ for everyone, residu
 and the residuals shrink to $(-2.25,-0.25,0.25,2.25)$. Each round nibbles away at what remains unexplained; a hundred small corrections later, the ensemble traces the data closely.
 \end{workedexample}
 
+\begin{mlfigure}
+\begin{tikzpicture}[
+  x=1cm, y=1cm, font=\small,
+  ax/.style={draw=MLMuted!55,semithick},
+  obs/.style={circle,fill=MLNavy,inner sep=1.5pt},
+  fit/.style={draw=MLBlue,line width=1.1pt},
+  resid/.style={-{Stealth[length=1.7mm]},draw=MLRed,semithick},
+  rl/.style={font=\tiny\color{MLRed}},
+  hd/.style={font=\small\bfseries\color{MLNavy}},
+  yl/.style={font=\tiny\color{MLMuted},anchor=east}]
+
+% ---------- round 0: predict the mean ----------
+\node[hd] at (1.9,4.35) {Round 0: predict the mean};
+\draw[ax] (0.30,0) -- (0.30,3.95);
+\draw[ax] (0.30,0) -- (3.55,0);
+\foreach \v/\cy in {3/0.42, 5/1.26, 8/2.52, 10/3.36} \node[yl] at (0.22,\cy) {\v};
+
+\draw[fit] (0.45,1.89) -- (3.35,1.89);
+\node[font=\tiny\color{MLBlue},anchor=west] at (3.40,1.89) {$F_0=6.5$};
+
+\draw[resid] (0.70,1.89) -- (0.70,0.50);
+\draw[resid] (1.50,1.89) -- (1.50,1.34);
+\draw[resid] (2.30,1.89) -- (2.30,2.44);
+\draw[resid] (3.10,1.89) -- (3.10,3.28);
+\node[rl,anchor=west] at (0.78,1.16) {$-3.5$};
+\node[rl,anchor=west] at (1.58,1.62) {$-1.5$};
+\node[rl,anchor=west] at (2.38,2.16) {$+1.5$};
+\node[rl,anchor=west] at (3.18,2.62) {$+3.5$};
+
+\foreach \cx/\cy in {0.70/0.42, 1.50/1.26, 2.30/2.52, 3.10/3.36}
+  \node[obs] at (\cx,\cy) {};
+
+% ---------- round 1: add half of a stump ----------
+\begin{scope}[xshift=7.0cm]
+\node[hd] at (1.9,4.35) {After round 1, with $\nu=0.5$};
+\draw[ax] (0.30,0) -- (0.30,3.95);
+\draw[ax] (0.30,0) -- (3.55,0);
+\foreach \v/\cy in {3/0.42, 5/1.26, 8/2.52, 10/3.36} \node[yl] at (0.22,\cy) {\v};
+
+\draw[fit] (0.45,1.365) -- (1.90,1.365);
+\draw[fit] (1.90,2.415) -- (3.35,2.415);
+\draw[fit,dashed] (1.90,1.365) -- (1.90,2.415);
+\node[font=\tiny\color{MLBlue},anchor=west] at (3.40,2.415) {$F_1$};
+
+\draw[resid] (0.70,1.365) -- (0.70,0.50);
+\draw[resid] (1.50,1.365) -- (1.50,1.34);
+\draw[resid] (2.30,2.415) -- (2.30,2.44);
+\draw[resid] (3.10,2.415) -- (3.10,3.28);
+\node[rl,anchor=west] at (0.78,0.86) {$-2.25$};
+\node[rl,anchor=west] at (1.58,1.30) {$-0.25$};
+\node[rl,anchor=west] at (2.38,2.05) {$+0.25$};
+\node[rl,anchor=west] at (3.18,2.85) {$+2.25$};
+
+\foreach \cx/\cy in {0.70/0.42, 1.50/1.26, 2.30/2.52, 3.10/3.36}
+  \node[obs] at (\cx,\cy) {};
+\end{scope}
+
+\node[font=\scriptsize\color{MLInk},align=center,text width=12.5cm] at (5.4,-0.85)
+  {The stump is never fitted to the labels --- it is fitted to the red arrows.
+   One split separates the first two observations from the last two and predicts
+   their residual means, $-2.5$ and $+2.5$; the learning rate admits only half
+   of that, so every residual shrinks but none is erased. A hundred such
+   corrections trace the data closely.};
+
+\end{tikzpicture}
+\end{mlfigure}
+
 \begin{intuition}
 Gradient boosting is a committee formed one member at a time, where each new member's only job is to fix the committee's current mistakes --- and is deliberately given a quiet voice ($\nu$) so no single member can dominate. AdaBoost is the special case where ``fix the mistakes'' means ``re-argue the misclassified cases,'' arising from a particular (exponential) loss.
 \end{intuition}

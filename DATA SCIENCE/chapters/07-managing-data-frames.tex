@@ -5,6 +5,32 @@
   {You should be able to create, inspect, and index data frames.}
   {import, inspect, clean, rename, filter, sort, and export tabular data.}
 
+\begin{utpfig}[The data-management workflow]{The five stages this chapter works
+through, with the functions each one uses. Every stage produces evidence for the
+next: a dimension, a count, a name. Skipping straight from import to transform
+is what produces an analysis nobody can reproduce.}{fig:ds-workflow}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+\foreach \name/\x in {import/0, inspect/3.05, clean/6.10, transform/9.15, export/12.20}
+  \node[fcbox,minimum width=2.5cm] (\name) at (\x,0) {\name};
+
+\foreach \a/\b in {import/inspect, inspect/clean, clean/transform, transform/export}
+  \draw[fcedge] (\a) -- (\b);
+
+\node[tag,text width=2.6cm,align=center,anchor=north] at (0,-0.72)
+  {\texttt{read\_excel()} \texttt{read.csv()}};
+\node[tag,text width=2.6cm,align=center,anchor=north] at (3.05,-0.72)
+  {\texttt{dim()} \texttt{colnames()} \texttt{is.na()}};
+\node[tag,text width=2.6cm,align=center,anchor=north] at (6.10,-0.72)
+  {\texttt{na.omit()} \texttt{gsub()}};
+\node[tag,text width=2.6cm,align=center,anchor=north] at (9.15,-0.72)
+  {\texttt{filter()} \texttt{arrange()}};
+\node[tag,text width=2.6cm,align=center,anchor=north] at (12.20,-0.72)
+  {\texttt{write.xlsx()} \texttt{write.csv()}};
+
+\end{tikzpicture}
+\end{utpfig}
+
 \section{Packages used in Lab 7a}
 
 Lab 7 uses three packages:
@@ -90,6 +116,43 @@ demo <- c(1, 2, NA, 4, NA, 6, 7)
 sum(is.na(demo))
 which(is.na(demo))
 \end{lstlisting}
+
+\begin{utpfig}[Two questions about the same missing values]{\texttt{is.na()}
+turns the vector into a logical mask. \texttt{sum()} then answers \emph{how
+many}, because R counts \texttt{TRUE} as~1; \texttt{which()} answers
+\emph{where}, returning positions rather than a count. Both read the same mask,
+which is why the two results never disagree.}{fig:is-na}
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+\node[tag,anchor=east] at (-0.15,0) {\texttt{demo}};
+\foreach \v/\i in {1/1, 2/2, 4/4, 6/6, 7/7}
+  \node[cell] at (\i*1.05,0) {\v};
+\foreach \i in {3, 5}
+  \node[cellbad] at (\i*1.05,0) {\texttt{NA}};
+
+\node[tag,anchor=east] at (-0.15,-1.15) {\texttt{is.na(demo)}};
+\foreach \i in {1, 2, 4, 6, 7}
+  \node[cellghost] at (\i*1.05,-1.15) {F};
+\foreach \i in {3, 5}
+  \node[cellout] at (\i*1.05,-1.15) {T};
+
+\foreach \i in {1,2,3,4,5,6,7}
+  \draw[rarrowmuted] (\i*1.05,-0.44) -- (\i*1.05,-0.72);
+
+\foreach \i in {1,2,3,4,5,6,7}
+  \node[tag] at (\i*1.05,-1.78) {\i};
+
+\node[tagb,anchor=east] at (3.30,-2.62) {\texttt{sum(is.na(demo))}};
+\node[cellout] at (4.05,-2.62) {2};
+\node[tag,anchor=west] at (4.60,-2.62) {how many};
+
+\node[tagb,anchor=east] at (3.30,-3.42) {\texttt{which(is.na(demo))}};
+\node[cellout] at (4.05,-3.42) {3};
+\node[cellout] at (5.05,-3.42) {5};
+\node[tag,anchor=west] at (5.60,-3.42) {where};
+
+\end{tikzpicture}
+\end{utpfig}
 
 \subsection{Count missing values by column}
 
@@ -203,7 +266,7 @@ write.csv(
 )
 \end{lstlisting}
 
-The complete workflow is \textbf{import $\rightarrow$ inspect $\rightarrow$ clean $\rightarrow$ transform $\rightarrow$ export}.
+That closes the workflow opened in \figref{fig:ds-workflow}.
 
 \begin{quickcheck}
 \begin{enumerate}

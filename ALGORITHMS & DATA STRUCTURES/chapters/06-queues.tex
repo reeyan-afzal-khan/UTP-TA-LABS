@@ -11,18 +11,23 @@ A \term{queue} is a linear data structure that follows \term{FIFO}: First In, Fi
 \begin{adsfig}[The two ends of a queue]{A queue has two active ends. Items join at the rear and leave from the
 front, so the order of departure matches the order of arrival --- the opposite discipline
 to a stack.}{fig:queue-fifo}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  queueout/.style={draw=ADSTeal,fill=ADSPaleTeal,rounded corners=1mm,
+    align=center,font=\scriptsize\color{ADSNavy},inner xsep=2mm,inner ysep=1.2mm},
+  queuein/.style={draw=ADSOrange,fill=ADSPaleOrange,rounded corners=1mm,
+    align=center,font=\scriptsize\color{ADSNavy},inner xsep=2mm,inner ysep=1.2mm}
+]
 \foreach \v [count=\i from 0] in {A,B,C,D}{
   \node[adscell,minimum width=1.5cm,minimum height=0.82cm] (c\i) at (1.5*\i,0) {\v};
 }
 \node[adstag,anchor=north] at (0,-0.6) {FRONT};
 \node[adstag,anchor=north] at (4.5,-0.6) {REAR};
-\draw[adsarrow] (c0.west) -- ++(-1.5,0)
-  node[midway,above,adslabel] {dequeue}
-  node[midway,below,adslabel] {oldest leaves};
-\draw[adsarrow] (6.0,0) -- (c3.east)
-  node[midway,above,adslabel] {enqueue}
-  node[midway,below,adslabel] {newest joins};
+\node[queueout,anchor=east] (deq) at (-1.2,0)
+  {\textbf{dequeue}\\[-0.15em]{\tiny oldest leaves}};
+\draw[adsarrow] (c0.west) -- (deq.east);
+\node[queuein,anchor=west] (enq) at (5.7,0)
+  {\textbf{enqueue}\\[-0.15em]{\tiny newest joins}};
+\draw[adsarrow] (enq.west) -- (c3.east);
 \end{tikzpicture}
 \end{adsfig}
 

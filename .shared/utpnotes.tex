@@ -123,6 +123,28 @@
   {\usepackage[scaled]{helvet}\renewcommand{\familydefault}{\sfdefault}}
 \DeclareFontShape{T1}{cmss}{b}{n}{<->ssub*cmss/bx/n}{}
 \DeclareFontShape{TS1}{cmss}{b}{n}{<->ssub*cmss/bx/n}{}
+% Monospace. Without this the tt default stays Computer Modern Typewriter,
+% a serif face that clashes with the sans body text in every listing and
+% every \cmd. Source Code Pro is the companion to Source Sans Pro; it is
+% scaled down because mono digits otherwise sit large next to the sans.
+%
+% A book that wants a different mono face sets \utpownmono to 1 BEFORE the
+% input and loads its own after it. Two mono packages must not both be
+% loaded: the second wins the family but inherits the first's series names,
+% and every \ttfamily then resolves through a substitution. Data
+% Communication does this, for Inconsolata.
+\providecommand{\utpownmono}{0}
+\ifnum\utpownmono=0
+  \IfFileExists{sourcecodepro.sty}
+    {\usepackage[scaled=0.88]{sourcecodepro}}
+    {\usepackage[scaled=0.86]{beramono}}
+  % Source Sans names its normal weight "regular", but the Computer Modern
+  % fallbacks call it "m". Map one onto the other so a \ttfamily reached
+  % while the regular series is active resolves instead of warning.
+  \DeclareFontShape{T1}{cmtt}{regular}{n}{<->ssub*cmtt/m/n}{}
+  \DeclareFontShape{TS1}{cmtt}{regular}{n}{<->ssub*cmtt/m/n}{}
+  \DeclareFontShape{T1}{cmtt}{regular}{it}{<->ssub*cmtt/m/it}{}
+\fi
 \usepackage[margin=21mm,headheight=22pt]{geometry}
 \usepackage{amsmath,amssymb,mathtools,bm}
 \usepackage{microtype}
@@ -140,6 +162,18 @@
 \tcbuselibrary{breakable,skins}
 \usepackage[hidelinks]{hyperref}
 \usepackage{bookmark}
+% Document properties, so the PDF identifies itself in a reader's
+% title bar, in a library catalogue, and in search results. Set from
+% the same configuration macros the cover uses.
+\hypersetup{
+  pdftitle={\utpcoursetitle},
+  pdfauthor={\utpauthor},
+  pdfsubject={Universiti Teknologi PETRONAS course notes and laboratory guide},
+  pdfkeywords={UTP, course notes, laboratory manual, \utpcoursetitle},
+  pdfdisplaydoctitle=true,
+  bookmarksnumbered=true,
+  bookmarksopenlevel=1
+}
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{caption}
@@ -228,6 +262,26 @@
 \emergencystretch=1.5em
 \hbadness=10000
 \hfuzz=8pt
+
+% Page-breaking discipline. Without these a paragraph can leave a single
+% line stranded at the foot of one page or the head of the next, which is
+% the most visible sign of unattended typesetting.
+\widowpenalty=10000          % no first line of a paragraph left alone at a page foot
+\clubpenalty=10000           % no last line of a paragraph left alone at a page head
+\displaywidowpenalty=10000   % the same around displayed equations
+\brokenpenalty=10000         % do not break a page after a hyphenated line
+\predisplaypenalty=10000     % keep the line before a display with it
+% Pages are built from boxes of many heights, so let the last line float
+% up rather than stretching the gaps between boxes to force a flush foot.
+\raggedbottom
+% Prefer a slightly loose line to an overfull one, but do not hyphenate
+% freely -- short sans lines look ragged when over-hyphenated.
+\tolerance=1200
+\hyphenpenalty=200
+
+% Character protrusion and font expansion. Both are what stop a justified
+% sans column from showing visible rivers down the page.
+\microtypesetup{protrusion=true,expansion=true,tracking=true}
 
 \pgfplotsset{
   compat=1.18,

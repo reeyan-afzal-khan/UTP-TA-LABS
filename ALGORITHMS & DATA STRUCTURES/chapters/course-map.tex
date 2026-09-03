@@ -25,23 +25,23 @@ The course progresses from data organization to algorithm selection. Five stages
 \end{mlfigure}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.13\linewidth}p{0.26\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.08\linewidth}p{0.25\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
-Stage & Main structures & Central question \\
+Stage & Focus & Key question \\
 \midrule
-1 & Primitive/non-primitive structures, arrays & How is data represented and accessed in memory? \\
-2 & Linked lists, circular lists, stacks, queues & How can pointer-based structures support dynamic or constrained access? \\
-3 & Trees, binary trees, BSTs, heaps, balancing & How can hierarchy improve organization and searching? \\
-4 & Graphs, adjacency structures, BFS/DFS, spanning trees & How can general relationships between objects be represented and traversed? \\
-5 & Searching, sorting, hashing & How do algorithm choice and data organization affect running time? \\
-6 & Final comparison project & How can two related algorithms be compared fairly using complexity, operation counts, runtime, and practical use cases? \\
+1 & Arrays and memory & How is data stored and accessed? \\
+2 & Lists, stacks, and queues & How do links and access rules organize data? \\
+3 & Trees, BSTs, and heaps & How does hierarchy improve searching? \\
+4 & Graphs, BFS, and DFS & How are relationships represented and traversed? \\
+5 & Searching, sorting, and hashing & How does algorithm choice affect performance? \\
+6 & Comparison project & How can algorithms be compared fairly? \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \section*{Complexity vocabulary used across the course}
-Big-O notation describes an asymptotic upper bound on how resource use grows with input size $n$; it is not an exact operation count. The table and figure use the same eight representative classes, ordered from the slowest to the fastest asymptotic growth.
+The table summarizes eight common Big-O classes, their representative growth functions, and typical algorithm examples.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.11\linewidth}p{0.20\linewidth}p{0.18\linewidth}X@{}}
@@ -54,7 +54,7 @@ $O(\log n)$ & Logarithmic & $f(n)=\log_2 n$ & Binary search; balanced-BST lookup
 $O(n)$ & Linear & $f(n)=n$ & Linear search; linked-list traversal. \\
 $O(n\log n)$ & Log-linear & $f(n)=n\log_2 n$ & Merge sort; heap sort. \\
 $O(n^2)$ & Quadratic & $f(n)=n^2$ & Bubble sort; selection sort. \\
-$O(n^3)$ & Polynomial (cubic) & $f(n)=n^3$ & Triple-nested loops; Floyd--Warshall. \\
+$O(n^3)$ & Cubic & $f(n)=n^3$ & Triple-nested loops; Floyd--Warshall. \\
 $O(2^n)$ & Exponential & $f(n)=2^n$ & Subset enumeration; exhaustive include/exclude search. \\
 $O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling salesperson search. \\
 \bottomrule
@@ -93,8 +93,10 @@ $O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling
   (start) .. controls (3.40,1.08) and (6.65,2.82) .. (8.28,4.06);
 \draw[curve,draw=ADSRed]
   (start) .. controls (3.95,0.53) and (7.02,2.35) .. (7.88,5.62);
+% Cubic is one specific polynomial class; it grows faster than quadratic
+% but remains asymptotically below exponential growth.
 \draw[curve,draw=ADSRed!55!black]
-  (start) .. controls (3.28,0.43) and (6.15,1.38) .. (7.06,7.30);
+  (start) .. controls (3.45,0.44) and (6.05,1.48) .. (7.18,7.20);
 
 % Combinatorial growth.
 \draw[curve,draw=magenta!82!red]
@@ -107,9 +109,8 @@ $O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling
   {Factorial -- $O(n!)$};
 \node[directlabel,text=magenta!82!red,anchor=west] at (3.02,7.04)
   {Exponential -- $O(2^n)$};
-\node[directlabel,text=ADSRed!55!black,rotate=59,anchor=west,
-  fill=white,fill opacity=0.92,text opacity=1] at (5.80,3.08)
-  {Polynomial -- $O(n^3),\ldots$};
+\node[directlabel,text=ADSRed!55!black,anchor=west] at (7.34,7.20)
+  {Cubic -- $O(n^3)$};
 \node[directlabel,text=ADSRed,anchor=west] at (8.10,5.62)
   {Quadratic -- $O(n^2)$};
 \node[directlabel,text=ADSOrange,anchor=west] at (8.50,4.06)
