@@ -6,65 +6,89 @@
   {describe an end-to-end sales order process, diagnose problems caused by disconnected systems, explain the order-to-cash sequence, and show how sales, inventory, and finance are linked.}
 
 \begin{sourcebasis}
-This chapter uses Tutorial 5 and Chapter 3 of \emph{Concepts in Enterprise Resource Planning}. The Fitter Snacker case is retained as the main example of an inefficient, unintegrated sales process, while the Odoo sections map the same concepts onto the West End Bicycles practical.
+This chapter uses Tutorial 5 and Chapter 3 of \emph{Concepts in Enterprise
+Resource Planning}. The Fitter Snacker case is retained as the main example of
+an inefficient, unintegrated sales process; the Odoo sections map the same
+concepts onto the West End Bicycles practical.
 \end{sourcebasis}
 
 \section{What the sales order process includes}
 
-The \term{sales order process} is the flow of events from a customer's request through fulfilment and payment. It is broader than entering an order. A typical sequence includes quotation, order capture, credit or payment terms, availability checking, picking and delivery, invoicing, payment, and sometimes returns.
+The \term{sales order process} runs from a customer's request through fulfilment
+and payment. It is much broader than entering an order: quotation, order
+capture, credit terms, availability checking, picking and delivery, invoicing,
+payment, and sometimes returns.
 
-\begin{erpfigure}
-\begin{tikzpicture}[
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.35cm,minimum height=0.8cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.38cm
-]
-\node[box] (q) {Quotation};
-\node[box,right=of q] (so) {Sales order};
-\node[box,right=of so] (av) {Availability / credit};
-\node[box,right=of av] (del) {Pick, pack, deliver};
-\node[box,below=0.65cm of del] (inv) {Invoice};
-\node[box,left=of inv] (pay) {Payment};
-\draw[arr] (q)--(so); \draw[arr] (so)--(av); \draw[arr] (av)--(del); \draw[arr] (del)--(inv); \draw[arr] (inv)--(pay);
+Each step is owned by a different function and each produces information the
+next step depends on.
+
+\begin{erpfig}[Order-to-cash by owner]{The sales order process with the owner of
+each step and the record it creates. Reading down the third row shows why no
+single department can be held responsible for the customer's
+experience.}{fig:order-to-cash-lanes}
+\begin{tikzpicture}[x=1cm,y=1cm,
+  tight/.style={-{Stealth[length=1.6mm]},semithick,draw=UTPTeal}]
+\node[erpcap,anchor=east,align=right] at (1.05,2.15) {\bfseries Step};
+\node[erpcap,anchor=east,align=right] at (1.05,1.12) {\bfseries Owner};
+\node[erpcap,anchor=east,align=right] at (1.05,0.12) {\bfseries Creates};
+\foreach \i/\s/\o/\r/\c in {%
+  0/Quotation/{Sales}/{offer, price}/UTPBlue,
+  1/{Sales order}/{Sales}/{commitment}/UTPBlue,
+  2/{Availability, credit}/{Inventory, Finance}/{reservation}/UTPTeal,
+  3/{Pick, pack, deliver}/{Inventory}/{shipped qty}/UTPTeal,
+  4/Invoice/{Finance}/{receivable}/UTPGreen,
+  5/Payment/{Finance}/{settlement}/UTPGreen}{
+  \pgfmathsetmacro{\x}{2.2+\i*2.35}
+  \node[erpstep,minimum width=2.0cm,minimum height=0.86cm,draw=\c,
+        fill=\c!12,text width=1.75cm] (s\i) at (\x,2.15) {\s};
+  \node[erpdoc,minimum width=2.0cm,minimum height=0.66cm,draw=\c!60,text width=1.75cm] (o\i) at (\x,1.12) {\o};
+  \node[erpchip,text width=1.6cm,align=center] (r\i) at (\x,0.12) {\r};
+  \draw[erplink] (\x,1.72) -- (\x,1.45);
+  \draw[erplink] (\x,0.79) -- (\x,0.42);
+}
+\foreach \i in {0,...,4}{\pgfmathtruncatemacro{\j}{\i+1}\draw[tight] (s\i)--(s\j);}
+\draw[erpback] (s5.north) to[out=105,in=75]
+  node[midway,above,erpnote]{payment status returns to Sales} (s0.north);
 \end{tikzpicture}
-\end{erpfigure}
-
-Each step creates information needed by another function. If the organisation treats these as isolated departmental tasks, the customer experiences delays and inconsistency.
+\end{erpfig}
 
 \section{Fitter Snacker: what goes wrong without integration}
 
-Fitter Snacker runs separate sales, warehouse, and accounting systems. Data crosses between them by fax, paper report, and periodic file transfer. Every one of its recurring problems traces back to a single structural fact: \textbf{each department holds its own copy of the order, and the copies drift apart.}
+Fitter Snacker runs separate sales, warehouse, and accounting systems. Data
+crosses between them by fax, paper report, and periodic file transfer. Every
+recurring problem traces back to one structural fact: \textbf{each department
+holds its own copy of the order, and the copies drift apart.}
 
-\begin{erpfigure}
-\begin{tikzpicture}[
-  sys/.style={draw=ERPRed,fill=ERPPaleRed,rounded corners=1.5mm,minimum width=2.1cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  good/.style={draw=ERPGreen,fill=ERPPaleTeal,rounded corners=1.5mm,minimum width=2.1cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  hub/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=1.5cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  slow/.style={-{Stealth[length=2mm]},thick,draw=ERPRed,dashed},
-  fast/.style={-{Stealth[length=2mm]},thick,draw=ERPGreen},
-  note/.style={font=\scriptsize\color{ERPMuted},align=center}
-]
-% --- left: siloed ---
-\node[note,font=\scriptsize\bfseries\color{ERPRed}] (t1) {Separate systems};
-\node[sys,below=0.3cm of t1] (s1) {Sales\\ \tiny own order copy};
-\node[sys,below=0.5cm of s1] (s2) {Warehouse\\ \tiny own stock copy};
-\node[sys,below=0.5cm of s2] (s3) {Accounting\\ \tiny own invoice copy};
-\draw[slow] (s1) -- node[note,right=0.5mm,text width=1.9cm]{fax, batch\\ \tiny hours or days} (s2);
-\draw[slow] (s2) -- node[note,right=0.5mm,text width=1.9cm]{re-keyed\\ \tiny may not match} (s3);
-
-% --- right: integrated ---
-\begin{scope}[xshift=6.6cm]
-\node[note,font=\scriptsize\bfseries\color{ERPGreen}] (t2) {One shared record};
-\node[hub,below=1.35cm of t2] (h) {Shared\\ transaction\\ data};
-\node[good,above left=0.35cm and 0.6cm of h] (g1) {Sales};
-\node[good,below left=0.35cm and 0.6cm of h] (g2) {Warehouse};
-\node[good,right=0.75cm of h] (g3) {Accounting};
-\draw[fast] (g1) -- (h); \draw[fast] (g2) -- (h); \draw[fast] (h) -- (g3);
-\node[note,below=0.3cm of g2,text width=4.2cm]{every function reads and writes the \emph{same} order};
-\end{scope}
+\begin{erpfig}[Copies versus one record]{The same three departments, two ways.
+On the left, each holds a copy and the copies disagree between transfers; on the
+right, one record serves all three.}{fig:fitter-snacker-silos}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% ---- left: siloed ----
+\node[erphead,color=UTPRed] at (2.6,3.3) {Separate systems};
+\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s1) at (2.6,2.2)
+  {Sales\\\tiny\mdseries own order copy};
+\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s2) at (2.6,0.75)
+  {Warehouse\\\tiny\mdseries own stock copy};
+\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s3) at (2.6,-0.7)
+  {Accounting\\\tiny\mdseries own invoice copy};
+\draw[erpslow] (s1) -- node[erpnote,right=1mm,text width=2.5cm,align=left]
+  {fax, batch transfer\\ \emph{hours or days}} (s2);
+\draw[erpslow] (s2) -- node[erpnote,right=1mm,text width=2.5cm,align=left]
+  {re-keyed by hand\\ \emph{may not match}} (s3);
+% ---- right: integrated ----
+\node[erphead,color=UTPGreen] at (11.6,3.3) {One shared record};
+\node[erpstore,draw=UTPBlue,minimum width=2.6cm,minimum height=1.35cm] (h) at (11.6,0.75)
+  {Shared\\\scriptsize\bfseries transaction\\\scriptsize\bfseries data};
+\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g1) at (8.4,2.2) {Sales};
+\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g2) at (8.4,-0.7) {Warehouse};
+\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g3) at (14.7,0.75) {Accounting};
+\draw[erpflow] (g1) -- (h); \draw[erpflow] (g2) -- (h); \draw[erpflow] (h) -- (g3);
+\node[erpnote,text width=4.6cm] at (11.6,-1.35)
+  {every function reads and writes the \emph{same} order};
 \end{tikzpicture}
-\end{erpfigure}
+\end{erpfig}
 
-Read the five textbook symptoms as one cause seen from five desks:
+Read the five textbook symptoms as one cause seen from five desks.
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.20\linewidth}X>{\itshape}p{0.26\linewidth}@{}}
@@ -75,35 +99,89 @@ Symptom & What actually happens & The stale copy \\
 Quotation and pricing & Arithmetic slips, discounts combined wrongly, terms the office has not seen; faxes misread into duplicate orders. & price \\
 Availability and dates & The clerk asks the warehouse for a ship date built on stock figures that are already out of date. & stock \\
 Credit & The customer is judged against a periodic printed report, so a recent payment is invisible --- good customers refused, over-exposed ones approved. & receivables \\
-Order filling & Paper picking lists travel in batches; stock moves that nobody writes down never reach the records. & inventory \\
-Invoicing & Order data is transferred to accounting on a schedule, so fulfilment changes after the transfer are billed wrongly. & shipped quantity \\
+Order filling & Paper picking lists travel in batches; stock moves nobody writes down never reach the records. & inventory \\
+Invoicing & Order data transfers to accounting on a schedule, so fulfilment changes after the transfer are billed wrongly. & shipped quantity \\
 \bottomrule
 \end{tabularx}
 \end{erptable}
 
+The cost shows up as elapsed time. Most of an unintegrated order's life is spent
+waiting for a transfer, not being worked on.
+
+\begin{erpfig}[Where the days go]{The same order under both processes. The
+shaded blocks are work; the gaps are waiting for a batch, a fax, or a report.
+Integration removes the gaps rather than making anyone type
+faster.}{fig:fitter-timeline}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPMuted!45] (0,-1.55) -- (14.6,-1.55);
+\foreach \d in {0,1,...,7}{
+  \pgfmathsetmacro{\x}{\d*1.82}
+  \draw[draw=UTPMuted!45] (\x,-1.62)--(\x,-1.48);
+  \node[erpnote,below=1mm] at (\x,-1.55) {day \d};}
+% old process
+\node[erpcap,anchor=west,color=UTPRed] at (0,1.15) {\bfseries Fitter Snacker (unintegrated)};
+\foreach \a/\b/\t in {0/1.1/Quote, 3.3/4.4/{Order entered}, 6.6/8.1/{Credit checked},
+                      9.6/11.0/{Picked}, 12.4/14.2/{Invoiced}}{
+  \draw[draw=UTPRed,fill=UTPPaleRed,rounded corners=1mm] (\a,0.05) rectangle (\b,0.75);
+  \node[erpnote,anchor=center] at ({(\a+\b)/2},0.4) {\t};}
+\foreach \a/\b in {1.1/3.3, 4.4/6.6, 8.1/9.6, 11.0/12.4}{
+  \draw[draw=UTPRed!55,dashed] (\a,0.4)--(\b,0.4);
+  \node[erpnote,color=UTPRed,above=0.5mm] at ({(\a+\b)/2},0.4) {wait};}
+% integrated
+\node[erpcap,anchor=west,color=UTPGreen] at (0,-0.05) {\bfseries Integrated (one shared record)};
+\foreach \a/\b/\t in {0/1.1/Quote, 1.1/2.1/{Order}, 2.1/3.3/{Credit},
+                      3.3/4.5/{Picked}, 4.5/5.7/{Invoiced}}{
+  \draw[draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1mm] (\a,-1.15) rectangle (\b,-0.45);
+  \node[erpnote,anchor=center] at ({(\a+\b)/2},-0.8) {\t};}
+\node[erpchip,anchor=west] at (6.1,-0.8) {same work, no transfers to wait for};
+\end{tikzpicture}
+\end{erpfig}
+
 \begin{pitfall}
-None of this is careless staff; it is process design. A process that requires people to copy, fax, re-key, and reconcile the same fact across systems will produce errors and delays no matter how conscientious they are. Fix the structure, not the people.
+None of this is careless staff; it is process design. A process that requires
+people to copy, fax, re-key, and reconcile the same fact across systems produces
+errors and delays no matter how conscientious they are. Fix the structure.
 \end{pitfall}
 
 \section{What an integrated ERP changes}
 
-An integrated ERP system replaces separate copies of the order with a linked document flow. The same customer, product, price, quantity, delivery, invoice, and payment records can be traced through the process.
+An integrated system replaces separate copies with a linked document flow. The
+value is not that the documents exist --- Fitter Snacker had documents too ---
+but that each one inherits its data from the one before it.
 
-A strong sales-order system therefore performs several checks at the time of the transaction:
+\begin{erpfig}[Document lineage]{What each document carries forward. Nothing in
+the lower row is re-typed; it is inherited. The return arrow is the answer Sales
+can give a customer without telephoning another department.}{fig:document-lineage}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \i/\d/\c in {0/Quotation/UTPBlue, 1/{Sales Order}/UTPBlue,
+                      2/Delivery/UTPTeal, 3/Invoice/UTPGreen, 4/Payment/UTPGreen}{
+  \pgfmathsetmacro{\x}{\i*3.15}
+  \node[erpstep,minimum width=2.75cm,minimum height=0.8cm,draw=\c,fill=\c!12] (d\i) at (\x,1.5) {\d};}
+\foreach \i in {0,...,3}{\pgfmathtruncatemacro{\j}{\i+1}\draw[erpflow] (d\i)--(d\j);}
+\foreach \i/\t in {0/{customer\\ product\\ quantity\\ unit price},
+                   1/{$+$ confirmed\\ commitment\\ $+$ salesperson},
+                   2/{$+$ what actually\\ left the\\ warehouse},
+                   3/{$+$ amount due\\ $+$ terms\\ $+$ tax},
+                   4/{$+$ cash received\\ $+$ settlement\\ date}}{
+  \pgfmathsetmacro{\x}{\i*3.15}
+  \node[erpdoc,minimum width=2.75cm,text width=2.4cm,align=center,minimum height=1.5cm] (c\i) at (\x,-0.35) {\t};
+  \draw[erplink] (\x,1.1) -- (\x,0.42);}
+\node[erpcap,color=UTPGreen] at (6.3,-1.55) {\bfseries what each document carries forward};
+\draw[erpback] (d4.north) to[out=120,in=60] node[midway,above,erpnote]
+  {``has the customer paid?'' answered without leaving Sales} (d1.north);
+\end{tikzpicture}
+\end{erpfig}
 
-\begin{itemize}
-  \item validates customer and product master data;
-  \item applies configured pricing and discounts;
-  \item checks inventory or planned availability;
-  \item checks credit or payment conditions where configured;
-  \item creates fulfilment documents from the order;
-  \item passes billing data to Finance;
-  \item records status changes so Sales can answer customer questions.
-\end{itemize}
+A strong sales-order system therefore validates master data at entry, applies
+configured pricing, checks availability and credit, creates fulfilment documents
+from the order, passes billing data to Finance, and records status changes so
+Sales can answer customer questions.
 
 \section{Order-to-cash as a cross-functional cycle}
 
-The term \term{order-to-cash} emphasises that the process is not complete when the sales order is confirmed. The business has not earned the operational outcome it wants until the product is fulfilled and the money is collected.
+\term{Order-to-cash} emphasises that the process is not complete when the sales
+order is confirmed. The business has not achieved what it wanted until the
+product is fulfilled and the money is collected.
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.19\linewidth}p{0.24\linewidth}X@{}}
@@ -122,17 +200,85 @@ Payment & Finance & Cash received and settlement status, visible back to Sales. 
 
 \section{Integration of Sales and Accounting}
 
-The textbook stresses that in an ERP system accounting consequences can be created from operational events rather than reconstructed later. That matters because management reporting, customer balances, and profitability analysis depend on the same source transaction.
+In an ERP system accounting consequences are created from operational events
+rather than reconstructed later. Management reporting, customer balances, and
+profitability analysis all depend on that same source transaction.
 
-For example, if a customer receives a discount, both Sales and Finance need the same final price. If Finance re-enters the invoice manually, the organisation creates an unnecessary opportunity for disagreement.
+If a customer receives a discount, Sales and Finance need the same final price.
+Re-entering the invoice manually creates an unnecessary opportunity to disagree.
 
 \begin{keyidea}
-A reliable sales process preserves document lineage: the quotation explains how the sales order was formed, the delivery explains what was physically fulfilled, the invoice explains what was billed, and the payment explains what was settled.
+A reliable sales process preserves document lineage: the quotation explains how
+the order was formed, the delivery explains what was physically fulfilled, the
+invoice explains what was billed, and the payment explains what was settled.
 \end{keyidea}
 
-\section{How the sequence appears in Odoo 19 Community}
+\section{Document states matter}
 
-The supplied West End Bicycles guide maps the order-to-cash flow to linked Odoo records.
+Business records move through a lifecycle. A draft is editable; a confirmed or
+posted record is a commitment; a done or paid state records completion of the
+real-world event. Knowing which state a record is in explains almost every
+``the button is missing'' problem in the labs.
+
+\begin{erpfig}[Document states]{The three lifecycles used throughout the
+practicals. An action is available only when the record is in the state that
+permits it, which is why troubleshooting runs
+backwards.}{fig:document-states}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \i/\lbl/\a/\b/\c/\ta/\tb in {%
+  0/{Sales document}/Quotation/{Sales Order}/{Locked}/{Confirm}/{Fulfilled},
+  1/Delivery/Draft/{Ready --- reserved}/Done/{Check availability}/{Validate},
+  2/{Customer invoice}/Draft/Posted/{Paid / In Payment}/{Post}/{Pay}}{
+  \pgfmathsetmacro{\y}{-\i*1.62}
+  \node[erpcap,anchor=west,align=left,text width=2.2cm] at (-0.1,\y) {\bfseries \lbl};
+  \node[erpquiet,minimum width=3.0cm,minimum height=0.8cm] (a\i) at (3.7,\y) {\a};
+  \node[erpstep,minimum width=3.2cm,minimum height=0.8cm]  (b\i) at (8.5,\y) {\b};
+  \node[erpgood,minimum width=3.2cm,minimum height=0.8cm]  (c\i) at (13.1,\y) {\c};
+  \draw[erpflow] (a\i)--node[erpnote,above,fill=white,inner sep=1pt]{\ta}(b\i);
+  \draw[erpflow] (b\i)--node[erpnote,above,fill=white,inner sep=1pt]{\tb}(c\i);
+}
+\node[erpcap,anchor=west,color=UTPMuted] at (2.6,1.05) {\bfseries editable};
+\node[erpcap,anchor=west,color=UTPBlue]  at (7.4,1.05) {\bfseries committed};
+\node[erpcap,anchor=west,color=UTPGreen] at (12.1,1.05) {\bfseries complete};
+\end{tikzpicture}
+\end{erpfig}
+
+If a button is missing, the first diagnostic question is: \emph{is the preceding
+business event complete?}
+
+\section{Company-wide sales analysis}
+
+Tutorial 5 asks how management could analyse the whole relationship with a
+customer such as Delicious Foods when each sales division keeps its own data.
+In a fragmented environment this requires collecting data from every division,
+reconciling customer identities and product names, standardising terms, removing
+duplicates, and combining the results --- and divisions may be reluctant to
+share performance data at all.
+
+\begin{erpfig}[One customer, three identities]{Why fragmented data resists
+consolidation. The three divisions each hold a valid record; only controlled
+master data makes them the same customer.}{fig:customer-identity}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erphead,color=UTPRed] at (3.5,2.6) {Divisional records};
+\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x1) at (3.5,1.65) {``Delicious Foods''};
+\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x2) at (3.5,0.7)  {``Delicious Foods Co.''};
+\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x3) at (3.5,-0.25) {``DELICIOUS FOODS CO''};
+\node[erpwarn,minimum width=3.3cm,minimum height=1.05cm] (agg) at (8.4,0.7)
+  {Manual roll-up\\\tiny\mdseries counts three customers};
+\foreach \n in {x1,x2,x3}{\draw[erpslow] (\n)--(agg);}
+\node[erpstore,minimum width=3.7cm,minimum height=1.05cm,draw=UTPGreen,fill=UTPPaleTeal]
+  (gov) at (13.3,0.7) {One controlled\\\scriptsize\bfseries customer identity};
+\draw[erpflow] (agg)--node[erpnote,above,text width=1.9cm]{master-data governance}(gov);
+\node[erpnote,text width=4.0cm] at (13.3,-0.7)
+  {transactions reference the identity, so the roll-up is automatic};
+\end{tikzpicture}
+\end{erpfig}
+
+ERP reduces the technical burden by storing comparable data centrally. It does
+not remove organisational reluctance, but it makes a unified view possible where
+governance and management expectations support one.
+
+\section{How the sequence appears in Odoo 19 Community}
 
 \begin{odoobox}
 For the Road Bike example, the practical sequence is:
@@ -143,42 +289,17 @@ For the Road Bike example, the practical sequence is:
   \item open the linked Delivery and validate shipment of 5 bikes;
   \item return to the Sales Order and create a customer invoice;
   \item post the invoice;
-  \item register the payment so the invoice becomes Paid or In Payment, depending on configuration.
+  \item register the payment so the invoice becomes Paid or In Payment.
 \end{enumerate}
-The guide emphasises that the price is set in Sales and then flows into the invoice rather than being typed again in Finance.
+The price is set in Sales and flows into the invoice rather than being typed
+again in Finance.
 \end{odoobox}
 
-\section{Document states matter}
-
-The Odoo guide gives a useful general rule: business records move through a lifecycle. A draft is still editable; a confirmed or posted record represents a commitment; a done or paid state represents completion of the real-world event.
-
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.25\linewidth}p{0.23\linewidth}p{0.23\linewidth}X@{}}
-\toprule
-\rowcolor{ERPPaleBlue!92}
-Document & Draft-like state & Committed state & Final state \\
-\midrule
-Sales document & Quotation & Sales Order & Locked / fulfilled context \\
-Delivery & Draft & Ready / reserved & Done \\
-Customer invoice & Draft & Posted & Paid / In Payment \\
-\bottomrule
-\end{tabularx}
-\end{erptable}
-
-If a button is missing, the first diagnostic question should be: \emph{Is the preceding business event complete?}
-
-\section{Company-wide sales analysis}
-
-Tutorial 5 asks students to consider how management could analyse the full relationship with a customer such as Delicious Foods when complete sales data is retained separately in each sales division. In a fragmented environment, company-wide analysis requires collecting data from each division, reconciling customer identities and product names, standardising terms, checking duplicates, and combining the results. Organisational politics can also make divisions reluctant to share detailed performance data.
-
-ERP reduces the technical burden by storing comparable data centrally. It does not automatically remove organisational reluctance, but it makes a unified view possible if governance, authorisation, and management expectations support it.
-
-\begin{workedexample}
-If two divisions sell the same customer under slightly different names---for example ``Delicious Foods'' and ``Delicious Foods Co.''---a manual analysis may treat them as two unrelated customers. Good master-data governance prevents this by maintaining one controlled customer identity that transactions reference.
-\end{workedexample}
-
 \begin{tryit}
-Take the old Fitter Snacker process and label every point where information is copied, delayed, estimated, or re-entered. Then map each problem to an ERP mechanism: shared master data, automatic document creation, real-time status, configured pricing, availability checking, or integrated accounting.
+Take the old Fitter Snacker process and label every point where information is
+copied, delayed, estimated, or re-entered. Map each problem to one ERP
+mechanism: shared master data, automatic document creation, real-time status,
+configured pricing, availability checking, or integrated accounting.
 \end{tryit}
 
 \begin{quickcheck}
@@ -191,10 +312,10 @@ Take the old Fitter Snacker process and label every point where information is c
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item The sales order process spans quotation, order, fulfilment, billing, payment, and sometimes returns.
-  \item Fitter Snacker's disconnected systems cause stale credit data, pricing errors, repeated customer questions, missed dates, and manual reconciliation.
-  \item ERP links the commercial, physical, and financial views of the same order.
-  \item Order-to-cash is complete only when fulfilment and settlement are visible across functions.
-  \item Odoo expresses integration through linked records, smart buttons, and document states.
+  \item The sales order process spans quotation, order, fulfilment, billing, payment, and returns, with a different owner at almost every step (\figref{fig:order-to-cash-lanes}).
+  \item Fitter Snacker's problems all come from one cause: separate copies of the same order (\figref{fig:fitter-snacker-silos}).
+  \item Most of an unintegrated order's elapsed time is waiting, not work (\figref{fig:fitter-timeline}).
+  \item ERP value comes from lineage --- each document inherits its data from the one before (\figref{fig:document-lineage}).
+  \item Document states decide which actions are available, which makes troubleshooting a backwards walk (\figref{fig:document-states}).
 \end{itemize}
 \end{chapterrecap}

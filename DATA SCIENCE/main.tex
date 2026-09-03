@@ -18,6 +18,32 @@
 % ---------- boxes used only in this book ----------
 \utpnewquietbox{referencebox}{UTPMuted!58}{UTPMuted}{Reference note}
 
+% Expand the one-page Learning Path while preserving its generous stage
+% breaks and keeping each lab visually associated with its theory chapter.
+\newcommand{\dsfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforechapskip}{0.45em}%
+  \setlength{\cftbeforelabskip}{0.40em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\dsfullpagetoc}{}{}
+
+% ---------- drawing support used only in this book ----------
+% pgfplots libraries, the structure-diagram vocabulary, and the search
+% path for the generated charts in figures/.
+\input{dsfigures}
+
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter

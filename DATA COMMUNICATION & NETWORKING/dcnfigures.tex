@@ -1,0 +1,266 @@
+% =====================================================================
+%  dcnfigures.tex
+%  Drawing vocabulary for the Data Communication & Networking notes.
+%
+%  Loaded from main.tex after ../.shared/utpnotes. Everything here is
+%  prefixed dcn* or named for the thing it draws, so nothing collides
+%  with the shared styles or with another course.
+%
+%  CONTENTS
+%    1  Device and link styles      routers, switches, hosts, cabling
+%    2  Protocol field layouts      \protorow: header and frame maps
+%    3  Sequence diagrams           \seqactor, \seqmsg, \seqnote
+%    4  State machines              \statenode, \stateedge
+%    5  Stack and layer styles      encapsulation and OSI/TCP-IP columns
+% =====================================================================
+
+% ---------------------------------------------------------------------
+%  0.  COURSE-LOCAL ACCENTS
+% ---------------------------------------------------------------------
+%  The shared palette has no violet. These notes need a fifth accent to
+%  keep the application layer distinct from transport, network and link
+%  in the stack diagrams, so the course declares its own prefixed pair.
+
+\definecolor{DCNPurple}{HTML}{6B4FA0}
+\definecolor{DCNPalePurple}{HTML}{F0ECF9}
+\colorlet{UTPPurple}{DCNPurple}
+\colorlet{UTPPalePurple}{DCNPalePurple}
+
+% ---------------------------------------------------------------------
+%  1.  DEVICE AND LINK STYLES
+% ---------------------------------------------------------------------
+%  The network vocabulary: devices, links, and the state of a path.
+%  This used to sit in main.tex; it lives here so that every drawing
+%  style the book uses is in one file.
+
+\tikzset{
+  router/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=10mm,
+                 font=\bfseries\small\color{UTPNavy}},
+  switch/.style={rectangle,rounded corners=1mm,draw=UTPTeal,fill=UTPPaleTeal,
+                 minimum width=15mm,minimum height=8mm,
+                 font=\bfseries\small\color{UTPNavy}},
+  host/.style={rectangle,draw=UTPOrange,fill=UTPPaleOrange,
+               minimum width=15mm,minimum height=8mm,
+               font=\bfseries\small\color{UTPNavy}},
+  link/.style={thick,draw=UTPMuted},
+  netlabel/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
+  activepath/.style={very thick,draw=UTPGreen},
+  backuppath/.style={very thick,draw=UTPOrange,dashed},
+  deadpath/.style={very thick,draw=UTPRed,dash pattern=on 2pt off 2pt},
+  flowarrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPBlue},
+  vlanA/.style={rectangle,rounded corners=1mm,draw=UTPBlue,fill=UTPPaleBlue,
+                minimum width=13mm,minimum height=7mm,
+                font=\bfseries\scriptsize\color{UTPNavy}},
+  vlanB/.style={rectangle,rounded corners=1mm,draw=UTPOrange,fill=UTPPaleOrange,
+                minimum width=13mm,minimum height=7mm,
+                font=\bfseries\scriptsize\color{UTPNavy}},
+  frame/.style={rectangle,draw=UTPMuted,fill=white,minimum height=6mm,
+                font=\scriptsize\color{UTPInk}},
+}
+
+%  Added for the new diagrams: servers, clouds, port stubs, and the
+%  tinted region used to shade a broadcast domain or a VLAN.
+
+\tikzset{
+  server/.style={rectangle,rounded corners=0.8mm,draw=UTPPurple,fill=UTPPalePurple,
+                 minimum width=15mm,minimum height=9mm,
+                 font=\bfseries\small\color{UTPNavy}},
+  cloudnode/.style={cloud,cloud puffs=11,cloud puff arc=110,aspect=2.1,
+                    draw=UTPMuted,fill=UTPPaleGray,minimum width=22mm,
+                    minimum height=12mm,font=\scriptsize\color{UTPInk}},
+  portstub/.style={circle,draw=UTPMuted,fill=white,inner sep=0.7pt,
+                   font=\tiny\color{UTPMuted}},
+  bcastzone/.style={rounded corners=2mm,draw=UTPBlue!45,fill=UTPPaleBlue!60,
+                 dash pattern=on 3pt off 2pt},
+  bcastalt/.style={rounded corners=2mm,draw=UTPOrange!55,fill=UTPPaleOrange!70,
+                    dash pattern=on 3pt off 2pt},
+  bcasttag/.style={font=\bfseries\scriptsize\color{UTPNavy},inner sep=1.5pt},
+  costlabel/.style={font=\scriptsize\bfseries\color{UTPTeal},inner sep=1pt,
+                    fill=white,rounded corners=0.5mm},
+  % A caption line under a diagram, narrower than the text block.
+  figcap/.style={font=\scriptsize\color{UTPMuted},align=center},
+}
+
+% A short explanatory line under a figure, inside the frame.
+\newcommand{\fignote}[1]{\par\smallskip{\scriptsize\color{UTPMuted}#1\par}}
+
+% ---------------------------------------------------------------------
+%  2.  PROTOCOL FIELD LAYOUTS
+% ---------------------------------------------------------------------
+%  \protorow{y}{unit}{w/label/style, w/label/style, ...}
+%
+%  Draws one row of a header map starting at x=0, running right. Each
+%  entry is a width in units, the text in the cell, and a style key.
+%  The widths are proportional, so a 6-byte MAC address next to a
+%  2-byte EtherType reads as three times the size on the page.
+%
+%      \protorow{0}{0.42}{6/Destination MAC/hdrb, 6/Source MAC/hdrb,
+%                         2/Type/hdro, 4/FCS/hdrg}
+%
+%  Styles: hdrb blue, hdro orange, hdrg green, hdrm muted, hdrr red.
+
+\tikzset{
+  hdrbase/.style={draw=UTPNavy!55,minimum height=8mm,align=center,
+                  font=\scriptsize\color{UTPNavy},inner sep=1pt,anchor=west},
+  hdrb/.style={hdrbase,fill=UTPPaleBlue},
+  hdro/.style={hdrbase,fill=UTPPaleOrange},
+  hdrg/.style={hdrbase,fill=UTPPaleTeal},
+  hdrm/.style={hdrbase,fill=UTPPaleGray},
+  hdrr/.style={hdrbase,fill=UTPPaleRed},
+  hdrpay/.style={hdrbase,fill=white,draw=UTPMuted!55,
+                 font=\scriptsize\itshape\color{UTPMuted}},
+  hdrtick/.style={font=\tiny\color{UTPMuted},inner sep=1pt},
+}
+
+\newcommand{\protorow}[3]{%
+  \xdef\dcnx{0}%
+  \foreach \w/\lab/\st in {#3} {%
+    \pgfmathsetmacro{\cw}{\w*#2}%
+    \node[\st,minimum width=\cw cm] at (\dcnx,#1) {\lab};%
+    \pgfmathsetmacro{\nx}{\dcnx+\cw}%
+    \xdef\dcnx{\nx}%
+  }%
+  \xdef\dcnrowend{\dcnx}%
+}
+
+% \prototicks{y}{unit}{w/label, w/label, ...}
+% Byte-count ticks under a row drawn by \protorow, same widths.
+\newcommand{\prototicks}[3]{%
+  \xdef\dcnx{0}%
+  \foreach \w/\lab in {#3} {%
+    \pgfmathsetmacro{\cw}{\w*#2}%
+    \pgfmathsetmacro{\cx}{\dcnx+\cw/2}%
+    \node[hdrtick] at (\cx,#1) {\lab};%
+    \pgfmathsetmacro{\nx}{\dcnx+\cw}%
+    \xdef\dcnx{\nx}%
+  }%
+}
+
+% ---------------------------------------------------------------------
+%  3.  SEQUENCE DIAGRAMS
+% ---------------------------------------------------------------------
+%  Time runs downwards. Declare the actors, then the messages between
+%  them. Coordinates are in centimetres; y is negative going down.
+%
+%      \begin{tikzpicture}
+%        \seqactor{c}{0}{Client}{host}
+%        \seqactor{s}{6}{Server}{server}
+%        \seqlife{c}{-5.4}  \seqlife{s}{-5.4}
+%        \seqmsg{c}{s}{-1.2}{SYN}{solid}
+%        \seqmsg{s}{c}{-2.0}{SYN, ACK}{solid}
+%      \end{tikzpicture}
+%
+%  \seqactor{id}{x}{label}{style}  places a head at the top of a column
+%  \seqlife{id}{ybottom}           drops the dashed lifeline
+%  \seqmsg{from}{to}{y}{label}{solid|dashed|drop}
+%  \seqnote{x}{y}{width}{text}     a muted annotation beside the flow
+
+\tikzset{
+  seqhead/.style={rectangle,rounded corners=1mm,draw=UTPNavy,fill=white,
+                  minimum width=17mm,minimum height=7mm,
+                  font=\bfseries\scriptsize\color{UTPNavy}},
+  seqline/.style={draw=UTPMuted!60,dash pattern=on 2pt off 2pt},
+  seqarrow/.style={-{Stealth[length=2mm]},semithick,draw=UTPBlue},
+  seqarrowb/.style={-{Stealth[length=2mm]},semithick,draw=UTPTeal},
+  seqdrop/.style={-{Stealth[length=2mm]},semithick,draw=UTPRed,
+                  dash pattern=on 2.5pt off 1.5pt},
+  % A message that arrives normally but carries something it should not.
+  % Kept solid so it is not confused with seqdrop, which means "lost".
+  seqrisk/.style={-{Stealth[length=2mm]},semithick,draw=UTPRed},
+  seqlabel/.style={font=\scriptsize\color{UTPInk},fill=white,inner sep=1.5pt},
+  seqnotebox/.style={font=\scriptsize\color{UTPMuted},align=left,inner sep=1pt},
+  seqspan/.style={draw=UTPTeal,fill=UTPPaleTeal,minimum width=2.6mm,
+                  inner sep=0pt},
+}
+
+\newcommand{\seqactor}[4]{\node[seqhead,#4] (#1) at (#2,0) {#3};}
+\newcommand{\seqlife}[2]{\draw[seqline] (#1.south) -- ($(#1.south)+(0,#2)$);}
+\newcommand{\seqmsg}[5]{%
+  \draw[seq#5] ($(#1.south)+(0,#3)$) -- node[seqlabel]{#4} ($(#2.south)+(0,#3)$);}
+\newcommand{\seqnote}[4]{\node[seqnotebox,text width=#3,anchor=west] at (#1,#2) {#4};}
+
+% Convenience wrappers so a call site reads as the arrow it draws.
+\newcommand{\seqreq}[4]{\seqmsg{#1}{#2}{#3}{#4}{arrow}}
+\newcommand{\seqrep}[4]{\seqmsg{#1}{#2}{#3}{#4}{arrowb}}
+\newcommand{\seqlost}[4]{\seqmsg{#1}{#2}{#3}{#4}{drop}}
+
+% ---------------------------------------------------------------------
+%  4.  STATE MACHINES
+% ---------------------------------------------------------------------
+%  Used for the OSPF neighbour states and the PPP session phases.
+
+\tikzset{
+  state/.style={rectangle,rounded corners=1.6mm,draw=UTPBlue,fill=UTPPaleBlue,
+                minimum width=17mm,minimum height=7.5mm,
+                font=\bfseries\scriptsize\color{UTPNavy}},
+  stategood/.style={state,draw=UTPGreen,fill=UTPPaleTeal,line width=1pt},
+  statebad/.style={state,draw=UTPRed,fill=UTPPaleRed},
+  statewait/.style={state,draw=UTPOrange,fill=UTPPaleOrange},
+  stedge/.style={-{Stealth[length=2mm]},semithick,draw=UTPMuted},
+  stlabel/.style={font=\tiny\color{UTPMuted},align=center,inner sep=1.5pt},
+}
+
+% ---------------------------------------------------------------------
+%  6.  VRP TERMINAL OUTPUT
+% ---------------------------------------------------------------------
+%  Real output from an eNSP device, typeset rather than screenshotted.
+%  The command that produced it becomes the box title, so a reader can
+%  reproduce the output before comparing it.
+%
+%      \begin{vrpbox}{<R2> display ip routing-table}
+%      ...80 columns of output...
+%      \end{vrpbox}
+%
+%  Inside the box, (* ... *) escapes back to LaTeX, which is how the
+%  interesting fields get highlighted:
+%
+%      10.0.3.0/24  (*\hi{OSPF}*)  10  2  D  10.0.23.3
+%
+%  \hi highlights, \dimline greys a line that is present but not the
+%  point of the example.
+
+\tcbuselibrary{listings}
+
+\newtcolorbox{vrpbox}[1]{enhanced,breakable,colback=white,colframe=UTPNavy!65,
+  boxrule=0.7pt,arc=1.2mm,left=1.6mm,right=1.6mm,top=1.4mm,bottom=1.4mm,
+  fonttitle=\ttfamily\scriptsize\color{white},colbacktitle=UTPNavy!88,
+  title={#1},before skip=0.8em,after skip=0.9em}
+
+\lstdefinestyle{dcnvrp}{
+  basicstyle=\ttfamily\scriptsize\color{UTPInk},
+  backgroundcolor=\color{white},
+  frame=none,
+  aboveskip=0pt, belowskip=0pt,
+  breaklines=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  escapeinside={(*}{*)},
+}
+
+\newcommand{\hi}[1]{\textbf{\color{UTPBlue}#1}}
+\newcommand{\higreen}[1]{\textbf{\color{UTPGreen}#1}}
+\newcommand{\hired}[1]{\textbf{\color{UTPRed}#1}}
+\newcommand{\dimline}[1]{{\color{UTPMuted!75}#1}}
+
+% A short "what to look at" line under a transcript.
+\newcommand{\vrpread}[1]{\par\vspace{-0.25em}{\footnotesize\color{UTPMuted}%
+  \textbf{Read:} #1\par}\vspace{0.35em}}
+
+% ---------------------------------------------------------------------
+%  5.  STACK AND LAYER STYLES
+% ---------------------------------------------------------------------
+%  The OSI / TCP-IP columns and the encapsulation ladder.
+
+\tikzset{
+  layer/.style={rectangle,draw=UTPNavy!45,minimum width=34mm,minimum height=8mm,
+                font=\small\color{UTPNavy},inner sep=2pt},
+  layerapp/.style={layer,fill=UTPPalePurple},
+  layertra/.style={layer,fill=UTPPaleTeal},
+  layernet/.style={layer,fill=UTPPaleBlue},
+  layerlnk/.style={layer,fill=UTPPaleOrange},
+  layerphy/.style={layer,fill=UTPPaleGray},
+  pdu/.style={font=\scriptsize\bfseries\color{UTPTeal},inner sep=1pt},
+  layernum/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
+}

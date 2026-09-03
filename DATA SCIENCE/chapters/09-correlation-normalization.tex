@@ -17,7 +17,15 @@ result <- cor(x, y, method = "pearson")
 cat("Pearson correlation coefficient is:", result)
 \end{lstlisting}
 
-The coefficient summarizes their linear association from -1 to 1.
+The coefficient summarizes their linear association from $-1$ to $1$. That
+range is easier to read once you have seen what each value looks like.
+
+\begin{utpfig}[What r looks like]{Forty points at five correlation strengths.
+$r$ measures how tightly the cloud hugs a straight line, and its sign gives the
+direction. It says nothing about the slope: a steep line and a shallow one can
+both have $r = 0.95$.}{fig:corr-gallery}
+\input{figures/09-corr-gallery}
+\end{utpfig}
 
 \section{Pearson correlation with \texttt{cor.test()}}
 
@@ -33,6 +41,25 @@ Its output includes the estimate, test statistic, p-value, and confidence interv
 \begin{pitfall}
 Correlation measures association, not causation. Inspect the data and assumptions before interpreting the coefficient or p-value.
 \end{pitfall}
+
+\subsection{Why the coefficient is not enough on its own}
+Anscombe's quartet is four small datasets built so that the mean, variance,
+regression line, and correlation are the same in all four. Only a plot
+separates them.
+
+\begin{utpfig}[Anscombe's quartet]{Four datasets with identical summary
+statistics: $r = 0.82$ and the same fitted line in every panel. Set 1 is a
+genuine linear relationship. Set 2 is a curve. Set 3 is a perfect line plus
+one outlier. Set 4 has no relationship at all --- a single point at $x = 19$
+manufactures the whole correlation.}{fig:anscombe}
+\input{figures/09-anscombe}
+\end{utpfig}
+
+\begin{keyidea}
+Plot before you report. \texttt{cor()} returns a number for any two numeric
+vectors, including the three above where the number is misleading. A
+scatterplot costs one line and rules out all three failures at once.
+\end{keyidea}
 
 \section{Correlation matrix with \texttt{corrplot}}
 
@@ -157,6 +184,30 @@ print(scaled_data)
 \end{lstlisting}
 
 Log transformation compresses large values and can reduce right skew; it does not constrain values to a fixed range.
+
+The three methods in this chapter are easiest to compare on the same ten
+numbers, plotted side by side.
+
+\begin{utpfig}[Three scalings compared]{The same ten values under each
+transformation. The shape of the cloud is unchanged by \texttt{scale()} and
+min--max --- only the axis labels move. \texttt{log()} is the one that alters
+the spacing between points, which is why it is the only one of the three that
+can change the outcome of a later correlation.}{fig:scaling}
+\input{figures/09-scaling}
+\end{utpfig}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}p{2.5cm}p{2.9cm}X@{}}
+\toprule
+\rowcolor{DSPaleBlue!92}
+Method & Output range & Use it when \\
+\midrule
+\texttt{log()} & unbounded & values span orders of magnitude or are right-skewed \\
+\texttt{scale()} & mean 0, sd 1 & comparing variables measured in different units \\
+min--max & 0 to 1 & an algorithm needs a bounded input \\
+\bottomrule
+\end{tabularx}
+\end{center}
 
 \section{Standardization}
 

@@ -4,20 +4,22 @@ The labs progress from packet observation to device configuration, routing, serv
 
 \begin{center}
 \begin{tikzpicture}[node distance=8mm,stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=13cm,minimum height=1.45cm,align=left,inner sep=3mm,font=\small\color{MLNavy}},arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}]
-\node[stage] (a) {\textbf{Stage 1 -- Observe and configure: Labs 1--2}\\Wireshark captures, eNSP topology building, VRP navigation, interface addressing, verification, and saving.};
+\node[stage,draw=MLMuted,fill=MLPaleGray] (z) {\textbf{Reference -- Foundations}\\Layers, encapsulation, the three kinds of address, and the Ethernet and IPv4 header maps. Read once, then return to it whenever a later lab names a layer.};
+\node[stage,below=of z] (a) {\textbf{Stage 1 -- Observe and configure: Labs 1--2}\\Wireshark captures, eNSP topology building, VRP navigation, interface addressing, verification, and saving.};
 \node[stage,below=of a] (b) {\textbf{Stage 2 -- Make networks reachable: Labs 3--4}\\Static and backup routes, single-area OSPF, routing tables, neighbors, and connectivity tests.};
 \node[stage,below=of b] (c) {\textbf{Stage 3 -- Add network services: Labs 5--6}\\FTP with AAA authorization; DHCP global and interface pools, leases, and DNS options.};
 \node[stage,below=of c] (d) {\textbf{Stage 4 -- Build the switched LAN: Labs 7--8}\\Manual aggregation, LACP priorities, VLAN port types, PVIDs, and isolation tests.};
 \node[stage,below=of d] (e) {\textbf{Stage 5 -- Connect sites across a WAN: Lab 9}\\HDLC, PPP, DCE clocking, OSPF, PAP/CHAP authentication, and debugging.};
 \node[stage,below=of e,draw=MLGreen,fill=MLPaleTeal] (f) {\textbf{Group project -- Integrate and explain}\\Build and demonstrate an eNSP network, justify protocol choices, explain forwarding, and report the evidence.};
-\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);\draw[arr] (d)--(e);\draw[arr] (e)--(f);
+\draw[arr] (z)--(a);\draw[arr] (a)--(b);\draw[arr] (b)--(c);\draw[arr] (c)--(d);\draw[arr] (d)--(e);\draw[arr] (e)--(f);
 \end{tikzpicture}
 \end{center}
 
 \section*{How to use these notes}
 Each chapter presents the source material in four forms:
 \begin{itemize}
-\item \textbf{Source visuals} show key topologies, interfaces, and protocols.
+\item \textbf{Source visuals} show key topologies, interfaces, and protocols as the course slides present them.
+\item \textbf{Numbered figures} are drawn for these notes: protocol header maps, message sequences, and state machines.
 \item \textbf{Command blocks} preserve the Huawei VRP configuration sequence.
 \item \textbf{Verification evidence} identifies the state, capture, or test that proves success.
 \item \textbf{Troubleshooting order} provides a repeatable diagnostic workflow.

@@ -6,44 +6,79 @@
   {explain the production-planning hierarchy, distinguish common production approaches, connect forecasts to capacity and inventory decisions, and explain the role of a bill of materials and manufacturing order.}
 
 \begin{sourcebasis}
-This chapter follows Tutorial 3 (Production Planning) and Chapter 4 of the textbook. The tutorial asks students to select a production-planning approach, calculate a sales forecast, and prepare an S\&OP plan. The Odoo build guide provides the Road Bike bill of materials and manufacturing workflow used in the practical.
+This chapter follows Tutorial 3 (Production Planning) and Chapter 4 of the
+textbook. The tutorial asks students to select a production-planning approach,
+calculate a sales forecast, and prepare an S\&OP plan. The Odoo build guide
+provides the Road Bike bill of materials and manufacturing workflow.
 \end{sourcebasis}
 
 \section{What production planning is trying to decide}
 
-Production planning coordinates demand, inventory, materials, capacity, and time. The planner must answer several linked questions:
+Production planning coordinates demand, inventory, materials, capacity, and
+time. The planner works down a hierarchy in which each level fixes a decision
+the level below must respect, and each level covers a shorter horizon in
+finer detail.
 
-\begin{itemize}
-  \item What do we expect customers to want?
-  \item How much finished-goods inventory do we already have?
-  \item How much should we produce in each period?
-  \item Do we have enough labour and equipment capacity?
-  \item Which raw materials are required, in what quantities, and by what dates?
-  \item When should each product be manufactured?
-\end{itemize}
-
-The textbook organises this into a planning hierarchy.
-
-\begin{erpfigure}
-\begin{tikzpicture}[
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.3cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  side/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=3.3cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.4cm
-]
-\node[box] (f) {Sales forecast};
-\node[box,below=of f] (sop) {Sales \& Operations Planning};
-\node[box,below=of sop] (dm) {Demand management};
-\node[box,below left=0.55cm and 0.55cm of dm] (sched) {Detailed scheduling};
-\node[box,below right=0.55cm and 0.55cm of dm] (mrp) {MRP};
-\node[side,below=of sched] (prod) {Production};
-\node[side,below=of mrp] (purch) {Purchasing};
-\draw[arr] (f)--(sop); \draw[arr] (sop)--(dm); \draw[arr] (dm)--(sched); \draw[arr] (dm)--(mrp); \draw[arr] (sched)--(prod); \draw[arr] (mrp)--(purch);
+\begin{erpfig}[The planning hierarchy]{The planning hierarchy read as a pyramid.
+Moving down, the horizon shortens and the detail sharpens: a yearly forecast for
+a product family becomes a daily instruction for one
+product.}{fig:planning-hierarchy}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \i/\lvl/\q/\h/\d in {%
+  0/{Sales forecast}/{What will customers want?}/{12 months}/{product family},
+  1/{Sales \& Operations Planning}/{How much can we make, and when?}/{monthly}/{product family},
+  2/{Demand management}/{How much of each product, each week?}/{weekly}/{single product},
+  3/{Detailed scheduling}/{Which product runs on which day?}/{daily}/{one run}}{
+  \pgfmathsetmacro{\y}{-\i*1.12}
+  \pgfmathsetmacro{\w}{10.6-\i*0.9}
+  \pgfmathsetmacro{\tw}{\w-0.55}
+  \node[erpstep,minimum width=\w cm,minimum height=0.9cm,text width=\tw cm] (p\i) at (6.0,\y)
+    {\lvl\ --- \emph{\q}};
+  \node[erpchip,anchor=west] at (11.6,\y) {\h};
+  \node[erpnote,anchor=west,text width=2.3cm] at (13.5,\y) {\d};}
+\foreach \i in {0,...,2}{\pgfmathtruncatemacro{\j}{\i+1}\draw[erpflow] (p\i)--(p\j);}
+\node[erpgood,minimum width=3.3cm,minimum height=0.8cm] (prod) at (3.5,-4.6) {Production};
+\node[erpgood,minimum width=3.3cm,minimum height=0.8cm] (mrp)  at (8.5,-4.6) {MRP $\rightarrow$ Purchasing};
+\draw[erpflow] (p3.south) -- ++(0,-0.28) -| (prod.north);
+\draw[erpflow] (p3.south) -- ++(0,-0.28) -| (mrp.north);
+\node[erpcap,anchor=west] at (11.6,0.78) {\bfseries horizon};
+\node[erpcap,anchor=west] at (13.5,0.78) {\bfseries detail};
 \end{tikzpicture}
-\end{erpfigure}
+\end{erpfig}
 
 \section{Production approaches}
 
-The tutorial asks students to choose one production-planning approach for a business venture and understand the alternatives. In introductory ERP courses, the most useful distinction is based on when production happens relative to customer demand.
+The most useful distinction is \emph{when} production happens relative to the
+customer order. The point where the customer's order first touches the process
+is called the decoupling point: everything upstream of it is driven by forecast,
+everything downstream by a real order.
+
+\begin{erpfig}[Where the customer order enters]{The same four activities, three
+strategies. The orange marker is the decoupling point: work to its left is driven
+by forecast, work to its right by a real order. Moving it left cuts inventory
+risk and lengthens the customer's wait.}{fig:decoupling-point}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \x/\t in {2.0/Design, 5.0/{Buy parts}, 8.0/Manufacture, 11.0/{Ship to customer}}{
+  \node[erpcap] at (\x,3.05) {\bfseries \t};}
+\foreach \i/\nm/\k in {0/{Make-to-stock}/4, 1/{Make-to-order}/3, 2/{Engineer-to-order}/1}{
+  \pgfmathsetmacro{\y}{2.2-\i*1.55}
+  \node[erpcap,anchor=east,align=right,text width=1.95cm] at (0.35,\y) {\bfseries \nm};
+  \foreach \s in {1,2,3,4}{
+    \pgfmathsetmacro{\x}{-1.0+\s*3.0}
+    \ifnum\s<\k
+      \node[erpquiet,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {forecast};
+    \else
+      \node[erpgood,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {customer order};
+    \fi}
+  \pgfmathsetmacro{\dx}{-1.0+\k*3.0-1.5}
+  \draw[draw=UTPOrange,line width=1.3pt] (\dx,\y-0.52) -- (\dx,\y+0.52);
+  \node[erpchipwarn,anchor=north] at (\dx,\y-0.6) {order enters here};}
+\node[erpnote,anchor=west,text width=12.6cm,align=left] at (-0.3,-2.55)
+  {\emph{Left} of the marker the company is guessing and carrying inventory risk.
+   \emph{Right} of it the customer is waiting. West End Bicycles uses
+   make-to-stock: Road Bikes are built before the customer order is delivered.};
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.21\linewidth}p{0.31\linewidth}X@{}}
@@ -58,120 +93,237 @@ Engineer/configure-to-order & Design or configure significant product details af
 \end{tabularx}
 \end{erptable}
 
-The supplied West End Bicycles Odoo guide explicitly uses \term{make-to-stock}: Road Bikes are manufactured before the customer order is delivered. That is why raw materials are purchased and 5 bikes are manufactured before the delivery is validated.
-
 \section{Sales forecasting}
 
-A \term{sales forecast} is an estimate of future demand. It is not a promise and it is not the same as a confirmed order. Forecasts are needed because supply decisions often require lead time.
+A \term{sales forecast} estimates future demand. It is neither a promise nor a
+confirmed order. Forecasts are needed because supply decisions require lead time.
 
-The textbook demonstrates a simple approach that begins with the previous year's demand, removes the unusual effect of the previous year's promotion, applies expected underlying growth, and then adds the expected effect of this year's promotion.
+The textbook's approach starts from last year's demand, removes the unusual
+effect of last year's promotion, applies expected underlying growth, then adds
+this year's planned promotion.
 
-For month $t$:
+\begin{erpfig}[Building one month's forecast]{The four-step adjustment for a
+single month. Skipping the first step would treat a one-off promotion as
+permanent base demand and inflate every later
+number.}{fig:forecast-build}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \i/\lbl/\val/\c in {%
+  0/{Last year's sales}/{5,500}/UTPMuted,
+  1/{$-$ last year's promotion}/{$-$ 200}/UTPRed,
+  2/{$=$ base demand}/{5,300}/UTPBlue,
+  3/{$\times\,(1+g)$, $g=3\%$}/{$+$ 159}/UTPGreen,
+  4/{$=$ base projection}/{5,459}/UTPBlue,
+  5/{$+$ this year's promotion}/{$+$ 0}/UTPGreen,
+  6/{$=$ forecast}/{5,459}/UTPGreen}{
+  \pgfmathsetmacro{\y}{-\i*0.78}
+  \node[erpdoc,anchor=west,minimum width=7.4cm,text width=7.0cm,align=left,
+        minimum height=0.66cm,draw=\c!65] (b\i) at (1.6,\y) {\lbl};
+  \node[erpchip,anchor=west,text width=1.5cm,align=center] at (9.3,\y) {\val};}
+\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-0.4) {\bfseries remove\\ the one-off};
+\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-2.75) {\bfseries grow the\\ base};
+\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-4.5) {\bfseries add the\\ new plan};
+\node[erpnote,anchor=west,text width=4.0cm] at (11.2,-2.35)
+  {June for Footloose Sport Shoes: no promotion is planned this June, so the
+   forecast equals the grown base.};
+\end{tikzpicture}
+\end{erpfig}
+
+For month $t$, with expected growth rate $g$:
 
 \[
-\text{Previous-year base}_t
-= \text{Previous-year sales}_t - \text{Previous promotion}_t
+\text{Base}_t = \text{Prev.\ sales}_t - \text{Prev.\ promo}_t,
+\qquad
+\text{Forecast}_t = \text{Base}_t(1+g) + \text{New promo}_t.
 \]
-
-\[
-\text{Base projection}_t
-= \text{Previous-year base}_t(1+g)
-\]
-
-\[
-\text{Forecast}_t
-= \text{Base projection}_t + \text{Current promotion}_t
-\]
-
-where $g$ is the expected growth rate.
 
 \begin{keyidea}
-Forecasting should separate the underlying demand pattern from one-off causes. If last year's promotion temporarily increased sales, simply multiplying the total by a growth rate would treat the temporary promotion as permanent base demand.
+Forecasting must separate the underlying demand pattern from one-off causes.
+Multiplying a promotion-inflated total by a growth rate compounds the error every
+year.
 \end{keyidea}
 
 \section{Sales and Operations Planning}
 
-\term{Sales and Operations Planning (S\&OP)} converts the demand forecast into a feasible aggregate production plan. The main balancing relationship is:
+\term{Sales and Operations Planning (S\&OP)} turns the forecast into a feasible
+aggregate production plan. Inventory is the buffer that lets production differ
+from demand in any single month.
+
+\begin{erpfig}[The inventory balance]{S\&OP as a tank. Production fills it,
+demand drains it, and the level at the end of the month is the level at the
+start of the next. Capacity limits how fast the inlet can
+run.}{fig:sop-balance}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPBlue,fill=UTPPaleBlue!55,rounded corners=1.5mm] (5.0,-0.2) rectangle (9.6,2.4);
+\draw[draw=UTPBlue!35,fill=UTPPaleBlue] (5.05,-0.15) rectangle (9.55,1.15);
+\node[erphead] at (7.3,0.5) {Inventory};
+\node[erpnote] at (7.3,1.75) {level at month end};
+\node[erpstep,minimum width=3.0cm,minimum height=0.9cm] (prod) at (1.4,2.4)
+  {Production $P_t$\\\tiny\mdseries what we choose to make};
+\node[erpgood,minimum width=3.0cm,minimum height=0.9cm] (dem) at (13.2,2.4)
+  {Demand $F_t$\\\tiny\mdseries what customers take};
+\draw[erpflow] (prod.east) -- (5.0,2.4) -- (5.0,1.6);
+\draw[erpflow] (9.6,1.6) -- (9.6,2.4) -- (dem.west);
+\node[erpwarn,minimum width=3.0cm,minimum height=0.8cm] (cap) at (1.4,0.6)
+  {Capacity $C_t$\\\tiny\mdseries the ceiling on $P_t$};
+\draw[erpslow] (cap.north) -- (prod.south);
+\node[erpstore,minimum width=6.6cm,minimum height=0.85cm,draw=UTPNavy,fill=UTPNavy!7]
+  at (7.3,-1.35) {$I_t = I_{t-1} + P_t - F_t$};
+\node[erpnote,anchor=west,text width=3.6cm] at (10.6,0.5)
+  {a positive balance is the buffer carried into next month};
+\end{tikzpicture}
+\end{erpfig}
+
+A feasible plan must respect capacity:
 
 \[
-\text{Ending Inventory}_t
-= \text{Beginning Inventory}_t + \text{Production}_t - \text{Sales}_t
+C_t = r \times h \times D_t,
+\qquad
+U_t = \frac{P_t}{C_t}\times 100\%,
 \]
 
-The planner may deliberately produce more than the forecast in one month to build inventory before a peak, or produce less than the forecast while drawing down inventory built earlier.
-
-A feasible plan must also respect capacity:
-
-\[
-\text{Capacity}_t = \text{Rate per hour} \times \text{Hours per day} \times \text{Working days}_t
-\]
-
-\[
-\text{Utilization}_t = \frac{\text{Production Plan}_t}{\text{Capacity}_t}\times 100\%
-\]
-
-The production plan therefore balances three competing concerns: customer demand, inventory, and capacity.
+where $r$ is the production rate, $h$ the hours per day, and $D_t$ the working
+days in the month. The plan therefore balances three competing pressures:
+customer demand, inventory holding, and capacity.
 
 \section{Demand management and detailed scheduling}
 
-S\&OP is intentionally aggregate. The next step, \term{demand management}, breaks the aggregate plan into individual products and smaller time periods. A monthly production target might become weekly or daily requirements for Road Bikes, Mountain Bikes, and City Bikes.
-
-\term{Detailed scheduling} then decides exactly when production runs occur. In repetitive environments, longer runs reduce setup/changeover frequency but can increase finished-goods inventory. Shorter runs can reduce inventory but consume more capacity in setup time.
+S\&OP is deliberately aggregate. \term{Demand management} breaks the aggregate
+plan into individual products and shorter periods; \term{detailed scheduling}
+then fixes the actual runs. Longer runs reduce changeovers but raise inventory;
+shorter runs cut inventory but spend capacity on setup.
 
 \begin{intuition}
-S\&OP decides ``how much should the factory produce this month?'' Detailed scheduling decides ``which product runs on which day, and in what sequence?''
+S\&OP decides ``how much should the factory produce this month?'' Detailed
+scheduling decides ``which product runs on which day, in what sequence?''
 \end{intuition}
 
 \section{The bill of materials connects planning to materials}
 
-A \term{bill of materials (BOM)} is the product recipe: a structured list of components and quantities needed to make the finished product. The supplied Road Bike BOM is simple:
+A \term{bill of materials (BOM)} is the product recipe: the components and
+quantities needed to make one finished unit. It is what converts a production
+quantity into a purchasing requirement.
 
-\begin{erptable}
-\begin{tabularx}{0.72\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}Xr@{}}
-\toprule
-\rowcolor{ERPPaleBlue!92}
-Component & Quantity per Road Bike \\
-\midrule
-Aluminium Frame & 1 \\
-Rubber Tires & 2 \\
-Brake Set & 1 \\
-Gear Set & 1 \\
-Bicycle Chain & 1 \\
-\bottomrule
-\end{tabularx}
-\end{erptable}
+\begin{erpfig}[The Road Bike bill of materials]{The supplied BOM, drawn as the
+tree it actually is. The right-hand column shows the same structure multiplied
+out for the manufacturing order of 5 bikes used throughout the
+practicals.}{fig:road-bike-bom}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpstep,minimum width=3.4cm,minimum height=0.95cm,draw=UTPGreen,fill=UTPPaleTeal]
+  (top) at (3.2,2.6) {Road Bike\\\tiny\mdseries 1 finished unit};
+\foreach \i/\c/\q in {0/{Aluminium Frame}/1, 1/{Rubber Tires}/2, 2/{Brake Set}/1,
+                      3/{Gear Set}/1, 4/{Bicycle Chain}/1}{
+  \pgfmathsetmacro{\y}{1.0-\i*0.82}
+  \node[erpdoc,anchor=west,minimum width=3.4cm,text width=3.0cm,align=left,
+        minimum height=0.68cm] (c\i) at (2.6,\y) {\c};
+  \node[erpchip,anchor=west] at (6.2,\y) {$\times\,\q$};
+  \draw[erplink] (1.5,2.15) |- (c\i.west);}
+\draw[erplink] (1.5,2.15) -- (1.5,-2.28);
+\node[erpcap,anchor=west,color=UTPMuted] at (0.2,-0.1) {\bfseries per unit};
+% multiplied out
+\draw[draw=UTPBlue!35,fill=UTPPaleBlue!40,rounded corners=2.5mm] (8.4,-2.72) rectangle (14.6,3.25);
+\node[erpcap,color=UTPBlue] at (11.5,2.95) {\bfseries for a Manufacturing Order of 5};
+\node[erpstep,minimum width=4.2cm,minimum height=0.8cm,draw=UTPGreen,fill=UTPPaleTeal]
+  at (11.5,2.2) {5 Road Bikes produced};
+\foreach \i/\c/\q in {0/{Aluminium Frame}/5, 1/{Rubber Tires}/10, 2/{Brake Set}/5,
+                      3/{Gear Set}/5, 4/{Bicycle Chain}/5}{
+  \pgfmathsetmacro{\y}{1.0-\i*0.82}
+  \node[erpdoc,anchor=west,minimum width=3.2cm,text width=2.8cm,align=left,
+        minimum height=0.68cm] at (8.8,\y) {\c};
+  \node[erpchipwarn,anchor=west] at (12.2,\y) {$-\,\q$ from stock};}
+\node[erpnote,anchor=north,text width=12.4cm] at (7.4,-3.05)
+  {Completing the Manufacturing Order consumes the components on the left and
+   creates the finished bikes on the right --- one event, two stock effects.};
+\end{tikzpicture}
+\end{erpfig}
 
-For 5 Road Bikes, the gross component requirement is therefore 5 frames, 10 tyres, 5 brake sets, 5 gear sets, and 5 chains. MRP later extends this simple multiplication by considering inventory, scheduled receipts, lot sizes, and lead times.
+MRP later extends this multiplication by considering inventory, scheduled
+receipts, lot sizes, and lead times.
 
 \section{Manufacturing orders execute the plan}
 
-A plan says what should happen. A \term{manufacturing order (MO)} is the operational instruction to produce a specific quantity. In an integrated ERP system, completing the MO changes inventory: component quantities decrease and finished-goods quantities increase.
+A plan says what should happen. A \term{manufacturing order (MO)} is the
+instruction to produce a specific quantity. In an integrated system, completing
+the MO is a stock event, not just a status change.
+
+\begin{erpfig}[What completing an MO does to stock]{Before and after the
+Manufacturing Order for 5 Road Bikes. This before/after pair is the evidence the
+labs ask you to capture, and the quickest way to prove the manufacturing event
+reached the shared inventory data.}{fig:mo-stock-change}
+\begin{tikzpicture}
+\begin{axis}[
+  width=13.6cm, height=5.4cm,
+  ybar=3pt, bar width=13pt,
+  ymin=0, ymax=32,
+  ylabel={units on hand},
+  symbolic x coords={Frame,Tires,Brake Set,Gear Set,Chain,Road Bike},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  enlarge x limits=0.11,
+  legend style={at={(0.5,1.17)},anchor=north,legend columns=2},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+  nodes near coords, every node near coord/.append style={font=\tiny\color{UTPMuted}},
+]
+\addplot[draw=UTPBlue,fill=UTPPaleBlue] coordinates
+  {(Frame,10) (Tires,20) (Brake Set,10) (Gear Set,10) (Chain,10) (Road Bike,0)};
+\addplot[draw=UTPGreen,fill=UTPPaleTeal] coordinates
+  {(Frame,5) (Tires,10) (Brake Set,5) (Gear Set,5) (Chain,5) (Road Bike,5)};
+\legend{before the MO, after the MO is marked Done}
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{odoobox}
-In the West End Bicycles guide:
-\begin{enumerate}
-  \item create a Road Bike BOM for one unit;
-  \item create a Manufacturing Order for 5 Road Bikes;
-  \item assign the Production Planner as responsible;
-  \item confirm the MO and ensure components are available;
-  \item produce and mark the MO Done;
-  \item verify that component stock fell and Road Bike on-hand stock rose to 5.
-\end{enumerate}
-This is the physical meaning of integration: production is not only a planning record; it changes the stock records used later by Sales and Delivery.
+In the West End Bicycles guide: create a Road Bike BOM for one unit; create a
+Manufacturing Order for 5; assign the Production Planner as responsible; confirm
+and check component availability; produce and mark the MO Done; then verify that
+component stock fell and Road Bike on-hand stock rose to 5.
 \end{odoobox}
 
 \section{Safety stock and the cost of uncertainty}
 
-\term{safety stock} is extra inventory held to reduce the risk of a stockout when demand or supply is uncertain. More safety stock increases service protection but also increases holding cost and cash tied up in inventory.
+\term{Safety stock} is extra inventory held to reduce the risk of a stockout
+when demand or supply is uncertain. More safety stock buys service protection
+and costs holding expense and tied-up cash --- and the exchange rate between the
+two is not linear.
 
-Forecast accuracy matters because a less accurate forecast generally requires a larger buffer to achieve the same service level. ERP does not eliminate uncertainty; it improves the information used to manage the uncertainty.
+\begin{erpfig}[Diminishing returns on safety stock]{Service level against safety
+stock for a representative demand distribution. The first units of buffer are
+cheap protection; the last few percent of service are very expensive, which is
+why 100\% service is almost never the target.}{fig:safety-stock-curve}
+\begin{tikzpicture}
+\begin{axis}[
+  width=12.8cm, height=5.6cm,
+  xlabel={safety stock held (units)}, ylabel={service level (\%)},
+  xmin=0, xmax=100, ymin=45, ymax=102,
+  ymajorgrids, grid style={draw=UTPMuted!22},
+  legend style={at={(0.99,0.03)},anchor=south east},
+]
+\addplot[draw=UTPBlue,smooth,domain=0:100,samples=80]
+  {50 + 50*(1-exp(-x/26))};
+\addlegendentry{service level achieved}
+\addplot[draw=UTPOrange,dashed,domain=0:100,samples=2] {95};
+\addlegendentry{95\% target}
+\draw[draw=UTPGreen,line width=1pt,dashed] (axis cs:78,45) -- (axis cs:78,95);
+\node[erpchip,anchor=west,font=\tiny] at (axis cs:16,72) {cheap protection};
+\node[erpchipwarn,anchor=east,font=\tiny] at (axis cs:76,62) {expensive last few \%};
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
+
+Forecast accuracy matters because a worse forecast needs a bigger buffer for the
+same service level. ERP does not remove uncertainty; it improves the information
+used to manage it.
 
 \begin{pitfall}
-High capacity utilisation is not always the same as good production planning. A factory can keep machines busy by producing goods that customers do not need, creating excess inventory. The objective is an economically sensible balance between demand, capacity, setup cost, and inventory cost.
+High capacity utilisation is not the same as good planning. A factory can keep
+machines busy producing goods nobody ordered. The objective is a sensible balance
+between demand, capacity, setup cost, and inventory cost.
 \end{pitfall}
 
 \begin{tryit}
-Choose one of the business ventures suggested in Tutorial 3---furniture, cookies, printing/personalised products, or your own idea. Decide whether make-to-stock, make-to-order, or a more customised approach fits best. Then explain what would go wrong if you used one of the other approaches instead.
+Choose one of the ventures suggested in Tutorial 3 --- furniture, cookies,
+printing, or your own. Decide whether make-to-stock, make-to-order, or a more
+customised approach fits, then explain what would go wrong under one of the
+others. Mark where the decoupling point sits in each case.
 \end{tryit}
 
 \begin{quickcheck}
@@ -184,10 +336,10 @@ Choose one of the business ventures suggested in Tutorial 3---furniture, cookies
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Production planning links forecasts, inventory, capacity, materials, and schedules.
-  \item Forecasting estimates demand; S\&OP balances demand with capacity and inventory.
-  \item Demand management and detailed scheduling progressively add product and time detail.
-  \item A BOM defines component requirements; an MO executes production and changes inventory.
-  \item West End Bicycles uses a make-to-stock story: buy components, manufacture bikes, then sell and deliver from finished-goods stock.
+  \item Planning descends a hierarchy from yearly product families to daily runs (\figref{fig:planning-hierarchy}).
+  \item The production approach is really a choice of where the customer order enters the process (\figref{fig:decoupling-point}).
+  \item Forecasting removes one-off promotions before applying growth (\figref{fig:forecast-build}).
+  \item S\&OP balances production, demand, and inventory subject to capacity (\figref{fig:sop-balance}).
+  \item A BOM converts a production quantity into a component requirement; the MO makes it a stock event (\figref{fig:road-bike-bom} and \figref{fig:mo-stock-change}).
 \end{itemize}
 \end{chapterrecap}

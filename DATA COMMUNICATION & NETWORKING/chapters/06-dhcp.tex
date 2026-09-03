@@ -7,26 +7,36 @@ Dynamic Host Configuration Protocol (DHCP) assigns clients an IP address and opt
 \subsection{The four-message exchange}
 A client with no address cannot yet be addressed, so the conversation begins as a broadcast. The four steps are remembered as \term{DORA}.
 
-\begin{netfigure}{DORA --- how a client with no address gets one}
-\begin{tikzpicture}[node distance=1.0cm,
-  msg/.style={-{Stealth[length=2.2mm]},thick},
-  ml/.style={font=\scriptsize\color{MLInk},inner sep=1.5pt}]
-\node[host] (c) {Client};
-\node[router,right=6.4cm of c] (s) {Server};
-\draw[draw=MLMuted,dashed] (c) -- ++(0,-4.0);
-\draw[draw=MLMuted,dashed] (s) -- ++(0,-4.0);
+\begin{utpfig}[DORA]{The four DHCP messages, with the source and destination
+addresses each one actually carries. Note that the client is still using
+\cmd{0.0.0.0} as its source until the Acknowledge arrives.}{fig:dora}
+\begin{tikzpicture}
+\seqactor{c}{0}{Client (S1)}{host}
+\seqactor{s}{7.6}{Server (R1)}{server}
+\seqlife{c}{-4.5}\seqlife{s}{-4.5}
 
-\draw[msg,draw=MLOrange] ($(c)+(0,-0.75)$) -- node[ml,above]{\textbf{D}iscover \ \tiny broadcast: ``anyone there?''} ($(s)+(0,-0.75)$);
-\draw[msg,draw=MLBlue]   ($(s)+(0,-1.65)$) -- node[ml,above]{\textbf{O}ffer \ \tiny ``you may have 10.0.12.20''} ($(c)+(0,-1.65)$);
-\draw[msg,draw=MLOrange] ($(c)+(0,-2.55)$) -- node[ml,above]{\textbf{R}equest \ \tiny broadcast: ``I accept that one''} ($(s)+(0,-2.55)$);
-\draw[msg,draw=MLGreen]  ($(s)+(0,-3.45)$) -- node[ml,above]{\textbf{A}cknowledge \ \tiny lease confirmed, clock starts} ($(c)+(0,-3.45)$);
+\seqmsg{c}{s}{-0.85}{\textbf{D}iscover}{arrow}
+\node[font=\tiny\color{UTPOrange},anchor=west] at (8.15,-0.85)
+  {broadcast \cmd{255.255.255.255}};
+\seqmsg{s}{c}{-1.75}{\textbf{O}ffer}{arrowb}
+\node[font=\tiny\color{UTPMuted},anchor=west] at (8.15,-1.75)
+  {``you may have 10.0.12.20''};
+\seqmsg{c}{s}{-2.65}{\textbf{R}equest}{arrow}
+\node[font=\tiny\color{UTPOrange},anchor=west] at (8.15,-2.65)
+  {broadcast again --- see below};
+\seqmsg{s}{c}{-3.55}{\textbf{A}cknowledge}{arrowb}
+\node[font=\tiny\color{UTPGreen},anchor=west] at (8.15,-3.55)
+  {lease confirmed, clock starts};
+
+\node[font=\tiny\color{UTPMuted},anchor=east,align=right] at (-0.35,-0.85) {src 0.0.0.0};
+\node[font=\tiny\color{UTPMuted},anchor=east,align=right] at (-0.35,-2.65) {src 0.0.0.0};
+\node[font=\tiny\color{UTPGreen},anchor=east,align=right] at (-0.35,-4.05)
+  {now 10.0.12.20};
 \end{tikzpicture}
-
-\smallskip
-{\scriptsize The \textbf{Request} is broadcast, not sent directly to the chosen
+\fignote{The \textbf{Request} is broadcast rather than sent to the chosen
 server. That is deliberate: if two servers made offers, the broadcast tells
 the one that was \emph{not} chosen to release the address it had reserved.}
-\end{netfigure}
+\end{utpfig}
 
 \begin{keyidea}
 Discover and Request are broadcasts. Routers do not forward broadcasts, so a client and its DHCP server must share a broadcast domain --- or something must carry the request across. That ``something'' is the relay, in Section~\ref{sec:dhcp-relay}.
@@ -113,6 +123,46 @@ Next, configure DHCP directly under the active routed interfaces.
 
 \begin{keyidea}
 \cmd{excluded-ip-address} prevents the DNS server address from being leased to a client.
+\end{keyidea}
+
+\subsection{What a lease actually does}
+The lab sets a lease of 1 day 12 hours. A lease is not a countdown to
+disconnection: the client starts trying to renew halfway through, so a
+brief server outage is invisible.
+
+\begin{utpfig}[DHCP lease timeline]{The three moments in a lease. A client that
+reaches T2 has lost contact with its own server and starts broadcasting to any
+server that will answer.}{fig:dhcp-lease}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[line width=2.2pt,draw=UTPPaleTeal] (0,0) -- (11,0);
+\draw[line width=2.2pt,draw=UTPGreen] (0,0) -- (5.5,0);
+\draw[line width=2.2pt,draw=UTPOrange] (5.5,0) -- (9.6,0);
+\draw[line width=2.2pt,draw=UTPRed] (9.6,0) -- (11,0);
+
+\foreach \x/\lab/\sub/\col in {%
+  0/0/{lease granted}/UTPGreen,%
+  5.5/T1/{50\% --- renew}/UTPGreen,%
+  9.6/T2/{87.5\% --- rebind}/UTPOrange,%
+  11/expiry/{address released}/UTPRed}
+{
+  \draw[draw=\col,thick] (\x,-0.18) -- (\x,0.18);
+  \node[font=\scriptsize\bfseries\color{\col},anchor=south] at (\x,0.25) {\lab};
+  \node[font=\tiny\color{UTPMuted},anchor=north,align=center] at (\x,-0.25) {\sub};
+}
+\node[font=\tiny\color{UTPMuted},anchor=north,align=center,text width=4.4cm]
+  at (2.75,-0.95) {Client uses the address\\ and says nothing.};
+\node[font=\tiny\color{UTPMuted},anchor=north,align=center,text width=3.8cm]
+  at (7.5,-0.95) {Unicast renewal to the\\ server that issued it.};
+\node[font=\tiny\color{UTPMuted},anchor=north,align=center,text width=3.4cm]
+  at (10.6,-0.95) {Broadcast to \emph{any}\\ server.};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+\cmd{display ip pool} shows how many addresses are used and how many are
+idle. An exhausted pool and a pool full of stale leases look identical in
+that output, which is why the lease time is a design decision rather than
+a default to leave alone.
 \end{keyidea}
 
 \section{Step 6: force a fresh client request}

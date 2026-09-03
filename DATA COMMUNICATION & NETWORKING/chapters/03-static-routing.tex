@@ -43,11 +43,72 @@ R3 Loopback0 & \cmd{10.0.3.0/24} & \cmd{10.0.3.3}\\\bottomrule
 \section{Why the first remote ping fails}
 After addressing, each router can reach its direct neighbors. R2 cannot reach R3's loopback \cmd{10.0.3.0/24} until its routing table identifies a path.
 
-\sourceimage[0.76\linewidth]{R2 routing table before the missing remote routes are added}{static-routing-table-before.png}
+\begin{vrpbox}{<R2> display ip routing-table}
+\begin{lstlisting}[style=dcnvrp]
+Route Flags: R - relay, D - download to fib
+------------------------------------------------------------------------------
+Routing Tables: Public
+         Destinations : 13        Routes : 13
+
+Destination/Mask    Proto   Pre  Cost  Flags NextHop         Interface
+      10.0.2.0/24   Direct  0    0       D   10.0.2.2        LoopBack0
+      10.0.2.2/32   Direct  0    0       D   127.0.0.1       LoopBack0
+    10.0.2.255/32   Direct  0    0       D   127.0.0.1       LoopBack0
+     10.0.12.0/24   Direct  0    0       D   10.0.12.2       GigabitEthernet0/0/0
+     10.0.12.2/32   Direct  0    0       D   127.0.0.1       GigabitEthernet0/0/0
+   10.0.12.255/32   Direct  0    0       D   127.0.0.1       GigabitEthernet0/0/0
+     10.0.23.0/24   Direct  0    0       D   10.0.23.2       GigabitEthernet0/0/1
+     10.0.23.2/32   Direct  0    0       D   127.0.0.1       GigabitEthernet0/0/1
+   10.0.23.255/32   Direct  0    0       D   127.0.0.1       GigabitEthernet0/0/1
+      127.0.0.0/8   Direct  0    0       D   127.0.0.1       InLoopBack0
+      127.0.0.1/32  Direct  0    0       D   127.0.0.1       InLoopBack0
+127.255.255.255/32  Direct  0    0       D   127.0.0.1       InLoopBack0
+255.255.255.255/32  Direct  0    0       D   127.0.0.1       InLoopBack0
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{every \cmd{Proto} is \cmd{Direct}. R2 knows only the networks
+attached to its own interfaces. \cmd{10.0.3.0/24} and \cmd{10.0.13.0/24}
+appear nowhere, so a ping to R3's loopback has nothing to match.}
+
+\begin{pitfall}
+Three entries appear per connected network, not one: the network itself
+(\cmd{/24}), the router's own address as a host route (\cmd{/32}), and the
+broadcast address. Only the first is a forwarding path. Reading
+\cmd{Destinations : 13} as ``thirteen reachable networks'' is what makes a
+correct table look wrong.
+\end{pitfall}
 
 \begin{keyidea}
 A router matches the destination IP against its routing table. Without a matching route, it cannot forward the packet.
 \end{keyidea}
+
+\subsection{How the match is chosen}
+Several entries can match one destination. The router does not take the
+first, or the cheapest: it takes the one with the longest prefix, which
+means the most specific. Preference only breaks ties between routes of
+\emph{equal} prefix length.
+
+\begin{utpfig}[Longest prefix match]{Forwarding \cmd{10.0.3.3}. Three entries match;
+the \cmd{/24} wins because it is the most specific. The default route is the
+fallback that matches everything and therefore always loses.}{fig:lpm}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[font=\ttfamily\small\color{UTPNavy}] at (0.1,0.95) {destination 10.0.3.3};
+\draw[draw=UTPMuted!50] (-2.6,0.6)--(9.4,0.6);
+
+\newcommand{\lpmrow}[4]{%
+  \node[#4,minimum width=2.3cm,anchor=west,font=\ttfamily\scriptsize] at (-2.6,#1) {#2};
+  \node[#4,minimum width=2.1cm,anchor=west,font=\ttfamily\scriptsize] at (-0.25,#1) {10.0.23.3};
+  \node[anchor=west,font=\scriptsize\color{UTPMuted}] at (2.0,#1) {#3};}
+\lpmrow{0}{0.0.0.0/0}{matches everything, least specific}{hdrm}
+\lpmrow{-0.75}{10.0.0.0/8}{matches, 8 bits agree}{hdrm}
+\lpmrow{-1.5}{10.0.3.0/24}{matches, 24 bits agree}{hdrg}
+\lpmrow{-2.25}{10.0.13.0/24}{does not match}{hdrm}
+\node[anchor=west,font=\scriptsize\bfseries\color{UTPGreen}] at (6.3,-1.5)
+  {$\leftarrow$ installed, packet sent to 10.0.23.3};
+\node[anchor=west,font=\tiny\color{UTPMuted}] at (-2.6,-2.95)
+  {Read the mask as ``how many leading bits must agree''. A /24 pins three octets; a /0 pins none.};
+\end{tikzpicture}
+\end{utpfig}
 
 \section{Static-route syntax in this lab}
 The source demonstrates next-hop static routes in the form:
@@ -76,6 +137,33 @@ The alternate path through R1 uses a higher, less-preferred value, so it remains
 [R2] ip route-static 10.0.3.0 24 10.0.12.1 preference 80
 \end{lstlisting}
 The route through R3 (preference 60) wins over the backup through R1 (80) until the primary path fails.
+
+\begin{utpfig}[Preference ladder]{Huawei default route preferences. Lower wins. The
+lab's backup route sits at 80 purely because it is above the static default of 60
+--- any value above 60 would work.}{fig:preference}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \x/\p/\name/\st in {%
+  0/0/Direct/hdrg,%
+  2.15/10/OSPF/hdrb,%
+  4.3/60/Static/hdro,%
+  6.45/80/{Static backup}/hdrm,%
+  8.6/100/RIP/hdrm}
+{
+  \node[\st,minimum width=2.0cm,minimum height=1.05cm,align=center,
+        font=\scriptsize\color{UTPNavy}] at (\x,0) {\textbf{\p}\\ \name};
+}
+\draw[-{Stealth[length=2.5mm]},thick,draw=UTPMuted] (-1.15,-0.85) -- (9.75,-0.85);
+\node[font=\scriptsize\color{UTPGreen},anchor=west] at (-1.1,-1.2) {preferred};
+\node[font=\scriptsize\color{UTPMuted},anchor=east] at (9.7,-1.2) {ignored while a better route exists};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+Preference decides which \emph{protocol} to believe when two of them
+offer a route to the same prefix. It is compared only after longest-prefix
+match has already narrowed the field, which is why a \cmd{/24} static
+route still beats a \cmd{/8} OSPF route despite the worse preference.
+\end{keyidea}
 
 \begin{netfigure}{Only ONE route is installed at a time; the other waits}
 \begin{tikzpicture}[node distance=1.5cm and 2.4cm]

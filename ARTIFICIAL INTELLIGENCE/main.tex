@@ -22,6 +22,28 @@
 % ---------- boxes used only in this book ----------
 \utpnewcallout[boxrule=0.65pt,left=2.5mm,right=2.5mm,top=1.6mm,bottom=1.6mm,colbacktitle=UTPMuted]{checkanswers}{UTPPaleGray!72}{UTPMuted!62}{Quick-check answers}
 
+% Expand the one-page Learning Path so its shorter contents list uses the
+% available height while preserving the stage, chapter, and lab hierarchy.
+\newcommand{\aifullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{1.75em}%
+  \setlength{\cftbeforechapskip}{0.72em}%
+  \setlength{\cftbeforelabskip}{0.82em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\aifullpagetoc}{}{}
+
 % ---------- other settings used only in this book ----------
 \utpfigalias{aifig}
 \utpdiagramstyles{ai}{1.0cm}{0.8cm}

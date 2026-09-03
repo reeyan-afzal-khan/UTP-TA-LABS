@@ -41,19 +41,21 @@ Stage & Main structures & Central question \\
 \end{mltable}
 
 \section*{Complexity vocabulary used across the course}
-Big-O notation describes an asymptotic upper bound on how resource use grows with input size $n$; it is not an exact operation count. The table and chart use representative functions $f(n)$ to compare growth rates consistently.
+Big-O notation describes an asymptotic upper bound on how resource use grows with input size $n$; it is not an exact operation count. The table and figure use the same eight representative classes, ordered from the slowest to the fastest asymptotic growth.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.11\linewidth}p{0.16\linewidth}p{0.21\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.11\linewidth}p{0.20\linewidth}p{0.18\linewidth}X@{}}
 \toprule
 \rowcolor{ADSPaleBlue!92}
-Class & Growth rate & Function plotted & Typical examples \\
+Class & Figure label & Representative function & Typical examples \\
 \midrule
 $O(1)$ & Constant & $f(n)=1$ & Array access; hash computation. \\
 $O(\log n)$ & Logarithmic & $f(n)=\log_2 n$ & Binary search; balanced-BST lookup. \\
 $O(n)$ & Linear & $f(n)=n$ & Linear search; linked-list traversal. \\
-$O(n\log n)$ & Linearithmic & $f(n)=n\log_2 n$ & Merge sort; heap sort. \\
+$O(n\log n)$ & Log-linear & $f(n)=n\log_2 n$ & Merge sort; heap sort. \\
 $O(n^2)$ & Quadratic & $f(n)=n^2$ & Bubble sort; selection sort. \\
+$O(n^3)$ & Polynomial (cubic) & $f(n)=n^3$ & Triple-nested loops; Floyd--Warshall. \\
+$O(2^n)$ & Exponential & $f(n)=2^n$ & Subset enumeration; exhaustive include/exclude search. \\
 $O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling salesperson search. \\
 \bottomrule
 \end{tabularx}
@@ -61,52 +63,63 @@ $O(n!)$ & Factorial & $f(n)=n!$ & Permutation enumeration; brute-force traveling
 
 \begin{mlfigure}
 \centering
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.94\linewidth,
-  height=7.6cm,
-  domain=2:10,
-  samples=120,
-  xmin=2,xmax=12.7,
-  ymin=0.8,ymax=10000000,
-  ymode=log,
-  log basis y=10,
-  xtick={2,4,6,8,10},
-  ytick={1,10,100,1000,10000,100000,1000000,10000000},
-  xlabel={Input size, $n$},
-  ylabel={Representative operations, $f(n)$ (log scale)},
-  title={Representative growth by complexity class},
-  title style={font=\bfseries\color{ADSNavy}},
-  label style={font=\small\color{ADSNavy}},
-  tick label style={font=\scriptsize\color{ADSMuted}},
-  grid=major,
-  grid style={draw=ADSPaleBlue},
-  axis line style={draw=ADSMuted},
-  axis x line*=bottom,
-  axis y line*=left,
-  clip=false
+\resizebox{0.98\linewidth}{!}{%
+\begin{tikzpicture}[
+  line cap=round,
+  line join=round,
+  curve/.style={line width=1.65pt,-{Stealth[length=2.2mm,width=1.6mm]}},
+  directlabel/.style={font=\footnotesize\bfseries,inner sep=0.8pt}
 ]
-\addplot[very thick,draw=ADSMuted,densely dotted] {1};
-\addplot[very thick,draw=ADSTeal,dashdotted] {ln(x)/ln(2)};
-\addplot[very thick,draw=ADSBlue] {x};
-\addplot[very thick,draw=ADSOrange,dashed] {x*ln(x)/ln(2)};
-\addplot[very thick,draw=ADSRed,densely dashed] {x^2};
-\addplot[very thick,draw=ADSNavy,mark=*,mark size=1.5pt] coordinates {
-  (2,2) (3,6) (4,24) (5,120) (6,720) (7,5040) (8,40320) (9,362880) (10,3628800)
-};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSMuted] at (axis cs:10.15,1) {$O(1)$};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSTeal] at (axis cs:10.15,3.322) {$O(\log n)$};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSBlue] at (axis cs:10.15,10) {$O(n)$};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSOrange] at (axis cs:10.15,33.22) {$O(n\log n)$};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSRed] at (axis cs:10.15,100) {$O(n^2)$};
-\node[anchor=west,font=\scriptsize\bfseries,text=ADSNavy] at (axis cs:10.15,3628800) {$O(n!)$};
-\end{axis}
-\end{tikzpicture}
+% Open axes keep the composition uncluttered and emphasize continued growth.
+\draw[-{Stealth[length=2.9mm]},line width=1.05pt,draw=ADSMuted!88!black]
+  (0,0) -- (12.1,0);
+\draw[-{Stealth[length=2.9mm]},line width=1.05pt,draw=ADSMuted!88!black]
+  (0,0) -- (0,8.1);
+\node[font=\small\bfseries\color{ADSNavy},anchor=north] at (6.05,-0.43) {Input Size};
+\node[font=\small\bfseries\color{ADSNavy},rotate=90,anchor=south] at (-0.64,4.05) {Computations};
 
-\smallskip
-{\small\color{ADSMuted}The logarithmic vertical scale keeps all six functions visible. Each curve follows the representative function listed in the table; actual running time depends on the implementation and hardware.}
+% Every curve begins at the same conceptual lower-left point.
+\coordinate (start) at (0.38,0.42);
+
+% Constant and efficient growth.
+\draw[curve,draw=ADSBlue] (start) -- (8.72,0.42);
+\draw[curve,draw=green!48!black]
+  (start) .. controls (1.02,1.25) and (3.22,1.48) .. (8.72,1.64);
+
+% Linear, log-linear, and polynomial growth.
+\draw[curve,draw=yellow!55!orange!78!black]
+  (start) -- (8.72,2.86);
+\draw[curve,draw=ADSOrange]
+  (start) .. controls (3.40,1.08) and (6.65,2.82) .. (8.28,4.06);
+\draw[curve,draw=ADSRed]
+  (start) .. controls (3.95,0.53) and (7.02,2.35) .. (7.88,5.62);
+\draw[curve,draw=ADSRed!55!black]
+  (start) .. controls (3.28,0.43) and (6.15,1.38) .. (7.06,7.30);
+
+% Combinatorial growth.
+\draw[curve,draw=magenta!82!red]
+  (start) .. controls (2.22,0.41) and (4.47,0.89) .. (5.12,7.45);
+\draw[curve,draw=purple!76!black]
+  (start) .. controls (1.34,0.40) and (2.49,0.69) .. (2.72,7.47);
+
+% Labels sit beyond curve endpoints so no text obscures a line.
+\node[directlabel,text=purple!76!black,anchor=west] at (0.68,7.62)
+  {Factorial -- $O(n!)$};
+\node[directlabel,text=magenta!82!red,anchor=west] at (3.02,7.04)
+  {Exponential -- $O(2^n)$};
+\node[directlabel,text=ADSRed!55!black,rotate=59,anchor=west,
+  fill=white,fill opacity=0.92,text opacity=1] at (5.80,3.08)
+  {Polynomial -- $O(n^3),\ldots$};
+\node[directlabel,text=ADSRed,anchor=west] at (8.10,5.62)
+  {Quadratic -- $O(n^2)$};
+\node[directlabel,text=ADSOrange,anchor=west] at (8.50,4.06)
+  {Log-linear -- $O(n\log n)$};
+\node[directlabel,text=yellow!55!orange!78!black,anchor=west] at (8.94,2.86)
+  {Linear -- $O(n)$};
+\node[directlabel,text=green!48!black,anchor=west] at (8.94,1.64)
+  {Logarithmic -- $O(\log n)$};
+\node[directlabel,text=ADSBlue,anchor=west] at (8.94,0.42)
+  {Constant -- $O(1)$};
+\end{tikzpicture}%
+}
 \end{mlfigure}
-
-\begin{keyidea}
-Factorial complexity, $O(n!)$, arises when an algorithm examines every ordering of $n$ items. It becomes impractical very quickly: $10! = 3{,}628{,}800$ possible orderings, while $15!$ exceeds one trillion. Brute-force permutation problems and exhaustive solutions to the traveling salesperson problem are common examples.
-\end{keyidea}

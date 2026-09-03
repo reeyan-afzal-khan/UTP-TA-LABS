@@ -80,7 +80,122 @@ After configuration, do not jump directly to ping. First verify the control plan
 \end{lstlisting}
 The detailed output includes neighbor ID, address, state, priority, DR/BDR data, timers, and uptime; the brief form shows only the essentials.
 
-\sourceimage[0.74\linewidth]{Condensed OSPF peer information from the supplied Lab 4 material}{ospf-peer-brief.png}
+\begin{vrpbox}{<R1> display ospf peer brief}
+\begin{lstlisting}[style=dcnvrp]
+         OSPF Process 1 with Router ID 10.0.1.1
+                  Peer Statistic Information
+ ----------------------------------------------------------------------------
+ Area Id         Interface                     Neighbor id       State
+ 0.0.0.0         GigabitEthernet0/0/0          10.0.2.2          (*\higreen{Full}*)
+ 0.0.0.0         GigabitEthernet0/0/1          10.0.3.3          (*\higreen{Full}*)
+ ----------------------------------------------------------------------------
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{one line per adjacency, and both say \cmd{Full}. A neighbour that
+never appears at all is a different fault from one that appears stuck in
+another state --- the first is a hello problem, the second is in
+\figref{fig:ospf-states}.}
+
+Once the adjacencies are up, the routes they produced are worth seeing
+separately from the connected ones.
+
+\begin{vrpbox}{<R1> display ip routing-table protocol ospf}
+\begin{lstlisting}[style=dcnvrp]
+Public routing table : OSPF
+         Destinations : 3         Routes : 3
+
+OSPF routing table status : <Active>
+         Destinations : 3         Routes : 3
+
+Destination/Mask    Proto  (*\hi{Pre}*)  (*\hi{Cost}*)  Flags NextHop         Interface
+      10.0.2.0/24   OSPF   (*\hi{10}*)   (*\hi{2}*)       D   10.0.12.2       GigabitEthernet0/0/0
+      10.0.3.0/24   OSPF   (*\hi{10}*)   (*\hi{2}*)       D   10.0.13.3       GigabitEthernet0/0/1
+     10.0.23.0/24   OSPF   (*\hi{10}*)   (*\hi{2}*)       D   10.0.12.2       GigabitEthernet0/0/0
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{\cmd{Pre 10} against static routing's 60, so OSPF wins wherever both
+exist. \cmd{Cost} is derived from interface bandwidth rather than hop count,
+which is the subject of \figref{fig:ospf-cost}.}
+
+\subsection{Reading the neighbour state as a diagnosis}
+\cmd{Full} is the only state that means success. Every other state names
+the step that failed, which makes \cmd{display ospf peer brief} the most
+useful single command in this chapter.
+
+\begin{utpfig}[OSPF neighbour states]{The adjacency state machine, annotated with
+what a stall at each point actually means. A neighbour parked in one of these
+states is a specific fault, not a slow start.}{fig:ospf-states}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\newcommand{\ospfstate}[4]{%
+  \node[#4,minimum width=2.2cm] (#1) at (0,#2) {#3};}
+
+\ospfstate{d}{0}{Down}{statebad}
+\ospfstate{i}{-1.15}{Init}{statewait}
+\ospfstate{t}{-2.30}{2-Way}{statewait}
+\ospfstate{e}{-3.45}{ExStart}{statewait}
+\ospfstate{x}{-4.60}{Exchange}{statewait}
+\ospfstate{l}{-5.75}{Loading}{statewait}
+\ospfstate{f}{-6.90}{Full}{stategood}
+
+\foreach \a/\b/\lab in {d/i/{hello received}, i/t/{seen in peer's hello},
+                        t/e/{DR elected}, e/x/{DBD exchange},
+                        x/l/{request missing LSAs}, l/f/{LSAs installed}}
+  \draw[stedge] (\a) -- node[stlabel,right,xshift=0.5mm]{\lab} (\b);
+
+\newcommand{\ospfnote}[3]{%
+  \node[anchor=west,font=\scriptsize,align=left,text width=7.4cm,color=#3]
+    at (3.9,#1) {#2};}
+
+\ospfnote{0}{No hello has arrived. Check cabling, interface state, and whether
+  OSPF is enabled on the interface at all.}{UTPRed}
+\ospfnote{-1.15}{\textbf{Stuck here: one-way traffic.} Your hellos arrive but
+  yours are not being acknowledged. Compare subnet masks on both ends.}{UTPRed}
+\ospfnote{-2.30}{\textbf{Not necessarily a fault.} On a broadcast segment,
+  routers that are neither DR nor BDR stay here on purpose.}{UTPInk}
+\ospfnote{-3.45}{Master and slave are being decided.}{UTPMuted}
+\ospfnote{-4.60}{\textbf{Stuck at ExStart or Exchange: MTU mismatch.} Compare
+  \cmd{display interface} on both sides.}{UTPRed}
+\ospfnote{-5.75}{Databases are being brought into line.}{UTPMuted}
+\ospfnote{-6.90}{\textbf{The only state that means success.} Databases
+  synchronised and routes exchanged.}{UTPGreen}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+Neighbours also refuse to form when the hello or dead intervals differ,
+when the area IDs differ, or when authentication is set on one side
+only. None of these produce an error message; they produce a neighbour
+that never appears.
+\end{pitfall}
+
+\subsection{Why the cost column changes the answer}
+Huawei derives OSPF cost from interface bandwidth, using a reference of
+100\,Mbit/s. A gigabit link therefore costs 1 and a 64\,kbit/s serial
+link costs 1562, so OSPF prefers the fast path without being told to.
+
+\begin{utpfig}[Cost and path choice]{Two paths from R1 to R3. The direct serial link
+is one hop; the route through R2 is two. OSPF picks the two-hop path because it
+adds costs rather than counting hops.}{fig:ospf-cost}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[router] (r1) at (0,0) {R1};
+\node[router] (r2) at (3.2,1.2) {R2};
+\node[router] (r3) at (6.4,0) {R3};
+
+\draw[activepath] (r1) -- node[costlabel,above,sloped]{cost 1} (r2);
+\draw[activepath] (r2) -- node[costlabel,above,sloped]{cost 1} (r3);
+\draw[deadpath] (r1) -- node[costlabel,below]{cost 1562} (r3);
+
+\node[netlabel,above=1mm of r2] {GE, 1000 Mbit/s};
+\node[netlabel,below=5mm of $(r1)!0.5!(r3)$] {Serial, 64 kbit/s};
+
+\node[anchor=west,font=\scriptsize,align=left] at (7.3,0.35)
+  {\textcolor{UTPGreen}{\bfseries via R2: 1 + 1 = 2} \ (chosen)\\[2pt]
+   \textcolor{UTPRed}{\bfseries direct: 1562} \ (ignored)};
+\node[anchor=west,font=\tiny\color{UTPMuted},text width=4.6cm] at (7.3,-0.8)
+  {Hop count would have picked the serial link, which is why RIP is
+   a poor fit for a mixed-speed network.};
+\end{tikzpicture}
+\end{utpfig}
 
 \begin{verification}
 Require three checks: the expected neighbor is \textbf{Full}, remote networks appear as OSPF routes, and ping succeeds.

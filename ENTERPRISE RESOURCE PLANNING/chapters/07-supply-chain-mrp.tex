@@ -6,118 +6,195 @@
   {explain supply-chain integration, calculate basic material requirements, distinguish gross from net requirements, connect lead time and lot sizing to purchasing, and evaluate supply-chain performance with operational metrics.}
 
 \begin{sourcebasis}
-This chapter follows Tutorial 7 and Chapter 4 of the textbook. Tutorial 7 asks students to research a manufacturing company that implemented SCM and to compare CRM with SCM. The textbook adds MRP, supplier integration, and supply-chain performance metrics such as cash-to-cash cycle time, fill rate, lead time, and on-time performance.
+This chapter follows Tutorial 7 and Chapter 4 of the textbook. Tutorial 7 asks
+students to research a manufacturing company that implemented SCM and to compare
+CRM with SCM. The textbook adds MRP, supplier integration, and performance
+metrics such as cash-to-cash cycle time, fill rate, lead time, and on-time
+performance.
 \end{sourcebasis}
 
 \section{What Supply Chain Management coordinates}
 
-\term{Supply Chain Management (SCM)} coordinates the organisations and activities involved in moving materials, information, and products from suppliers through production and distribution to the final customer.
+\term{Supply Chain Management (SCM)} coordinates the organisations and activities
+that move materials, information, and products from suppliers through production
+and distribution to the customer. Three different things flow along the same
+chain, and they do not all flow the same way.
 
-A traditional view treats each company as an isolated optimiser: the buyer pressures the supplier, the supplier protects its own information, and each party carries inventory to protect itself from uncertainty. An integrated supply-chain view recognises that poor coordination creates cost for everyone.
+\begin{erpfig}[Three flows, three directions]{Materials move downstream, money
+moves upstream, and information must move both ways. A chain that passes only
+goods and invoices --- with no demand signal --- forces every party to guess and
+hold its own buffer.}{fig:three-flows}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% --- information, above ---
+\draw[erpback,line width=1.1pt] (13.4,1.5) -- (0.2,1.5);
+\node[erpcap,anchor=south,color=UTPOrange] at (6.8,1.66)
+  {\bfseries information --- forecasts, orders, and status, both ways};
+\draw[erplink] (0.2,1.5) -- (0.2,0.5); \draw[erplink] (13.4,1.5) -- (13.4,0.5);
+% --- materials, the chain itself ---
+\foreach \i/\n in {0/Supplier, 1/Purchase, 2/{Receive, store},
+                   3/Manufacture, 4/Deliver, 5/Customer}{
+  \pgfmathsetmacro{\x}{0.2+\i*2.64}
+  \node[erpstep,minimum width=2.35cm,minimum height=0.85cm,text width=2.1cm] (n\i) at (\x,0) {\n};}
+\foreach \i in {0,...,4}{\pgfmathtruncatemacro{\j}{\i+1}
+  \draw[-{Stealth[length=1.8mm]},semithick,draw=UTPTeal] (n\i)--(n\j);}
+\node[erpcap,anchor=north,color=UTPTeal] at (6.8,-0.6)
+  {\bfseries materials --- physical goods, one direction only};
+% --- money, below ---
+\draw[-{Stealth[length=2.2mm]},thick,draw=UTPGreen,line width=1.1pt] (13.4,-1.6) -- (0.2,-1.6);
+\node[erpcap,anchor=north,color=UTPGreen] at (6.8,-1.76)
+  {\bfseries money --- payment, back up the chain};
+\draw[erplink] (0.2,-0.5) -- (0.2,-1.6); \draw[erplink] (13.4,-0.5) -- (13.4,-1.6);
+\end{tikzpicture}
+\end{erpfig}
 
-\begin{erpfigure}
-\resizebox{0.96\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.35cm
-]
-\node[box] (sup) {Supplier};
-\node[box,right=of sup] (buy) {Purchase};
-\node[box,right=of buy] (rec) {Receive / inventory};
-\node[box,right=of rec] (make) {Manufacture};
-\node[box,right=of make] (del) {Deliver};
-\node[box,right=of del] (cust) {Customer};
-\draw[arr] (sup)--(buy); \draw[arr] (buy)--(rec); \draw[arr] (rec)--(make); \draw[arr] (make)--(del); \draw[arr] (del)--(cust);
-\draw[arr,bend left=30,draw=ERPOrange] (cust.north) to node[above,font=\tiny\color{ERPOrange!85!black}] {demand and status information} (sup.north);
-\end{tikzpicture}}
-\end{erpfigure}
-
-The physical flow generally moves toward the customer. Information must move both directions: forecasts and orders upstream, availability and shipment status downstream. Money flows back toward suppliers and the producer after transactions are settled.
+A traditional view treats each company as an isolated optimiser: the buyer
+pressures the supplier, the supplier withholds information, and everyone carries
+inventory to protect itself. An integrated view recognises that poor coordination
+creates cost for all parties.
 
 \section{From production requirements to material requirements}
 
-A sales forecast does not tell Purchasing how many tyres to buy. Production planning first determines what finished products are needed. Then the BOM converts those finished-product quantities into component quantities.
-
-For component $j$ used in products $i$:
+A sales forecast does not tell Purchasing how many tyres to buy. Production
+planning first fixes the finished-product quantities; the BOM then converts them
+into component quantities. For component $j$ used in products $i$:
 
 \[
 \text{Gross Requirement}_j
-= \sum_i \left(\text{Planned Product Quantity}_i\times \text{BOM Quantity}_{ij}\right).
+= \sum_i \bigl(\text{Planned Quantity}_i\times \text{BOM Quantity}_{ij}\bigr).
 \]
 
-For 5 Road Bikes, with 2 tyres per bike:
+That is a \term{gross requirement} --- the amount needed before considering what
+is already available.
 
-\[
-5\times 2=10\text{ tyres}.
-\]
+\section{MRP: gross requirements are not purchase orders}
 
-That is a \term{gross requirement}: the amount needed before considering what is already available.
+\term{Material Requirements Planning (MRP)} determines the quantity \emph{and}
+timing of supply. It takes the gross requirement and reduces it by what already
+exists or is already coming, then adjusts what remains to a purchasable quantity.
 
-\section{MRP: gross requirements are not the same as purchase orders}
-
-\term{Material Requirements Planning (MRP)} determines the quantity and timing of required raw-material and subassembly supply. It considers more than the BOM:
-
-\begin{itemize}
-  \item gross requirements from the production plan;
-  \item current on-hand inventory;
-  \item scheduled receipts from orders already placed;
-  \item safety stock or minimum-stock rules;
-  \item supplier or internal lead times;
-  \item lot-sizing constraints.
-\end{itemize}
-
-A simplified net-requirement idea is:
+\begin{erpfig}[From gross requirement to purchase order]{The three adjustments
+between what production needs and what Purchasing actually orders. Skipping any
+of them produces either a stockout or excess stock, and the order quantity
+usually matches the net requirement only by
+coincidence.}{fig:gross-to-net}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpstep,minimum width=2.9cm,minimum height=1.0cm] (g) at (1.5,0)
+  {Gross requirement\\\tiny\mdseries 40 tyres};
+\node[erpquiet,minimum width=2.9cm,minimum height=1.0cm] (a) at (5.3,0)
+  {$-$ on hand\\\tiny\mdseries 12 in stock};
+\node[erpquiet,minimum width=2.9cm,minimum height=1.0cm] (b) at (9.1,0)
+  {$-$ scheduled receipts\\\tiny\mdseries 0 on order};
+\node[erpwarn,minimum width=2.9cm,minimum height=1.0cm] (c) at (12.9,0)
+  {$=$ net requirement\\\tiny\mdseries 28 tyres};
+\draw[erpflow] (g)--(a); \draw[erpflow] (a)--(b); \draw[erpflow] (b)--(c);
+\node[erpgood,minimum width=4.2cm,minimum height=1.0cm] (d) at (12.9,-2.15)
+  {Planned order\\\tiny\mdseries 30 tyres --- 3 boxes of 10};
+\draw[erpflow] (c)--node[erpnote,right,text width=2.4cm]{round up to the supplier's lot size}(d);
+\node[erpnote,anchor=west,text width=8.4cm,align=left] at (0.0,-2.15)
+  {\emph{Safety stock} is added to the requirement before netting; \emph{lead
+   time} then decides how many weeks earlier the order must be released. Neither
+   changes what production needs --- only what Purchasing does about it.};
+\end{tikzpicture}
+\end{erpfig}
 
 \[
 \text{Net Requirement}
-= \max\bigl(0,\;\text{Gross Requirement}+\text{Desired Ending Stock}-\text{Available Supply}\bigr).
+= \max\bigl(0,\;\text{Gross}+\text{Desired Ending Stock}-\text{Available Supply}\bigr).
 \]
 
-The exact MRP record is time-phased: availability in one week cannot satisfy a requirement in an earlier week.
+\section{MRP is time-phased, not a single sum}
 
-\section{Lead time changes when the order must be released}
+Availability in one week cannot satisfy a requirement in an earlier week. MRP is
+therefore a grid: rows for each quantity, columns for each period.
 
-\term{Lead time} is the elapsed time between initiating supply and having the material available for use. If a component is needed in Week 5 and its purchasing lead time is two weeks, the order must be released approximately in Week 3, subject to the system's calendar and receiving assumptions.
+\begin{erpfig}[A time-phased MRP record]{The standard MRP record for Rubber
+Tires: 12 on hand, a scheduled receipt of 10 in Week 2, requirements of 20 in
+Weeks 3 and 5, a two-week purchasing lead time, and boxes of 10. Note the two
+diagonals --- the net requirement of 18 is rounded up to a receipt of 20, and
+that receipt must be released two weeks earlier.}{fig:mrp-record}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \k/\w in {0/1,1/2,2/3,3/4,4/5,5/6}{
+  \pgfmathsetmacro{\x}{5.1+\k*1.72}
+  \node[erpcap,color=UTPNavy] at (\x,0.62) {\bfseries Week \w};}
+\foreach \r/\lbl/\va/\vb/\vc/\vd/\ve/\vf/\clr in {%
+  0/{Gross requirement}/{--}/{--}/{20}/{--}/{20}/{--}/UTPBlue,
+  1/{Scheduled receipts}/{--}/{10}/{--}/{--}/{--}/{--}/UTPMuted,
+  2/{Projected on hand}/{12}/{22}/{2}/{2}/{2}/{2}/UTPTeal,
+  3/{Net requirement}/{--}/{--}/{--}/{--}/{18}/{--}/UTPOrange,
+  4/{Planned receipt}/{--}/{--}/{--}/{--}/{20}/{--}/UTPGreen,
+  5/{Planned order release}/{--}/{--}/{20}/{--}/{--}/{--}/UTPGreen}{
+  \pgfmathsetmacro{\y}{-\r*0.68}
+  \node[erpcap,anchor=west,align=left,text width=4.2cm] at (0.0,\y) {\bfseries \lbl};
+  \foreach \k/\v in {0/\va,1/\vb,2/\vc,3/\vd,4/\ve,5/\vf}{
+    \pgfmathsetmacro{\x}{5.1+\k*1.72}
+    \node[draw=\clr!55,fill=\clr!8,rounded corners=1mm,minimum width=1.55cm,
+          minimum height=0.54cm,font=\scriptsize\color{UTPNavy}] at (\x,\y) {\v};}}
+\draw[erpback,line width=1pt,-{Stealth[length=2mm]}]
+  (9.4,-3.4) to[out=-25,in=-155] (11.9,-2.98);
+\node[erpnote,anchor=north,text width=13.6cm] at (7.0,-3.95)
+  {Week 5 is short by 18, but tyres come in boxes of 10, so the planned receipt
+   is 20. The two-week lead time then places the order release in Week 3.};
+\end{tikzpicture}
+\end{erpfig}
 
-MRP therefore answers both \emph{how much} and \emph{when}.
+\term{Lead time} is the elapsed time between initiating supply and having the
+material usable. If a component is needed in Week 5 with a two-week lead time,
+the order must be released in Week 3. MRP therefore answers both \emph{how much}
+and \emph{when}.
 
 \section{Lot sizing changes the quantity}
 
-Suppliers may sell in fixed packs, pallets, minimum quantities, or economic batch sizes. If the net requirement is 930 units but the supplier only ships pallets of 500, the planned order may need to be 1,000 rather than 930.
+Suppliers sell in fixed packs, pallets, minimum quantities, or economic batches.
+A net requirement of 28 tyres bought in boxes of 10 becomes a purchase of 30. The
+ordered quantity is a step function of the requirement, not a copy of it.
 
 \begin{workedexample}
-Suppose West End Bicycles plans 20 Road Bikes. The BOM requires 1 Aluminium Frame and 2 Rubber Tires per bike. On hand are 7 frames and 12 tyres. Ignoring safety stock and scheduled receipts:
+West End Bicycles plans 20 Road Bikes. The BOM needs 1 Aluminium Frame and 2
+Rubber Tires per bike. On hand: 7 frames, 12 tyres. Ignoring safety stock and
+scheduled receipts,
 \[
-\text{Frames net}=20-7=13,
+\text{Frames net}=20-7=13,\qquad \text{Tyres net}=40-12=28.
 \]
-\[
-\text{Tyres net}=40-12=28.
-\]
-If tyres must be purchased in boxes of 10, the procurement quantity becomes 30 tyres even though the net requirement is 28.
+If tyres come in boxes of 10, the procurement quantity is 30 even though the net
+requirement is 28. The extra 2 become next period's opening stock.
 \end{workedexample}
 
 \section{Purchasing and receiving are separate business events}
 
-A purchase order records the organisation's commitment to buy. A receipt records what physically arrived. Those two events may differ in date or quantity.
+A purchase order records a commitment to buy. A receipt records what physically
+arrived. They can differ in date and in quantity, and only one of them creates
+usable stock.
 
-This distinction matters because:
-
-\begin{itemize}
-  \item Inventory should rise only when goods are actually received;
-  \item supplier performance should be measured against the requested quantity/date;
-  \item Finance should know what was ordered and what was accepted before payment;
-  \item manufacturing availability depends on actual on-hand stock, not merely an open purchase order.
-\end{itemize}
+\begin{erpfig}[Order is not receipt]{The two events and what each proves. The
+gap between them is where supplier performance is measured --- and where a
+planner who treats an open order as available inventory releases production that
+cannot start.}{fig:po-vs-receipt}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpstep,minimum width=3.6cm,minimum height=1.05cm] (po) at (2.4,1.5)
+  {Purchase Order\\\tiny\mdseries confirmed 1 March};
+\node[erpgood,minimum width=3.6cm,minimum height=1.05cm] (rc) at (11.4,1.5)
+  {Receipt validated\\\tiny\mdseries 14 March, 28 of 30 accepted};
+\draw[erpflow] (po)--node[midway,above,erpnote]{supplier lead time}(rc);
+\node[erpdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm] at (2.4,-0.15)
+  {proves: what we asked for, at what price, by when};
+\node[erpdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm,draw=UTPGreen] at (11.4,-0.15)
+  {proves: what we can actually use, and when};
+\draw[erplink] (2.4,0.95)--(2.4,0.45); \draw[erplink] (11.4,0.95)--(11.4,0.45);
+\node[erpchipwarn,anchor=north] at (6.9,0.9) {13 days: on-time performance};
+\node[erpchipwarn,anchor=north] at (6.9,0.2) {28 of 30: initial fill rate};
+\node[erpchipbad,anchor=north,text width=4.8cm,align=center] at (6.9,-0.7)
+  {stock rises \emph{here}, not at the order --- manufacturing cannot start before this};
+\end{tikzpicture}
+\end{erpfig}
 
 \section{Supplier integration}
 
-The textbook's supply-chain discussion stresses that information sharing and relationships matter. Sharing realistic forecasts and status data can help suppliers prepare capacity and materials. In return, the buyer gains better visibility into lead time and availability.
-
-This collaboration does not mean giving every supplier unrestricted ERP access. It means designing controlled information exchange so the supply chain can coordinate around the same demand and fulfilment signals.
+Sharing realistic forecasts and status data helps suppliers prepare capacity and
+materials; in return the buyer gains visibility of lead time and availability.
+This does not mean giving every supplier unrestricted ERP access --- it means
+designing controlled exchange so both sides plan around the same signals.
 
 \section{SCM measures of success}
-
-The textbook highlights several metrics.
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.24\linewidth}X@{}}
@@ -125,20 +202,43 @@ The textbook highlights several metrics.
 \rowcolor{ERPPaleBlue!92}
 Metric & Meaning \\
 \midrule
-Cash-to-cash cycle time & Time between paying for inputs and collecting cash from the customer. Shorter cycles generally mean less working capital is tied up. \\
-Total SCM cost & Cost of buying/handling inventory, processing orders, and supporting the information systems used by the supply chain. \\
+Cash-to-cash cycle time & Time between paying for inputs and collecting cash from the customer. Shorter cycles tie up less working capital. \\
+Total SCM cost & Cost of buying and handling inventory, processing orders, and supporting the supply chain's information systems. \\
 Initial fill rate & Percentage of an order supplied in the first shipment. \\
-Initial order lead time & Time required for the supplier to fill the order. \\
+Initial order lead time & Time the supplier needs to fill the order. \\
 On-time performance & How often the supplier meets the agreed delivery date. \\
 \bottomrule
 \end{tabularx}
 \end{erptable}
 
-Metrics should be interpreted together. A supplier can have a high on-time percentage but a poor fill rate if it repeatedly delivers on time but short.
+The cash-to-cash cycle is the one worth drawing, because it is the metric that
+connects supply-chain decisions to the finance chapter.
+
+\begin{erpfig}[The cash-to-cash cycle]{Cash leaves when the supplier is paid and
+returns when the customer pays. The gap is financed by the company. Shortening
+inventory days or collection days shrinks it; paying suppliers later shrinks it
+too, but at the cost of the supplier relationship.}{fig:cash-to-cash}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPMuted!45] (0,0) -- (14.4,0);
+\foreach \x/\lbl in {0.6/{materials\\received}, 3.6/{supplier\\paid},
+                     8.4/{bikes\\delivered}, 13.2/{customer\\pays}}{
+  \draw[draw=UTPMuted!55] (\x,-0.16)--(\x,0.16);
+  \node[erpnote,anchor=north,text width=1.9cm] at (\x,-0.28) {\lbl};}
+\draw[draw=UTPRed,line width=6pt,opacity=0.28] (3.6,1.15) -- (13.2,1.15);
+\node[erpchipbad] at (8.4,1.15) {cash-to-cash cycle --- financed by the company};
+\draw[draw=UTPBlue,line width=5pt,opacity=0.30] (0.6,2.15) -- (8.4,2.15);
+\node[erpchip,draw=UTPBlue,fill=UTPPaleBlue] at (4.5,2.15) {inventory days};
+\draw[draw=UTPGreen,line width=5pt,opacity=0.30] (8.4,2.85) -- (13.2,2.85);
+\node[erpchip] at (10.8,2.85) {collection days};
+\draw[draw=UTPOrange,line width=5pt,opacity=0.30] (0.6,3.55) -- (3.6,3.55);
+\node[erpchipwarn] at (2.1,3.55) {payment days};
+\end{tikzpicture}
+\end{erpfig}
+
+Metrics must be read together. A supplier can post high on-time performance and a
+poor fill rate by delivering punctually but short every time.
 
 \section{CRM versus SCM}
-
-Tutorial 7 asks students to compare CRM and SCM. Both coordinate relationships and information across organisational boundaries, but they focus on different sides of the enterprise.
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.18\linewidth}XX@{}}
@@ -147,13 +247,35 @@ Tutorial 7 asks students to compare CRM and SCM. Both coordinate relationships a
 Aspect & CRM & SCM \\
 \midrule
 Primary relationship & Prospects and customers & Suppliers, production, logistics partners \\
-Primary signal & Customer interest and demand & Material/product requirements and fulfilment \\
+Primary signal & Customer interest and demand & Material requirements and fulfilment \\
 Typical records & Leads, opportunities, contacts, campaigns, service history & Purchase orders, receipts, inventory, production plans, supplier performance \\
 Shared objective & \multicolumn{2}{p{0.58\linewidth}}{Deliver customer value efficiently by coordinating information rather than optimising one department in isolation.} \\
-Where they meet & \multicolumn{2}{p{0.58\linewidth}}{Demand captured by CRM/Sales becomes a planning and fulfilment requirement for SCM; SCM status returns to Sales so customers can receive accurate promises.} \\
+Where they meet & \multicolumn{2}{p{0.58\linewidth}}{Demand captured by CRM/Sales becomes a planning requirement for SCM; SCM status returns to Sales so customers receive accurate promises.} \\
 \bottomrule
 \end{tabularx}
 \end{erptable}
+
+\begin{erpfig}[Where CRM and SCM meet]{The two halves of the enterprise face
+opposite directions and touch at exactly two points: the demand signal going
+upstream, and the availability answer coming back. Those two arrows are what
+integration buys.}{fig:crm-vs-scm}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPTeal!45,fill=UTPPaleTeal!45,rounded corners=2.5mm] (0,-1.35) rectangle (6.4,2.35);
+\node[erpcap,color=UTPTeal] at (3.2,2.05) {\bfseries SCM --- upstream};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,1.35) {Suppliers and lead times};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,0.6)  {Purchase orders and receipts};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,-0.15) {Inventory and production};
+\node[erpnote] at (3.2,-0.95) {optimises \emph{supply}};
+\draw[draw=UTPBlue!45,fill=UTPPaleBlue!45,rounded corners=2.5mm] (8.2,-1.35) rectangle (14.6,2.35);
+\node[erpcap,color=UTPBlue] at (11.4,2.05) {\bfseries CRM --- downstream};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,1.35) {Leads and opportunities};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,0.6)  {Quotations and orders};
+\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,-0.15) {Service history};
+\node[erpnote] at (11.4,-0.95) {optimises \emph{demand}};
+\draw[erpback] (8.1,1.0) -- node[midway,above,erpnote,text width=1.6cm]{demand signal} (6.5,1.0);
+\draw[erpflow] (6.5,0.2) -- node[midway,below,erpnote,text width=1.6cm]{availability answer} (8.1,0.2);
+\end{tikzpicture}
+\end{erpfig}
 
 \section{SCM in Odoo 19 Community}
 
@@ -167,33 +289,37 @@ The West End Bicycles guide uses this procure-and-receive sequence:
   \item open the linked Receipt and validate it;
   \item verify that on-hand raw-material stock rises;
   \item use those materials in the Road Bike manufacturing order;
-  \item later validate the customer delivery, which reduces finished-goods stock.
+  \item validate the customer delivery, reducing finished-goods stock.
 \end{enumerate}
-This makes the supply chain visible as stock movements tied to purchasing and manufacturing records rather than as an isolated warehouse count.
 \end{odoobox}
 
 \begin{pitfall}
-An open Purchase Order is not the same as available inventory. A planner who treats ordered material as already on hand can release production that cannot actually start.
+An open Purchase Order is not available inventory. A planner who treats ordered
+material as on hand releases production that cannot start
+(\figref{fig:po-vs-receipt}).
 \end{pitfall}
 
 \begin{tryit}
-For the Road Bike BOM, imagine a production plan of 50 bikes, on-hand inventory of 12 frames, 70 tyres, 18 brake sets, 20 gear sets, and 15 chains. Calculate the simplified net requirement for each component. Then add one realistic lot-size rule of your own and recalculate the purchase quantity.
+For the Road Bike BOM, take a production plan of 50 bikes with on-hand inventory
+of 12 frames, 70 tyres, 18 brake sets, 20 gear sets, and 15 chains. Calculate the
+net requirement for each component, then add one realistic lot-size rule and
+recalculate the purchase quantity.
 \end{tryit}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What is the difference between gross and net material requirements?
-  \item Why must lead time be represented in MRP rather than only the required quantity?
+  \item Why must lead time appear in MRP rather than only the required quantity?
   \item How do CRM and SCM interact in a customer-order process?
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item SCM coordinates physical, information, and financial flows across suppliers, production, distribution, and customers.
-  \item MRP converts production requirements into time-phased material requirements using BOMs, inventory, receipts, lead times, and lot sizes.
-  \item Purchase orders and receipts are separate events; only the receipt creates actual stock availability.
-  \item SCM performance should be measured with cycle-time, cost, fill-rate, lead-time, and on-time metrics.
-  \item CRM captures demand; SCM fulfils it; integrated ERP data links the two.
+  \item Materials, money, and information flow along the chain in different directions (\figref{fig:three-flows}).
+  \item Gross requirements become purchase orders only after netting and lot sizing (\figref{fig:gross-to-net}).
+  \item MRP is time-phased: the planned order release sits a lead time before the receipt it covers (\figref{fig:mrp-record}).
+  \item Only the receipt creates usable stock, and the gap to the order is where supplier metrics live (\figref{fig:po-vs-receipt}).
+  \item The cash-to-cash cycle links supply-chain decisions to working capital (\figref{fig:cash-to-cash}).
 \end{itemize}
 \end{chapterrecap}

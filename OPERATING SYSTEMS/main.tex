@@ -13,6 +13,28 @@
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
+% Expand the one-page Learning Path while keeping each laboratory entry
+% visually paired with its operating-systems chapter.
+\newcommand{\osfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{1.40em}%
+  \setlength{\cftbeforechapskip}{0.55em}%
+  \setlength{\cftbeforelabskip}{0.45em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\osfullpagetoc}{}{}
+
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter

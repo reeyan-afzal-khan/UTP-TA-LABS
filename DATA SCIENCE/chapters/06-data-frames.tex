@@ -19,6 +19,41 @@ emp.data <- data.frame(
 
 A data frame stores named, equal-length columns that may have different types.
 
+\begin{utpfig}[Inside a data frame]{A data frame is a list of vectors, each the
+same length, presented as a table. Types vary down the list but never within a
+column --- which is the difference from a matrix, where one type covers
+everything.}{fig:dataframe}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[dshead] (h1) at (0,0) {\texttt{emp\_id}};
+\node[dshead] (h2) at (1.85,0) {\texttt{emp\_name}};
+\node[dshead] (h3) at (3.7,0) {\texttt{salary}};
+
+\foreach \v/\r in {1/1, 2/2, 3/3, 4/4, 5/5}
+  \node[dscol] at (0,-\r*0.62) {\v};
+\foreach \v/\r in {Rick/1, Dan/2, Michelle/3, Ryan/4, Gary/5}
+  \node[dscol] at (1.85,-\r*0.62) {\v};
+\foreach \v/\r in {623.30/1, 515.20/2, 611.00/3, 729.00/4, 843.25/5}
+  \node[dscol] at (3.7,-\r*0.62) {\v};
+
+\foreach \t/\x in {integer/0, character/1.85, double/3.7}
+  \node[tag] at (\x,-3.42) {\texttt{\t}};
+
+\draw[decorate,decoration={brace,amplitude=3.5pt},draw=UTPTeal]
+  (4.62,-0.31) -- (4.62,-3.19);
+\node[tag,anchor=west,text width=3.5cm] at (4.82,-1.75)
+  {one vector per column, all of length 5};
+\node[tag,anchor=west,text width=3.9cm] at (-2.6,-1.75)
+  {\texttt{nrow(emp.data)} counts rows;\\ \texttt{length(emp.data)} counts
+   \emph{columns}, because the object is a list};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+\texttt{length()} on a data frame returns the number of columns, not rows,
+because a data frame is a list underneath. Use \texttt{nrow()} for rows and
+\texttt{dim()} when you want both.
+\end{pitfall}
+
 \section{Creating a data frame from another structure}
 
 \subsection{From a matrix}

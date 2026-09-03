@@ -100,6 +100,68 @@ print(v1 - v2)
 
 R recycles the shorter vector. A warning occurs when the longer length is not a multiple of the shorter length.
 
+\begin{utpfig}[Recycling]{\texttt{v1 + v2} with vectors of length 6 and 2. R
+repeats \texttt{v2} until it is as long as \texttt{v1}, then adds element by
+element. Nothing in the output marks which values were recycled.}{fig:recycling}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[tagb,anchor=east] at (-0.15,0) {\texttt{v1}};
+\foreach \v/\i in {3/0, 8/1, 4/2, 5/3, 0/4, 11/5}
+  \node[cell] at (\i*0.95,0) {\v};
+
+\node[tagb,anchor=east] at (-0.15,-1.0) {\texttt{v2}};
+\foreach \v/\i in {4/0, 11/1}
+  \node[cellalt] at (\i*0.95,-1.0) {\v};
+\foreach \v/\i in {4/2, 11/3, 4/4, 11/5}
+  \node[cellghost] at (\i*0.95,-1.0) {\v};
+
+\node[tagb,anchor=east] at (-0.15,-2.05) {\texttt{sum}};
+\foreach \v/\i in {7/0, 19/1, 8/2, 16/3, 4/4, 13/5}
+  \node[cellout] at (\i*0.95,-2.05) {\v};
+
+\draw[decorate,decoration={brace,amplitude=3pt,mirror},draw=UTPMuted]
+  (1.42,-1.42) -- (5.22,-1.42);
+\node[tag] at (3.3,-1.72) {recycled, not supplied};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+Recycling is silent whenever the lengths divide evenly. \texttt{v1 + v2} above
+runs without a warning, so a vector that is the wrong length by accident
+produces a plausible answer rather than an error. Check \texttt{length()} on
+both operands when a result looks odd.
+\end{pitfall}
+
+\subsection{One vector holds one type}
+An atomic vector cannot mix types. When \texttt{c()} is given a mixture it
+does not fail; it promotes everything to the most general type present.
+
+\begin{utpfig}[Coercion]{The coercion hierarchy. \texttt{c()} moves right until
+one type fits every element, so a single quoted value turns an entire numeric
+vector into text.}{fig:coercion}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \n/\i in {logical/0, integer/1, double/2, character/3}
+  \node[cell,minimum width=20mm] (t\i) at (\i*2.4,0) {\texttt{\n}};
+\foreach \i in {0,1,2} {
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[rarrow] (t\i) -- (t\j);
+}
+\node[tag] at (3.6,0.55) {more general $\longrightarrow$};
+
+\node[anchor=west,font=\scriptsize\color{UTPInk}] at (-0.9,-1.15)
+  {\texttt{c(TRUE, 2L, 3.5)} \ $\rightarrow$ \ \texttt{double} \ \ \texttt{1.0 2.0 3.5}};
+\node[anchor=west,font=\scriptsize\color{UTPInk}] at (-0.9,-1.75)
+  {\texttt{c(1, 2, "3")} \ \ \ \ \ $\rightarrow$ \ \texttt{character} \ \texttt{"1" "2" "3"}};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+The second line is the one that costs time. \texttt{c(1, 2, "3")} gives a
+character vector, and arithmetic on it fails with
+\texttt{non-numeric argument to binary operator} at some later line, far from
+the \texttt{c()} that caused it. Use \texttt{class()} on any vector built from
+mixed sources, especially one read from a file.
+\end{pitfall}
+
 \section{Sorting vectors}
 
 \begin{lstlisting}[style=dsr]

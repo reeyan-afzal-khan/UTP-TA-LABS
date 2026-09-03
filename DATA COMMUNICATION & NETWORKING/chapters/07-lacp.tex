@@ -12,6 +12,45 @@ Link aggregation combines physical Ethernet links into one logical connection. L
 An Eth-Trunk is the logical bundle; its physical interfaces are members. LACP coordinates the active set between peers.
 \end{keyidea}
 
+\subsection{Two 1\,Gbit/s links do not make one 2\,Gbit/s link}
+Aggregation adds capacity, not speed. The switch hashes each
+conversation onto one member and keeps it there, so a single file
+transfer is still capped at the rate of one physical link. Frames must
+stay in order, and splitting one flow across two links would reorder
+them.
+
+\begin{utpfig}[Flow hashing]{Four conversations spread across two members. Any one
+of them uses a single link; the aggregate benefit only appears once there are
+several flows.}{fig:lacp-hash}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[switch,minimum width=1.5cm,minimum height=2.4cm] (s1) at (0,0) {S1};
+\node[switch,minimum width=1.5cm,minimum height=2.4cm] (s2) at (7.4,0) {S2};
+
+\draw[line width=2pt,draw=UTPBlue] (0.78,0.45) -- (6.6,0.45);
+\draw[line width=2pt,draw=UTPTeal] (0.78,-0.45) -- (6.6,-0.45);
+\node[costlabel,text=UTPBlue] at (3.7,0.72) {member 1 --- G0/0/9};
+\node[costlabel,text=UTPTeal] at (3.7,-0.72) {member 2 --- G0/0/10};
+
+\node[anchor=east,font=\scriptsize\color{UTPInk},align=right] at (-1.0,0.75)
+  {flow A \textcolor{UTPBlue}{$\bullet$}};
+\node[anchor=east,font=\scriptsize\color{UTPInk},align=right] at (-1.0,0.25)
+  {flow B \textcolor{UTPTeal}{$\bullet$}};
+\node[anchor=east,font=\scriptsize\color{UTPInk},align=right] at (-1.0,-0.25)
+  {flow C \textcolor{UTPBlue}{$\bullet$}};
+\node[anchor=east,font=\scriptsize\color{UTPInk},align=right] at (-1.0,-0.75)
+  {flow D \textcolor{UTPTeal}{$\bullet$}};
+
+\node[anchor=west,font=\scriptsize\color{UTPMuted},text width=4.0cm,align=left]
+  at (8.3,0.2)
+  {The hash uses source and destination addresses, so a given pair always
+   takes the same member.};
+\node[anchor=north,font=\tiny\color{UTPMuted},align=center,text width=11cm]
+  at (3.7,-1.5)
+  {Two flows land on each link here. With one flow, one link would sit idle ---
+   which is the usual reason a bandwidth test on a new trunk disappoints.};
+\end{tikzpicture}
+\end{utpfig}
+
 \section{Priority concepts used by the source}
 The lab uses two priorities; for both, \textbf{smaller values have higher priority}.
 
@@ -73,20 +112,80 @@ Set S1's system and member-interface priorities to 100.
 [S1-GigabitEthernet0/0/10] lacp priority 100
 \end{lstlisting}
 
-\begin{conceptmap}
-\textbf{Physical preparation} $\rightarrow$ compatible member links\\
-$\downarrow$\\
-\textbf{Eth-Trunk membership} $\rightarrow$ one logical bundle\\
-$\downarrow$\\
-\textbf{Static LACP mode} $\rightarrow$ protocol-coordinated active members\\
-$\downarrow$\\
-\textbf{Priority settings} $\rightarrow$ influence selection behavior.
-\end{conceptmap}
+\subsection{How the two priorities combine}
+The election happens twice, in order. First the two switches decide
+which of them is in charge; only then does that switch rank the
+individual links. Interface priority on the losing switch is ignored
+entirely, which is why changing it there appears to do nothing.
+
+\begin{utpfig}[LACP election]{The two-stage election. Lower values win at both
+stages, and a tie falls back to the MAC address or the interface
+number.}{fig:lacp-election}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% stage 1
+\node[font=\bfseries\scriptsize\color{UTPNavy},anchor=west] at (-0.4,1.6)
+  {\textbf{1.} Which switch decides?};
+\node[switch,minimum width=1.7cm,fill=UTPPaleTeal,draw=UTPGreen,line width=1pt]
+  (a) at (0.6,0.55) {S1};
+\node[switch,minimum width=1.7cm] (b) at (4.0,0.55) {S2};
+\node[font=\tiny\color{UTPGreen},below=1mm of a,align=center]
+  {system priority \textbf{100}\\ lower --- S1 wins};
+\node[font=\tiny\color{UTPMuted},below=1mm of b,align=center]
+  {system priority \textbf{32768}\\ default};
+\draw[stedge] (a)--(b);
+
+% divider
+\draw[draw=UTPMuted!35] (6.0,-1.5) -- (6.0,1.8);
+
+% stage 2
+\node[font=\bfseries\scriptsize\color{UTPNavy},anchor=west] at (6.5,1.6)
+  {\textbf{2.} S1 then ranks the links};
+\node[hdrg,minimum width=3.0cm,anchor=west] at (6.5,0.75)
+  {G0/0/9 \ \ priority 100};
+\node[hdrg,minimum width=3.0cm,anchor=west] at (6.5,0.05)
+  {G0/0/10 \ priority 100};
+\node[hdrm,minimum width=3.0cm,anchor=west] at (6.5,-0.65)
+  {G0/0/11 \ priority 32768};
+\node[font=\tiny\color{UTPGreen},anchor=west] at (9.7,0.75) {active};
+\node[font=\tiny\color{UTPGreen},anchor=west] at (9.7,0.05) {active};
+\node[font=\tiny\color{UTPMuted},anchor=west] at (9.7,-0.65) {standby};
+
+\node[font=\tiny\color{UTPMuted},anchor=west,text width=11.0cm] at (-0.4,-2.0)
+  {S2 simply accepts the result. Its own interface priorities are never
+   consulted, so a bundle that will not form the way you expect is usually a
+   system-priority question, not an interface one.};
+\end{tikzpicture}
+\end{utpfig}
 
 \section{Verify the Eth-Trunk}
 Eth-Trunk output confirms the mode, member state, and actor/partner information.
 
-\sourceimage[0.66\linewidth]{Eth-Trunk/LACP status output taken from the supplied Lab 7 material}{lacp-ethtrunk-status.png}
+\begin{vrpbox}{<S1> display eth-trunk 1}
+\begin{lstlisting}[style=dcnvrp]
+Eth-Trunk1's state information is:
+Local:
+LAG ID: 1                    WorkingMode: (*\hi{STATIC}*)
+Preempt Delay: Disabled      Hash arithmetic: According to SIP-XOR-DIP
+(*\hi{System Priority: 100}*)       System ID: 4c1f-cc11-1111
+Least Active-linknumber: 1   Max Active-linknumber: 8
+Operate status: (*\higreen{up}*)           Number Of Up Port In Trunk: (*\higreen{2}*)
+--------------------------------------------------------------------------------
+ActorPortName          Status    PortType PortPri PortNo PortKey PortState
+GigabitEthernet0/0/9   (*\higreen{Selected}*)  1GE      (*\hi{100}*)     10     305     10111100
+GigabitEthernet0/0/10  (*\higreen{Selected}*)  1GE      (*\hi{100}*)     11     305     10111100
+
+Partner:
+--------------------------------------------------------------------------------
+ActorPortName          SysPri  SystemID        PortPri PortNo PortKey PortState
+GigabitEthernet0/0/9   32768   4c1f-cc22-2222  32768   10     305     10111100
+GigabitEthernet0/0/10  32768   4c1f-cc22-2222  32768   11     305     10111100
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{\cmd{WorkingMode: STATIC} proves LACP is running rather than manual
+aggregation. \cmd{Selected} is the word that matters for each member ---
+\cmd{Unselect} means the port joined the trunk but is not carrying traffic.
+The \cmd{Partner} block shows S2 still at the default 32768, which is why S1
+won the election in \figref{fig:lacp-election}.}
 
 \begin{verification}
 Confirm that Eth-Trunk 1 exists on both switches, uses LACP, contains G0/0/9 and G0/0/10, and shows the expected selected members.

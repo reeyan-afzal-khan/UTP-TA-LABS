@@ -1,29 +1,58 @@
+\cleardoublepage
+
 \chapter*{Course Map: Follow the Flow of Information}
 \addcontentsline{toc}{chapter}{Course Map: Follow the Flow of Information}
 \markboth{Course Map}{}
 
-ERP becomes much easier when you stop treating each module as an isolated topic. The course follows the same logic as a real business: understand the organisation, capture customer demand, plan and obtain resources, fulfil the order, record the financial consequences, and improve the process.
+ERP becomes much easier once you stop treating each module as an isolated
+topic. The course follows the same logic as a real business: understand the
+organisation, capture demand, plan and obtain resources, fulfil the order,
+record the financial consequences, and improve the process.
 
-\begin{erpfigure}
+\begin{erpfig}[Course structure]{The five stages of the course. Each stage
+consumes what the previous one produced, which is also the order in which
+information moves through a real company.}{fig:course-stages}
 \begin{tikzpicture}[
-  stage/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,text width=12.4cm,minimum height=1.22cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2.2mm]},thick,draw=ERPTeal},
-  node distance=0.55cm
+  stage/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=11.9cm,
+                minimum height=1.20cm,align=left,inner xsep=4mm,inner ysep=2.3mm,
+                font=\scriptsize\color{UTPNavy}},
+  node distance=0.52cm
 ]
-\node[stage] (a) {{\normalsize\bfseries\color{ERPBlue}Stage 1: ERP foundations}\hfill{\footnotesize Chapters 1--2}\par
-\smallskip Functional areas, business processes, silos, shared databases, ERP evolution, benefits, challenges, and implementation thinking.};
-\node[stage,below=of a] (b) {{\normalsize\bfseries\color{ERPBlue}Stage 2: Customer and sales}\hfill{\footnotesize Chapters 3--4}\par
-\smallskip CRM, quotations, sales orders, availability, delivery, invoicing, payment, and the information that must cross Sales, Operations, and Finance.};
-\node[stage,below=of b] (c) {{\normalsize\bfseries\color{ERPBlue}Stage 3: Plan and supply}\hfill{\footnotesize Chapters 5--7}\par
-\smallskip Production approaches, sales forecasting, S\&OP, demand management, BOMs, MRP, purchasing, inventory, suppliers, and SCM metrics.};
-\node[stage,below=of c] (d) {{\normalsize\bfseries\color{ERPBlue}Stage 4: Finance, people, and improvement}\hfill{\footnotesize Chapters 8--10}\par
-\smallskip Accounting integration, HR processes, recruitment, flowcharts, swimlanes, process improvement, project scope, change management, and go-live preparation.};
-\node[stage,below=of d] (e) {{\normalsize\bfseries\color{ERPGreen}Stage 5: Odoo practical integration}\hfill{\footnotesize Labs 1--8 + Capstone}\par
-\smallskip Build West End Bicycles in Odoo 19 Community and trace one connected story from organisation setup through purchasing, manufacturing, CRM, sales, delivery, invoicing, payment, and reporting.};
-\draw[arr] (a) -- (b); \draw[arr] (b) -- (c); \draw[arr] (c) -- (d); \draw[arr] (d) -- (e);
+\node[stage] (a) {{\normalsize\bfseries\color{UTPBlue}Stage 1: ERP foundations}\hfill{\footnotesize Chapters 1--2}\par
+\smallskip Functional areas, processes, silos, shared databases, ERP evolution, benefits, challenges.};
+\node[stage,below=of a] (b) {{\normalsize\bfseries\color{UTPBlue}Stage 2: Customer and sales}\hfill{\footnotesize Chapters 3--4}\par
+\smallskip CRM, quotations, sales orders, availability, delivery, invoicing, payment.};
+\node[stage,below=of b] (c) {{\normalsize\bfseries\color{UTPBlue}Stage 3: Plan and supply}\hfill{\footnotesize Chapters 5--7}\par
+\smallskip Production approaches, forecasting, S\&OP, demand management, BOMs, MRP, purchasing, inventory.};
+\node[stage,below=of c] (d) {{\normalsize\bfseries\color{UTPBlue}Stage 4: Finance, people, improvement}\hfill{\footnotesize Chapters 8--10}\par
+\smallskip Accounting integration, HR processes, flowcharts, swimlanes, change management, go-live.};
+\node[stage,below=of d,draw=UTPGreen,fill=UTPPaleTeal] (e) {{\normalsize\bfseries\color{UTPGreen}Stage 5: Odoo practical integration}\hfill{\footnotesize Labs 1--8 + Capstone}\par
+\smallskip Build West End Bicycles in Odoo 19 Community and trace one story from setup through purchasing, manufacturing, CRM, sales, delivery, invoicing, and reporting.};
+\draw[erpflow] (a) -- (b); \draw[erpflow] (b) -- (c);
+\draw[erpflow] (c) -- (d); \draw[erpflow] (d) -- (e);
+\node[erpcap,rotate=90,anchor=south] at (-6.55,-3.2) {information moves this way};
 \end{tikzpicture}
-\end{erpfigure}
+\end{erpfig}
 
-\begin{keyidea}
-The central question throughout the course is not ``Which screen do I click?'' It is ``Which business event happened, what data does that event create, which functional areas need the data, and what should the ERP system do next?''
-\end{keyidea}
+\section*{The question behind every chapter}
+
+One business event --- a customer confirming an order --- has to reach four
+different desks, each of which needs a different part of it.
+
+\begin{erpfig}[One event, four readings]{The recurring pattern of the course. A
+single business event is written once and read four ways. Chapters 1--10 work
+through the areas clockwise; the labs rebuild the whole loop in
+Odoo.}{fig:one-event-four-readings}
+\begin{tikzpicture}[scale=0.98,transform shape]
+\node[erpdb,minimum width=3.1cm,minimum height=1.5cm] (db) at (0,0) {Shared\\record};
+\node[erpstep,minimum width=3.0cm] (ms) at (-3.9,1.55) {Marketing \& Sales\\[-0.2em]{\tiny\mdseries can we promise it?}};
+\node[erpstep,minimum width=3.0cm] (scm) at (3.9,1.55) {Supply Chain\\[-0.2em]{\tiny\mdseries can we make it?}};
+\node[erpstep,minimum width=3.0cm] (af) at (3.9,-1.55) {Accounting \& Finance\\[-0.2em]{\tiny\mdseries what is owed?}};
+\node[erpstep,minimum width=3.0cm] (hr) at (-3.9,-1.55) {Human Resources\\[-0.2em]{\tiny\mdseries who does the work?}};
+\draw[erpflow] (ms) -- (db); \draw[erpflow] (scm) -- (db);
+\draw[erpflow] (db) -- (af); \draw[erpflow] (hr) -- (db);
+\node[erpchip] at (0,2.05) {Ch.\,1--4};
+\node[erpchip] at (0,-2.05) {Ch.\,8--9};
+\end{tikzpicture}
+\end{erpfig}
+

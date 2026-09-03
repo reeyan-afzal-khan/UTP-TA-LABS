@@ -1,0 +1,290 @@
+\chapter*{Foundations: Layers, Addresses, and Frames}
+\addcontentsline{toc}{chapter}{Foundations: Layers, Addresses, and Frames}
+\markboth{Foundations}{}
+\label{ch:foundations}
+
+Every later chapter assumes three things: that a message is wrapped in
+layers, that each layer carries its own kind of address, and that a
+device only reads as far up the stack as its job requires. This chapter
+is the reference for all three. Nothing here is configured in eNSP ---
+it is the vocabulary the labs are written in.
+
+\section*{Two models, one stack}
+OSI has seven layers and is the language people use to \emph{describe}
+faults. TCP/IP has four and is what the software actually implements.
+The labs use OSI numbering (``a Layer-2 problem'', ``a Layer-3 device'')
+and TCP/IP behaviour.
+
+\begin{utpfig}[OSI and TCP/IP]{The two reference models side by side. Layer numbers
+come from OSI; the protocols in the right-hand column are what the eNSP labs
+actually configure.}{fig:osi-tcpip}
+\begin{tikzpicture}[node distance=1.2mm]
+% ---- OSI column
+\node[layerapp] (o7) {Application};
+\node[layerapp,below=of o7] (o6) {Presentation};
+\node[layerapp,below=of o6] (o5) {Session};
+\node[layertra,below=of o5] (o4) {Transport};
+\node[layernet,below=of o4] (o3) {Network};
+\node[layerlnk,below=of o3] (o2) {Data Link};
+\node[layerphy,below=of o2] (o1) {Physical};
+
+\foreach \n/\num in {o7/7,o6/6,o5/5,o4/4,o3/3,o2/2,o1/1}
+  \node[layernum,left=1.5mm of \n] {\num};
+
+\node[font=\bfseries\small\color{UTPNavy},above=2.5mm of o7] {OSI};
+
+% ---- TCP/IP column
+\node[layerapp,right=2.6cm of o6,minimum height=26.4mm] (t4) {Application};
+\node[layertra,below=of t4,minimum height=8mm] (t3) {Transport};
+\node[layernet,below=of t3,minimum height=8mm] (t2) {Internet};
+\node[layerlnk,below=of t2,minimum height=17.2mm] (t1) {Network Access};
+\node[font=\bfseries\small\color{UTPNavy},above=2.5mm of t4] {TCP/IP};
+
+% ---- protocols / PDU column
+\node[anchor=west,font=\scriptsize\color{UTPInk},align=left,right=3mm of t4]
+  {HTTP, \textbf{FTP}, \textbf{DHCP}, DNS\\[1pt]
+   \textcolor{UTPTeal}{\bfseries PDU: data}};
+\node[anchor=west,font=\scriptsize\color{UTPInk},align=left,right=3mm of t3]
+  {TCP, UDP\\[1pt]\textcolor{UTPTeal}{\bfseries PDU: segment}};
+\node[anchor=west,font=\scriptsize\color{UTPInk},align=left,right=3mm of t2]
+  {IPv4, ICMP, \textbf{OSPF}\\[1pt]\textcolor{UTPTeal}{\bfseries PDU: packet}};
+\node[anchor=west,font=\scriptsize\color{UTPInk},align=left,right=3mm of t1]
+  {Ethernet, \textbf{802.1Q}, \textbf{PPP}, \textbf{HDLC}\\[1pt]
+   \textcolor{UTPTeal}{\bfseries PDU: frame} $\rightarrow$ bits};
+
+% ---- brackets showing the collapse
+\draw[decorate,decoration={brace,amplitude=3.5pt},draw=UTPMuted]
+  ($(o7.north east)+(1.5mm,0)$) -- ($(o5.south east)+(1.5mm,0)$);
+\draw[decorate,decoration={brace,amplitude=3.5pt},draw=UTPMuted]
+  ($(o2.north east)+(1.5mm,0)$) -- ($(o1.south east)+(1.5mm,0)$);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+Bold entries are configured somewhere in this book. The course spends
+almost all of its time at Layers 2 and 3, which is where a switch and a
+router respectively make their forwarding decisions.
+\end{keyidea}
+
+\section*{Encapsulation: each layer adds its own header}
+A layer treats everything handed down to it as opaque payload and puts
+its own header in front. The receiver reverses the process. This is why
+a single Wireshark row can be expanded into four or five nested
+protocols.
+
+\begin{utpfig}[Encapsulation]{Sending data down the stack. Each layer prepends a
+header; only Ethernet also appends a trailer. The receiving host strips them in
+the opposite order.}{fig:encapsulation}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\def\u{0.30}
+% row 4: application data
+\protorow{0}{\u}{14/Application data/hdrpay}
+\node[anchor=west,font=\scriptsize\bfseries\color{UTPPurple}] at (5.0,0) {Data};
+
+% row 3: TCP
+\protorow{-1.05}{\u}{4/TCP hdr/hdrg, 14/Application data/hdrpay}
+\node[anchor=west,font=\scriptsize\bfseries\color{UTPTeal}] at (5.7,-1.05) {Segment};
+
+% row 2: IP
+\protorow{-2.10}{\u}{4/IP hdr/hdrb, 4/TCP hdr/hdrg, 14/Application data/hdrpay}
+\node[anchor=west,font=\scriptsize\bfseries\color{UTPBlue}] at (6.9,-2.10) {Packet};
+
+% row 1: Ethernet
+\protorow{-3.15}{\u}{4/Eth hdr/hdro, 4/IP hdr/hdrb, 4/TCP hdr/hdrg,
+                     14/Application data/hdrpay, 3/FCS/hdro}
+\node[anchor=west,font=\scriptsize\bfseries\color{UTPOrange}] at (8.8,-3.15) {Frame};
+
+% down arrow
+\draw[-{Stealth[length=2.5mm]},thick,draw=UTPMuted]
+  (-0.75,0.15) -- (-0.75,-3.5);
+\node[rotate=90,anchor=south,font=\scriptsize\color{UTPMuted}] at (-0.95,-1.7)
+  {sending host};
+\end{tikzpicture}
+\end{utpfig}
+
+\section*{Three addresses, three jobs}
+Beginners conflate these constantly. They answer different questions and
+they change at different rates as a packet crosses a network.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.15\linewidth}p{0.15\linewidth}p{0.20\linewidth}X}
+\toprule
+Address & Layer & Answers & Changes in transit?\\\midrule
+MAC & 2 & Which device on \emph{this} link? & Yes --- rewritten at every router hop.\\
+IP & 3 & Which host on \emph{any} network? & No --- constant end to end.\\
+Port & 4 & Which program on that host? & No.\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{utpfig}[Addresses across a hop]{The IP addresses stay put; the MAC addresses
+are replaced on every link. A router is the device that performs the
+rewrite.}{fig:addr-rewrite}
+\begin{tikzpicture}[node distance=1.5cm]
+\node[host] (a) {PC1};
+\node[router,right=2.6cm of a] (r) {R1};
+\node[host,right=2.6cm of r] (b) {PC2};
+\draw[link] (a) -- (r);
+\draw[link] (r) -- (b);
+
+\node[netlabel,above=0.5mm of a] {10.0.1.10};
+\node[netlabel,above=0.5mm of b] {10.0.2.20};
+\node[netlabel,above=0.5mm of r] {R1 routes between them};
+
+\node[frame,below=0.9cm of a,text width=3.0cm,align=center,draw=UTPOrange]
+  {\scriptsize src MAC \textbf{aa}\\ \scriptsize dst MAC \textbf{r1}\\[1pt]
+   \scriptsize src IP 10.0.1.10\\ \scriptsize dst IP 10.0.2.20};
+\node[frame,below=0.9cm of b,text width=3.0cm,align=center,draw=UTPOrange]
+  {\scriptsize src MAC \textbf{r1}\\ \scriptsize dst MAC \textbf{bb}\\[1pt]
+   \scriptsize src IP 10.0.1.10\\ \scriptsize dst IP 10.0.2.20};
+
+\draw[->,draw=UTPMuted,dotted] ($(a)+(0,-0.42)$) -- ($(a)+(0,-0.72)$);
+\draw[->,draw=UTPMuted,dotted] ($(b)+(0,-0.42)$) -- ($(b)+(0,-0.72)$);
+\node[font=\scriptsize\bfseries\color{UTPRed},below=2.35cm of r,text width=4.4cm,align=center]
+  {MAC changed, IP untouched};
+\end{tikzpicture}
+\end{utpfig}
+
+\section*{The Ethernet II frame}
+This is the frame Wireshark shows in Lab~1 and the frame a VLAN tag is
+inserted into in Lab~8.
+
+\begin{utpfig}[Ethernet II frame]{Ethernet II framing. Widths are proportional to the
+real field sizes. The preamble and SFD are generated by the hardware and are not
+shown by Wireshark.}{fig:eth-frame}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\def\u{0.40}
+\protorow{0}{\u}{7/Preamble/hdrm, 1/S/hdrm, 6/Destination MAC/hdrb,
+                 6/Source MAC/hdrb, 2/Type/hdro, 11/Payload/hdrpay, 4/FCS/hdrg}
+\prototicks{-0.63}{\u}{7/7, 1/1, 6/6, 6/6, 2/2, 11/46--1500, 4/4}
+\node[hdrtick,anchor=east] at (-0.12,-0.63) {bytes};
+\draw[decorate,decoration={brace,amplitude=3pt,mirror},draw=UTPMuted]
+  (0,-0.95) -- (3.2,-0.95);
+\node[hdrtick] at (1.6,-1.30) {added by the NIC};
+\draw[decorate,decoration={brace,amplitude=3pt,mirror},draw=UTPTeal]
+  (3.25,-0.95) -- (14.75,-0.95);
+\node[hdrtick,text=UTPTeal] at (9.0,-1.30) {what a capture shows};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+\cmd{Type} tells the receiver which Layer-3 protocol is inside:
+\cmd{0x0800} for IPv4, \cmd{0x0806} for ARP, \cmd{0x8100} for a
+VLAN-tagged frame. Wireshark reads this field to decide which dissector
+to run, which is why an unrecognised type shows as raw data.
+\end{keyidea}
+
+\section*{The IPv4 header}
+Four fields matter for these labs: the two addresses, the TTL that stops
+routing loops, and the protocol number that identifies the payload.
+
+\begin{utpfig}[IPv4 header]{The IPv4 header, drawn as the 32-bit rows Wireshark
+displays. Shaded fields are the ones the labs read or change.}{fig:ipv4-header}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\def\u{0.36}
+\protorow{0}{\u}{4/Ver/hdrm, 4/IHL/hdrm, 8/DSCP + ECN/hdrm, 16/Total length/hdrm}
+\protorow{-0.85}{\u}{16/Identification/hdrm, 3/Flg/hdrm, 13/Fragment offset/hdrm}
+\protorow{-1.70}{\u}{8/TTL/hdro, 8/Protocol/hdro, 16/Header checksum/hdrm}
+\protorow{-2.55}{\u}{32/Source IP address/hdrb}
+\protorow{-3.40}{\u}{32/Destination IP address/hdrb}
+
+\node[hdrtick,anchor=west] at (0,0.62) {0};
+\node[hdrtick] at (5.76,0.62) {16};
+\node[hdrtick,anchor=east] at (11.52,0.62) {31};
+\draw[draw=UTPMuted!50] (0,0.45)--(11.52,0.45);
+
+\node[anchor=west,font=\scriptsize\color{UTPMuted},align=left] at (11.9,-1.70)
+  {\textcolor{UTPOrange}{\bfseries TTL} drops by 1 per hop.\\
+   \textcolor{UTPOrange}{\bfseries Protocol}: 1 ICMP,\\ 6 TCP, 17 UDP, 89 OSPF.};
+\node[anchor=west,font=\scriptsize\color{UTPMuted},align=left] at (11.9,-2.98)
+  {\textcolor{UTPBlue}{\bfseries The pair a router}\\
+   \textcolor{UTPBlue}{\bfseries matches against its}\\
+   \textcolor{UTPBlue}{\bfseries routing table.}};
+\end{tikzpicture}
+\end{utpfig}
+
+\section*{What each device reads}
+A device only decodes as far up as it needs to. This single fact
+explains why a switch cannot fix a routing problem and why a VLAN
+cannot be bypassed by changing a PC's IP address.
+
+\begin{utpfig}[Device scope]{How far up the stack each device looks. The dividing
+line between a switch and a router is the whole of Chapters~\ref{ch:static-routing}
+and~\ref{ch:ospf}.}{fig:device-scope}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \x/\name/\desc in {%
+  0/Hub/{repeats bits},%
+  3.5/Switch/{learns MAC},%
+  7.0/Router/{reads IP},%
+  10.5/Firewall/{reads ports}}
+  {\node[font=\bfseries\small\color{UTPNavy}] at (\x+0.9,0.55) {\name};
+   \node[font=\scriptsize\color{UTPMuted}] at (\x+0.9,0.15) {\desc};}
+
+% layer bands
+\foreach \y/\lab/\st in {-0.4/Physical/hdrm, -1.1/Data Link/hdro,
+                         -1.8/Network/hdrb, -2.5/Transport/hdrg}
+  {\node[\st,minimum width=1.6cm,anchor=east,font=\scriptsize\color{UTPNavy}]
+     at (-0.25,\y) {\lab};}
+
+\foreach \x/\top in {0/1, 3.5/2, 7.0/3, 10.5/4} {
+  \foreach \i in {1,...,4} {
+    \pgfmathsetmacro{\yy}{-0.4-(\i-1)*0.7}
+    \ifnum\i>\top
+      \node[draw=UTPMuted!30,fill=white,minimum width=1.8cm,minimum height=5.5mm,
+            font=\tiny\color{UTPMuted!60}] at (\x+0.9,\yy) {--};
+    \else
+      \node[draw=UTPGreen,fill=UTPPaleTeal,minimum width=1.8cm,minimum height=5.5mm,
+            font=\tiny\bfseries\color{UTPGreen}] at (\x+0.9,\yy) {reads};
+    \fi
+  }
+}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+A switch forwards on MAC addresses and never looks at an IP address.
+Two PCs in different VLANs stay unreachable however you renumber them,
+because the switch stops reading before it reaches the IP header.
+\end{keyidea}
+
+\section*{Collision and broadcast domains}
+The terms recur in Chapters~\ref{ch:lacp} and~\ref{ch:vlan}. A hub gives
+one collision domain and one broadcast domain. A switch gives one
+collision domain per port but still one broadcast domain. Only a router
+or a VLAN splits the broadcast domain.
+
+\begin{utpfig}[Domains]{What each device splits. The middle case is the one people
+get wrong: a switch gives every port its own collision domain but leaves the
+broadcast domain intact.}{fig:domains}
+\begin{tikzpicture}[x=1cm,y=1cm,every node/.style={font=\scriptsize}]
+\foreach \x/\dev/\coll/\bcast in {0/Hub/1/1, 5.0/Switch/4/1, 10.0/Router/4/4} {
+  \node[font=\bfseries\small\color{UTPNavy}] at (\x+1.6,1.5) {\dev};
+  \node[switch,minimum width=2.6cm] at (\x+1.6,0.75) {};
+  \foreach \i in {0,1,2,3} {
+    \node[host,minimum width=0.62cm,minimum height=0.42cm,font=\tiny]
+      at (\x+0.45+\i*0.77,-0.35) {};
+    \draw[link] (\x+0.45+\i*0.77,-0.15) -- (\x+0.45+\i*0.77,0.45);
+  }
+  \node[align=center,color=UTPMuted] at (\x+1.6,-1.0)
+    {\textbf{\coll} collision \\ \textbf{\bcast} broadcast};
+}
+% collision domain shading
+\begin{scope}[on background layer]
+\draw[bcastzone] (-0.05,-0.62) rectangle (3.25,0.42);
+\foreach \i in {0,1,2,3}
+  \draw[bcastzone] (5.15+\i*0.77,-0.62) rectangle (5.75+\i*0.77,0.42);
+\foreach \i in {0,1,2,3}
+  \draw[bcastalt] (10.15+\i*0.77,-0.62) rectangle (10.75+\i*0.77,0.42);
+\end{scope}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{quickcheck}
+\begin{enumerate}
+\item A packet crosses two routers. How many times is its destination
+      MAC address rewritten, and how many times its destination IP?
+\item Which header field would you check first to diagnose a routing loop?
+\item A frame arrives with Type \cmd{0x8100}. What does the switch expect
+      to find next, and which chapter configures it?
+\item Why can a switch not resolve a problem caused by a missing static route?
+\end{enumerate}
+\end{quickcheck}

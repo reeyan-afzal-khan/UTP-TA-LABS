@@ -78,6 +78,18 @@ legend(
 
 The labels show each value as a percentage of the total.
 
+\begin{utpfig}[Pie chart]{The chart the code above produces. Slice angle encodes
+each city's share of the total 146.}{fig:pie}
+\input{figures/08-pie}
+\end{utpfig}
+
+\begin{pitfall}
+Comparing Mumbai (36.3\,\%) with New York (42.5\,\%) means comparing two
+angles, which people do poorly. A bar chart of the same four numbers would
+be read correctly at a glance. Use a pie only when the point is
+\emph{share of a whole} and the categories number about five or fewer.
+\end{pitfall}
+
 \subsection{3D pie chart}
 
 The optional \texttt{plotrix} example requires defined labels:
@@ -127,6 +139,19 @@ boxplot(
 )
 \end{lstlisting}
 
+\begin{utpfig}[Box plot]{\texttt{mpg} by cylinder count, from the 32 rows of
+\texttt{mtcars}. The box spans the interquartile range, the line inside it is
+the median, and the whiskers reach the furthest point within 1.5 IQR. Points
+beyond that are drawn individually.}{fig:boxplot}
+\input{figures/08-boxplot}
+\end{utpfig}
+
+\begin{keyidea}
+The formula \texttt{mpg \textasciitilde{} cyl} reads ``mpg \emph{by} cyl''.
+It splits one numeric column into groups defined by another column, which is
+why a single \texttt{boxplot()} call produces three boxes rather than one.
+\end{keyidea}
+
 \section{Histograms}
 
 \begin{lstlisting}[style=dsr]
@@ -154,8 +179,18 @@ hist(
 )
 \end{lstlisting}
 
+\begin{utpfig}[Histogram]{The 11 values binned into five intervals of width 10.
+Bar height is a count, so the bars touch: the horizontal axis is continuous,
+unlike a bar chart's.}{fig:histogram}
+\input{figures/08-histogram}
+\end{utpfig}
+
 \begin{pitfall}
 The source prints the invalid argument \texttt{n breaks = 5}; the correct argument is \texttt{breaks = 5}.
+
+\texttt{breaks} is a suggestion, not an instruction. R applies
+\texttt{pretty()} to it and may return a different number of bins than you
+asked for. Check the result rather than assuming.
 \end{pitfall}
 
 \section{Scatterplots}
@@ -175,6 +210,21 @@ plot(
   main = "Weight versus mileage"
 )
 \end{lstlisting}
+
+\begin{utpfig}[Scatterplot]{Weight against mileage, drawn with the axis limits
+the lab specifies. The downward drift is the finding: heavier cars return fewer
+miles per gallon.}{fig:scatter}
+\input{figures/08-scatter}
+\end{utpfig}
+
+\begin{pitfall}
+\texttt{xlim} and \texttt{ylim} do not rescale the plot --- they discard
+anything outside the window, silently. These limits drop 13 of the 32
+\texttt{mtcars} rows, including every car under 2.5 tons and the three
+returning over 30\,mpg, which are exactly the points that make the trend
+clearest. Plot without limits first, then narrow them only if you can say
+what you are excluding.
+\end{pitfall}
 
 A scatterplot matrix expands the idea to four variables:
 
@@ -212,6 +262,12 @@ barplot(
 )
 \end{lstlisting}
 
+\begin{utpfig}[Bar chart]{The same five numbers as \figref{fig:linegraph}, drawn
+as bars. Bars are separated because the horizontal axis is categorical: the
+months have no numeric distance between them.}{fig:barchart}
+\input{figures/08-barchart}
+\end{utpfig}
+
 \subsection{Stacked matrix input}
 
 Lab 8a constructs a 3-by-5 matrix of values and passes it to \texttt{barplot()} with a region legend:
@@ -239,6 +295,18 @@ barplot(
 
 legend("topleft", regions, cex = 1.3, fill = colors)
 \end{lstlisting}
+
+\begin{utpfig}[Stacked bar chart]{Three regions stacked per month. Total height
+is easy to compare; the middle segment is not, because it starts at a different
+place in every column.}{fig:stacked}
+\input{figures/08-stacked}
+\end{utpfig}
+
+\begin{pitfall}
+Only the bottom segment of a stacked bar shares a baseline, so only it can be
+compared across columns by eye. If the question is about West rather than the
+total, use grouped bars (\texttt{beside = TRUE}) instead.
+\end{pitfall}
 
 \section{Line graphs}
 
@@ -276,7 +344,21 @@ plot(
 lines(t, type = "o", col = "blue")
 \end{lstlisting}
 
-\begin{dsfigure}
+\begin{utpfig}[Line graph]{Two series on one pair of axes. \texttt{plot()} draws
+the first and fixes the axis limits; \texttt{lines()} adds to what is already
+there.}{fig:linegraph}
+\input{figures/08-linegraph}
+\end{utpfig}
+
+\begin{pitfall}
+\texttt{lines()} does not expand the axes. Because \texttt{plot(v)} set the
+range from \texttt{v} alone, a second series with larger values would be
+clipped at the top edge without warning. Set \texttt{ylim} from both vectors
+before the first call: \texttt{ylim = c(0, max(v, t))}.
+\end{pitfall}
+
+\begin{utpfig}[Choosing a chart]{Start from the question, not from the chart you
+find easiest to produce.}{fig:chart-choice}
 \begin{tikzpicture}[
   box/.style={draw=DSBlue,fill=DSPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.05cm,align=center,font=\small\bfseries\color{DSNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=DSTeal}
@@ -289,7 +371,7 @@ lines(t, type = "o", col = "blue")
 \draw[arr] (question) -- (dist);
 \draw[arr] (question) -- (rel);
 \end{tikzpicture}
-\end{dsfigure}
+\end{utpfig}
 
 Choose a chart that matches the analytical question, then explain the visible evidence.
 

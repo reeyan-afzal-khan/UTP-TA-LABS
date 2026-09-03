@@ -36,6 +36,27 @@
 % ---------- commands used only in this book ----------
 \newcommand{\ptrnull}{{\scriptsize\color{UTPMuted}NULL}}
 
+% Expand the one-page Learning Path so its hierarchy fills the page cleanly.
+\newcommand{\adsfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{0.98em}%
+  \setlength{\cftbeforechapskip}{0.32em}%
+  \setlength{\cftbeforelabskip}{0.38em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\adsfullpagetoc}{}{}
+
 % ---------- other settings used only in this book ----------
 \utpfigalias{adsfig}
 \utpdiagramstyles{ads}{1.05cm}{0.85cm}

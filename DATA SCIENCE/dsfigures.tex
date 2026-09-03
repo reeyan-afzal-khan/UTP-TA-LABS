@@ -1,0 +1,72 @@
+% =====================================================================
+%  dsfigures.tex
+%  Drawing support for the Data Science notes.
+%
+%  Loaded from main.tex after ../.shared/utpnotes. Two jobs:
+%    1  pgfplots libraries and defaults the generated charts need
+%    2  the TikZ vocabulary the hand-drawn structure diagrams use
+%
+%  The charts themselves live in figures/ and are produced by
+%  tools/make-figures.py from the same numbers the chapters' R code
+%  uses. Regenerate them with:
+%
+%      python3 tools/make-figures.py
+% =====================================================================
+
+% ---------------------------------------------------------------------
+%  1.  PGFPLOTS
+% ---------------------------------------------------------------------
+%  statistics gives boxplot prepared; groupplots gives the multi-panel
+%  figures used for Anscombe's quartet and the correlation gallery.
+
+\usepgfplotslibrary{statistics}
+\usepgfplotslibrary{groupplots}
+
+% A course-local violet, for the third group in the box plot. The shared
+% palette stops at five accents and the box plot needs a sixth.
+\definecolor{DSPurple}{HTML}{6B4FA0}
+\colorlet{UTPPurple}{DSPurple}
+\colorlet{UTPGoldAlias}{UTPGold}
+
+% ---------------------------------------------------------------------
+%  2.  STRUCTURE DIAGRAM STYLES
+% ---------------------------------------------------------------------
+%  R objects drawn as boxes of cells. An atomic vector is a row of
+%  `cell`; a list is a row of `slot`, each holding something of a
+%  different shape; a data frame is a row of columns.
+
+\tikzset{
+  cell/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=8mm,minimum height=7mm,
+               font=\scriptsize\color{UTPNavy},inner sep=1pt},
+  cellalt/.style={cell,fill=UTPPaleOrange,draw=UTPOrange},
+  cellghost/.style={cell,fill=UTPPaleGray,draw=UTPMuted!50,
+                    font=\scriptsize\itshape\color{UTPMuted}},
+  cellout/.style={cell,fill=UTPPaleTeal,draw=UTPTeal},
+  cellbad/.style={cell,fill=UTPPaleRed,draw=UTPRed},
+  slot/.style={draw=UTPTeal,fill=UTPPaleTeal,minimum width=17mm,
+               minimum height=9mm,align=center,
+               font=\scriptsize\color{UTPNavy},inner sep=1.5pt},
+  dscol/.style={draw=UTPNavy!45,fill=white,minimum width=17mm,
+                minimum height=7mm,font=\scriptsize\color{UTPInk},inner sep=1pt},
+  dshead/.style={dscol,fill=UTPPaleBlue,font=\scriptsize\bfseries\color{UTPNavy}},
+  tag/.style={font=\scriptsize\color{UTPMuted},inner sep=1.5pt},
+  tagb/.style={font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.5pt},
+  rarrow/.style={-{Stealth[length=2mm]},semithick,draw=UTPTeal},
+  rarrowmuted/.style={-{Stealth[length=2mm]},semithick,draw=UTPMuted},
+  % flowchart pieces for the control-flow chapter
+  fcbox/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1mm,
+                minimum width=22mm,minimum height=7mm,
+                font=\scriptsize\color{UTPNavy},align=center},
+  fcdiamond/.style={diamond,aspect=2.2,draw=UTPOrange,fill=UTPPaleOrange,
+                    inner sep=1pt,font=\scriptsize\color{UTPNavy},align=center},
+  fcstart/.style={rounded rectangle,draw=UTPMuted,fill=UTPPaleGray,
+                  font=\scriptsize\color{UTPInk},inner sep=2pt},
+  fcedge/.style={-{Stealth[length=2mm]},semithick,draw=UTPMuted},
+  fclabel/.style={font=\tiny\color{UTPMuted},inner sep=1.5pt},
+}
+
+% A short explanatory line inside a figure frame, under the drawing.
+\newcommand{\fignote}[1]{\par\smallskip{\scriptsize\color{UTPMuted}#1\par}}
+
+% Inline R code, so chapters can stop writing \texttt{} by hand.
+\providecommand{\rcode}[1]{\texttt{#1}}

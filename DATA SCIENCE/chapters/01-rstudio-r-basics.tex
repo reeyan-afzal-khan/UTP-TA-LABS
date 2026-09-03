@@ -23,6 +23,43 @@ R executes the code; RStudio provides the development environment.
 
 Use the Console for immediate evaluation and scripts for saved, reproducible work.
 
+\begin{utpfig}[RStudio panes]{The four panes. Everything in this book happens in
+one of them, and the split between the two on the left is the difference between
+a result you can reproduce and one you cannot.}{fig:rstudio}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[fcbox,minimum width=52mm,minimum height=20mm,align=left,
+      fill=UTPPaleBlue,draw=UTPBlue] (src) at (0,1.15)
+  {\textbf{Source} \ \tiny (top left)\\[2pt]
+   \tiny Your \texttt{.R} script. Edited, saved, rerun.\\
+   \tiny Ctrl+Enter sends the current line down.};
+\node[fcbox,minimum width=52mm,minimum height=20mm,align=left,
+      fill=UTPPaleGray,draw=UTPMuted] (con) at (0,-1.15)
+  {\textbf{Console} \ \tiny (bottom left)\\[2pt]
+   \tiny Runs immediately, keeps no record.\\
+   \tiny Good for a quick test, bad for an assignment.};
+\node[fcbox,minimum width=48mm,minimum height=20mm,align=left,
+      fill=UTPPaleTeal,draw=UTPTeal] (env) at (5.6,1.15)
+  {\textbf{Environment} \ \tiny (top right)\\[2pt]
+   \tiny Every object currently in memory, with its\\
+   \tiny class and value. The visual form of \texttt{ls()}.};
+\node[fcbox,minimum width=48mm,minimum height=20mm,align=left,
+      fill=UTPPaleOrange,draw=UTPOrange] (plt) at (5.6,-1.15)
+  {\textbf{Files / Plots / Help} \ \tiny (bottom right)\\[2pt]
+   \tiny Where a chart appears, and where \texttt{?paste}\\
+   \tiny opens. Also shows the working directory.};
+
+\draw[-{Stealth[length=2mm]},semithick,draw=UTPBlue]
+  (src.south) -- node[fclabel,right]{Ctrl+Enter} (con.north);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+Work typed straight into the Console is gone when the session ends. If a
+result cannot be reproduced by running a saved script from top to bottom in a
+clean session, it is not reproducible --- and the Environment pane still
+showing the right answer is not evidence that it is.
+\end{pitfall}
+
 \begin{dstable}
 \begin{tabularx}{\linewidth}{@{}p{3.0cm}X X@{}}
 \toprule

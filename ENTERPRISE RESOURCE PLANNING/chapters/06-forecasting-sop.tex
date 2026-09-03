@@ -6,27 +6,19 @@
   {calculate a simple promotion-adjusted forecast, construct an S\&OP table, interpret capacity utilisation and safety stock, and identify unit or data inconsistencies before using a planning model.}
 
 \begin{sourcebasis}
-This chapter follows Tutorial 6, the supplied Sales Forecast and S\&OP spreadsheet, and the forecasting/S\&OP sections of Chapter 4 in the textbook. The tutorial uses Footloose Sport Shoes and asks students to automate the calculations with spreadsheet formulas.
+This chapter follows Tutorial 6, the supplied Sales Forecast and S\&OP
+spreadsheet, and the forecasting sections of Chapter 4. The tutorial uses
+Footloose Sport Shoes and asks students to automate the calculations with
+spreadsheet formulas. Every figure below is plotted from the tutorial's own
+input values.
 \end{sourcebasis}
 
 \section{Forecast structure used in the tutorial}
 
-The Footloose exercise provides 2022 monthly sales, identifies unusual promotional demand from the previous year, assumes 3\% underlying growth, and adds a different promotion plan for the forecast year.
-
-The calculation is best understood as four rows:
-
-\begin{enumerate}
-  \item remove last year's promotion from last year's total to estimate the base;
-  \item apply the 3\% growth assumption to the base;
-  \item obtain the new base projection;
-  \item add this year's expected promotion effect.
-\end{enumerate}
-
-For a spreadsheet, if the previous-year sales are in row 5, previous promotion in row 6, growth rate in a fixed input cell, and new promotion in row 10, the logic should be formula-driven rather than typed month by month.
-
-\section{Worked forecast for Footloose Sport Shoes}
-
-Using the values in the supplied spreadsheet and the tutorial's 3\% growth assumption gives the following results.
+The Footloose exercise supplies the previous year's monthly sales, identifies
+the promotional demand inside those figures, assumes 3\% underlying growth, and
+adds a different promotion plan for the forecast year. The calculation is four
+rows: strip last year's promotion, grow the base, add this year's promotion.
 
 \begin{erptable}
 \resizebox{\linewidth}{!}{%
@@ -46,121 +38,336 @@ Forecast & 4120 & 4120 & 4635 & 5150 & 5150 & 5459 & 5665 & 5922.5 & 6180 & 6180
 \end{tabular}}
 \end{erptable}
 
-If the organisation plans in whole pairs, it must also choose and document a rounding rule. Do not silently round some months and not others.
+The three series are easier to judge as lines than as a grid of numbers.
+
+\begin{erpfig}[Footloose forecast]{The tutorial's three series. Note what happens
+at June, November, and December: the previous-year line jumps, the base line
+does not, and the forecast line jumps again only where a \emph{new} promotion is
+planned. June is the instructive case --- last year's spike disappears and is not
+replaced.}{fig:footloose-forecast}
+\begin{tikzpicture}
+\begin{axis}[
+  width=14.6cm, height=6.4cm,
+  ymin=3600, ymax=7000,
+  ylabel={pairs},
+  symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  legend style={at={(0.5,1.19)},anchor=north,legend columns=3},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+  every axis plot/.append style={mark size=1.5pt},
+]
+\addplot[draw=UTPMuted,mark=*,mark options={fill=UTPMuted}] coordinates
+  {(Jan,4000)(Feb,4000)(Mar,4500)(Apr,5000)(May,5000)(Jun,5500)(Jul,5500)
+   (Aug,5750)(Sep,6000)(Oct,6000)(Nov,6200)(Dec,6300)};
+\addlegendentry{previous year (as sold)}
+\addplot[draw=UTPBlue,dashed,mark=square*,mark options={fill=UTPPaleBlue}] coordinates
+  {(Jan,4000)(Feb,4000)(Mar,4500)(Apr,5000)(May,5000)(Jun,5300)(Jul,5500)
+   (Aug,5750)(Sep,6000)(Oct,6000)(Nov,5800)(Dec,5900)};
+\addlegendentry{base (promotion removed)}
+\addplot[draw=UTPGreen,mark=triangle*,mark options={fill=UTPPaleTeal}] coordinates
+  {(Jan,4120)(Feb,4120)(Mar,4635)(Apr,5150)(May,5150)(Jun,5459)(Jul,5665)
+   (Aug,5922.5)(Sep,6180)(Oct,6180)(Nov,6474)(Dec,6477)};
+\addlegendentry{forecast}
+\draw[erplink] (axis cs:Mar,6500) -- (axis cs:Jun,5480);
+\node[erpchipwarn,anchor=west,font=\tiny] at (axis cs:Feb,6600)
+  {June: last year's spike removed, not replaced};
+\draw[erplink] (axis cs:Jul,6130) -- (axis cs:Nov,6430);
+\node[erpchip,anchor=west,font=\tiny] at (axis cs:Apr,6130) {new promotion added here};
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{workedexample}
-For June, previous-year sales were 5,500 pairs, but 200 pairs were attributed to a promotion. The estimated base is therefore 5,300. Applying 3\% growth gives $5{,}300\times 1.03=5{,}459$. Since the new promotion is planned only for November and December, the June forecast remains 5,459 pairs.
+For June, previous-year sales were 5,500 pairs of which 200 were promotional. The
+base is 5,300. Applying 3\% growth gives $5{,}300\times 1.03 = 5{,}459$. No new
+promotion is planned for June, so the forecast stays at 5,459 pairs --- below
+last year's actual sales, which is the correct answer.
 \end{workedexample}
+
+\begin{erpfig}[November and December decomposed]{The two promotion months broken
+into their three components. The forecast is higher than last year in both
+months, but for different reasons: December's new promotion is smaller than last
+year's, so almost all its growth comes from the base. The axis starts at 5,400
+so the increments are visible.}{fig:promo-decomposition}
+\begin{tikzpicture}
+\begin{axis}[
+  width=12.6cm, height=5.6cm,
+  ybar stacked, bar width=26pt,
+  ymin=5400, ymax=6700,
+  ylabel={pairs},
+  symbolic x coords={Nov base,Nov forecast,Dec base,Dec forecast},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  enlarge x limits=0.22,
+  legend style={at={(0.5,1.19)},anchor=north,legend columns=3},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+]
+\addplot[draw=UTPBlue,fill=UTPPaleBlue] coordinates
+  {(Nov base,5800)(Nov forecast,5800)(Dec base,5900)(Dec forecast,5900)};
+\addlegendentry{base demand}
+\addplot[draw=UTPGreen,fill=UTPPaleTeal] coordinates
+  {(Nov base,0)(Nov forecast,174)(Dec base,0)(Dec forecast,177)};
+\addlegendentry{3\% growth}
+\addplot[draw=UTPOrange,fill=UTPPaleOrange] coordinates
+  {(Nov base,0)(Nov forecast,500)(Dec base,0)(Dec forecast,400)};
+\addlegendentry{planned promotion}
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
+
+If the organisation plans in whole pairs it must also choose and document a
+rounding rule. Do not round some months and not others.
 
 \section{S\&OP is a balancing problem}
 
-Once forecast demand is available, planners decide how much to produce. The inventory balance is:
+Once forecast demand exists, planners decide how much to produce. The inventory
+balance is $I_t = I_{t-1} + P_t - F_t$. A plan that copies the forecast into the
+production row keeps inventory flat, which is rarely what a seasonal business
+wants.
 
-\[
-I_t = I_{t-1} + P_t - F_t
-\]
+\section{Capacity, and the unit that decides everything}
 
-where $I_t$ is ending inventory, $P_t$ is production, and $F_t$ is forecast demand in period $t$.
-
-A plan that exactly matches forecast every month keeps inventory unchanged only if beginning inventory is already at the desired level. In practice, production is often shifted between periods because capacity changes with working days and because peak demand may exceed comfortable capacity.
-
-\section{Capacity and utilisation}
-
-Tutorial 6 states that the factory can produce a maximum of 40 shoes per hour, works 8 hours per normal day, and should remain at 99\% utilisation or below.
-
-Before calculating, units must be consistent.
+Tutorial 6 states a maximum of 40 shoes per hour, 8 hours per normal day, and a
+utilisation ceiling of 99\%. Before calculating anything, the units must agree.
 
 \begin{pitfall}
-The tutorial describes demand in \emph{pairs of shoes} but states a production rate of \emph{40 shoes per hour}. Those are different units. If ``40 shoes/hour'' is literal, capacity is 20 pairs/hour. If the intended classroom interpretation is 40 pairs/hour, the capacity is twice as large. Confirm the intended unit with the tutor before finalising the S\&OP table.
+The tutorial describes demand in \emph{pairs} but states production as \emph{40
+shoes per hour}. Those are different units. Read literally, capacity is 20
+pairs/hour; read as the classroom shorthand, it is 40 pairs/hour. Confirm the
+intended unit with the tutor before finalising the table.
 \end{pitfall}
 
-If the intended rate is $r$ pairs/hour, monthly capacity is
+This is not a pedantic point. The two readings give opposite answers about
+whether the year's plan is possible at all.
+
+\begin{erpfig}[The unit ambiguity decides feasibility]{Monthly utilisation if
+production simply matches the forecast, under both readings of the production
+rate. At 40 pairs/hour the year fits comfortably under the ceiling; at 20
+pairs/hour every single month is infeasible, some by nearly double. No amount of
+planning skill recovers from choosing the wrong
+unit.}{fig:unit-ambiguity}
+\begin{tikzpicture}
+\begin{axis}[
+  width=14.6cm, height=6.0cm,
+  ymin=0, ymax=210,
+  ylabel={utilisation (\%)},
+  symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  legend style={at={(0.5,1.20)},anchor=north,legend columns=3},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+  every axis plot/.append style={mark size=1.5pt},
+]
+\addplot[draw=UTPRed,mark=*,mark options={fill=UTPPaleRed}] coordinates
+  {(Jan,117)(Feb,129)(Mar,126)(Apr,161)(May,153)(Jun,155)(Jul,169)
+   (Aug,168)(Sep,176)(Oct,184)(Nov,184)(Dec,193)};
+\addlegendentry{literal: 20 pairs/hour}
+\addplot[draw=UTPGreen,mark=square*,mark options={fill=UTPPaleTeal}] coordinates
+  {(Jan,58.5)(Feb,64.4)(Mar,63.0)(Apr,80.5)(May,76.6)(Jun,77.5)(Jul,84.3)
+   (Aug,84.1)(Sep,87.8)(Oct,92.0)(Nov,92.0)(Dec,96.4)};
+\addlegendentry{shorthand: 40 pairs/hour}
+\addplot[draw=UTPOrange,dashed,mark=none,domain=0:11,samples=2] coordinates
+  {(Jan,99)(Dec,99)};
+\addlegendentry{99\% ceiling}
+\node[erpchipbad,anchor=north,font=\tiny] at (axis cs:Jul,142) {every month infeasible};
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
+
+With the rate confirmed as $r$ pairs/hour, monthly capacity and utilisation are
 
 \[
 C_t = r\times 8\times D_t,
+\qquad
+U_t = \frac{P_t}{C_t}\times 100\% \le 99\%,
 \]
 
-where $D_t$ is the number of working days in the month. Utilisation is
-
-\[
-U_t = \frac{P_t}{C_t}\times 100\%.
-\]
-
-To enforce the tutorial's ceiling,
-
-\[
-P_t \leq 0.99C_t.
-\]
+where $D_t$ is the working days in the month.
 
 \section{Safety stock and seasonal peaks}
 
-The tutorial says the planner expects higher demand in June and December and wants a safety stock buffer. One sensible strategy is to build inventory in an earlier month when capacity is less constrained, then use that inventory during the peak.
+The tutorial expects higher demand in June and December and wants a safety
+buffer. The sensible response is to produce above forecast while capacity is
+slack early in the year and draw the buffer down through the peak.
 
-This is exactly why S\&OP is more than copying the forecast into the production row. A production plan can intentionally differ from forecast while still satisfying cumulative demand.
+\begin{erpfig}[A build-ahead production plan]{A plan that deliberately departs
+from the forecast. Production runs above demand from January to August, when
+capacity is under-used, and the accumulated stock absorbs the November and
+December peak without pushing utilisation to the ceiling. Working days assumed
+per month.}{fig:sop-plan}
+\begin{tikzpicture}
+\begin{axis}[
+  width=14.6cm, height=6.2cm,
+  ybar=1.5pt, bar width=7pt,
+  ymin=0, ymax=8400,
+  ylabel={pairs},
+  symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  enlarge x limits=0.055,
+  legend style={at={(0.5,1.20)},anchor=north,legend columns=3},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+]
+\addplot[draw=UTPMuted!60,fill=UTPPaleGray] coordinates
+  {(Jan,7040)(Feb,6400)(Mar,7360)(Apr,6400)(May,6720)(Jun,7040)(Jul,6720)
+   (Aug,7040)(Sep,7040)(Oct,6720)(Nov,7040)(Dec,6720)};
+\addlegendentry{capacity at 40 pairs/hour}
+\addplot[draw=UTPGreen,fill=UTPPaleTeal] coordinates
+  {(Jan,4600)(Feb,4600)(Mar,5000)(Apr,5400)(May,5400)(Jun,5700)(Jul,5900)
+   (Aug,6050)(Sep,6200)(Oct,6200)(Nov,6200)(Dec,6200)};
+\addlegendentry{production plan}
+\addplot[draw=UTPBlue,fill=UTPPaleBlue] coordinates
+  {(Jan,4120)(Feb,4120)(Mar,4635)(Apr,5150)(May,5150)(Jun,5459)(Jul,5665)
+   (Aug,5922.5)(Sep,6180)(Oct,6180)(Nov,6474)(Dec,6477)};
+\addlegendentry{forecast demand}
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
 
-\section{Source inconsistencies to notice before modelling}
-
-The course materials contain a few values that should be treated carefully rather than silently reconciled:
-
-\begin{itemize}
-  \item Tutorial 6 asks for the 2023 forecast using 2022 sales, while the supplied spreadsheet headings still say ``for year 2022.'' The row values nevertheless match the tutorial's previous-year input structure.
-  \item Tutorial 6 states safety stock of 100, but the spreadsheet pre-fills 500 in the December inventory cell of the S\&OP table.
-  \item The tutorial uses pairs sold while the stated hourly production rate is in shoes.
-\end{itemize}
-
-\begin{keyidea}
-Planning models are only as reliable as their units and assumptions. Before writing formulas, verify time period, unit of measure, starting inventory, promotion assumptions, capacity rate, and whether the numbers describe individual items, pairs, cases, or product groups.
-\end{keyidea}
+\begin{erpfig}[Where the buffer goes]{The inventory consequence of the same plan,
+from an opening balance of 100 pairs. Stock climbs while production exceeds
+demand, peaks in October, and is consumed through the two promotion months ---
+which is the whole purpose of planning production separately from
+forecasting it.}{fig:inventory-profile}
+\begin{tikzpicture}
+\begin{axis}[
+  width=14.6cm, height=5.4cm,
+  ymin=0, ymax=3000,
+  ylabel={ending inventory (pairs)},
+  symbolic x coords={Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec},
+  xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
+  ymajorgrids, grid style={draw=UTPMuted!22},
+]
+\addplot[draw=UTPBlue,fill=UTPPaleBlue,mark=*,mark options={fill=UTPBlue},
+         mark size=1.5pt] coordinates
+  {(Jan,580)(Feb,1060)(Mar,1425)(Apr,1675)(May,1925)(Jun,2166)(Jul,2401)
+   (Aug,2528)(Sep,2548)(Oct,2568)(Nov,2294)(Dec,2017)};
+\node[erpchip,anchor=south west,font=\tiny] at (axis cs:Feb,1200) {building the buffer};
+\node[erpchipwarn,anchor=south east,font=\tiny] at (axis cs:Dec,2350) {drawn down};
+\end{axis}
+\end{tikzpicture}
+\end{erpfig}
 
 \section{A disciplined spreadsheet design}
 
-A good planning spreadsheet separates \term{inputs} from \term{calculated rows}. The 3\% growth rate should be entered once and referenced absolutely. Promotion assumptions should live in their own row. Capacity should be calculated from rate, hours, and working days rather than typed as a number.
+A planning spreadsheet must separate \term{inputs} from \term{calculated rows}.
+The growth rate is entered once and referenced absolutely; promotion assumptions
+live in their own row; capacity is calculated from rate, hours, and working days
+rather than typed as a number.
 
-A robust design makes assumptions visible so that a tutor or manager can change one input and see the plan recalculate.
+\begin{erpfig}[Spreadsheet anatomy]{Inputs on the left are the only cells anyone
+types into. Everything on the right is a formula. A tutor or manager should be
+able to change one input cell and watch the whole plan
+recalculate.}{fig:spreadsheet-anatomy}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPOrange!45,fill=UTPPaleOrange!55,rounded corners=2.5mm] (0,-0.35) rectangle (5.4,4.35);
+\node[erpcap,color=UTPOrange] at (2.7,4.05) {\bfseries Inputs --- typed once};
+\foreach \i/\t in {0/{Previous-year sales by month},
+                   1/{Previous promotion by month},
+                   2/{Growth rate $g = 3\%$ \emph{(one cell)}},
+                   3/{New promotion by month},
+                   4/{Rate, hours/day, working days},
+                   5/{Opening inventory, safety stock}}{
+  \pgfmathsetmacro{\y}{3.45-\i*0.62}
+  \node[erpwarn,minimum width=4.8cm,text width=4.4cm,minimum height=0.5cm] at (2.7,\y) {\t};}
+\draw[draw=UTPGreen!45,fill=UTPPaleTeal!55,rounded corners=2.5mm] (7.2,-0.35) rectangle (14.6,4.35);
+\node[erpcap,color=UTPGreen] at (10.9,4.05) {\bfseries Calculated --- formulas only};
+\foreach \i/\t in {0/{Base $=$ previous sales $-$ previous promo},
+                   1/{Base projection $=$ base $\times(1+g)$},
+                   2/{Forecast $=$ base projection $+$ new promo},
+                   3/{Capacity $=$ rate $\times$ hours $\times$ days},
+                   4/{Utilisation $=$ production $\div$ capacity},
+                   5/{Ending inventory $= I_{t-1} + P_t - F_t$}}{
+  \pgfmathsetmacro{\y}{3.45-\i*0.62}
+  \node[erpgood,minimum width=6.8cm,text width=6.4cm,minimum height=0.5cm] at (10.9,\y) {\t};}
+\foreach \i in {0,...,5}{
+  \pgfmathsetmacro{\y}{3.45-\i*0.62}
+  \draw[erpflow] (5.5,\y) -- (7.1,\y);}
+\node[erpnote,anchor=north,text width=13.6cm] at (7.3,-0.55)
+  {If a number appears in the right-hand box as a typed constant, the model has a
+   hidden assumption nobody can audit.};
+\end{tikzpicture}
+\end{erpfig}
+
+\section{Product-mix planning}
+
+The tutorial's S\&OP table also splits total production among product types. If
+the mix is 50\%, 30\%, and 20\%, then $P_{1,t}=0.50P_t$, $P_{2,t}=0.30P_t$, and
+$P_{3,t}=0.20P_t$. The percentages must sum to 100\%.
+
+\begin{erpfig}[Splitting the plan by product]{The aggregate plan allocated by
+mix, using September's figure. The split is an aggregate rule: real products may
+consume different amounts of the bottleneck resource, which a percentage
+allocation cannot express.}{fig:product-mix}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpstep,minimum width=4.4cm,minimum height=0.9cm] (tot) at (2.6,1.4)
+  {September plan\\\tiny\mdseries $P_t = 6{,}200$ pairs};
+\foreach \i/\nm/\pc/\q in {0/{Running shoe}/{50\%}/{3,100},
+                           1/{Trail shoe}/{30\%}/{1,860},
+                           2/{Court shoe}/{20\%}/{1,240}}{
+  \pgfmathsetmacro{\y}{2.4-\i*1.15}
+  \node[erpgood,anchor=west,minimum width=3.4cm,minimum height=0.8cm] (p\i) at (7.4,\y) {\nm};
+  \node[erpchip,anchor=west] at (11.0,\y) {\pc};
+  \node[erpchip,anchor=west,draw=UTPBlue,fill=UTPPaleBlue] at (12.4,\y) {\q\ pairs};
+  \draw[erpflow] (5.0,1.4) -- (6.4,\y) -- (7.35,\y);}
+\node[erpnote,anchor=north,text width=6.0cm] at (2.6,0.5)
+  {the percentages must sum to 100\%, or the plan silently under- or
+   over-commits capacity};
+\end{tikzpicture}
+\end{erpfig}
+
+\section{Source inconsistencies to notice before modelling}
+
+A few values in the course materials should be surfaced rather than silently
+reconciled:
+
+\begin{itemize}
+  \item Tutorial 6 asks for the 2023 forecast from 2022 sales, while the supplied spreadsheet headings still say ``for year 2022.'' The row values match the tutorial's input structure.
+  \item Tutorial 6 states safety stock of 100, but the spreadsheet pre-fills 500 in the December inventory cell of the S\&OP table.
+  \item Demand is stated in pairs while the production rate is stated in shoes (\figref{fig:unit-ambiguity}).
+\end{itemize}
+
+\begin{keyidea}
+Planning models are only as reliable as their units and assumptions. Before
+writing formulas, verify time period, unit of measure, starting inventory,
+promotion assumptions, capacity rate, and whether the numbers describe items,
+pairs, cases, or product groups.
+\end{keyidea}
 
 \section{How Odoo contributes to forecasting and planning}
 
-The supplied Odoo build guide does not implement a dedicated S\&OP workflow. It does, however, create the operational history that planning needs.
+The supplied build guide does not implement an S\&OP workflow, but it creates the
+operational history that planning depends on.
 
 \begin{odoobox}
 Use Odoo's reporting views to connect the spreadsheet exercise to ERP data:
 \begin{itemize}
-  \item \pathmenu{Sales \textrightarrow Reporting}: observe confirmed demand and revenue history.
-  \item \pathmenu{Inventory \textrightarrow Reporting}: inspect on-hand stock and movement history.
-  \item \pathmenu{Manufacturing \textrightarrow Reporting}: review manufacturing orders and output.
+  \item \pathmenu{Sales \textrightarrow Reporting}: confirmed demand and revenue history.
+  \item \pathmenu{Inventory \textrightarrow Reporting}: on-hand stock and movement history.
+  \item \pathmenu{Manufacturing \textrightarrow Reporting}: manufacturing orders and output.
 \end{itemize}
-The planning spreadsheet is therefore not isolated from ERP; it is an analytical layer that can use historical sales, inventory, and production information generated by the integrated transactions.
+The planning spreadsheet is an analytical layer over the integrated transaction
+history, not a separate world.
 \end{odoobox}
 
-\section{Product-mix planning}
-
-The tutorial's S\&OP table also allocates production among product types. If total production is $P_t$ and the mix is 50\%, 30\%, and 20\%, then:
-
-\[
-P_{1,t}=0.50P_t,\qquad P_{2,t}=0.30P_t,\qquad P_{3,t}=0.20P_t.
-\]
-
-The percentages must sum to 100\%. A product-mix assumption is a simplification: real products may consume different capacities or bottleneck resources. For the tutorial, it is an aggregate allocation rule.
-
 \begin{tryit}
-Build one month of S\&OP twice: first under the assumption of 40 \emph{pairs}/hour and then under the literal 40 \emph{shoes}/hour. Compare the resulting capacity and utilisation. This shows why unit discipline matters before any optimisation or planning discussion.
+Build one month of S\&OP twice: first at 40 \emph{pairs}/hour, then at the literal
+40 \emph{shoes}/hour. Compare capacity and utilisation against
+\figref{fig:unit-ambiguity}. This is why unit discipline comes before any
+planning discussion.
 \end{tryit}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item Why should last year's promotion be removed before applying the 3\% growth factor?
   \item What does a positive ending inventory mean in the S\&OP balance equation?
-  \item Why might production be deliberately higher than forecast in October or November if December demand is expected to peak?
+  \item Why might production be deliberately higher than forecast in March if December demand is expected to peak?
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item The tutorial forecast removes old promotion effects, applies underlying growth, then adds the new promotion.
-  \item S\&OP balances forecast demand, production, inventory, working days, and capacity.
-  \item Capacity and utilisation calculations require consistent units.
-  \item Safety stock protects service levels but ties up inventory and cash.
-  \item The supplied Word tutorial and spreadsheet contain a few inconsistent labels/starting values; these should be surfaced and confirmed rather than silently corrected.
-  \item Odoo reporting supplies historical operational data that can feed planning analysis.
+  \item The forecast strips old promotions, grows the base, then adds the new plan; June shows why the order matters (\figref{fig:footloose-forecast}).
+  \item Capacity and utilisation require consistent units --- the two readings of the tutorial's rate differ on whether the year is feasible at all (\figref{fig:unit-ambiguity}).
+  \item S\&OP earns its keep by letting production differ from forecast and holding the difference as inventory (\figref{fig:sop-plan} and \figref{fig:inventory-profile}).
+  \item A disciplined sheet separates typed inputs from formulas (\figref{fig:spreadsheet-anatomy}).
+  \item The supplied tutorial and spreadsheet disagree on a few values; state the assumption used rather than hiding it.
 \end{itemize}
 \end{chapterrecap}

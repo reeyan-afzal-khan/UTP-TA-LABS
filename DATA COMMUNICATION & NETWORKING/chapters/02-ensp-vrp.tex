@@ -6,6 +6,89 @@ eNSP provides a visual environment for building and testing IP networks: place d
 
 \sourceimage[0.90\linewidth]{eNSP main workspace shown in the supplied Lab 2A material}{ensp-home.png}
 
+\section{The eNSP workspace}
+Four regions of the window do all the work. Everything in this book is
+reached from one of them.
+
+\begin{utpfig}[eNSP workspace]{Where things are in eNSP. The right-click menu on a
+device is the one worth memorising: it is how you open a console, start a
+capture, and add an interface card.}{fig:ensp-workspace}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% toolbar
+\node[hdrm,minimum width=13cm,minimum height=0.55cm,anchor=west,
+      font=\scriptsize\color{UTPNavy}] at (0,3.1) {toolbar --- new, open, and the \textbf{start / stop} buttons};
+% palette
+\node[hdrb,minimum width=3.0cm,minimum height=2.9cm,anchor=north west,
+      align=center,font=\scriptsize\color{UTPNavy}] at (0,2.75)
+  {\textbf{device palette}\\[2pt]
+   routers\\ switches\\ end devices\\ connections};
+% canvas
+\node[hdrpay,minimum width=9.9cm,minimum height=2.9cm,anchor=north west,
+      align=center,font=\scriptsize] at (3.1,2.75)
+  {\textbf{canvas}\\[3pt]
+   drag a device here, then drag a \emph{connection} from the palette\\
+   and click the two interfaces you want joined};
+% right-click callout
+\node[hdro,minimum width=6.0cm,minimum height=1.55cm,anchor=north west,
+      align=left,font=\scriptsize\color{UTPNavy}] at (3.1,-0.45)
+  {\textbf{right-click a device}\\[2pt]
+   \ \textbullet\ \textbf{CLI} --- open the VRP console\\
+   \ \textbullet\ \textbf{Settings} --- add an interface card\\
+   \ \textbullet\ \textbf{Data Capture} --- start Wireshark on one interface};
+\draw[-{Stealth[length=2mm]},thick,draw=UTPOrange] (6.1,-0.5) -- (6.1,0.1);
+\node[font=\tiny\color{UTPMuted},anchor=west,text width=3.5cm] at (9.4,-1.2)
+  {A device must be \textbf{started} before its CLI will respond.};
+\end{tikzpicture}
+\end{utpfig}
+
+\section{Which device to drag}
+The labs name interfaces such as \cmd{GigabitEthernet0/0/0} and
+\cmd{Serial1/0/0} without saying which eNSP model provides them. These
+are the models the exercises assume.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.15\linewidth}p{0.17\linewidth}p{0.24\linewidth}X}
+\toprule
+Palette item & Model & Interfaces you get & Used in\\\midrule
+Router & AR2220 & 3 $\times$ GE, no serial by default & Labs 2--6, 9\\
+Switch & S5700 & 24 $\times$ GE & Labs 7--8\\
+Switch & S3700 & 24 $\times$ FE & where 100\,Mbit/s is wanted\\
+End device & PC & one Ethernet interface & Labs 2, 6, 8\\
+End device & Server & one Ethernet interface & FTP and DHCP work\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{pitfall}
+The AR2220 ships with \emph{no serial interfaces}. Lab~\ref{ch:wan} calls
+for \cmd{Serial1/0/0}, so before starting that topology you must
+right-click each router, open \textbf{Settings}, and drag a \textbf{2SA}
+module into an empty slot. The device has to be powered off to accept it.
+Skipping this produces \cmd{Error: Wrong parameter found at '\^{}' position}
+on the very first \cmd{interface Serial 1/0/0}, which reads like a typing
+mistake and is not one.
+\end{pitfall}
+
+\subsection{Picking the right cable}
+The connection palette offers several cable types. Two of them cover
+everything in this book.
+
+\begin{center}
+\begin{tabularx}{\linewidth}{>{\bfseries}p{0.17\linewidth}p{0.26\linewidth}X}
+\toprule
+Cable & Join & Note\\\midrule
+Auto & anything to anything & eNSP picks the correct type; use it unless the lab says otherwise.\\
+Copper & Ethernet to Ethernet & The explicit form of the same thing.\\
+Serial & Serial to Serial & Lab~\ref{ch:wan} only. The end you draw \emph{from} becomes the DCE.\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{keyidea}
+A red dot on an interface means the link is down; green means up. After
+pressing start, wait for both ends to turn green before opening a console.
+Half the ``the command did not work'' reports in these labs are a console
+opened on a device that had not finished booting.
+\end{keyidea}
+
 \section{The topology-building loop}
 \begin{netsteps}
 \item Drag the required hosts, routers, and switches onto the canvas.
@@ -31,6 +114,75 @@ Prompt pattern & Meaning\\\midrule
 \cmd{[R1-GigabitEthernet0/0/0]} & Interface view; commands affect the selected interface.\\
 \cmd{[R1-ospf-1]} & Protocol/process view; commands affect the selected routing process.\\\bottomrule
 \end{tabularx}
+
+The table says which view you are in. The diagram says how to get to the
+next one, which is the part that trips people up: \cmd{quit} goes up one
+level, \cmd{return} goes all the way to user view.
+
+\begin{utpfig}[VRP view hierarchy]{Moving between VRP views. Every configuration
+command in this book is entered somewhere on this tree, and the prompt always
+tells you where you are.}{fig:vrp-views}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[state,minimum width=26mm] (u) at (0,0) {\cmd{<Huawei>}};
+\node[layernum,below=0.5mm of u] {user view};
+\node[state,minimum width=26mm] (s) at (0,-1.7) {\cmd{[Huawei]}};
+\node[layernum,below=0.5mm of s] {system view};
+\node[state,minimum width=34mm,fill=UTPPaleTeal,draw=UTPTeal] (i) at (-2.9,-3.6)
+  {\cmd{[R1-GigabitEthernet0/0/0]}};
+\node[layernum,below=0.5mm of i] {interface view};
+\node[state,minimum width=24mm,fill=UTPPaleTeal,draw=UTPTeal] (o) at (1.55,-3.6)
+  {\cmd{[R1-ospf-1]}};
+\node[layernum,below=0.5mm of o] {protocol view};
+\node[state,minimum width=20mm,fill=UTPPaleTeal,draw=UTPTeal] (v) at (4.9,-3.6)
+  {\cmd{[R1-vlan3]}};
+\node[layernum,below=0.5mm of v] {VLAN view};
+
+\draw[stedge,draw=UTPBlue] ($(u.south)+(-0.35,0)$) --
+  node[stlabel,left,pos=0.5]{\cmd{system-view}} ($(s.north)+(-0.35,0)$);
+\draw[stedge,draw=UTPOrange] ($(s.north)+(0.5,0)$) --
+  node[stlabel,right,pos=0.5]{\cmd{quit}} ($(u.south)+(0.5,0)$);
+
+\draw[stedge,draw=UTPBlue] (s.south) --
+  node[stlabel,above,sloped,pos=0.55]{\cmd{interface g0/0/0}} (i.north);
+\draw[stedge,draw=UTPBlue] (s.south) --
+  node[stlabel,right,pos=0.62]{\cmd{ospf 1}} (o.north);
+\draw[stedge,draw=UTPBlue] (s.south) --
+  node[stlabel,above,sloped,pos=0.6]{\cmd{vlan 3}} (v.north);
+
+\draw[stedge,draw=UTPRed,dashed] (i.west) to[bend left=55]
+  node[stlabel,left,pos=0.5]{\cmd{return}} (u.west);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+A command rejected as unrecognised is usually a command typed in the
+wrong view rather than a command that does not exist. \cmd{ip
+route-static} only works in system view; \cmd{ip address} only works in
+interface view. Read the prompt before re-typing.
+\end{pitfall}
+
+\subsection{Reading an interface name}
+Huawei interface names look verbose but are positional, and the labs
+abbreviate them constantly.
+
+\begin{utpfig}[Interface naming]{\cmd{GigabitEthernet0/0/0} decomposed. On the
+eNSP AR-series routers used here the first two numbers are almost always
+0, so \cmd{g0/0/1} and \cmd{g0/0/2} are the names you will actually
+type.}{fig:iface-naming}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[font=\ttfamily\large\color{UTPNavy}] (n) at (0,0) {GigabitEthernet\,0\,/\,0\,/\,0};
+\draw[draw=UTPMuted] (-1.65,-0.32) -- (-1.65,-0.75) -- (-2.6,-0.75);
+\node[anchor=east,font=\scriptsize\color{UTPMuted},align=right] at (-2.62,-0.75)
+  {media type\\ and speed};
+\draw[draw=UTPBlue] (0.72,-0.32) -- (0.72,-1.25);
+\node[anchor=north,font=\scriptsize\color{UTPBlue},align=center] at (0.72,-1.3) {slot};
+\draw[draw=UTPTeal] (1.48,-0.32) -- (1.48,-1.25);
+\node[anchor=north,font=\scriptsize\color{UTPTeal},align=center] at (1.48,-1.3) {subcard};
+\draw[draw=UTPOrange] (2.25,-0.32) -- (2.25,-0.75) -- (3.2,-0.75);
+\node[anchor=west,font=\scriptsize\color{UTPOrange},align=left] at (3.22,-0.75)
+  {port on\\ that subcard};
+\end{tikzpicture}
+\end{utpfig}
 
 \section{Direct-link practice}
 R1 and R3 share \cmd{10.0.13.0/24}, using \cmd{10.0.13.1} and \cmd{10.0.13.3}, respectively.
@@ -58,6 +210,34 @@ R1 and R3 share \cmd{10.0.13.0/24}, using \cmd{10.0.13.1} and \cmd{10.0.13.3}, r
 The prefix \cmd{24} and mask \cmd{255.255.255.0} are equivalent.
 
 \section{Verification commands}
+The single most useful command after addressing anything is
+\cmd{display ip interface brief}: it lists every interface, its address,
+and both state columns on one screen.
+
+\begin{vrpbox}{<R1> display ip interface brief}
+\begin{lstlisting}[style=dcnvrp]
+*down: administratively down
+^down: standby
+(l): loopback
+(s): spoofing
+The number of interface that is UP in Physical is 2
+The number of interface that is DOWN in Physical is 1
+The number of interface that is UP in Protocol is 2
+The number of interface that is DOWN in Protocol is 1
+
+Interface                   IP Address/Mask    (*\hi{Physical}*)  (*\hi{Protocol}*)
+GigabitEthernet0/0/0        10.0.13.1/24       (*\higreen{up}*)        (*\higreen{up}*)
+GigabitEthernet0/0/1        unassigned         (*\hired{down}*)      (*\hired{down}*)
+NULL0                       unassigned         up        up(s)
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{the two state columns fail for different reasons. \cmd{Physical
+down} is a cabling or shutdown problem. \cmd{Physical up} with
+\cmd{Protocol down} means the wire is fine and the agreement across it is
+not --- an encapsulation or authentication mismatch, which is exactly the
+fault Lab~\ref{ch:wan} produces on purpose.}
+
+
 \begin{commandmap}
 \begin{tabularx}{\linewidth}{>{\ttfamily}p{0.38\linewidth}X}
 \toprule

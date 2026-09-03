@@ -27,6 +27,13 @@
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
+% ---------- a package only this book needs ----------
+% This book is mostly VRP transcripts, so the monospace face carries more
+% of the page than in the other courses. Inconsolata distinguishes 0/O and
+% 1/l/I, which matters when a reader is copying an interface name or an
+% address out of a listing. Guarded so the book still builds without it.
+\IfFileExists{inconsolata.sty}{\usepackage[varqu,varl,scaled=1.02]{inconsolata}}{}
+
 % Slightly tighter tables and a looser line-breaking allowance than the
 % shared default, which this book was originally typeset with.
 \renewcommand{\arraystretch}{1.32}
@@ -65,33 +72,35 @@
 \newcommand{\compactsourceimage}[3][0.78\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#3}\end{sourcevisual}}
 \newcommand{\sourcelab}[1]{\begin{sourcebasis}This chapter is derived from the supplied course material: \textbf{#1}. Explanations keep the lab's terminology and configuration sequence; where the supplied slides are internally inconsistent, the note flags that rather than silently rewriting the source.\end{sourcebasis}}
 
-% ---------- other settings used only in this book ----------
-% The network vocabulary: devices, links, and the state of a path.
-\tikzset{
-  router/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=10mm,
-                 font=\bfseries\small\color{UTPNavy}},
-  switch/.style={rectangle,rounded corners=1mm,draw=UTPTeal,fill=UTPPaleTeal,
-                 minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},
-  host/.style={rectangle,draw=UTPOrange,fill=UTPPaleOrange,
-               minimum width=15mm,minimum height=8mm,font=\bfseries\small\color{UTPNavy}},
-  link/.style={thick,draw=UTPMuted},
-  netlabel/.style={font=\scriptsize\color{UTPMuted},inner sep=1pt},
-  activepath/.style={very thick,draw=UTPGreen},
-  backuppath/.style={very thick,draw=UTPOrange,dashed},
-  deadpath/.style={very thick,draw=UTPRed,dash pattern=on 2pt off 2pt},
-  flowarrow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPBlue},
-  vlanA/.style={rectangle,rounded corners=1mm,draw=UTPBlue,fill=UTPPaleBlue,
-                minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
-  vlanB/.style={rectangle,rounded corners=1mm,draw=UTPOrange,fill=UTPPaleOrange,
-                minimum width=13mm,minimum height=7mm,font=\bfseries\scriptsize\color{UTPNavy}},
-  frame/.style={rectangle,draw=UTPMuted,fill=white,minimum height=6mm,
-                font=\scriptsize\color{UTPInk}}
+% Expand the one-page Learning Path while keeping every orange practical
+% milestone visually attached to the lab overview immediately above it.
+\newcommand{\dcnfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforechapskip}{1.45em}%
+  \setlength{\cftbeforelabskip}{0.50em}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
 }
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\dcnfullpagetoc}{}{}
+
+% ---------- drawing vocabulary used only in this book ----------
+% Device and link styles, protocol-field layouts, sequence-diagram and
+% state-machine helpers. See dcnfigures.tex for the full list.
+\input{dcnfigures}
 
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter
 
+\input{chapters/00-foundations}
 \input{chapters/01-wireshark}
 \input{chapters/02-ensp-vrp}
 \input{chapters/03-static-routing}

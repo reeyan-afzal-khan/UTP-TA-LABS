@@ -74,7 +74,64 @@ After convergence, inspect learned routes and ping from R1 to R3.
 \section{Step 4: identify the DCE and change the clock rate}
 One side of a synchronous serial link provides clocking. Here R1 Serial1/0/0 is the DCE; change its baud rate from 64,000 to 128,000 bit/s.
 
-\sourceimage[0.60\linewidth]{Serial interface detail used to identify DCE and clocking}{wan-serial-dce-status.png}
+\begin{vrpbox}{<R1> display interface Serial 1/0/0}
+\begin{lstlisting}[style=dcnvrp]
+Serial1/0/0 current state : (*\higreen{UP}*)
+Line protocol current state : (*\higreen{UP}*)
+Description:HUAWEI, AR Series, Serial1/0/0 Interface
+Route Port,The Maximum Transmit Unit is 1500, Hold timer is 10(sec)
+Internet Address is 10.0.12.1/24
+(*\hi{Link layer protocol is nonstandard HDLC}*)
+Physical layer is synchronous, (*\hi{Baudrate is 64000 bps}*)
+(*\hi{Interface is DCE}*), Cable type is V35, Clock mode is DCECLK
+    Last 300 seconds input rate 3 bytes/sec 24 bits/sec 0 packets/sec
+    Last 300 seconds output rate 3 bytes/sec 24 bits/sec 0 packets/sec
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{three lines answer three different questions. \cmd{Link layer
+protocol} is the encapsulation, and it must match the far end.
+\cmd{Interface is DCE} identifies which router owns the clock.
+\cmd{Baudrate} is the rate you are about to change --- and it is only
+settable on the line that says DCE.}
+
+A synchronous serial link has no separate clock wire, so one end must
+generate the timing the other end samples against. That end is the DCE.
+The DTE takes whatever rate it is given, which is why \cmd{baudrate} is
+rejected or ignored on that side.
+
+\begin{utpfig}[DTE and DCE]{Clocking on a synchronous serial link. In eNSP the DCE
+is the end the cable was dragged \emph{from}, and \cmd{display interface Serial1/0/0}
+names it explicitly.}{fig:dte-dce}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[router] (r1) at (0,0) {R1};
+\node[router] (r2) at (7.0,0) {R2};
+\node[font=\bfseries\scriptsize\color{UTPTeal},above=1mm of r1] {DCE};
+\node[font=\bfseries\scriptsize\color{UTPMuted},above=1mm of r2] {DTE};
+
+\draw[line width=1.6pt,draw=UTPMuted] (0.55,0) -- (6.45,0);
+\node[netlabel,below=1mm of $(r1)!0.5!(r2)$] {S1/0/0 \quad 10.0.12.0/24};
+
+% clock waveform travelling right
+\draw[draw=UTPTeal,thick]
+  (1.3,0.55) -- (1.3,0.85) -- (1.7,0.85) -- (1.7,0.55) -- (2.1,0.55) --
+  (2.1,0.85) -- (2.5,0.85) -- (2.5,0.55) -- (2.9,0.55) -- (2.9,0.85) --
+  (3.3,0.85) -- (3.3,0.55);
+\draw[-{Stealth[length=2.2mm]},draw=UTPTeal,thick] (3.45,0.70) -- (5.6,0.70);
+\node[font=\scriptsize\color{UTPTeal},anchor=west] at (1.3,1.15)
+  {clock generated here};
+\node[font=\scriptsize\color{UTPMuted},anchor=west] at (4.6,1.15)
+  {and followed here};
+
+\node[anchor=west,font=\scriptsize\color{UTPInk},align=left,text width=5.0cm]
+  at (-0.6,-1.15)
+  {\cmd{baudrate 128000} is set on \textbf{R1 only}. Setting it on the DTE
+   changes nothing.};
+\node[anchor=west,font=\scriptsize\color{UTPMuted},align=left,text width=4.6cm]
+  at (5.3,-1.15)
+  {A missing clock leaves the physical state up and the protocol state down
+   --- the same symptom as an encapsulation mismatch.};
+\end{tikzpicture}
+\end{utpfig}
 
 \begin{lstlisting}[style=dcnterminal]
 [R1] interface Serial 1/0/0
@@ -86,6 +143,40 @@ Set the baud rate only on the DCE side, identified from the interface output.
 \end{keyidea}
 
 \section{Step 5: replace HDLC with PPP}
+
+PPP brings a link up in stages, and each stage must finish before the
+next begins. The verification order used throughout this chapter is
+simply this diagram read left to right.
+
+\begin{utpfig}[PPP phases]{How a PPP link comes up. Authentication sits between
+link establishment and IP, which is why enabling PAP or CHAP can take down a
+link whose cabling and addressing never changed.}{fig:ppp-phases}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[statebad] (d) at (0,0) {Dead};
+\node[state] (e) at (2.9,0) {Establish};
+\node[statewait] (a) at (5.8,0) {Authenticate};
+\node[state] (n) at (8.9,0) {Network};
+\node[stategood] (o) at (11.6,0) {Open};
+
+\draw[stedge] (d)--node[stlabel,above]{carrier}(e);
+\draw[stedge] (e)--node[stlabel,above]{LCP ok}(a);
+\draw[stedge] (a)--node[stlabel,above]{PAP/CHAP ok}(n);
+\draw[stedge] (n)--node[stlabel,above]{IPCP ok}(o);
+
+\node[stlabel,below=1.5mm of e,text width=2.5cm]
+  {LCP agrees MTU\\ and options};
+\node[stlabel,below=1.5mm of a,text width=2.6cm,color=UTPOrange]
+  {optional --- skipped\\ until Step 6};
+\node[stlabel,below=1.5mm of n,text width=2.5cm]
+  {IPCP exchanges\\ IP parameters};
+\node[stlabel,below=1.5mm of o,text width=2.3cm,color=UTPGreen]
+  {protocol up,\\ ping works};
+
+\draw[stedge,draw=UTPRed,dashed] (a.north) to[bend right=38]
+  node[stlabel,above]{bad credentials} (d.north);
+\end{tikzpicture}
+\end{utpfig}
+
 Change both ends of each serial link to PPP.
 \begin{lstlisting}[style=dcnterminal]
 [R1] interface Serial 1/0/0
@@ -129,9 +220,80 @@ The source text names R1 here, but its topology and commands identify R3 as the 
 \end{lstlisting}
 
 \section{Step 8: observe CHAP negotiation with debugging}
+
+The two schemes differ in a way the debug output makes visible. PAP
+sends the password across the link; CHAP never does, sending instead a
+hash of a challenge the authenticator chose. That is why the CHAP debug
+shows a Challenge/Response/Success triple rather than a single request.
+
+\begin{utpfig}[PAP and CHAP]{PAP's two messages against CHAP's three. The password
+crosses the link in the left-hand exchange and never crosses it in the
+right-hand one.}{fig:pap-chap}
+\begin{tikzpicture}
+% ---------- PAP ----------
+\node[font=\bfseries\small\color{UTPRed}] at (2.1,0.85) {PAP --- 2-way};
+\seqactor{p2}{0}{R2 (peer)}{host}
+\seqactor{p1}{4.2}{R1 (auth)}{server}
+\seqlife{p2}{-2.3}\seqlife{p1}{-2.3}
+\seqmsg{p2}{p1}{-0.85}{\tiny username + password}{risk}
+\seqmsg{p1}{p2}{-1.65}{\tiny Authenticate-Ack}{arrowb}
+\node[font=\tiny\color{UTPRed},align=center,text width=4.4cm] at (2.1,-3.05)
+  {Password sent in the clear, once, at the peer's initiative.};
+
+% ---------- CHAP ----------
+\begin{scope}[xshift=8.0cm]
+\node[font=\bfseries\small\color{UTPGreen}] at (2.1,0.85) {CHAP --- 3-way};
+\seqactor{c2}{0}{R2 (peer)}{host}
+\seqactor{c3}{4.2}{R3 (auth)}{server}
+\seqlife{c2}{-2.3}\seqlife{c3}{-2.3}
+\seqmsg{c3}{c2}{-0.7}{\tiny Challenge}{arrowb}
+\seqmsg{c2}{c3}{-1.35}{\tiny hash(challenge + password)}{arrow}
+\seqmsg{c3}{c2}{-2.0}{\tiny Success}{arrowb}
+\node[font=\tiny\color{UTPGreen},align=center,text width=4.6cm] at (2.1,-3.05)
+  {Only a hash crosses. The authenticator starts the exchange and can repeat it.};
+\end{scope}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+The direction of the first message tells you which router is the
+authenticator. In PAP the peer speaks first; in CHAP the authenticator
+does. Reading that from a debug trace identifies immediately which end
+holds the wrong configuration.
+\end{keyidea}
+
 Cycle the serial interface and enable PPP CHAP debugging to regenerate negotiation messages and locate authentication failure.
 
-\sourceimage[0.72\linewidth]{PPP CHAP debugging output shown in the supplied Lab 9 sequence}{chap-debug-output.png}
+\begin{vrpbox}{<R2> terminal debugging \quad + \quad debugging ppp chap all}
+\begin{lstlisting}[style=dcnvrp]
+PPP State Change:
+  Serial2/0/0 CHAP : ListenChallenge --> (*\hi{SendResponse}*)
+PPP Packet:
+  Serial2/0/0 Input  CHAP(c223) Pkt, Len 20
+  State SendResponse, code (*\hi{Challenge(01)}*), id 1, len 16
+  Message: Welcome to ...
+PPP Packet:
+  Serial2/0/0 Output CHAP(c223) Pkt, Len 33
+  State SendResponse, code (*\hi{Response(02)}*), id 1, len 29
+PPP Event:
+  Serial2/0/0 CHAP Receive Success Event
+  State SendResponse --> (*\higreen{ClientOpen}*)
+PPP Packet:
+  Serial2/0/0 Input  CHAP(c223) Pkt, Len 16
+  State ClientOpen, code (*\higreen{Success(03)}*), id 1, len 12
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{the three CHAP codes appear in order --- \cmd{Challenge(01)} inbound,
+\cmd{Response(02)} outbound, \cmd{Success(03)} inbound --- which is
+\figref{fig:pap-chap} playing out on the wire. A failure stops after the
+response, with \cmd{Failure(04)} instead of \cmd{Success(03)}, and that single
+code tells you the password is wrong rather than the link.}
+
+\begin{pitfall}
+Run \cmd{terminal debugging} first, or the messages are generated and never
+displayed. Turn it off with \cmd{undo terminal debugging} when finished ---
+debug output on a busy interface makes the console unusable.
+\end{pitfall}
 
 \begin{verification}
 Verify in order: \textbf{physical state $\rightarrow$ DCE clocking $\rightarrow$ encapsulation $\rightarrow$ IP $\rightarrow$ OSPF $\rightarrow$ authentication $\rightarrow$ ping}.

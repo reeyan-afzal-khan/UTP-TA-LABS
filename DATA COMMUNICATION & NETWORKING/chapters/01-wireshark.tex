@@ -15,7 +15,51 @@ Before configuring a network, you need a way to observe its traffic. This lab in
 
 \sourceimage[0.64\linewidth]{Packet-sniffing illustration from the supplied slide}{wireshark-sniffing.png}
 
-Capture placement matters: the chosen interface must carry the traffic being investigated.
+\section{Where you capture decides what you see}
+A sniffer records only what physically reaches its interface. On a
+switched network that is much less than beginners expect, because a
+switch forwards a frame to one port rather than all of them.
+
+\begin{utpfig}[Capture placement]{The same two-host conversation, watched from three
+places. Only the first and third see it; the middle case is the one that produces
+an empty capture and an hour of confusion.}{fig:capture-placement}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% --- case A: on the host itself
+\node[font=\bfseries\scriptsize\color{UTPGreen}] at (1.7,1.75) {On the host};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (a1) at (0.6,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (a2) at (2.8,0.9) {SW};
+\draw[activepath] (a1)--(a2);
+\node[font=\tiny\color{UTPGreen},align=center] at (1.7,0.05) {capture here\\ sees all of PC1's traffic};
+\node[font=\scriptsize\bfseries\color{UTPGreen}] at (1.7,-0.62) {works};
+
+% --- case B: unrelated port
+\node[font=\bfseries\scriptsize\color{UTPRed}] at (6.2,1.75) {On a bystander port};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b1) at (5.1,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b2) at (7.3,0.9) {SW};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b3) at (7.3,-0.15) {PC3};
+\draw[activepath] (b1)--(b2);
+\draw[deadpath] (b2)--(b3);
+\node[font=\tiny\color{UTPRed},align=center] at (6.0,-0.85) {capture on PC3\\ sees nothing};
+\node[font=\scriptsize\bfseries\color{UTPRed}] at (6.2,-1.5) {empty};
+
+% --- case C: mirrored port
+\node[font=\bfseries\scriptsize\color{UTPBlue}] at (10.7,1.75) {On a mirrored port};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c1) at (9.6,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c2) at (11.8,0.9) {SW};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c3) at (11.8,-0.15) {PC3};
+\draw[activepath] (c1)--(c2);
+\draw[flowarrow,dashed] (c2)--(c3);
+\node[font=\tiny\color{UTPBlue},align=center] at (10.5,-0.85) {switch copies frames\\ to the analyser};
+\node[font=\scriptsize\bfseries\color{UTPBlue}] at (10.7,-1.5) {works};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+In eNSP you start Wireshark by right-clicking a specific device
+interface, which puts you in the first case automatically. On real
+hardware you have to arrange the third case deliberately, with a port
+mirror or a network tap.
+\end{keyidea}
 
 \section{A traffic trace is evidence, not just a screenshot}
 A trace records the sequence of events. If a ping, adjacency, or application session fails, it shows what was sent and whether a reply returned.
@@ -47,8 +91,31 @@ Packet bytes & Raw bytes in hexadecimal and ASCII.\\\bottomrule
 \end{netsteps}
 
 \begin{workedexample}
-If Host A pings Host B, locate the ICMP request and reply. Confirm that the endpoints reverse direction. The trace should prove who sent the request and whether the peer answered.
+\cmd{ping 10.0.13.3} from R1 produces five request/reply pairs. In the
+packet list each pair shares an ICMP identifier and sequence number, and
+the source and destination columns swap between the two rows. Matching
+those two rows is the whole skill: it proves the request left and the
+reply came back.
 \end{workedexample}
+
+\begin{utpfig}[ICMP echo in a trace]{One \cmd{ping} as it appears in a capture.
+The reply reverses both addresses and repeats the sequence number, which is how
+you pair the rows. A missing row on the right means the request arrived and was
+not answered; a missing row on the left means it never left.}{fig:icmp-trace}
+\begin{tikzpicture}
+\seqactor{r1}{0}{R1 (10.0.13.1)}{host}
+\seqactor{r3}{7.2}{R3 (10.0.13.3)}{server}
+\seqlife{r1}{-3.3}\seqlife{r3}{-3.3}
+\seqreq{r1}{r3}{-0.85}{Echo request \ \tiny seq=1}
+\seqrep{r3}{r1}{-1.5}{Echo reply \ \tiny seq=1}
+\seqreq{r1}{r3}{-2.25}{Echo request \ \tiny seq=2}
+\seqrep{r3}{r1}{-2.9}{Echo reply \ \tiny seq=2}
+\node[font=\tiny\color{UTPMuted},anchor=west] at (7.9,-1.18)
+  {one round trip};
+\draw[decorate,decoration={brace,amplitude=3pt},draw=UTPMuted]
+  (7.75,-0.8) -- (7.75,-1.55);
+\end{tikzpicture}
+\end{utpfig}
 
 \section{What to record in a lab submission}
 A useful screenshot shows the selected packet, relevant decoded fields, and filter expression. Explain what the evidence proves.

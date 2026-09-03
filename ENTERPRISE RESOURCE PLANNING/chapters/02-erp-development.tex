@@ -6,129 +6,252 @@
   {explain how MRP evolved into ERP, describe ERP modularity and shared data, evaluate major benefits and implementation challenges, and identify conditions that make an ERP project more likely to succeed.}
 
 \begin{sourcebasis}
-This chapter is based on Tutorial 2 and Chapter 2 of \emph{Concepts in Enterprise Resource Planning}, with implementation ideas reinforced by Chapter 7. Tutorial 2 asks students to investigate one ERP benefit and one ERP challenge, support each with evidence, and teach the result to peers.
+This chapter is based on Tutorial 2 and Chapter 2 of \emph{Concepts in
+Enterprise Resource Planning}, with implementation ideas reinforced by Chapter 7.
+Tutorial 2 asks students to investigate one ERP benefit and one ERP challenge,
+support each with evidence, and teach the result to peers.
 \end{sourcebasis}
 
 \section{Why ERP systems emerged}
 
-Business computing did not begin with an integrated company-wide platform. Early information systems were typically built to solve one department's immediate problem. A manufacturing system tracked materials, an accounting system recorded financial transactions, and a sales system captured customer orders. Each system could be useful by itself while still making the company as a whole difficult to coordinate.
+Business computing did not begin with an integrated platform. Early systems were
+built to solve one department's immediate problem: a manufacturing system
+tracked materials, an accounting system recorded transactions, a sales system
+captured orders. Each was useful alone while leaving the company as a whole hard
+to coordinate.
 
-The manufacturing lineage is especially important. \term{Material Requirements Planning (MRP)} focused on calculating what materials were needed and when. Later systems expanded toward manufacturing resource planning and then broader enterprise integration. ERP extended the idea beyond factory planning to include sales, purchasing, finance, human resources, logistics, and other processes in one coordinated environment.
+The manufacturing lineage matters most. \term{Material Requirements Planning
+(MRP)} calculated what materials were needed and when. Later systems added
+capacity, then extended past the factory into sales, purchasing, finance, HR,
+and logistics.
 
-\begin{erpfigure}
-\begin{tikzpicture}[
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=3.25cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.75cm
-]
-\node[box] (inv) {Inventory control\\What do we have?};
-\node[box,right=of inv] (mrp) {MRP\\What materials and when?};
-\node[box,right=of mrp] (mfg) {Manufacturing planning\\Materials + capacity};
-\node[box,below=0.8cm of mfg] (erp) {ERP\\Company-wide processes and shared data};
-\draw[arr] (inv) -- (mrp); \draw[arr] (mrp) -- (mfg); \draw[arr] (mfg) -- (erp);
+\begin{erpfig}[Evolution towards ERP]{Each generation kept the previous scope
+and added a question it could not previously answer. ERP is the point at which
+the question stops being about the factory and starts being about the
+company.}{fig:erp-evolution}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPMuted!45,line width=0.7pt] (-0.2,0) -- (15.2,0);
+\foreach \x in {0.9,4.6,8.3,12.9}{\draw[draw=UTPMuted!45] (\x,-0.12)--(\x,0.12);}
+\foreach \x/\era in {0.9/1960s, 4.6/1970s, 8.3/1980s, 12.9/1990s onward}{
+  \node[erpnote,below=1.5mm] at (\x,0) {\era};}
+\node[erpquiet,minimum width=3.1cm,minimum height=1.35cm,align=center] (a) at (0.9,1.35)
+  {\bfseries Inventory control\\[-0.15em]\tiny What do we have\\\tiny in the store?};
+\node[erpstep,minimum width=3.1cm,minimum height=1.35cm] (b) at (4.6,1.35)
+  {MRP\\[-0.15em]\tiny\mdseries Which materials,\\\tiny\mdseries and by when?};
+\node[erpstep,minimum width=3.1cm,minimum height=1.35cm,draw=UTPTeal,fill=UTPPaleTeal] (c) at (8.3,1.35)
+  {MRP II\\[-0.15em]\tiny\mdseries Materials \emph{and}\\\tiny\mdseries capacity, cost, labour};
+\node[erpstep,minimum width=4.1cm,minimum height=1.35cm,draw=UTPGreen,fill=UTPPaleTeal] (d) at (12.9,1.35)
+  {ERP\\[-0.15em]\tiny\mdseries Company-wide processes\\\tiny\mdseries on shared data};
+\draw[erpflow] (a)--(b); \draw[erpflow] (b)--(c); \draw[erpflow] (c)--(d);
+\node[erpcap,anchor=west,text width=7.0cm,align=left] at (-0.2,3.05)
+  {\bfseries scope: one store room \quad$\longrightarrow$\quad one factory};
+\node[erpcap,anchor=east,text width=5.0cm,align=right] at (15.2,3.05)
+  {\bfseries $\longrightarrow$\quad one enterprise};
+\draw[draw=UTPBlue!35,line width=2pt,-{Stealth[length=3mm]}] (-0.2,2.6) -- (15.2,2.6);
 \end{tikzpicture}
-\end{erpfigure}
+\end{erpfig}
 
 \section{The core architectural idea: modules around shared data}
 
-ERP products are modular because businesses perform different kinds of work. A sales module needs quotations and orders; a manufacturing module needs bills of materials and production orders; finance needs invoices, payments, and accounting records. Modularity lets specialised workflows exist while still sharing the same master and transaction data.
+ERP products are modular because businesses perform different kinds of work.
+Sales needs quotations; manufacturing needs bills of materials; finance needs
+invoices and payments. Modularity lets specialised workflows exist while still
+drawing on the same underlying records.
 
-Two types of data are useful to distinguish:
+\begin{erpfig}[ERP layers]{The architecture in three layers. Users see
+specialised modules, but every module reads and writes the same master and
+transaction data underneath. Integration lives in the bottom layer, not in the
+screens.}{fig:erp-layers}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% --- layer 1: users ---
+\draw[draw=UTPBlue!35,fill=UTPPaleBlue!40,rounded corners=2.5mm] (0,5.05) rectangle (14.6,6.85);
+\node[erpcap,anchor=west,color=UTPBlue] at (0.25,6.52) {\bfseries Users and roles};
+\foreach \x/\r in {1.95/Sales Manager, 5.25/Purchasing Officer,
+                   8.55/Production Planner, 11.85/Accountant}{
+  \node[erpdoc,minimum width=2.9cm,minimum height=0.72cm] at (\x,5.75) {\r};}
+% --- layer 2: modules ---
+\draw[draw=UTPTeal!40,fill=UTPPaleTeal!45,rounded corners=2.5mm] (0,2.45) rectangle (14.6,4.45);
+\node[erpcap,anchor=west,color=UTPTeal] at (0.25,4.12) {\bfseries Modules --- specialised workflows};
+\foreach \x/\m in {1.35/CRM, 3.35/Sales, 5.35/Purchase, 7.35/Inventory,
+                   11.55/Invoicing, 13.5/Employees}{
+  \node[erpstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white] at (\x,3.15) {\m};}
+\node[erpstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white]
+  at (9.45,3.15) {Manu-\\\scriptsize\bfseries facturing};
+% --- layer 3: data ---
+\draw[draw=UTPNavy!45,fill=UTPNavy!7,rounded corners=2.5mm] (0,-0.35) rectangle (14.6,1.55);
+\node[erpcap,anchor=west,color=UTPNavy] at (0.25,1.26) {\bfseries One database --- where the integration actually is};
+\node[erpstore,minimum width=6.5cm,minimum height=1.05cm] at (3.75,0.35)
+  {\textsc{master data}\\[-0.15em]\tiny\mdseries customers, vendors, products, employees, prices};
+\node[erpstore,draw=UTPGreen,fill=UTPPaleTeal,minimum width=6.5cm,minimum height=1.05cm] at (10.85,0.35)
+  {\textsc{transaction data}\\[-0.15em]\tiny\mdseries orders, receipts, MOs, deliveries, invoices};
+\foreach \x in {1.35,3.35,5.35,7.35,9.45,11.55,13.5}{
+  \draw[erplink] (\x,2.45) -- (\x,1.55);
+  \draw[erplink] (\x,4.45) -- (\x,5.05);}
+\end{tikzpicture}
+\end{erpfig}
 
-\begin{description}
-  \item[Master data] Relatively stable facts reused across many transactions: customers, vendors, products, employees, units of measure, prices, and chart-of-account structures.
-  \item[Transaction data] Events that occur over time: a sales order, purchase order, receipt, manufacturing order, delivery, invoice, or payment.
-\end{description}
+Two kinds of data are worth separating, because they behave differently and fail
+differently.
+
+\begin{erpfig}[Master versus transaction data]{Master data is written rarely and
+read constantly; transaction data is written constantly and refers back to the
+master records. One bad master record therefore contaminates every transaction
+that points at it.}{fig:master-vs-transaction}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erphead,anchor=west,color=UTPBlue] at (0,3.35) {Master data --- stable, reused};
+\foreach \i/\t in {0/Customer: Seri Iskandar Cycling Club,
+                   1/Product: Road Bike (Goods{,} tracked),
+                   2/Vendor: Ipoh Metal Supply,
+                   3/Price: RM 1{,}000}{
+  \pgfmathsetmacro{\y}{2.55-\i*0.78}
+  \node[erpdoc,anchor=west,minimum width=5.5cm,text width=5.1cm,align=left,
+        minimum height=0.62cm] (m\i) at (0,\y) {\t};}
+\node[erphead,anchor=west,color=UTPGreen] at (8.6,3.35) {Transaction data --- one per event};
+\foreach \i/\t in {0/{SO 001 --- 5 Road Bikes},
+                   1/{Delivery WH/OUT/001 --- Done},
+                   2/{Invoice INV/2024/001 --- Posted},
+                   3/{Payment --- RM 5{,}000 received}}{
+  \pgfmathsetmacro{\y}{2.55-\i*0.78}
+  \node[erpdoc,anchor=west,minimum width=6.0cm,text width=5.6cm,align=left,
+        minimum height=0.62cm,draw=UTPGreen] (t\i) at (8.6,\y) {\t};}
+\foreach \i in {0,...,3}{\draw[erplink,-{Stealth[length=1.8mm]}] (t\i.west) -- (m\i.east);}
+\node[erpnote,anchor=center,text width=3.1cm] at (7.3,3.35)
+  {each transaction \emph{points at} a master record};
+\node[erpchipwarn,anchor=west] at (0,-0.75) {change a price here $\ldots$};
+\node[erpchipwarn,anchor=west] at (8.6,-0.75) {$\ldots$ and every later document follows};
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{keyidea}
-ERP integration is not achieved by putting every task on one giant screen. It is achieved by allowing specialised modules to use common master data and to create linked transaction records from the same business events.
+ERP integration is not achieved by putting every task on one giant screen. It is
+achieved by letting specialised modules share master data and create linked
+transaction records from the same business events.
 \end{keyidea}
 
-\section{Real-time information and one version of the business event}
+\section{Real time means one current version, not zero delay}
 
-In the textbook, \term{real time} means that data and processes are current rather than waiting for periodic transfers. A confirmed order can therefore be available to the functions that need it without a clerk exporting a file, printing a report, or re-entering the data.
+In the textbook, \term{real time} means data is current rather than waiting for a
+periodic transfer. A confirmed order reaches the functions that need it without
+a clerk exporting a file or re-keying it.
 
-This does not mean every organisation literally updates every metric with zero delay. The more useful operational meaning is that the system is designed so that authorised users work from the same current transaction records rather than from separately maintained departmental copies.
+This does not mean every metric updates instantly. The useful operational
+meaning is that authorised users work from the same current records instead of
+separately maintained departmental copies.
 
 \section{Major benefits of ERP}
 
-The course source highlights several benefits. They can be grouped into four mechanisms.
+The benefits described in the source all run through one of four mechanisms.
+Naming the mechanism is what turns ``ERP improves efficiency'' into an argument.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.19\linewidth}p{0.29\linewidth}X@{}}
-\toprule
-\rowcolor{ERPPaleBlue!92}
-Mechanism & What changes & Business value \\
-\midrule
-Data integration & People and modules use common records rather than separate departmental copies. & Fewer inconsistencies, duplicate entries, reconciliation tasks, and delays. \\
-Process integration & One transaction can trigger the next step in another function. & Faster order fulfilment, purchasing, billing, and reporting. \\
-Management visibility & Managers can view consolidated operational information without manually assembling reports. & More time can be spent managing and improving operations rather than merely discovering what happened. \\
-Global standardisation & Common processes and data structures can span units, locations, currencies, and languages. & Easier coordination and comparable reporting across the organisation. \\
-\bottomrule
-\end{tabularx}
-\end{erptable}
+\begin{erpfig}[How benefits arise]{Benefits are consequences, not features. Each
+chain runs from a structural change, through a change in what people actually
+do, to something that can be measured.}{fig:benefit-chain}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpcap] at (2.15,3.05) {\bfseries Mechanism};
+\node[erpcap] at (7.3,3.05) {\bfseries What changes in the work};
+\node[erpcap] at (12.7,3.05) {\bfseries What you can measure};
+\foreach \i/\a/\b/\c in {%
+  0/{Data integration}/{one record replaces departmental copies}/{\% invoices needing manual correction},
+  1/{Process integration}/{one transaction triggers the next step}/{order-to-delivery cycle time},
+  2/{Management visibility}/{reports are read, not assembled}/{days to close the books},
+  3/{Standardisation}/{units share processes and structures}/{\% transactions on the standard flow}}{
+  \pgfmathsetmacro{\y}{2.35-\i*0.9}
+  \node[erpstep,minimum width=4.3cm,minimum height=0.72cm] (a\i) at (2.15,\y) {\a};
+  \node[erpdoc,minimum width=5.5cm,text width=5.1cm,minimum height=0.72cm] (b\i) at (7.3,\y) {\b};
+  \node[erpgood,minimum width=4.8cm,text width=4.4cm,minimum height=0.72cm] (c\i) at (12.7,\y) {\c};
+  \draw[erpflow] (a\i)--(b\i); \draw[erpflow] (b\i)--(c\i);}
+\end{tikzpicture}
+\end{erpfig}
 
-Other benefits are often consequences of these mechanisms: better customer service, lower inventory, shorter cycle times, improved reporting, stronger control, and a platform for analytics.
+Better customer service, lower inventory, shorter cycle times, and stronger
+control are downstream consequences of these four.
 
 \begin{workedexample}
-Suppose West End Bicycles stores the Road Bike price separately in a salesperson's spreadsheet and in Finance's invoice system. A price change must be updated twice and may be missed in one place. With an integrated ERP record, the quotation and later invoice can use the same transaction data, reducing the chance of contradictory prices.
+Suppose West End Bicycles keeps the Road Bike price in a salesperson's
+spreadsheet and again in Finance's invoice system. A price change must be made
+twice and may be missed once. With one integrated product record, the quotation
+and the later invoice read the same price.
 \end{workedexample}
 
 \section{Why ERP projects are difficult}
 
-ERP software affects many departments at once, so implementation is an organisational change project as much as a technology project. The source material identifies costs such as software, hardware, consultants, project-team time, training, implementation disruption, and productivity losses during transition.
+ERP affects many departments at once, so implementation is an organisational
+change project as much as a technology project. Licence and hardware costs are
+the visible part; the costs that sink projects are mostly below the surface.
 
-More importantly, failed or difficult implementations are frequently associated with process and people problems:
+\begin{erpfig}[The cost of an implementation]{Software licences are the part
+budgeted first and the part that matters least to whether the project succeeds.
+Everything below the line is process and people work.}{fig:cost-iceberg}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPBlue!30,fill=UTPPaleBlue!35] (-0.4,1.5) rectangle (14.8,3.1);
+\node[erpcap,anchor=west,color=UTPBlue] at (-0.25,2.82) {\bfseries Budgeted first --- visible};
+\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (2.0,2.05) {Software licences};
+\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (5.9,2.05) {Hardware / hosting};
+\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (9.8,2.05) {Consultants};
+\node[erpstep,minimum width=2.9cm,minimum height=0.8cm] at (13.2,2.05) {Implementation};
+\draw[draw=UTPMuted,line width=1pt,dashed] (-0.4,1.35) -- (14.8,1.35);
+\node[erpnote,anchor=east,fill=white,inner sep=1.5pt] at (14.7,1.35) {waterline};
+\draw[draw=UTPOrange!35,fill=UTPPaleOrange!45] (-0.4,-2.2) rectangle (14.8,1.2);
+\node[erpcap,anchor=west,color=UTPOrange] at (-0.25,0.92) {\bfseries Discovered later --- where projects fail};
+\foreach \x/\y/\t in {2.0/0.2/{Business process\\redesign}, 5.9/0.2/{Master-data cleaning\\and migration},
+                      9.8/0.2/{Training and\\change management}, 13.2/0.2/{Testing and\\parallel running},
+                      2.0/-1.35/{Lost productivity\\during transition}, 5.9/-1.35/{Process-owner\\time},
+                      9.8/-1.35/{Customisation and\\future upgrade debt}, 13.2/-1.35/{Post-go-live\\support}}{
+  \node[erpwarn,minimum width=3.3cm,minimum height=0.95cm] at (\x,\y) {\t};}
+\end{tikzpicture}
+\end{erpfig}
 
-\begin{itemize}
-  \item assuming new software will repair a fundamentally bad business process without redesigning it;
-  \item insufficient planning and analysis before configuration begins;
-  \item inadequate education and training;
-  \item treating the implementation as an IT-only project instead of giving process owners responsibility;
-  \item weak executive sponsorship;
-  \item poor organisational change management;
-  \item excessive scope or uncontrolled customisation;
-  \item difficult migration of master and open transaction data from legacy systems.
-\end{itemize}
+Failed implementations are usually traced to process and people problems:
+assuming software will repair a bad process, thin planning before configuration,
+inadequate training, treating the work as IT-only, weak executive sponsorship,
+poor change management, uncontrolled scope or customisation, and difficult
+migration of legacy data.
 
 \begin{pitfall}
-``Install ERP'' is not a business objective. A project needs a process objective such as reducing order cycle time, improving inventory accuracy, shortening financial close, or eliminating repeated manual entry. Otherwise the organisation can spend heavily and merely reproduce its old problems inside a newer system.
+``Install ERP'' is not a business objective. A project needs a process objective
+--- reduce order cycle time, improve inventory accuracy, shorten the financial
+close --- or the organisation can spend heavily and reproduce its old problems
+inside newer software.
 \end{pitfall}
 
 \section{Standard processes versus customisation}
 
-ERP packages usually embody a particular way of doing business. The implementation team must decide whether to:
+ERP packages embody a particular way of doing business. Every gap between the
+package and the company forces a decision, and the cheapest answer is not always
+the right one.
 
-\begin{enumerate}
-  \item adapt the company's process to the standard ERP workflow;
-  \item configure the ERP system using supported options; or
-  \item customise the software when a real competitive or regulatory need cannot be met by standard configuration.
-\end{enumerate}
-
-Customisation is not automatically wrong, but every custom feature increases implementation effort and can make future upgrades harder. A useful question is: \emph{Does this process create competitive advantage, or is it merely familiar?}
+\begin{erpfig}[The customisation decision]{Work down the questions before
+writing code. Custom features are not forbidden, but each one is paid for again
+at every future upgrade.}{fig:customisation-decision}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpterm,minimum width=3.1cm] (start) at (1.6,0) {Process gap found};
+\node[erpdec,text width=2.4cm] (d1) at (5.5,0) {Does standard\\configuration cover it?};
+\node[erpdec,text width=2.5cm] (d2) at (10.2,0) {Is it a real competitive or\\legal need?};
+\node[erpgood,minimum width=3.0cm,minimum height=0.9cm] (o1) at (5.5,-2.35) {Configure\\\tiny\mdseries no code, upgrade-safe};
+\node[erpgood,minimum width=3.2cm,minimum height=0.9cm] (o2) at (10.2,2.15) {Adopt the standard\\\tiny\mdseries change the process};
+\node[erpwarn,minimum width=3.2cm,minimum height=0.9cm] (o3) at (14.0,0) {Customise\\\tiny\mdseries log the upgrade cost};
+\draw[erpflow] (start)--(d1);
+\draw[erpflow] (d1)--node[erpnote,above,fill=white,inner sep=1pt]{no}(d2);
+\draw[erpflow] (d1)--node[erpnote,right,fill=white,inner sep=1pt]{yes}(o1);
+\draw[erpflow] (d2)--node[erpnote,right,fill=white,inner sep=1pt]{no}(o2);
+\draw[erpflow] (d2)--node[erpnote,above,fill=white,inner sep=1pt]{yes}(o3);
+\node[erpnote,text width=4.4cm,anchor=north] at (10.2,-1.6)
+  {The useful test: does this process create advantage, or is it merely familiar?};
+\end{tikzpicture}
+\end{erpfig}
 
 \section{How to judge ERP success}
 
-A successful ERP implementation is not simply one that goes live. It should improve measurable business outcomes.
+A successful implementation is not one that merely goes live. It should move
+measurable business outcomes: order-to-delivery cycle time, inventory accuracy
+and stockout frequency, invoice and payment processing time, days to close,
+forecast accuracy, share of transactions completed without re-entry, user
+adoption, service levels, and realised cost or revenue change.
 
-Possible indicators include:
-
-\begin{itemize}
-  \item order-to-delivery cycle time;
-  \item inventory accuracy and stockout frequency;
-  \item invoice and payment processing time;
-  \item days required to close financial accounts;
-  \item forecast accuracy;
-  \item percentage of transactions completed without manual re-entry;
-  \item user adoption and process compliance;
-  \item customer service levels;
-  \item realised cost savings or revenue improvements.
-\end{itemize}
-
-Some ERP benefits are hard to express as immediate cash savings. Better visibility, improved control, consistent data, and the ability to support future growth may still be strategically important.
+Some benefits resist cash valuation. Better visibility, consistent data, and
+the capacity to support growth may still be strategically decisive.
 
 \section{Implementation success factors}
-
-The source repeatedly returns to a few conditions that increase the chance of success:
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.25\linewidth}X@{}}
@@ -138,33 +261,38 @@ Success factor & Why it matters \\
 \midrule
 Executive sponsorship & Gives the project authority, resources, and cross-functional priority. \\
 Clear scope and objectives & Prevents uncontrolled expansion and makes benefits measurable. \\
-Process ownership & Ensures decisions are made by people who understand the work, not only the technology. \\
+Process ownership & Puts decisions with people who understand the work, not only the technology. \\
 Training and communication & Helps users understand both the system and the new process. \\
 Change management & Addresses resistance, role changes, and new responsibilities. \\
-Data preparation & Poor master data can undermine even correctly configured software. \\
-Testing and staged readiness & Finds configuration and process problems before live transactions depend on the system. \\
+Data preparation & Poor master data undermines even correctly configured software. \\
+Testing and staged readiness & Finds problems before live transactions depend on the system. \\
 \bottomrule
 \end{tabularx}
 \end{erptable}
 
 \section{How Odoo illustrates ERP modularity}
 
-The West End Bicycles guide uses eight Odoo 19 Community applications: Contacts, CRM, Employees, Inventory, Invoicing, Manufacturing, Purchase, and Sales. Each application has a distinct job, but the records are connected.
+The West End Bicycles guide uses eight Odoo 19 Community applications. Each has
+a distinct job; the records are connected.
 
 \begin{odoobox}
-A useful way to read the Odoo app grid is as a modular ERP architecture:
+Read the Odoo app grid as a modular ERP architecture:
 \begin{itemize}
   \item \odooapp{Contacts}: shared customer and vendor identities.
-  \item \odooapp{CRM} and \odooapp{Sales}: demand, opportunities, quotations, and orders.
-  \item \odooapp{Purchase}, \odooapp{Inventory}, and \odooapp{Manufacturing}: sourcing, stock, and production.
-  \item \odooapp{Invoicing}: customer invoices and payments in the Community workflow used by the course.
-  \item \odooapp{Employees}: departments and people behind the processes.
+  \item \odooapp{CRM} and \odooapp{Sales}: demand, opportunities, quotations, orders.
+  \item \odooapp{Purchase}, \odooapp{Inventory}, \odooapp{Manufacturing}: sourcing, stock, production.
+  \item \odooapp{Invoicing}: customer invoices and payments in the Community workflow.
+  \item \odooapp{Employees}: departments and the people behind the processes.
 \end{itemize}
-The same product, customer, vendor, and order information can therefore be reused instead of rebuilt independently in each app.
+The same product, customer, vendor, and order data is reused rather than rebuilt
+in each app.
 \end{odoobox}
 
 \begin{tryit}
-Choose one ERP benefit and one ERP implementation challenge from this chapter. For each, write: (1) the mechanism that creates the benefit/challenge, (2) one operational example at West End Bicycles, and (3) one metric that could show whether the issue improved after implementation. This mirrors the structure of Tutorial 2 while forcing the argument to be measurable.
+Choose one ERP benefit and one implementation challenge from this chapter. For
+each write: (1) the mechanism, (2) one operational example at West End Bicycles,
+and (3) one metric that would show whether it improved. This mirrors Tutorial 2
+while forcing the argument to be measurable.
 \end{tryit}
 
 \begin{quickcheck}
@@ -177,10 +305,10 @@ Choose one ERP benefit and one ERP implementation challenge from this chapter. F
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item ERP grew from narrower planning and departmental information systems into company-wide integrated platforms.
-  \item ERP modules remain specialised but share master data and linked transaction data.
-  \item The main benefits come from integration, visibility, process coordination, and standardisation.
-  \item The main risks involve process design, people, scope, training, data migration, and change management as much as software.
-  \item Success should be measured in business outcomes, not merely by whether the system was installed.
+  \item ERP grew out of inventory control, MRP, and MRP II by widening scope from the store room to the enterprise (\figref{fig:erp-evolution}).
+  \item Modules stay specialised but sit on one database of master and transaction data (\figref{fig:erp-layers}).
+  \item Benefits arise through integration, visibility, coordination, and standardisation --- each with a measurable consequence (\figref{fig:benefit-chain}).
+  \item The costs that decide success are mostly below the waterline: process redesign, data, training, and change management (\figref{fig:cost-iceberg}).
+  \item Customise only when configuration cannot meet a real competitive or regulatory need (\figref{fig:customisation-decision}).
 \end{itemize}
 \end{chapterrecap}

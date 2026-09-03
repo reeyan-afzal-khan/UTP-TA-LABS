@@ -21,6 +21,108 @@
 \newcommand{\odooapp}[1]{\textbf{\color{UTPBlue}#1}}
 \newcommand{\pathmenu}[1]{\textbf{\color{UTPTeal}#1}}
 
+% Expand the one-page Learning Path so its hierarchy fills the page cleanly.
+\newcommand{\erpfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{1.20em}%
+  \setlength{\cftbeforechapskip}{0.50em}%
+  \setlength{\cftbeforelabskip}{0.55em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\erpfullpagetoc}{}{} 
+
+% ---------- figures ----------
+%  The shared node vocabulary (erpcell, erpnode, erparrow, ...) plus the
+%  numbered, captioned frame the chapters draw into:
+%
+%      \begin{erpfig}[short entry]{Caption.}{fig:label}
+%        \begin{tikzpicture} ... \end{tikzpicture}
+%      \end{erpfig}
+%
+%  \erpfigure remains for the few frames that carry no caption.
+\utpdiagramstyles{erp}{1.0cm}{0.8cm}
+\utpfigalias{erpfig}
+
+% The vocabulary this book adds on top of the shared one. Every diagram is
+% built from these, so a flow in Chapter 3 and a flow in Chapter 8 look
+% alike and each figure's source stays short.
+\tikzset{
+  % --- process and document boxes ---
+  erpstep/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+                  minimum width=2.35cm,minimum height=0.82cm,align=center,
+                  font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.6mm},
+  erpdoc/.style={draw=UTPBlue,fill=white,rounded corners=1.2mm,
+                 minimum width=2.2cm,minimum height=0.8cm,align=center,
+                 font=\scriptsize\color{UTPNavy},inner sep=1.4mm},
+  erpgood/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,
+                  minimum width=2.35cm,minimum height=0.82cm,align=center,
+                  font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.6mm},
+  erpbad/.style={draw=UTPRed,fill=UTPPaleRed,rounded corners=2mm,
+                 minimum width=2.35cm,minimum height=0.82cm,align=center,
+                 font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.6mm},
+  erpwarn/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,
+                  minimum width=2.35cm,minimum height=0.82cm,align=center,
+                  font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.6mm},
+  erpquiet/.style={draw=UTPMuted!45,fill=UTPPaleGray,rounded corners=2mm,
+                   minimum width=2.35cm,minimum height=0.82cm,align=center,
+                   font=\scriptsize\color{UTPMuted},inner sep=1.6mm},
+  % --- flowchart symbols ---
+  erpterm/.style={draw=UTPNavy,fill=UTPNavy!8,rounded rectangle,
+                  minimum width=2.1cm,minimum height=0.68cm,align=center,
+                  font=\scriptsize\bfseries\color{UTPNavy},inner sep=1.2mm},
+  erpdec/.style={draw=UTPOrange,fill=UTPPaleOrange,diamond,aspect=2.1,
+                 align=center,font=\scriptsize\color{UTPNavy},inner sep=0.6mm},
+  % --- containers ---
+  erpdb/.style={cylinder,shape border rotate=90,aspect=0.30,draw=UTPBlue,
+                fill=UTPPaleBlue,minimum height=1.25cm,minimum width=2.5cm,
+                align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  erpstore/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,align=center,
+                   minimum height=1.0cm,font=\scriptsize\bfseries\color{UTPNavy},inner sep=2mm},
+  erplane/.style={draw=UTPMuted!45,fill=white,inner sep=0pt},
+  erplanehead/.style={font=\scriptsize\bfseries\color{UTPNavy},align=center},
+  erpzone/.style={draw=UTPBlue!30,fill=UTPPaleBlue!45,rounded corners=2.5mm,
+                  inner sep=3mm},
+  erpzonewarn/.style={draw=UTPOrange!45,fill=UTPPaleOrange!55,rounded corners=2.5mm,
+                      inner sep=3mm},
+  % --- connectors ---
+  erpflow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal},
+  erpback/.style={-{Stealth[length=2.2mm]},thick,draw=UTPOrange},
+  erpslow/.style={-{Stealth[length=2.2mm]},thick,draw=UTPRed,dashed},
+  erplink/.style={semithick,draw=UTPMuted!60,dotted},
+  % --- annotation ---
+  erpcap/.style={font=\scriptsize\color{UTPMuted},align=center,inner sep=1pt},
+  erpnote/.style={font=\tiny\color{UTPMuted},align=center,inner sep=1pt},
+  erphead/.style={font=\small\bfseries\color{UTPNavy},align=center},
+  erpchip/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1mm,
+                  font=\tiny\bfseries\color{UTPNavy},inner xsep=1.6mm,inner ysep=0.8mm},
+  erpchipwarn/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+                      font=\tiny\bfseries\color{UTPNavy},inner xsep=1.6mm,inner ysep=0.8mm},
+  erpchipbad/.style={draw=UTPRed,fill=UTPPaleRed,rounded corners=1mm,
+                     font=\tiny\bfseries\color{UTPNavy},inner xsep=1.6mm,inner ysep=0.8mm}
+}
+
+% The List of Figures, printed by chapters/course-map.tex while the front
+% matter is still numbered in roman.
+\renewcommand{\cftfigfont}{\normalfont\small}
+\renewcommand{\cftfigpagefont}{\normalfont\small}
+\renewcommand{\cftfigpresnum}{Figure~}
+\renewcommand{\cftfigaftersnum}{\quad}
+\setlength{\cftfigindent}{1.5em}
+\setlength{\cftfignumwidth}{5.6em}
+\setlength{\cftbeforefigskip}{0pt}
+\renewcommand{\cftfigleader}{\cftdotfill{\cftdotsep}}
+
 % ---------- other settings used only in this book ----------
 \lstset{style=erpterminal}
 

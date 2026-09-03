@@ -14,6 +14,28 @@
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
+% Expand the one-page Learning Path while keeping every laboratory entry
+% visually paired with the FinTech chapter immediately above it.
+\newcommand{\fintechfullpagetoc}{%
+  \begingroup
+  \normalsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{2.00em}%
+  \setlength{\cftbeforechapskip}{1.50em}%
+  \setlength{\cftbeforelabskip}{0.50em}%
+  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftchapfont}{\normalsize}%
+  \renewcommand{\cftchappagefont}{\normalsize}%
+  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\fintechfullpagetoc}{}{}
+
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter

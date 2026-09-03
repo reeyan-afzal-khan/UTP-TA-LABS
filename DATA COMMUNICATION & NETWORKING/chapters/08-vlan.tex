@@ -49,6 +49,44 @@ not the host, decides which VLAN a frame belongs to.}
 A VLAN is enforced by the switch, not by the host's IP address. Two PCs can share a subnet and still be unable to reach each other if they sit in different VLANs --- changing the PC's address cannot bypass the separation.
 \end{keyidea}
 
+\subsection{What the tag actually is}
+The tag is four bytes pushed into the Ethernet header between the source
+address and the type field. Twelve of its bits carry the VLAN ID, which
+is why the usable range stops at 4094.
+
+\begin{utpfig}[802.1Q tag]{An 802.1Q tag inserted into the Ethernet II frame from
+\figref{fig:eth-frame}. The frame grows by four bytes, which is why a trunk port
+needs an MTU four bytes larger than its access ports.}{fig:dot1q}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\def\u{0.40}
+% untagged
+\node[anchor=east,font=\scriptsize\bfseries\color{UTPMuted}] at (-0.15,0) {untagged};
+\protorow{0}{\u}{6/Destination MAC/hdrb, 6/Source MAC/hdrb, 2/Type/hdro,
+                 8/Payload/hdrpay, 4/FCS/hdrg}
+
+% tagged
+\node[anchor=east,font=\scriptsize\bfseries\color{UTPNavy}] at (-0.15,-1.35) {tagged};
+\protorow{-1.35}{\u}{6/Destination MAC/hdrb, 6/Source MAC/hdrb,
+                     4/802.1Q tag/hdrr, 2/Type/hdro, 8/Payload/hdrpay, 4/FCS/hdrg}
+
+\draw[-{Stealth[length=2mm]},draw=UTPRed,thick] (4.85,-0.42) -- (4.85,-0.95);
+\node[font=\tiny\color{UTPRed},anchor=west] at (5.0,-0.68) {4 bytes inserted here};
+
+% tag expansion
+\def\v{1.05}
+\protorow{-3.0}{\v}{2/TPID 0x8100/hdrr, 0.35/PCP/hdrm, 0.15/D/hdrm, 1.4/VLAN ID/hdrb}
+\prototicks{-3.62}{\v}{2/16 bits, 0.35/3, 0.15/1, 1.4/12 bits}
+\draw[draw=UTPRed,dotted] (3.6,-1.62) -- (0,-2.62);
+\draw[draw=UTPRed,dotted] (5.2,-1.62) -- (4.09,-2.62);
+
+\node[anchor=west,font=\scriptsize\color{UTPMuted},text width=5.4cm,align=left]
+  at (4.5,-3.15)
+  {\textbf{TPID} \cmd{0x8100} marks the frame as tagged.\\
+   \textbf{PCP} is the priority field used by QoS.\\
+   \textbf{VLAN ID} 12 bits $\rightarrow$ 1--4094 usable.};
+\end{tikzpicture}
+\end{utpfig}
+
 \section{Step 1: build the inter-switch Eth-Trunk}
 Build static-LACP Eth-Trunk 1 with G0/0/9 and G0/0/10. The source shows both physical-interface membership and \cmd{trunkport} from the Eth-Trunk view.
 \begin{lstlisting}[style=dcnterminal]
@@ -110,7 +148,52 @@ On S2, the source uses \cmd{vlan batch} and \cmd{port default vlan}:
 \section{Step 4: address the hosts and verify VLAN isolation}
 Hosts in the same VLAN use a common subnet. Initially, R1 and R3 in VLAN 4 should communicate; hosts in different VLANs should not.
 
-\sourceimage[0.62\linewidth]{Ping evidence used in the supplied VLAN verification sequence}{vlan-connectivity-check.png}
+\begin{vrpbox}{<S1> display vlan}
+\begin{lstlisting}[style=dcnvrp]
+The total number of vlans is : 4
+--------------------------------------------------------------------------------
+U: Up;          D: Down;         TG: Tagged;         UT: Untagged;
+MP: Vlan-mapping;                ST: Vlan-stacking;
+--------------------------------------------------------------------------------
+VID  Type     Ports
+--------------------------------------------------------------------------------
+1    common   UT:GE0/0/2(U)     GE0/0/4(U)      GE0/0/5(U)
+2    common   (*\hi{TG:Eth-Trunk1(U)}*)
+3    common   (*\hi{UT:GE0/0/13(U)}*)   TG:Eth-Trunk1(U)
+4    common   (*\hi{UT:GE0/0/1(U)}*)    TG:Eth-Trunk1(U)
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{\cmd{UT} is an access or untagged port, \cmd{TG} a tagged one. Every
+VLAN lists \cmd{Eth-Trunk1} as \cmd{TG}, which is what \cmd{port trunk
+allow-pass vlan all} did. A VLAN missing from this table cannot carry traffic
+however the host is addressed.}
+
+Then test both outcomes on the hosts: a ping inside one VLAN, and a ping
+across two.
+
+\begin{vrpbox}{<R1> ping 10.0.4.3 \quad (same VLAN, expected to succeed)}
+\begin{lstlisting}[style=dcnvrp]
+  PING 10.0.4.3: 56  data bytes, press CTRL_C to break
+    Reply from 10.0.4.3: bytes=56 Sequence=1 ttl=255 time=30 ms
+    Reply from 10.0.4.3: bytes=56 Sequence=2 ttl=255 time=20 ms
+
+  --- 10.0.4.3 ping statistics ---
+    5 packet(s) transmitted, (*\higreen{5 packet(s) received}*), (*\higreen{0.00\% packet loss}*)
+\end{lstlisting}
+\end{vrpbox}
+
+\begin{vrpbox}{<R1> ping 10.0.3.2 \quad (different VLAN, expected to fail)}
+\begin{lstlisting}[style=dcnvrp]
+  PING 10.0.3.2: 56  data bytes, press CTRL_C to break
+    Request time out
+    Request time out
+
+  --- 10.0.3.2 ping statistics ---
+    5 packet(s) transmitted, 0 packet(s) received, (*\hired{100.00\% packet loss}*)
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{the second result is a pass, not a failure. A VLAN lab needs both
+transcripts, because only the failing one proves the isolation works.}
 
 \begin{verification}
 Test both outcomes: same-VLAN connectivity and different-VLAN isolation before adding hybrid behavior.
@@ -143,11 +226,34 @@ The commands are complementary:
 \end{itemize}
 Retest reachability: the selected VLAN-2 and VLAN-4 hosts should communicate, while the VLAN-3 host remains isolated.
 
-\begin{conceptmap}
-\textbf{Ingress from host, no tag} $\rightarrow$ classify using the port PVID.\\
-\textbf{Frame inside the switch} $\rightarrow$ VLAN membership is tracked logically.\\
-\textbf{Egress toward selected host} $\rightarrow$ listed hybrid VLANs can be sent untagged.
-\end{conceptmap}
+\begin{utpfig}[Port type behaviour]{The same two questions asked of all three port
+types. Access and trunk are special cases of hybrid, which is why hybrid is the
+only one that needs two separate commands.}{fig:port-types}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[font=\bfseries\scriptsize\color{UTPNavy},anchor=west] at (2.5,0.9)
+  {Untagged frame arrives};
+\node[font=\bfseries\scriptsize\color{UTPNavy},anchor=west] at (7.6,0.9)
+  {Frame leaves the port};
+
+\newcommand{\ptrow}[4]{%
+  \node[anchor=east,font=\bfseries\scriptsize\color{UTPNavy}] at (2.3,#1) {#2};
+  \node[hdrb,minimum width=4.9cm,anchor=west,minimum height=1.0cm,
+        font=\scriptsize\color{UTPNavy}] at (2.5,#1) {#3};
+  \node[hdrg,minimum width=5.3cm,anchor=west,minimum height=1.0cm,
+        font=\scriptsize\color{UTPNavy}] at (7.55,#1) {#4};}
+
+\ptrow{0}{Access}{tagged with the port's single VLAN}{tag removed, always untagged}
+\ptrow{-1.15}{Trunk}{tagged with the PVID (the native VLAN)}{tagged, except the native VLAN}
+\ptrow{-2.30}{Hybrid}{tagged with \cmd{port hybrid pvid vlan}}{per VLAN: \cmd{tagged} or \cmd{untagged}}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+The two hybrid commands answer the two different questions above.
+\cmd{port hybrid pvid vlan <id>} answers the ingress question; \cmd{port
+hybrid untagged vlan 2 4} answers the egress one. Setting one without
+the other is the usual cause of a hybrid port that half works.
+\end{keyidea}
 
 \section{The native-VLAN mismatch: a leak that reports no error}
 A trunk sends exactly one VLAN \emph{untagged} --- the native VLAN, taken from the port's PVID. If the two ends disagree about which VLAN that is, each switch files the untagged frames into a different VLAN, and two supposedly isolated VLANs are joined.

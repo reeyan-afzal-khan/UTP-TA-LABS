@@ -6,14 +6,60 @@
   {distinguish a functional area from a business function and a business process, trace cross-functional information flows, and explain why a shared ERP database improves coordination.}
 
 \begin{sourcebasis}
-This chapter follows Tutorial 1 on Business Process / Business Functions and Chapter 1 of \emph{Concepts in Enterprise Resource Planning}. The West End Bicycles scenario and the four functional areas are preserved from the course materials; the explanations and diagrams below reorganise those ideas into a study sequence.
+This chapter follows Tutorial 1 on Business Process / Business Functions and
+Chapter 1 of \emph{Concepts in Enterprise Resource Planning}. The West End
+Bicycles scenario and the four functional areas are preserved from the course
+materials; the explanations and diagrams reorganise those ideas into a study
+sequence.
 \end{sourcebasis}
 
 \section{Start with the organisation, not the software}
 
-An ERP system exists to support how a business works. Before learning menus and modules, identify the work performed by the organisation.
+An ERP system exists to support how a business works. Before learning menus and
+modules, identify the work the organisation actually performs.
 
-A \term{functional area} is a broad part of the organisation responsible for a family of activities. The course materials emphasise four recurring areas:
+A \term{functional area} is a broad part of the organisation responsible for a
+family of activities. A \term{business function} is one activity inside such an
+area --- ``taking a sales order.'' A \term{business process} is broader: a
+connected set of activities that turns an input into an output someone values.
+The three are often confused because they sit at different levels.
+
+\begin{erpfig}[Area, function, process]{The three levels. Functional areas are
+vertical containers of responsibility; business functions are the individual
+activities inside them; a business process runs horizontally across the
+containers. The mismatch between the vertical structure and the horizontal flow
+is the problem ERP exists to solve.}{fig:area-function-process}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% --- four vertical containers ---
+\foreach \x/\nm/\c in {0/Marketing \& Sales/UTPBlue, 3.9/Supply Chain/UTPTeal,
+                       7.8/Accounting \& Finance/UTPGreen, 11.7/Human Resources/UTPOrange}{
+  \draw[draw=\c!55,fill=\c!7,rounded corners=2mm] (\x,-0.15) rectangle (\x+3.45,4.5);
+  \node[font=\scriptsize\bfseries\color{\c!75!black},align=center,text width=3.2cm]
+    at (\x+1.72,4.12) {\nm};
+}
+% --- functions inside each ---
+\foreach \x/\a/\b/\c in {0/Quotation/Sales order/Forecast,
+                         3.9/Purchasing/Production/Delivery,
+                         7.8/Invoicing/Receivables/Reporting,
+                         11.7/Recruiting/Training/Payroll admin.}{
+  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,3.42) {\a};
+  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.72) {\b};
+  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.02) {\c};
+}
+\node[erpcap,anchor=west,text width=2.6cm] at (-0.05,-0.75)
+  {\bfseries functional\\areas};
+\node[erpcap,anchor=west] at (2.9,-0.75) {each holds many \emph{business functions}};
+% --- horizontal process band ---
+\draw[draw=UTPNavy,fill=UTPNavy!8,rounded corners=2mm] (-0.35,0.35) rectangle (15.5,1.4);
+\node[font=\scriptsize\bfseries\color{UTPNavy},anchor=west] at (-0.15,1.12)
+  {Business process: \emph{order-to-cash}};
+\foreach \x/\t in {1.2/Capture, 4.3/Reserve, 7.3/Ship, 10.3/Invoice, 13.3/Collect}{
+  \node[erpchip] (c\t) at (\x,0.68) {\t};
+}
+\draw[erpflow] (cCapture) -- (cReserve); \draw[erpflow] (cReserve) -- (cShip);
+\draw[erpflow] (cShip) -- (cInvoice);   \draw[erpflow] (cInvoice) -- (cCollect);
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{erptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.23\linewidth}X@{}}
@@ -29,147 +75,267 @@ Human Resources & Recruiting, hiring, training, payroll-related administration, 
 \end{tabularx}
 \end{erptable}
 
-A \term{business function} is one activity within a functional area. For example, ``taking a sales order'' is a business function in Marketing and Sales. A \term{business process} is broader: it is a connected set of activities that transforms an input into an output that matters to a customer or another internal user.
-
 \begin{intuition}
-A department is an organisational box. A process is a journey. The customer order journey may begin in Sales, move through credit checking, inventory, delivery, and invoicing, and end when payment is recorded. The customer sees one experience even though the company sees several departments.
+A department is an organisational box. A process is a journey. The customer sees
+one experience; the company sees several departments.
 \end{intuition}
 
 \section{Why business processes cross functional boundaries}
 
-Suppose West End Bicycles receives an order for 1,000 bicycles. The sales employee can capture the request, but Sales alone cannot complete the order. The organisation must answer several questions:
+Suppose West End Bicycles receives an order for 1,000 bicycles. A sales employee
+can capture the request, but Sales alone cannot complete it. Six questions must
+be answered, and each belongs to a different desk.
 
-\begin{itemize}
-  \item Is the customer allowed to buy on the requested credit terms?
-  \item Are enough bicycles already in stock?
-  \item If not, can production make them on time?
-  \item Are the required frames, tyres, brakes, gears, and chains available?
-  \item When can the order be delivered?
-  \item What invoice should Finance issue, and has the customer paid?
-\end{itemize}
-
-Each question belongs partly to a different functional area. The process therefore crosses functional lines.
-
-\begin{erpfigure}
-\begin{tikzpicture}[
-  area/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.9cm,minimum height=1.05cm,align=center,font=\small\bfseries\color{ERPNavy}},
-  proc/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.2cm,minimum height=0.75cm,align=center,font=\scriptsize\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal}
-]
-\node[area] (ms) at (0,2.2) {Marketing \\ \& Sales};
-\node[area] (af) at (4.0,2.2) {Accounting \\ \& Finance};
-\node[area] (scm) at (8.0,2.2) {Supply Chain \\ Management};
-\node[area] (hr) at (12.0,2.2) {Human \\ Resources};
-\node[proc] (p1) at (0,0) {Capture order};
-\node[proc] (p2) at (3,0) {Check credit};
-\node[proc] (p3) at (6,0) {Plan / reserve};
-\node[proc] (p4) at (9,0) {Deliver};
-\node[proc] (p5) at (12,0) {Invoice / pay};
-\draw[arr] (p1) -- (p2); \draw[arr] (p2) -- (p3); \draw[arr] (p3) -- (p4); \draw[arr] (p4) -- (p5);
-\draw[dashed,draw=ERPMuted] (ms.south) -- (p1.north);
-\draw[dashed,draw=ERPMuted] (af.south) -- (p2.north);
-\draw[dashed,draw=ERPMuted] (scm.south) -- (p3.north);
-\draw[dashed,draw=ERPMuted] (scm.south east) -- (p4.north);
-\draw[dashed,draw=ERPMuted] (af.south east) -- (p5.north);
+\begin{erpfig}[Order questions by owner]{One customer order, six questions, four
+owners. No single functional area can answer all of them, which is what makes
+this a cross-functional process rather than a departmental
+task.}{fig:cross-functional-order}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erphead,anchor=west] at (-0.2,0.75) {Order for 1{,}000 bicycles --- who answers what?};
+\foreach \i/\q/\own/\c in {%
+   0/{Is the order captured with the right product, quantity, and price?}/{Marketing \& Sales}/UTPBlue,
+   1/{Is the customer allowed to buy on the requested credit terms?}/{Accounting \& Finance}/UTPGreen,
+   2/{Are 1{,}000 bicycles already in stock?}/{Supply Chain}/UTPTeal,
+   3/{If not, can production make them on time from available parts?}/{Supply Chain}/UTPTeal,
+   4/{When can the order be delivered?}/{Supply Chain}/UTPTeal,
+   5/{What is invoiced, and has the customer paid?}/{Accounting \& Finance}/UTPGreen}{
+  \pgfmathsetmacro{\y}{-\i*0.92}
+  \node[erpdoc,anchor=west,text width=8.5cm,minimum width=9.0cm,minimum height=0.74cm,
+        align=left,draw=\c!60] (q\i) at (0,\y) {\q};
+  \node[erpstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
+        draw=\c,fill=\c!10] at (9.6,\y) {\own};
+  \draw[erplink] (9.05,\y) -- (9.6,\y);
+}
+\foreach \i in {0,...,4}{
+  \pgfmathsetmacro{\y}{-\i*0.92-0.37}
+  \draw[erpflow] (0.55,\y) -- (0.55,\y-0.18);
+}
+\draw[draw=UTPMuted!35] (0,-5.05) -- (13.3,-5.05);
+\node[erpstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
+      draw=UTPOrange,fill=UTPPaleOrange] (hr) at (9.6,-5.55) {Human Resources};
+\node[erpcap,anchor=west,text width=8.5cm,align=left] at (0,-5.55)
+  {\itshape staffs every step above, owns none of them};
+\draw[erplink] (9.05,-5.55) -- (hr);
 \end{tikzpicture}
-\end{erpfigure}
+\end{erpfig}
 
-The HR area may not touch every individual order, but it still supports the process by ensuring that the organisation has trained salespeople, buyers, production planners, accountants, and warehouse staff.
+HR may not touch an individual order, yet it supports the process by ensuring
+the company has trained salespeople, buyers, planners, accountants, and
+warehouse staff.
 
 \section{The information each area needs from the others}
 
-A process can fail even when every department works hard if information moves slowly or inconsistently.
+A process fails when information moves slowly or inconsistently, even if every
+department works hard. Each area is simultaneously a producer and a consumer of
+the others' data.
 
-\subsection{Marketing and Sales}
-Marketing and Sales needs customer details, order data, product availability, unit cost and profitability information, and staffing support. It produces sales orders, prices, sales forecasts, and customer demand information.
-
-\subsection{Supply Chain Management}
-SCM needs sales forecasts and confirmed orders so it can plan production, purchasing, and inventory. It produces availability, production, receipt, and shipment information that Sales and Finance need.
-
-\subsection{Accounting and Finance}
-Finance needs sales, purchasing, inventory, production, payroll, and payment data. It produces invoices, credit information, payments to suppliers, financial statements, and management reports.
-
-\subsection{Human Resources}
-HR needs staffing requirements and job-skill information from operational departments. It produces employee records, training information, compliance records, and compensation-related data.
+\begin{erpfig}[Information exchange]{What each functional area produces, and
+what it must receive from the others. Every labelled arrow is a dependency that
+a silo turns into a delay.}{fig:info-exchange}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpstep,minimum width=3.6cm,minimum height=1.15cm] (ms)  at (0,3.1)
+  {Marketing \& Sales\\[-0.2em]{\tiny\mdseries produces orders, prices, demand}};
+\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPTeal,fill=UTPPaleTeal] (scm) at (9.6,3.1)
+  {Supply Chain\\[-0.2em]{\tiny\mdseries produces stock, output, shipments}};
+\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPGreen,fill=UTPPaleTeal] (af) at (9.6,0)
+  {Accounting \& Finance\\[-0.2em]{\tiny\mdseries produces invoices, statements}};
+\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPOrange,fill=UTPPaleOrange] (hr) at (0,0)
+  {Human Resources\\[-0.2em]{\tiny\mdseries produces staff, records, skills}};
+% top: sales -> scm and back
+\draw[erpflow] ([yshift=3mm]ms.east) -- ([yshift=3mm]scm.west)
+  node[midway,above,erpnote]{forecasts, confirmed orders};
+\draw[erpback] ([yshift=-3mm]scm.west) -- ([yshift=-3mm]ms.east)
+  node[midway,below,erpnote]{availability, promised dates};
+% right: scm -> finance
+\draw[erpflow] (scm.south) -- (af.north)
+  node[midway,right,erpnote,text width=2.7cm]{receipts, production, shipments};
+% bottom: finance -> sales
+\draw[erpback] ([yshift=3mm]af.west) -- ([yshift=3mm]hr.east)
+  node[midway,above,erpnote]{payroll and expense data};
+\draw[erpflow] (af.north west) to[out=150,in=-30]
+  node[midway,fill=white,inner sep=1pt,erpnote,text width=2.4cm,align=center]
+  {credit status, payments} (ms.south east);
+% left: hr -> sales
+\draw[erpflow] (hr.north) -- (ms.south)
+  node[midway,left,erpnote,text width=2.2cm]{trained staff, skills};
+\draw[erpback] ([yshift=-3mm]hr.east) -- ([yshift=-3mm]af.west)
+  node[midway,below,erpnote]{headcount, staffing needs};
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{keyidea}
-The quality of a decision is constrained by the quality, timeliness, and consistency of the data available when the decision is made. ERP integration is valuable because it reduces the delay and disagreement created by multiple disconnected copies of the same business facts.
+The quality of a decision is limited by the quality, timeliness, and consistency
+of the data available when the decision is made. ERP integration is valuable
+because it removes the delay and disagreement created by several disconnected
+copies of the same business fact.
 \end{keyidea}
 
 \section{Silos versus an integrated information system}
 
-A \term{silo} is a departmental information system that stores its own data and does not automatically stay synchronised with other systems. A silo is not automatically bad; the problem appears when a cross-functional process depends on information that exists in several different versions.
+A \term{silo} is a departmental system that keeps its own data and does not
+automatically stay synchronised with the others. Silos are not inherently bad.
+The problem appears when a cross-functional process depends on a fact that now
+exists in several different versions.
 
-\begin{erpfigure}
-\resizebox{0.95\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw=ERPRed,fill=ERPPaleRed,rounded corners=2mm,minimum width=2.7cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  ibox/.style={draw=ERPTeal,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.7cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  db/.style={cylinder,shape border rotate=90,aspect=0.30,draw=ERPBlue,fill=ERPPaleBlue,minimum height=1.3cm,minimum width=2.4cm,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick}
-]
-\node[box] (s1) at (0,2.0) {Sales DB};
-\node[box] (s2) at (3.3,2.0) {Warehouse DB};
-\node[box] (s3) at (6.6,2.0) {Finance DB};
-\node at (3.3,3.0) {\bfseries\color{ERPRed}Disconnected silos};
-\draw[arr,draw=ERPRed,dashed] (s1) -- node[above,font=\tiny] {file / paper} (s2);
-\draw[arr,draw=ERPRed,dashed] (s2) -- node[above,font=\tiny] {manual update} (s3);
-
-\node[ibox] (i1) at (9.0,2.0) {Sales};
-\node[ibox] (i2) at (12.0,2.0) {Inventory};
-\node[ibox] (i3) at (15.0,2.0) {Finance};
-\node[db] (db) at (12.0,0.15) {Shared data};
-\node at (12.0,3.0) {\bfseries\color{ERPTeal}Integrated ERP};
-\draw[arr,draw=ERPTeal] (i1) -- (db); \draw[arr,draw=ERPTeal] (i2) -- (db); \draw[arr,draw=ERPTeal] (i3) -- (db);
+\begin{erpfig}[Silos versus shared data]{The same three departments, twice. On
+the left each holds its own copy and the copies drift apart between transfers;
+on the right one record serves all three, so there is nothing to
+reconcile.}{fig:silo-vs-erp}
+\resizebox{0.99\linewidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+% ---- left: silos ----
+\node[erphead,color=UTPRed] at (3.6,3.55) {Disconnected silos};
+\node[erpbad,minimum width=2.6cm] (s1) at (0.0,2.3) {Sales DB};
+\node[erpbad,minimum width=2.6cm] (s2) at (3.6,2.3) {Warehouse DB};
+\node[erpbad,minimum width=2.6cm] (s3) at (7.2,2.3) {Finance DB};
+\draw[erpslow] (s1) -- node[erpnote,above]{fax / batch} (s2);
+\draw[erpslow] (s2) -- node[erpnote,above]{re-keyed} (s3);
+\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c1) at (0.0,0.85) {qty $=$ 40};
+\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c2) at (3.6,0.85) {qty $=$ 38};
+\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c3) at (7.2,0.85) {qty $=$ 40};
+\foreach \a/\b in {s1/c1,s2/c2,s3/c3}{\draw[erplink] (\a)--(\b);}
+\node[erpchipbad] at (3.6,0.05) {three answers to one question};
+% ---- right: integrated ----
+\begin{scope}[xshift=10.6cm]
+\node[erphead,color=UTPTeal] at (3.1,3.55) {Integrated ERP};
+\node[erpgood,minimum width=2.6cm] (i1) at (0.0,2.3) {Sales};
+\node[erpgood,minimum width=2.6cm] (i2) at (3.1,2.3) {Inventory};
+\node[erpgood,minimum width=2.6cm] (i3) at (6.2,2.3) {Finance};
+\node[erpdb,minimum width=3.0cm,minimum height=1.2cm] (db) at (3.1,0.7) {Shared record\\qty $=$ 40};
+\foreach \n in {i1,i2,i3}{\draw[erpflow] (\n) -- (db);}
+\node[erpchip] at (3.1,-0.42) {one answer, read three ways};
+\end{scope}
 \end{tikzpicture}}
-\end{erpfigure}
+\end{erpfig}
 
-With a shared database, a business event can update several views of the company at once. For example, when a delivery is validated, Inventory sees stock leave the warehouse, Sales sees fulfilment progress, and Finance has the evidence needed to bill or recognise the related transaction according to the configured process.
+The structural cost of silos is easiest to see at the keyboard: the same fact
+gets typed once per system, and each retype is an opportunity to disagree.
+
+\begin{erpfig}[Cost of re-entry]{Where errors enter. Every manual hand-off is a
+chance for the copies to diverge; the integrated path has one entry point and
+no reconciliation step.}{fig:duplicate-entry}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[erpcap,anchor=east,text width=1.9cm] at (-0.15,1.5) {\bfseries Siloed};
+\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a1) at (1.2,1.5) {type};
+\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a2) at (4.3,1.5) {re-type};
+\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a3) at (7.4,1.5) {re-type};
+\node[erpwarn,minimum width=2.4cm,minimum height=0.72cm] (a4) at (10.7,1.5) {reconcile};
+\draw[erpslow] (a1)--(a2); \draw[erpslow] (a2)--(a3); \draw[erpslow] (a3)--(a4);
+\node[erpchipbad,anchor=west] at (12.15,1.5) {3 entries, 3 error points};
+\node[erpcap,anchor=east,text width=1.9cm] at (-0.15,0.0) {\bfseries Integrated};
+\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b1) at (1.2,0.0) {type once};
+\node[erpdb,minimum width=2.4cm,minimum height=0.9cm] (b2) at (4.6,0.0) {shared};
+\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b3) at (7.9,0.0) {read};
+\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b4) at (10.7,0.0) {read};
+\draw[erpflow] (b1)--(b2); \draw[erpflow] (b2)--(b3); \draw[erpflow] (b3)--(b4);
+\node[erpchip,anchor=west] at (12.2,0.0) {1 entry, 0 error points};
+\end{tikzpicture}}
+\end{erpfig}
+
+With a shared database one business event updates several views at once. When a
+delivery is validated, Inventory sees stock leave, Sales sees fulfilment
+progress, and Finance gains the evidence needed to bill.
 
 \section{West End Bicycles as the running example}
 
-The tutorial scenario describes West End Bicycles as a manufacturer of road, mountain, and city bicycles, along with accessories such as helmets, shoes, and clothing. That scenario is useful because it requires all four functional areas.
+The tutorial scenario describes West End Bicycles as a manufacturer of road,
+mountain, and city bicycles plus accessories. It is useful precisely because it
+requires all four functional areas at once.
 
-\begin{workedexample}
-For a Road Bike order, the process can be read as two connected cycles:
-\begin{enumerate}
-  \item \textbf{Procure-to-pay:} identify the need for frames, tyres, and parts; create purchase orders; receive materials; update inventory; pay suppliers.
-  \item \textbf{Order-to-cash:} capture customer interest; create a quotation; confirm a sales order; deliver bikes; create an invoice; receive payment.
-\end{enumerate}
-Manufacturing connects the two cycles by converting purchased components into finished Road Bikes.
-\end{workedexample}
+\begin{erpfig}[Two connected cycles]{The whole course in one picture. The buying
+cycle fills the warehouse, the selling cycle empties it, and manufacturing is
+the hinge between them. Every later chapter deepens one segment of this
+loop.}{fig:two-cycles}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[draw=UTPBlue!35,fill=UTPPaleBlue!45,rounded corners=2.5mm,
+      minimum width=9.6cm,minimum height=1.8cm] at (4.2,2.35) {};
+\node[erpcap,anchor=west,color=UTPBlue] at (-0.55,3.05) {\bfseries Procure-to-pay};
+\node[erpstep,minimum width=2.05cm] (n1) at (0.75,2.25) {Need};
+\node[erpstep,minimum width=2.05cm] (n2) at (3.05,2.25) {Purchase order};
+\node[erpstep,minimum width=2.05cm] (n3) at (5.35,2.25) {Receipt};
+\node[erpstep,minimum width=2.05cm] (n4) at (7.85,2.25) {Pay vendor};
+\draw[erpflow] (n1)--(n2); \draw[erpflow] (n2)--(n3); \draw[erpflow] (n3)--(n4);
+
+\node[erpwarn,minimum width=3.4cm,minimum height=1.05cm] (mfg) at (12.1,1.05)
+  {Manufacturing\\[-0.15em]{\tiny\mdseries components $\rightarrow$ Road Bikes}};
+
+\node[draw=UTPGreen!35,fill=UTPPaleTeal!55,rounded corners=2.5mm,
+      minimum width=9.6cm,minimum height=1.8cm] at (4.2,-0.25) {};
+\node[erpcap,anchor=west,color=UTPGreen] at (-0.55,-1.15) {\bfseries Order-to-cash};
+\node[erpgood,minimum width=2.05cm] (m1) at (0.75,-0.35) {Opportunity};
+\node[erpgood,minimum width=2.05cm] (m2) at (3.05,-0.35) {Sales order};
+\node[erpgood,minimum width=2.05cm] (m3) at (5.35,-0.35) {Delivery};
+\node[erpgood,minimum width=2.05cm] (m4) at (7.85,-0.35) {Invoice / payment};
+\draw[erpflow] (m1)--(m2); \draw[erpflow] (m2)--(m3); \draw[erpflow] (m3)--(m4);
+
+\draw[erpflow] (n4) to[bend left=16] node[erpnote,above right=0pt and 1pt]{materials in} (mfg.north west);
+\draw[erpflow] (mfg.south west) to[bend left=16] node[erpnote,below right=0pt and 1pt]{bikes out} (m4.north east);
+\end{tikzpicture}
+\end{erpfig}
 
 \section{What Odoo adds to this picture}
 
-The supplied Odoo 19 Community guide implements the same concepts using eight applications: Contacts, CRM, Employees, Inventory, Invoicing, Manufacturing, Purchase, and Sales.
+The supplied Odoo 19 Community guide implements the same concepts with eight
+applications. Reading the app grid as an architecture rather than a menu is the
+fastest way to see where each chapter lands.
+
+\begin{erpfig}[Odoo apps by functional area]{The eight course applications
+grouped by the functional area each serves. Contacts sits underneath all of
+them because customer and vendor identity is shared master
+data.}{fig:odoo-app-map}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \x/\nm/\c in {0/Marketing \& Sales/UTPBlue, 5.0/Supply Chain/UTPTeal,
+                       10.0/Accounting \& Finance/UTPGreen}{
+  \draw[draw=\c!55,fill=\c!7,rounded corners=2mm] (\x,0.15) rectangle (\x+4.5,2.75);
+  \node[font=\scriptsize\bfseries\color{\c!75!black}] at (\x+2.25,2.43) {\nm};
+}
+\draw[draw=UTPOrange!55,fill=UTPOrange!7,rounded corners=2mm] (10.0,-2.4) rectangle (14.5,-0.5);
+\node[font=\scriptsize\bfseries\color{UTPOrange!75!black}] at (12.25,-0.85) {Human Resources};
+\node[erpstep,minimum width=1.85cm] at (1.15,1.65) {CRM};
+\node[erpstep,minimum width=1.85cm] at (3.35,1.65) {Sales};
+\node[erpstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (6.15,1.65) {Purchase};
+\node[erpstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (8.35,1.65) {Inventory};
+\node[erpstep,minimum width=4.0cm,draw=UTPTeal,fill=UTPPaleTeal] at (7.25,0.72) {Manufacturing};
+\node[erpstep,minimum width=3.9cm,draw=UTPGreen,fill=UTPPaleTeal] at (12.25,1.65) {Invoicing};
+\node[erpcap,text width=3.9cm] at (12.25,0.75) {invoices and payments in the Community workflow};
+\node[erpstep,minimum width=3.9cm,draw=UTPOrange,fill=UTPPaleOrange] at (12.25,-1.55) {Employees};
+\node[erpstore,minimum width=8.4cm,minimum height=0.95cm] (ct) at (4.6,-1.55)
+  {Contacts --- shared customer and vendor identity};
+\draw[erplink] (ct) -- (1.15,0.15); \draw[erplink] (ct) -- (7.25,0.15);
+\draw[erplink] (ct) -- (10.6,0.15);
+\end{tikzpicture}
+\end{erpfig}
 
 \begin{odoobox}
-The Odoo guide emphasises three ideas that will recur throughout the practicals:
+Three ideas recur throughout the practicals:
 \begin{itemize}
   \item Records are linked. A purchase order leads to a receipt; a sales order leads to a delivery and an invoice.
-  \item Business documents move through states such as draft, confirmed/posted, and done/paid.
-  \item Smart buttons expose the relationships between records, making the information flow visible instead of requiring separate manual reconciliation.
+  \item Documents move through states such as draft, confirmed/posted, and done/paid.
+  \item Smart buttons expose those relationships, making the information flow visible instead of requiring manual reconciliation.
 \end{itemize}
 \end{odoobox}
 
 \begin{pitfall}
-Do not define ERP as merely ``software that combines departments.'' The important point is process integration: the same underlying business event should be visible consistently to the functions that need it, at the time they need it.
+Do not define ERP as ``software that combines departments.'' The point is
+process integration: one business event should be visible consistently to the
+functions that need it, when they need it.
 \end{pitfall}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item Explain the difference between a functional area, a business function, and a business process using West End Bicycles.
-  \item Why can a weekly printed credit report cause a sales-order problem even if the Accounting data was correct when the report was printed?
+  \item Why can a weekly printed credit report cause a sales-order problem even if the Accounting data was correct when it was printed?
   \item Name three pieces of information that must move between Sales and Supply Chain when fulfilling a bicycle order.
 \end{enumerate}
 \end{quickcheck}
 
 \begin{chapterrecap}
 \begin{itemize}
-  \item Functional areas organise responsibility; business processes connect activities across those areas.
-  \item Marketing and Sales, SCM, Accounting and Finance, and HR depend on one another's data.
-  \item Disconnected systems create duplicate entry, delays, inconsistent data, and poor visibility.
-  \item ERP uses integrated data and linked processes so that one business event can support several departments without re-entering the same facts.
-  \item Odoo will be used in the practicals to make those information flows visible through linked records and document states.
+  \item Functional areas organise responsibility; business processes connect activities across them (\figref{fig:area-function-process}).
+  \item The four areas depend on one another's data in both directions (\figref{fig:info-exchange}).
+  \item Disconnected systems create duplicate entry, delay, inconsistency, and poor visibility (\figref{fig:silo-vs-erp}).
+  \item ERP lets one business event serve several departments without re-entry.
+  \item West End Bicycles runs two linked cycles --- procure-to-pay and order-to-cash --- joined by manufacturing (\figref{fig:two-cycles}).
 \end{itemize}
 \end{chapterrecap}

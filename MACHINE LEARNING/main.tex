@@ -13,6 +13,22 @@
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
+% The Learning Path is content-heavy, so use modest extra spacing to fill the
+% page without shrinking, wrapping, or pushing entries onto a second page.
+\newcommand{\mlfullpagetoc}{%
+  \begingroup
+  \small
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{0.65em}%
+  \setlength{\cftbeforechapskip}{0.07em}%
+  \setlength{\cftbeforelabskip}{0.16em}%
+  \tableofcontents
+  \endgroup
+}
+\patchcmd{\utpfrontmatter}
+  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
+  {\mlfullpagetoc}{}{}
+
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter

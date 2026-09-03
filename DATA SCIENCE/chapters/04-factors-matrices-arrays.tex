@@ -26,6 +26,38 @@ length(factor_data)
 
 \texttt{is.factor()} confirms the conversion.
 
+\begin{utpfig}[Inside a factor]{A factor is not a character vector. It stores
+integer codes plus a \texttt{levels} attribute holding each label once. The
+printed output shows labels, which is why the difference stays hidden until
+something behaves unexpectedly.}{fig:factor}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[tagb,anchor=east] at (-0.15,0.55) {what you see};
+\foreach \v/\i in {East/0, West/1, East/2, North/3, North/4, East/5}
+  \node[cell,minimum width=13mm,font=\tiny\color{UTPNavy}] at (\i*1.42,0.55) {\v};
+\node[tag,anchor=west] at (7.6,0.55) {\ldots};
+
+\node[tagb,anchor=east] at (-0.15,-0.55) {what is stored};
+\foreach \v/\i in {1/0, 3/1, 1/2, 2/3, 2/4, 1/5}
+  \node[cellalt,minimum width=13mm] at (\i*1.42,-0.55) {\v};
+\node[tag,anchor=west] at (7.6,-0.55) {\ldots};
+
+\node[tagb,anchor=east] at (-0.15,-1.7) {\texttt{levels}};
+\foreach \v/\i in {{1: East}/0, {2: North}/1, {3: West}/2}
+  \node[cellout,minimum width=17mm,font=\tiny\color{UTPNavy}] at (\i*1.85,-1.7) {\texttt{\v}};
+\node[tag,anchor=west,text width=4.4cm] at (5.4,-1.7)
+  {alphabetical by default --- not the order they appeared};
+\draw[rarrowmuted] (0,-1.32) -- (0,-0.92);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+Two consequences follow from the codes. \texttt{as.numeric()} on a factor
+returns the codes, not the labels: on a factor of years,
+\texttt{as.numeric(f)} gives \texttt{1 2 3}, not \texttt{2021 2022 2023}. Go
+through \texttt{as.character()} first. And a value that is not already a level
+cannot be assigned --- R inserts \texttt{NA} and warns.
+\end{pitfall}
+
 \subsection{Accessing and modifying factor values}
 
 \begin{lstlisting}[style=dsr]
@@ -68,6 +100,34 @@ print(v)
 \texttt{gl()} generates repeated factor levels.
 
 \section{Matrices}
+
+A matrix is one atomic vector with a \texttt{dim} attribute attached. That
+single fact explains both the fill order and why a matrix cannot mix types.
+
+\begin{utpfig}[Matrix fill order]{\texttt{matrix(1:6, nrow = 2)} against the same
+call with \texttt{byrow = TRUE}. R fills down the first column before starting
+the second unless told otherwise, which is the reverse of how the numbers read
+on the page.}{fig:matrix-fill}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[tagb,anchor=east] at (-0.2,0.9) {\texttt{1:6}};
+\foreach \v/\i in {1/0, 2/1, 3/2, 4/3, 5/4, 6/5}
+  \node[cell] at (\i*0.9,0.9) {\v};
+
+% column-major
+\node[tagb] at (1.3,-0.15) {default (column-major)};
+\foreach \v/\c/\r in {1/0/0, 3/1/0, 5/2/0, 2/0/1, 4/1/1, 6/2/1}
+  \node[cellalt] at (0.45+\c*0.9,-0.75-\r*0.75) {\v};
+\draw[rarrowmuted] (0.45,-0.55) -- (0.45,-1.7);
+\node[tag,anchor=west] at (0.62,-1.75) {fills down first};
+
+% row-major
+\node[tagb] at (5.6,-0.15) {\texttt{byrow = TRUE}};
+\foreach \v/\c/\r in {1/0/0, 2/1/0, 3/2/0, 4/0/1, 5/1/1, 6/2/1}
+  \node[cellout] at (4.75+\c*0.9,-0.75-\r*0.75) {\v};
+\draw[rarrowmuted] (4.4,-0.75) -- (6.15,-0.75);
+\node[tag,anchor=west] at (4.4,-1.75) {fills across first};
+\end{tikzpicture}
+\end{utpfig}
 
 A matrix stores one data type in rows and columns. \texttt{byrow} controls the fill direction:
 

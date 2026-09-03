@@ -6,6 +6,45 @@ FTP transfers files between a client and server. Here R1 is the server, R2 the c
 
 \sourceimage[0.76\linewidth]{R1--R2 FTP topology from the supplied Lab 5 slide}{ftp-topology.png}
 
+\subsection{FTP uses two connections, not one}
+This is the detail that makes FTP behave oddly through firewalls and the
+reason a transfer can stall while the session still responds. Commands
+travel on one TCP connection; file data travels on a second one opened
+per transfer.
+
+\begin{utpfig}[FTP channels]{The control channel stays open for the whole session.
+A separate data channel opens for each \cmd{dir}, \cmd{get} or \cmd{put}, and
+closes when that transfer ends.}{fig:ftp-channels}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\node[router] (c) at (0,0) {R2};
+\node[server] (s) at (7.0,0) {R1};
+\node[netlabel,below=1mm of c] {client 10.0.12.2};
+\node[netlabel,below=1mm of s] {server 10.0.12.1};
+
+\draw[flowarrow,draw=UTPTeal,<->] ($(c)+(0.55,0.45)$) --
+  node[netlabel,above,text=UTPTeal]{control --- TCP port 21}
+  ($(s)+(-0.9,0.45)$);
+\draw[flowarrow,draw=UTPOrange,<->,dashed] ($(c)+(0.55,-0.45)$) --
+  node[netlabel,below,text=UTPOrange]{data --- TCP port 20, one per transfer}
+  ($(s)+(-0.9,-0.45)$);
+
+\node[anchor=west,font=\scriptsize\color{UTPMuted},text width=5.2cm,align=left]
+  at (-0.4,-1.6)
+  {\textbf{Control} carries \cmd{USER}, \cmd{PASS}, \cmd{dir}, \cmd{get},
+   \cmd{bye} --- and every reply code.};
+\node[anchor=west,font=\scriptsize\color{UTPMuted},text width=5.2cm,align=left]
+  at (5.4,-1.6)
+  {\textbf{Data} carries the file bytes and the directory listing. It opens
+   and closes around each command.};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+A login that succeeds but a \cmd{dir} that hangs is the signature of a
+blocked data channel: the control connection is clearly working, since
+the login was answered.
+\end{keyidea}
+
 \begin{center}
 \begin{tabular}{llll}
 \toprule
@@ -48,7 +87,20 @@ Under AAA, create user \cmd{huawei}, set its password, service type, privilege, 
 \section{Step 4: verify the server process}
 Use \cmd{display ftp-server} to confirm that the service is running on TCP port 21.
 
-\sourceimage[0.60\linewidth]{FTP server status output shown in the source material}{ftp-server-status.png}
+\begin{vrpbox}{<R1> display ftp-server}
+\begin{lstlisting}[style=dcnvrp]
+  FTP server is (*\higreen{running}*)
+  Max user number             5
+  User count                  0
+  Timeout value(in minute)    30
+  Listening port              21
+  Acl number                  0
+  FTP server's source address 0.0.0.0
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{\cmd{running} confirms the service started, and \cmd{Listening port
+21} is the control channel from \figref{fig:ftp-channels}. \cmd{User count 0}
+is expected before R2 connects.}
 
 \begin{verification}
 Before login, prove that IP works, the server is running, and the user has the correct service type and directory.
@@ -62,7 +114,23 @@ Enter password: ********
 [R2-ftp]
 \end{lstlisting}
 
-\compactsourceimage[0.58\linewidth]{Successful FTP client login from R2}{ftp-client-login.png}
+\begin{vrpbox}{<R2> ftp 10.0.12.1}
+\begin{lstlisting}[style=dcnvrp]
+Trying 10.0.12.1 ...
+Press CTRL+K to abort
+Connected to 10.0.12.1.
+220 FTP service ready.
+User(10.0.12.1:(none)):huawei
+331 Password required for huawei.
+Enter password:
+(*\higreen{230 User logged in.}*)
+[ftp]
+\end{lstlisting}
+\end{vrpbox}
+\vrpread{the reply codes are the evidence, not the absence of an error.
+\cmd{220} is the server greeting, \cmd{331} means the username was accepted
+and a password is wanted, \cmd{230} means the session is authenticated. The
+prompt changing to \cmd{[ftp]} confirms you are now in the FTP client view.}
 
 The \cmd{[R2-ftp]} prompt confirms that the device is now in the FTP client session view.
 
