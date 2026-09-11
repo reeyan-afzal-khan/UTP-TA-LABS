@@ -1,33 +1,29 @@
 \labsection{3}{Search Engineering: Package, Tests, and Benchmark}{sec:lab03-search-code}
 
-\begin{labproject}{Turn Labs 1--2 into a reproducible search toolkit}
-\textbf{Scenario.} A working notebook is not yet reusable software. You will refactor the route planner into a small package with a common interface, automated tests, a command-line entry point, and a benchmark report.\\
-\textbf{Goal.} Demonstrate that BFS, DFS, UCS, GBFS, and A$^\star$ remain correct after refactoring.
+\begin{labproject}{Turn Labs 1--2 into a reproducible Python toolkit}
+\textbf{Scenario.} Convert notebook logic into reusable, testable software.\\
+\textbf{Goal.} Package BFS, DFS, UCS, GBFS, and A$^\star$ behind a common interface, verify them with unit tests, and benchmark them on real route queries.
 
 \begin{labmode}
-This lab reuses the OpenFlights data but must also run without it. Unit tests use small graphs committed under \texttt{tests/fixtures/}; the benchmark uses the manually downloaded Kaggle files.
+Use \texttt{src/search\_toolkit/}, \texttt{tests/}, and \path{all_experiments/lab03_search_engineering_worked.ipynb}. Unit tests must run without Kaggle data; only the benchmark uses the OpenFlights files.
 \end{labmode}
 
 \begin{mlsteps}
-  \item \textbf{Standardize the interface.} Define one problem abstraction with start state, goal test, successor function, step cost, and optional heuristic. Every algorithm must return the same result structure.
-  \item \textbf{Refactor.} Place reusable search functions in modules; keep data loading, plotting, and command-line code separate. No algorithm should read a CSV directly.
-  \item \textbf{Write tests.} Include at least: start equals goal, unreachable goal, cyclic graph, weighted shortest path, duplicate frontier update, and invalid negative edge cost. Tests must use only small committed fixtures.
-  \item \textbf{Add a CLI.} Support a command such as \texttt{python -m search\_toolkit --algorithm astar --start KUL --goal KEF}. Return a concise terminal summary and optionally save JSON.
-  \item \textbf{Benchmark.} Run BFS, UCS, GBFS, and A$^\star$ on the 10 standard route pairs in the template. Save mean/median runtime, path cost, expanded nodes, and success rate to \texttt{results/benchmark.csv}.
-  \item \textbf{Use GitHub Actions.} Push the repository and confirm that the provided Python test workflow passes on GitHub. The workflow must not download Kaggle data or require secrets.
+  \item \textbf{Standardize the interface.} All algorithms must return the same result fields: found flag, path, hops, path cost, expanded nodes, maximum frontier, and runtime.
+  \item \textbf{Separate responsibilities.} Keep generic search logic, OpenFlights loading, plotting, and command-line code in separate modules.
+  \item \textbf{Run automated tests.} Cover start=goal, unreachable goal, cycles, weighted shortest path, duplicate frontier updates, admissible A$^\star$, and negative-cost rejection.
+  \item \textbf{Exercise the CLI.} Run a command such as \texttt{python -m search\_toolkit --algorithm astar --start KUL --goal KEF}.
+  \item \textbf{Benchmark 10 route pairs.} Report success rate, route cost, expanded nodes, and runtime for BFS, UCS, GBFS, and A$^\star$.
+  \item \textbf{Prepare CI.} Configure GitHub Actions to run \texttt{pytest -q} without dataset downloads or secrets.
 \end{mlsteps}
 
-\begin{workedexample}
-A correct design lets the driver change from UCS to A$^\star$ by changing only the algorithm choice; the route problem and result-processing code remain unchanged.
-\end{workedexample}
-
-\requiredoutput{Passing pytest suite, passing GitHub Actions check, benchmark CSV, and a concise architecture diagram in the README.}
+\requiredoutput{Passing tests, working CLI, \texttt{benchmark.csv}, benchmark summary, and executed notebook.}
 \end{labproject}
 
 \begin{verification}
-Run \texttt{pytest -q} before and after refactoring. A benchmark result is invalid if the test suite no longer passes.
+Run \texttt{PYTHONPATH=src pytest -q} before and after refactoring. The real-data benchmark is valid only when the unit-test suite passes.
 \end{verification}
 
 \begin{labdeliverable}
-Push the completed package and create tag \texttt{lab03-final}. Submit the GitHub repository link and a maximum two-page technical note containing architecture, test summary, benchmark findings, and one known limitation.
+Push the package, tests, notebook, and results; create tag \texttt{lab03-final}; and submit the GitHub repository link with a concise architecture and benchmark summary.
 \end{labdeliverable}

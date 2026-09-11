@@ -1,39 +1,21 @@
 \labsection{7}{NLP Evaluation: Airline Tweet Sentiment Classification}{sec:lab07-nlp-b}
 
-\begin{labproject}{Build and evaluate a three-class sentiment classifier from one CSV file}
-\textbf{Scenario.} An airline support team wants to classify customer tweets as negative, neutral, or positive so that complaints can be prioritized and sentiment trends can be monitored.\\
-\textbf{Software.} MATLAB with the text-processing and Statistics and Machine Learning functions used in the chapter.\\
-\textbf{Goal.} Build a reproducible three-class sentiment benchmark using one small CSV file, standard classification metrics, per-airline analysis, and structured error inspection.
-
-\kagglesource{https://www.kaggle.com/datasets/chandana890/twitter-airline-sentiment-dataset}{Twitter Airline Sentiment Dataset}
-\kaggleexample{https://www.kaggle.com/code/langkilde/linear-svm-classification-of-sentiment-in-tweets}{Linear SVM Classification of Sentiment in Tweets}
-\repofolder{lab07\_nlp\_sentiment/}
+\begin{labproject}{Build and evaluate a three-class sentiment classifier}
+\textbf{Scenario.} An airline support team wants to classify customer tweets as negative, neutral, or positive.\\
+\textbf{Goal.} Build a leakage-safe baseline and Multinomial Naive Bayes benchmark from the single supplied \texttt{Tweets.csv} file.
 
 \begin{labmode}
-The Kaggle dataset contains a single required file, \texttt{Tweets.csv}, with approximately \textbf{14,640 airline tweets}. The file is well below the course \textbf{30 MB GitHub limit} and the Kaggle version is CC0. Download it manually, extract \texttt{Tweets.csv}, and place it under \texttt{data/airline\_sentiment/}. Commit this CSV directly to the private course GitHub repository. Do not commit the Kaggle ZIP archive.
+Use \texttt{all\_datasets/lab07-Tweets.csv} and run \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}. Save evidence under \texttt{results/lab07/}.
 \end{labmode}
 
-\textbf{Expected local data.}
-\begin{lstlisting}[style=mlpython]
-data/airline_sentiment/
-`-- Tweets.csv
-\end{lstlisting}
-
-\textbf{Required MATLAB run.}
-\begin{lstlisting}[style=mlmatlab]
-matlab -batch "run('lab07_nlp_sentiment/src/main_lab07.m')"
-\end{lstlisting}
-
 \begin{mlsteps}
-  \item \textbf{Load the CSV.} Read \texttt{Tweets.csv}. Keep at least \texttt{text}, \texttt{airline\_sentiment}, and \texttt{airline}. Verify that the sentiment labels are \texttt{negative}, \texttt{neutral}, and \texttt{positive}.
-  \item \textbf{Inspect the data.} Report row count, class distribution, missing text, duplicate text, and the number of tweets per airline. Remove only rows that cannot be used and document every removal.
-  \item \textbf{Create one fixed split.} With seed 42, create a stratified 70/15/15 train/validation/test split by sentiment. Save the row IDs and split labels to \texttt{results/split.csv}.
-  \item \textbf{Preprocess consistently.} Convert text to lowercase and apply one documented cleaning pipeline for URLs, mentions, punctuation, and stop words. Fit the vocabulary and any feature thresholds using training data only.
-  \item \textbf{Implement a baseline.} Predict the most frequent training sentiment for every validation/test tweet. This establishes a minimum benchmark for the imbalanced three-class problem.
-  \item \textbf{Train Naive Bayes.} Build count or binary bag-of-words features from the training split and train a three-class Naive Bayes classifier. Use the validation split only for vocabulary or smoothing choices.
-  \item \textbf{Evaluate once on the test split.} Report accuracy, macro precision, macro recall, macro F1, and a 3-by-3 confusion matrix for the baseline and Naive Bayes models.
-  \item \textbf{Check airline performance.} Report Naive Bayes macro F1 separately for each airline represented in the test set. Identify the best and worst performing airline subsets and give one plausible explanation.
-  \item \textbf{Analyse errors.} Review at least 12 incorrect Naive Bayes predictions. Categorize each error as neutral ambiguity, negation, sarcasm/irony, context missing, unusual vocabulary, preprocessing, or other.
+  \item \textbf{Inspect and clean.} Keep tweet ID, text, sentiment, and airline. Report class balance, missing text, and duplicate text; remove exact duplicate text before splitting.
+  \item \textbf{Create a fixed split.} Use seed 42 for a stratified 70/15/15 train/validation/test split and save tweet IDs with split labels.
+  \item \textbf{Fit text features on training data only.} Normalize URLs/mentions and build unigram or unigram+bigrams with \texttt{CountVectorizer}.
+  \item \textbf{Establish a baseline.} Predict the most frequent training class for all validation/test tweets.
+  \item \textbf{Tune Naive Bayes on validation data.} Select n-gram range and smoothing parameter without inspecting test performance.
+  \item \textbf{Evaluate once on test data.} Report accuracy, macro precision, macro recall, macro F1, and a 3-by-3 confusion matrix.
+  \item \textbf{Inspect subgroup performance.} Report macro F1 per airline and review 12 deterministic test errors with structured error categories.
 \end{mlsteps}
 
 \begin{mltable}
@@ -43,18 +25,18 @@ matlab -batch "run('lab07_nlp_sentiment/src/main_lab07.m')"
 Method & Accuracy & Macro Precision & Macro Recall & Macro F1 \\
 \midrule
 Majority baseline & & & & \\
-Naive Bayes & & & & \\
+Multinomial NB & & & & \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\requiredoutput{Committed \texttt{Tweets.csv}, split CSV, metrics CSV, confusion-matrix figure, per-airline F1 CSV, and error-analysis CSV.}
+\requiredoutput{Executed notebook, split CSV, metrics CSV, confusion matrix, per-airline F1 CSV, and error-analysis CSV.}
 \end{labproject}
 
 \begin{verification}
-Re-run from a clean MATLAB session and confirm that seed 42 reproduces the same split and test metrics. Test text must not affect vocabulary construction, feature selection, smoothing selection, or any other model choice.
+A clean Python run with seed 42 must reproduce the split and test metrics. Test text must not influence vocabulary fitting, n-gram selection, smoothing selection, or any model choice.
 \end{verification}
 
 \begin{labdeliverable}
-Commit \texttt{data/airline\_sentiment/Tweets.csv}, source code, and required results. Push the completed lab and create tag \texttt{lab07-final}. The README must report the baseline and Naive Bayes macro F1 scores, identify the best and worst airline subsets, and summarize the two most common error types in at most 250 words.
+Push the notebook and results; create tag \texttt{lab07-final}. The README must compare baseline and Naive Bayes macro F1, describe the strongest/weakest airline subsets without treating them as airline-quality scores, and summarize the most common error types.
 \end{labdeliverable}

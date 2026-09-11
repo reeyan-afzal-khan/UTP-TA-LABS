@@ -1,0 +1,3 @@
+pipeline,exact_match_accuracy,mean_normalized_edit_distance,character_error_rate,blank_predictions
+baseline,0.0,0.9938502196929164,1.0103896103896104,29
+grayscale_resize,0.011235955056179775,0.8109754789530071,0.825974025974026,10

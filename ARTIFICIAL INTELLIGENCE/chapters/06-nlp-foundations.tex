@@ -2,7 +2,7 @@
 \label{ch:nlp-foundations}
 
 \chapterguide%
-  {Be able to run MATLAB and read simple vector, image, and text-processing code.}
+  {Be able to run Python and read simple vector, image, and text-processing code.}
   {explain the purpose and significance of natural language processing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build and evaluate an optical character recognition pipeline with normalization and error metrics.}
 
 \term{Natural Language Processing (NLP)} applies linguistics, computer science, and machine learning to analyze or generate text and speech.
@@ -26,7 +26,7 @@ Each example follows a pipeline: input, representation, and task-specific output
 
 \section{Text similarity with word embeddings}
 
-The first MATLAB example compares
+The first Python example compares
 \begin{quote}
 ``The quick brown fox jumps over the lazy dog.''
 \end{quote}
@@ -46,31 +46,17 @@ The pipeline has five stages.
   \item Compute cosine similarity between the two sentence vectors.
 \end{mlsteps}
 
-\begin{lstlisting}[style=mlmatlab]
-clear; clc;
+\begin{lstlisting}[style=mlpython]
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
-text1 = "The quick brown fox jumps over the lazy dog.";
-text2 = "A fast brown animal leaps above a sleeping dog.";
+text1 = "The quick brown fox jumps over the lazy dog."
+text2 = "A fast brown animal leaps above a sleeping dog."
 
-documents = tokenizedDocument([text1, text2]);
-emb = fastTextWordEmbedding;
-
-words1 = string(documents(1).Vocabulary);
-words2 = string(documents(2).Vocabulary);
-words1 = words1(isVocabularyWord(emb, words1));
-words2 = words2(isVocabularyWord(emb, words2));
-
-if isempty(words1) || isempty(words2)
-    error("A sentence has no words in the embedding vocabulary.");
-end
-
-vecs1 = word2vec(emb, words1);
-vecs2 = word2vec(emb, words2);
-vec1 = mean(vecs1, 1);
-vec2 = mean(vecs2, 1);
-
-similarity = dot(vec1, vec2) / (norm(vec1) * norm(vec2));
-fprintf("Cosine Similarity between the two texts: %.4f\n", similarity);
+vectorizer = TfidfVectorizer(stop_words="english")
+X = vectorizer.fit_transform([text1, text2])
+similarity = cosine_similarity(X[0], X[1])[0, 0]
+print(f"Cosine similarity: {similarity:.4f}")
 \end{lstlisting}
 
 The \texttt{Vocabulary} property contains unique word types, so repeated words do not receive extra weight in this version. A token-level sentence representation would preserve repetition. This distinction matters when word frequency carries meaning.
@@ -174,7 +160,7 @@ For a small numerical check, let \(\mathbf{u}=(1,1)\) and \(\mathbf{v}=(2,1)\). 
 \[
 \frac{3}{\sqrt{2}\sqrt{5}}=\frac{3}{\sqrt{10}}\approx0.949.
 \]
-The value is high because the vectors point in similar directions; MATLAB applies the same calculation in higher dimensions.
+The value is high because the vectors point in similar directions; Python applies the same calculation in higher dimensions.
 \end{workedexample}
 
 \section{Image captioning using AlexNet: a classification-based simulation}
@@ -208,25 +194,14 @@ label into a template, so it can only ever say one thing per label.}{fig:alexnet
 
 The second chapter example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
 
-\begin{lstlisting}[style=mlmatlab]
-clear; clc;
-img = imread('plane.jpg');
-imshow(img);
-title('Input Image');
+\begin{lstlisting}[style=mlpython]
+# A classifier normally supplies the label. The language step is simple:
+predicted_label = "airliner"
+caption = f"This is a picture of a {predicted_label.lower()}."
+print(caption)
 
-net = alexnet;
-imgResized = imresize(img, net.Layers(1).InputSize(1:2));
-
-featureLayer = 'fc7';
-features = activations(net, imgResized, featureLayer, ...
-    'OutputAs', 'rows');
-
-[label, scores] = classify(net, imgResized);
-disp(['Predicted Object: ', char(label)]);
-
-caption = "This is a picture of a " + lower(char(label)) + ".";
-disp("Generated Caption:");
-disp(caption);
+# In a real system, replace predicted_label with the output of a
+# pretrained image classifier that has been validated for the task.
 \end{lstlisting}
 
 The \texttt{features} variable demonstrates how an intermediate neural representation can be extracted, but the fixed-template caption does not use it directly. The \texttt{classify} call produces the label inserted into the caption.
@@ -258,44 +233,30 @@ translate.}{fig:ocr-pipeline}
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlmatlab]
-img = imread('street.jpg');
-imshow(img);
-title("Scene Text Image");
+\begin{lstlisting}[style=mlpython]
+from PIL import Image
+import pytesseract
 
-ocrResult = ocr(img);
-detectedText = upper(strtrim(ocrResult.Text));
-disp("Detected Text:");
-disp(detectedText);
+img = Image.open("street.jpg")
+detected_text = pytesseract.image_to_string(img).upper().strip()
+print("Detected text:", detected_text)
 
-dictionary = containers.Map;
-dictionary("STOP") = "ARRET";
-dictionary("SPEED LIMIT") = "LIMITATION DE VITESSE";
-dictionary("YIELD") = "CEDEZ LE PASSAGE";
-dictionary("NO PARKING") = "STATIONNEMENT INTERDIT";
-dictionary("ONE WAY") = "SENS UNIQUE";
-dictionary("DO NOT ENTER") = "ENTREE INTERDITE";
-dictionary("STREET") = "RUE";
+dictionary = {
+    "STOP": "ARRET",
+    "SPEED LIMIT": "LIMITATION DE VITESSE",
+    "YIELD": "CEDEZ LE PASSAGE",
+    "NO PARKING": "STATIONNEMENT INTERDIT",
+    "ONE WAY": "SENS UNIQUE",
+    "DO NOT ENTER": "ENTREE INTERDITE",
+    "STREET": "RUE",
+}
 
-% Try longer phrases first so that a specific phrase wins.
-sourcePhrases = string(keys(dictionary));
-[~, order] = sort(strlength(sourcePhrases), 'descend');
-sourcePhrases = sourcePhrases(order);
-translatedText = "";
-
-for i = 1:numel(sourcePhrases)
-    phrase = char(sourcePhrases(i));
-    if contains(detectedText, string(phrase))
-        translatedText = string(dictionary(phrase));
-        break;
-    end
-end
-
-if translatedText == ""
-    translatedText = "No dictionary translation found";
-end
-disp("French translation:");
-disp(translatedText);
+translation = next(
+    (dictionary[p] for p in sorted(dictionary, key=len, reverse=True)
+     if p in detected_text),
+    "No dictionary translation found",
+)
+print("French translation:", translation)
 \end{lstlisting}
 
 The \texttt{contains} check tolerates surrounding OCR text, but translation remains limited to stored dictionary phrases.
@@ -314,14 +275,14 @@ This chapter gives three additional variations.
   \item[Region-of-interest (ROI) selection] The user draws a rectangle around the relevant image region before OCR, reducing the text-recognition area.
 \end{description}
 
-\begin{lstlisting}[style=mlmatlab]
-img = imread('stop.jpg');
-imshow(img); title("Select Region for OCR");
-roi = drawrectangle;
-pause(1);
-ocrRes = ocr(img, roi.Position);
-text = upper(strtrim(ocrRes.Text));
-disp("Detected Text: " + text);
+\begin{lstlisting}[style=mlpython]
+from PIL import Image
+import pytesseract
+
+img = Image.open("stop.jpg")
+roi = img.crop((120, 80, 520, 300))  # left, top, right, bottom
+text = pytesseract.image_to_string(roi).upper().strip()
+print("Detected text:", text)
 \end{lstlisting}
 
 \input{labs/06-nlp-part-a}

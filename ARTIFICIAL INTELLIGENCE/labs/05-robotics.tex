@@ -1,45 +1,29 @@
 \labsection{5}{Robotics: Sensor-to-Action Control}{sec:lab05-robotics}
 
 \begin{labproject}{Build and evaluate an interpretable wall-following controller}
-\textbf{Scenario.} A SCITOS G5 robot uses ultrasound sensors to follow a wall. You will derive a compact reactive controller from real sensor readings and test its robustness.\\
-\textbf{Software.} Python 3.11+, pandas, NumPy, scikit-learn, Matplotlib.\\
-\textbf{Goal.} Convert four distance readings into one of four motion commands and evaluate the controller on unseen data.
-
-\kagglesource{https://www.kaggle.com/datasets/uciml/wall-following-robot}{Sensor Readings from a Wall-Following Robot}
-\kaggleexample{https://www.kaggle.com/code/thehapyone/multiple-classifier-robot-movement-classification}{Multiple Classifier Robot Movement Classification}
-\repofolder{lab05\_robotics/}
+\textbf{Scenario.} A SCITOS robot must convert ultrasonic sensing into one of four movement commands.\\
+\textbf{Goal.} Derive a compact threshold-rule policy from the supplied 24-sensor dataset and compare it with a stronger all-sensor reference model.
 
 \begin{labmode}
-Download the dataset manually and place \texttt{sensor\_readings\_4.csv} under \texttt{data/wall\_following/}. This file contains \texttt{SD\_front}, \texttt{SD\_left}, \texttt{SD\_right}, \texttt{SD\_back}, and the robot action label.
+Use \texttt{all\_datasets/lab05-sensor\_readings\_24.csv} and run \texttt{all\_experiments/lab05\_robotics\_sensor\_control\_worked.ipynb}. The file has 24 sensor columns plus one action label; it is read with \texttt{header=None}.
 \end{labmode}
 
-\textbf{Required run.}
-\begin{lstlisting}[style=mlpython]
-python lab05_robotics/src/main.py \
-  --data data/wall_following/sensor_readings_4.csv \
-  --seed 42
-\end{lstlisting}
-
 \begin{mlsteps}
-  \item \textbf{Inspect sensor behaviour.} Report class counts and summary statistics for the four distance sensors. Save two plots showing how front and side distances differ across actions.
-  \item \textbf{Create a fixed split.} Use a stratified 70/30 train-test split with seed 42. Save the row indices under \texttt{config/split.csv}.
-  \item \textbf{Implement a rule controller.} Use a small set of thresholds on front/left/right distance to return one of the four dataset actions: Move-Forward, Slight-Right-Turn, Sharp-Right-Turn, or Slight-Left-Turn. Tune thresholds on the training set only.
-  \item \textbf{Create a reference model.} Fit a shallow decision tree with maximum depth 4 using the same four sensor inputs. The tree is a compact comparison model, not the final controller.
-  \item \textbf{Evaluate on the test set.} Report accuracy, macro F1, per-class recall, and confusion matrices for both approaches. Identify which action is hardest to predict.
-  \item \textbf{Test robustness.} Add zero-mean Gaussian noise at 2\%, 5\%, and 10\% of each sensor's training-set standard deviation. Re-evaluate the rule controller and plot macro F1 versus noise level.
+  \item \textbf{Inspect the data.} Report class balance and sensor summary statistics. Create a fixed stratified 70/30 train-test split with seed 42.
+  \item \textbf{Select four sensors using training data only.} Rank the 24 sensors by mutual information and retain the top four for the interpretable controller.
+  \item \textbf{Fit an interpretable rule controller.} Tune a shallow decision-tree depth on an internal validation split. Export the final tree as explicit if--then threshold rules.
+  \item \textbf{Fit a reference model.} Train a random forest on all 24 sensors using the same training partition.
+  \item \textbf{Evaluate on held-out data.} Report accuracy, macro precision/recall/F1, class recall, and confusion matrices. Identify the hardest action for the rule controller.
+  \item \textbf{Test robustness.} Add Gaussian sensor noise at 2\%, 5\%, and 10\% of training-set standard deviation and plot rule-controller macro F1.
 \end{mlsteps}
 
-\begin{pitfall}
-Do not tune controller thresholds after viewing test labels. If the rule is changed using test errors, create a new holdout set before reporting the final metric.
-\end{pitfall}
-
-\requiredoutput{\texttt{metrics.csv}, two confusion matrices, sensor plots, noise-robustness plot, and the saved split.}
+\requiredoutput{Executed notebook, split CSV, selected-feature scores, model metrics, confusion matrices, exported rules, and noise-robustness plot.}
 \end{labproject}
 
 \begin{verification}
-The controller must return exactly one valid action for every test row. Confirm that no test labels are used by the threshold-tuning function.
+Feature selection, depth selection, and all tuning must use training data only. Test labels are used once for final evaluation.
 \end{verification}
 
 \begin{labdeliverable}
-Push the completed lab and create tag \texttt{lab05-final}. The README must state the final rules in plain language, compare them with the decision tree, and explain one reason real robot performance may differ from offline classification accuracy.
+Push the completed Python work and create tag \texttt{lab05-final}. The README must summarize the final rule controller, compare it with the all-sensor reference, and explain why offline classification accuracy is not equivalent to safe robot performance.
 \end{labdeliverable}

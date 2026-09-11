@@ -1,0 +1,15 @@
+filename,truth,prediction,failure_type
+IMG_20241006_145439.jpg,tab mesulid,"y ee y Ae
+a Pm | \ }
+Ron | .¥ A",handwriting ambiguity / character confusion
+.trashed-1730802496-IMG_20241006_151957 - Copy (2).jpg,cefiget 40mg,"; Pate . a >
+- ; = mia +
+yo 7 A | agli",handwriting ambiguity / character confusion
+.trashed-1730798177-IMG_20241006_140831 - Copy (2).jpg,azitma,"t ’
+* iy Ge
+ye",handwriting ambiguity / character confusion
+IMG_20241006_145250.jpg,tab atconate,,segmentation / no text returned
+IMG_20241006_143132 - Copy.jpg,pronaz,,segmentation / no text returned
+IMG_20241006_145250 - Copy.jpg,tab atconate,,segmentation / no text returned
+IMG_20241006_145056.jpg,tab distalgesic,wr,handwriting ambiguity / character confusion
+IMG_20241006_144641.jpg,tab provas,,segmentation / no text returned

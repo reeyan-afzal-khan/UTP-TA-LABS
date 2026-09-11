@@ -1,30 +1,20 @@
 \labsection{4}{Fuzzy Logic and ANFIS with Air-Quality Data}{sec:lab04-fuzzy}
 
 \begin{labproject}{Combine expert rules with data-driven prediction}
-\textbf{Scenario.} An environmental monitoring system needs an interpretable ventilation rule and a data-driven model for estimating pollution. You will build both and compare their roles.\\
-\textbf{Software.} MATLAB with Fuzzy Logic Toolbox.\\
-\textbf{Goal.} Build a Mamdani controller and an ANFIS regression model using the same real air-quality dataset.
-
-\kagglesource{https://www.kaggle.com/datasets/fedesoriano/air-quality-data-set}{Air Quality Dataset --- UCI measurements}
-\kaggleexample{https://www.kaggle.com/code/saharpourahmad/air-quality}{Air Quality --- exploratory analysis example}
-\repofolder{lab04\_fuzzy\_anfis/}
+\textbf{Scenario.} An environmental monitor needs an interpretable ventilation policy and a nonlinear predictor for carbon-monoxide concentration.\\
+\textbf{Goal.} Implement a Mamdani-style fuzzy controller and a compact Sugeno ANFIS model in Python, then compare ANFIS with linear regression.
 
 \begin{labmode}
-Download the Kaggle CSV manually and save it locally as \texttt{data/air\_quality/AirQuality.csv}. The dataset contains 9,357 hourly observations; missing measurements are coded as \texttt{-200}. Do not commit the raw CSV.
+Use \texttt{all\_datasets/lab04-AirQuality.csv} and run \texttt{all\_experiments/lab04\_fuzzy\_anfis\_worked.ipynb}. The notebook implements the fuzzy inference and ANFIS learning directly with NumPy/SciPy; no proprietary toolbox is required.
 \end{labmode}
 
-\textbf{Required run.}
-\begin{lstlisting}[style=mlmatlab]
-matlab -batch "run('lab04_fuzzy_anfis/src/main_lab04.m')"
-\end{lstlisting}
-
 \begin{mlsteps}
-  \item \textbf{Inspect and clean.} Read \texttt{AirQuality.csv}, replace \texttt{-200} with missing values, and report the number of usable rows. Plot temperature \texttt{T} against relative humidity \texttt{RH}.
-  \item \textbf{Build the fuzzy controller.} Use \texttt{T} and \texttt{RH} as inputs and ventilation demand (0--100\%) as output. Define three membership functions per input and at least five clear rules. Save membership plots and the control surface.
-  \item \textbf{Check rule behaviour.} Evaluate five fixed operating points supplied in the repository template. Record the expected qualitative behaviour and the actual controller output.
-  \item \textbf{Prepare the ANFIS task.} Predict \texttt{CO(GT)} from two sensor features, \texttt{PT08.S1(CO)} and \texttt{PT08.S2(NMHC)}. Use only complete rows and a fixed 70/15/15 train/validation/test split with seed 42.
-  \item \textbf{Fit two models.} Train a simple linear-regression baseline and an ANFIS model using the training data. Use validation data for model selection; do not tune on the test set.
-  \item \textbf{Evaluate once on test data.} Report RMSE and MAE for both models and save a predicted-versus-actual figure. Explain whether the added ANFIS complexity is justified by the test result.
+  \item \textbf{Clean the data.} Parse the semicolon-separated CSV, replace \texttt{-200} with missing values, remove the empty tail, and report usable rows.
+  \item \textbf{Build the fuzzy controller.} Use temperature and relative humidity as inputs and ventilation demand (0--100\%) as output. Define three membership functions per variable and clear expert rules.
+  \item \textbf{Validate the rule base.} Evaluate five fixed operating points and inspect the control surface for smooth, sensible behaviour.
+  \item \textbf{Prepare the ANFIS task.} Predict \texttt{CO(GT)} from \texttt{PT08.S1(CO)} and \texttt{PT08.S2(NMHC)} using a fixed 70/15/15 split with seed 42. Fit scaling on training data only.
+  \item \textbf{Fit two model classes.} Train linear regression and ANFIS candidates with two and three membership functions per input. Select ANFIS size using validation RMSE only.
+  \item \textbf{Evaluate once on test data.} Report RMSE and MAE, save predicted-versus-actual plots, and state whether ANFIS complexity is justified.
 \end{mlsteps}
 
 \begin{mltable}
@@ -34,18 +24,18 @@ matlab -batch "run('lab04_fuzzy_anfis/src/main_lab04.m')"
 Model & Validation RMSE & Test RMSE & Test MAE \\
 \midrule
 Linear baseline & & & \\
-ANFIS & & & \\
+ANFIS (selected) & & & \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\requiredoutput{Fuzzy membership/control-surface figures, split indices, model metrics, predicted-versus-actual plot, and README.}
+\requiredoutput{Executed notebook, fuzzy membership/control-surface figures, split CSV, model metrics, and predicted-versus-actual figure.}
 \end{labproject}
 
 \begin{verification}
-The test rows must remain untouched until the final evaluation. Re-run with the saved split indices and confirm that the reported metrics reproduce exactly.
+The test partition must remain untouched during ANFIS structure selection. Re-running the notebook with the saved seed must reproduce the split and reported metrics.
 \end{verification}
 
 \begin{labdeliverable}
-Commit plain \texttt{.m} source files, push the completed lab, and create tag \texttt{lab04-final}. The README must explain the fuzzy rules, ANFIS inputs/target, split policy, baseline comparison, and one limitation of the data.
+Push the Python notebook, source, and results; create tag \texttt{lab04-final}. The README must explain the fuzzy rules, ANFIS inputs/target, split policy, baseline comparison, and one data limitation.
 \end{labdeliverable}

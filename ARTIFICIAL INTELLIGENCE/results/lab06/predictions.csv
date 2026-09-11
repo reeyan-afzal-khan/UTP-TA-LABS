@@ -1,0 +1,233 @@
+filename,truth,pipeline,prediction,truth_norm,prediction_norm,exact,edit_distance,truth_chars,normalized_edit_distance
+.trashed-1730802496-IMG_20241006_151957 - Copy (2).jpg,cefiget 40mg,baseline,,cefiget40mg,,False,11,11,1.0
+.trashed-1730802496-IMG_20241006_151957 - Copy (2).jpg,cefiget 40mg,grayscale_resize,"; Pate . a >
+- ; = mia +
+yo 7 A | agli",cefiget40mg,pateamiayo7aagli,False,13,11,1.1818181818181819
+IMG_20241006_141949 - Copy.jpg,tab azimax,baseline,Ae,tabazimax,ae,False,8,9,0.8888888888888888
+IMG_20241006_141949 - Copy.jpg,tab azimax,grayscale_resize,“DA Agim,tabazimax,daagim,False,5,9,0.5555555555555556
+IMG_20241006_142328 - Copy.jpg,tab toniflex,baseline,b3 Towid hook,tabtoniflex,b3towidhook,False,9,11,0.8181818181818182
+IMG_20241006_142328 - Copy.jpg,tab toniflex,grayscale_resize,1d Tosi Nost,tabtoniflex,1dtosinost,False,8,11,0.7272727272727273
+IMG_20241006_142533 - Copy.jpg,nims,baseline,Niglu,nims,niglu,False,3,4,0.75
+IMG_20241006_142533 - Copy.jpg,nims,grayscale_resize,Nib,nims,nib,False,2,4,0.5
+IMG_20241006_142757 - Copy.jpg,dicloran,baseline,divlerer,dicloran,divlerer,False,4,8,0.5
+IMG_20241006_142757 - Copy.jpg,dicloran,grayscale_resize,diclorew,dicloran,diclorew,False,2,8,0.25
+IMG_20241006_142934 - Copy.jpg,breeky,baseline,,breeky,,False,6,6,1.0
+IMG_20241006_142934 - Copy.jpg,breeky,grayscale_resize,|,breeky,,False,6,6,1.0
+IMG_20241006_143132 - Copy.jpg,pronaz,baseline,oa,pronaz,oa,False,4,6,0.6666666666666666
+IMG_20241006_143132 - Copy.jpg,pronaz,grayscale_resize,,pronaz,,False,6,6,1.0
+IMG_20241006_143429 - Copy.jpg,movax,baseline,Mo vod,movax,movod,False,2,5,0.4
+IMG_20241006_143429 - Copy.jpg,movax,grayscale_resize,MAb Vag,movax,mabvag,False,3,5,0.6
+IMG_20241006_143544 - Copy.jpg,cap caricef,baseline,,capcaricef,,False,10,10,1.0
+IMG_20241006_143544 - Copy.jpg,cap caricef,grayscale_resize,"cp, Coal",capcaricef,cpcoal,False,7,10,0.7
+IMG_20241006_143810 - Copy.jpg,bisleri,baseline,,bisleri,,False,7,7,1.0
+IMG_20241006_143810 - Copy.jpg,bisleri,grayscale_resize,pusldhi,bisleri,pusldhi,False,4,7,0.5714285714285714
+IMG_20241006_143853 - Copy.jpg,tab novidat,baseline,"1h, Newitt",tabnovidat,1hnewitt,False,7,10,0.7
+IMG_20241006_143853 - Copy.jpg,tab novidat,grayscale_resize,"15, Newitet",tabnovidat,15newitet,False,7,10,0.7
+IMG_20241006_144119 - Copy.jpg,tab azitma 500mg,baseline,ty Auda Sq,tabazitma500mg,tyaudasq,False,11,14,0.7857142857142857
+IMG_20241006_144119 - Copy.jpg,tab azitma 500mg,grayscale_resize,th Advan Seq,tabazitma500mg,thadvanseq,False,11,14,0.7857142857142857
+IMG_20241006_144252 - Copy.jpg,tab tonoflex p,baseline,aie: mi \ar %,tabtonoflexp,aiemiar,False,11,12,0.9166666666666666
+IMG_20241006_144252 - Copy.jpg,tab tonoflex p,grayscale_resize,8 Tongue,tabtonoflexp,8tongue,False,8,12,0.6666666666666666
+IMG_20241006_144408 - Copy.jpg,tab nims 100mg,baseline,,tabnims100mg,,False,12,12,1.0
+IMG_20241006_144408 - Copy.jpg,tab nims 100mg,grayscale_resize,"1h Nyy a ,",tabnims100mg,1hnyya,False,11,12,0.9166666666666666
+IMG_20241006_144505 - Copy.jpg,tab dicloran,baseline,,tabdicloran,,False,11,11,1.0
+IMG_20241006_144505 - Copy.jpg,tab dicloran,grayscale_resize,me picevaul,tabdicloran,mepicevaul,False,9,11,0.8181818181818182
+IMG_20241006_144555.jpg,tab breaky,baseline,":' ‘ . ve ~ » Se Pree
+ic 4 . - REY y. ba Sa bel) See
+x a E * » > rs ~
+, x BOS iy 2 Te }
+- A ? 7 ; ‘ oo “ a Oe ae &
+7 ae oer st ” De A. 1 er",tabbreaky,vesepreeic4reyybasabelseexaersxbosiy2tea7ooaoeae7aeoerstdea1er,False,56,9,6.222222222222222
+IMG_20241006_144555.jpg,tab breaky,grayscale_resize,Byes,tabbreaky,byes,False,7,9,0.7777777777777778
+IMG_20241006_144641.jpg,tab provas,baseline,"a ‘de Ga & YG
+| : ¢ ; : ty ee
+: % APP ete + ha
+: ° Saag
+Cae “a ‘
+J : £, ae
+| ‘ a i@ Dee F. YY
+£ B 4 my: & WY w .%
+i : } ; pitta f St eae ital Ps
+. f y oa , ead Ze
+4 «8 * .
+—— » 7 > = a x",tabprovas,adegaygtyeeappetehasaagcaeajaeaideefyyb4mywywipittafsteaeitalpsfyoaeadze487ax,False,71,9,7.888888888888889
+IMG_20241006_144641.jpg,tab provas,grayscale_resize,,tabprovas,,False,9,9,1.0
+IMG_20241006_144753.jpg,cap caricef 40mg,baseline,"‘i ‘ \* a
+; an ; . wy
+’ 9 4
+te
+A er.",capcaricef40mg,iaanwy94teaer,False,13,14,0.9285714285714286
+IMG_20241006_144753.jpg,cap caricef 40mg,grayscale_resize,": q * ire :
+f P i"" a
+, oie ‘ ae, al",capcaricef40mg,qirefpiaoieaeal,False,13,14,0.9285714285714286
+IMG_20241006_144902.jpg,tab bisleri,baseline,"w é
+‘ ‘ my",tabbisleri,wmy,False,10,10,1.0
+IMG_20241006_144902.jpg,tab bisleri,grayscale_resize,ta Qlalll,tabbisleri,taqlalll,False,7,10,0.7
+IMG_20241006_144955.jpg,tab novidat,baseline,1» ymtle,tabnovidat,1ymtle,False,10,10,1.0
+IMG_20241006_144955.jpg,tab novidat,grayscale_resize,| + swell,tabnovidat,swell,False,10,10,1.0
+IMG_20241006_145056.jpg,tab distalgesic,baseline,,tabdistalgesic,,False,14,14,1.0
+IMG_20241006_145056.jpg,tab distalgesic,grayscale_resize,wr,tabdistalgesic,wr,False,14,14,1.0
+IMG_20241006_145141.jpg,tab atcomid,baseline,It tenn,tabatcomid,ittenn,False,9,10,0.9
+IMG_20241006_145141.jpg,tab atcomid,grayscale_resize,I odeom,tabatcomid,iodeom,False,8,10,0.8
+IMG_20241006_145250 - Copy.jpg,tab atconate,baseline,"No
+| A conokl",tabatconate,noaconokl,False,7,11,0.6363636363636364
+IMG_20241006_145250 - Copy.jpg,tab atconate,grayscale_resize,,tabatconate,,False,11,11,1.0
+IMG_20241006_145250.jpg,tab atconate,baseline,"No
+| A conokl",tabatconate,noaconokl,False,7,11,0.6363636363636364
+IMG_20241006_145250.jpg,tab atconate,grayscale_resize,,tabatconate,,False,11,11,1.0
+IMG_20241006_145439.jpg,tab mesulid,baseline,,tabmesulid,,False,10,10,1.0
+IMG_20241006_145439.jpg,tab mesulid,grayscale_resize,"y ee y Ae
+a Pm | \ }
+Ron | .¥ A",tabmesulid,yeeyaeapmrona,False,12,10,1.2
+IMG_20241006_145636.jpg,movelate,baseline,Moyen |,movelate,moyen,False,5,8,0.625
+IMG_20241006_145636.jpg,movelate,grayscale_resize,- Moyalyi |,movelate,moyalyi,False,5,8,0.625
+IMG_20241006_145902.jpg,uriguard,baseline,,uriguard,,False,8,8,1.0
+IMG_20241006_145902.jpg,uriguard,grayscale_resize,UF PU,uriguard,ufpu,False,6,8,0.75
+IMG_20241006_150012 - Copy.jpg,na dard,baseline,Net dard,nadard,netdard,False,2,6,0.3333333333333333
+IMG_20241006_150012 - Copy.jpg,na dard,grayscale_resize,Ne-oeD,nadard,neoed,False,4,6,0.6666666666666666
+IMG_20241006_150012.jpg,na dard,baseline,Net dard,nadard,netdard,False,2,6,0.3333333333333333
+IMG_20241006_150012.jpg,na dard,grayscale_resize,Ne-oeD,nadard,neoed,False,4,6,0.6666666666666666
+IMG_20241006_150045.jpg,tab atcam,baseline,Mn,tabatcam,mn,False,8,8,1.0
+IMG_20241006_150045.jpg,tab atcam,grayscale_resize,} ae,tabatcam,ae,False,7,8,0.875
+IMG_20241006_150130.jpg,tab my d,baseline,,tabmyd,,False,6,6,1.0
+IMG_20241006_150130.jpg,tab my d,grayscale_resize,P my»,tabmyd,pmy,False,4,6,0.6666666666666666
+IMG_20241006_150224.jpg,tab ostium,baseline,Dr shut,tabostium,drshut,False,7,9,0.7777777777777778
+IMG_20241006_150224.jpg,tab ostium,grayscale_resize,oh,tabostium,oh,False,8,9,0.8888888888888888
+IMG_20241006_150321.jpg,tab distalgasic,baseline,"a —"" ee
+5 — p
+wnt 5, -",tabdistalgasic,aee5pwnt5,False,13,14,0.9285714285714286
+IMG_20241006_150321.jpg,tab distalgasic,grayscale_resize,"7, ested",tabdistalgasic,7ested,False,12,14,0.8571428571428571
+IMG_20241006_150507.jpg,tab atcomid,baseline,,tabatcomid,,False,10,10,1.0
+IMG_20241006_150507.jpg,tab atcomid,grayscale_resize,1% Newel,tabatcomid,1newel,False,10,10,1.0
+IMG_20241006_150800.jpg,tab atconate,baseline,,tabatconate,,False,11,11,1.0
+IMG_20241006_150800.jpg,tab atconate,grayscale_resize,oo Abend),tabatconate,ooabend,False,9,11,0.8181818181818182
+IMG_20241006_150836.jpg,tab mesulid,baseline,,tabmesulid,,False,10,10,1.0
+IMG_20241006_150836.jpg,tab mesulid,grayscale_resize,a hepted,tabmesulid,ahepted,False,7,10,0.7
+IMG_20241006_150902.jpg,tab movalate,baseline,"i 2
+Ge nell
+Y\",tabmovalate,i2genelly,False,10,11,0.9090909090909091
+IMG_20241006_150902.jpg,tab movalate,grayscale_resize,mente,tabmovalate,mente,False,8,11,0.7272727272727273
+IMG_20241006_150946.jpg,tab uriguard,baseline,7 -—,taburiguard,7,False,11,11,1.0
+IMG_20241006_150946.jpg,tab uriguard,grayscale_resize,= Wye,taburiguard,wye,False,11,11,1.0
+IMG_20241006_151057.jpg,tab na dard,baseline,%. et,tabnadard,et,False,9,9,1.0
+IMG_20241006_151057.jpg,tab na dard,grayscale_resize,H Weaed,tabnadard,hweaed,False,7,9,0.7777777777777778
+IMG_20241006_151126.jpg,tab atcam,baseline,TD Arco,tabatcam,tdarco,False,5,8,0.625
+IMG_20241006_151126.jpg,tab atcam,grayscale_resize,TD Meee.,tabatcam,tdmeee,False,7,8,0.875
+IMG_20241006_151222.jpg,tab my d,baseline,,tabmyd,,False,6,6,1.0
+IMG_20241006_151222.jpg,tab my d,grayscale_resize,ym,tabmyd,ym,False,5,6,0.8333333333333334
+IMG_20241006_151517.jpg,tab ostium,baseline,,tabostium,,False,9,9,1.0
+IMG_20241006_151517.jpg,tab ostium,grayscale_resize,Ze,tabostium,ze,False,9,9,1.0
+IMG_20241006_151556.jpg,tab getryl 1mg,baseline,oh Uy ry,tabgetryl1mg,ohuyry,False,10,12,0.8333333333333334
+IMG_20241006_151556.jpg,tab getryl 1mg,grayscale_resize,ee,tabgetryl1mg,ee,False,11,12,0.9166666666666666
+IMG_20241006_151638.jpg,tab covam 5-80mg,baseline,,tabcovam580mg,,False,13,13,1.0
+IMG_20241006_151638.jpg,tab covam 5-80mg,grayscale_resize,Si. Baer pe,tabcovam580mg,sibaerpe,False,11,13,0.8461538461538461
+IMG_20241006_151719.jpg,tab fexet 60mg,baseline,,tabfexet60mg,,False,12,12,1.0
+IMG_20241006_151719.jpg,tab fexet 60mg,grayscale_resize,Sp Fock,tabfexet60mg,spfock,False,11,12,0.9166666666666666
+IMG_20241006_151807.jpg,starcox 90,baseline,incon 9,starcox90,incon9,False,6,9,0.6666666666666666
+IMG_20241006_151807.jpg,starcox 90,grayscale_resize,incor Fe,starcox90,incorfe,False,7,9,0.7777777777777778
+IMG_20241006_151901.jpg,leflox 200mg,baseline,flea m7,leflox200mg,fleam7,False,8,11,0.7272727272727273
+IMG_20241006_151901.jpg,leflox 200mg,grayscale_resize,Xa»,leflox200mg,xa,False,10,11,0.9090909090909091
+IMG_20241006_152046.jpg,cefiget 40mg,baseline,,cefiget40mg,,False,11,11,1.0
+IMG_20241006_152046.jpg,cefiget 40mg,grayscale_resize,"py eee
+\ ay",cefiget40mg,pyeeeay,False,10,11,0.9090909090909091
+IMG_20241006_152156.jpg,tab lipiget 10mg,baseline,Ge fpf a,tablipiget10mg,gefpfa,False,12,14,0.8571428571428571
+IMG_20241006_152156.jpg,tab lipiget 10mg,grayscale_resize,Lane,tablipiget10mg,lane,False,12,14,0.8571428571428571
+IMG_20241006_152333.jpg,cap risek 20mg,baseline,"G, 54 aa",caprisek20mg,g54aa,False,12,12,1.0
+IMG_20241006_152333.jpg,cap risek 20mg,grayscale_resize,"\G, 2",caprisek20mg,g2,False,11,12,0.9166666666666666
+IMG_20241006_152453.jpg,nebil ,baseline,Nad *,nebil,nad,False,4,5,0.8
+IMG_20241006_152453.jpg,nebil ,grayscale_resize,NWF,nebil,nwf,False,4,5,0.8
+IMG_20241006_152643.jpg,tab montiget 10mg,baseline,"i
+\ 3
+at
+, ae
+ioe
+7 ‘ =: ee
+‘ ie
+ao =",tabmontiget10mg,i3ataeioe7eeieao,False,14,15,0.9333333333333333
+IMG_20241006_152643.jpg,tab montiget 10mg,grayscale_resize,Mb Monffele?,tabmontiget10mg,mbmonffele,False,10,15,0.6666666666666666
+IMG_20241006_152937.jpg,montiget,baseline,Meatae,montiget,meatae,False,5,8,0.625
+IMG_20241006_152937.jpg,montiget,grayscale_resize,Maha),montiget,maha,False,7,8,0.875
+IMG_20241006_153027.jpg,getryl,baseline,“Te,getryl,te,False,5,6,0.8333333333333334
+IMG_20241006_153027.jpg,getryl,grayscale_resize,ad |,getryl,ad,False,6,6,1.0
+IMG_20241006_153118.jpg,covam,baseline,,covam,,False,5,5,1.0
+IMG_20241006_153118.jpg,covam,grayscale_resize,,covam,,False,5,5,1.0
+IMG_20241006_153145.jpg,fexet,baseline,ae,fexet,ae,False,4,5,0.8
+IMG_20241006_153145.jpg,fexet,grayscale_resize,<_),fexet,,False,5,5,1.0
+IMG_20241006_153240.jpg,starcox 90,baseline,Sak Cre Op,starcox90,sakcreop,False,6,9,0.6666666666666666
+IMG_20241006_153240.jpg,starcox 90,grayscale_resize,Sak Oe 9,starcox90,sakoe9,False,5,9,0.5555555555555556
+IMG_20241006_153705.jpg,leflox,baseline,,leflox,,False,6,6,1.0
+IMG_20241006_153705.jpg,leflox,grayscale_resize,Oe,leflox,oe,False,5,6,0.8333333333333334
+IMG_20241006_153802.jpg,risek,baseline,Agee,risek,agee,False,4,5,0.8
+IMG_20241006_153802.jpg,risek,grayscale_resize,Ask,risek,ask,False,3,5,0.6
+IMG_20241006_153855.jpg,lipiget,baseline,L py,lipiget,lpy,False,5,7,0.7142857142857143
+IMG_20241006_153855.jpg,lipiget,grayscale_resize,Ly,lipiget,ly,False,6,7,0.8571428571428571
+.trashed-1730798177-IMG_20241006_140831 - Copy (2).jpg,azitma,baseline,"""wh wy en",azitma,whwyen,False,6,6,1.0
+.trashed-1730798177-IMG_20241006_140831 - Copy (2).jpg,azitma,grayscale_resize,"t ’
+* iy Ge
+ye",azitma,tiygeye,False,7,6,1.1666666666666667
+.trashed-1730798177-IMG_20241006_140831 - Copy (3).jpg,tonoflox,baseline,y dane | (i,tonoflox,ydanei,False,8,8,1.0
+.trashed-1730798177-IMG_20241006_140831 - Copy (3).jpg,tonoflox,grayscale_resize,eae,tonoflox,eae,False,8,8,1.0
+img 10.jpg,novidate,baseline,P i } } é oe fe,novidate,pioefe,False,6,8,0.75
+img 10.jpg,novidate,grayscale_resize,_ Nei The 0s.,novidate,neithe0s,False,7,8,0.875
+img 11.jpg,getryl,baseline,a,getryl,a,False,6,6,1.0
+img 11.jpg,getryl,grayscale_resize,,getryl,,False,6,6,1.0
+img 12.jpg,covam,baseline,C eva v1,covam,cevav1,False,3,5,0.6
+img 12.jpg,covam,grayscale_resize,BO. |,covam,bo,False,4,5,0.8
+img 13.jpg,fixit,baseline,Fra,fixit,fra,False,4,5,0.8
+img 13.jpg,fixit,grayscale_resize,Fok,fixit,fok,False,4,5,0.8
+img 14.jpg,starcox,baseline,,starcox,,False,7,7,1.0
+img 14.jpg,starcox,grayscale_resize,RA,starcox,ra,False,6,7,0.8571428571428571
+img 15.jpg,leflox,baseline,,leflox,,False,6,6,1.0
+img 15.jpg,leflox,grayscale_resize,ALLA,leflox,alla,False,5,6,0.8333333333333334
+img 16.jpg,cefeget,baseline,,cefeget,,False,7,7,1.0
+img 16.jpg,cefeget,grayscale_resize,Digdew |,cefeget,digdew,False,6,7,0.8571428571428571
+img 17.jpg,risek,baseline,,risek,,False,5,5,1.0
+img 17.jpg,risek,grayscale_resize,"fie,",risek,fie,False,3,5,0.6
+img 18.jpg,lipiget,baseline,,lipiget,,False,7,7,1.0
+img 18.jpg,lipiget,grayscale_resize,AR A,lipiget,ara,False,7,7,1.0
+img 19.jpg,montiget,baseline,. WN te |,montiget,wnte,False,5,8,0.625
+img 19.jpg,montiget,grayscale_resize,,montiget,,False,8,8,1.0
+img 20.jpg,distalgesic,baseline,“Si chalgavwe,distalgesic,sichalgavwe,False,7,11,0.6363636363636364
+img 20.jpg,distalgesic,grayscale_resize,sen Distalqane,distalgesic,sendistalqane,False,8,11,0.7272727272727273
+img 21.jpg,tab atcomid,baseline,,tabatcomid,,False,10,10,1.0
+img 21.jpg,tab atcomid,grayscale_resize,"""=30>- cual",tabatcomid,30cual,False,9,10,0.9
+img 22.jpg,tab atconate,baseline,,tabatconate,,False,11,11,1.0
+img 22.jpg,tab atconate,grayscale_resize,US NSCOR,tabatconate,usnscor,False,9,11,0.8181818181818182
+img 23.jpg,tab mesulid,baseline,zs Mesube,tabmesulid,zsmesube,False,6,10,0.6
+img 23.jpg,tab mesulid,grayscale_resize,"— or IF
+, 4 i
+: , ees",tabmesulid,orif4iees,False,10,10,1.0
+img 24.jpg,tab movelate,baseline,>We ovelare,tabmovelate,weovelare,False,5,11,0.45454545454545453
+img 24.jpg,tab movelate,grayscale_resize,su.- “over,tabmovelate,suover,False,8,11,0.7272727272727273
+img 25.jpg,tab uriguard,baseline,a jvaeel,taburiguard,ajvaeel,False,10,11,0.9090909090909091
+img 25.jpg,tab uriguard,grayscale_resize,"7 a
+las
+ae f
+—_ na |
+1 a",taburiguard,7alasaefna1a,False,10,11,0.9090909090909091
+img 26.jpg,tab na dard,baseline,,tabnadard,,False,9,9,1.0
+img 26.jpg,tab na dard,grayscale_resize,ow . Na daa,tabnadard,ownadaa,False,5,9,0.5555555555555556
+img 27.jpg,tab atcam,baseline,Cus — Dh + Car,tabatcam,cusdhcar,False,6,8,0.75
+img 27.jpg,tab atcam,grayscale_resize,ou Ayla,tabatcam,ouayla,False,6,8,0.75
+img 28.jpg,my-d,baseline,M4 oe,myd,m4oe,False,3,3,1.0
+img 28.jpg,my-d,grayscale_resize,My -2),myd,my2,False,1,3,0.3333333333333333
+img 29.jpg,ostium,baseline,(DSANU,ostium,dsanu,False,4,6,0.6666666666666666
+img 29.jpg,ostium,grayscale_resize,ostium,ostium,ostium,True,0,6,0.0
+img 3 .jpg,nims,baseline,M : } ’ A Ms,nims,mams,False,2,4,0.5
+img 3 .jpg,nims,grayscale_resize,.,nims,,False,4,4,1.0
+img 4.jpg,dicloran,baseline,"ey, .
+‘
+F 7 7",dicloran,eyf77,False,8,8,1.0
+img 4.jpg,dicloran,grayscale_resize,wo 1 eae,dicloran,wo1eae,False,7,8,0.875
+img 5.jpg,breeky,baseline,"A, ie 9 ; Me. | i ‘ . bi a",breeky,aie9meibia,False,8,6,1.3333333333333333
+img 5.jpg,breeky,grayscale_resize,"—_ a
+'",breeky,a,False,6,6,1.0
+img 6.jpg,provas,baseline,,provas,,False,6,6,1.0
+img 6.jpg,provas,grayscale_resize,Pras,provas,pras,False,2,6,0.3333333333333333
+img 7.jpg,movax,baseline,N\ Ov aD.,movax,novad,False,2,5,0.4
+img 7.jpg,movax,grayscale_resize,Mev al,movax,meval,False,2,5,0.4
+img 8.jpg,caricef,baseline,> ea. 4 Se en,caricef,ea4seen,False,5,7,0.7142857142857143
+img 8.jpg,caricef,grayscale_resize,“Qbieet”,caricef,qbieet,False,5,7,0.7142857142857143
+img 9.jpg,bisleri,baseline,"sae 4 : if f
+- ‘
+ren",bisleri,sae4iffren,False,9,7,1.2857142857142858
+img 9.jpg,bisleri,grayscale_resize,PAgkx,bisleri,pagkx,False,7,7,1.0

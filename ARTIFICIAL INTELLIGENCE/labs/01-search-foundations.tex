@@ -1,29 +1,29 @@
 \labsection{1}{Search Foundations on an Airline Network}{sec:lab01-search}
 
 \begin{labproject}{Build and compare BFS, DFS, and Uniform-Cost Search}
-\textbf{Scenario.} You are building the first version of an airline route planner. A route must follow real airport connections; the planner should report both route quality and search effort.\\
-\textbf{Goal.} Implement BFS, DFS, and UCS from scratch and run them on a real flight-route graph.
+\textbf{Scenario.} Build a route planner over real airline connections and compare route quality with search effort.\\
+\textbf{Goal.} Implement and evaluate BFS, DFS, and UCS using one cleaned OpenFlights graph.
 
+\begin{labmode}
+Use \texttt{all\_datasets/lab01-03\_airports.csv} and \texttt{all\_datasets/lab01-03\_routes.csv}. Run the worked Python notebook \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}. Save generated evidence under \texttt{results/lab01/}.
+\end{labmode}
 
 \begin{mlsteps}
-  \item \textbf{Load and validate the graph.} Assign the documented OpenFlights column names, remove routes with missing source/destination IATA codes, and keep airports with valid latitude/longitude. Print the number of airports, directed routes, and removed records.
-  \item \textbf{Define cost.} Use one edge per direct route. For UCS, calculate edge cost as great-circle distance between the two airports using the Haversine formula. BFS and DFS treat each direct route as one step.
-  \item \textbf{Implement the algorithms.} Implement BFS with a queue, DFS with a stack, and UCS with a priority queue. Each algorithm must return \texttt{found}, \texttt{path}, \texttt{hops}, \texttt{path\_cost\_km}, \texttt{expanded}, and \texttt{max\_frontier}.
-  \item \textbf{Run the standard queries.} Use the three query pairs supplied in \texttt{config/queries.csv}. The repository template provides KUL--KEF, SIN--EZE, and NRT--CPT; if one IATA code is absent in the downloaded vintage, use the listed alternate and record the substitution in the README.
-  \item \textbf{Verify.} Confirm that every consecutive airport pair in each returned path exists in the route data and that reported distance equals the sum of edge distances within a small numerical tolerance.
-  \item \textbf{Save evidence.} Write all runs to \texttt{results/metrics.csv} and save one route visualization as \texttt{results/route\_comparison.png}.
+  \item \textbf{Load and validate the graph.} Assign the documented OpenFlights airport columns, retain valid IATA codes and coordinates, remove unusable routes, and collapse duplicate source--destination pairs.
+  \item \textbf{Define edge cost.} Treat each direct route as one step for BFS/DFS. For UCS, use Haversine distance in kilometres.
+  \item \textbf{Run the algorithms.} For KUL--KEF, SIN--EZE, and NRT--CPT, record path, hops, distance, expanded nodes, maximum frontier, and runtime.
+  \item \textbf{Verify every path.} Confirm every consecutive airport pair exists in the cleaned route graph and recompute the path distance independently.
+  \item \textbf{Compare objectives.} Explain why BFS can return fewer hops but a longer geographic route than UCS, and why DFS is traversal-order dependent.
+  \item \textbf{Save evidence.} Export \texttt{metrics.csv} and one route-comparison figure.
 \end{mlsteps}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}XXXX@{}}
-\toprule
-\rowcolor{MLPaleBlue!92}
-Algorithm & Found & Hops & Cost (km) & Expanded \\
-\midrule
-BFS & & & & \\
-DFS & & & & \\
-UCS & & & & \\
-\bottomrule
-\end{tabularx}
-\end{mltable}
+\requiredoutput{Executed notebook, \texttt{results/lab01/metrics.csv}, route-comparison figure, and a concise interpretation.}
 \end{labproject}
+
+\begin{verification}
+A clean notebook run must reproduce all three queries without hidden variables. Every returned edge must exist in the source data and every reported distance must match the sum of route-edge distances.
+\end{verification}
+
+\begin{labdeliverable}
+Push the notebook, reusable Python source, and generated evidence to GitHub. Create tag \texttt{lab01-final}. Do not commit duplicate copies of the raw dataset.
+\end{labdeliverable}

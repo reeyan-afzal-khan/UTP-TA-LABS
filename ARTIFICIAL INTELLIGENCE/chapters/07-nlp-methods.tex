@@ -2,7 +2,7 @@
 \label{ch:nlp-methods}
 
 \chapterguide%
-  {Understand the Chapter 6 OCR/text-processing pipeline and basic MATLAB string operations.}
+  {Understand the Chapter 6 OCR/text-processing pipeline and basic Python string operations.}
   {explain the chapter examples, distinguish rule-based from feature-based NLP, interpret frequency and term frequency--inverse document frequency (TF--IDF) summarization, and identify limitations of simplified simulations.}
 
 This chapter surveys compact NLP pipelines based on rules, text statistics, or simple classifiers.
@@ -11,27 +11,18 @@ This chapter surveys compact NLP pipelines based on rules, text statistics, or s
 
 The program tokenizes a sentence and matches each token against person, location, and organization dictionaries.
 
-\begin{lstlisting}[style=mlmatlab]
-clc; clear;
-text = "Barack Obama was born in Hawaii and served as the 44th President of the United States.";
+\begin{lstlisting}[style=mlpython]
+text = "Barack Obama was born in Hawaii and served as the 44th President of the United States."
+entities = {
+    "Person": ["Barack Obama"],
+    "Location": ["Hawaii", "United States"],
+    "Organization": ["United Nations", "Google", "Microsoft"],
+}
 
-personList = ["Barack Obama"];
-locationList = ["Hawaii", "United States"];
-organizationList = ["United Nations", "Google", "Microsoft"];
-
-tokens = split(text);
-disp("Named Entities Identified:");
-
-for i = 1:length(tokens)
-    word = erase(tokens{i}, '.');
-    if any(strcmp(word, personList))
-        fprintf("Person: %s\n", word);
-    elseif any(strcmp(word, locationList))
-        fprintf("Location: %s\n", word);
-    elseif any(strcmp(word, organizationList))
-        fprintf("Organization: %s\n", word);
-    end
-end
+for entity_type, phrases in entities.items():
+    for phrase in phrases:
+        if phrase.lower() in text.lower():
+            print(f"{entity_type}: {phrase}")
 \end{lstlisting}
 
 \figref{fig:ner} shows the mismatch. Splitting on whitespace produces single tokens, but two
@@ -69,20 +60,14 @@ The original code splits the sentence into single tokens but stores multi-word e
 
 A rule-based correction searches the normalized sentence for complete dictionary phrases:
 
-\begin{lstlisting}[style=mlmatlab]
-cleanText = erasePunctuation(text);
-entityGroups = {personList, locationList, organizationList};
-groupNames = ["Person", "Location", "Organization"];
+\begin{lstlisting}[style=mlpython]
+import re
 
-for g = 1:numel(entityGroups)
-    entries = entityGroups{g};
-    for i = 1:numel(entries)
-        if contains(lower(cleanText), lower(entries(i)))
-            fprintf('%s: %s\n', ...
-                char(groupNames(g)), char(entries(i)));
-        end
-    end
-end
+clean_text = re.sub(r"[^A-Za-z0-9\s]", "", text).lower()
+for entity_type, phrases in entities.items():
+    for phrase in phrases:
+        if phrase.lower() in clean_text:
+            print(f"{entity_type}: {phrase}")
 \end{lstlisting}
 
 This detects \texttt{Barack Obama}, \texttt{Hawaii}, and \texttt{United States}, but cannot identify entities absent from the dictionaries.
@@ -135,39 +120,22 @@ The method counts words across the paragraph, scores each sentence by those freq
 
 The method is \term{extractive}: the summary is one of the original sentences rather than newly generated prose.
 
-\begin{lstlisting}[style=mlmatlab]
+\begin{lstlisting}[style=mlpython]
+import re
+from collections import Counter
+
 sentences = [
-    "AI systems process language."
-    "AI systems learn patterns from data."
-    "Careful evaluation makes AI systems more reliable."
-];
-
-allWords = strings(0, 1);
-for i = 1:numel(sentences)
-    words = split(lower(erasePunctuation(sentences(i))));
-    allWords = [allWords; words(words ~= "")];
-end
-
-vocabulary = unique(allWords);
-frequency = zeros(size(vocabulary));
-for j = 1:numel(vocabulary)
-    frequency(j) = sum(allWords == vocabulary(j));
-end
-
-scores = zeros(numel(sentences), 1);
-for i = 1:numel(sentences)
-    words = split(lower(erasePunctuation(sentences(i))));
-    for j = 1:numel(words)
-        idx = find(vocabulary == words(j), 1);
-        if ~isempty(idx)
-            scores(i) = scores(i) + frequency(idx);
-        end
-    end
-end
-
-[~, best] = max(scores);
-disp("Summary: " + sentences(best));
-disp(table(sentences, scores));
+    "AI systems process language.",
+    "AI systems learn patterns from data.",
+    "Careful evaluation makes AI systems more reliable.",
+]
+words = re.findall(r"[a-z]+", " ".join(sentences).lower())
+frequency = Counter(words)
+scores = [sum(frequency[w] for w in re.findall(r"[a-z]+", s.lower()))
+          for s in sentences]
+summary = sentences[int(np.argmax(scores))]
+print("Summary:", summary)
+print(list(zip(sentences, scores)))
 \end{lstlisting}
 
 Raw-frequency scoring may favor long sentences and function words; consider stop-word removal or length normalization.
@@ -176,17 +144,15 @@ Raw-frequency scoring may favor long sentences and function words; consider stop
 
 The grammar-correction simulation handles one pattern through string replacement:
 
-\begin{lstlisting}[style=mlmatlab]
-inputSentence = "She go to school every day.";
-patterns = ["go to school"];
-corrections = ["goes to school"];
+\begin{lstlisting}[style=mlpython]
+input_sentence = "She go to school every day."
+patterns = {"go to school": "goes to school"}
 
-corrected = inputSentence;
-for i = 1:length(patterns)
-    corrected = strrep(corrected, patterns(i), corrections(i));
-end
-disp("Original:  " + inputSentence);
-disp("Corrected: " + corrected);
+corrected = input_sentence
+for old, new in patterns.items():
+    corrected = corrected.replace(old, new)
+print("Original: ", input_sentence)
+print("Corrected:", corrected)
 \end{lstlisting}
 
 The program applies a fixed replacement rule rather than inferring grammar.
@@ -198,14 +164,13 @@ The example pairs each word in ``The dog chased the cat.'' with a manual tag. He
 \texttt{DET, NOUN, VERB, DET, NOUN}.
 \]
 
-\begin{lstlisting}[style=mlmatlab]
-sentence = "The dog chased the cat.";
-words = split(erasePunctuation(sentence));
-tags = ["DET", "NOUN", "VERB", "DET", "NOUN"];
+\begin{lstlisting}[style=mlpython]
+sentence = "The dog chased the cat."
+words = sentence.rstrip(".").split()
+tags = ["DET", "NOUN", "VERB", "DET", "NOUN"]
 
-for i = 1:length(words)
-    fprintf("%-7s - %s\n", words{i}, tags{i});
-end
+for word, tag in zip(words, tags):
+    print(f"{word:<7} - {tag}")
 \end{lstlisting}
 
 \begin{intuition}
@@ -250,50 +215,34 @@ training data.}{fig:naive-bayes}
 \end{tikzpicture}
 \end{aifig}
 
-Five labeled sentences are converted to binary word features, used to train \texttt{fitcnb}, and tested on ``The product is wonderful.''
+Five labelled sentences are converted to binary count features with \texttt{CountVectorizer}, used to train \texttt{MultinomialNB}, and tested on ``The product is wonderful.''
 
-\begin{lstlisting}[style=mlmatlab]
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+
 texts = [
-    "I love this product", ...
-    "This is terrible", ...
-    "Very happy with the results", ...
-    "It is bad and disappointing", ...
-    "Absolutely wonderful experience"
-];
-labels = [1; 0; 1; 0; 1];
-bag = ["love", "terrible", "happy", "bad", "wonderful"];
+    "I love this product",
+    "This is terrible",
+    "Very happy with the results",
+    "It is bad and disappointing",
+    "Absolutely wonderful experience",
+]
+labels = np.array([1, 0, 1, 0, 1])
 
-features = zeros(length(texts), length(bag));
-for i = 1:length(texts)
-    for j = 1:length(bag)
-        if contains(lower(texts(i)), bag(j))
-            features(i, j) = 1;
-        end
-    end
-end
+vectorizer = CountVectorizer(binary=True)
+X = vectorizer.fit_transform(texts)
+model = MultinomialNB().fit(X, labels)
 
-keep = var(features) > 0;
-features = features(:, keep);
-activeBag = bag(keep);
-Mdl = fitcnb(features, labels, 'DistributionNames', 'kernel');
-
-testText = "The product is wonderful";
-testFeatures = zeros(1, numel(activeBag));
-for j = 1:numel(activeBag)
-    testFeatures(j) = contains(lower(testText), activeBag(j));
-end
-
-prediction = predict(Mdl, testFeatures);
-if prediction == 1
-    disp("Predicted Sentiment: Positive");
-else
-    disp("Predicted Sentiment: Negative");
-end
+test_text = "The product is wonderful"
+prediction = model.predict(vectorizer.transform([test_text]))[0]
+print("Predicted sentiment:", "Positive" if prediction else "Negative")
 \end{lstlisting}
 
 For the supplied test sentence, the program reports \texttt{Predicted Sentiment: Positive}.
 
-The same \texttt{keep} mask must be applied to both training and test features. Otherwise, the classifier receives a different number or order of columns during prediction.
+Fit the vectorizer on training text only, then call \texttt{transform} on validation or test text. This preserves the same vocabulary and column order without leaking information from held-out examples.
 
 \section{Code 6: summarization with TF--IDF}
 
@@ -338,23 +287,23 @@ Nothing was removed by hand --- the weighting did the filtering.}{fig:tfidf}
 \end{aifig}
 
 
-The summarization example then uses MATLAB's text-processing objects: \texttt{tokenizedDocument}, \texttt{bagOfWords}, and \texttt{tfidf}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the maximum is returned.
+The summarization example uses scikit-learn's \texttt{TfidfVectorizer}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the highest-scoring sentence is returned.
 
-\begin{lstlisting}[style=mlmatlab]
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+
 text = [
-    "Artificial intelligence is a broad field."
-    "Machine learning enables systems to learn patterns from data."
-    "NLP helps computers process human language."
-    "Robotics connects sensing, planning, and action."
-];
+    "Artificial intelligence is a broad field.",
+    "Machine learning enables systems to learn patterns from data.",
+    "NLP helps computers process human language.",
+    "Robotics connects sensing, planning, and action.",
+]
 
-documents = tokenizedDocument(text);
-bag = bagOfWords(documents);
-tfidfMatrix = tfidf(bag);
-score = sum(tfidfMatrix, 2);
-[~, idx] = max(score);
-disp("Summary: " + text(idx));
-disp(table(text, score));
+X = TfidfVectorizer(stop_words="english").fit_transform(text)
+scores = np.asarray(X.sum(axis=1)).ravel()
+print("Summary:", text[int(scores.argmax())])
+print(list(zip(text, scores.round(3))))
 \end{lstlisting}
 
 For the supplied text, the program selects ``Machine learning enables systems to learn patterns from data.''
@@ -365,26 +314,17 @@ Summed TF--IDF may favor sentences with more distinct terms; compare length-norm
 
 The second sentiment method uses positive and negative word lists rather than a trained classifier.
 
-\begin{lstlisting}[style=mlmatlab]
-text = "The scenery was amazing but the final scene was dull.";
-positiveWords = ["good", "great", "excellent", "fantastic", ...
-                 "amazing", "breathtaking"];
-negativeWords = ["bad", "terrible", "awful", "boring", ...
-                 "worst", "dull"];
+\begin{lstlisting}[style=mlpython]
+import re
 
-words = lower(split(erasePunctuation(text)));
-posCount = sum(ismember(words, positiveWords));
-negCount = sum(ismember(words, negativeWords));
-
-if posCount > negCount
-    sentiment = "Positive";
-elseif negCount > posCount
-    sentiment = "Negative";
-else
-    sentiment = "Neutral";
-end
-fprintf('Positive=%d, Negative=%d, Result=%s\n', ...
-    posCount, negCount, char(sentiment));
+text = "The scenery was amazing but the final scene was dull."
+positive_words = {"good", "great", "excellent", "fantastic", "amazing", "breathtaking"}
+negative_words = {"bad", "terrible", "awful", "boring", "worst", "dull"}
+words = set(re.findall(r"[a-z]+", text.lower()))
+pos_count = len(words & positive_words)
+neg_count = len(words & negative_words)
+sentiment = "Positive" if pos_count > neg_count else "Negative" if neg_count > pos_count else "Neutral"
+print(f"Positive={pos_count}, Negative={neg_count}, Result={sentiment}")
 \end{lstlisting}
 
 The program returns Positive, Negative, or Neutral according to which count is larger.
@@ -393,30 +333,19 @@ The program returns Positive, Negative, or Neutral according to which count is l
 
 The language detector defines small keyword lists for English, French, and German. It counts word matches for each list, takes the largest count, and maps the index to a language label. For the supplied French sentence, the program reports French.
 
-\begin{lstlisting}[style=mlmatlab]
-text = "Bonjour, comment allez-vous aujourd'hui";
-english = ["the", "and", "hello", "good"];
-french = ["bonjour", "comment", "vous", "aujourd'hui"];
-german = ["hallo", "wie", "geht", "ihnen"];
+\begin{lstlisting}[style=mlpython]
+import re
 
-normalized = lower(erase(text, [",", ".", "!", "?"]));
-normalized = replace(normalized, "-", " ");
-words = split(normalized);
-enCount = sum(ismember(words, english));
-frCount = sum(ismember(words, french));
-deCount = sum(ismember(words, german));
-
-counts = [enCount, frCount, deCount];
-languages = ["English", "French", "German"];
-[bestCount, idx] = max(counts);
-if bestCount == 0
-    result = "Unknown";
-elseif sum(counts == bestCount) > 1
-    result = "Ambiguous";
-else
-    result = languages(idx);
-end
-disp("Detected language: " + result);
+text = "Bonjour, comment allez-vous aujourd'hui"
+lexicons = {
+    "English": {"the", "and", "hello", "good"},
+    "French": {"bonjour", "comment", "vous", "aujourd'hui"},
+    "German": {"hallo", "wie", "geht", "ihnen"},
+}
+words = set(re.findall(r"[a-zA-Z']+", text.lower()))
+counts = {language: len(words & lexicon) for language, lexicon in lexicons.items()}
+best = max(counts, key=counts.get)
+print("Detected language:", best if counts[best] else "Unknown")
 \end{lstlisting}
 
 The zero-match and tie checks prevent the program from reporting English merely because it occupies the first array position.
@@ -425,37 +354,35 @@ The zero-match and tie checks prevent the program from reporting English merely 
 
 The final example tokenizes a paragraph, removes stop words and punctuation, builds a bag-of-words model, sorts vocabulary counts in descending order, and returns the top five words.
 
-\begin{lstlisting}[style=mlmatlab]
-text = "Data science involves extracting insights from structured " + ...
-       "and unstructured data using statistical and machine " + ...
-       "learning techniques.";
+\begin{lstlisting}[style=mlpython]
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
 
-document = tokenizedDocument(text);
-document = lower(document);            % fold case BEFORE counting
-document = erasePunctuation(document); % strip punctuation ...
-document = removeStopWords(document);  % ... then remove stop words
-
-bow = bagOfWords(document);
-[sortedCounts, sortedIndex] = sort(bow.Counts, 'descend');
-sortedWords = bow.Vocabulary(sortedIndex);
-
-n = min(5, numel(sortedWords));
-disp(table(sortedWords(1:n)', sortedCounts(1:n)', ...
-    'VariableNames', {'Keyword', 'Count'}));
+text = ("Data science involves extracting insights from structured and "
+        "unstructured data using statistical and machine learning techniques.")
+vectorizer = CountVectorizer(stop_words="english")
+X = vectorizer.fit_transform([text])
+counts = np.asarray(X.sum(axis=0)).ravel()
+terms = np.array(vectorizer.get_feature_names_out())
+for i in np.argsort(counts)[::-1][:5]:
+    print(terms[i], int(counts[i]))
 \end{lstlisting}
 
 \begin{pitfall}
 \textbf{Two preprocessing details decide whether this ranking means anything.}
 
-\emph{Case.} \texttt{tokenizedDocument} is case sensitive, so \texttt{Data} at the start of a sentence and \texttt{data} in the middle are different tokens. In the supplied paragraph ``data'' occurs three times but is counted as \texttt{Data}\,=\,2 and \texttt{data}\,=\,1 --- the most important keyword in the text, understated by a third. Call \texttt{lower(document)} before counting.
+\emph{Case.} Normalise case before counting tokens. Otherwise \texttt{Data} and \texttt{data} become separate vocabulary items and the frequency evidence is fragmented. Scikit-learn lowercases by default; for manual tokenisation, call \texttt{text.lower()} before extracting words.
 
-\emph{Order.} Strip punctuation \emph{before} removing stop words. A token still carrying a full stop does not match the stop-word list, so \texttt{and.} survives a removal that \texttt{and} would not.
+\emph{Order.} Remove punctuation before applying a manual stop-word list. A token such as \texttt{and.} does not match the stop word \texttt{and} until punctuation has been stripped.
 
-\begin{lstlisting}[style=mlmatlab]
-document = tokenizedDocument(text);
-document = lower(document);          % fold case first
-document = erasePunctuation(document);
-document = removeStopWords(document); % then remove stop words
+\begin{lstlisting}[style=mlpython]
+import re
+
+text = ("Data science involves extracting insights from structured and "
+        "unstructured data using statistical and machine learning techniques.")
+stop_words = {"the", "and", "from", "using", "is", "a", "an"}
+tokens = [w for w in re.findall(r"[a-z]+", text.lower()) if w not in stop_words]
+print(tokens)
 \end{lstlisting}
 \end{pitfall}
 

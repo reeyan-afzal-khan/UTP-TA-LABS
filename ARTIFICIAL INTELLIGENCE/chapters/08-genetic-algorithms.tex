@@ -2,7 +2,7 @@
 \label{ch:ga}
 
 \chapterguide%
-  {Be comfortable with objective functions, random sampling, and MATLAB arrays.}
+  {Be comfortable with objective functions, random sampling, and Python arrays.}
   {define the core Genetic Algorithm (GA) vocabulary, trace the GA workflow, explain selection/crossover/mutation, and apply the Lab 8 code patterns to continuous optimization, regression, knapsack, and polynomial-root objectives.}
 
 A \term{Genetic Algorithm (GA)} evolves a population of candidate solutions through selection, crossover, and mutation.
@@ -100,15 +100,18 @@ The population samples several regions; selection favors high values while cross
 
 The example uses 20 real-valued chromosomes, 50 generations, crossover rate 0.8, and mutation rate 0.1.
 
-\begin{lstlisting}[style=mlmatlab]
-popSize = 20;
-chromLength = 1;
-maxGen = 50;
-crossRate = 0.8;
-mutRate = 0.1;
+\begin{lstlisting}[style=mlpython]
+import numpy as np
 
-pop = rand(popSize, chromLength);
-fitnessFunc = @(x) x .* sin(10 * pi * x) + 1;
+pop_size = 20
+max_gen = 50
+cross_rate = 0.8
+mut_rate = 0.1
+rng = np.random.default_rng(7)
+pop = rng.random((pop_size, 1))
+
+def fitness(x):
+    return x * np.sin(10 * np.pi * x) + 1
 \end{lstlisting}
 
 \subsection{Roulette-wheel selection}
@@ -161,17 +164,11 @@ are never eliminated --- keeping them preserves the diversity a later crossover 
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlmatlab]
-fitness = fitnessFunc(pop);
-prob = fitness / sum(fitness);
-cumProb = cumsum(prob);
-newPop = zeros(size(pop));
-
-for i = 1:popSize
-    r = rand;
-    idx = find(cumProb >= r, 1, 'first');
-    newPop(i,:) = pop(idx,:);
-end
+\begin{lstlisting}[style=mlpython]
+fitness_values = fitness(pop).ravel()
+prob = fitness_values / fitness_values.sum()
+parent_index = rng.choice(pop_size, size=pop_size, p=prob)
+new_pop = pop[parent_index].copy()
 \end{lstlisting}
 
 \subsection{Arithmetic crossover and mutation}
@@ -228,67 +225,49 @@ it already occupies; mutation is what lets it reach outside.
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlmatlab]
-alpha = rand;
-temp1 = alpha * newPop(i,:) + (1 - alpha) * newPop(i+1,:);
-temp2 = alpha * newPop(i+1,:) + (1 - alpha) * newPop(i,:);
+\begin{lstlisting}[style=mlpython]
+alpha = rng.random()
+temp1 = alpha * new_pop[i] + (1 - alpha) * new_pop[i + 1]
+temp2 = alpha * new_pop[i + 1] + (1 - alpha) * new_pop[i]
 \end{lstlisting}
 
 \subsection{Complete runnable loop}
 
 The complete program combines initialization, evaluation, variation, replacement, reporting, and plotting.
 
-\begin{lstlisting}[style=mlmatlab]
-rng(7);                         % reproducible teaching run
-popSize = 20;
-maxGen = 50;
-crossRate = 0.8;
-mutRate = 0.1;
-pop = rand(popSize, 1);
-fitnessFunc = @(x) x .* sin(10*pi*x) + 1;
+\begin{lstlisting}[style=mlpython]
+import matplotlib.pyplot as plt
 
-bestHistory = zeros(maxGen, 1);
-bestEverFitness = -Inf;
-bestEverX = NaN;
+rng = np.random.default_rng(7)
+pop_size, max_gen = 20, 50
+cross_rate, mut_rate = 0.8, 0.1
+pop = rng.random((pop_size, 1))
+best_history = []
+best_x, best_fitness = np.nan, -np.inf
 
-for gen = 1:maxGen
-    fitness = fitnessFunc(pop);
-    [bestHistory(gen), bestIndex] = max(fitness);
-    if bestHistory(gen) > bestEverFitness
-        bestEverFitness = bestHistory(gen);
-        bestEverX = pop(bestIndex);
-    end
+for _ in range(max_gen):
+    fit = fitness(pop).ravel()
+    idx = int(np.argmax(fit))
+    if fit[idx] > best_fitness:
+        best_fitness, best_x = fit[idx], float(pop[idx, 0])
+    best_history.append(best_fitness)
 
-    probability = fitness / sum(fitness);
-    cumulative = cumsum(probability);
-    parents = zeros(size(pop));
-    for i = 1:popSize
-        index = find(cumulative >= rand, 1, 'first');
-        parents(i) = pop(index);
-    end
+    prob = fit / fit.sum()
+    parents = pop[rng.choice(pop_size, size=pop_size, p=prob)].copy()
+    offspring = parents.copy()
+    for i in range(0, pop_size, 2):
+        if rng.random() < cross_rate:
+            alpha = rng.random()
+            p1, p2 = parents[i].copy(), parents[i + 1].copy()
+            offspring[i] = alpha * p1 + (1 - alpha) * p2
+            offspring[i + 1] = alpha * p2 + (1 - alpha) * p1
+    mask = rng.random(offspring.shape) < mut_rate
+    offspring += mask * rng.normal(0, 0.05, offspring.shape)
+    pop = np.clip(offspring, 0, 1)
 
-    offspring = parents;
-    for i = 1:2:popSize
-        if rand < crossRate
-            alpha = rand;
-            p1 = parents(i);
-            p2 = parents(i+1);
-            offspring(i) = alpha*p1 + (1-alpha)*p2;
-            offspring(i+1) = alpha*p2 + (1-alpha)*p1;
-        end
-    end
-
-    mutate = rand(size(offspring)) < mutRate;
-    offspring(mutate) = offspring(mutate) + ...
-        0.05*randn(sum(mutate(:)), 1);
-    pop = min(max(offspring, 0), 1);
-end
-
-fprintf('Best x: %.5f, f(x): %.5f\n', ...
-    bestEverX, bestEverFitness);
-plot(bestHistory, 'LineWidth', 1.5);
-xlabel('Generation'); ylabel('Best fitness in generation');
-grid on;
+print(f"Best x: {best_x:.5f}, f(x): {best_fitness:.5f}")
+plt.plot(best_history)
+plt.xlabel("Generation"); plt.ylabel("Best-so-far fitness")
 \end{lstlisting}
 
 The global maximum is near \(x=0.85119\), where \(f(x)\approx1.85060\); a short stochastic run may not reproduce it exactly.
@@ -340,19 +319,19 @@ Because roulette-wheel selection in the example expects larger values to be more
 \text{invFitness}=\frac{1}{f+10^{-6}}.
 \]
 
-\begin{lstlisting}[style=mlmatlab]
-pop = -2 + 4*rand(popSize, 2);  % both genes in [-2, 2]
-fitnessFunc = @(v) (1 - v(:,1)).^2 + ...
-    100*(v(:,2) - v(:,1).^2).^2;
+\begin{lstlisting}[style=mlpython]
+pop = rng.uniform(-2, 2, size=(pop_size, 2))
 
-fitness = fitnessFunc(pop);
-invFitness = 1 ./ (fitness + 1e-6);
-prob = invFitness / sum(invFitness);
+def rosenbrock(v):
+    return (1 - v[:, 0])**2 + 100 * (v[:, 1] - v[:, 0]**2)**2
 
-mutate = rand(size(newPop)) < mutRate;
-newPop(mutate) = newPop(mutate) + ...
-    0.05*randn(sum(mutate(:)), 1);
-newPop = min(max(newPop, -2), 2);
+loss = rosenbrock(pop)
+selection_score = 1 / (loss + 1e-6)
+prob = selection_score / selection_score.sum()
+
+mask = rng.random(pop.shape) < mut_rate
+pop += mask * rng.normal(0, 0.05, pop.shape)
+pop = np.clip(pop, -2, 2)
 \end{lstlisting}
 
 The mutation step adds Gaussian noise and clips each variable back to \([-2,2]\). The known optimum is \((x,y)=(1,1)\), where the objective is zero; this gives a direct correctness check for the final chromosome.
@@ -369,19 +348,18 @@ and represents each chromosome as two real-valued genes, \(w_1\) and \(w_2\). Th
 \left(y-(w_1x+w_2)\right)^2.
 \]
 
-\begin{lstlisting}[style=mlmatlab]
-rng(7);
-x = linspace(0, 10, 100)';
-true_w = [2.5, 5];
-y = true_w(1)*x + true_w(2) + randn(size(x));
+\begin{lstlisting}[style=mlpython]
+rng = np.random.default_rng(7)
+x = np.linspace(0, 10, 100)
+y = 2.5 * x + 5 + rng.normal(size=x.size)
 
-pop = [5*rand(popSize, 1), 10*rand(popSize, 1)];
-mse = zeros(popSize, 1);
-for i = 1:popSize
-    prediction = pop(i,1)*x + pop(i,2);
-    mse(i) = mean((y - prediction).^2);
-end
-selectionScore = 1 ./ (mse + 1e-6);
+pop = np.column_stack([
+    rng.uniform(0, 5, pop_size),
+    rng.uniform(0, 10, pop_size),
+])
+prediction = pop[:, 0, None] * x + pop[:, 1, None]
+mse = ((prediction - y) ** 2).mean(axis=1)
+selection_score = 1 / (mse + 1e-6)
 \end{lstlisting}
 
 A chromosome may encode model parameters directly. Evaluate \texttt{pop(i,1)} and \texttt{pop(i,2)} from the same row to avoid shape errors.
@@ -420,29 +398,23 @@ capacity, so its fitness is forced to zero and roulette selection never picks it
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlmatlab]
-weights = [2 3 4 5];
-values = [3 4 5 8];
-capacity = 5;
+\begin{lstlisting}[style=mlpython]
+weights = np.array([2, 3, 4, 5])
+values = np.array([3, 4, 5, 8])
+capacity = 5
 
-chromLength = length(weights);
-pop = round(rand(popSize, chromLength));
-
-fitness = zeros(popSize, 1);
-for i = 1:popSize
-    totalWeight = sum(pop(i,:) .* weights);
-    totalValue = sum(pop(i,:) .* values);
-    if totalWeight <= capacity
-        fitness(i) = totalValue;
-    end
-end
+chrom_length = len(weights)
+pop = rng.integers(0, 2, size=(pop_size, chrom_length))
+total_weight = pop @ weights
+total_value = pop @ values
+fitness_values = np.where(total_weight <= capacity, total_value, 0)
 \end{lstlisting}
 
 Feasible chromosomes receive total value as fitness; overweight chromosomes receive zero. Mutation flips one bit:
 
-\begin{lstlisting}[style=mlmatlab]
-gene = randi(chromLength);
-newPop(i, gene) = 1 - newPop(i, gene);
+\begin{lstlisting}[style=mlpython]
+gene = rng.integers(chrom_length)
+new_pop[i, gene] = 1 - new_pop[i, gene]
 \end{lstlisting}
 
 \begin{workedexample}
@@ -462,13 +434,11 @@ f(x)=(x-3)^2(x+2)^2,
 \]
 The objective is zero at \(x=3\) and \(x=-2\). Negating and shifting it produces nonnegative roulette-wheel selection scores.
 
-\begin{lstlisting}[style=mlmatlab]
-pop = -5 + 10*rand(popSize, 1);
-fitnessFunc = @(x) (x - 3).^2 .* (x + 2).^2;
-fitness = -fitnessFunc(pop);
-
-prob = fitness - min(fitness) + eps;
-prob = prob / sum(prob);
+\begin{lstlisting}[style=mlpython]
+pop = rng.uniform(-5, 5, size=(pop_size, 1))
+objective = ((pop - 3)**2 * (pop + 2)**2).ravel()
+selection_score = objective.max() - objective + 1e-12
+prob = selection_score / selection_score.sum()
 \end{lstlisting}
 
 Because both \(-2\) and 3 produce objective zero, separate runs may converge to different correct roots. Report the final objective as well as \(x\): a value near a root with a visibly nonzero objective remains an imprecise solution.

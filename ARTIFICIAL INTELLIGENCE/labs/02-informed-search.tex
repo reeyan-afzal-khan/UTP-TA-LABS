@@ -1,33 +1,29 @@
 \labsection{2}{Heuristic Search on the Airline Network}{sec:lab02-informed}
 
 \begin{labproject}{Compare UCS, Greedy Best-First Search, and A$^\star$}
-\textbf{Scenario.} The route planner from Lab 1 is correct but may expand many airports. You will add geographic knowledge and measure whether it reduces search effort without sacrificing route quality.\\
-\textbf{Goal.} Implement GBFS and A$^\star$, verify the Haversine heuristic, and compare them with UCS.
+\textbf{Scenario.} Improve the Lab 1 planner by adding geographic knowledge while preserving a clear quality baseline.\\
+\textbf{Goal.} Implement GBFS and A$^\star$, validate the Haversine heuristic, and measure the trade-off between solution cost and search effort.
 
 \begin{labmode}
-Reuse \texttt{data/openflights/} from Lab 1. Do not copy the raw data into the Lab 2 folder. Import shared loading or distance functions from your repository rather than duplicating them.
+Reuse the Lab 1 OpenFlights files and run \path{all_experiments/lab02_informed_search_worked.ipynb}. Save evidence under \texttt{results/lab02/}.
 \end{labmode}
 
 \begin{mlsteps}
-  \item \textbf{Establish the optimal-cost baseline.} Run UCS for every query and save the returned route cost. Use the same edge-cost function as Lab 1.
-  \item \textbf{Implement the heuristic.} Let $h(n)$ be Haversine distance from airport $n$ to the destination. Implement GBFS using $h(n)$ and A$^\star$ using $f(n)=g(n)+h(n)$.
-  \item \textbf{Check heuristic quality.} For at least 10 reachable airports, compare $h(n)$ with a UCS cost-to-go value. Save the comparison to \texttt{results/heuristic\_check.csv}. Flag any case where $h(n)$ exceeds the computed shortest route cost.
-  \item \textbf{Compare methods.} For each standard query, report path cost, expanded nodes, maximum frontier size, and runtime in milliseconds for UCS, GBFS, and A$^\star$.
-  \item \textbf{Stress test the guarantee.} Repeat one query with an inflated heuristic $1.5h(n)$. Record the result separately and explain why an overestimate can reduce work but weakens A$^\star$'s optimality guarantee.
-  \item \textbf{Save evidence.} Export \texttt{results/metrics.csv}, \texttt{results/heuristic\_check.csv}, and a plot comparing expanded nodes across methods.
+  \item \textbf{Establish the baseline.} Run UCS for the three standard route queries and save its optimal route cost.
+  \item \textbf{Implement the heuristic.} Use Haversine distance from the current airport to the destination. Implement GBFS with $h(n)$ and A$^\star$ with $g(n)+h(n)$.
+  \item \textbf{Check admissibility empirically.} Compare $h(n)$ against exact route cost-to-go for at least 10 reachable airports per query.
+  \item \textbf{Compare methods.} Record path cost, expanded nodes, maximum frontier, and runtime for UCS, GBFS, and A$^\star$.
+  \item \textbf{Stress the guarantee.} Repeat the queries with an inflated heuristic $1.5h(n)$ and explain when the returned cost changes.
+  \item \textbf{Save evidence.} Export the algorithm metrics, heuristic check, and an expanded-nodes figure.
 \end{mlsteps}
 
-\begin{pitfall}
-Do not compare algorithms with different route costs or different graph cleaning rules. The graph, edge-cost function, and query set must remain fixed.
-\end{pitfall}
-
-\requiredoutput{A heuristic check, an algorithm comparison table, and one figure showing search effort.}
+\requiredoutput{Executed notebook, \texttt{metrics.csv}, \texttt{heuristic\_check.csv}, and search-effort figure.}
 \end{labproject}
 
 \begin{verification}
-For the admissible Haversine heuristic, A$^\star$ should match UCS path cost on the tested queries. If it does not, inspect the priority update, closed-set handling, and distance calculation before interpreting performance.
+With the ordinary Haversine heuristic, A$^\star$ must match UCS route cost on the tested queries. Investigate priority updates and closed-set handling if it does not.
 \end{verification}
 
 \begin{labdeliverable}
-Push the completed lab and create tag \texttt{lab02-final}. The README must state whether A$^\star$ preserved UCS cost, how much it reduced expansion, and one case where GBFS returned a poorer route.
+Push the completed Python work and create tag \texttt{lab02-final}. The README must state whether A$^\star$ preserved UCS cost, how much expansion was reduced, and where GBFS returned a higher-cost route.
 \end{labdeliverable}

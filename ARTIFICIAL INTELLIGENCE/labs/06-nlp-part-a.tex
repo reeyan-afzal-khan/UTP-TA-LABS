@@ -1,48 +1,29 @@
 \labsection{6}{NLP Foundations: Handwriting OCR Evaluation}{sec:lab06-nlp-a}
 
 \begin{labproject}{Evaluate OCR on real handwritten medicine names}
-\textbf{Scenario.} A clinic wants to digitize handwritten medicine names before they are stored or searched. You will run OCR on real handwriting, measure recognition quality, test preprocessing, and document the most common failures.\\
-\textbf{Software.} MATLAB with Computer Vision Toolbox and the text-processing functions used in the chapter.\\
-\textbf{Goal.} Build a small, reproducible OCR benchmark using a dataset that can be kept inside the course GitHub repository.
-
-\kagglesource{https://www.kaggle.com/datasets/mrdude20/doctor-handwriting-recognition-dataset}{Doctor Handwriting Recognition Dataset}
-\kaggleexample{https://www.kaggle.com/code/hasinsaleh/ocr-handwritten-prescription}{OCR Handwritten Prescription --- workflow reference}
-\repofolder{lab06\_nlp\_ocr/}
+\textbf{Scenario.} A clinic wants to digitize handwritten medicine names before storage or search.\\
+\textbf{Goal.} Build a reproducible OCR benchmark, test one controlled preprocessing change, and analyse recognition failures.
 
 \begin{labmode}
-The Kaggle dataset is approximately \textbf{7.72 MB}, contains 90 labelled handwriting images, and is released as CC0. Download it manually and place the extracted files under \texttt{data/doctor\_handwriting/}. Because this dataset is below the course 30 MB repository limit and has a permissive licence, it \textbf{must be committed to the private course GitHub repository} for Lab 6.
+Use \texttt{all\_datasets/lab06-ocr-handwritten-prescription.zip}. The supplied archive contains one label CSV and \textbf{89 labelled images}. Run \texttt{all\_experiments/lab06\_handwriting\_ocr\_worked.ipynb}. The Python notebook uses \texttt{pytesseract}; the Tesseract OCR executable must also be installed.
 \end{labmode}
 
-\textbf{Expected local data.}
-\begin{lstlisting}[style=mlpython]
-data/doctor_handwriting/
-|-- doctor_handwriting_labels.csv
-`-- img/
-    `-- ... 90 image files ...
-\end{lstlisting}
-
-\textbf{Required MATLAB run.}
-\begin{lstlisting}[style=mlmatlab]
-matlab -batch "run('lab06_nlp_ocr/src/main_lab06.m')"
-\end{lstlisting}
-
 \begin{mlsteps}
-  \item \textbf{Inspect the dataset.} Load the label CSV, verify that every labelled image exists, report the number of samples and unique medicine names, and display a 3-by-3 sample grid.
-  \item \textbf{Run a baseline OCR pipeline.} Apply MATLAB OCR to every image using one documented configuration. Normalize both prediction and ground truth by lowercasing, trimming spaces, and removing non-alphanumeric characters.
-  \item \textbf{Measure OCR quality.} Report exact-match accuracy, mean normalized edit distance, and character error rate (CER). Save one row per image to \texttt{results/predictions.csv}.
-  \item \textbf{Improve preprocessing.} Test one controlled preprocessing pipeline, for example grayscale conversion, contrast adjustment, resizing, denoising, or adaptive thresholding. Keep the OCR configuration unchanged so the comparison is fair.
-  \item \textbf{Compare baseline and improved OCR.} Save both metric sets to \texttt{results/metrics.csv}. State whether preprocessing improved exact-match accuracy and CER.
-  \item \textbf{Analyse failures.} Select at least five incorrect predictions. Label the dominant cause as handwriting ambiguity, segmentation/cropping, low contrast, character confusion, OCR vocabulary bias, or other. Save the table to \texttt{results/error\_analysis.csv}.
-  \item \textbf{Create one evidence figure.} Show at least six difficult images with ground truth and predicted text. Include both baseline and improved prediction when they differ.
+  \item \textbf{Validate the archive.} Load the label CSV, verify all 89 labelled files exist, report unique labels, and display a 3-by-3 sample grid.
+  \item \textbf{Run baseline OCR.} Use one fixed Tesseract configuration for every raw image and normalize predictions/labels to lowercase alphanumeric text.
+  \item \textbf{Measure quality.} Report exact-match accuracy, mean normalized edit distance, character error rate (CER), and blank-prediction count.
+  \item \textbf{Test one preprocessing pipeline.} Convert to grayscale, add a white border, cap very large images, and resize consistently while keeping OCR configuration unchanged.
+  \item \textbf{Compare fairly.} Evaluate baseline and preprocessed images on exactly the same 89 samples and save one prediction row per image/pipeline.
+  \item \textbf{Analyse failures.} Review difficult examples, distinguish blank/segmentation failures from character-confusion failures, and save an evidence figure.
 \end{mlsteps}
 
-\requiredoutput{Committed Lab 6 dataset, predictions CSV, metrics CSV, error-analysis CSV, one OCR evidence figure, and a concise README.}
+\requiredoutput{Executed notebook, predictions CSV, metrics CSV, error-analysis CSV, sample grid, and OCR-failure figure.}
 \end{labproject}
 
 \begin{verification}
-A clean run from the repository root must find all 90 images, produce one prediction row per labelled sample, and reproduce the same metrics. The baseline and improved pipeline must be evaluated on exactly the same images.
+A clean run must find all 89 labelled images and reproduce the same metrics. A timeout may be used per image so one OCR failure cannot block the complete experiment.
 \end{verification}
 
 \begin{labdeliverable}
-Commit \texttt{data/doctor\_handwriting/}, source code, and required results. Push the completed lab and create tag \texttt{lab06-final}. The README must report dataset size, exact-match accuracy, CER, whether preprocessing helped, and the two most common OCR failure types in at most 250 words.
+Push the notebook and generated results; create tag \texttt{lab06-final}. Report exact-match accuracy, CER, the effect of preprocessing, and the dominant failure modes. Do not claim that generic OCR is production-ready for medical handwriting.
 \end{labdeliverable}

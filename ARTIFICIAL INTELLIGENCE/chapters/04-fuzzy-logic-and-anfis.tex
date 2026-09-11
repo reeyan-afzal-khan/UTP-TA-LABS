@@ -2,8 +2,8 @@
 \label{ch:fuzzy}
 
 \chapterguide%
-  {Know basic true/false Boolean logic and be able to run MATLAB scripts.}
-  {explain fuzzy truth values, identify the four components of a Fuzzy Inference System (FIS), distinguish Mamdani and Sugeno systems, explain the Adaptive Neuro-Fuzzy Inference System (ANFIS), and build/evaluate the MATLAB examples from Lab 4.}
+  {Know basic true/false Boolean logic and be able to run Python scripts.}
+  {explain fuzzy truth values, identify the four components of a Fuzzy Inference System (FIS), distinguish Mamdani and Sugeno systems, explain the Adaptive Neuro-Fuzzy Inference System (ANFIS), and build/evaluate the Python examples from Lab 4.}
 
 Lab 4 introduces \term{approximate reasoning}: fuzzy logic represents concepts such as ``cold'' or ``hot'' with degrees between 0 and 1.
 
@@ -113,26 +113,30 @@ Defuzzification & Converts fuzzy outputs back to a crisp numerical value. \\
 
 \section{Membership functions in the temperature controller}
 
-The MATLAB example creates one input, \texttt{Temperature}, over \([0,100]\) and gives it three triangular membership functions: Cold, Warm, and Hot. The output \texttt{FanSpeed}, over \([0,10]\), receives Low, Medium, and High membership functions.
+The Python example creates one input, \texttt{Temperature}, over \([0,100]\) and gives it three triangular membership functions: Cold, Warm, and Hot. The output \texttt{FanSpeed}, over \([0,10]\), receives Low, Medium, and High membership functions.
 
-\begin{lstlisting}[style=mlmatlab]
-fis = mamfis('Name', 'temperatureControl');
+\begin{lstlisting}[style=mlpython]
+import numpy as np
 
-fis = addInput(fis, [0 100], 'Name', 'Temperature');
-fis = addMF(fis, 'Temperature', 'trimf', [0 0 50], ...
-    'Name', 'Cold');
-fis = addMF(fis, 'Temperature', 'trimf', [25 50 75], ...
-    'Name', 'Warm');
-fis = addMF(fis, 'Temperature', 'trimf', [50 100 100], ...
-    'Name', 'Hot');
+def trimf(x, a, b, c):
+    x = np.asarray(x, dtype=float)
+    left = np.ones_like(x) if a == b else (x - a) / (b - a)
+    right = np.ones_like(x) if b == c else (c - x) / (c - b)
+    return np.clip(np.minimum(left, right), 0.0, 1.0)
 
-fis = addOutput(fis, [0 10], 'Name', 'FanSpeed');
-fis = addMF(fis, 'FanSpeed', 'trimf', [0 0 5], ...
-    'Name', 'Low');
-fis = addMF(fis, 'FanSpeed', 'trimf', [3 5 7], ...
-    'Name', 'Medium');
-fis = addMF(fis, 'FanSpeed', 'trimf', [5 10 10], ...
-    'Name', 'High');
+T = np.linspace(0, 100, 501)
+fan = np.linspace(0, 10, 501)
+
+temperature_mf = {
+    "Cold": trimf(T, 0, 0, 50),
+    "Warm": trimf(T, 25, 50, 75),
+    "Hot":  trimf(T, 50, 100, 100),
+}
+fan_mf = {
+    "Low":    trimf(fan, 0, 0, 5),
+    "Medium": trimf(fan, 3, 5, 7),
+    "High":   trimf(fan, 5, 10, 10),
+}
 \end{lstlisting}
 
 \begin{aifig}[Overlapping membership functions]{The three temperature membership functions.
@@ -203,18 +207,23 @@ reported as the answer.
 
 The rule list maps each input term to its corresponding output term.
 
-\begin{lstlisting}[style=mlmatlab]
-ruleList = [
-    1 1 1 1;  % IF Cold THEN Low
-    2 2 1 1;  % IF Warm THEN Medium
-    3 3 1 1   % IF Hot THEN High
-];
-fis = addRule(fis, ruleList);
+\begin{lstlisting}[style=mlpython]
+def interp_mf(universe, mf, value):
+    return float(np.interp(value, universe, mf))
 
-fanSpeed = evalfis(fis, 70);
-fprintf('Fan speed at 70 C: %.2f\n', fanSpeed);
-figure;
-gensurf(fis);
+def fan_speed(temp):
+    firing = {
+        "Low": interp_mf(T, temperature_mf["Cold"], temp),
+        "Medium": interp_mf(T, temperature_mf["Warm"], temp),
+        "High": interp_mf(T, temperature_mf["Hot"], temp),
+    }
+    aggregated = np.maximum.reduce([
+        np.minimum(firing[name], fan_mf[name])
+        for name in ["Low", "Medium", "High"]
+    ])
+    return np.sum(fan * aggregated) / np.sum(aggregated)
+
+print(f"Fan speed at 70 C: {fan_speed(70):.2f}")
 \end{lstlisting}
 
 \begin{workedexample}
@@ -279,27 +288,21 @@ Sugeno & Uses constant or linear output functions and is suitable for optimizati
 
 The Sugeno example creates a \texttt{Speed} input and a \texttt{BrakeForce} output, with Gaussian input membership functions and linear output functions.
 
-\begin{lstlisting}[style=mlmatlab]
-fis2 = sugfis('Name', 'speedControl');
-fis2 = addInput(fis2, [0 100], 'Name', 'Speed');
-fis2 = addOutput(fis2, [0 1], 'Name', 'BrakeForce');
+\begin{lstlisting}[style=mlpython]
+def gaussian(x, sigma, center):
+    return np.exp(-0.5 * ((x - center) / sigma) ** 2)
 
-fis2 = addMF(fis2, 'Speed', 'gaussmf', [10 20], 'Name', 'Slow');
-fis2 = addMF(fis2, 'Speed', 'gaussmf', [10 80], 'Name', 'Fast');
-fis2 = addMF(fis2, 'BrakeForce', 'linear', [0.002 0.1], 'Name', 'Low');
-fis2 = addMF(fis2, 'BrakeForce', 'linear', [0.006 0.3], 'Name', 'High');
+def sugeno_brake(speed):
+    slow = gaussian(speed, 10, 20)
+    fast = gaussian(speed, 10, 80)
+    low = 0.002 * speed + 0.1
+    high = 0.006 * speed + 0.3
+    return (slow * low + fast * high) / (slow + fast)
 
-ruleList2 = [
-    1 1 1 1;  % IF Speed is Slow THEN BrakeForce is Low
-    2 2 1 1   % IF Speed is Fast THEN BrakeForce is High
-];
-fis2 = addRule(fis2, ruleList2);
-
-brakeForce = evalfis(fis2, 60);
-fprintf('Brake force at speed 60: %.3f\n', brakeForce);
+print(f"Brake force at speed 60: {sugeno_brake(60):.3f}")
 \end{lstlisting}
 
-Each Sugeno rule produces a constant or linear value; the FIS returns their firing-strength-weighted average. For a \texttt{linear} output MF with one input, MATLAB reads the parameters \([a\;b]\) as the function \(a\times\text{Speed}+b\).
+Each Sugeno rule produces a constant or linear value; the FIS returns their firing-strength-weighted average. For a \texttt{linear} output MF with one input, Python reads the parameters \([a\;b]\) as the function \(a\times\text{Speed}+b\).
 
 At speed 60 the Gaussian memberships are \(\mu_{Slow}=0.0003\) and \(\mu_{Fast}=0.1353\), so the Fast rule dominates:
 \[
@@ -309,13 +312,13 @@ At speed 60 the Gaussian memberships are \(\mu_{Slow}=0.0003\) and \(\mu_{Fast}=
 \begin{pitfall}
 \textbf{Read the consequent function, not the rule's name.} A rule labelled ``High'' whose function is \(-0.01\times\text{Speed}+1\) still \emph{decreases} with speed: it returns 1.0 at a standstill and 0.0 at 100. The label says high; the arithmetic says the opposite, and the arithmetic wins.
 
-An earlier version of the supplied \texttt{Lab\_4\_code.m} used exactly those coefficients, giving
+An earlier version of the supplied \texttt{lab04\_fuzzy\_anfis\_worked.ipynb} used exactly those coefficients, giving
 \[
 \text{BrakeForce}(20)=0.200,\quad
 \text{BrakeForce}(60)=0.400,\quad
 \text{BrakeForce}(100)=0.000,
 \]
-a controller that brakes hardest when parked and not at all at top speed. Every MATLAB call succeeded. The code was valid and the model was wrong.
+a controller that brakes hardest when parked and not at all at top speed. Every Python call succeeded. The code was valid and the model was wrong.
 
 The file now uses \([0.002\;0.1]\) and \([0.006\;0.3]\), so both consequents rise with speed and the numbers above hold.
 \end{pitfall}
@@ -323,12 +326,12 @@ The file now uses \([0.002\;0.1]\) and \([0.006\;0.3]\), so both consequents ris
 \begin{tryit}
 Never judge a controller from one input value. Evaluate it across the whole range and look at the shape:
 
-\begin{lstlisting}[style=mlmatlab]
-evalfis(fis2, [0; 20; 40; 60; 80; 100])
-gensurf(fis2);
+\begin{lstlisting}[style=mlpython]
+speeds = np.array([0, 20, 40, 60, 80, 100], dtype=float)
+print(np.column_stack([speeds, [sugeno_brake(v) for v in speeds]]))
 \end{lstlisting}
 
-A monotonic rise from about 0.10 to 0.90 is what this design intends. Anything non-monotonic, flat, or falling means a consequent slopes the wrong way --- the failure a single \texttt{evalfis(fis2, 60)} would have hidden completely.
+A monotonic rise from about 0.10 to 0.90 is what this design intends. Anything non-monotonic, flat, or falling means a consequent slopes the wrong way --- the failure a single call such as \texttt{sugeno\_brake(60)} would have hidden completely.
 \end{tryit}
 
 \section{ANFIS: Adaptive Neuro-Fuzzy Inference System}
@@ -413,19 +416,21 @@ Use manual fuzzy logic for expert-defined rules and ANFIS when data should deter
 
 The examples cover one- and two-input training, prediction, FIS persistence, error analysis, and air-conditioning control.
 
-\begin{lstlisting}[style=mlmatlab]
-% Single input
-data1 = [0 0; 5 2.5; 10 5; 15 7.5; 20 10];
-anfisFIS1 = anfis(data1, 10);
+\begin{lstlisting}[style=mlpython]
+# The worked Lab 4 notebook provides a compact SugenoANFIS class.
+# Each row is [input_1, input_2, target].
+data = np.array([
+    [0, 0, 0],
+    [5, 2, 2.5],
+    [10, 5, 5],
+    [15, 7, 7.5],
+    [20, 10, 10],
+], dtype=float)
 
-% Two inputs
-data2 = [0 0 0; 5 2 2.5; 10 5 5; 15 7 7.5; 20 10 10];
-anfisFIS2 = anfis(data2, 20);
-
-% Prediction
-inputVal = [12 6];
-predictedOutput = evalfis(anfisFIS2, inputVal);
-fprintf('Predicted output: %.3f\n', predictedOutput);
+X, y = data[:, :2], data[:, 2]
+model = SugenoANFIS(n_mfs=2, maxiter=30).fit(X, y)
+predicted = model.predict(np.array([[12.0, 6.0]]))[0]
+print(f"Predicted output: {predicted:.3f}")
 \end{lstlisting}
 
 ANFIS interprets the final column as the target. Thus, \texttt{data1} contains one input and one output, whereas \texttt{data2} contains two inputs and one output. A prediction row contains inputs only: \texttt{[12 6]}, without a placeholder for the unknown output.
@@ -434,35 +439,31 @@ ANFIS interprets the final column as the target. Thus, \texttt{data1} contains o
 Five rows demonstrate the application programming interface (API), not generalization. Evaluate separate validation data before making performance claims.
 \end{pitfall}
 
-\subsection{Scaling the diabetes data: two traps}
+\subsection{Preparing the air-quality regression data correctly}
 
-The final ANFIS example trains on \texttt{diabetes.csv}, whose first eight columns are measurements and whose ninth (\texttt{Outcome}) is a 0/1 label.
+Lab 4 uses \texttt{CO(GT)} as the regression target and two sensor signals, \texttt{PT08.S1(CO)} and \texttt{PT08.S2(NMHC)}, as predictors. The original UCI file uses \texttt{-200} to represent missing measurements, so those values must be converted to missing data before modelling.
 
 \begin{pitfall}
-\textbf{\texttt{normalize(X)} is not ``scale to \([0,1]\)''.} With no options MATLAB performs \emph{z-score} standardisation, giving mean 0 and standard deviation 1. Applied to the whole matrix it also rescales the label column, turning the 0/1 outcome into \(\{-0.732,\,1.365\}\) --- no longer a label at all.
+\textbf{Do not scale the complete dataset before splitting.} A scaler fitted on all rows uses information from validation and test observations. This is data leakage even when the target column is excluded.
 
-The option that actually produces \([0,1]\) is \texttt{normalize(X,'range')}, and it belongs on the features only:
+Fit the scaler on the training predictors only, then reuse the learned transformation for validation and test data:
 
-\begin{lstlisting}[style=mlmatlab]
-features = normalize(data3(:, 1:8), 'range');   % -> [0, 1]
-labels   = data3(:, 9);                         % left as 0/1
+\begin{lstlisting}[style=mlpython]
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_val_scaled = scaler.transform(X_val)
+X_test_scaled = scaler.transform(X_test)
 \end{lstlisting}
 \end{pitfall}
 
 \begin{pitfall}
-\textbf{A physically impossible zero is this dataset's missing-value code.} Insulin is 0 in 374 of 768 rows (49\%) and SkinThickness in 227 (30\%); BloodPressure, BMI and Glucose also contain zeros. Nobody has a blood pressure of zero.
-
-Left as numbers they drag every mean and every membership function toward zero. Check before modelling:
-
-\begin{lstlisting}[style=mlmatlab]
-sum(data3 == 0)
-\end{lstlisting}
-
-Then say in your report which columns you treated as missing and what you did about them.
+\textbf{Keep the regression target separate from the feature transformation.} Standardising the predictors is useful because the sensor channels have different numeric ranges. The target \texttt{CO(GT)} should remain in its original units so RMSE and MAE remain interpretable.
 \end{pitfall}
 
 \begin{keyidea}
-ANFIS regresses the 0/1 label, so its output is continuous. Turning that into a class needs a \emph{threshold}, and 0.5 is a choice rather than a law. Compare the result against the majority-class baseline: 500 of 768 patients have Outcome 0, so always predicting 0 already scores about 65\%. A model that cannot beat that has learned nothing worth reporting.
+The Lab 4 comparison is deliberately controlled: linear regression and every ANFIS candidate receive the same cleaned rows, the same train/validation/test split, and the same training-fitted scaling. ANFIS structure is selected with validation RMSE; the test partition is evaluated only after the model choice is fixed.
 \end{keyidea}
 
 \input{labs/04-fuzzy-anfis}
