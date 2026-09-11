@@ -3,7 +3,7 @@
 
 \chapterguide%
   {Be able to run MATLAB and read simple vector, image, and text-processing code.}
-  {explain the purpose and significance of natural language processing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build an optical character recognition pipeline with dictionary-based translation.}
+  {explain the purpose and significance of natural language processing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build and evaluate an optical character recognition pipeline with normalization and error metrics.}
 
 \term{Natural Language Processing (NLP)} applies linguistics, computer science, and machine learning to analyze or generate text and speech.
 
@@ -183,7 +183,7 @@ The value is high because the vectors point in similar directions; MATLAB applie
 the ``caption'' is that label dropped into a fixed sentence template. Nothing in the system
 describes a scene --- it names an object and wraps it in words.
 
-\begin{aifig}[Classification dressed as captioning]{The Lab 6 captioning pipeline. A real
+\begin{aifig}[Classification dressed as captioning]{The chapter captioning pipeline. A real
 captioning model generates a sentence conditioned on the image; this one substitutes a class
 label into a template, so it can only ever say one thing per label.}{fig:alexnet}
 \begin{tikzpicture}[font=\small]
@@ -206,7 +206,7 @@ label into a template, so it can only ever say one thing per label.}{fig:alexnet
 \end{tikzpicture}
 \end{aifig}
 
-The second Lab 6 example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
+The second chapter example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
 
 \begin{lstlisting}[style=mlmatlab]
 clear; clc;
@@ -237,7 +237,7 @@ This is classification with a fixed caption template, not free-form image captio
 
 \section{Scene text detection and translation}
 
-The third Lab 6 pipeline uses optical character recognition (OCR) to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet application programming interface (API).
+The third chapter pipeline uses optical character recognition (OCR) to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet application programming interface (API).
 
 \begin{aifig}[The OCR and translation pipeline]{The scene-text pipeline. Only the OCR stage
 is a learned model; normalisation and lookup are ordinary string handling, which is why the
@@ -306,7 +306,7 @@ The \texttt{contains} check tolerates surrounding OCR text, but translation rema
 
 \section{Extensions in the OCR examples}
 
-Lab 6 gives three additional variations.
+This chapter gives three additional variations.
 
 \begin{description}
   \item[Multi-language dictionary] A STOP sign is mapped independently to French and German dictionaries.
@@ -335,23 +335,3 @@ disp("Detected Text: " + text);
   \item Why can selecting a region of interest change the OCR result?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item FastText maps recognized tokens to semantic vectors learned from a large text corpus.
-  \item Averaging creates one fixed-length sentence representation from a variable number of word vectors.
-  \item A fixed sentence template inserts AlexNet's predicted class label.
-  \item OCR recognizes characters in pixels; the dictionary maps recognized phrases to stored translations.
-  \item A region of interest removes irrelevant pixels and can make the target text larger and less ambiguous to OCR.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item NLP connects human-language data with computer representations and tasks.
-  \item Lab 6 uses pretrained embeddings and cosine similarity for semantic comparison.
-  \item The AlexNet example classifies an image and converts the class label into a simple caption template.
-  \item OCR extracts printed text from images; a local dictionary then simulates translation.
-  \item Dictionary design and ROI selection affect recognition and translation quality.
-\end{itemize}
-\end{chapterrecap}

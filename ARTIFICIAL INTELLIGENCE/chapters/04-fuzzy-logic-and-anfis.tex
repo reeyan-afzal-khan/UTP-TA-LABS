@@ -266,7 +266,7 @@ ANFIS can train.}{fig:mamdani-sugeno}
 \end{aifig}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Type & Laboratory description \\
@@ -465,10 +465,6 @@ Then say in your report which columns you treated as missing and what you did ab
 ANFIS regresses the 0/1 label, so its output is continuous. Turning that into a class needs a \emph{threshold}, and 0.5 is a choice rather than a law. Compare the result against the majority-class baseline: 500 of 768 patients have Outcome 0, so always predicting 0 already scores about 65\%. A model that cannot beat that has learned nothing worth reporting.
 \end{keyidea}
 
-\section{Software context}
-
-Lab 4 uses MATLAB's Fuzzy Logic Toolbox, including \texttt{mamfis}, \texttt{sugfis}, \texttt{addMF}, \texttt{addRule}, \texttt{evalfis}, \texttt{gensurf}, \texttt{anfis}, \texttt{writefis}, and \texttt{readfis}.
-
 \input{labs/04-fuzzy-anfis}
 
 \begin{quickcheck}
@@ -479,21 +475,3 @@ Lab 4 uses MATLAB's Fuzzy Logic Toolbox, including \texttt{mamfis}, \texttt{sugf
   \item What does the smart air-conditioning ANFIS example use as inputs and output?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A crisp value is one measured number; a fuzzy membership is a degree in \([0,1]\) describing how strongly that value belongs to a linguistic set.
-  \item Fuzzification, rule base, inference engine, and defuzzification.
-  \item ANFIS learns numerical rule consequents and parameters within a differentiable Sugeno structure.
-  \item Temperature and humidity are the inputs; air-conditioning intensity is the output.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Fuzzy logic represents degrees of truth between 0 and 1.
-  \item A FIS consists of fuzzification, a rule base, an inference engine, and defuzzification.
-  \item Mamdani systems aggregate fuzzy outputs; Sugeno systems use constant or linear consequents.
-  \item ANFIS combines Sugeno fuzzy inference with data-driven learning.
-\end{itemize}
-\end{chapterrecap}

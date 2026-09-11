@@ -1,33 +1,29 @@
-\labsection{1}{BFS, DFS, and Uniform-Cost Search}{sec:lab01-search}
+\labsection{1}{Search Foundations on an Airline Network}{sec:lab01-search}
 
-\begin{labproject}{Search foundations across graphs, mazes, words, and trees}
-\textbf{Coverage.} Chapter~\ref{ch:uninformed} --- Breadth-First, Depth-First, and Uniform-Cost Search.\\
-\textbf{Source files.} \texttt{Lab01/search\_uninformed.py} --- run it with \texttt{py search\_uninformed.py}.\\
-\textbf{Goal.} Use the same search vocabulary across four representations and explain how the frontier rule changes behavior.
+\begin{labproject}{Build and compare BFS, DFS, and Uniform-Cost Search}
+\textbf{Scenario.} You are building the first version of an airline route planner. A route must follow real airport connections; the planner should report both route quality and search effort.\\
+\textbf{Goal.} Implement BFS, DFS, and UCS from scratch and run them on a real flight-route graph.
 
-\begin{labmode}
-Use the supplied problem instances and the reusable implementations in this chapter. Trace each case before running it.
-\end{labmode}
 
-\medskip\noindent\textbf{Part A --- BFS problem set.}\par
-\begin{enumerate}
-  \item Find a path from \texttt{A} to \texttt{G} in the unweighted interpretation of the supplied graph.
-  \item Find a path from \texttt{S} (start) to \texttt{G} (goal) in the supplied two-dimensional (2D) maze, where ``.'' is open and ``\#'' is a wall.
-  \item Transform \texttt{hit} to \texttt{cog} using the valid word list \texttt{hit, hot, dot, dog, lot, log, cog}.
-  \item Traverse the seven-node binary tree level by level.
-\end{enumerate}
+\begin{mlsteps}
+  \item \textbf{Load and validate the graph.} Assign the documented OpenFlights column names, remove routes with missing source/destination IATA codes, and keep airports with valid latitude/longitude. Print the number of airports, directed routes, and removed records.
+  \item \textbf{Define cost.} Use one edge per direct route. For UCS, calculate edge cost as great-circle distance between the two airports using the Haversine formula. BFS and DFS treat each direct route as one step.
+  \item \textbf{Implement the algorithms.} Implement BFS with a queue, DFS with a stack, and UCS with a priority queue. Each algorithm must return \texttt{found}, \texttt{path}, \texttt{hops}, \texttt{path\_cost\_km}, \texttt{expanded}, and \texttt{max\_frontier}.
+  \item \textbf{Run the standard queries.} Use the three query pairs supplied in \texttt{config/queries.csv}. The repository template provides KUL--KEF, SIN--EZE, and NRT--CPT; if one IATA code is absent in the downloaded vintage, use the listed alternate and record the substitution in the README.
+  \item \textbf{Verify.} Confirm that every consecutive airport pair in each returned path exists in the route data and that reported distance equals the sum of edge distances within a small numerical tolerance.
+  \item \textbf{Save evidence.} Write all runs to \texttt{results/metrics.csv} and save one route visualization as \texttt{results/route\_comparison.png}.
+\end{mlsteps}
 
-\medskip\noindent\textbf{Part B --- DFS problem set.}\par
-Repeat the graph, maze, word-ladder, and tree tasks using DFS. For the tree, use preorder traversal.
-
-\medskip\noindent\textbf{Part C --- UCS problem set.}\par
-Use the weighted graph from the handout, then solve the weighted grid and the graph with loops. Record both the returned path and its total cost.
-
-\begin{tryit}
-Record the frontier-removal order, then change one neighbor ordering and compare the returned path.
-\end{tryit}
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}XXXX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Algorithm & Found & Hops & Cost (km) & Expanded \\
+\midrule
+BFS & & & & \\
+DFS & & & & \\
+UCS & & & & \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit BFS, DFS, and UCS implementations; successful runs for each representation; and a brief comparison of frontier order, path length, and cost.
-\end{labdeliverable}

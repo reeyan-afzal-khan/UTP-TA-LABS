@@ -1,68 +1,52 @@
-\labsection{8}{Genetic Algorithm optimization}{sec:lab08-ga}
+\labsection{8}{Genetic Algorithms: Regression and Reproducibility}{sec:lab08-ga}
 
-\begin{labproject}{Five GA formulations in MATLAB}
-\textbf{Coverage.} Chapter~\ref{ch:ga} --- five GA formulations.\\
-\textbf{Source files.} \texttt{Lab08/CODE\_1.m} through \texttt{CODE\_5.m}, one file per problem.\\
-\textbf{Goal.} Keep the GA loop recognizable while changing chromosome representation and fitness definition to match each problem.
+\begin{labproject}{Fit a medical-cost regression model with a Genetic Algorithm}
+\textbf{Scenario.} You are testing whether a Genetic Algorithm can recover useful coefficients for a small regression problem and how its stochastic performance compares with an exact linear baseline.\\
+\textbf{Software.} MATLAB.\\
+\textbf{Goal.} Implement a real-valued GA, run it repeatedly on real data, and compare it with ordinary least squares.
+
+\kagglesource{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Datasets}
+\kaggleexample{https://www.kaggle.com/code/agarwalvishal00/medical-cost-personal-dataset-eda-and-regression}{Medical Cost Personal Dataset --- EDA and regression example}
+\repofolder{lab08\_genetic\_algorithm/}
 
 \begin{labmode}
-Run the five baseline loops first; stochastic initialization and operators may produce different results. Each revised script reports the best final chromosome in problem-specific terms, not only a convergence curve.
+Download \texttt{insurance.csv} manually from Kaggle and place it under \texttt{data/insurance/insurance.csv}. The file contains 1,338 rows and the fields age, sex, BMI, children, smoker, region, and charges.
 \end{labmode}
 
-\begin{pitfall}
-Without elitism, later variation can remove the best chromosome. Distinguish the best fitness \emph{seen} from the best individual that \emph{survives} in the final population.
-\end{pitfall}
+\textbf{Required run.}
+\begin{lstlisting}[style=mlmatlab]
+matlab -batch "run('lab08_genetic_algorithm/src/main_lab08.m')"
+\end{lstlisting}
 
-\medskip\noindent\textbf{Part A --- Continuous one- and two-variable objectives.}\par
-Run Code 1 and Code 2. Plot best fitness versus generation and record the best chromosome found at the end of the run.
+\begin{mlsteps}
+  \item \textbf{Verify the GA implementation.} Minimize $f(x)=(x-3)^2$ with a fixed seed and confirm that the best solution approaches $x=3$ before using real data.
+  \item \textbf{Prepare the regression task.} Predict \texttt{charges} from age, BMI, number of children, and smoker status. Encode smoker as 0/1, standardize numeric predictors using training statistics, and use a fixed 80/20 train-test split with seed 42.
+  \item \textbf{Define the chromosome.} Use five real-valued genes: intercept plus four coefficients. Fitness is training MSE. Use tournament or rank selection, crossover, mutation, and elitism; document all parameter values.
+  \item \textbf{Run repeated trials.} Execute at least 10 GA runs with seeds 1--10. Save best training MSE, test RMSE, generations, and runtime for every run.
+  \item \textbf{Compare with least squares.} Fit ordinary least squares on the identical training data and evaluate on the identical test data. Explain why least squares is expected to be preferable for this unconstrained linear model.
+  \item \textbf{Sensitivity test.} Change one GA parameter---population size or mutation rate---and repeat the 10-run experiment. Compare median test RMSE and median runtime.
+\end{mlsteps}
 
-\medskip\noindent\textbf{Part B --- Linear regression.}\par
-Run Code 3 and report the best discovered slope/intercept together with the final MSE. Compare the values qualitatively with the data-generating parameters \([2.5,5]\).
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}XXX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Test RMSE & Runtime & Notes \\
+\midrule
+GA --- median of 10 runs & & & \\
+GA --- best run & & & \\
+Least squares & & & \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 
-\medskip\noindent\textbf{Part C --- Binary knapsack.}\par
-Run Code 4. Decode the best chromosome into selected items, total weight, and total value. Confirm that the capacity constraint is satisfied.
-
-Because only $2^4=16$ selections exist, compare the GA result with the brute-force optimum.
-
-\begin{keyidea}
-An over-capacity chromosome receives fitness 0: a \term{penalty}, not a repair. Repairing or rejecting it would produce different search behavior.
-\end{keyidea}
-
-\medskip\noindent\textbf{Part D --- Polynomial roots.}\par
-Run Code 5 and report whether the final population converges nearer to \(-2\) or 3 in that run. Repeat with a different random seed and compare.
-
-\begin{tryit}
-Add elitism to one code by copying the current best chromosome unchanged into the offspring. Compare the original and elitist traces and final solutions.
-\end{tryit}
-
-\begin{troubleshoot}
-\textbf{Minimization.} Roulette selection requires larger scores for better candidates. Codes 2 and 5 transform the objective during selection:
-
-\begin{itemize}
-  \item Code 2 keeps the raw Rosenbrock value, then selects on \texttt{invFitness = 1 ./ (fitness + 1e-6)}, so a smaller objective gives a larger share of the wheel.
-  \item Code 5 negates the objective, then shifts with \texttt{prob = fitness - min(fitness) + eps} so the worst individual sits at zero probability rather than a negative one.
-\end{itemize}
-
-Both transformations assign larger selection scores to better candidates.
-
-\textbf{Run-to-run variation.} GAs are stochastic; report results across several runs.
-
-\textbf{Different roots in Code 5.} Both $-2$ and $3$ are global minima with $f=0$.
-
-\textbf{Suboptimal knapsack result.} Increase population or generations, or add elitism.
-\end{troubleshoot}
+\requiredoutput{Saved split, 10-run results CSV, convergence plot, sensitivity comparison, and least-squares baseline.}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Each script reports its decoded solution and convergence plot.
-  \item The knapsack chromosome is decoded into items, weight, and value, and the capacity constraint is checked.
-  \item Code 3's parameters are compared with $[2.5,5]$.
-  \item Code 5 is run more than once, with the root reported for each run.
-  \item Differences between peak and final fitness are explained.
-\end{itemize}
+Use the same split and preprocessing for the GA and least-squares baseline. Do not report only the best stochastic run; the median and variability across seeds are part of the result.
 \end{verification}
 
 \begin{labdeliverable}
-Submit one MATLAB live script containing all five GA problems, five convergence plots, the final decoded solution for each problem, and a comparison table listing chromosome type, fitness direction, crossover type, and mutation type.
+Push the completed lab and create tag \texttt{lab08-final}. The README must report median/standard-deviation test RMSE across seeds, the least-squares RMSE, the sensitivity result, and one justified conclusion about when a GA would be useful despite the baseline result.
 \end{labdeliverable}

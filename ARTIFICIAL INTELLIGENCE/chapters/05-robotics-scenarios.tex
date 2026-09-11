@@ -595,34 +595,3 @@ print(learned_path)
 Step, wall, and goal rewards shape the policy. Verify that the stochastic result stays in bounds, avoids walls, and reaches the goal.
 
 \input{labs/05-robotics}
-
-\clearpage
-\begin{quickcheck}
-\begin{enumerate}
-  \item In simple 2D motion, what do \(\cos\theta\) and \(\sin\theta\) control?
-  \item What event causes the obstacle-avoidance robot to change its direction index?
-  \item What three forms of error are used by the PID example?
-  \item What search method is reused for grid path planning?
-  \item What two equations determine the tip position of the 2-link arm?
-\end{enumerate}
-\end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item They resolve the speed into horizontal and vertical displacement.
-  \item The next proposed grid cell is present in the obstacle set.
-  \item Present error, accumulated error, and change in error.
-  \item A* search.
-  \item \(x=l_1\cos\theta_1+l_2\cos(\theta_1+\theta_2)\) and \(y=l_1\sin\theta_1+l_2\sin(\theta_1+\theta_2)\).
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Robot behavior is represented through state updates and trajectories.
-  \item Straight-line motion uses velocity and orientation; obstacle avoidance uses a local condition-action rule.
-  \item PID line following feeds current, accumulated, and changing error back into the motion update.
-  \item A* becomes a robot path planner when grid coordinates are interpreted as physical positions.
-  \item Collision avoidance and forward kinematics connect control logic to robot state.
-\end{itemize}
-\end{chapterrecap}

@@ -2,10 +2,10 @@
 \label{ch:nlp-methods}
 
 \chapterguide%
-  {Understand the Lab 6 pipeline idea and basic MATLAB string operations.}
-  {explain the nine Lab 7 examples, distinguish rule-based from feature-based NLP, interpret frequency and term frequency--inverse document frequency (TF--IDF) summarization, and identify limitations of simplified simulations.}
+  {Understand the Chapter 6 OCR/text-processing pipeline and basic MATLAB string operations.}
+  {explain the chapter examples, distinguish rule-based from feature-based NLP, interpret frequency and term frequency--inverse document frequency (TF--IDF) summarization, and identify limitations of simplified simulations.}
 
-Lab 7 surveys nine compact NLP pipelines based on rules, text statistics, or a simple classifier.
+This chapter surveys compact NLP pipelines based on rules, text statistics, or simple classifiers.
 
 \section{Code 1: Named Entity Recognition (NER) simulation}
 
@@ -97,19 +97,23 @@ common words, and finally word endings.
 tokens. Every stage discards something on purpose --- which is also how it goes wrong: stemming
 ``organisation'' and ``organ'' to the same root makes them indistinguishable
 downstream.}{fig:preprocess}
-\begin{tikzpicture}[font=\small]
-\node[aibox,minimum width=3.0cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
-  (a) at (0,0) {"The Robots Are Running."};
-\node[aibox,minimum width=2.6cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
-  (b) at (3.7,0) {the robots are running};
-\node[aibox,minimum width=2.3cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy}]
-  (c) at (7.1,0) {robots running};
-\node[aibox,minimum width=2.1cm,minimum height=0.8cm,font=\scriptsize\ttfamily\color{MLNavy},
-      fill=MLPaleTeal,draw=MLGreen] (d) at (10.2,0) {robot run};
-\foreach \x/\y in {a/b, b/c, c/d}{\draw[aiarrow] (\x)--(\y);}
-\node[ailabel,anchor=north,align=center] at (1.85,-0.5) {lowercase,\\strip punctuation};
-\node[ailabel,anchor=north,align=center] at (5.4,-0.5) {remove\\stopwords};
-\node[ailabel,anchor=north,align=center] at (8.65,-0.5) {stem to\\word roots};
+\begin{tikzpicture}[
+  stage/.style={aibox,text width=2.7cm,minimum height=1.05cm,
+    font=\scriptsize\ttfamily\color{MLNavy}},
+  stagelabel/.style={ailabel,anchor=north,align=center,text width=2.7cm}
+]
+\node[stage] (raw) {"The Robots\\Are Running."};
+\node[stage,right=0.6cm of raw] (normalized) {the robots\\are running};
+\node[stage,right=0.6cm of normalized] (filtered) {robots running};
+\node[stage,right=0.6cm of filtered,fill=MLPaleTeal,draw=MLGreen]
+  (stemmed) {robot run};
+\draw[aiarrow] (raw.east) -- (normalized.west);
+\draw[aiarrow] (normalized.east) -- (filtered.west);
+\draw[aiarrow] (filtered.east) -- (stemmed.west);
+\node[stagelabel] at ([yshift=-2mm]raw.south) {Raw text};
+\node[stagelabel] at ([yshift=-2mm]normalized.south) {Lowercase and\\strip punctuation};
+\node[stagelabel] at ([yshift=-2mm]filtered.south) {Remove\\stopwords};
+\node[stagelabel] at ([yshift=-2mm]stemmed.south) {Stem to\\word roots};
 \end{tikzpicture}
 \end{aifig}
 
@@ -334,7 +338,7 @@ Nothing was removed by hand --- the weighting did the filtering.}{fig:tfidf}
 \end{aifig}
 
 
-Lab 7 then uses MATLAB's text-processing objects: \texttt{tokenizedDocument}, \texttt{bagOfWords}, and \texttt{tfidf}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the maximum is returned.
+The summarization example then uses MATLAB's text-processing objects: \texttt{tokenizedDocument}, \texttt{bagOfWords}, and \texttt{tfidf}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the maximum is returned.
 
 \begin{lstlisting}[style=mlmatlab]
 text = [
@@ -461,9 +465,9 @@ document = removeStopWords(document); % then remove stop words
 A ranking in which almost everything ties is not a ranking. Report the counts alongside the words so the reader can see how thin the evidence is, and do not present all five as findings.
 \end{pitfall}
 
-\section{A taxonomy of the Lab 7 methods}
+\section{A taxonomy of the chapter methods}
 
-\begin{aifig}[Where the decision logic comes from]{The nine Lab 7 programs arranged by the
+\begin{aifig}[Where the decision logic comes from]{The chapter programs arranged by the
 source of their decision logic. Moving right shifts the work from the programmer to the data.
 The axis is not a quality ranking: a dictionary lookup beats a trained classifier whenever
 the rules are genuinely known.}{fig:nlp-taxonomy}
@@ -483,8 +487,6 @@ the rules are genuinely known.}{fig:nlp-taxonomy}
   {increasing reliance on patterns learned from data};
 \end{tikzpicture}
 \end{aifig}
-
-The spectrum identifies the source of decision logic: programmer rules, corpus statistics, or labeled training data. It is not a quality ranking.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.26\linewidth}X@{}}
@@ -506,33 +508,3 @@ Keyword extraction & Bag-of-words counts & Frequency after stop-word/punctuation
 \end{mltable}
 
 \input{labs/07-nlp-part-b}
-
-\clearpage
-\begin{quickcheck}
-\begin{enumerate}
-  \item Why does the NER simulation miss multi-word entities under its current tokenization rule?
-  \item What makes the frequency and TF--IDF summarizers extractive?
-  \item Which sentiment example is trained from labeled data, and which uses a fixed lexicon?
-  \item What does the language detector do when it receives the keyword match counts?
-  \item Why are stop-word removal and punctuation removal useful before the keyword-count step in Code 9?
-\end{enumerate}
-\end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A phrase such as \texttt{Barack Obama} cannot equal either single token \texttt{Barack} or \texttt{Obama}.
-  \item They select and return an existing input sentence instead of generating a new sentence.
-  \item Code 5 trains Naive Bayes from labeled examples; Code 7 counts words in fixed sentiment lexicons.
-  \item It selects the language with the largest supported count; the completed version also handles zero matches and ties.
-  \item They prevent frequent grammatical words and punctuation marks from occupying the limited keyword list.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Lab 7 compares rules, text statistics, and a simple classifier.
-  \item Frequency and TF--IDF can score existing sentences for extractive summarization.
-  \item Sentiment can be implemented as a learned classification problem or as direct lexicon counting.
-  \item Preprocessing choices expose limitations such as exact-match tokenization.
-\end{itemize}
-\end{chapterrecap}

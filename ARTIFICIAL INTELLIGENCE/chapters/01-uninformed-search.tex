@@ -15,14 +15,14 @@ The exercises use graphs, mazes, word transformations, and binary trees. These d
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Ingredient & Meaning in the laboratory problems \\
+Ingredient & Meaning \\
 \midrule
-State & A graph node such as \texttt{A}; a maze coordinate; a word such as \texttt{hot}; or a tree node. \\
-Start & The state where the search begins, for example \texttt{A} or \texttt{S}. \\
-Goal & The desired destination, for example \texttt{G} or \texttt{cog}. \\
-Successors & Legal next states, obtained from graph adjacency, grid movement, one-letter changes, or child links. \\
-Path & The ordered sequence of states used to reach the current state. \\
-Path cost & The total edge or movement cost accumulated so far; UCS explicitly uses this quantity. \\
+State & A graph node, maze cell, word, or tree node. \\
+Start & The initial state. \\
+Goal & The target state. \\
+Successors & Legal next states. \\
+Path & The states followed from the start. \\
+Path cost & The accumulated edge or movement cost used by UCS. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -375,7 +375,11 @@ BFS orders the frontier by depth, DFS by recency/depth, and UCS by accumulated p
 \section{Comparing the three methods}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}p{0.19\linewidth}p{0.19\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}
+  >{\centering\arraybackslash}p{0.18\linewidth}
+  >{\centering\arraybackslash}p{0.22\linewidth}
+  X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Method & Frontier rule & Main structure & What the lab examples emphasize \\
@@ -401,7 +405,12 @@ Choosing between these methods means asking four standard questions, not just ``
 Write \(b\) for the \term{branching factor} (successors per state), \(d\) for the depth of the shallowest goal, and \(m\) for the maximum depth of the search space.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.09\linewidth}p{0.15\linewidth}p{0.20\linewidth}p{0.15\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}
+  p{0.19\linewidth}
+  p{0.25\linewidth}
+  >{\centering\arraybackslash}p{0.24\linewidth}
+  >{\centering\arraybackslash}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Method & Complete? & Optimal? & Time & Space \\
@@ -442,9 +451,13 @@ bottom.}{fig:branching}
 \end{aifig}
 
 \begin{keyidea}
-Read the space column first. BFS and UCS store the whole frontier, which grows exponentially --- memory, not time, is what usually stops them on a real problem. DFS needs only the current branch, \(O(bm)\), which is why it survives on deep spaces that exhaust BFS.
+\textbf{Space complexity means memory needed during the search.} Keeping many states waiting can exhaust memory even when each search step is fast.
 
-That is the trade: DFS buys its small memory footprint by giving up both completeness and optimality.
+\textbf{BFS and UCS keep many alternatives.} BFS explores level by level: three children per state give levels of \(3,9,27,\ldots\) states, explaining its \(O(b^d)\) space bound. UCS can also build a large frontier, but explores by path cost rather than depth.
+
+\textbf{DFS keeps a smaller frontier.} It stores the current branch and alternatives for backtracking: \(O(bm)\) in tree search. A visited set and copied paths require additional memory.
+
+\textbf{The trade-off:} DFS saves frontier memory but does not guarantee the shortest or cheapest path. It may get stuck on an infinite branch; on a finite graph with a visited set, it finds a goal if one is reachable.
 \end{keyidea}
 
 \begin{pitfall}
@@ -465,21 +478,3 @@ Two entries above are easy to misread.
   \item What traversal order does DFS preorder produce for the seven-node binary tree in Lab 1?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item BFS treats every edge as one step, so numerical weights are outside its ordering rule.
-  \item Replace the FIFO queue with a min-priority queue ordered by cumulative cost \(g\).
-  \item Without a visited or best-cost record, loop edges continually create longer cyclic paths.
-  \item \(1,2,4,5,3,6,7\).
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Search problems specify states, successors, a start, a goal test, and optionally path costs.
-  \item BFS uses a FIFO queue and is suited to equal-cost shortest-path problems.
-  \item DFS follows one branch before backtracking, using recursion or a stack.
-  \item UCS uses a priority queue ordered by cumulative cost.
-\end{itemize}
-\end{chapterrecap}

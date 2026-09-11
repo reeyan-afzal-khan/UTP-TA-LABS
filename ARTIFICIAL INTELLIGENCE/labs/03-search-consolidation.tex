@@ -1,28 +1,33 @@
-\labsection{3}{Uninformed and informed search implementation}{sec:lab03-search-code}
+\labsection{3}{Search Engineering: Package, Tests, and Benchmark}{sec:lab03-search-code}
 
-\begin{labproject}{One Python search toolkit}
-\textbf{Coverage.} Chapter~\ref{ch:searchpatterns} --- one reusable search skeleton behind all five strategies.\\
-\textbf{Source files.} \texttt{Lab03/search\_toolkit.py} (the module, with a self-test: \texttt{py search\_toolkit.py}) and \texttt{Lab03/run\_all.py} (the driver that prints the comparison table).\\
-\textbf{Goal.} Turn the repeated code into a small, testable search toolkit.
+\begin{labproject}{Turn Labs 1--2 into a reproducible search toolkit}
+\textbf{Scenario.} A working notebook is not yet reusable software. You will refactor the route planner into a small package with a common interface, automated tests, a command-line entry point, and a benchmark report.\\
+\textbf{Goal.} Demonstrate that BFS, DFS, UCS, GBFS, and A$^\star$ remain correct after refactoring.
 
 \begin{labmode}
-Use the supplied reference functions to build one consistent toolkit; the weighted maze reuses the A* grid pattern.
+This lab reuses the OpenFlights data but must also run without it. Unit tests use small graphs committed under \texttt{tests/fixtures/}; the benchmark uses the manually downloaded Kaggle files.
 \end{labmode}
 
-\medskip\noindent\textbf{Part A --- Uninformed functions.}\par
-Place the following in one module: \texttt{bfs\_grid}, \texttt{dfs\_maze}, \texttt{ucs}, \texttt{bfs\_tree}, and \texttt{dfs\_preorder}.
+\begin{mlsteps}
+  \item \textbf{Standardize the interface.} Define one problem abstraction with start state, goal test, successor function, step cost, and optional heuristic. Every algorithm must return the same result structure.
+  \item \textbf{Refactor.} Place reusable search functions in modules; keep data loading, plotting, and command-line code separate. No algorithm should read a CSV directly.
+  \item \textbf{Write tests.} Include at least: start equals goal, unreachable goal, cyclic graph, weighted shortest path, duplicate frontier update, and invalid negative edge cost. Tests must use only small committed fixtures.
+  \item \textbf{Add a CLI.} Support a command such as \texttt{python -m search\_toolkit --algorithm astar --start KUL --goal KEF}. Return a concise terminal summary and optionally save JSON.
+  \item \textbf{Benchmark.} Run BFS, UCS, GBFS, and A$^\star$ on the 10 standard route pairs in the template. Save mean/median runtime, path cost, expanded nodes, and success rate to \texttt{results/benchmark.csv}.
+  \item \textbf{Use GitHub Actions.} Push the repository and confirm that the provided Python test workflow passes on GitHub. The workflow must not download Kaggle data or require secrets.
+\end{mlsteps}
 
-\medskip\noindent\textbf{Part B --- Informed functions.}\par
-Add \texttt{greedy\_bfs}, \texttt{astar\_grid}, \texttt{astar\_graph}, and \texttt{greedy\_word\_ladder}. Use the weighted-grid example to confirm that the A* grid implementation can accumulate cell costs.
+\begin{workedexample}
+A correct design lets the driver change from UCS to A$^\star$ by changing only the algorithm choice; the route problem and result-processing code remain unchanged.
+\end{workedexample}
 
-\medskip\noindent\textbf{Part C --- Cross-algorithm trace.}\par
-Choose one graph and instrument each compatible algorithm to print the frontier priority, popped state, path, and visited-set size.
-
-\begin{tryit}
-Summarize actual outputs by algorithm, data structure, priority, path, and cost.
-\end{tryit}
+\requiredoutput{Passing pytest suite, passing GitHub Actions check, benchmark CSV, and a concise architecture diagram in the README.}
 \end{labproject}
 
+\begin{verification}
+Run \texttt{pytest -q} before and after refactoring. A benchmark result is invalid if the test suite no longer passes.
+\end{verification}
+
 \begin{labdeliverable}
-Submit the search module plus a driver notebook/script that runs every Lab 3 example and prints a compact comparison table.
+Push the completed package and create tag \texttt{lab03-final}. Submit the GitHub repository link and a maximum two-page technical note containing architecture, test summary, benchmark findings, and one known limitation.
 \end{labdeliverable}

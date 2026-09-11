@@ -10,7 +10,9 @@ A \term{Genetic Algorithm (GA)} evolves a population of candidate solutions thro
 \section{Core GA vocabulary}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}
+  X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Concept & Description from the handout \\
@@ -126,20 +128,21 @@ are never eliminated --- keeping them preserves the diversity a later crossover 
 \begin{aifig}[Roulette-wheel selection]{Roulette-wheel selection for four individuals. Arc width is proportional to fitness, so B is picked about four times as often as D --- but D keeps a real chance. The strip is the same distribution as \texttt{cumsum(prob)}.}{fig:roulette}
 \begin{tikzpicture}[font=\small]
 % ---- pie ----
+\node[ailabel,font=\small\bfseries\color{MLNavy}] at (0,2.1) {Selection probabilities};
 \def\rad{1.75}
 \foreach \a/\b/\lbl/\col in {0/144/B/MLBlue, 144/252/A/MLTeal, 252/324/C/MLOrange, 324/360/D/MLRed}{
   \fill[\col!28,draw=\col,thick] (0,0) -- (\a:\rad) arc[start angle=\a,end angle=\b,radius=\rad] -- cycle;
   \pgfmathsetmacro{\mid}{(\a+\b)/2}
   \node[font=\small\bfseries\color{MLNavy}] at (\mid:0.65*\rad) {\lbl};
 }
-% spinner
-\draw[-{Stealth[length=3mm]},line width=1.3pt,draw=MLNavy] (0,0) -- (196:1.42);
-\node[circle,fill=MLNavy,inner sep=1.6pt] at (0,0) {};
-\node[ailabel,anchor=north,align=center] at (0,-2.15) {one random spin};
+\node[ailabel,anchor=north,align=center] at (0,-2.0)
+  {Fitness $(B,A,C,D)=(4,3,2,1)$};
 
 % ---- cumulative strip ----
 \begin{scope}[xshift=4.0cm,yshift=-0.4cm]
 \def\L{7.2}
+\node[ailabel,font=\small\bfseries\color{MLNavy}] at (0.5*\L,2.5)
+  {Cumulative probability};
 \foreach \s/\e/\lbl/\col in {0/0.40/B/MLBlue, 0.40/0.70/A/MLTeal, 0.70/0.90/C/MLOrange, 0.90/1.0/D/MLRed}{
   \pgfmathsetmacro{\x}{\s*\L}
   \pgfmathsetmacro{\w}{(\e-\s)*\L}
@@ -152,9 +155,8 @@ are never eliminated --- keeping them preserves the diversity a later crossover 
 }
 \draw[-{Stealth[length=2.4mm]},line width=1.2pt,draw=MLNavy] (0.54*\L,1.5) -- (0.54*\L,0.95);
 \node[ailabel,anchor=south,color=MLNavy] at (0.54*\L,1.55) {\texttt{rand} $=0.54\ \Rightarrow$ pick A};
-\node[ailabel,anchor=north,align=center] at (0.5*\L,-0.62)
-  {cumulative probability, exactly what \texttt{cumsum(prob)} builds};
-\node[ailabel,anchor=east,align=right] at (-0.25,0.42) {fitness\\$4:3:2:1$};
+\node[ailabel,anchor=north,align=center,text width=6.8cm] at (0.5*\L,-0.75)
+  {\texttt{cumsum(prob)} gives the interval boundaries.\\The draw $0.54$ falls in A\textquotesingle s interval: $0.40$ to $0.70$.};
 \end{scope}
 \end{tikzpicture}
 \end{aifig}
@@ -185,7 +187,7 @@ it already occupies; mutation is what lets it reach outside.
 \begin{tikzpicture}[font=\small]
 % ---- arithmetic ----
 \begin{scope}
-\node[font=\bfseries\color{MLNavy}] at (2.0,2.15) {Arithmetic (continuous)};
+\node[font=\bfseries\color{MLNavy}] at (2.0,2.65) {Arithmetic (continuous)};
 \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$x_1$};
 \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$x_2$};
 \node[circle,fill=MLBlue,inner sep=2.2pt,label={[ailabel,color=MLBlue]above:parent 1}] (P1) at (0.7,1.35) {};
@@ -193,34 +195,35 @@ it already occupies; mutation is what lets it reach outside.
 \draw[draw=MLMuted!60,dashed] (P1)--(P2);
 \node[circle,fill=MLOrange,inner sep=2.2pt] (Ch) at (1.86,1.0) {};
 \node[ailabel,anchor=west,color=MLOrange] at (2.0,1.28) {child, $\alpha=0.6$};
-\node[ailabel,anchor=north,align=center] at (2.0,-0.5)
+\node[ailabel,anchor=north,align=center,text width=4.8cm] at (2.0,-1.15)
   {the child always lands \emph{between} the parents};
 \end{scope}
 % ---- binary ----
-\begin{scope}[xshift=6.6cm,yshift=1.15cm]
-\node[font=\bfseries\color{MLNavy}] at (2.55,1.28) {Single-point (binary)};
+\begin{scope}[xshift=6.6cm]
+\node[font=\bfseries\color{MLNavy}] at (2.55,2.65) {Single-point (binary)};
 \foreach \b [count=\i from 0] in {1,0,1,1,0,1}{
   \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-    at (0.66*\i,0.3) {\b};}
+    at (0.66*\i,1.4) {\b};}
 \foreach \b [count=\i from 0] in {0,1,1,0,1,0}{
   \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries,
-        fill=MLPaleTeal,draw=MLTeal] at (0.66*\i,-0.35) {\b};}
-\draw[draw=MLRed,line width=1pt,dashed] (1.65,0.65) -- (1.65,-0.7);
-\node[ailabel,anchor=south,color=MLRed] at (1.65,0.68) {cut};
-\node[ailabel,anchor=west] at (3.82,0.3) {parent 1};
-\node[ailabel,anchor=west] at (3.82,-0.35) {parent 2};
+        fill=MLPaleTeal,draw=MLTeal] at (0.66*\i,0.6) {\b};}
+\draw[draw=MLRed,line width=1pt,dashed] (1.65,1.8) -- (1.65,0.2);
+\node[ailabel,anchor=south,color=MLRed] at (1.65,1.9) {cut after bit 3};
+\node[ailabel,anchor=west] at (3.82,1.4) {parent 1};
+\node[ailabel,anchor=west] at (3.82,0.6) {parent 2};
 % child
 \foreach \b [count=\i from 0] in {1,0,1,0,1,0}{
   \ifnum\i=4
     \node[aihot,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-      at (0.66*\i,-1.35) {0};
+      at (0.66*\i,-0.6) {0};
   \else
     \node[aidone,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-      at (0.66*\i,-1.35) {\b};
+      at (0.66*\i,-0.6) {\b};
   \fi}
-\node[ailabel,anchor=west,align=left,color=MLOrange] at (3.82,-1.35)
-  {child, bit 5 mutated};
-\draw[aiarrow] (1.65,-0.75) -- (1.65,-1.05);
+\node[ailabel,anchor=west,align=left,text width=2.2cm,color=MLOrange] at (3.82,-0.6)
+  {child after\\mutation};
+\node[ailabel,anchor=north,align=center,text width=5.5cm] at (2.55,-1.15)
+  {First 3 bits from parent 1, last 3 from parent 2.\\Highlighted bit 5 flips from 1 to 0.};
 \end{scope}
 \end{tikzpicture}
 \end{aifig}
@@ -507,23 +510,3 @@ Add explicit elitism to one real-coded example: before replacement, identify the
   \item What GA concept is defined in the handout but not explicitly implemented in the five source loops?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A chromosome is one complete candidate; a gene is one component of that candidate.
-  \item The raw objective is smaller for better solutions, whereas roulette selection assigns more probability to larger scores.
-  \item Knapsack genes are binary decisions, whereas regression genes are continuous numerical parameters.
-  \item \(x=-2\) and \(x=3\).
-  \item Elitism.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A GA evolves a population through fitness evaluation, selection, crossover, mutation, and replacement.
-  \item Chromosome representation determines how crossover and mutation should operate.
-  \item The examples cover continuous, binary, regression, and root-finding problems.
-  \item Roulette-wheel selection converts fitness into sampling probabilities.
-  \item Elitism preserves the best solution but is absent from the supplied loops.
-\end{itemize}
-\end{chapterrecap}

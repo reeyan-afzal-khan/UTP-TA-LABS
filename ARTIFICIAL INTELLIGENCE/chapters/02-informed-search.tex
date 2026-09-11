@@ -12,7 +12,10 @@ Lab 2 introduces a \term{heuristic}: an estimate of remaining distance or cost u
 Let \(h(n)\) denote the heuristic value of node \(n\). Smaller values in the laboratory examples mean ``looks closer to the goal.'' The goal itself has \(h(G)=0\).
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.22\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.14\linewidth}
+  X
+  >{\centering\arraybackslash}p{0.20\linewidth}@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Quantity & Meaning & Used by \\
@@ -34,32 +37,36 @@ backwards, GBFS only forwards, and A* at both.
 
 \begin{aifig}[The three quantities $g$, $h$, and $f$]{The decomposition $f(n)=g(n)+h(n)$.
 The cost $g$ behind the node is known exactly; the estimate $h$ ahead of it is a guess.
-Each algorithm is defined by which half it sorts the frontier on.}{fig:fgh}
-\begin{tikzpicture}[font=\small]
+UCS prioritizes $g$, GBFS prioritizes $h$, and A* prioritizes their sum.}{fig:fgh}
+\begin{tikzpicture}[font=\small,
+  method/.style={rounded corners=2mm,text width=2.75cm,minimum height=1.02cm,
+                 align=center,font=\scriptsize\color{MLNavy},inner sep=1.5mm,
+                 line width=0.75pt}]
+% One journey split at the current frontier node n.
 \node[ainodedone,minimum size=9mm] (S) at (0,0) {S};
-\node[ainodehot,minimum size=9mm] (N) at (3.6,0) {$n$};
-\node[ainode,minimum size=9mm,fill=MLPaleTeal,draw=MLGreen] (G) at (7.6,0) {G};
-% travelled path
-\draw[aiedge,draw=MLBlue,line width=1.3pt] (S) -- (1.2,0.55) -- (2.4,-0.4) -- (N);
-% estimated remainder
-\draw[aiedge,draw=MLMuted!55,line width=1.2pt,dashed] (N) -- (G);
-\draw[aibrace,draw=MLBlue] (-0.3,0.95) -- (3.9,0.95);
-\draw[decorate,decoration={brace,amplitude=4pt,raise=2pt},draw=MLOrange,semithick]
-  (3.9,-0.85) -- (7.9,-0.85);
-\node[ailabel,anchor=south,color=MLBlue,align=center] at (1.8,1.25)
-  {$g(n)$ --- cost \emph{already paid}\\known exactly};
-\node[ailabel,anchor=north,color=MLOrange,align=center] at (5.9,-1.15)
-  {$h(n)$ --- cost \emph{still estimated}\\a guess, never measured};
-\node[ailabel,anchor=north,align=center,color=MLNavy] at (3.6,-0.55) {$f(n)=g(n)+h(n)$};
+\node[ainodehot,minimum size=9mm] (N) at (4,0) {$n$};
+\node[ainode,minimum size=9mm,fill=MLPaleTeal,draw=MLGreen] (G) at (8,0) {G};
 
-\begin{scope}[yshift=-2.9cm]
-\node[aistage,fill=MLPaleBlue,draw=MLBlue,text width=3.1cm,anchor=north west] at (-0.6,0)
-  {\textbf{UCS} sorts on $g$\\ignores the goal};
-\node[aistage,fill=MLPaleOrange,draw=MLOrange,text width=3.1cm,anchor=north west] at (2.9,0)
-  {\textbf{GBFS} sorts on $h$\\ignores what it spent};
-\node[aistage,fill=MLPaleTeal,draw=MLGreen,text width=3.1cm,anchor=north west] at (6.4,0)
-  {\textbf{A*} sorts on $g+h$\\balances both};
-\end{scope}
+% Known route to n and estimated route from n to the goal.
+\draw[aiedge,draw=MLBlue,line width=1.3pt]
+  (S) -- (1.15,0.48) -- (2.55,-0.32) -- (N);
+\draw[aiedge,draw=MLMuted!55,line width=1.2pt,dashed] (N) -- (G);
+
+% Keep both metric labels above the path so neither crosses a line or brace.
+\draw[aibrace,draw=MLBlue] (-0.3,0.92) -- (4,0.92);
+\draw[aibrace,draw=MLOrange] (4,0.92) -- (8.3,0.92);
+\node[ailabel,anchor=south,color=MLBlue,align=center] at (1.85,1.22)
+  {$g(n)$ --- exact cost\\from start to $n$};
+\node[ailabel,anchor=south,color=MLOrange,align=center] at (6.15,1.22)
+  {$h(n)$ --- estimated cost\\from $n$ to goal};
+
+% The three frontier priorities form one aligned comparison row.
+\node[method,draw=MLBlue,fill=MLPaleBlue] (ucs) at (0.75,-1.65)
+  {\textbf{UCS}\\priority $g(n)$\\actual cost only};
+\node[method,draw=MLOrange,fill=MLPaleOrange] (gbfs) at (4,-1.65)
+  {\textbf{GBFS}\\priority $h(n)$\\estimate only};
+\node[method,draw=MLGreen,fill=MLPaleTeal] (astar) at (7.25,-1.65)
+  {\textbf{A*}\\priority $f(n)=g(n)+h(n)$\\combines both};
 \end{tikzpicture}
 \end{aifig}
 
@@ -378,7 +385,11 @@ def astar_grid(grid, start, goal):
 \section{UCS, GBFS, and A* side by side}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.14\linewidth}p{0.20\linewidth}p{0.25\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}
+  >{\centering\arraybackslash}p{0.18\linewidth}
+  >{\centering\arraybackslash}p{0.23\linewidth}
+  X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Method & Priority & Knowledge used & Main behavior in the lab material \\
@@ -467,21 +478,3 @@ a formality.
   \item Why can two different domains use different heuristic formulas while using the same GBFS or A* control structure?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item GBFS ignores the accumulated path cost \(g(n)\).
-  \item \(|2-4|+|1-4|=5\).
-  \item \(1+1+2=4\).
-  \item The control loop only needs a numerical estimate; each domain defines that estimate from its own representation.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A heuristic \(h(n)\) estimates remaining distance or cost to the goal.
-  \item GBFS orders the frontier by \(h(n)\) and does not include path cost already incurred.
-  \item A* orders the frontier by \(f(n)=g(n)+h(n)\).
-  \item Manhattan distance guides grids; letter mismatch guides word ladders.
-\end{itemize}
-\end{chapterrecap}

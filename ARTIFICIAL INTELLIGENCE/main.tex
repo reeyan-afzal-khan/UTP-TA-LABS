@@ -4,17 +4,15 @@
 \def\utprunninghead{Artificial Intelligence}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
-\def\utpcourseoutline{%
-  Eight laboratory-guided modules covering search, fuzzy systems, robotics,\\
-  natural language processing, and evolutionary optimization.%
-}
+\def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par
+natural language processing, and evolutionary optimization.}
 
 % ---------- boxes this book renames ----------
 \def\utptitleintuition{Conceptual intuition}
 \def\utptitlefirstread{Core material}
 \def\utptitleoptional{Extension}
 \def\utptitletryit{Practice}
-\def\utptitlelabmode{Scaffolding}
+\def\utptitlelabmode{Lab setup}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
@@ -44,6 +42,18 @@
   {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
   {\aifullpagetoc}{}{}
 
+
+% ---------- AI laboratory shorthand ----------
+\newcommand{\kaggleexample}[2]{%
+  \par\smallskip\noindent\textbf{Kaggle example:} \href{#1}{#2}\par
+}
+\newcommand{\repofolder}[1]{%
+  \par\smallskip\noindent\textbf{Repository folder:} \texttt{#1}\par
+}
+\newcommand{\requiredoutput}[1]{%
+  \par\smallskip\noindent\textbf{Required output:} #1\par
+}
+
 % ---------- other settings used only in this book ----------
 \utpfigalias{aifig}
 \utpdiagramstyles{ai}{1.0cm}{0.8cm}
@@ -52,9 +62,10 @@
 \begin{document}
 \utpfrontmatter
 
+\input{chapters/00-your-python-toolkit.tex}
+
 \part{Search and Problem Solving}
 \input{chapters/01-uninformed-search}
-\input{chapters/ai-map}
 \input{chapters/02-informed-search}
 \input{chapters/03-search-implementation-patterns}
 
@@ -68,8 +79,5 @@
 
 \part{Evolutionary Optimization}
 \input{chapters/08-genetic-algorithms}
-
-\appendix
-\input{chapters/appendix-reference}
 
 \end{document}

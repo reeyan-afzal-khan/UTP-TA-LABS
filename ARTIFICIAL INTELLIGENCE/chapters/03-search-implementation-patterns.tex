@@ -299,22 +299,3 @@ Compare two questions:
   \item In a tree, what plays the role of the successor function used by graph search?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item The priority calculation changes; successor generation can remain identical.
-  \item Both methods need the same estimate of remaining grid distance, although A* also includes \(g\).
-  \item The algorithm needs \(g\) to extend the path correctly; \(f\) alone mixes known and estimated cost.
-  \item Reading the current node's child references produces its successors.
-\end{enumerate}
-\end{checkanswers}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item The five search algorithms in Labs 1--3 share one generic search loop.
-  \item Graphs, grids, words, and trees differ mainly in how successors are generated.
-  \item Queue, stack/recursion, and heap data structures encode the frontier policy.
-  \item Visited sets protect graph search from loops and repeated expansions.
-  \item The templates make path, cost, and priority explicit.
-\end{itemize}
-\end{chapterrecap}

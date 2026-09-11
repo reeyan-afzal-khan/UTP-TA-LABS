@@ -1,48 +1,35 @@
-\chapter*{Course Map: From Search to Intelligent Systems}
-\addcontentsline{toc}{chapter}{Course Map: From Search to Intelligent Systems}
+\chapter*{Course Map: Eight Practical AI Laboratories}
+\addcontentsline{toc}{chapter}{Course Map: Eight Practical AI Laboratories}
 \markboth{Course Map}{}
 
-The eight laboratories introduce classical artificial intelligence (AI) through search, approximate reasoning, robotics, language processing, and evolutionary optimization. The map shows the progression and expected outcomes.
+The laboratories form a single practical workflow: obtain a real dataset, implement the method, run a controlled experiment, save measurable evidence, and publish the work in the course GitHub repository.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.7cm,minimum height=1.45cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
-  stage2/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=12.7cm,minimum height=1.45cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
-  stage3/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=12.7cm,minimum height=1.45cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
-  stage4/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=12.7cm,minimum height=1.45cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
+  stage/.style={draw=MLBlue,fill=MLPaleBlue!55,rounded corners=2mm,
+    text width=\dimexpr\linewidth-14mm\relax,minimum height=4.55cm,
+    align=left,inner xsep=5mm,inner ysep=5mm,line width=0.7pt,
+    font=\normalsize\color{MLNavy}},
+  stage2/.style={stage,draw=MLTeal,fill=MLPaleTeal!55},
+  stage3/.style={stage,draw=MLOrange,fill=MLPaleOrange!55},
+  stage4/.style={stage,draw=MLGreen,fill=MLPaleTeal!55},
+  arr/.style={-{Stealth[length=2.6mm]},thick,draw=MLMuted,shorten <=2mm,shorten >=2mm}
 ]
-\node[stage] (s1) at (0,4.8) {{\normalsize\bfseries\color{MLBlue}Stage 1: Search and problem solving}\hfill{\footnotesize\bfseries Labs 1--3}\par
-\smallskip\textbf{Learn:} BFS, DFS, Uniform-Cost Search, Greedy Best-First Search, A*, grids, graphs, trees, and word ladders.\par
-\textbf{Outcome:} choose a frontier rule that matches the information available.};
-\node[stage2] (s2) at (0,2.5) {{\normalsize\bfseries\color{MLTeal}Stage 2: Approximate reasoning and control}\hfill{\footnotesize\bfseries Labs 4--5}\par
-\smallskip\textbf{Learn:} fuzzy membership, FIS, ANFIS, robot motion, PID line following, path planning, collision avoidance, and forward kinematics.\par
-\textbf{Outcome:} connect reasoning rules to simulated intelligent behavior.};
-\node[stage3] (s3) at (0,0.2) {{\normalsize\bfseries\color{MLOrange}Stage 3: Language intelligence}\hfill{\footnotesize\bfseries Labs 6--7}\par
-\smallskip\textbf{Learn:} embeddings, similarity, OCR, simple captioning, NER simulation, summarization, sentiment, language detection, and keyword extraction.\par
-\textbf{Outcome:} represent and process human language with interpretable pipelines.};
-\node[stage4] (s4) at (0,-2.1) {{\normalsize\bfseries\color{MLGreen}Stage 4: Evolutionary optimization}\hfill{\footnotesize\bfseries Lab 8}\par
-\smallskip\textbf{Learn:} population, chromosome, fitness, selection, crossover, mutation, and iterative optimization.\par
-\textbf{Outcome:} formulate a search problem as evolution over candidate solutions.};
-\draw[arr] (s1) -- (s2);
-\draw[arr] (s2) -- (s3);
-\draw[arr] (s3) -- (s4);
+\node[stage] (s1) at (0,0) {{\large\bfseries\color{MLBlue}Stage 1: Route search project}\hfill{\small\bfseries Labs 1--3}\par
+\medskip\textbf{Dataset:} OpenFlights routes and airports from Kaggle.\par\smallskip
+\textbf{Build:} BFS, DFS, UCS, GBFS, A$^\star$, then refactor into a tested command-line toolkit.};
+\node[stage2,below=0.9cm of s1] (s2) {{\large\bfseries\color{MLTeal}Stage 2: Reasoning and robot sensing}\hfill{\small\bfseries Labs 4--5}\par
+\medskip\textbf{Datasets:} UCI Air Quality and SCITOS wall-following sensor readings.\par\smallskip
+\textbf{Build:} fuzzy/ANFIS models and an interpretable sensor-to-action controller.};
+\node[stage3,below=0.9cm of s2] (s3) {{\large\bfseries\color{MLOrange}Stage 3: Language intelligence}\hfill{\small\bfseries Labs 6--7}\par
+\medskip\textbf{Datasets:} Doctor Handwriting Recognition and Twitter Airline Sentiment.\par\smallskip
+\textbf{Build:} handwriting OCR evaluation and a three-class airline sentiment benchmark.};
+\node[stage4,below=0.9cm of s3] (s4) {{\large\bfseries\color{MLGreen}Stage 4: Evolutionary optimization}\hfill{\small\bfseries Lab 8}\par
+\medskip\textbf{Dataset:} Medical Cost Personal Dataset.\par\smallskip
+\textbf{Build:} repeated-run GA regression and compare it with least squares.};
+\draw[arr] (s1.south) -- (s2.north);
+\draw[arr] (s2.south) -- (s3.north);
+\draw[arr] (s3.south) -- (s4.north);
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{keyidea}
-The course does not use a single definition of ``intelligence.'' Instead, it studies several computational abilities: finding paths, using heuristic knowledge, reasoning with degrees of truth, controlling robots, processing language, and optimizing candidate solutions.
-\end{keyidea}
-
-
-\section*{A repeatable reading routine}
-
-Before reading the code, identify:
-\begin{enumerate}
-  \item the representation of the state, input, or candidate solution;
-  \item the rule that chooses the next state, action, or parent;
-  \item the stopping condition;
-  \item the returned or plotted result; and
-  \item one assumption under which that result is valid.
-\end{enumerate}
-These questions provide a common framework across all chapters.

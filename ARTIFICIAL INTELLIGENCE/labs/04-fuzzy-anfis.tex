@@ -1,76 +1,51 @@
-\labsection{4}{Fuzzy Logic and ANFIS in MATLAB}{sec:lab04-fuzzy}
+\labsection{4}{Fuzzy Logic and ANFIS with Air-Quality Data}{sec:lab04-fuzzy}
 
-\begin{labproject}{Build, inspect, train, and save fuzzy systems}
-\textbf{Coverage.} Chapter~\ref{ch:fuzzy} --- fuzzy inference and ANFIS.\\
-\textbf{Source files.} \texttt{Lab04/Lab\_4\_code.m} (all examples), \texttt{ANFIS.m} (the dataset part on its own), and \texttt{diabetes.csv}.\\
-\textbf{Goal.} Build a Mamdani and a Sugeno system by hand, then let ANFIS learn the parameters from data instead.
-\textbf{Software.} MATLAB with Fuzzy Logic Toolbox.
+\begin{labproject}{Combine expert rules with data-driven prediction}
+\textbf{Scenario.} An environmental monitoring system needs an interpretable ventilation rule and a data-driven model for estimating pollution. You will build both and compare their roles.\\
+\textbf{Software.} MATLAB with Fuzzy Logic Toolbox.\\
+\textbf{Goal.} Build a Mamdani controller and an ANFIS regression model using the same real air-quality dataset.
+
+\kagglesource{https://www.kaggle.com/datasets/fedesoriano/air-quality-data-set}{Air Quality Dataset --- UCI measurements}
+\kaggleexample{https://www.kaggle.com/code/saharpourahmad/air-quality}{Air Quality --- exploratory analysis example}
+\repofolder{lab04\_fuzzy\_anfis/}
 
 \begin{labmode}
-Run the examples in sequence so later models reuse the established objects and terminology.
+Download the Kaggle CSV manually and save it locally as \texttt{data/air\_quality/AirQuality.csv}. The dataset contains 9,357 hourly observations; missing measurements are coded as \texttt{-200}. Do not commit the raw CSV.
 \end{labmode}
 
-\medskip\noindent\textbf{Part A --- Mamdani temperature controller.}\par
-Create \texttt{temperatureControl}, add Temperature and FanSpeed variables, define Cold/Warm/Hot and Low/Medium/High membership functions, add the three rules, evaluate at 70, and generate the FIS surface.
-
+\textbf{Required run.}
 \begin{lstlisting}[style=mlmatlab]
-output = evalfis(fis, 70);
-disp(['Fan Speed at 70 C: ', num2str(output)]);
-gensurf(fis);
+matlab -batch "run('lab04_fuzzy_anfis/src/main_lab04.m')"
 \end{lstlisting}
 
-\medskip\noindent\textbf{Part B --- Sugeno controller and existing FIS.}\par
-Build \texttt{speedControl} with Gaussian input membership functions and linear output functions. Then load the source example \texttt{tipper} FIS and inspect its rules.
+\begin{mlsteps}
+  \item \textbf{Inspect and clean.} Read \texttt{AirQuality.csv}, replace \texttt{-200} with missing values, and report the number of usable rows. Plot temperature \texttt{T} against relative humidity \texttt{RH}.
+  \item \textbf{Build the fuzzy controller.} Use \texttt{T} and \texttt{RH} as inputs and ventilation demand (0--100\%) as output. Define three membership functions per input and at least five clear rules. Save membership plots and the control surface.
+  \item \textbf{Check rule behaviour.} Evaluate five fixed operating points supplied in the repository template. Record the expected qualitative behaviour and the actual controller output.
+  \item \textbf{Prepare the ANFIS task.} Predict \texttt{CO(GT)} from two sensor features, \texttt{PT08.S1(CO)} and \texttt{PT08.S2(NMHC)}. Use only complete rows and a fixed 70/15/15 train/validation/test split with seed 42.
+  \item \textbf{Fit two models.} Train a simple linear-regression baseline and an ANFIS model using the training data. Use validation data for model selection; do not tune on the test set.
+  \item \textbf{Evaluate once on test data.} Report RMSE and MAE for both models and save a predicted-versus-actual figure. Explain whether the added ANFIS complexity is justified by the test result.
+\end{mlsteps}
 
-\begin{lstlisting}[style=mlmatlab]
-fis3 = readfis('tipper');
-showrule(fis3);
-\end{lstlisting}
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}XXX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model & Validation RMSE & Test RMSE & Test MAE \\
+\midrule
+Linear baseline & & & \\
+ANFIS & & & \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 
-\medskip\noindent\textbf{Part C --- ANFIS training and prediction.}\par
-Train the single-input and two-input examples, evaluate \texttt{[12 6]}, save \texttt{trainedFIS}, and reload it.
-
-\begin{lstlisting}[style=mlmatlab]
-writefis(anfisFIS2, 'trainedFIS');
-loadedFIS = readfis('trainedFIS');
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part D --- Data and error analysis.}\par
-Load \texttt{diabetes.csv}, normalize it, select columns 1, 2, and 9 for the first 500 rows, train ANFIS, and plot training error.
-
-\begin{lstlisting}[style=mlmatlab]
-data3 = readmatrix('diabetes.csv');
-data3 = normalize(data3);
-dataSubset = data3(1:500, [1 2 9]);
-
-anfisFIS3 = anfis(dataSubset, 2);
-[anfisFIS4, trainError] = anfis(dataSubset, 2);
-figure;
-plot(trainError);
-title('ANFIS Training Error');
-xlabel('Epochs');
-ylabel('Error');
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part E --- Smart air conditioning (AC).}\par
-Use the source training table Temperature, Humidity $\to$ AC Intensity and evaluate the trained model at 37 degrees C and 65 percent humidity.
-
-\begin{lstlisting}[style=mlmatlab]
-data4 = [20 30 0.3;
-         25 40 0.5;
-         30 50 0.7;
-         35 60 0.9;
-         40 70 1.0];
-anfisFIS5 = anfis(data4, 2);
-result = evalfis(anfisFIS5, [37 65]);
-disp(['AC Intensity: ', num2str(result)]);
-\end{lstlisting}
-
-\begin{tryit}
-Change one membership function, compare the output at 70, and explain the change through rule activation.
-\end{tryit}
+\requiredoutput{Fuzzy membership/control-surface figures, split indices, model metrics, predicted-versus-actual plot, and README.}
 \end{labproject}
 
+\begin{verification}
+The test rows must remain untouched until the final evaluation. Re-run with the saved split indices and confirm that the reported metrics reproduce exactly.
+\end{verification}
+
 \begin{labdeliverable}
-Submit one MATLAB live script containing the Mamdani controller, Sugeno controller, ANFIS examples, one surface plot, one training-error plot, and a short comparison of manual FIS design versus learned ANFIS.
+Commit plain \texttt{.m} source files, push the completed lab, and create tag \texttt{lab04-final}. The README must explain the fuzzy rules, ANFIS inputs/target, split policy, baseline comparison, and one limitation of the data.
 \end{labdeliverable}
