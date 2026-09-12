@@ -2,27 +2,14 @@
 \label{ch:fuzzy}
 
 \chapterguide%
-  {Know basic true/false Boolean logic and be able to run Python scripts.}
-  {explain fuzzy truth values, identify the four components of a Fuzzy Inference System (FIS), distinguish Mamdani and Sugeno systems, explain the Adaptive Neuro-Fuzzy Inference System (ANFIS), and build/evaluate the Python examples from Lab 4.}
+  {Know Boolean true/false logic and be comfortable with NumPy arrays and a scikit-learn train/test split.}
+  {express a graded concept as a membership function; trace the four stages of a fuzzy inference system on one reading; distinguish Mamdani from Sugeno rules; explain what ANFIS learns and how; and evaluate a learned model without leaking test data into its selection.}
 
-Lab 4 introduces \term{approximate reasoning}: fuzzy logic represents concepts such as ``cold'' or ``hot'' with degrees between 0 and 1.
+Lab~4 builds two models from one air-quality dataset, and they answer different questions. A \term{fuzzy controller} turns temperature and humidity into a ventilation demand using rules an engineer wrote down; nothing is learned, and every decision can be read. An \term{ANFIS} regressor predicts carbon-monoxide concentration from two gas sensors; its rules have the same shape, but their parameters are fitted to 5,000 measurements. The chapter follows the lab's order: the controller first, then the learner.
 
 \section{From crisp truth to fuzzy membership}
 
-In classical logic, a statement is either false \((0)\) or true \((1)\). In fuzzy logic, a degree can lie anywhere in the interval
-\[
-0\leq \mu(x)\leq 1.
-\]
-For example, ``the water is hot'' may have membership \(0.7\).
-
-\begin{intuition}
-Human descriptions often use graded language: somewhat cold, very fast, mostly full. Fuzzy logic turns that kind of gradual description into numerical membership values that a rule system can process.
-\end{intuition}
-
-\figref{fig:crisp-fuzzy} shows the difference. A crisp set has a cliff: not hot at
-$29.9^\circ$, fully hot at $30.0^\circ$. A fuzzy set replaces it with a ramp, so a small
-change in temperature produces a small change in membership. That continuity is the practical
-advantage: it stops a controller juddering when a reading hovers near a threshold.
+Classical logic assigns every statement one of two values. Fuzzy logic assigns a \term{degree of membership} anywhere in the interval $0\le\mu(x)\le1$, so that ``the room is cold'' can be true to degree $0.17$. \figref{fig:crisp-fuzzy} shows the difference for ``hot''. A crisp set has a cliff: not hot at $29.9^\circ$, fully hot at $30.0^\circ$. A fuzzy set replaces the cliff with a ramp, so a small change in temperature produces a small change in membership. That continuity is the practical reason for fuzzy control: a controller built on cliffs judders whenever a reading hovers near a threshold.
 
 \begin{aifig}[Crisp versus fuzzy membership]{``Hot'' as a crisp set and as a fuzzy set. The crisp version forces a decision at one point; the fuzzy version reports a degree, so $35^\circ$ is hot to degree $0.5$.}{fig:crisp-fuzzy}
 \begin{tikzpicture}
@@ -56,43 +43,86 @@ advantage: it stops a controller juddering when a reading hovers near a threshol
 \end{tikzpicture}
 \end{aifig}
 
-\section{Why fuzzy logic is used}
+\begin{intuition}
+People describe the world in graded words --- somewhat cold, fairly humid, very fast. Fuzzy logic keeps those words but attaches a number to each, so a rule written in words can be evaluated by a program.
+\end{intuition}
 
-Fuzzy logic supports:
-\begin{itemize}
-  \item handle uncertainty, imprecision, and approximate reasoning;
-  \item support human-like linguistic rules;
-  \item build decision and control systems for applications such as diagnosis and pattern recognition.
-\end{itemize}
+\section{Membership functions}
 
-\section{The four components of a Fuzzy Inference System}
+A \term{membership function} maps a crisp value to a degree. The lab uses triangles, the simplest shape that rises to 1 and falls back to 0, defined by three points $a\le b\le c$:
+\[
+\mu(x)=\max\!\Big(0,\;\min\!\Big(\frac{x-a}{b-a},\;\frac{c-x}{c-b}\Big)\Big).
+\]
+The two outer sets of a variable are \term{shoulders}: a triangle with $a=b$ stays at~1 for every value below the peak, one with $b=c$ stays at~1 above it. Shoulders guarantee that extreme readings --- a heatwave, a freezing night --- still belong fully to some set and still fire a rule. The lab's temperature sets are cold $(0,0,18)$, mild $(12,22,32)$ and hot $(26,45,45)$; \figref{fig:membership} plots them.
 
-\begin{aifig}[The four stages of a fuzzy inference system]{A fuzzy inference system traced on one reading. A crisp $35^\circ$ enters, becomes membership degrees, fires the rules those degrees activate, and collapses back to one fan speed. Fuzziness exists only inside; both ends are ordinary numbers.}{fig:fis-pipeline}
+\begin{aifig}[The lab's temperature memberships]{The three temperature sets of the Lab~4 controller. Cold and hot are shoulders; mild is a triangle. The sets overlap, so a reading of $15^\circ$C is cold to degree $0.17$ and mild to degree $0.30$ at the same time, and two rules will fire.}{fig:membership}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.88\linewidth, height=5.6cm,
+  xmin=0, xmax=45, ymin=0, ymax=1.08,
+  xlabel={Temperature ($^\circ$C)}, ylabel={Membership},
+  xtick={0,12,15,18,22,26,32,45}, ytick={0,0.17,0.3,0.5,1},
+  yticklabels={0,0.17,0.30,0.5,1},
+  legend columns=3, legend style={at={(0.5,-0.26)},anchor=north},
+  clip=false]
+\addplot[draw=MLBlue,very thick] coordinates {(0,1) (18,0) (45,0)};
+\addlegendentry{cold $(0,0,18)$}
+\addplot[draw=MLTeal,very thick] coordinates {(0,0) (12,0) (22,1) (32,0) (45,0)};
+\addlegendentry{mild $(12,22,32)$}
+\addplot[draw=MLOrange,very thick] coordinates {(0,0) (26,0) (45,1)};
+\addlegendentry{hot $(26,45,45)$}
+\addplot[draw=MLRed,dashed,thick] coordinates {(15,0) (15,1.02)};
+\addplot[only marks,mark=*,mark size=2.2pt,MLBlue] coordinates {(15,0.167)};
+\addplot[only marks,mark=*,mark size=2.2pt,MLTeal] coordinates {(15,0.3)};
+\node[font=\scriptsize\color{MLBlue},anchor=west] at (axis cs:15.6,0.12) {$\mu_{\text{cold}}(15)=0.17$};
+\node[font=\scriptsize\color{MLTeal},anchor=west] at (axis cs:15.6,0.36) {$\mu_{\text{mild}}(15)=0.30$};
+\end{axis}
+\end{tikzpicture}
+\end{aifig}
+
+The lab implements the triangle in five lines, with the shoulder cases written out explicitly:
+
+\begin{lstlisting}[style=aipython]
+def trimf(x, a, b, c):
+    x = np.asarray(x, dtype=float)
+    left = np.ones_like(x) if a == b else np.clip((x - a) / (b - a), 0, 1)
+    right = np.ones_like(x) if b == c else np.clip((c - x) / (c - b), 0, 1)
+    return np.minimum(left, right)
+\end{lstlisting}
+
+\begin{pitfall}
+The shoulder cases are not decoration. A \texttt{trimf} that only handles $a<b<c$ divides by zero when $a=b$ and, depending on how the division is guarded, returns~0 almost everywhere for the outer sets. Every ``cold'' and ``dry'' rule then fires at strength~0, and the controller silently reports the same fallback value for every cool input. The lab's Question~3 --- evaluate five points whose answer you already know --- is the check that catches this.
+\end{pitfall}
+
+\section{The four stages of a fuzzy inference system}
+
+A \term{fuzzy inference system} (FIS) takes crisp inputs in and gives a crisp output out; fuzziness exists only in between (\figref{fig:fis-pipeline}).
+
+\begin{aifig}[The four stages of a fuzzy inference system]{The Lab~4 controller traced on one reading. Crisp inputs of $15^\circ$C and 45\,\% enter, become membership degrees, fire the rules those degrees activate, and collapse back to one ventilation demand. Both ends are ordinary numbers.}{fig:fis-pipeline}
 \begin{tikzpicture}[font=\small]
-\node[aibox,minimum width=1.55cm,minimum height=0.9cm,fill=MLPaleGray,draw=MLMuted,
-      font=\scriptsize\color{MLNavy}] (in) at (0,0) {crisp in\\\textbf{$35^\circ$}};
+\node[aibox,minimum width=1.65cm,minimum height=0.9cm,fill=MLPaleGray,draw=MLMuted,
+      font=\scriptsize\color{MLNavy}] (in) at (0,0) {crisp in\\\textbf{$15^\circ$C, 45\,\%}};
 \node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
-  (fz) at (2.45,0) {\textbf{Fuzzification}\\$\to$ degrees};
+  (fz) at (2.5,0) {\textbf{Fuzzification}\\$\to$ degrees};
 \node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
-  (rb) at (5.15,0) {\textbf{Rule base}\\IF--THEN};
+  (rb) at (5.2,0) {\textbf{Rule base}\\IF--THEN};
 \node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
-  (ie) at (7.85,0) {\textbf{Inference}\\combine rules};
+  (ie) at (7.9,0) {\textbf{Inference}\\combine rules};
 \node[aibox,minimum width=2.25cm,minimum height=0.9cm,font=\scriptsize\color{MLNavy}]
-  (df) at (10.55,0) {\textbf{Defuzzification}\\$\to$ one number};
+  (df) at (10.6,0) {\textbf{Defuzzification}\\$\to$ one number};
 \node[aibox,minimum width=1.55cm,minimum height=0.9cm,fill=MLPaleTeal,draw=MLGreen,
-      font=\scriptsize\color{MLNavy}] (out) at (12.95,0) {crisp out\\\textbf{6.2}};
+      font=\scriptsize\color{MLNavy}] (out) at (13.0,0) {crisp out\\\textbf{40.4\,\%}};
 \foreach \a/\b in {in/fz, fz/rb, rb/ie, ie/df, df/out}{\draw[aiarrow] (\a)--(\b);}
-% under-labels showing the actual values flowing
-\node[ailabel,anchor=north,align=center,color=MLOrange] at (2.45,-0.6)
-  {Warm $0.5$\\Hot $0.5$};
-\node[ailabel,anchor=north,align=center,color=MLOrange] at (5.15,-0.6)
-  {R2 fires $0.5$\\R3 fires $0.5$};
-\node[ailabel,anchor=north,align=center,color=MLOrange] at (7.85,-0.6)
-  {aggregated\\output set};
-\node[ailabel,anchor=north,align=center,color=MLOrange] at (10.55,-0.6)
-  {centroid of\\that set};
-\draw[aibrace] (1.35,0.68) -- (11.75,0.68);
-\node[ailabel,anchor=south,color=MLNavy] at (6.55,1.0)
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (2.5,-0.6)
+  {cold $0.17$, mild $0.30$\\comfortable $0.75$};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (5.2,-0.6)
+  {low fires $0.17$\\medium fires $0.30$};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (7.9,-0.6)
+  {clipped sets\\joined by max};
+\node[ailabel,anchor=north,align=center,color=MLOrange] at (10.6,-0.6)
+  {centroid of\\that shape};
+\draw[aibrace] (1.4,0.68) -- (11.8,0.68);
+\node[ailabel,anchor=south,color=MLNavy] at (6.6,1.0)
   {everything inside this brace is fuzzy; the two ends are not};
 \end{tikzpicture}
 \end{aifig}
@@ -101,155 +131,103 @@ Fuzzy logic supports:
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Component & Description from the laboratory material \\
+Stage & What happens, and where it is in the lab code \\
 \midrule
-Fuzzification & Converts crisp inputs to fuzzy values using membership functions. \\
-Rule base & Stores IF--THEN rules, such as IF temperature is high THEN fan speed is high. \\
-Inference engine & Applies the rules to the fuzzy inputs to obtain fuzzy outputs. \\
-Defuzzification & Converts fuzzy outputs back to a crisp numerical value. \\
+Fuzzification & Each crisp input is turned into one degree per set: \texttt{degree(T\_range, mf, temperature)} for every set. \\
+Rule base & IF--THEN rules over the set names. AND is \texttt{min}; rules with the same conclusion are joined with \texttt{max}. \\
+Inference & Each output set is clipped at its rule's strength; the clipped sets are joined with \texttt{np.maximum.reduce}. \\
+Defuzzification & The centroid of the joined shape: $\sum x\,\mu(x)\,/\,\sum\mu(x)$ over the output range. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\section{Membership functions in the temperature controller}
+\subsection{The rule base}
 
-The Python example creates one input, \texttt{Temperature}, over \([0,100]\) and gives it three triangular membership functions: Cold, Warm, and Hot. The output \texttt{FanSpeed}, over \([0,10]\), receives Low, Medium, and High membership functions.
+The controller has six rules, written so that heat or humidity raises the demand and cool, dry conditions lower it:
 
-\begin{lstlisting}[style=mlpython]
-import numpy as np
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.12\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Output & Fires when \\
+\midrule
+low & cold AND dry, \quad or \quad cold AND comfortable \\
+medium & mild AND dry, \quad or \quad mild AND comfortable, \quad or \quad cold AND humid \\
+high & hot, \quad or \quad humid \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 
-def trimf(x, a, b, c):
-    x = np.asarray(x, dtype=float)
-    left = np.ones_like(x) if a == b else (x - a) / (b - a)
-    right = np.ones_like(x) if b == c else (c - x) / (c - b)
-    return np.clip(np.minimum(left, right), 0.0, 1.0)
+In code the rule base is three lines. \texttt{min} implements AND because a conjunction can be no truer than its weakest part; \texttt{max} joins alternatives because a conclusion is as true as its best-supported reason.
 
-T = np.linspace(0, 100, 501)
-fan = np.linspace(0, 10, 501)
-
-temperature_mf = {
-    "Cold": trimf(T, 0, 0, 50),
-    "Warm": trimf(T, 25, 50, 75),
-    "Hot":  trimf(T, 50, 100, 100),
-}
-fan_mf = {
-    "Low":    trimf(fan, 0, 0, 5),
-    "Medium": trimf(fan, 3, 5, 7),
-    "High":   trimf(fan, 5, 10, 10),
-}
+\begin{lstlisting}[style=aipython]
+low = max(min(t["cold"], h["dry"]), min(t["cold"], h["comfortable"]))
+medium = max(min(t["mild"], h["dry"]), min(t["mild"], h["comfortable"]), min(t["cold"], h["humid"]))
+high = max(t["hot"], h["humid"])
 \end{lstlisting}
 
-\begin{aifig}[Overlapping membership functions]{The three temperature membership functions.
-They deliberately overlap: at $70^\circ$ the reading is simultaneously Warm to degree $0.2$
-and Hot to degree $0.4$, so two rules fire at once and the controller blends their outputs
-instead of switching abruptly between them.}{fig:membership}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.90\linewidth,
-  height=6.1cm,
-  xmin=0,xmax=100,ymin=0,ymax=1.08,
-  xlabel={Temperature},ylabel={Membership},
-  xtick={0,25,50,70,75,100},ytick={0,0.2,0.4,0.6,0.8,1},
-  legend columns=3,
-  legend style={at={(0.5,-0.24)},anchor=north},
-  clip=false
-]
-\addplot[draw=MLBlue,very thick] coordinates {(0,1) (50,0) (100,0)};
-\addlegendentry{Cold}
-\addplot[draw=MLTeal,very thick] coordinates {(0,0) (25,0) (50,1) (75,0) (100,0)};
-\addlegendentry{Warm}
-\addplot[draw=MLOrange,very thick] coordinates {(0,0) (50,0) (100,1)};
-\addlegendentry{Hot}
-\addplot[draw=MLRed,dashed,thick] coordinates {(70,0) (70,1.02)};
-\addplot[only marks,mark=*,mark size=2.2pt,MLTeal] coordinates {(70,0.2)};
-\addplot[only marks,mark=*,mark size=2.2pt,MLOrange] coordinates {(70,0.4)};
-\node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:71,0.22) {$\mu_{Warm}=0.2$};
-\node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:71,0.43) {$\mu_{Hot}=0.4$};
-\end{axis}
-\end{tikzpicture}
-\end{aifig}
+\subsection{Defuzzification by centroid}
 
-At a temperature of 70, overlapping memberships activate both Warm and Hot rules; fuzzy inference combines their contributions.
+Firing rules produce a fuzzy \emph{set} over the output range, and a fan needs a number. \figref{fig:defuzz} shows the last stage for the $15^\circ$C, 45\,\% reading: the low set is clipped at $0.17$, the medium set at $0.30$, the two are joined, and the centre of area of the joined shape is reported.
 
-Combining them produces a fuzzy \emph{set}, not a number, and a fan needs a number.
-\figref{fig:defuzz} shows the last stage: each firing rule clips its output set to the
-strength of its rule, the clipped shapes are merged, and the centroid of the merged area is
-reported as the answer.
-
-\begin{aifig}[Defuzzification by centroid]{Defuzzifying the $70^\circ$ reading. Medium is clipped at $0.2$ and High at $0.4$; the centre of area of their union gives the crisp fan speed. A stronger Hot rule pulls the centroid right.}{fig:defuzz}
+\begin{aifig}[Defuzzification by centroid]{Defuzzifying the $15^\circ$C, 45\,\% reading. Low is clipped at $0.17$ and medium at $0.30$; high does not fire. The centre of area of their union is $40.4\,\%$. A stronger medium rule would pull the centroid to the right.}{fig:defuzz}
 \begin{tikzpicture}
 \begin{axis}[
   width=0.82\linewidth, height=5.4cm,
-  xmin=0, xmax=10, ymin=0, ymax=1.12,
-  xlabel={Fan speed}, ylabel={Membership},
-  xtick={0,2.5,5,6.4,7.5,10}, ytick={0,0.2,0.4,0.6,0.8,1},
+  xmin=0, xmax=100, ymin=0, ymax=1.12,
+  xlabel={Ventilation demand (\%)}, ylabel={Membership},
+  xtick={0,25,40.4,50,75,100}, xticklabels={0,25,40.4,50,75,100},
+  ytick={0,0.17,0.3,0.6,1}, yticklabels={0,0.17,0.30,0.6,1},
   axis lines=left, grid=major, grid style={draw=MLPaleBlue},
   clip=false]
-% full output sets, faint
-\addplot[draw=MLMuted!45,thin] coordinates {(0,0) (2.5,1) (5,0)};
-\addplot[draw=MLMuted!45,thin] coordinates {(2.5,0) (5,1) (7.5,0)};
-\addplot[draw=MLMuted!45,thin] coordinates {(5,0) (7.5,1) (10,0)};
-% clipped + aggregated region
+\addplot[draw=MLMuted!45,thin] coordinates {(0,1) (45,0)};
+\addplot[draw=MLMuted!45,thin] coordinates {(25,0) (50,1) (75,0)};
+\addplot[draw=MLMuted!45,thin] coordinates {(55,0) (100,1)};
 \addplot[draw=MLTeal,very thick,fill=MLPaleTeal,fill opacity=0.75]
-  coordinates {(2.5,0) (3,0.2) (4.5,0.2) (5.6,0.4) (8.5,0.4) (10,0) (2.5,0)};
-% centroid
-\addplot[MLRed,dashed,thick] coordinates {(6.4,0) (6.4,0.62)};
-\addplot[only marks,mark=*,mark size=2.4pt,MLRed] coordinates {(6.4,0.4)};
-\node[font=\scriptsize\color{MLRed},anchor=south] at (axis cs:6.4,0.65)
-  {centroid $=6.4$};
-\node[font=\scriptsize\color{MLTeal},anchor=west] at (axis cs:0.2,0.28)
-  {Medium clipped at $0.2$};
-\node[font=\scriptsize\color{MLOrange},anchor=west] at (axis cs:8.6,0.52)
-  {High clipped at $0.4$};
+  coordinates {(0,0) (0,0.167) (29.2,0.167) (32.5,0.3) (67.5,0.3) (75,0) (0,0)};
+\addplot[MLRed,dashed,thick] coordinates {(40.4,0) (40.4,0.62)};
+\addplot[only marks,mark=*,mark size=2.4pt,MLRed] coordinates {(40.4,0.3)};
+\node[font=\scriptsize\color{MLRed},anchor=south] at (axis cs:40.4,0.65) {centroid $=40.4$};
+\node[font=\scriptsize\color{MLBlue},anchor=west] at (axis cs:2,0.25) {low clipped at $0.17$};
+\node[font=\scriptsize\color{MLTeal},anchor=west] at (axis cs:44,0.38) {medium clipped at $0.30$};
+\node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:78,0.5) {high: not fired};
 \end{axis}
 \end{tikzpicture}
 \end{aifig}
 
-The rule list maps each input term to its corresponding output term.
-
-\begin{lstlisting}[style=mlpython]
-def interp_mf(universe, mf, value):
-    return float(np.interp(value, universe, mf))
-
-def fan_speed(temp):
-    firing = {
-        "Low": interp_mf(T, temperature_mf["Cold"], temp),
-        "Medium": interp_mf(T, temperature_mf["Warm"], temp),
-        "High": interp_mf(T, temperature_mf["Hot"], temp),
-    }
-    aggregated = np.maximum.reduce([
-        np.minimum(firing[name], fan_mf[name])
-        for name in ["Low", "Medium", "High"]
-    ])
-    return np.sum(fan * aggregated) / np.sum(aggregated)
-
-print(f"Fan speed at 70 C: {fan_speed(70):.2f}")
-\end{lstlisting}
-
 \begin{workedexample}
-At \(70^\circ\mathrm{C}\), the triangular definitions give
+At $15^\circ$C and 45\,\% relative humidity the memberships are cold $0.17$, mild $0.30$, comfortable $0.75$ and all others~$0$. The rule strengths follow:
 \[
-\mu_{Cold}(70)=0,\qquad
-\mu_{Warm}(70)=\frac{75-70}{75-50}=0.2,\qquad
-\mu_{Hot}(70)=\frac{70-50}{100-50}=0.4.
+\text{low}=\min(0.17,0.75)=0.17,\qquad
+\text{medium}=\min(0.30,0.75)=0.30,\qquad
+\text{high}=0.
 \]
-The Medium and High rules fire at strengths 0.2 and 0.4. Default Mamdani inference with centroid defuzzification produces a fan speed of approximately \(7.16\) on the \([0,10]\) scale.
+Clipping the low and medium output sets at those strengths and taking the centroid of their union gives a ventilation demand of $40.4\,\%$: a little below ``medium'', pulled down by the cold rule.
 \end{workedexample}
 
-\section{Mamdani and Sugeno FIS}
+\section{Validating a controller}
 
-Lab 4 distinguishes two types of Fuzzy Inference System. They differ only in what a rule's
-\emph{then} clause produces (\figref{fig:mamdani-sugeno}).
+A rule base compiles and runs whether or not it makes sense, so a controller must be checked against expectations that were written down \emph{before} looking at its output. Lab~4 does this in two ways.
 
-\begin{aifig}[Mamdani versus Sugeno rule output]{The same rule under both systems. Mamdani's
-consequent is a fuzzy set that must be aggregated and defuzzified; Sugeno's is a formula that
-evaluates straight to a number. Sugeno skips the centroid step, which is why it is the form
-ANFIS can train.}{fig:mamdani-sugeno}
+\begin{description}
+  \item[Fixed points.] Five operating conditions with a qualitative expected answer: $(10^\circ, 30\,\%)$ should be low, $(20^\circ, 50\,\%)$ medium, $(35^\circ, 50\,\%)$, $(25^\circ, 80\,\%)$ and $(40^\circ, 80\,\%)$ high. The controller returns 18.9, 50.0, 82.3, 83.8 and 84.2\,\%. Each lands in its band.
+  \item[The control surface.] The output evaluated on a grid of every temperature and humidity, drawn as a contour plot. It should rise monotonically towards the hot-and-humid corner and have no cliffs. Cliffs mean a gap between sets; a flat plateau at a strange value means a rule that never fires.
+\end{description}
+
+\begin{keyidea}
+Never judge a controller from one input. Evaluate it at points whose answer you know, then over the whole input range, and look at the shape. A single call that returns a plausible number can hide a rule base in which half the rules are dead.
+\end{keyidea}
+
+\section{Mamdani and Sugeno systems}
+
+The controller above is a \term{Mamdani} system: each rule concludes with a fuzzy \emph{set} (``ventilation is high''), and defuzzification is needed to turn the joined sets into a number. A \term{Sugeno} system concludes each rule with a \emph{function} of the inputs --- a constant, or a linear expression such as $0.6\,x_1+0.2\,x_2+1.3$ --- and the output is simply the firing-strength-weighted average of the rule functions. \figref{fig:mamdani-sugeno} contrasts the two.
+
+\begin{aifig}[Mamdani versus Sugeno rule output]{The same kind of rule under both systems. Mamdani's consequent is a fuzzy set that must be joined with the others and defuzzified; Sugeno's is a formula that evaluates straight to a number, and the rule outputs are averaged by firing strength. Sugeno skips the centroid step, which is why it is the form ANFIS can train.}{fig:mamdani-sugeno}
 \begin{tikzpicture}[font=\small]
 \begin{scope}
 \node[font=\bfseries\color{MLNavy}] at (2.5,2.2) {Mamdani};
 \node[aibox,minimum width=4.6cm,font=\scriptsize\color{MLNavy}] (r1) at (2.5,1.5)
-  {IF Speed is Fast THEN Brake is \textbf{High}};
+  {IF sensor is High THEN CO is \textbf{High}};
 \node[ailabel,anchor=north,color=MLOrange] at (2.5,1.05) {\textbf{High} is a fuzzy set};
 \begin{scope}[xshift=1.35cm,yshift=-0.55cm,x=0.6cm,y=0.6cm]
 \draw[draw=MLMuted!60,-{Stealth[length=1.6mm]}] (-0.2,0)--(4.0,0);
@@ -258,16 +236,16 @@ ANFIS can train.}{fig:mamdani-sugeno}
 \fill[MLOrange,opacity=0.2] (0.4,0)--(1.8,1.1)--(3.2,0)--cycle;
 \end{scope}
 \node[ailabel,anchor=north,align=center] at (2.5,-1.35)
-  {needs aggregation, then a centroid};
+  {needs joining, then a centroid};
 \end{scope}
 \begin{scope}[xshift=7.6cm]
 \node[font=\bfseries\color{MLNavy}] at (2.5,2.2) {Sugeno};
-\node[aibox,minimum width=4.9cm,font=\scriptsize\color{MLNavy},
+\node[aibox,minimum width=5.1cm,font=\scriptsize\color{MLNavy},
       fill=MLPaleTeal,draw=MLGreen] (r2) at (2.5,1.5)
-  {IF Speed is Fast THEN Brake $=0.006s+0.3$};
+  {IF sensor is High THEN CO $=p_0+p_1x_1+p_2x_2$};
 \node[ailabel,anchor=north,color=MLGreen] at (2.5,1.05) {the consequent is a formula};
-\node[aicell,minimum width=2.4cm,minimum height=0.65cm,fill=MLPaleTeal,draw=MLGreen,
-      font=\scriptsize\bfseries] at (2.5,0.15) {$s=60 \Rightarrow 0.66$};
+\node[aicell,minimum width=3.2cm,minimum height=0.65cm,fill=MLPaleTeal,draw=MLGreen,
+      font=\scriptsize\bfseries] at (2.5,0.15) {output $=\sum_r \bar w_r\,f_r(x)$};
 \node[ailabel,anchor=north,align=center] at (2.5,-1.35)
   {weighted average, no centroid};
 \end{scope}
@@ -275,106 +253,46 @@ ANFIS can train.}{fig:mamdani-sugeno}
 \end{aifig}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.15\linewidth}XX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Type & Laboratory description \\
+ & Mamdani & Sugeno \\
 \midrule
-Mamdani & Intuitive and commonly used for control applications. \\
-Sugeno & Uses constant or linear output functions and is suitable for optimization and learning. \\
+Rule conclusion & A fuzzy set over the output & A function of the inputs \\
+Output & Centroid of the joined, clipped sets & Weighted average of the rule functions \\
+Strength & Readable: every conclusion is a word & Trainable: every conclusion is a set of coefficients \\
+Used in Lab~4 by & The ventilation controller & ANFIS \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-The Sugeno example creates a \texttt{Speed} input and a \texttt{BrakeForce} output, with Gaussian input membership functions and linear output functions.
+The Sugeno form is what makes learning possible. Given the firing strengths, the output is \emph{linear} in the consequent coefficients $p$, so the best coefficients for a training set can be found by ordinary least squares in one step.
 
-\begin{lstlisting}[style=mlpython]
-def gaussian(x, sigma, center):
-    return np.exp(-0.5 * ((x - center) / sigma) ** 2)
+\section{ANFIS: a fuzzy system that learns}
 
-def sugeno_brake(speed):
-    slow = gaussian(speed, 10, 20)
-    fast = gaussian(speed, 10, 80)
-    low = 0.002 * speed + 0.1
-    high = 0.006 * speed + 0.3
-    return (slow * low + fast * high) / (slow + fast)
+An \term{Adaptive Neuro-Fuzzy Inference System} (ANFIS) is a Sugeno FIS drawn as a five-layer network so that its parameters can be fitted to data (\figref{fig:anfis}). The reasoning is unchanged; only who chooses the numbers.
 
-print(f"Brake force at speed 60: {sugeno_brake(60):.3f}")
-\end{lstlisting}
-
-Each Sugeno rule produces a constant or linear value; the FIS returns their firing-strength-weighted average. For a \texttt{linear} output MF with one input, Python reads the parameters \([a\;b]\) as the function \(a\times\text{Speed}+b\).
-
-At speed 60 the Gaussian memberships are \(\mu_{Slow}=0.0003\) and \(\mu_{Fast}=0.1353\), so the Fast rule dominates:
-\[
-\text{BrakeForce}=\frac{0.0003\times0.22+0.1353\times0.66}{0.0003+0.1353}\approx0.659.
-\]
-
-\begin{pitfall}
-\textbf{Read the consequent function, not the rule's name.} A rule labelled ``High'' whose function is \(-0.01\times\text{Speed}+1\) still \emph{decreases} with speed: it returns 1.0 at a standstill and 0.0 at 100. The label says high; the arithmetic says the opposite, and the arithmetic wins.
-
-An earlier version of the supplied \texttt{lab04\_fuzzy\_anfis\_worked.ipynb} used exactly those coefficients, giving
-\[
-\text{BrakeForce}(20)=0.200,\quad
-\text{BrakeForce}(60)=0.400,\quad
-\text{BrakeForce}(100)=0.000,
-\]
-a controller that brakes hardest when parked and not at all at top speed. Every Python call succeeded. The code was valid and the model was wrong.
-
-The file now uses \([0.002\;0.1]\) and \([0.006\;0.3]\), so both consequents rise with speed and the numbers above hold.
-\end{pitfall}
-
-\begin{tryit}
-Never judge a controller from one input value. Evaluate it across the whole range and look at the shape:
-
-\begin{lstlisting}[style=mlpython]
-speeds = np.array([0, 20, 40, 60, 80, 100], dtype=float)
-print(np.column_stack([speeds, [sugeno_brake(v) for v in speeds]]))
-\end{lstlisting}
-
-A monotonic rise from about 0.10 to 0.90 is what this design intends. Anything non-monotonic, flat, or falling means a consequent slopes the wrong way --- the failure a single call such as \texttt{sugeno\_brake(60)} would have hidden completely.
-\end{tryit}
-
-\section{ANFIS: Adaptive Neuro-Fuzzy Inference System}
-
-ANFIS can be summarized as
-\[
-\text{ANFIS}=\text{neural-network learning}+\text{fuzzy-logic representation}.
-\]
-It uses a Sugeno FIS and learns rule and membership-function parameters from data, commonly through least squares and gradient descent.
-
-\figref{fig:anfis} unpacks that sum. The five layers are the stages of
-\figref{fig:fis-pipeline} redrawn as a network. Once each stage is a differentiable node, the
-membership shapes and rule outputs become parameters gradient descent can adjust. The fuzzy
-reasoning is unchanged --- only who chooses the numbers.
-
-\begin{aifig}[The five layers of an ANFIS network]{ANFIS for two inputs and two rules. Shaded layers (1 and 4) hold the trainable parameters; layers 2, 3, and 5 are fixed arithmetic. Same stages as \figref{fig:fis-pipeline}, drawn so a learning algorithm can reach inside.}{fig:anfis}
+\begin{aifig}[The five layers of an ANFIS network]{ANFIS for two inputs and two membership functions per input. Shaded layers (1 and 4) hold the trainable parameters; layers 2, 3 and 5 are fixed arithmetic. The stages are those of \figref{fig:fis-pipeline}, drawn so a learning algorithm can reach inside.}{fig:anfis}
 \begin{tikzpicture}[font=\small,
   L/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=7.5mm,
             font=\scriptsize\color{MLNavy},inner sep=0.5pt},
   T/.style={circle,draw=MLOrange,fill=MLPaleOrange,minimum size=7.5mm,line width=0.9pt,
             font=\scriptsize\color{MLNavy},inner sep=0.5pt}]
 \def\dx{2.45}
-% inputs
-\node[ailabel,font=\small\bfseries\color{MLNavy}] (x) at (-\dx,0.75) {$x$};
-\node[ailabel,font=\small\bfseries\color{MLNavy}] (y) at (-\dx,-0.75) {$y$};
-% layer 1 (trainable MFs)
+\node[ailabel,font=\small\bfseries\color{MLNavy}] (x) at (-\dx,0.75) {$x_1$};
+\node[ailabel,font=\small\bfseries\color{MLNavy}] (y) at (-\dx,-0.75) {$x_2$};
 \node[T] (A1) at (0,1.35) {$A_1$};
 \node[T] (A2) at (0,0.45) {$A_2$};
 \node[T] (B1) at (0,-0.45) {$B_1$};
 \node[T] (B2) at (0,-1.35) {$B_2$};
-% layer 2 (rule firing)
 \node[L] (P1) at (\dx,0.9) {$\Pi$};
 \node[L] (P2) at (\dx,-0.9) {$\Pi$};
-% layer 3 (normalise)
 \node[L] (N1) at (2*\dx,0.9) {$N$};
 \node[L] (N2) at (2*\dx,-0.9) {$N$};
-% layer 4 (trainable consequents)
 \node[T] (C1) at (3*\dx,0.9) {$f_1$};
 \node[T] (C2) at (3*\dx,-0.9) {$f_2$};
-% layer 5 (sum)
 \node[L] (S) at (4*\dx,0) {$\Sigma$};
 \node[ailabel,font=\small\bfseries\color{MLNavy}] (out) at (4*\dx+1.15,0) {output};
-
 \foreach \t in {A1,A2}{\draw[aiptr] (x)--(\t);}
 \foreach \t in {B1,B2}{\draw[aiptr] (y)--(\t);}
 \draw[aiptr] (A1)--(P1); \draw[aiptr] (B1)--(P1);
@@ -384,7 +302,6 @@ reasoning is unchanged --- only who chooses the numbers.
 \draw[aiptr] (N1)--(C1); \draw[aiptr] (N2)--(C2);
 \draw[aiptr] (C1)--(S);  \draw[aiptr] (C2)--(S);
 \draw[aiptr] (S)--(out);
-
 \foreach \i/\lbl in {0/{1. fuzzify}, 1/{2. rule\\strength}, 2/{3. normalise},
                      3/{4. rule\\output}, 4/{5. aggregate}}{
   \node[ailabel,anchor=north,align=center] at (\i*\dx,-1.95) {\lbl};
@@ -394,85 +311,79 @@ reasoning is unchanged --- only who chooses the numbers.
 \end{tikzpicture}
 \end{aifig}
 
+The lab's \texttt{SugenoANFIS} class is this diagram in code. With $m$ Gaussian memberships per input and two inputs there are $m^2$ rules, one for every combination of an $A$ set with a $B$ set:
+
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.32\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.13\linewidth}p{0.36\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Feature & Fuzzy Logic & ANFIS \\
+Layer & Computes & Parameters \\
 \midrule
-Rule definition & Manual & Learned from data \\
-Learning capability & No & Yes, through neural-network-style learning \\
-Output type & Mamdani or Sugeno & Sugeno only \\
-Typical use in handout & Expert-defined systems & Data-driven modeling \\
+1 & Gaussian membership $\mu(x)=\exp\!\big(-\tfrac12\big(\tfrac{x-c}{\sigma}\big)^2\big)$ per set & centres $c$, widths $\sigma$ --- \emph{premise} parameters \\
+2 & Rule strength $w_r$: the product of one membership per input & none \\
+3 & Normalised strength $\bar w_r=w_r/\sum_k w_k$ & none \\
+4 & Rule output $\bar w_r\,(p_{r0}+p_{r1}x_1+p_{r2}x_2)$ & coefficients $p$ --- \emph{consequent} parameters \\
+5 & Sum over rules & none \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\begin{keyidea}
-Use manual fuzzy logic for expert-defined rules and ANFIS when data should determine model parameters.
-\end{keyidea}
+Layers 1--3 are the method \texttt{\_weights}, layer~4 is \texttt{\_design}, layer~5 is the matrix product in \texttt{predict}.
 
-\section{Training examples in Lab 4}
+\subsection{Hybrid learning}
 
-The examples cover one- and two-input training, prediction, FIS persistence, error analysis, and air-conditioning control.
+The two parameter groups are fitted differently, which is the idea that makes ANFIS practical.
 
-\begin{lstlisting}[style=mlpython]
-# The worked Lab 4 notebook provides a compact SugenoANFIS class.
-# Each row is [input_1, input_2, target].
-data = np.array([
-    [0, 0, 0],
-    [5, 2, 2.5],
-    [10, 5, 5],
-    [15, 7, 7.5],
-    [20, 10, 10],
-], dtype=float)
+\begin{description}
+  \item[Consequents by least squares.] For fixed premise parameters, the output is linear in the coefficients $p$, so the training mean squared error is minimised exactly by solving one linear system --- \texttt{\_solve\_outputs} does this with a small ridge term for numerical safety.
+  \item[Premises by numerical optimisation.] The centres and widths enter through the exponential and cannot be solved in closed form. The lab hands the training MSE, \emph{with the consequents re-solved inside it}, to L-BFGS-B, a gradient-based optimiser from SciPy, with bounds that keep the widths sensible.
+\end{description}
 
-X, y = data[:, :2], data[:, 2]
-model = SugenoANFIS(n_mfs=2, maxiter=30).fit(X, y)
-predicted = model.predict(np.array([[12.0, 6.0]]))[0]
-print(f"Predicted output: {predicted:.3f}")
-\end{lstlisting}
-
-ANFIS interprets the final column as the target. Thus, \texttt{data1} contains one input and one output, whereas \texttt{data2} contains two inputs and one output. A prediction row contains inputs only: \texttt{[12 6]}, without a placeholder for the unknown output.
-
-\begin{pitfall}
-Five rows demonstrate the application programming interface (API), not generalization. Evaluate separate validation data before making performance claims.
-\end{pitfall}
-
-\subsection{Preparing the air-quality regression data correctly}
-
-Lab 4 uses \texttt{CO(GT)} as the regression target and two sensor signals, \texttt{PT08.S1(CO)} and \texttt{PT08.S2(NMHC)}, as predictors. The original UCI file uses \texttt{-200} to represent missing measurements, so those values must be converted to missing data before modelling.
-
-\begin{pitfall}
-\textbf{Do not scale the complete dataset before splitting.} A scaler fitted on all rows uses information from validation and test observations. This is data leakage even when the target column is excluded.
-
-Fit the scaler on the training predictors only, then reuse the learned transformation for validation and test data:
-
-\begin{lstlisting}[style=mlpython]
-from sklearn.preprocessing import StandardScaler
-
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_val_scaled = scaler.transform(X_val)
-X_test_scaled = scaler.transform(X_test)
-\end{lstlisting}
-\end{pitfall}
-
-\begin{pitfall}
-\textbf{Keep the regression target separate from the feature transformation.} Standardising the predictors is useful because the sensor channels have different numeric ranges. The target \texttt{CO(GT)} should remain in its original units so RMSE and MAE remain interpretable.
-\end{pitfall}
+Each evaluation of the objective therefore solves the consequents afresh, so the optimiser only has to search over the premise parameters: $2m$ centres and $2m$ widths, rather than those plus $3m^2$ coefficients.
 
 \begin{keyidea}
-The Lab 4 comparison is deliberately controlled: linear regression and every ANFIS candidate receive the same cleaned rows, the same train/validation/test split, and the same training-fitted scaling. ANFIS structure is selected with validation RMSE; the test partition is evaluated only after the model choice is fixed.
+Use a hand-written fuzzy system when the rules are the knowledge you want to encode and audit. Use ANFIS when data should decide the numbers and the rule structure is only a flexible, interpretable function family.
 \end{keyidea}
+
+\section{Evaluating a learned model honestly}
+
+ANFIS is a regressor, and it is judged like one: by its error on data it never saw. Three rules in the lab protect that judgement.
+
+\begin{description}
+  \item[Split once, before anything else.] 7,344 complete rows are divided 70/15/15 into training, validation and test with a fixed seed, and the assignment is saved to \texttt{split.csv}. The test rows are read once, in the final question.
+  \item[Fit the scaler on the training rows only.] Standardising the inputs uses a mean and standard deviation; computing them over all rows would leak validation and test information into the model. \texttt{StandardScaler().fit(X[train])} then \texttt{transform(X)} is the whole discipline.
+  \item[Select on validation, report on test.] Two ANFIS sizes are trained. The one with the lower validation RMSE is chosen; its test RMSE is then reported once, next to the linear baseline's.
+\end{description}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.26\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Model & Validation RMSE & Test RMSE & Test MAE \\
+\midrule
+Linear regression & 0.510 & 0.537 & 0.382 \\
+ANFIS, 2 sets per input & 0.455 & 0.472 & 0.326 \\
+ANFIS, 3 sets per input (selected) & 0.449 & 0.467 & 0.325 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+The selected ANFIS lowers test RMSE by 13\,\% relative to the linear baseline. The predicted-versus-actual plot shows where the gain comes from: the sensor response is nonlinear at high CO, where a straight line under-predicts and a fuzzy blend of local linear rules does not.
+
+\begin{pitfall}
+\textbf{Do not choose the model on the test column.} Both ANFIS sizes are close, and had the choice been made on test RMSE the reported number would no longer be an unbiased estimate of performance on new data --- it would be the best of two draws. The lab's deliverable asks you to explain this in your own words.
+\end{pitfall}
+
+Two caveats belong in any honest report. A random split of hourly measurements ignores time order and sensor drift, so the test error is optimistic for a sensor that keeps running for months. And the controller and the regressor are not rivals: one encodes a policy an engineer can defend, the other fits a curve, and a better RMSE does not make the second a substitute for the first.
 
 \input{labs/04-fuzzy-anfis}
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item What is the difference between a crisp value and a fuzzy membership value?
-  \item Name the four components of a Fuzzy Inference System in order.
-  \item Why does Lab 4 associate ANFIS with Sugeno rather than Mamdani output functions?
-  \item What does the smart air-conditioning ANFIS example use as inputs and output?
+  \item A temperature of $28^\circ$C: which of the lab's three temperature sets have non-zero membership, and roughly what are the degrees?
+  \item Why is AND implemented with \texttt{min} and the joining of rules with \texttt{max}?
+  \item Which single change turns the Mamdani controller into a Sugeno one, and why does that change make least-squares training possible?
+  \item ANFIS with three sets per input and two inputs has how many rules, and how many consequent coefficients?
+  \item The scaler in Lab~4 is fitted on the training rows only. What would be wrong with the reported test RMSE if it had been fitted on all rows?
 \end{enumerate}
 \end{quickcheck}

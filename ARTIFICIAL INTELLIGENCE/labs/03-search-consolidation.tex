@@ -2,28 +2,204 @@
 
 \begin{labproject}{Turn Labs 1--2 into a reproducible Python toolkit}
 \textbf{Scenario.} Convert notebook logic into reusable, testable software.\\
-\textbf{Goal.} Package BFS, DFS, UCS, GBFS, and A$^\star$ behind a common interface, verify them with unit tests, and benchmark them on real route queries.
-
-\begin{labmode}
-Use \texttt{src/search\_toolkit/}, \texttt{tests/}, and \path{all_experiments/lab03_search_engineering_worked.ipynb}. Unit tests must run without Kaggle data; only the benchmark uses the OpenFlights files.
-\end{labmode}
-
-\begin{mlsteps}
-  \item \textbf{Standardize the interface.} All algorithms must return the same result fields: found flag, path, hops, path cost, expanded nodes, maximum frontier, and runtime.
-  \item \textbf{Separate responsibilities.} Keep generic search logic, OpenFlights loading, plotting, and command-line code in separate modules.
-  \item \textbf{Run automated tests.} Cover start=goal, unreachable goal, cycles, weighted shortest path, duplicate frontier updates, admissible A$^\star$, and negative-cost rejection.
-  \item \textbf{Exercise the CLI.} Run a command such as \texttt{python -m search\_toolkit --algorithm astar --start KUL --goal KEF}.
-  \item \textbf{Benchmark 10 route pairs.} Report success rate, route cost, expanded nodes, and runtime for BFS, UCS, GBFS, and A$^\star$.
-  \item \textbf{Prepare CI.} Configure GitHub Actions to run \texttt{pytest -q} without dataset downloads or secrets.
-\end{mlsteps}
-
-\requiredoutput{Passing tests, working CLI, \texttt{benchmark.csv}, benchmark summary, and executed notebook.}
+\textbf{Goal.} Keep BFS, DFS, UCS, GBFS and A$^\star$ behind one common interface, verify them with dataset-free unit tests, drive them from the command line, and benchmark them on ten real route queries.\\
+\textbf{Source files.} The package \texttt{all\_experiments/utils/} --- \texttt{core.py}, \texttt{openflights.py}, \texttt{plotting.py}, \texttt{\_\_main\_\_.py}, \texttt{test\_search.py}, \texttt{search\_queries.csv} --- and \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}.\\
 \end{labproject}
 
-\begin{verification}
-Run \texttt{PYTHONPATH=src pytest -q} before and after refactoring. The real-data benchmark is valid only when the unit-test suite passes.
-\end{verification}
+\begin{labmode}
+Only the benchmark touches the OpenFlights files; the unit tests use tiny hand-made graphs and run in under a second. Before opening the notebook, run the tests and the command line from a terminal in \texttt{all\_experiments} to see that the package works on its own:
+\begin{lstlisting}[style=aiterminal]
+cd all_experiments
+python -m pytest utils -q
+python -m utils --algorithm astar --start KUL --goal KEF
+\end{lstlisting}
+\end{labmode}
 
-\begin{labdeliverable}
-Push the package, tests, notebook, and results; create tag \texttt{lab03-final}; and submit the GitHub repository link with a concise architecture and benchmark summary.
-\end{labdeliverable}
+\noindent\textbf{Setup cell.}
+\begin{lstlisting}[style=aipython]
+import subprocess
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+
+import utils
+from utils import SearchResult, bfs, dfs, ucs, gbfs, astar, haversine_km, load_openflights
+
+ROOT = Path.cwd().parent
+DATA = ROOT / "all_datasets"
+RESULTS = ROOT / "results" / "lab03"
+RESULTS.mkdir(parents=True, exist_ok=True)
+\end{lstlisting}
+
+\begin{labquestion}{1}{Standardise the interface}
+Every algorithm must return the same fields: found flag, path, hops, path cost, expanded nodes, maximum frontier and runtime. Show the fields of \texttt{SearchResult}, then run all five algorithms on a small hand-made graph and display the results as one table.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+print("SearchResult fields:", list(SearchResult.__dataclass_fields__))
+
+toy = {"S": [("A", 2.0), ("B", 5.0)], "A": [("G", 5.0)], "B": [("G", 1.0)], "G": []}
+h = {"S": 5.0, "A": 4.0, "B": 1.0, "G": 0.0}.get      # a hand-made admissible heuristic
+
+results = {
+    "BFS": bfs(toy, "S", "G"),
+    "DFS": dfs(toy, "S", "G"),
+    "UCS": ucs(toy, "S", "G"),
+    "GBFS": gbfs(toy, "S", "G", h),
+    "A*": astar(toy, "S", "G", h),
+}
+table = pd.DataFrame({name: r.as_dict() for name, r in results.items()}).T.drop(columns="runtime_ms")
+table["path"] = table.path.map(" -> ".join)
+display(table)
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+SearchResult fields: ['found', 'path', 'hops', 'path_cost_km', 'expanded', 'max_frontier', 'runtime_ms']
+     found         path hops path_cost_km expanded max_frontier
+BFS   True  S -> A -> G    2          7.0        3            2
+DFS   True  S -> A -> G    2          7.0        2            2
+UCS   True  S -> B -> G    2          6.0        3            2
+GBFS  True  S -> B -> G    2          6.0        2            2
+A*    True  S -> B -> G    2          6.0        3            2
+\end{lstlisting}
+All five functions return a \texttt{SearchResult} with identical fields, so one loop can benchmark them. On the toy graph BFS and DFS return the two-edge route S$\to$A$\to$G (cost 7) while UCS and A$^\star$ return the cheaper S$\to$B$\to$G (cost 6); GBFS also picks S$\to$B$\to$G because $h(B)<h(A)$.
+\end{labanswer}
+
+\begin{labquestion}{2}{Separate responsibilities}
+Search logic, data loading, plotting and the command line must live in separate modules. List the package's modules with their one-line purpose, and the names it exports.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+package = Path(utils.__file__).parent
+for module in sorted(package.glob("*.py")):
+    purpose = module.read_text(encoding="utf-8").splitlines()[0].strip('"')
+    print(f"{module.name:<16} {purpose}")
+print("\nExported names:", ", ".join(utils.__all__))
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+__init__.py      Helper code for the AI course notebooks.
+__main__.py      Command-line route search (Lab 3).
+core.py          Graph-search algorithms shared by Labs 1-3: BFS, DFS, UCS, GBFS and A*.
+openflights.py   Load the OpenFlights airport and route files into a weighted graph.
+plotting.py      Plot airport routes on longitude/latitude axes (Labs 1-3).
+test_search.py   Unit tests for utils.core on tiny hand-made graphs (no dataset needed).
+
+Exported names: SearchResult, astar, best_first, bfs, dfs, gbfs, ucs, haversine_km, load_openflights, route_is_valid, plot_route_paths
+\end{lstlisting}
+\texttt{core.py} holds the five algorithms and knows nothing about airports; \texttt{openflights.py} cleans the CSV files and computes distances; \texttt{plotting.py} draws routes; \texttt{\_\_main\_\_.py} is the command line; \texttt{test\_search.py} holds the tests. Each module can be changed and tested on its own.
+\end{labanswer}
+
+\begin{labquestion}{3}{Run the automated tests}
+The tests use tiny hand-made graphs and cover start~=~goal, unreachable goal, cycles, different objectives, frontier updates, admissible A$^\star$, non-optimal GBFS and negative costs. Run them with \texttt{pytest} from inside the notebook.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+tests = subprocess.run([sys.executable, "-m", "pytest", "utils", "-q", "--color=no"], capture_output=True, text=True)
+print(tests.stdout)
+assert tests.returncode == 0, tests.stderr
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+........                                                                 [100%]
+8 passed in 0.59s
+\end{lstlisting}
+All eight tests pass in under a second. They need no dataset, so they run anywhere --- including a continuous-integration server. The \texttt{assert} turns a failing test run into a failing notebook, so a broken package cannot produce a benchmark.
+\end{labanswer}
+
+\begin{labquestion}{4}{Exercise the command-line interface}
+Run \texttt{python -m utils --algorithm astar --start KUL --goal KEF} as a subprocess and show its output.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+cli = subprocess.run([sys.executable, "-m", "utils", "--algorithm", "astar", "--start", "KUL", "--goal", "KEF"],
+                     capture_output=True, text=True)
+print(cli.stdout)
+assert cli.returncode == 0, cli.stderr
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=4.20
+KUL -> HKT -> LED -> HEL -> KEF
+\end{lstlisting}
+The command line prints the same KUL$\to$HKT$\to$LED$\to$HEL$\to$KEF route and 11,461~km that Lab~2 found: the notebook and the terminal share one implementation.
+\end{labanswer}
+
+\begin{labquestion}{5}{Benchmark ten route pairs}
+Run BFS, UCS, GBFS and A$^\star$ on the ten queries in \texttt{utils/search\_queries.csv} and summarise success rate, mean cost, mean hops, expanded nodes and runtime per algorithm. Save \texttt{benchmark.csv} and \texttt{benchmark\_summary.csv}.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+_, _, coords, graph, _ = load_openflights(DATA / "lab01-03_airports.csv", DATA / "lab01-03_routes.csv")
+queries = pd.read_csv("utils/search_queries.csv")
+
+
+def heuristic_to(goal):
+    return lambda a: haversine_km(coords[a]["latitude"], coords[a]["longitude"], coords[goal]["latitude"], coords[goal]["longitude"])
+
+
+rows = []
+for query in queries.itertuples():
+    h = heuristic_to(query.goal)
+    results = {"BFS": bfs(graph, query.start, query.goal), "UCS": ucs(graph, query.start, query.goal),
+               "GBFS": gbfs(graph, query.start, query.goal, h), "A*": astar(graph, query.start, query.goal, h)}
+    for name, result in results.items():
+        rows.append({"query_id": query.query_id, "start": query.start, "goal": query.goal, "algorithm": name,
+                     **result.as_dict(), "path": " -> ".join(result.path)})
+
+benchmark = pd.DataFrame(rows).rename(columns={"path_cost_km": "cost_km"})
+benchmark.to_csv(RESULTS / "benchmark.csv", index=False)
+summary = benchmark.groupby("algorithm").agg(success_rate=("found", "mean"), mean_cost_km=("cost_km", "mean"),
+                                             mean_hops=("hops", "mean"), mean_expanded=("expanded", "mean"),
+                                             median_runtime_ms=("runtime_ms", "median")).round(2)
+summary.to_csv(RESULTS / "benchmark_summary.csv")
+display(summary)
+
+costs = benchmark.pivot(index="query_id", columns="algorithm", values="cost_km")
+print("A* cost equals UCS on all 10 queries:", np.allclose(costs["A*"], costs["UCS"]))
+print("GBFS is costlier than UCS on", int((costs["GBFS"] > costs["UCS"] + 1e-6).sum()), "of 10 queries")
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+           success_rate  mean_cost_km  mean_hops  mean_expanded  median_runtime_ms
+algorithm
+A*                  1.0      14321.11        2.2           62.7               3.39
+BFS                 1.0      16469.27        1.8          323.9               3.03
+GBFS                1.0      15087.33        2.1            2.1               2.90
+UCS                 1.0      14321.11        2.2         2700.4               7.58
+A* cost equals UCS on all 10 queries: True
+GBFS is costlier than UCS on 7 of 10 queries
+\end{lstlisting}
+Every algorithm succeeds on all ten queries. A$^\star$ matches the UCS cost on every query with a fraction of the expansions; BFS has the highest mean cost because it optimises hops; GBFS expands the fewest states but returns a costlier route on seven queries. For distance-based routing A$^\star$ is the best default among the exact methods.
+\end{labanswer}
+
+\begin{labquestion}{6}{Save the evidence}
+Save a bar chart of mean expansions per algorithm, and note the one-line terminal command that runs the same tests outside the notebook.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+ax = summary.mean_expanded.sort_values().plot.bar(figsize=(7, 4), logy=True)
+ax.set(ylabel="Mean expanded states (log scale)", title="Ten-query search-effort benchmark")
+ax.grid(axis="y", alpha=0.25)
+plt.tight_layout()
+plt.savefig(RESULTS / "benchmark_expansions.png", dpi=160)
+print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
+print("Terminal command (from all_experiments):  python -m pytest utils -q")
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+Saved: ['benchmark.csv', 'benchmark_expansions.png', 'benchmark_summary.csv']
+Terminal command (from all_experiments):  python -m pytest utils -q
+\end{lstlisting}
+\texttt{python -m pytest utils -q} runs the same tests from a clean checkout, which is exactly what a continuous-integration job would do. Setting up such a job is an optional extension; the required evidence is the passing local run.
+\end{labanswer}

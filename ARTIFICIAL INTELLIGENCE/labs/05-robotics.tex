@@ -1,29 +1,245 @@
 \labsection{5}{Robotics: Sensor-to-Action Control}{sec:lab05-robotics}
 
 \begin{labproject}{Build and evaluate an interpretable wall-following controller}
-\textbf{Scenario.} A SCITOS robot must convert ultrasonic sensing into one of four movement commands.\\
-\textbf{Goal.} Derive a compact threshold-rule policy from the supplied 24-sensor dataset and compare it with a stronger all-sensor reference model.
-
-\begin{labmode}
-Use \texttt{all\_datasets/lab05-sensor\_readings\_24.csv} and run \texttt{all\_experiments/lab05\_robotics\_sensor\_control\_worked.ipynb}. The file has 24 sensor columns plus one action label; it is read with \texttt{header=None}.
-\end{labmode}
-
-\begin{mlsteps}
-  \item \textbf{Inspect the data.} Report class balance and sensor summary statistics. Create a fixed stratified 70/30 train-test split with seed 42.
-  \item \textbf{Select four sensors using training data only.} Rank the 24 sensors by mutual information and retain the top four for the interpretable controller.
-  \item \textbf{Fit an interpretable rule controller.} Tune a shallow decision-tree depth on an internal validation split. Export the final tree as explicit if--then threshold rules.
-  \item \textbf{Fit a reference model.} Train a random forest on all 24 sensors using the same training partition.
-  \item \textbf{Evaluate on held-out data.} Report accuracy, macro precision/recall/F1, class recall, and confusion matrices. Identify the hardest action for the rule controller.
-  \item \textbf{Test robustness.} Add Gaussian sensor noise at 2\%, 5\%, and 10\% of training-set standard deviation and plot rule-controller macro F1.
-\end{mlsteps}
-
-\requiredoutput{Executed notebook, split CSV, selected-feature scores, model metrics, confusion matrices, exported rules, and noise-robustness plot.}
+\textbf{Scenario.} A SCITOS G5 robot must convert 24 ultrasonic readings into one of four movement commands while following a wall.\\
+\textbf{Goal.} Derive a compact threshold-rule policy from four sensors, compare it with an all-sensor reference model, and measure how it degrades under sensor noise.\\
+\textbf{Data.} \texttt{all\_datasets/lab05-sensor\_readings\_24.csv} (5,456 readings, no header: 24 distances in metres, then the action).\\
+\textbf{Source files.} \texttt{all\_experiments/lab05\_robotics\_sensor\_control\_worked.ipynb}.\\
 \end{labproject}
 
-\begin{verification}
-Feature selection, depth selection, and all tuning must use training data only. Test labels are used once for final evaluation.
-\end{verification}
+\noindent\textbf{Setup cell.}
+\begin{lstlisting}[style=aipython]
+from pathlib import Path
 
-\begin{labdeliverable}
-Push the completed Python work and create tag \texttt{lab05-final}. The README must summarize the final rule controller, compare it with the all-sensor reference, and explain why offline classification accuracy is not equivalent to safe robot performance.
-\end{labdeliverable}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import mutual_info_classif
+from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, confusion_matrix, f1_score, precision_recall_fscore_support
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, export_text
+
+ROOT = Path.cwd().parent
+DATA = ROOT / "all_datasets"
+RESULTS = ROOT / "results" / "lab05"
+RESULTS.mkdir(parents=True, exist_ok=True)
+\end{lstlisting}
+
+\begin{labquestion}{1}{Inspect the data and fix the split}
+The CSV has no header: 24 ultrasonic distances (metres) followed by the action label. Name the columns, report the class balance and sensor summary statistics, and create a fixed stratified 70/30 train/test split with seed~42. Save the split.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+sensors = [f"US{i:02d}" for i in range(24)]
+df = pd.read_csv(DATA / "lab05-sensor_readings_24.csv", header=None, names=sensors + ["action"])
+X = df[sensors]
+y = df.action
+
+print("Shape:", df.shape)
+display(y.value_counts().rename("count").to_frame().assign(share=lambda t: (t["count"] / len(df)).round(3)))
+display(X.describe().T[["mean", "std", "min", "max"]].round(2).head(6))
+
+train_idx, test_idx = train_test_split(df.index, test_size=0.30, random_state=42, stratify=y)
+split = pd.Series("train", index=df.index, name="split")
+split[test_idx] = "test"
+split.rename_axis("row_id").to_csv(RESULTS / "split.csv")
+print({"train": len(train_idx), "test": len(test_idx)})
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+Shape: (5456, 25)
+                   count  share
+action
+Move-Forward        2205  0.404
+Sharp-Right-Turn    2097  0.384
+Slight-Right-Turn    826  0.151
+Slight-Left-Turn     328  0.060
+      mean   std   min   max
+US00  1.47  0.80  0.40  5.00
+US01  2.33  1.41  0.44  5.03
+...
+{'train': 3819, 'test': 1637}
+\end{lstlisting}
+5,456 readings; the classes are imbalanced (Move-Forward 40\,\%, Sharp-Right-Turn 38\,\%, Slight-Right-Turn 15\,\%, Slight-Left-Turn 6\,\%), so accuracy alone would flatter a model that ignores the small classes. Readings are distances in metres between 0.4\,m and 5\,m. Stratification keeps the class shares equal in the 3,819 training and 1,637 test rows.
+\end{labanswer}
+
+\begin{labquestion}{2}{Select four sensors using training data only}
+Rank the 24 sensors by mutual information with the action, computed on the training rows only, and keep the top four for the interpretable controller. Save the full ranking.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+mi = mutual_info_classif(X.loc[train_idx], y[train_idx], random_state=42)
+feature_table = pd.DataFrame({"sensor": sensors, "mutual_information": mi}).sort_values("mutual_information", ascending=False)
+feature_table.to_csv(RESULTS / "feature_scores.csv", index=False)
+selected = feature_table.sensor.head(4).tolist()
+print("Selected sensors:", selected)
+display(feature_table.head(8).round(3))
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+Selected sensors: ['US14', 'US17', 'US18', 'US13']
+   sensor  mutual_information
+14   US14               0.596
+17   US17               0.508
+18   US18               0.452
+13   US13               0.417
+19   US19               0.414
+22   US22               0.386
+5    US05               0.376
+12   US12               0.375
+\end{lstlisting}
+The four most informative sensors --- US14, US17, US18 and US13 --- come from the same short arc of the ring, which is what a wall-follower needs: the distance to the wall it is tracking, seen from slightly different angles. Selecting on training rows only keeps the test set untouched.
+\end{labanswer}
+
+\begin{labquestion}{3}{Fit an interpretable rule controller}
+A shallow decision tree is a fixed set of threshold rules. Carve an internal validation set out of the training rows, choose the tree depth by validation macro F1, refit on all training rows, and export the final tree as explicit if--then rules.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+subtrain_idx, val_idx = train_test_split(train_idx, test_size=0.20, random_state=42, stratify=y[train_idx])
+
+depth_results = []
+for depth in [2, 3, 4, 5, 6]:
+    candidate = DecisionTreeClassifier(max_depth=depth, min_samples_leaf=20, class_weight="balanced", random_state=42)
+    candidate.fit(X.loc[subtrain_idx, selected], y[subtrain_idx])
+    score = f1_score(y[val_idx], candidate.predict(X.loc[val_idx, selected]), average="macro")
+    depth_results.append({"max_depth": depth, "validation_macro_f1": score})
+depth_table = pd.DataFrame(depth_results)
+display(depth_table.round(3))
+
+best_depth = int(depth_table.loc[depth_table.validation_macro_f1.idxmax(), "max_depth"])
+rule_model = DecisionTreeClassifier(max_depth=best_depth, min_samples_leaf=20, class_weight="balanced", random_state=42)
+rule_model.fit(X.loc[train_idx, selected], y[train_idx])
+
+rules = export_text(rule_model, feature_names=selected)
+(RESULTS / "rule_controller.txt").write_text(rules)
+print("Selected depth:", best_depth, "| leaves:", rule_model.get_n_leaves())
+print(rules)
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+   max_depth  validation_macro_f1
+0          2                0.463
+1          3                0.826
+2          4                0.872
+3          5                0.887
+4          6                0.883
+Selected depth: 5 | leaves: 14
+|--- US14 <= 0.90
+|   |--- class: Sharp-Right-Turn
+|--- US14 >  0.90
+|   |--- US18 <= 1.00
+|   |   |--- US18 <= 0.50
+|   |   |   |--- US13 <= 1.20
+|   |   |   |   |--- class: Sharp-Right-Turn
+...
+\end{lstlisting}
+Validation macro F1 climbs steeply from depth 2 to 4 and flattens at depth 5, which is selected. The exported tree reads as a policy: the very first split --- \emph{if the wall-side sensor US14 reads less than 0.9\,m, turn sharply right} --- is the wall-following reflex, and the deeper splits refine the slight turns. Every decision is a threshold an engineer can inspect.
+\end{labanswer}
+
+\begin{labquestion}{4}{Fit a reference model}
+Train a random forest on all 24 sensors with the same training rows. It is not interpretable; its purpose is to show what accuracy the four-sensor rule controller gives up.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+reference = RandomForestClassifier(
+    n_estimators=200, min_samples_leaf=2, class_weight="balanced_subsample", random_state=42, n_jobs=-1
+).fit(X.loc[train_idx], y[train_idx])
+print("Random forest trained on", reference.n_features_in_, "sensors with", reference.n_estimators, "trees")
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+Random forest trained on 24 sensors with 200 trees
+\end{lstlisting}
+The forest uses every sensor and 200 trees, so it can exploit interactions the shallow tree cannot. It is the reference ceiling, not a candidate controller.
+\end{labanswer}
+
+\begin{labquestion}{5}{Evaluate on the held-out data}
+Report accuracy, macro precision, macro recall and macro F1 for both models on the test rows, draw both confusion matrices, list per-class recall for the rule controller, and identify its hardest action.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+y_test = y[test_idx]
+predictions = {"Interpretable rule tree": rule_model.predict(X.loc[test_idx, selected]),
+               "Random-forest reference": reference.predict(X.loc[test_idx])}
+
+rows = []
+for name, prediction in predictions.items():
+    precision, recall, f1, _ = precision_recall_fscore_support(y_test, prediction, average="macro")
+    rows.append({"model": name, "accuracy": accuracy_score(y_test, prediction),
+                 "macro_precision": precision, "macro_recall": recall, "macro_f1": f1})
+metrics = pd.DataFrame(rows)
+metrics.to_csv(RESULTS / "metrics.csv", index=False)
+display(metrics.round(3))
+
+labels = sorted(y.unique())
+fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
+for ax, (name, prediction) in zip(axes, predictions.items()):
+    ConfusionMatrixDisplay(confusion_matrix(y_test, prediction, labels=labels), display_labels=labels).plot(ax=ax, colorbar=False, xticks_rotation=30)
+    ax.set_title(name)
+plt.tight_layout()
+plt.savefig(RESULTS / "confusion_matrices.png", dpi=160)
+
+precision, recall, f1, _ = precision_recall_fscore_support(y_test, predictions["Interpretable rule tree"], labels=labels)
+per_class = pd.DataFrame({"precision": precision, "recall": recall, "f1": f1}, index=labels)
+per_class.to_csv(RESULTS / "rule_per_class.csv")
+display(per_class.round(3))
+print("Hardest action for the rule controller (lowest recall):", per_class.recall.idxmin())
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+                     model  accuracy  macro_precision  macro_recall  macro_f1
+0  Interpretable rule tree     0.923            0.879         0.921     0.895
+1  Random-forest reference     0.995            0.993         0.992     0.992
+                   precision  recall     f1
+Move-Forward           0.907   0.943  0.924
+Sharp-Right-Turn       1.000   0.913  0.954
+Slight-Left-Turn       0.702   0.939  0.803
+Slight-Right-Turn      0.906   0.891  0.898
+Hardest action for the rule controller (lowest recall): Slight-Right-Turn
+\end{lstlisting}
+The four-sensor tree reaches about 92\,\% accuracy and 0.90 macro F1; the all-sensor forest reaches over 99\,\% on both. The rule controller's weakest action is Slight-Right-Turn, confused with its neighbours Move-Forward and Sharp-Right-Turn because a ``slight'' turn is a narrow band of distances between the other two. That is the accuracy cost of a controller a person can read.
+\end{labanswer}
+
+\begin{labquestion}{6}{Test robustness to sensor noise}
+Add zero-mean Gaussian noise to the test readings at 2\,\%, 5\,\% and 10\,\% of the training-set standard deviation of each selected sensor, and plot the rule controller's macro F1 against the noise level.
+\end{labquestion}
+
+\begin{labanswer}
+\begin{lstlisting}[style=aipython]
+rng = np.random.default_rng(42)
+train_sd = X.loc[train_idx, selected].std().to_numpy()
+clean = X.loc[test_idx, selected].to_numpy(float)
+
+noise_rows = []
+for fraction in [0.0, 0.02, 0.05, 0.10]:
+    noisy = clean + rng.normal(0.0, fraction * train_sd, size=clean.shape)
+    prediction = rule_model.predict(pd.DataFrame(noisy, columns=selected))
+    noise_rows.append({"noise_fraction_of_train_sd": fraction, "macro_f1": f1_score(y_test, prediction, average="macro")})
+noise = pd.DataFrame(noise_rows)
+noise.to_csv(RESULTS / "noise_robustness.csv", index=False)
+display(noise.round(3))
+
+ax = noise.plot(x="noise_fraction_of_train_sd", y="macro_f1", marker="o", legend=False, figsize=(6, 4))
+ax.set(xlabel="Gaussian noise (fraction of training SD)", ylabel="Macro F1", title="Rule-controller robustness")
+plt.tight_layout()
+plt.savefig(RESULTS / "noise_robustness.png", dpi=160)
+print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
+\end{lstlisting}
+\expectedoutput
+\begin{lstlisting}[style=aiterminal]
+   noise_fraction_of_train_sd  macro_f1
+0                        0.00     0.895
+1                        0.02     0.858
+2                        0.05     0.787
+3                        0.10     0.706
+\end{lstlisting}
+Macro F1 falls from 0.90 with clean readings to about 0.71 at 10\,\% noise. Hard thresholds are brittle: a reading that sits near a split boundary flips class as soon as noise pushes it across. Offline classification accuracy is not the same as safe control --- deployment adds sequential feedback, actuator delay and sensor failure --- so the tree is a perception-policy prototype, not deployment-ready autonomy.
+\end{labanswer}

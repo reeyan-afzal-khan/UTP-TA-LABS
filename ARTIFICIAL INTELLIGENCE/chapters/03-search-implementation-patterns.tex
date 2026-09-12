@@ -1,39 +1,17 @@
-\chapter{Search Implementation Patterns}
+\chapter{Search Engineering: One Loop, Five Algorithms, Tested}
 \label{ch:searchpatterns}
 
 \chapterguide%
-  {Know the conceptual difference among BFS, DFS, UCS, GBFS, and A*.}
-  {recognize reusable Python patterns for search, convert graphs to grids or trees without changing the search logic, and debug common frontier/visited mistakes.}
+  {Know what BFS, DFS, UCS, GBFS and A$^\star$ each optimise (\chapsref{ch:uninformed}{ch:informed}).}
+  {explain why the five algorithms are one loop with a pluggable frontier; read and extend the \texttt{utils} package; write a unit test for a search function; run the toolkit from the command line; and design a benchmark whose numbers can be compared fairly.}
 
-Lab 3 consolidates the search methods around five elements: frontier, visited set, successor loop, goal test, and path representation.
+Labs~1 and~2 produced working code inside notebooks. Lab~3 asks what has to change for that code to be trusted by someone else: put it in a package, give every algorithm the same interface, test it on graphs small enough to check by hand, drive it from a terminal, and benchmark it on more than three queries. None of this is specific to search; it is how any piece of analysis code becomes software.
 
-\section{The generic graph-search loop}
+\section{The pluggable frontier}
 
-The methods share the following control flow.
+Every search program in this course has four parts, and three of them are fixed by the problem. The state representation and the successor function come from the graph; the goal test comes from the query. Only the frontier policy is a design choice, and that single choice names the algorithm (\figref{fig:pluggable}).
 
-\begin{lstlisting}[style=mlpython]
-frontier = make_frontier(start)
-visited = set()
-
-while frontier:
-    state, path, cost = remove_next(frontier)
-
-    if state == goal:
-        return path, cost
-
-    if state in visited:
-        continue
-    visited.add(state)
-
-    for successor in successors(state):
-        add_to_frontier(frontier, successor, path, cost)
-\end{lstlisting}
-
-What changes is \texttt{remove\_next} and the priority attached to each state.
-
-\begin{aifig}[The pluggable frontier policy]{The four components of every search program in
-this course. Three of them are fixed by the problem; only the frontier policy is chosen by
-the programmer, and that single choice is what names the algorithm.}{fig:pluggable}
+\begin{aifig}[The pluggable frontier policy]{The four components of every search program in this course. Three are fixed by the problem; only the frontier policy is chosen by the programmer, and that one choice is what names the algorithm.}{fig:pluggable}
 \begin{tikzpicture}[
   box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=0.9cm,align=center,font=\small\bfseries\color{MLNavy}},
   policy/.style={draw=MLOrange!70!black,fill=MLPaleOrange,rounded corners=1.5mm,minimum width=1.55cm,minimum height=0.65cm,align=center,font=\scriptsize\bfseries\color{MLOrange!85!black}},
@@ -56,246 +34,212 @@ the programmer, and that single choice is what names the algorithm.}{fig:pluggab
 \end{tikzpicture}
 \end{aifig}
 
-The domain defines states and successors; the algorithm defines frontier policy. The same control loop can therefore serve cities, grids, or words.
+\texttt{utils/core.py} takes this literally. BFS and DFS are two short functions that differ in \texttt{popleft} versus \texttt{pop}. UCS, GBFS and A$^\star$ are one function, \texttt{best\_first}, with a \texttt{mode} argument that selects the priority; \texttt{ucs}, \texttt{gbfs} and \texttt{astar} are one-line wrappers around it. When Lab~2 needed weighted A$^\star$, no new search code was written --- the heuristic was multiplied by 1.5 and passed to the same function.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}p{0.23\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.12\linewidth}p{0.30\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Algorithm & Frontier implementation & Information stored or prioritized \\
+Algorithm & Frontier structure & Entry and priority \\
 \midrule
-BFS & \texttt{collections.deque} & Path; oldest discovered state first \\
-DFS & Recursion or list stack & Current recursive path / most recent state \\
-UCS & \texttt{heapq} & \((g,\;path)\) \\
-GBFS & \texttt{heapq} & \((h,\;path)\) \\
-A* & \texttt{heapq} & \((f,\;g,\;path)\) \\
+BFS & \texttt{collections.deque} & state; oldest first \\
+DFS & Python list as a stack & state; newest first \\
+UCS & \texttt{heapq} min-heap & \texttt{(g, counter, state, g)} \\
+GBFS & \texttt{heapq} min-heap & \texttt{(h(state), counter, state, g)} \\
+A$^\star$ & \texttt{heapq} min-heap & \texttt{(g + h(state), counter, state, g)} \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\section{Representation changes; search structure remains}
+\section{One result type for every algorithm}
 
-\figref{fig:domains} makes the claim concrete across the four domains used in Labs 1--3. The
-successor function looks completely different in each --- adjacency lookup, coordinate
-arithmetic, letter substitution, child pointers --- but it returns the same thing every time:
-a list of states. Above that line, the search code never changes.
+A benchmark loop can only compare algorithms that return the same thing. \texttt{utils} defines one frozen dataclass and every function returns it:
 
-\begin{aifig}[One search skeleton across four domains]{The same search code applied to four
-representations. Everything below the dashed line is domain-specific and must be rewritten
-per problem; everything above it is shared. Recognising where that line falls is the point
-of the chapter.}{fig:domains}
+\begin{lstlisting}[style=aipython]
+@dataclass(frozen=True)
+class SearchResult:
+    found: bool
+    path: list
+    hops: int
+    path_cost_km: float
+    expanded: int
+    max_frontier: int
+    runtime_ms: float
+
+    def as_dict(self) -> dict:
+        return asdict(self)
+\end{lstlisting}
+
+Three design decisions are hidden in those seven fields.
+
+\begin{description}
+  \item[The cost is recomputed from the path.] \texttt{path\_cost\_km} is the sum of the edge weights along the returned path, computed by a helper after the search finishes, not the $g$ value the search happened to carry. The reported cost and the reported path can therefore never disagree.
+  \item[Failure has a shape.] An unreachable goal returns \texttt{found=False}, an empty path, \texttt{hops=-1} and an infinite cost, so a caller can test \texttt{result.found} instead of catching an exception or checking for \texttt{None}.
+  \item[Effort is part of the answer.] \texttt{expanded} and \texttt{max\_frontier} are counted inside the loop, so every comparison in Labs 1--3 comes from the same counters.
+\end{description}
+
+\texttt{as\_dict()} is what turns a result into a row of a pandas table with one expression, \texttt{\{**result.as\_dict()\}}, which is how every metrics file in the labs is built.
+
+\section{Separating responsibilities}
+
+\texttt{utils} has five modules, and each knows nothing about the others' concerns (\figref{fig:domains}).
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Module & Responsibility \\
+\midrule
+\texttt{core.py} & The five algorithms and \texttt{SearchResult}. Works on any \texttt{\{state: [(neighbour, cost)]\}} dictionary; never mentions airports. \\
+\texttt{openflights.py} & Reads the two CSV files, cleans them, computes Haversine distances, returns the graph. Never searches. \\
+\texttt{plotting.py} & Draws routes on longitude/latitude axes. \\
+\texttt{\_\_main\_\_.py} & The command-line interface: parses arguments, loads the graph, calls one algorithm, prints. \\
+\texttt{test\_search.py} & The unit tests, on graphs of four to five states. Imports \texttt{core} only. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{aifig}[One search loop across four graph sources]{The same search code applied to four kinds of graph. Everything below the dashed line produces a \texttt{\{state: [(neighbour, cost)]\}} dictionary and is specific to its source; everything above it is shared and never changes. Recognising where the line falls is the point of the chapter.}{fig:domains}
 \begin{tikzpicture}[font=\small]
-% shared layer
 \node[aibox,fill=MLPaleTeal,draw=MLGreen,minimum width=12.6cm,minimum height=1.0cm]
-  (shared) at (0,1.5) {\textbf{Shared search loop}\ \ \ frontier $\cdot$ visited set $\cdot$ goal test $\cdot$ path building};
+  (shared) at (0,1.5) {\textbf{\texttt{core.py}: the shared search loop}\ \ \ frontier $\cdot$ seen set $\cdot$ goal test $\cdot$ path building};
 \draw[dashed,draw=MLMuted!70] (-6.5,0.72) -- (6.5,0.72);
 \node[ailabel,anchor=east,color=MLMuted] at (6.45,0.55) {domain boundary};
-
-% four domains
 \newcommand{\domain}[4]{%
   \node[aibox,minimum width=2.85cm,minimum height=1.45cm,align=center,font=\scriptsize\color{MLNavy}]
     (#1) at (#2,-0.75) {\textbf{#3}\\[2pt]#4};
   \draw[aiarrow] (#1.north) -- (#1.north |- shared.south);}
-\domain{gr}{-4.8}{Graph}{successors $=$\\\texttt{adj[node]}}
-\domain{gd}{-1.6}{Grid}{successors $=$\\4 in-bounds\\non-wall cells}
-\domain{wl}{1.6}{Word ladder}{successors $=$\\words one letter\\away in the list}
-\domain{tr}{4.8}{Tree}{successors $=$\\\texttt{[left, right]}}
+\domain{of}{-4.8}{OpenFlights}{\texttt{openflights.py}\\6,464 airports\\Haversine costs}
+\domain{ty}{-1.6}{Hand-made graph}{\texttt{test\_search.py}\\4--5 states\\costs chosen by hand}
+\domain{rd}{1.6}{Road network}{a future loader\\junctions, roads\\costs in minutes}
+\domain{gd}{4.8}{Grid or maze}{a future loader\\cells, 4 moves\\unit costs}
 \node[ailabel,anchor=north,align=center,color=MLMuted] at (0,-1.85)
-  {four different successor functions, one identical caller};
+  {four graph sources, one identical caller};
 \end{tikzpicture}
 \end{aifig}
 
-\subsection{Graphs}
-A graph dictionary directly maps a node to its neighbors. Weighted graphs map to \((\text{neighbor},\text{cost})\) pairs.
-
-\begin{lstlisting}[style=mlpython]
-graph = {
-    'A': [('B', 1), ('C', 4)],
-    'B': [('D', 3), ('E', 2)],
-    'C': [('F', 5)],
-    'D': [('G', 4)],
-    'E': [('G', 1)],
-    'F': [('G', 2)],
-    'G': []
-}
-\end{lstlisting}
-
-\subsection{Grids}
-A grid does not list neighbors explicitly. The successor function computes adjacent coordinates and checks bounds and cell conditions.
-
-\begin{lstlisting}[style=mlpython]
-for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-    nx, ny = x + dx, y + dy
-    if 0 <= nx < rows and 0 <= ny < cols:
-        # apply the problem's wall or cost rule here
-        ...
-\end{lstlisting}
-
-\subsection{Word ladders}
-The Lab 3 GBFS example stores valid one-letter transitions explicitly as a graph. The heuristic compares the current word with the goal.
-
-\begin{lstlisting}[style=mlpython]
-def greedy_word_ladder(words, start, goal):
-    import heapq
-
-    def h(w):
-        return sum(1 for a, b in zip(w, goal) if a != b)
-
-    pq = [(h(start), [start])]
-    visited = set()
-
-    while pq:
-        _, path = heapq.heappop(pq)
-        current = path[-1]
-        if current == goal:
-            return path
-
-        if current in visited:
-            continue
-        visited.add(current)
-        for neighbor in words.get(current, []):
-            if neighbor not in visited:
-                heapq.heappush(pq, (h(neighbor), path + [neighbor]))
-    return None
-\end{lstlisting}
-
-\subsection{Trees}
-Tree traversal uses child references instead of a graph dictionary. BFS enqueues children; DFS recursively visits them.
-
-\begin{lstlisting}[style=mlpython]
-def bfs_tree(root):
-    from collections import deque
-    if not root:
-        return []
-
-    queue = deque([root])
-    result = []
-    while queue:
-        node = queue.popleft()
-        result.append(node.val)
-        if node.left:
-            queue.append(node.left)
-        if node.right:
-            queue.append(node.right)
-    return result
-\end{lstlisting}
-
-\section{Path storage as a teaching device}
-
-The teaching implementations store the full path in each frontier entry:
-
-\begin{lstlisting}[style=mlpython]
-queue.append(((nx, ny), path + [(nx, ny)]))
-\end{lstlisting}
-
-\begin{intuition}
-Path copying simplifies traces and permits immediate path return, although larger systems often store parent links to reduce memory use.
-\end{intuition}
-
-\section{Visited-state discipline}
-
-The examples update visited sets at slightly different points. The purpose is always the same: avoid processing a state repeatedly.
-
-\begin{debugtask}
-Take the ``graph with loops'' from Lab 1, which contains edges back from \texttt{B} and \texttt{C} to \texttt{A}. Remove the visited set from UCS and print the first 30 popped paths. Explain why the priority queue keeps receiving cyclic paths even though a goal exists.
-\end{debugtask}
-
-UCS may still reach a cheap goal, but cyclic paths such as \texttt{A -> B -> A -> B} inflate the queue. Record popped states and maximum frontier size to expose the defect.
+The payoff is concrete. To search a road network instead of airports, only a new loader is needed; \texttt{core.py} and its tests are untouched. To try a new algorithm, only \texttt{core.py} changes; the loader, the CLI and the benchmark keep working. Lab~3's deliverable asks you to name which module you would change for a road network, and the answer is a test of whether the boundary in \figref{fig:domains} has been understood.
 
 \section{Priority queues and tuple ordering}
 
-Python's \texttt{heapq} removes the smallest tuple lexicographically. The laboratory code intentionally places the numerical priority first:
+Python's \texttt{heapq} pops the smallest tuple, comparing element by element from the left. The frontier entries in \texttt{best\_first} are \texttt{(priority, counter, state, g)}, and the \texttt{counter} is there for a reason (\figref{fig:tuple}).
 
-\begin{lstlisting}[style=mlpython]
-# UCS
-heapq.heappush(pq, (cost + weight, path + [neighbor]))
-
-# GBFS
-heapq.heappush(pq, (heuristic((nx, ny), goal), path + [(nx, ny)]))
-
-# A*
-heapq.heappush(pq, (new_g + heuristic((nx, ny), goal),
-                    new_g,
-                    path + [(nx, ny)]))
-\end{lstlisting}
-
-The first tuple element sets priority; later fields carry cost or path data.
-\figref{fig:tuple} shows what \texttt{heapq} actually compares.
-
-\begin{aifig}[How heapq breaks priority ties]{Tuples are compared left to right. Field~1 is
-the priority; when two entries tie there, Python silently moves to field~2 --- the path list
-in this code. That works only while all states are mutually comparable.}{fig:tuple}
+\begin{aifig}[How heapq breaks priority ties]{Tuples are compared left to right. When two entries tie on priority, Python compares the next field. The \texttt{counter} guarantees that the next field is a unique integer, so ties resolve by insertion order and the state itself is never compared.}{fig:tuple}
 \begin{tikzpicture}[font=\small]
 \foreach \a/\b/\c/\y in {%
-  {4}/{2}/{[A, B, E]}/{0.7},
-  {4}/{3}/{[A, C, F]}/{0.0}}{
+  {4.0}/{17}/{'LED'}/{0.7},
+  {4.0}/{23}/{'HEL'}/{0.0}}{
   \node[aihot,minimum width=1.0cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (0,\y) {\a};
   \node[aicell,minimum width=1.0cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.15,\y) {\b};
   \node[aicell,minimum width=2.3cm,minimum height=0.6cm,font=\scriptsize\ttfamily] at (2.9,\y) {\c};
 }
 \node[ailabel,anchor=south] at (0,1.12) {priority};
-\node[ailabel,anchor=south] at (1.15,1.12) {$g$};
-\node[ailabel,anchor=south] at (2.9,1.12) {path};
+\node[ailabel,anchor=south] at (1.15,1.12) {counter};
+\node[ailabel,anchor=south] at (2.9,1.12) {state};
 \draw[decorate,decoration={brace,amplitude=3.5pt,raise=2pt},draw=MLRed,semithick]
   (-0.55,-0.36) -- (-0.55,1.06);
 \node[ailabel,anchor=east,color=MLRed,align=right] at (-0.85,0.35) {tie\\here};
 \draw[aiptr,draw=MLGreen] (1.15,-0.42) -- (1.15,-0.75);
-\node[ailabel,anchor=north,color=MLGreen] at (1.15,-0.78) {so field 2 decides};
+\node[ailabel,anchor=north,color=MLGreen] at (1.15,-0.78) {so the counter decides};
 \node[ailabel,anchor=west,align=left,text width=5.2cm] at (4.4,0.35)
-  {Put a tiebreaker in field~2 deliberately. Leaving the path there means the heap
-   compares lists, which fails the moment the state types are mixed.};
+  {Without the counter the heap would compare the states. Strings compare, so airports
+   happen to work --- but a tuple state or a mixed type raises \texttt{TypeError}, and even
+   when it works the tie is broken by name rather than by the search.};
 \end{tikzpicture}
 \end{aifig}
 
 \begin{pitfall}
-When two priorities tie, Python moves on to the \emph{next} tuple element --- and in the code above that is the path list. Comparing two lists compares their elements, so this only works while every state is mutually comparable.
-
-The lab states are homogeneous (all strings, or all coordinate tuples), so the ties resolve quietly and the code runs. Mix the types and the same line raises at run time:
-
-\begin{lstlisting}[style=mlpython]
-heapq.heappush(pq, (4, ['A', 1]))
-heapq.heappush(pq, (4, ['A', 'B']))
-# TypeError: '<' not supported between instances of 'str' and 'int'
-\end{lstlisting}
-
-It is also a correctness smell even when it works: the tie is broken by whichever path happens to sort first, so the algorithm's output depends on state names rather than on the search.
-
-The fix is one unique increasing integer between the priority and the payload, which makes ties resolve by insertion order and stops the payload from ever being compared:
-
-\begin{lstlisting}[style=mlpython]
-counter = 0
-...
-counter += 1
-heapq.heappush(pq, (cost + weight, counter, path + [neighbor]))
-\end{lstlisting}
+Putting the path list, or any payload, directly after the priority is a correctness smell even when it runs: two equal-priority entries are then ordered by comparing their payloads, so the algorithm's output depends on state names. One unique increasing integer between the priority and the payload makes ties resolve by insertion order and stops the payload from ever being compared.
 \end{pitfall}
 
-\section{A single comparison harness}
+\section{Testing search code}
 
-Run all compatible algorithms through one reporting function:
+A search function can be wrong in ways that a successful run on 6,464 airports never reveals: it may return a path but not the cheapest, count expansions off by one, or loop forever on a cycle. Tests on graphs of four or five states catch these because the correct answer can be worked out by hand. \texttt{utils/test\_search.py} has eight, one per failure mode:
 
-\begin{lstlisting}[style=mlpython]
-def show_result(name, result):
-    print(f"\n{name}")
-    if result is None:
-        print("No path found")
-    else:
-        print(result)
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.34\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Test & What a failure would mean \\
+\midrule
+start equals goal & The goal test runs before any expansion; hops and cost are zero. \\
+unreachable goal & Failure is reported as \texttt{found=False}, not an exception or a wrong path. \\
+cycles terminate & The seen-set stops DFS from looping forever. \\
+BFS and UCS optimise different objectives & The two algorithms give different answers on a graph built so that they must. \\
+frontier update finds the cheaper path & A state first reached expensively is later replaced by a cheaper route. \\
+A$^\star$ matches UCS with an admissible heuristic & The optimality guarantee holds on a hand-checked graph. \\
+GBFS is not assumed optimal & The test asserts the \emph{expected} suboptimality rather than pretending it away. \\
+negative cost is rejected & The precondition of UCS is enforced with a clear error. \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+One test in full shows the pattern --- a tiny graph, a hand-derived expectation, one assertion:
+
+\begin{lstlisting}[style=aipython]
+def test_frontier_update_finds_cheaper_path():
+    graph = {"A": [("B", 10.0), ("C", 1.0)], "C": [("B", 1.0)], "B": [("G", 1.0)], "G": []}
+    result = ucs(graph, "A", "G")
+    assert result.path == ["A", "C", "B", "G"]
+    assert result.path_cost_km == pytest.approx(3.0)
 \end{lstlisting}
 
-Compare two questions:
-\begin{enumerate}
-  \item Did the algorithm find a goal?
-  \item What rule caused it to choose this particular path or cost?
-\end{enumerate}
+The tests import \texttt{core} only, so they need no dataset, run in well under a second, and can execute on any machine --- including a continuous-integration server that runs them on every commit. That is the practical meaning of ``dataset-free'': a test that needs a 2~MB download is a test that will not be run.
+
+\begin{keyidea}
+Test the algorithm on the smallest graph that can expose the bug, and test the dataset loader separately. A test that needs real data to run tests both at once and diagnoses neither.
+\end{keyidea}
+
+\section{A command-line interface}
+
+A package that can only be used from a notebook is only half reusable. \texttt{utils/\_\_main\_\_.py} lets Python run the package as a program:
+
+\begin{lstlisting}[style=aiterminal]
+cd all_experiments
+python -m utils --algorithm astar --start KUL --goal KEF
+ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=4.20
+KUL -> HKT -> LED -> HEL -> KEF
+\end{lstlisting}
+
+The module is thirty lines: \texttt{argparse} declares the three options, the loader builds the graph, a dictionary maps the algorithm name to the function, and the result is printed. It contains no search logic and no data cleaning --- it only \emph{calls} them --- which is why the answer it prints is, to the metre, the one Lab~2 found. Lab~3 runs this command as a subprocess from the notebook and asserts that it exits with status~0.
+
+\section{Benchmarking fairly}
+
+Three queries make a demonstration; ten make a benchmark. Lab~3 runs BFS, UCS, GBFS and A$^\star$ on the ten route pairs in \texttt{utils/search\_queries.csv} and summarises them:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.12\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Algorithm & Success rate & Mean cost (km) & Mean hops & Mean expanded \\
+\midrule
+BFS & 1.0 & 16,469 & 1.8 & 324 \\
+UCS & 1.0 & 14,321 & 2.2 & 2,700 \\
+GBFS & 1.0 & 15,087 & 2.1 & 2.1 \\
+A$^\star$ & 1.0 & 14,321 & 2.2 & 63 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+A benchmark is only fair if a few conditions hold, and each one is visible in the notebook.
+
+\begin{itemize}
+  \item \textbf{Same graph, same queries, same machine.} Every algorithm sees the identical cleaned graph and the identical ten pairs.
+  \item \textbf{Success rate before averages.} A mean cost over the queries an algorithm happened to solve would flatter an algorithm that fails on hard queries. All four succeed on all ten here, which makes the means comparable.
+  \item \textbf{Effort in expansions, not milliseconds.} The runtime column is kept but is not the basis for conclusions.
+  \item \textbf{Every path validated.} The notebook checks that A$^\star$'s cost equals UCS's on all ten queries and counts the queries on which GBFS is costlier (seven of ten).
+\end{itemize}
+
+The result is a recommendation with evidence behind it: for kilometre-based routing, A$^\star$ is the default --- UCS's answer at 2\,\% of UCS's effort. BFS is the right tool only when the objective really is fewest legs; GBFS is an approximation to reach for when effort matters more than the last few percent of cost.
 
 \input{labs/03-search-consolidation}
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item Which one line changes conceptually when you move from UCS to GBFS: successor generation or priority calculation?
-  \item Why can the same Manhattan heuristic function be reused in GBFS and A*?
-  \item What is the purpose of carrying \texttt{g} separately from \texttt{f} in the A* heap entry?
-  \item In a tree, what plays the role of the successor function used by graph search?
+  \item Which \emph{one} line differs between UCS and A$^\star$ in \texttt{best\_first}, and which module would you edit to add a fourth mode?
+  \item Why is \texttt{path\_cost\_km} recomputed from the returned path instead of taken from the search's $g$ value?
+  \item What is the \texttt{counter} in the heap tuple for, and what goes wrong without it when states are tuples?
+  \item Why do the tests use a five-state graph rather than the airline network?
+  \item The benchmark reports GBFS as costlier than UCS on seven of ten queries. Why is ``seven of ten'' more informative than the mean cost gap alone?
 \end{enumerate}
 \end{quickcheck}

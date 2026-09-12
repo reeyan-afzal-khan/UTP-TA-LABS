@@ -1,21 +1,17 @@
-\chapter{Python Environment, Data, and Repository Standard}
+\chapter{Your Python Toolkit and Environment Setup}
 \label{ch:python}
 
 \chapterguide%
-  {set up the course project, install Python dependencies, and obtain the required datasets.}
-  {run every laboratory reproducibly in Jupyter and maintain one professional GitHub repository for the course.}
+  {Create folders and run basic \textbf{terminal commands}.}
+  {Organize \textbf{datasets}, create a \textbf{virtual environment}, and install \textbf{dependencies}.}
 
-\begin{keyidea}
-This course uses \textbf{Python only}. All assessed experiments are provided as Jupyter notebooks and all reusable course code is written in Python.
-\end{keyidea}
+\section{The course project layout}
 
-\section{Standard project structure}
-
-Use one repository for the whole course. Keep code, notebooks, datasets, and generated evidence in predictable locations:
+Use one \textbf{project root} with four folders: \textbf{datasets}, \textbf{experiments} (the notebooks and every helper module they import), the book's \textbf{chapters} and \textbf{lab sheets}, and a \textbf{results} folder that the notebooks fill:
 
 \begin{lstlisting}[style=mlterminal]
-UTP-ARTIFICIAL-INTELLIGENCE/
-  all_datasets/
+ARTIFICIAL INTELLIGENCE/
+  all_datasets/                 # every dataset, one file per lab
     lab01-03_airports.csv
     lab01-03_routes.csv
     lab04-AirQuality.csv
@@ -24,7 +20,7 @@ UTP-ARTIFICIAL-INTELLIGENCE/
     lab07-Tweets.csv
     lab08-insurance.csv
 
-  all_experiments/
+  all_experiments/              # one worked notebook per lab ...
     lab01_search_foundations_worked.ipynb
     lab02_informed_search_worked.ipynb
     lab03_search_engineering_worked.ipynb
@@ -33,172 +29,217 @@ UTP-ARTIFICIAL-INTELLIGENCE/
     lab06_handwriting_ocr_worked.ipynb
     lab07_airline_sentiment_worked.ipynb
     lab08_genetic_algorithm_regression_worked.ipynb
-
-  src/search_toolkit/
-  tests/
-  config/
-  results/lab01/ ... results/lab08/
+    utils/                      # ... plus the helper code they import
+      core.py                   #     BFS, DFS, UCS, GBFS, A*  (Labs 1-3)
+      openflights.py            #     loads the airline graph
+      plotting.py               #     draws routes
+      __main__.py               #     python -m utils ...  (the Lab 3 CLI)
+      test_search.py            #     unit tests: python -m pytest utils
+      search_queries.csv        #     the route queries for Labs 1-3
   requirements.txt
-  run_all_notebooks.py
-  README.md
 \end{lstlisting}
 
-\begin{keyidea}
-\textbf{Do not rename supplied files casually.} The notebooks use the filenames above so that a clean checkout can be reproduced without editing paths in multiple places.
-\end{keyidea}
+\section{Download the datasets}
 
-\section{Dataset acquisition}
-
-Download each dataset manually from its Kaggle webpage. No Kaggle API key or token is required. Sign-in may be required by Kaggle. The course project already uses the local filenames shown below.
+Click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
 
 \begin{mltable}
 \footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{@{}p{0.36\linewidth}p{0.12\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{@{}p{0.40\linewidth}>{\centering\arraybackslash}p{0.09\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-\textbf{Kaggle dataset} & \textbf{Lab(s)} & \textbf{Local file and purpose} \\
+\textbf{Kaggle dataset} & \textbf{Lab} & \textbf{Use} \\
 \midrule
-\href{https://www.kaggle.com/datasets/open-flights/flight-route-database}{\textbf{OpenFlights Flight Route Database}}
-& 1--3 & \texttt{lab01-03\_routes.csv}; directed airline routes for uninformed and informed search. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/open-flights/airports-train-stations-and-ferry-terminals/data}{\textbf{OpenFlights Airports, Train Stations and Ferry Terminals}}
-& 1--3 & \texttt{lab01-03\_airports.csv}; IATA codes and coordinates for graph construction and Haversine heuristics. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/fedesoriano/air-quality-data-set}{\textbf{Air Quality Dataset}}
-& 4 & \texttt{lab04-AirQuality.csv}; fuzzy control and ANFIS regression. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/uciml/wall-following-robot}{\textbf{Wall-Following Robot Sensor Readings}}
-& 5 & \texttt{lab05-sensor\_readings\_24.csv}; 24 ultrasonic sensor readings plus movement class. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/mrdude20/doctor-handwriting-recognition-dataset}{\textbf{Doctor Handwriting Recognition Dataset}}
-& 6 & \texttt{lab06-ocr-handwritten-prescription.zip}; 89 labelled handwriting images for OCR evaluation. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/chandana890/twitter-airline-sentiment-dataset}{\textbf{Twitter Airline Sentiment Dataset}}
-& 7 & \texttt{lab07-Tweets.csv}; a single CSV for three-class sentiment classification. \\
-\addlinespace
-\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{\textbf{Medical Cost Personal Dataset}}
-& 8 & \texttt{lab08-insurance.csv}; regression data for genetic-algorithm optimisation. \\
+\textbf{OpenFlights:}
+\href{https://www.kaggle.com/datasets/open-flights/flight-route-database}{\textbf{Routes}}
+\& \href{https://www.kaggle.com/datasets/open-flights/airports-train-stations-and-ferry-terminals/data}{\textbf{Airports}}
+& 1--3 & Route search, locations and distances \\
+\href{https://www.kaggle.com/datasets/fedesoriano/air-quality-data-set}
+{\textbf{Air Quality}} & 4 & Fuzzy logic and ANFIS \\
+\href{https://www.kaggle.com/datasets/uciml/wall-following-robot}
+{\textbf{Wall-Following Robot}} & 5 & Sensor-based control \\
+\href{https://www.kaggle.com/datasets/mrdude20/doctor-handwriting-recognition-dataset}
+{\textbf{Doctor Handwriting}} & 6 & OCR evaluation \\
+\href{https://www.kaggle.com/datasets/chandana890/twitter-airline-sentiment-dataset}
+{\textbf{Twitter Airline Sentiment}} & 7 & Sentiment classification \\
+\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}
+{\textbf{Medical Cost}} & 8 & GA regression \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\subsection{Download procedure}
+\subsection{Download steps}
 
 \begin{mlsteps}
-  \item Open the Kaggle dataset page and choose \textbf{Download}.
-  \item Extract the archive when required and copy only the files used by the laboratory into \texttt{all\_datasets/}.
-  \item Keep the filenames exactly as listed in the table.
-  \item Run the corresponding notebook from the project root and confirm that its data-validation cell passes before continuing.
+  \item Open the link, click \textbf{Download}, and \textbf{extract} the archive.
+  \item Copy the required \textbf{CSV files or images} into \textbf{\texttt{all\_datasets/}}.
+  \item Check that your notebook's \textbf{file paths} match the filenames, including \textbf{capitalization}.
 \end{mlsteps}
 
 \begin{pitfall}
-For \texttt{FileNotFoundError}, check the current working directory and filename first. Correct the path rather than copying duplicate datasets into the project root.
+For \textbf{\texttt{FileNotFoundError}}, check the \textbf{working directory}, \textbf{folder}, and \textbf{filename}. Correct the path instead of moving files into the project root.
 \end{pitfall}
 
-\section{Install Python and create the environment}
+\section{Install Python and configure PATH}
 
-Install a current Python 3 release from the \href{https://www.python.org/downloads/}{official Python downloads page}. Then create a project-specific virtual environment from the repository root:
+Download Python from the \href{https://www.python.org/downloads/}{\textbf{official downloads page}}.
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Windows] Run the installer, enable \textbf{\texttt{PATH}}, and reopen the terminal. Use \textbf{\texttt{py}}.
+  \item[macOS] Run the \textbf{\texttt{.pkg} installer} and restart Terminal. Keep the \textbf{system Python} unchanged.
+  \item[Linux] Install \textbf{Python 3} with your package manager. Do not replace the \textbf{system Python}.
+\end{description}
+
+\textbf{Windows PATH fix.} If \texttt{py} is not found, open \textbf{Edit environment variables for your account}, select \textbf{Path}, then \textbf{Edit}. Add the command directory shown by your installer, for example:
+
+\begin{lstlisting}[style=mlterminal]
+%LocalAppData%\Python\bin
+\end{lstlisting}
+
+\textbf{macOS PATH fix.} If the installer placed Python in \texttt{/usr/local/bin} but your terminal cannot find it, add that directory to your Z shell's \textbf{PATH}:
+
+\begin{lstlisting}[style=mlterminal]
+echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+\end{lstlisting}
+
+For \textbf{Debian or Ubuntu}:
+
+\begin{lstlisting}[style=mlterminal]
+sudo apt update
+sudo apt install python3 python3-venv python3-pip
+\end{lstlisting}
+
+\textbf{Verify} the installation and executable location:
+
+\begin{lstlisting}[style=mlterminal]
+# Windows
+py --version
+py -m pip --version
+where py
+
+# macOS or Linux
+python3 --version
+python3 -m pip --version
+which -a python3
+\end{lstlisting}
+
+\section{Create an isolated virtual environment}
+
+\textbf{\texttt{venv}} keeps this project's packages separate from other projects. See the \href{https://docs.python.org/3/library/venv.html}{\textbf{venv documentation}}.
+
+The root-level \textbf{\texttt{requirements.txt}} lists the course \textbf{dependencies}:
+
+\begin{lstlisting}[style=mlterminal]
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+jupyter
+nbformat
+nbconvert
+pillow
+pytesseract
+pytest
+\end{lstlisting}
+
+Lab~6 additionally needs the Tesseract OCR \emph{engine}, which is not a Python package; its lab sheet gives the one-line installer for each operating system.
+
+\textbf{Create} the environment in the \textbf{project root}:
 
 \begin{lstlisting}[style=mlterminal]
 # Windows
 py -m venv .venv
+
+# macOS or Linux
+python3 -m venv .venv
+\end{lstlisting}
+
+\textbf{Activate} it from the same folder:
+
+\begin{lstlisting}[style=mlterminal]
+# Windows (PowerShell)
 .venv\Scripts\Activate.ps1
+
+# macOS/Linux
+source .venv/bin/activate
+\end{lstlisting}
+
+\textbf{Install dependencies} after activation:
+
+\begin{lstlisting}[style=mlterminal]
+# Windows
 py -m pip install --upgrade pip
 py -m pip install -r requirements.txt
 
-# macOS / Linux
-python3 -m venv .venv
-source .venv/bin/activate
+# macOS or Linux
 python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 \end{lstlisting}
 
-The supplied \texttt{requirements.txt} includes NumPy, pandas, SciPy, scikit-learn, matplotlib, Jupyter, NetworkX, OpenCV, pytesseract, and pytest. Lab 6 also requires the system-level Tesseract OCR executable.
+\begin{mlfigure}
+\begin{tikzpicture}[
+  font=\small,
+  pystep/.style={draw=MLBlue, fill=white, rounded corners=2pt, align=center,
+               inner sep=4pt, minimum width=3.3cm, minimum height=1.05cm,
+               font=\scriptsize\ttfamily\color{MLNavy}},
+  pyonce/.style={pystep, fill=MLPaleBlue},
+  pyevery/.style={pystep, fill=MLPaleTeal, draw=MLTeal},
+  pycap/.style={font=\scriptsize\bfseries\color{MLMuted}},
+  pynote/.style={font=\scriptsize\color{MLMuted}, align=center},
+  pygo/.style={-{Stealth[length=2.2mm]}, thick, draw=MLTeal}]
 
-\begin{lstlisting}[style=mlterminal]
-python --version
-python -m pip --version
-jupyter lab
+\node[pyonce]  (venv) at (0,0)     {py -m venv .venv};
+\node[pyevery] (act)  at (4.05,0)  {activate};
+\node[pyonce]  (inst) at (8.10,0)  {pip install -r\\requirements.txt};
+\node[pyevery] (work) at (12.15,0) {run notebooks in\\all\_experiments/};
 
-# Lab 6 only
-tesseract --version
-\end{lstlisting}
+\draw[pygo] (venv) -- (act);
+\draw[pygo] (act)  -- (inst);
+\draw[pygo] (inst) -- (work);
 
-\begin{keyidea}
-Create the environment once, then reactivate it at the start of each session. Install packages into the project environment rather than a shared global Python installation.
-\end{keyidea}
+\node[pycap] at (0,0.92)     {once per project};
+\node[pycap] at (4.05,0.92)  {every session};
+\node[pycap] at (8.10,0.92)  {once};
+\node[pycap] at (12.15,0.92) {every session};
 
-\section{Run and verify the course project}
+% the return path: a later session rejoins at activation, not at install
+\draw[pygo, draw=MLOrange]
+  (work.south) -- ++(0,-0.85) -| (act.south);
+\node[pynote, text=MLOrange] at (8.10,-1.15)
+  {next session: \textbf{reactivate}, do not reinstall};
 
-Open notebooks from \texttt{all\_experiments/} in numerical order. Each worked notebook is designed to run from top to bottom and write evidence to its matching \texttt{results/labXX/} folder.
+\end{tikzpicture}
+\end{mlfigure}
 
-Run the automated search-toolkit tests with:
+\begin{mlfigure}
+\begin{tikzpicture}[
+  font=\small,
+  envbox/.style={draw=MLBlue, fill=MLPaleBlue, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  sysbox/.style={draw=MLMuted, fill=MLPaleGray, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  pkg/.style={font=\scriptsize\ttfamily, align=center},
+  lbl/.style={font=\scriptsize\color{MLMuted}, align=center},
+  hit/.style={-{Stealth[length=2.2mm]}, thick, draw=MLTeal}]
 
-\begin{lstlisting}[style=mlterminal]
-# macOS / Linux
-PYTHONPATH=src pytest -q
+\node[sysbox] (sys) at (0,2.45) {system Python};
+\node[pkg,text=MLMuted,anchor=west] at (2.35,2.45) {leave this alone};
 
-# Windows PowerShell
-$env:PYTHONPATH = "src"
-pytest -q
-\end{lstlisting}
+\node[envbox] (a) at (-2.80,0) {\texttt{THIS DIRECTORY/.venv}};
+\node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
 
-To execute the complete notebook suite from a clean project checkout:
+\node[envbox] (b) at (2.80,0) {\texttt{some other project/.venv}};
+\node[pkg,anchor=north] at (2.80,-0.52) {its own versions\\of the same names};
 
-\begin{lstlisting}[style=mlterminal]
-python run_all_notebooks.py
-\end{lstlisting}
+\draw[hit] (sys) -- (a);
+\draw[hit] (sys) -- (b);
 
-\section{GitHub repository standard}
+\node[lbl,text width=\linewidth,inner xsep=0pt] at (0,-2.60)
+  {\textbf{\color{MLNavy}Separate environments, separate packages.}
+   Activate the intended \textbf{project environment} before running \texttt{pip install}.};
 
-Every student maintains one course repository. Use meaningful commits and tag the completed state of each laboratory.
-
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}p{0.25\linewidth}X@{}}
-\toprule
-\rowcolor{MLPaleBlue!92}
-\textbf{Item} & \textbf{Required standard} \\
-\midrule
-Repository & One repository for Labs 1--8; clear root-level \texttt{README.md}. \\
-Notebook & Executed top-to-bottom with outputs visible and no unresolved exceptions. \\
-Source code & Reusable logic moved to \texttt{src/} when appropriate; avoid large duplicated code blocks. \\
-Results & Save required CSV/PNG evidence under \texttt{results/labXX/}. \\
-Datasets & Do not commit large archives or unnecessary duplicates. Follow the course \texttt{.gitignore}. \\
-Commits & Use concise messages such as \texttt{lab05: add noise robustness evaluation}. \\
-Tags & Create \texttt{lab01-final}, \ldots, \texttt{lab08-final} after verification. \\
-\bottomrule
-\end{tabularx}
-\end{mltable}
-
-A typical submission sequence is:
-
-\begin{lstlisting}[style=mlterminal]
-git status
-git add all_experiments results src tests README.md
-git commit -m "lab07: complete sentiment evaluation"
-git push
-git tag lab07-final
-git push origin lab07-final
-\end{lstlisting}
-
-\begin{pitfall}
-Do not use GitHub as a screenshot archive. Commit the notebook, source code, concise machine-readable results, and only the figures needed to support the analysis.
-\end{pitfall}
-
-\section{Professional laboratory workflow}
-
-Use the same six-stage workflow in every lab:
-
-\begin{enumerate}
-  \item \textbf{Validate the data.} Check shape, schema, missing values, labels, and assumptions.
-  \item \textbf{Establish a baseline.} Define what ``better'' means before tuning a model.
-  \item \textbf{Implement the method.} Keep parameters explicit and code readable.
-  \item \textbf{Run a controlled experiment.} Use fixed splits/seeds and change one design decision at a time.
-  \item \textbf{Evaluate and interpret.} Report quantitative metrics, inspect failures, and explain limitations.
-  \item \textbf{Reproduce and publish.} Restart the notebook, run all cells, save evidence, commit, push, and tag.
-\end{enumerate}
-
-\begin{keyidea}
-A successful laboratory is not ``code that ran once''. It is a reproducible experiment with a stated question, controlled procedure, measurable evidence, and a defensible interpretation.
-\end{keyidea}
+\end{tikzpicture}
+\end{mlfigure}

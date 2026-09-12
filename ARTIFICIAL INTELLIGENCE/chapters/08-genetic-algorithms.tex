@@ -2,135 +2,104 @@
 \label{ch:ga}
 
 \chapterguide%
-  {Be comfortable with objective functions, random sampling, and Python arrays.}
-  {define the core Genetic Algorithm (GA) vocabulary, trace the GA workflow, explain selection/crossover/mutation, and apply the Lab 8 code patterns to continuous optimization, regression, knapsack, and polynomial-root objectives.}
+  {Be comfortable with NumPy arrays and random numbers, and know what a regression model and its RMSE are.}
+  {name the parts of a genetic algorithm and what each contributes; encode a real-valued problem as a chromosome; implement tournament selection, blend crossover, Gaussian mutation and elitism; evaluate a stochastic optimiser over repeated seeds; and decide when an evolutionary method is justified against an exact one.}
 
-A \term{Genetic Algorithm (GA)} evolves a population of candidate solutions through selection, crossover, and mutation.
+A \term{genetic algorithm} (GA) is an optimiser that keeps a population of candidate solutions and improves them by imitating natural selection: the better candidates are more likely to reproduce, reproduction mixes their parts, and small random changes keep new possibilities arriving. It needs no derivatives, no convexity and no closed form --- only a way to score a candidate. That generality is its appeal and its cost, and Lab~8 is designed to show both. The GA is first verified on a one-dimensional function whose answer is known, then set to fit the coefficients of a linear regression, a problem that ordinary least squares solves exactly in a fraction of a millisecond. The point is not that the GA wins. It is to learn how to run and judge a stochastic optimiser, using a case where the right answer is available to check against.
 
-\section{Core GA vocabulary}
+\section{Vocabulary}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}
-  >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}
-  X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}p{0.40\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Concept & Description from the handout \\
+Term & Meaning & In Lab~8 \\
 \midrule
-Population & A set of possible solutions, also called individuals or chromosomes. \\
-Chromosome & One complete candidate solution, represented by real values or a binary string in the examples. \\
-Gene & One component or parameter inside a chromosome. \\
-Fitness function & A function used to evaluate how good a candidate solution is. \\
-Selection & Choose parents based on fitness, for example roulette-wheel selection. \\
-Crossover & Combine two parents to produce offspring. \\
-Mutation & Randomly alter genes to maintain diversity. \\
-Elitism & Preserve the best solutions from one generation to the next. \\
+Chromosome & One candidate solution, as a vector of genes & Five real numbers: intercept plus four coefficients \\
+Gene & One component of a chromosome & One coefficient \\
+Population & The set of chromosomes alive in one generation & 100 (or 40 in the sensitivity study) \\
+Fitness & The score to be optimised & Training mean squared error; lower is better \\
+Selection & Choosing parents, biased towards good fitness & Tournament of three \\
+Crossover & Combining two parents into children & Blend crossover \\
+Mutation & Random perturbation of a child & Gaussian noise on a random subset of genes \\
+Elitism & Copying the best chromosomes unchanged into the next generation & The best 4 (or 2) survive \\
+Generation & One pass of evaluate, select, cross, mutate, replace & 160 passes per run \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\section{The GA workflow}
+\section{One generation}
 
-The workflow is:
+\figref{fig:ga-loop} is the whole algorithm. Each stage has one job, and the population only improves when all three pressures --- selection, recombination, novelty --- act together.
 
-\begin{mlsteps}
-  \item Initialize a population randomly.
-  \item Evaluate the fitness of every individual.
-  \item Select parents based on fitness.
-  \item Apply crossover and mutation to create a new population.
-  \item Replace the old population with the new generation.
-  \item Repeat until convergence or the maximum generation count is reached.
-\end{mlsteps}
-
-\begin{aifig}[The genetic algorithm loop]{One generation of a genetic algorithm. Selection
-supplies the pressure toward better solutions, crossover recombines what already works, and
-mutation supplies the novelty that stops the population collapsing onto one
-answer.}{fig:ga-loop}
+\begin{aifig}[The genetic algorithm loop]{One generation of a genetic algorithm. Selection supplies the pressure towards better solutions, crossover recombines what already works, mutation supplies the novelty that stops the population collapsing onto one answer, and elitism guarantees the best solution found so far is never lost.}{fig:ga-loop}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
 ]
 \node[b] (p) {Population};
-\node[b,right=0.40cm of p] (fit) {Evaluate fitness};
-\node[b,right=0.40cm of fit] (sel) {Select parents};
-\node[b,right=0.40cm of sel] (cross) {Crossover};
-\node[b,right=0.40cm of cross] (mut) {Mutation};
-\node[b,below=1.0cm of sel] (rep) {New generation};
+\node[b,right=0.35cm of p] (fit) {Evaluate\\fitness};
+\node[b,right=0.35cm of fit] (sel) {Select\\parents};
+\node[b,right=0.35cm of sel] (cross) {Crossover};
+\node[b,right=0.35cm of cross] (mut) {Mutation};
+\node[b,below=1.0cm of sel,fill=MLPaleTeal,draw=MLGreen] (rep) {New generation\\= elites + children};
 \draw[arr] (p)--(fit); \draw[arr] (fit)--(sel); \draw[arr] (sel)--(cross); \draw[arr] (cross)--(mut);
 \draw[arr] (mut.south) |- (rep.east);
 \draw[arr] (rep.west) -| (p.south);
+\draw[arr,draw=MLGreen,dashed] (fit.south) -- ++(0,-0.55) -| (rep.north) node[pos=0.25,below,xshift=-1cm,ailabel,color=MLGreen] {best few copied unchanged (elitism)};
 \end{tikzpicture}
 \end{aifig}
 
-\begin{keyidea}
-A GA transforms a population: selection favors fitter candidates, crossover recombines them, and mutation adds variation.
-\end{keyidea}
+The lab implements the loop twice with the same structure --- once for a scalar $x$, once for a five-gene vector --- so the two versions can be read side by side. In the scalar version:
 
-\section{Code 1: maximize a nonlinear function}
-
-The first problem maximizes
-\[
-f(x)=x\sin(10\pi x)+1,\qquad x\in[0,1].
-\]
-
-\begin{mlfigure}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.90\linewidth,height=6.0cm,
-  xmin=0,xmax=1,ymin=0,ymax=2.05,
-  xlabel={$x$},ylabel={$f(x)$},
-  xtick={0,0.2,0.4,0.6,0.8,1},
-  legend style={at={(0.5,-0.23)},anchor=north},
-  clip=false
-]
-\addplot[domain=0:1,samples=240,draw=MLBlue,very thick]
-  {x*sin(deg(10*pi*x))+1};
-\addlegendentry{Fitness landscape}
-\addplot[only marks,mark=*,mark size=2.1pt,MLOrange]
-  coordinates {(0.08,1.047) (0.24,1.228) (0.43,1.348) (0.67,1.542) (0.92,0.459)};
-\addlegendentry{Example population}
-\addplot[only marks,mark=star,mark size=4pt,MLGreen]
-  coordinates {(0.85119,1.85060)};
-\addlegendentry{Global maximum}
-\end{axis}
-\end{tikzpicture}
-\end{mlfigure}
-
-The population samples several regions; selection favors high values while crossover and mutation continue exploration beyond local peaks.
-
-The example uses 20 real-valued chromosomes, 50 generations, crossover rate 0.8, and mutation rate 0.1.
-
-\begin{lstlisting}[style=mlpython]
-import numpy as np
-
-pop_size = 20
-max_gen = 50
-cross_rate = 0.8
-mut_rate = 0.1
-rng = np.random.default_rng(7)
-pop = rng.random((pop_size, 1))
-
-def fitness(x):
-    return x * np.sin(10 * np.pi * x) + 1
+\begin{lstlisting}[style=aipython]
+for _ in range(generations):
+    fitness = (population - 3) ** 2                                  # lower is better
+    elite = population[np.argsort(fitness)[:n_elite]]
+    contestants = rng.integers(0, pop_size, size=(pop_size, 3))      # tournament of three
+    parents = population[contestants[np.arange(pop_size), fitness[contestants].argmin(axis=1)]]
+    a, b = parents[0::2], parents[1::2]
+    alpha = rng.random(len(a))                                       # blend crossover
+    children = np.r_[alpha * a + (1 - alpha) * b, alpha * b + (1 - alpha) * a][: pop_size - n_elite]
+    children += rng.normal(0, 0.15, len(children))                  # Gaussian mutation
+    population = np.r_[elite, children]
 \end{lstlisting}
 
-\subsection{Roulette-wheel selection}
+Every operator is one line of array arithmetic; there is no loop over individuals. That is why 160 generations of 100 chromosomes take a few hundredths of a second.
 
-Fitness values define selection probabilities:
-\[
-p_i=\frac{f_i}{\sum_j f_j},
-\]
-then uses cumulative probabilities and a uniform random number to select each parent.
+\section{Encoding: the chromosome is the answer}
 
-This formula requires nonnegative selection scores with a positive total. If an objective can be negative or if every score is zero, transform or shift the scores before normalizing them.
+The first design decision is what a chromosome \emph{is}. For a linear model $\hat y=p_0+p_1x_1+\dots+p_4x_4$ the natural encoding is direct: five real numbers, one per coefficient. The GA then searches the same five-dimensional space that least squares solves algebraically, which is what makes the comparison in Lab~8 clean. Two practical details follow from the encoding.
 
-\figref{fig:roulette} shows the mechanism. Each individual gets an arc proportional to its
-fitness and one random draw picks the owner. Fitter individuals win more often, but weak ones
-are never eliminated --- keeping them preserves the diversity a later crossover may need.
+\begin{description}
+  \item[Initialisation matters.] Charges are in the thousands of dollars, so a population drawn from $\mathcal N(0,1)$ would start absurdly far from any good solution. The lab draws coefficients from $\mathcal N(0,5000)$ and shifts the intercept gene to start near the mean charge.
+  \item[Standardise the inputs.] One mutation step size is used for every coefficient gene. If \texttt{age} ran 18--64 and \texttt{smoker} 0--1, the same step would be huge for one coefficient and negligible for the other. Standardising the predictors puts all four on the same scale --- with statistics from the training rows only, as in every other lab.
+\end{description}
 
-\begin{aifig}[Roulette-wheel selection]{Roulette-wheel selection for four individuals. Arc width is proportional to fitness, so B is picked about four times as often as D --- but D keeps a real chance. The strip is the same distribution as \texttt{cumsum(prob)}.}{fig:roulette}
+\begin{intuition}
+The chromosome is not a description of the answer; it \emph{is} the answer, and the fitness function is what reads it. Change the encoding and every operator has to be reconsidered: blend crossover makes sense for real coefficients and none at all for a permutation.
+\end{intuition}
+
+\section{The operators}
+
+\subsection{Fitness}
+
+Fitness is training mean squared error. The lab evaluates it for the whole population in one matrix product:
+
+\begin{lstlisting}[style=aipython]
+def training_mse(individuals):
+    predictions = individuals[:, [0]] + individuals[:, 1:] @ X_train.T
+    return ((predictions - y_train) ** 2).mean(axis=1)
+\end{lstlisting}
+
+A $100\times5$ population against $1{,}070$ training rows is a $100\times1{,}070$ prediction matrix; NumPy does it in microseconds. Fitness evaluation is usually the expensive part of a GA, so vectorising it is the single most effective optimisation.
+
+\subsection{Selection}
+
+\term{Tournament selection} picks $k$ chromosomes at random and keeps the fittest; the lab uses $k=3$. It is cheap, needs no scaling of fitness values, and gives every individual a chance while favouring the good ones. The classic alternative, \term{roulette-wheel} selection (\figref{fig:roulette}), makes the probability of being chosen proportional to fitness; it is intuitive but sensitive to the scale of the fitness values and to a single dominant individual, and it must be inverted for minimisation problems. Tournament selection sidesteps all of that.
+
+\begin{aifig}[Roulette-wheel selection]{Roulette-wheel selection for four individuals. Arc width is proportional to fitness, so B is picked about four times as often as D --- but D keeps a real chance. Tournament selection, which the lab uses instead, achieves the same bias without depending on the scale of the fitness values.}{fig:roulette}
 \begin{tikzpicture}[font=\small]
-% ---- pie ----
 \node[ailabel,font=\small\bfseries\color{MLNavy}] at (0,2.1) {Selection probabilities};
 \def\rad{1.75}
 \foreach \a/\b/\lbl/\col in {0/144/B/MLBlue, 144/252/A/MLTeal, 252/324/C/MLOrange, 324/360/D/MLRed}{
@@ -140,8 +109,6 @@ are never eliminated --- keeping them preserves the diversity a later crossover 
 }
 \node[ailabel,anchor=north,align=center] at (0,-2.0)
   {Fitness $(B,A,C,D)=(4,3,2,1)$};
-
-% ---- cumulative strip ----
 \begin{scope}[xshift=4.0cm,yshift=-0.4cm]
 \def\L{7.2}
 \node[ailabel,font=\small\bfseries\color{MLNavy}] at (0.5*\L,2.5)
@@ -159,324 +126,109 @@ are never eliminated --- keeping them preserves the diversity a later crossover 
 \draw[-{Stealth[length=2.4mm]},line width=1.2pt,draw=MLNavy] (0.54*\L,1.5) -- (0.54*\L,0.95);
 \node[ailabel,anchor=south,color=MLNavy] at (0.54*\L,1.55) {\texttt{rand} $=0.54\ \Rightarrow$ pick A};
 \node[ailabel,anchor=north,align=center,text width=6.8cm] at (0.5*\L,-0.75)
-  {\texttt{cumsum(prob)} gives the interval boundaries.\\The draw $0.54$ falls in A\textquotesingle s interval: $0.40$ to $0.70$.};
+  {The draw $0.54$ falls in A\textquotesingle s interval, $0.40$ to $0.70$.};
 \end{scope}
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlpython]
-fitness_values = fitness(pop).ravel()
-prob = fitness_values / fitness_values.sum()
-parent_index = rng.choice(pop_size, size=pop_size, p=prob)
-new_pop = pop[parent_index].copy()
-\end{lstlisting}
+\subsection{Crossover and mutation}
 
-\subsection{Arithmetic crossover and mutation}
+For real-valued genes the lab uses \term{blend crossover}: each child is a weighted average of its two parents, $\alpha\,a+(1-\alpha)\,b$, with $\alpha$ drawn at random. With $\alpha\in[0,1]$ the child lies on the segment between the parents; the regression GA draws $\alpha\in[-0.1,1.1]$ so that children can land slightly \emph{outside} the segment and the population does not shrink towards its own centre (\figref{fig:crossover}). \term{Gaussian mutation} then adds normal noise to a random 15\,\% of the genes, scaled by a per-gene step size --- the only operator that can produce a value neither parent had.
 
-The continuous examples blend two parents with a random coefficient \(\alpha\), then occasionally add a small random perturbation.
-
-\figref{fig:crossover} contrasts the two continuous operators with the binary
-single-point crossover used for the knapsack problem in Code~4. Arithmetic crossover produces
-a child \emph{between} its parents, so a population can only ever contract toward the region
-it already occupies; mutation is what lets it reach outside.
-
-\begin{aifig}[Crossover and mutation operators]{Left: arithmetic crossover places the child on the segment between its parents, so it cannot reach new territory alone. Right: single-point crossover swaps tails at a cut, and mutation flips one bit --- the only operator that introduces a value neither parent had.}{fig:crossover}
+\begin{aifig}[Crossover and mutation for real-valued genes]{Left: blend crossover places the child on the segment between its parents (or just beyond it, when $\alpha$ may leave $[0,1]$), so it recombines what already exists. Right: mutation moves a child by a random Gaussian step --- the only source of values that neither parent had.}{fig:crossover}
 \begin{tikzpicture}[font=\small]
-% ---- arithmetic ----
 \begin{scope}
-\node[font=\bfseries\color{MLNavy}] at (2.0,2.65) {Arithmetic (continuous)};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$x_1$};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$x_2$};
-\node[circle,fill=MLBlue,inner sep=2.2pt,label={[ailabel,color=MLBlue]above:parent 1}] (P1) at (0.7,1.35) {};
-\node[circle,fill=MLTeal,inner sep=2.2pt,label={[ailabel,color=MLTeal]below:parent 2}] (P2) at (3.6,0.45) {};
+\node[font=\bfseries\color{MLNavy}] at (2.0,2.65) {Blend crossover};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
+\node[circle,fill=MLBlue,inner sep=2.2pt,label={[ailabel,color=MLBlue]above:parent $a$}] (P1) at (0.7,1.35) {};
+\node[circle,fill=MLTeal,inner sep=2.2pt,label={[ailabel,color=MLTeal]below:parent $b$}] (P2) at (3.6,0.45) {};
 \draw[draw=MLMuted!60,dashed] (P1)--(P2);
 \node[circle,fill=MLOrange,inner sep=2.2pt] (Ch) at (1.86,1.0) {};
 \node[ailabel,anchor=west,color=MLOrange] at (2.0,1.28) {child, $\alpha=0.6$};
 \node[ailabel,anchor=north,align=center,text width=4.8cm] at (2.0,-1.15)
-  {the child always lands \emph{between} the parents};
+  {$\alpha\in[-0.1,1.1]$ lets a child land just beyond a parent};
 \end{scope}
-% ---- binary ----
 \begin{scope}[xshift=6.6cm]
-\node[font=\bfseries\color{MLNavy}] at (2.55,2.65) {Single-point (binary)};
-\foreach \b [count=\i from 0] in {1,0,1,1,0,1}{
-  \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-    at (0.66*\i,1.4) {\b};}
-\foreach \b [count=\i from 0] in {0,1,1,0,1,0}{
-  \node[aicell,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries,
-        fill=MLPaleTeal,draw=MLTeal] at (0.66*\i,0.6) {\b};}
-\draw[draw=MLRed,line width=1pt,dashed] (1.65,1.8) -- (1.65,0.2);
-\node[ailabel,anchor=south,color=MLRed] at (1.65,1.9) {cut after bit 3};
-\node[ailabel,anchor=west] at (3.82,1.4) {parent 1};
-\node[ailabel,anchor=west] at (3.82,0.6) {parent 2};
-% child
-\foreach \b [count=\i from 0] in {1,0,1,0,1,0}{
-  \ifnum\i=4
-    \node[aihot,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-      at (0.66*\i,-0.6) {0};
-  \else
-    \node[aidone,minimum width=0.62cm,minimum height=0.5cm,font=\scriptsize\bfseries]
-      at (0.66*\i,-0.6) {\b};
-  \fi}
-\node[ailabel,anchor=west,align=left,text width=2.2cm,color=MLOrange] at (3.82,-0.6)
-  {child after\\mutation};
-\node[ailabel,anchor=north,align=center,text width=5.5cm] at (2.55,-1.15)
-  {First 3 bits from parent 1, last 3 from parent 2.\\Highlighted bit 5 flips from 1 to 0.};
+\node[font=\bfseries\color{MLNavy}] at (2.2,2.65) {Gaussian mutation};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
+\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
+\node[circle,fill=MLOrange,inner sep=2.2pt,label={[ailabel,color=MLOrange]below:child}] (C) at (1.9,0.9) {};
+\draw[draw=MLOrange!35,fill=MLOrange!10] (1.9,0.9) circle (0.75);
+\node[circle,fill=MLRed,inner sep=2.2pt,label={[ailabel,color=MLRed]above right:mutated child}] (M) at (2.45,1.3) {};
+\draw[aiptr,draw=MLRed] (C)--(M);
+\node[ailabel,anchor=north,align=center,text width=5.2cm] at (2.2,-1.15)
+  {each gene moves by $\mathcal N(0,\sigma)$ with probability $0.15$; $\sigma$ is set per gene};
 \end{scope}
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlpython]
-alpha = rng.random()
-temp1 = alpha * new_pop[i] + (1 - alpha) * new_pop[i + 1]
-temp2 = alpha * new_pop[i + 1] + (1 - alpha) * new_pop[i]
-\end{lstlisting}
+\subsection{Elitism}
 
-\subsection{Complete runnable loop}
+Selection is probabilistic and mutation is blind, so without a safeguard the best chromosome of one generation can be lost in the next. \term{Elitism} copies the best few individuals into the new generation unchanged. It costs a few population slots and guarantees that the best-so-far fitness never gets worse --- which is what makes the convergence curves in Lab~8 monotone.
 
-The complete program combines initialization, evaluation, variation, replacement, reporting, and plotting.
+\begin{keyidea}
+Selection exploits, mutation explores, crossover recombines, elitism remembers. Remove any one and the GA either stalls, wanders, or forgets; the settings in the lab (tournament of 3, 15\,\% mutation, 4 elites) are one workable balance, not the only one.
+\end{keyidea}
 
-\begin{lstlisting}[style=mlpython]
-import matplotlib.pyplot as plt
+\section{Verifying before trusting}
 
-rng = np.random.default_rng(7)
-pop_size, max_gen = 20, 50
-cross_rate, mut_rate = 0.8, 0.1
-pop = rng.random((pop_size, 1))
-best_history = []
-best_x, best_fitness = np.nan, -np.inf
+A GA can run without error and be wrong: a sign flipped in the fitness, a crossover that averages towards zero, a mutation scale so small that nothing moves. Lab~8 therefore starts with $f(x)=(x-3)^2$, whose minimum is known. The scalar GA lands within $10^{-5}$ of $x=3$ in 80 generations. Only then is the same loop applied to the regression problem, where the answer is not known in advance --- or rather, is known through a different method, which is the next section.
 
-for _ in range(max_gen):
-    fit = fitness(pop).ravel()
-    idx = int(np.argmax(fit))
-    if fit[idx] > best_fitness:
-        best_fitness, best_x = fit[idx], float(pop[idx, 0])
-    best_history.append(best_fitness)
+\section{Judging a stochastic optimiser}
 
-    prob = fit / fit.sum()
-    parents = pop[rng.choice(pop_size, size=pop_size, p=prob)].copy()
-    offspring = parents.copy()
-    for i in range(0, pop_size, 2):
-        if rng.random() < cross_rate:
-            alpha = rng.random()
-            p1, p2 = parents[i].copy(), parents[i + 1].copy()
-            offspring[i] = alpha * p1 + (1 - alpha) * p2
-            offspring[i + 1] = alpha * p2 + (1 - alpha) * p1
-    mask = rng.random(offspring.shape) < mut_rate
-    offspring += mask * rng.normal(0, 0.05, offspring.shape)
-    pop = np.clip(offspring, 0, 1)
-
-print(f"Best x: {best_x:.5f}, f(x): {best_fitness:.5f}")
-plt.plot(best_history)
-plt.xlabel("Generation"); plt.ylabel("Best-so-far fitness")
-\end{lstlisting}
-
-The global maximum is near \(x=0.85119\), where \(f(x)\approx1.85060\); a short stochastic run may not reproduce it exactly.
-
-\begin{workedexample}
-If three candidates have fitness \([1,2,1]\), their roulette probabilities are \([0.25,0.50,0.25]\), and their cumulative probabilities are \([0.25,0.75,1.00]\). A random draw \(r=0.60\) selects the second candidate because 0.75 is the first cumulative value at least as large as 0.60.
-\end{workedexample}
-
-\begin{firstread}
-Codes 2--5 retain the loop while changing initialization, fitness conversion, bounds, and mutation.
-\end{firstread}
-
-
-
-\figref{fig:ga-convergence} shows one run of this configuration. Two things stand out. The
-best-so-far curve improves in jumps --- generations 1--3, then 14, 27, and 30--31 --- with
-flat stretches between. And the best individual \emph{present} in each generation keeps
-falling below that line: the supplied code has no elitism, so a good chromosome that is not
-selected simply disappears.
-
-\begin{aifig}[Fitness convergence over generations]{A run of Code~1 on $f(x)=x\sin(10\pi x)+1$. Best-so-far can only rise, and does so in jumps separated by flat stretches. The best individual \emph{present} in each generation keeps dipping below it: without elitism the algorithm loses its best chromosome and has to rediscover it. Axis cropped to $[1.3,1.95]$.}{fig:ga-convergence}
-\begin{tikzpicture}
-\begin{axis}[
-  width=0.84\linewidth, height=5.8cm,
-  xlabel={generation}, ylabel={fitness},
-  xmin=0, xmax=49, ymin=1.30, ymax=1.95,
-  ytick={1.4,1.5,1.6,1.7,1.8,1.9},
-  axis lines=left, grid=major, grid style={draw=MLPaleBlue},
-  legend columns=3, legend style={at={(0.5,-0.26)},anchor=north}]
-\addplot[draw=MLMuted!70,dotted,thick] coordinates {(0,1.8506) (49,1.8506)};
-\addlegendentry{true maximum}
-\addplot[draw=MLOrange,thin] coordinates {(0,1.4353) (1,1.7162) (2,1.8478) (3,1.8495) (4,1.8355) (5,1.8086) (6,1.7750) (7,1.8487) (8,1.8388) (9,1.7485) (10,1.8394) (11,1.8394) (12,1.8394) (13,1.8394) (14,1.8505) (15,1.8437) (16,1.8505) (17,1.8503) (18,1.8489) (19,1.8448) (20,1.8336) (21,1.8293) (22,1.8474) (23,1.8505) (24,1.8497) (25,1.8496) (26,1.8489) (27,1.8506) (28,1.8506) (29,1.8505) (30,1.8506) (31,1.8506) (32,1.8506) (33,1.8505) (34,1.8506) (35,1.8506) (36,1.8506) (37,1.8506) (38,1.8506) (39,1.8504) (40,1.8499) (41,1.8499) (42,1.8467) (43,1.8475) (44,1.8462) (45,1.8410) (46,1.8490) (47,1.8491) (48,1.8501) (49,1.8506)};
-\addlegendentry{best in generation}
-\addplot[draw=MLGreen,very thick] coordinates {(0,1.4353) (1,1.7162) (2,1.8478) (3,1.8495) (4,1.8495) (5,1.8495) (6,1.8495) (7,1.8495) (8,1.8495) (9,1.8495) (10,1.8495) (11,1.8495) (12,1.8495) (13,1.8495) (14,1.8505) (15,1.8505) (16,1.8505) (17,1.8505) (18,1.8505) (19,1.8505) (20,1.8505) (21,1.8505) (22,1.8505) (23,1.8505) (24,1.8505) (25,1.8505) (26,1.8505) (27,1.8506) (28,1.8506) (29,1.8506) (30,1.8506) (31,1.8506) (32,1.8506) (33,1.8506) (34,1.8506) (35,1.8506) (36,1.8506) (37,1.8506) (38,1.8506) (39,1.8506) (40,1.8506) (41,1.8506) (42,1.8506) (43,1.8506) (44,1.8506) (45,1.8506) (46,1.8506) (47,1.8506) (48,1.8506) (49,1.8506)};
-\addlegendentry{best so far}
-\end{axis}
-\end{tikzpicture}
-\end{aifig}
-
-\section{Code 2: minimize the Rosenbrock function}
-
-The second problem minimizes
-\[
-f(x,y)=(1-x)^2+100(y-x^2)^2,
-\qquad x,y\in[-2,2].
-\]
-Because roulette-wheel selection in the example expects larger values to be more desirable, the source inverts the minimization fitness:
-\[
-\text{invFitness}=\frac{1}{f+10^{-6}}.
-\]
-
-\begin{lstlisting}[style=mlpython]
-pop = rng.uniform(-2, 2, size=(pop_size, 2))
-
-def rosenbrock(v):
-    return (1 - v[:, 0])**2 + 100 * (v[:, 1] - v[:, 0]**2)**2
-
-loss = rosenbrock(pop)
-selection_score = 1 / (loss + 1e-6)
-prob = selection_score / selection_score.sum()
-
-mask = rng.random(pop.shape) < mut_rate
-pop += mask * rng.normal(0, 0.05, pop.shape)
-pop = np.clip(pop, -2, 2)
-\end{lstlisting}
-
-The mutation step adds Gaussian noise and clips each variable back to \([-2,2]\). The known optimum is \((x,y)=(1,1)\), where the objective is zero; this gives a direct correctness check for the final chromosome.
-
-\section{Code 3: optimize linear-regression weights}
-
-The regression example generates noisy data from
-\[
-y=2.5x+5+\text{noise}
-\]
-and represents each chromosome as two real-valued genes, \(w_1\) and \(w_2\). The objective is mean squared error (MSE):
-\[
-\mathrm{MSE}(w_1,w_2)=\operatorname{mean}
-\left(y-(w_1x+w_2)\right)^2.
-\]
-
-\begin{lstlisting}[style=mlpython]
-rng = np.random.default_rng(7)
-x = np.linspace(0, 10, 100)
-y = 2.5 * x + 5 + rng.normal(size=x.size)
-
-pop = np.column_stack([
-    rng.uniform(0, 5, pop_size),
-    rng.uniform(0, 10, pop_size),
-])
-prediction = pop[:, 0, None] * x + pop[:, 1, None]
-mse = ((prediction - y) ** 2).mean(axis=1)
-selection_score = 1 / (mse + 1e-6)
-\end{lstlisting}
-
-A chromosome may encode model parameters directly. Evaluate \texttt{pop(i,1)} and \texttt{pop(i,2)} from the same row to avoid shape errors.
-
-\section{Code 4: 0--1 knapsack}
-
-The knapsack example uses binary chromosomes. Four genes indicate whether each item is selected. \figref{fig:knapsack} shows the encoding
-and the penalty that keeps infeasible solutions out of the gene pool.
-
-\begin{aifig}[Binary encoding for the knapsack]{Each gene is one item: 1 means packed. The
-chromosome $[1,1,0,0]$ weighs $5$ and fits exactly; $[0,1,1,0]$ weighs $7$ and is over
-capacity, so its fitness is forced to zero and roulette selection never picks it.}{fig:knapsack}
-\begin{tikzpicture}[font=\small]
-\foreach \w/\v [count=\i from 0] in {2/3, 3/4, 4/5, 5/8}{
-  \node[ailabel] at (1.25*\i,1.35) {item \the\numexpr\i+1\relax};
-  \node[ailabel,anchor=north] at (1.25*\i,1.2) {$w=\w,\ v=\v$};
-}
-% feasible chromosome
-\foreach \b [count=\i from 0] in {1,1,0,0}{
-  \ifnum\b=1
-    \node[aidone,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.25*\i,0.35) {\b};
-  \else
-    \node[aidim,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize] at (1.25*\i,0.35) {\b};
-  \fi}
-\node[ailabel,anchor=east,color=MLGreen] at (-0.75,0.35) {feasible};
-\node[ailabel,anchor=west,color=MLGreen] at (4.4,0.35) {weight 5 $\leq$ 5, value 7};
-% infeasible chromosome
-\foreach \b [count=\i from 0] in {0,1,1,0}{
-  \ifnum\b=1
-    \node[aihot,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.25*\i,-0.45) {\b};
-  \else
-    \node[aidim,minimum width=1.05cm,minimum height=0.6cm,font=\scriptsize] at (1.25*\i,-0.45) {\b};
-  \fi}
-\node[ailabel,anchor=east,color=MLRed] at (-0.75,-0.45) {infeasible};
-\node[ailabel,anchor=west,color=MLRed] at (4.4,-0.45) {weight 7 $>$ 5, fitness set to 0};
-\end{tikzpicture}
-\end{aifig}
-
-\begin{lstlisting}[style=mlpython]
-weights = np.array([2, 3, 4, 5])
-values = np.array([3, 4, 5, 8])
-capacity = 5
-
-chrom_length = len(weights)
-pop = rng.integers(0, 2, size=(pop_size, chrom_length))
-total_weight = pop @ weights
-total_value = pop @ values
-fitness_values = np.where(total_weight <= capacity, total_value, 0)
-\end{lstlisting}
-
-Feasible chromosomes receive total value as fitness; overweight chromosomes receive zero. Mutation flips one bit:
-
-\begin{lstlisting}[style=mlpython]
-gene = rng.integers(chrom_length)
-new_pop[i, gene] = 1 - new_pop[i, gene]
-\end{lstlisting}
-
-\begin{workedexample}
-Chromosome \([1,1,0,0]\) selects items 1 and 2, giving weight \(2+3=5\) and value \(3+4=7\). Chromosome \([0,0,0,1]\) selects item 4, giving weight 5 and value 8. The latter is the optimum for this four-item instance. Chromosome \([1,0,1,0]\) has weight 6 and therefore receives fitness zero under the stated penalty rule.
-\end{workedexample}
-
-\begin{intuition}
-Continuous optimization mutates a number by adding a small perturbation. Binary optimization mutates a decision by flipping 0 to 1 or 1 to 0. The GA framework is the same; the chromosome representation determines the appropriate operator.
-\end{intuition}
-
-\section{Code 5: find roots through minimization}
-
-The final problem minimizes
-\[
-f(x)=(x-3)^2(x+2)^2,
-\qquad x\in[-5,5].
-\]
-The objective is zero at \(x=3\) and \(x=-2\). Negating and shifting it produces nonnegative roulette-wheel selection scores.
-
-\begin{lstlisting}[style=mlpython]
-pop = rng.uniform(-5, 5, size=(pop_size, 1))
-objective = ((pop - 3)**2 * (pop + 2)**2).ravel()
-selection_score = objective.max() - objective + 1e-12
-prob = selection_score / selection_score.sum()
-\end{lstlisting}
-
-Because both \(-2\) and 3 produce objective zero, separate runs may converge to different correct roots. Report the final objective as well as \(x\): a value near a root with a visibly nonzero objective remains an imprecise solution.
-
-\section{What changes across the five GA problems?}
+A GA's output depends on its random seed. One run tells you what happened once; it does not tell you what the algorithm does. Lab~8 therefore runs ten seeds and reports the distribution, and then compares it with an exact method.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}p{0.20\linewidth}p{0.22\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Problem & Chromosome & Fitness direction & Mutation \\
+Method & Median test RMSE & SD across seeds & Median runtime \\
 \midrule
-Nonlinear \(f(x)\) & One real value & Maximize & Small real perturbation \\
-Rosenbrock & Two real values & Minimize & Gaussian perturbation, clipped to bounds \\
-Linear regression & \((w_1,w_2)\) & Minimize MSE & Gaussian perturbation \\
-Knapsack & Four bits & Maximize feasible value & Flip one bit \\
-Polynomial roots & One real value & Minimize objective & Gaussian perturbation, clipped to bounds \\
+GA, population 100 & 5829.38 & 0.002 & 0.04 s \\
+GA, population 40 & 5829.38 & 0.026 & 0.02 s \\
+Ordinary least squares & 5829.38 & --- & $<$ 0.001 s \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\section{Elitism in the concept list versus the supplied code}
+Three observations follow, and each is a general lesson.
 
-\term{Elitism} copies the current best solution unchanged into the next generation. The supplied loops omit this step, so generation-best fitness need not be monotonic.
+\begin{description}
+  \item[The GA found the optimum.] Ten seeds agree with each other to a few thousandths and with least squares to the same precision; the GA's median coefficients match the OLS coefficients to one decimal place. On an unconstrained quadratic objective there is nowhere else for a well-tuned GA to go.
+  \item[It did not beat the optimum.] Least squares solves the same problem exactly, in closed form, in a fraction of the time. A GA that reaches the OLS answer has confirmed its own correctness, not demonstrated an advantage.
+  \item[Population size trades speed for spread.] Forty chromosomes reach the same median in half the time, but the standard deviation across seeds grows by an order of magnitude. A smaller population has less diversity and depends more on where it started. Whether that trade is acceptable depends on how much a single bad run would cost.
+\end{description}
 
-\begin{debugtask}
-Add explicit elitism to one real-coded example: before replacement, identify the current best chromosome and force it into one position in \texttt{newPop}. Compare the best-fitness trace with the original script.
-\end{debugtask}
+\begin{pitfall}
+Never report a GA result from one seed, and never report the \emph{best} of several seeds as if it were typical. The median and the spread over independent runs are the result; the best run is a lucky draw.
+\end{pitfall}
+
+\section{When is a genetic algorithm the right tool?}
+
+Least squares wins Lab~8 because the problem is smooth, convex and unconstrained --- exactly the conditions under which exact methods exist. A GA earns its cost when those conditions fail:
+
+\begin{itemize}
+  \item the objective is \textbf{non-differentiable} or only available as a black box (a simulation, a physical test rig);
+  \item some variables are \textbf{discrete or mixed} --- which features to include, which route to take, which schedule to run --- so there is no gradient to follow;
+  \item the objective is \textbf{multimodal}, with many local optima that trap gradient methods;
+  \item the constraints are \textbf{awkward}: business rules, integer budgets, feasibility checks that are easy to test and impossible to write as equations.
+\end{itemize}
+
+Change Lab~8's problem in any of these directions --- require the coefficients to be integers, penalise the number of non-zero coefficients, replace squared error with a loss that has plateaus --- and least squares no longer applies while the GA needs only a new fitness function and, sometimes, a new mutation operator. The lab's deliverable asks you to name one such change and the operator it would touch.
+
+\begin{keyidea}
+Match the optimiser to the structure of the problem. Reach for an exact method when one exists; reach for a genetic algorithm when the objective is a black box, the variables are discrete, or the constraints do not fit an equation --- and then judge it over repeated seeds.
+\end{keyidea}
 
 \input{labs/08-genetic-algorithms}
 
-\clearpage
 \begin{quickcheck}
 \begin{enumerate}
-  \item What is the difference between a chromosome and a gene in the Lab 8 terminology?
-  \item Why does the Rosenbrock example invert fitness values before roulette-wheel selection?
-  \item Why is bit-flip mutation appropriate for the knapsack example but not the regression-weight example?
-  \item What are the two exact roots encoded by the final polynomial objective?
-  \item What GA concept is defined in the handout but not explicitly implemented in the five source loops?
+  \item What is the chromosome in Lab~8, and how many genes does it have?
+  \item Why does the lab standardise the predictors before running the GA, when least squares would give the same fit either way?
+  \item What would happen to the best-so-far curve without elitism, and why?
+  \item Blend crossover with $\alpha\in[0,1]$ can only produce children between the parents. What does that do to a population over many generations, and which two choices in the lab counteract it?
+  \item Ten seeds gave test RMSE within $0.002$ of each other. Why is that a stronger statement than one run that hit the OLS value exactly?
 \end{enumerate}
 \end{quickcheck}

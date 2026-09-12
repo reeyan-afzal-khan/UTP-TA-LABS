@@ -24,6 +24,7 @@ Temporary Items
 # Python
 # =========================
 __pycache__/
+.pytest_cache/
 *.py[cod]
 *.pyo
 *.pyd
@@ -38,6 +39,7 @@ env/
 # Jupyter
 # =========================
 .ipynb_checkpoints/
+.pytest_cache/
 
 # =========================
 # IDEs
@@ -65,3 +67,6 @@ env/
 *.synctex.gz
 *.toc
 *.xdv
+
+# Datasets that a notebook extracts from a committed archive
+ARTIFICIAL INTELLIGENCE/all_datasets/lab06-ocr-handwritten-prescription/

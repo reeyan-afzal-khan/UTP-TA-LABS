@@ -1,298 +1,166 @@
-\chapter{Natural Language Processing Foundations}
+\chapter{NLP Foundations: Getting Text and Measuring It}
 \label{ch:nlp-foundations}
 
 \chapterguide%
-  {Be able to run Python and read simple vector, image, and text-processing code.}
-  {explain the purpose and significance of natural language processing, compute sentence similarity from word embeddings, describe the handout's classification-based image-caption simulation, and build and evaluate an optical character recognition pipeline with normalization and error metrics.}
+  {Manipulate Python strings, and know what a controlled experiment is.}
+  {describe an NLP pipeline from raw input to task output; explain why text normalisation comes before any comparison; compute Levenshtein distance by hand and turn it into character error rate; design a fair before/after comparison of a preprocessing step; and separate segmentation failures from recognition failures in an OCR error analysis.}
 
-\term{Natural Language Processing (NLP)} applies linguistics, computer science, and machine learning to analyze or generate text and speech.
+Natural language processing begins before there is any language to process. Text arrives as keystrokes, as speech, or --- as in Lab~6 --- as photographs of handwriting, and the first job of a pipeline is to turn that input into a string a program can compare, count and classify. Lab~6 takes 89 photographs of handwritten medicine names, runs an off-the-shelf optical character recognition engine over them, and asks a question every NLP project must answer early: \emph{how good is the text we are starting from, and how would we know?}
 
-\section{Why NLP is needed}
+\section{Every NLP task is a pipeline}
 
-NLP converts unstructured language into representations suitable for interaction, automation, and information extraction.
+Whatever the task --- translation, sentiment, search --- the same stages appear in the same order (\figref{fig:nlp-pipeline}). Text is acquired, normalised into a canonical form, turned into a representation a model can use, and then the task-specific model runs. Errors made early propagate: a word the OCR stage misreads is a word the sentiment model never sees.
 
-Applications include:
-\begin{itemize}
-  \item healthcare: analyzing patient notes and assisting diagnosis;
-  \item business: chatbots, sentiment analysis, and automated email sorting;
-  \item education: grammar correction and automated essay scoring;
-  \item law: legal-document summarization and contract analysis;
-  \item robotics: verbal commands and real-time interaction.
-\end{itemize}
-
-\begin{keyidea}
-Each example follows a pipeline: input, representation, and task-specific output.
-\end{keyidea}
-
-\section{Text similarity with word embeddings}
-
-The first Python example compares
-\begin{quote}
-``The quick brown fox jumps over the lazy dog.''
-\end{quote}
-with
-\begin{quote}
-``A fast brown animal leaps above a sleeping dog.''
-\end{quote}
-using pretrained FastText word embeddings.
-
-The pipeline has five stages.
-
-\begin{mlsteps}
-  \item Tokenize both sentences.
-  \item Load pretrained FastText embeddings.
-  \item Remove words not available in the embedding vocabulary.
-  \item Convert each word to a vector and average the word vectors for each sentence.
-  \item Compute cosine similarity between the two sentence vectors.
-\end{mlsteps}
-
-\begin{lstlisting}[style=mlpython]
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-text1 = "The quick brown fox jumps over the lazy dog."
-text2 = "A fast brown animal leaps above a sleeping dog."
-
-vectorizer = TfidfVectorizer(stop_words="english")
-X = vectorizer.fit_transform([text1, text2])
-similarity = cosine_similarity(X[0], X[1])[0, 0]
-print(f"Cosine similarity: {similarity:.4f}")
-\end{lstlisting}
-
-The \texttt{Vocabulary} property contains unique word types, so repeated words do not receive extra weight in this version. A token-level sentence representation would preserve repetition. This distinction matters when word frequency carries meaning.
-
-\begin{pitfall}
-\textbf{Averaging word vectors throws away word order.} The mean of a set of vectors does not depend on the order they were added, so
-
-\begin{center}
-``dog bites man'' \qquad and \qquad ``man bites dog''
-\end{center}
-
-produce \emph{exactly} the same sentence vector and a cosine similarity of 1.000. The two sentences describe opposite events, and this representation cannot tell them apart at all.
-
-Because the code averages over \texttt{Vocabulary} rather than tokens, it is also blind to repetition: ``very very good'' and ``very good'' are identical too.
-
-Try it --- it takes one line to change the input, and seeing 1.000 come back makes the limitation concrete in a way that reading about it does not.
-\end{pitfall}
-
-\begin{keyidea}
-This is the \term{bag-of-embeddings} trade. Averaging is cheap, needs no training, and works surprisingly well for topic-level similarity --- which is what the lab example measures. It is the wrong tool the moment meaning depends on \emph{arrangement}: negation, subject versus object, or word order generally.
-
-Models that do handle order (recurrent networks, transformers) exist precisely because this limitation is fundamental rather than a detail of the implementation. Say which kind of similarity your result supports before quoting the number.
-\end{keyidea}
-
-\section{Cosine similarity}
-
-For sentence vectors \(\mathbf{u}\) and \(\mathbf{v}\), the code computes
-\[
-\cos(\theta)=\frac{\mathbf{u}\cdot\mathbf{v}}
-{\|\mathbf{u}\|\,\|\mathbf{v}\|}.
-\]
-A value near 1 indicates high directional similarity.
-
-\begin{intuition}
-A word embedding replaces a word with a numerical vector. Averaging the word vectors gives one rough vector for a sentence. Cosine similarity then asks whether the two sentence vectors point in similar directions.
-\end{intuition}
-
-\figref{fig:embedding} shows why that averaging step is defensible. In a trained embedding
-space, words used in similar contexts end up close together, so the average of a sentence's
-word vectors lands in the region of meaning that the sentence is about. The space in the lab
-has hundreds of dimensions; the two drawn here stand in for that.
-
-\begin{aifig}[Words clustered in embedding space]{A two-dimensional sketch of an embedding
-space. Words that appear in similar contexts sit near one another, and a sentence vector ---
-the average of its word vectors --- lands inside the relevant cluster. This is what makes
-comparing two averaged sentences meaningful at all.}{fig:embedding}
-\begin{tikzpicture}[font=\small,x=1cm,y=1cm]
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(8.4,0) node[right,font=\scriptsize] {dim 1};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,4.0) node[above,font=\scriptsize] {dim 2};
-% cluster 1: animals
-\begin{scope}
-\fill[MLPaleBlue,opacity=0.85] (1.75,2.85) circle (1.15);
-\foreach \x/\y/\w in {1.15/2.75/cat, 2.05/3.35/dog, 2.35/2.45/puppy, 1.35/2.15/kitten}{
-  \node[circle,fill=MLBlue,inner sep=1.4pt] at (\x,\y) {};
-  \node[font=\scriptsize\color{MLNavy},anchor=west] at (\x+0.12,\y) {\w};}
-\node[font=\scriptsize\bfseries\color{MLBlue}] at (1.75,4.25) {animals};
-\end{scope}
-% cluster 2: vehicles
-\begin{scope}
-\fill[MLPaleTeal,opacity=0.85] (6.1,1.35) circle (1.15);
-\foreach \x/\y/\w in {5.45/1.15/car, 6.35/1.85/truck, 6.55/0.85/van, 5.65/1.95/bus}{
-  \node[circle,fill=MLTeal,inner sep=1.4pt] at (\x,\y) {};
-  \node[font=\scriptsize\color{MLNavy},anchor=west] at (\x+0.12,\y) {\w};}
-\node[font=\scriptsize\bfseries\color{MLTeal}] at (6.1,-0.35) {vehicles};
-\end{scope}
-% sentence vector
-\draw[-{Stealth[length=2.5mm]},very thick,draw=MLOrange] (0,0)--(1.72,2.68);
-\node[circle,fill=MLOrange,inner sep=2pt] at (1.72,2.68) {};
-\node[font=\scriptsize\bfseries\color{MLOrange},anchor=west,align=left] at (2.9,3.75)
-  {average of ``the cat and\\the dog'' lands here};
-\draw[draw=MLOrange,thin,dashed] (1.9,2.75) -- (2.85,3.6);
-\end{tikzpicture}
-\end{aifig}
-
-\begin{aifig}[Cosine similarity measures angle, not length]{Cosine compares direction only. $\mathbf{u}$ and $\mathbf{v}$ sit $13^\circ$ apart and score $0.97$. $\mathbf{w}$ has almost the same \emph{length} as $\mathbf{u}$ ($3.58$ against $3.59$) yet scores $0.56$ --- length carries no weight.}{fig:cosine}
-\begin{tikzpicture}[x=1.2cm,y=1.2cm]
-  \draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.15,0)--(4.3,0) node[right,font=\scriptsize] {dimension 1};
-  \draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.15)--(0,3.1) node[above,font=\scriptsize] {dimension 2};
-  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLBlue] (0,0)--(3.4,1.15)
-    node[right,font=\small\bfseries\color{MLBlue}] {$\mathbf{u}$};
-  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLTeal] (0,0)--(2.8,1.75)
-    node[above right,font=\small\bfseries\color{MLTeal}] {$\mathbf{v}$};
-  \draw[-{Stealth[length=2.5mm]},very thick,draw=MLRed] (0,0)--(0.95,3.45)
-    node[left,font=\small\bfseries\color{MLRed}] {$\mathbf{w}$};
-  \draw[-{Stealth[length=1.5mm]},draw=MLOrange,thick]
-    (0.92,0.31) arc[start angle=18.7,end angle=32,radius=0.97];
-  \node[font=\scriptsize\bfseries\color{MLOrange!85!black}] at (1.18,0.56) {$\theta$};
-  \node[align=left,font=\scriptsize\color{MLMuted},anchor=west] at (3.55,2.35)
-    {$\cos\theta=0.97$\\$13^\circ$ apart: similar};
-  \node[align=left,font=\scriptsize\color{MLRed},anchor=west] at (1.35,3.25)
-    {$\cos=0.56$ against $\mathbf{u}$\\same length, different direction};
-\end{tikzpicture}
-\end{aifig}
-
-Cosine similarity compares direction, not magnitude: opposite vectors score negative,
-perpendicular ones score zero, and length is ignored entirely. In \figref{fig:cosine},
-$\mathbf{u}$ and $\mathbf{w}$ are almost the same length yet score only $0.56$.
-
-\begin{workedexample}
-For a small numerical check, let \(\mathbf{u}=(1,1)\) and \(\mathbf{v}=(2,1)\). Their dot product is 3, their norms are \(\sqrt{2}\) and \(\sqrt{5}\), and their cosine similarity is
-\[
-\frac{3}{\sqrt{2}\sqrt{5}}=\frac{3}{\sqrt{10}}\approx0.949.
-\]
-The value is high because the vectors point in similar directions; Python applies the same calculation in higher dimensions.
-\end{workedexample}
-
-\section{Image captioning using AlexNet: a classification-based simulation}
-
-\figref{fig:alexnet} shows what the pipeline really does. AlexNet returns one class label;
-the ``caption'' is that label dropped into a fixed sentence template. Nothing in the system
-describes a scene --- it names an object and wraps it in words.
-
-\begin{aifig}[Classification dressed as captioning]{The chapter captioning pipeline. A real
-captioning model generates a sentence conditioned on the image; this one substitutes a class
-label into a template, so it can only ever say one thing per label.}{fig:alexnet}
-\begin{tikzpicture}[font=\small]
-\node[aibox,minimum width=1.9cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
-  (im) at (0,0) {image\\\texttt{plane.jpg}};
-\node[aibox,minimum width=2.3cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy},
-      fill=MLPaleOrange,draw=MLOrange] (net) at (2.85,0) {AlexNet\\1000 classes};
-\node[aibox,minimum width=2.1cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
-  (lab) at (5.75,0) {label\\\texttt{"airliner"}};
-\node[aibox,minimum width=2.6cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy}]
-  (tpl) at (8.75,0) {template\\\texttt{"This is a \_\_"}};
-\node[aibox,minimum width=3.1cm,minimum height=0.95cm,font=\scriptsize\color{MLNavy},
-      fill=MLPaleTeal,draw=MLGreen] (out) at (12.2,0) {\texttt{"This is a airliner"}};
-\foreach \a/\b in {im/net, net/lab, lab/tpl, tpl/out}{\draw[aiarrow] (\a)--(\b);}
-\node[ailabel,anchor=north,color=MLOrange] at (2.85,-0.62) {learned};
-\node[ailabel,anchor=north,color=MLMuted] at (8.75,-0.62) {hard-coded};
-\node[ailabel,anchor=north,align=center,color=MLRed] at (6.1,-1.35)
-  {one label per image means one possible sentence per label:
-   the model cannot mention colour, count, or relationship};
-\end{tikzpicture}
-\end{aifig}
-
-The second chapter example loads an image, resizes it to AlexNet's expected input size, extracts \texttt{fc7} features, classifies the image, and turns the predicted class label into a short caption.
-
-\begin{lstlisting}[style=mlpython]
-# A classifier normally supplies the label. The language step is simple:
-predicted_label = "airliner"
-caption = f"This is a picture of a {predicted_label.lower()}."
-print(caption)
-
-# In a real system, replace predicted_label with the output of a
-# pretrained image classifier that has been validated for the task.
-\end{lstlisting}
-
-The \texttt{features} variable demonstrates how an intermediate neural representation can be extracted, but the fixed-template caption does not use it directly. The \texttt{classify} call produces the label inserted into the caption.
-
-\begin{pitfall}
-This is classification with a fixed caption template, not free-form image captioning.
-\end{pitfall}
-
-\section{Scene text detection and translation}
-
-The third chapter pipeline uses optical character recognition (OCR) to extract printed text from an image and a hard-coded English-to-French dictionary to simulate translation without an internet application programming interface (API).
-
-\begin{aifig}[The OCR and translation pipeline]{The scene-text pipeline. Only the OCR stage
-is a learned model; normalisation and lookup are ordinary string handling, which is why the
-whole thing runs without a network connection --- and why an unseen word simply fails to
-translate.}{fig:ocr-pipeline}
+\begin{aifig}[The NLP pipeline]{The stages of an NLP pipeline and where the two NLP labs sit. Lab~6 is about acquisition and measurement: the OCR engine is the only learned component, and everything after it is plain string handling. Lab~7 starts from clean text and builds the representation and the model.}{fig:nlp-pipeline}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.45cm,minimum height=0.9cm,align=center,font=\small\color{MLNavy}},
+  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.22cm,minimum height=1.0cm,align=center,font=\small\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
 ]
-\node[b] (img) {Scene image};
-\node[b,right=0.30cm of img] (ocr) {OCR\\\scriptsize detected text};
-\node[b,right=0.30cm of ocr] (norm) {Normalize\\\scriptsize uppercase / trim};
-\node[b,right=0.30cm of norm] (dict) {Dictionary lookup};
-\node[b,right=0.30cm of dict] (out) {Translated text};
-\draw[arr] (img)--(ocr); \draw[arr] (ocr)--(norm); \draw[arr] (norm)--(dict); \draw[arr] (dict)--(out);
-\node[font=\scriptsize\color{MLOrange}] at (2.75,-0.85) {learned};
-\node[font=\scriptsize\color{MLMuted}] at (8.3,-0.85) {hard-coded};
+\node[b] (acq) {Acquire\\\scriptsize photo, audio, keyboard};
+\node[b,right=0.26cm of acq] (norm) {Normalise\\\scriptsize case, punctuation, tokens};
+\node[b,right=0.26cm of norm] (rep) {Represent\\\scriptsize counts, n-grams, vectors};
+\node[b,right=0.26cm of rep] (model) {Model\\\scriptsize classify, translate, search};
+\node[b,right=0.26cm of model] (eval) {Evaluate\\\scriptsize against references};
+\draw[arr] (acq)--(norm); \draw[arr] (norm)--(rep); \draw[arr] (rep)--(model); \draw[arr] (model)--(eval);
+\draw[aibrace,decoration={mirror},draw=MLOrange] (-1.3,-0.75) -- (3.9,-0.75);
+\node[font=\scriptsize\color{MLOrange},anchor=north] at (1.3,-0.95) {Lab~6: OCR, normalisation, measurement};
+\draw[aibrace,decoration={mirror},draw=MLGreen] (4.1,-0.75) -- (12.1,-0.75);
+\node[font=\scriptsize\color{MLGreen},anchor=north] at (8.1,-0.95) {Lab~7: bag of words, Naive Bayes, evaluation};
 \end{tikzpicture}
 \end{aifig}
 
-\begin{lstlisting}[style=mlpython]
-from PIL import Image
-import pytesseract
+\section{Optical character recognition as text acquisition}
 
-img = Image.open("street.jpg")
-detected_text = pytesseract.image_to_string(img).upper().strip()
-print("Detected text:", detected_text)
+\term{OCR} converts an image of text into a string. Modern engines such as Tesseract do it in two stages: a \term{segmentation} stage finds the lines and words in the image, and a \term{recognition} stage --- a neural network trained on printed text --- reads the characters in each segment. The distinction matters for the error analysis later, because the two stages fail differently: segmentation failure produces \emph{no} text, recognition failure produces the \emph{wrong} text.
 
-dictionary = {
-    "STOP": "ARRET",
-    "SPEED LIMIT": "LIMITATION DE VITESSE",
-    "YIELD": "CEDEZ LE PASSAGE",
-    "NO PARKING": "STATIONNEMENT INTERDIT",
-    "ONE WAY": "SENS UNIQUE",
-    "DO NOT ENTER": "ENTREE INTERDITE",
-    "STREET": "RUE",
-}
+Tesseract is configured through two switches that Lab~6 fixes once and never changes: \texttt{--oem 1} selects the neural recogniser and \texttt{--psm 7} tells the segmenter to expect a single line of text, which every cropped medicine name is. Fixing the configuration is what makes the later comparison an experiment rather than a tuning session.
 
-translation = next(
-    (dictionary[p] for p in sorted(dictionary, key=len, reverse=True)
-     if p in detected_text),
-    "No dictionary translation found",
-)
-print("French translation:", translation)
+\begin{intuition}
+An OCR engine is a model like any other, trained on some distribution of images. Tesseract's distribution is printed documents. Handwritten cursive on lined paper is far from it, and no amount of clever downstream code recovers information the recogniser never extracted.
+\end{intuition}
+
+\section{Normalisation before comparison}
+
+Two strings can mean the same thing and still differ byte for byte: ``Tab Azimax'' and ``tab azimax'', ``40 mg'' and ``40mg''. Before any comparison, both the prediction and the reference are mapped to a canonical form. Lab~6 keeps only lowercase letters and digits:
+
+\begin{lstlisting}[style=aipython]
+def normalise(text):
+    return re.sub(r"[^a-z0-9]", "", str(text).lower())
 \end{lstlisting}
 
-The \texttt{contains} check tolerates surrounding OCR text, but translation remains limited to stored dictionary phrases.
+The choice is deliberate and should be stated in any report: it declares that case, spaces and punctuation are \emph{not} errors for this task. A different task --- one where ``40 mg'' and ``4 0mg'' must be distinguished --- would need a different normaliser, and its accuracy numbers would not be comparable with these.
 
-\begin{workedexample}
-\texttt{"STOP\textbackslash nAHEAD"} still matches \texttt{STOP} and returns \texttt{ARRET}; \texttt{S70P} requires partial matching or a clearer image.
-\end{workedexample}
+\begin{keyidea}
+Normalise both sides identically, decide in advance what differences count as errors, and write the rule down. A metric is only meaningful relative to the normalisation it was computed under.
+\end{keyidea}
 
-\section{Extensions in the OCR examples}
+\section{Measuring text quality: edit distance}
 
-This chapter gives three additional variations.
+Exact match --- prediction equals reference after normalisation --- is the strictest measure and often the least informative: on Lab~6's baseline it is zero for all 89 images. A graded measure is needed, and the standard one is \term{Levenshtein distance}: the minimum number of single-character insertions, deletions and substitutions that turn one string into the other. \figref{fig:levenshtein} shows the dynamic-programming table that computes it.
+
+\begin{aifig}[Levenshtein distance by dynamic programming]{The table for turning \texttt{nims} into the OCR output \texttt{nidu}. Cell $(i,j)$ holds the cost of matching the first $i$ characters of the reference with the first $j$ of the prediction: one more than the cell above (delete), one more than the cell to the left (insert), or the diagonal plus one if the characters differ (substitute). The answer, 2, is in the bottom-right corner: substitute \texttt{m}$\to$\texttt{d} and \texttt{s}$\to$\texttt{u}.}{fig:levenshtein}
+\begin{tikzpicture}[font=\small]
+\def\W{0.78}
+\foreach \c [count=\ci from 1] in {n,i,d,u}{\node[font=\bfseries\color{MLOrange}] at (\W*\ci,\W*0.85) {\c};}
+\foreach \r [count=\ri from 1] in {n,i,m,s}{\node[font=\bfseries\color{MLBlue}] at (-\W*0.85,-\W*\ri) {\r};}
+\foreach \row [count=\ri from 0] in {{0,1,2,3,4},{1,0,1,2,3},{2,1,0,1,2},{3,2,1,1,2},{4,3,2,2,2}}{
+  \foreach \v [count=\ci from 0] in \row{
+    \ifnum\ri=\ci
+      \node[aihot,minimum width=\W cm,minimum height=\W cm,font=\scriptsize\bfseries] at (\W*\ci,-\W*\ri) {\v};
+    \else
+      \node[aicell,minimum width=\W cm,minimum height=\W cm,font=\scriptsize] at (\W*\ci,-\W*\ri) {\v};
+    \fi
+  }
+}
+\node[ailabel,anchor=north,color=MLBlue] at (-\W*0.85,-\W*4.6) {reference};
+\node[ailabel,anchor=south,color=MLOrange] at (\W*2.5,\W*1.3) {prediction};
+\node[ailabel,anchor=west,align=left,text width=6.2cm] at (\W*5.4,-\W*1.2)
+  {$D[i,j]=\min\big(D[i-1,j]+1,\ D[i,j-1]+1,\ D[i-1,j-1]+[r_i\neq p_j]\big)$\\[4pt]
+   The highlighted diagonal is the cheapest path: match \texttt{n}, match \texttt{i}, substitute, substitute.\\[4pt]
+   Distance $=2$; normalised by the longer length, $2/4=0.5$.};
+\end{tikzpicture}
+\end{aifig}
+
+The lab's implementation is the table computed one row at a time:
+
+\begin{lstlisting}[style=aipython]
+def levenshtein(a, b):
+    previous = list(range(len(b) + 1))
+    for i, char_a in enumerate(a, start=1):
+        current = [i]
+        for j, char_b in enumerate(b, start=1):
+            current.append(min(current[j - 1] + 1, previous[j] + 1, previous[j - 1] + (char_a != char_b)))
+        previous = current
+    return previous[-1]
+\end{lstlisting}
+
+From the raw distance the lab derives three summary metrics, each answering a different question:
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}p{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Metric & Definition & Answers \\
+\midrule
+Exact-match accuracy & Fraction of images with distance $0$ & How often is the name usable as-is? \\
+Mean normalised edit distance & Mean over images of distance $/$ longer length; in $[0,1]$ & How wrong is a typical image? \\
+Character error rate (CER) & Total edits $/$ total reference characters; can exceed $1$ & How many corrections per 100 reference characters? \\
+Blank predictions & Images whose normalised prediction is empty & How often did segmentation find nothing? \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+CER is a ratio of totals, so long references dominate it; the normalised distance is a mean of per-image ratios, so every image counts equally. They can move in opposite directions on the same data. Report both, and say which one a decision rests on.
+\end{pitfall}
+
+\section{A controlled preprocessing experiment}
+
+The baseline numbers are poor --- CER close to $0.9$, and 39 of 89 images return nothing. The obvious response is to improve the images, and the obvious trap is to change several things and the engine settings at once and then attribute the improvement to whichever change one likes. Lab~6 changes the image \emph{only}, in one fixed pipeline: grayscale, a 20-pixel white border, a width cap, and a $1.5\times$ enlargement. Every step targets a known weakness of the segmenter --- colour noise, text touching the edge, characters smaller than the recogniser expects --- and the engine configuration stays exactly as it was.
+
+The comparison is fair because three things are held constant: the same 89 images, the same normalisation, the same OCR configuration. Only then is a difference attributable to the preprocessing.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Pipeline & Exact match & Norm.\ edit distance & CER & Blank \\
+\midrule
+Raw images & 0.000 & 0.856 & 0.875 & 39 \\
+Grayscale, border, resize & 0.011 & 0.767 & 0.788 & 15 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Read across the rows and the story is specific: blank predictions fall by more than half and CER by about $0.09$, but exact match barely moves. Preprocessing helped the segmenter find the text; it did not help the recogniser read cursive. That is exactly the distinction between the two OCR stages, now visible in numbers.
+
+\section{Error analysis: which stage failed?}
+
+Aggregate metrics say \emph{how much} went wrong; an error analysis says \emph{what}. Lab~6 sorts the preprocessed predictions by normalised edit distance, takes the worst, and tags each with one of two failure types that map onto the two OCR stages:
 
 \begin{description}
-  \item[Multi-language dictionary] A STOP sign is mapped independently to French and German dictionaries.
-  \item[Fuzzy keyword matching] Partial keywords such as \texttt{PARK} or \texttt{SPEED} trigger translations even when the OCR text is not an exact dictionary key.
-  \item[Region-of-interest (ROI) selection] The user draws a rectangle around the relevant image region before OCR, reducing the text-recognition area.
+  \item[No text detected.] The normalised prediction is empty. Segmentation failed --- faint strokes, low contrast, or slanted writing the line finder rejected. Image preprocessing can help here.
+  \item[Character confusion.] A line was found but the characters are wrong: \texttt{nims} read as \texttt{nidu}, \texttt{dicloran} as \texttt{divlarew}. Recognition failed --- the model has no knowledge of this handwriting. Preprocessing cannot help; only a recogniser trained on handwriting can.
 \end{description}
 
-\begin{lstlisting}[style=mlpython]
-from PIL import Image
-import pytesseract
+The six hardest images are saved as a figure with the reference and the prediction under each, so that a reader can check the tags against the pictures. An error analysis that cannot be checked is an opinion.
 
-img = Image.open("stop.jpg")
-roi = img.crop((120, 80, 520, 300))  # left, top, right, bottom
-text = pytesseract.image_to_string(roi).upper().strip()
-print("Detected text:", text)
-\end{lstlisting}
+\begin{keyidea}
+Attribute each failure to the stage that produced it. The fix for ``no text found'' is different from the fix for ``wrong text found'', and an aggregate score cannot tell them apart.
+\end{keyidea}
+
+\section{Fitness for purpose}
+
+The lab's closing note is part of the method, not a disclaimer. A benchmark measures the fit between a model and a domain, and this one shows a poor fit: a recogniser trained on print applied to cursive on lined paper. Nothing in the numbers supports using generic OCR for clinical transcription, where a misread name or dose is a safety failure. A system for that purpose would need a handwriting-specific recogniser, data representative of the clinic's own writers, validation on data held out from development, privacy controls, and a person in the loop for every uncertain reading. Writing this down is what turns a lab result into engineering judgement.
 
 \input{labs/06-nlp-part-a}
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item What role do pretrained FastText vectors play in the similarity example?
-  \item Why are the word vectors averaged before cosine similarity is computed?
-  \item What produces the caption text in the AlexNet example?
-  \item What is the difference between OCR and the dictionary translation step?
-  \item Why can selecting a region of interest change the OCR result?
+  \item Which of the two OCR stages is responsible for a blank prediction, and which for \texttt{nims} being read as \texttt{nidu}?
+  \item Compute the Levenshtein distance between \texttt{breeky} and \texttt{beeky}, and the normalised distance.
+  \item Why must the OCR configuration stay fixed when the preprocessing pipeline is tested?
+  \item After preprocessing, CER fell by $0.09$ but exact-match accuracy rose by only one image. What does that pattern say about which stage improved?
+  \item The lab's normaliser deletes spaces. Name a task for which that would be the wrong choice.
 \end{enumerate}
 \end{quickcheck}

@@ -2,14 +2,14 @@
 \label{ch:informed}
 
 \chapterguide%
-  {Understand BFS/DFS/UCS and the idea of a priority queue.}
-  {define a heuristic, trace Greedy Best-First Search, compute \(g(n)\), \(h(n)\), and \(f(n)\), explain A*, and apply Manhattan distance to grid navigation.}
+  {Trace BFS, DFS and UCS (\chapref{ch:uninformed}) and explain what a priority queue does.}
+  {define a heuristic and compute $g$, $h$ and $f$ for a state; trace Greedy Best-First Search and A$^\star$; decide whether a heuristic is admissible and why that matters; and read the effort-versus-quality trade-off in Lab~2's tables.}
 
-Lab 2 introduces a \term{heuristic}: an estimate of remaining distance or cost used to guide the frontier.
+UCS found the shortest route from Kuala Lumpur to Keflav\'ik in \chapref{ch:uninformed}, but it expanded 1,851 airports to do so, most of them in the wrong direction. It had no way to know that Adelaide is a poor first step towards Iceland. Lab~2 gives the search that knowledge in the form of a \term{heuristic} --- an estimate of the distance still to go --- and studies what the estimate buys and what it can cost.
 
-\section{Heuristic search}
+\section{Three quantities on one path}
 
-Let \(h(n)\) denote the heuristic value of node \(n\). Smaller values in the laboratory examples mean ``looks closer to the goal.'' The goal itself has \(h(G)=0\).
+Every informed method reasons about a frontier state $n$ using up to three numbers:
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}
@@ -20,47 +20,32 @@ Let \(h(n)\) denote the heuristic value of node \(n\). Smaller values in the lab
 \rowcolor{MLPaleBlue!92}
 Quantity & Meaning & Used by \\
 \midrule
-\(g(n)\) & Actual path cost accumulated from the start to node \(n\) & UCS and A* \\
-\(h(n)\) & Estimated remaining cost or distance from \(n\) to the goal & GBFS and A* \\
-\(f(n)\) & \(g(n)+h(n)\), an estimated total cost through \(n\) & A* \\
+$g(n)$ & Exact cost of the cheapest known path from the start to $n$ & UCS, A$^\star$ \\
+$h(n)$ & Estimated cost from $n$ to the goal --- the heuristic & GBFS, A$^\star$ \\
+$f(n)=g(n)+h(n)$ & Estimated total cost of a solution through $n$ & A$^\star$ \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\begin{keyidea}
-Greedy Best-First Search asks, ``Which frontier state appears closest to the goal?'' A* asks, ``Which frontier state gives the best combination of cost already paid and estimated cost still remaining?''
-\end{keyidea}
+\figref{fig:fgh} places them on a single journey. The cost behind the frontier state is known exactly; the cost ahead of it is a guess. UCS looks only backwards, GBFS only forwards, A$^\star$ at both.
 
-\figref{fig:fgh} shows the three quantities on a single node. The distinction is entirely
-about which part of the journey each algorithm is willing to look at: UCS looks only
-backwards, GBFS only forwards, and A* at both.
-
-\begin{aifig}[The three quantities $g$, $h$, and $f$]{The decomposition $f(n)=g(n)+h(n)$.
-The cost $g$ behind the node is known exactly; the estimate $h$ ahead of it is a guess.
-UCS prioritizes $g$, GBFS prioritizes $h$, and A* prioritizes their sum.}{fig:fgh}
+\begin{aifig}[The three quantities $g$, $h$, and $f$]{The decomposition $f(n)=g(n)+h(n)$. The cost $g$ behind the node is known exactly; the estimate $h$ ahead of it is a guess. UCS prioritises $g$, GBFS prioritises $h$, and A$^\star$ prioritises their sum.}{fig:fgh}
 \begin{tikzpicture}[font=\small,
   method/.style={rounded corners=2mm,text width=2.75cm,minimum height=1.02cm,
                  align=center,font=\scriptsize\color{MLNavy},inner sep=1.5mm,
                  line width=0.75pt}]
-% One journey split at the current frontier node n.
 \node[ainodedone,minimum size=9mm] (S) at (0,0) {S};
 \node[ainodehot,minimum size=9mm] (N) at (4,0) {$n$};
 \node[ainode,minimum size=9mm,fill=MLPaleTeal,draw=MLGreen] (G) at (8,0) {G};
-
-% Known route to n and estimated route from n to the goal.
 \draw[aiedge,draw=MLBlue,line width=1.3pt]
   (S) -- (1.15,0.48) -- (2.55,-0.32) -- (N);
 \draw[aiedge,draw=MLMuted!55,line width=1.2pt,dashed] (N) -- (G);
-
-% Keep both metric labels above the path so neither crosses a line or brace.
 \draw[aibrace,draw=MLBlue] (-0.3,0.92) -- (4,0.92);
 \draw[aibrace,draw=MLOrange] (4,0.92) -- (8.3,0.92);
 \node[ailabel,anchor=south,color=MLBlue,align=center] at (1.85,1.22)
   {$g(n)$ --- exact cost\\from start to $n$};
 \node[ailabel,anchor=south,color=MLOrange,align=center] at (6.15,1.22)
   {$h(n)$ --- estimated cost\\from $n$ to goal};
-
-% The three frontier priorities form one aligned comparison row.
 \node[method,draw=MLBlue,fill=MLPaleBlue] (ucs) at (0.75,-1.65)
   {\textbf{UCS}\\priority $g(n)$\\actual cost only};
 \node[method,draw=MLOrange,fill=MLPaleOrange] (gbfs) at (4,-1.65)
@@ -70,179 +55,70 @@ UCS prioritizes $g$, GBFS prioritizes $h$, and A* prioritizes their sum.}{fig:fg
 \end{tikzpicture}
 \end{aifig}
 
+\begin{keyidea}
+Greedy Best-First Search asks ``which frontier state \emph{looks} closest to the goal?'' A$^\star$ asks ``which frontier state gives the best combination of cost already paid and cost still expected?'' The first question is cheap to answer and can mislead; the second is only slightly dearer and, with a suitable heuristic, cannot.
+\end{keyidea}
+
+\section{The Haversine heuristic}
+
+A heuristic must be cheap to compute and must measure something in the same units as the path cost. For routes measured in kilometres, the natural estimate is the great-circle distance from the current airport to the destination --- the length of the straight flight that may or may not exist. The \term{Haversine formula} gives it from two latitude--longitude pairs:
+\[
+h(n)=2R\,\arcsin\!\sqrt{\sin^2\!\tfrac{\Delta\varphi}{2}+\cos\varphi_n\cos\varphi_{\text{goal}}\sin^2\!\tfrac{\Delta\lambda}{2}}
+\]
+with $R=6371$~km. The same formula gives every edge weight in the graph, so $h$ and $g$ are directly comparable. In Lab~2 the heuristic is a small function that fixes the goal and returns a function of the airport:
+
+\begin{lstlisting}[style=aipython]
+def heuristic_to(goal, weight=1.0):
+    def h(airport):
+        return weight * haversine_km(coords[airport]["latitude"], coords[airport]["longitude"],
+                                     coords[goal]["latitude"], coords[goal]["longitude"])
+    return h
+\end{lstlisting}
+
+The search functions in \texttt{utils/core.py} accept any callable from a state to a number, which is what makes this design reusable: swap the function and the same code searches with a different heuristic.
+
 \section{Greedy Best-First Search}
 
-\term{Greedy Best-First Search (GBFS)} orders the frontier by heuristic value only. It ignores the cost already spent reaching a node.
+\term{Greedy Best-First Search (GBFS)} orders the frontier by $h(n)$ alone. It always expands the state that appears closest to the goal and ignores what it cost to get there. On the airline graph this is remarkably effective at \emph{finding} a route --- two or three expansions instead of thousands --- and unreliable at finding a good one.
 
-The Lab 2 graph assigns
-\[
-h(A)=6,\; h(B)=4,\; h(C)=5,\; h(D)=2,\; h(E)=3,\; h(F)=2,\; h(G)=0.
-\]
-From \texttt{A}, the handout chooses \texttt{B} because \(h(B)=4<h(C)=5\). From \texttt{B}, it prefers \texttt{D} because \(h(D)=2<h(E)=3\). Since \texttt{D} is a dead end, the search later explores another frontier state and eventually reaches \texttt{G} through \texttt{E}.
-
-\begin{lstlisting}[style=mlpython]
-import heapq
-
-def greedy_best_first(graph, heuristic, start, goal):
-    pq = [(heuristic[start], [start])]
-    visited = set()
-
-    while pq:
-        _, path = heapq.heappop(pq)
-        node = path[-1]
-        if node == goal:
-            return path
-
-        if node in visited:
-            continue
-        visited.add(node)
-
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                heapq.heappush(
-                    pq,
-                    (heuristic[neighbor], path + [neighbor])
-                )
-    return None
-\end{lstlisting}
+\begin{workedexample}
+From \texttt{KUL} to \texttt{KEF}, GBFS expands only two airports and returns \texttt{KUL -> LHR -> KEF}: 12,500~km, 9\,\% longer than the optimum. London looks close to Iceland, so the greedy rule jumps there without noticing that the long first leg to London costs more than the whole optimal route through Phuket, St Petersburg and Helsinki. For \texttt{NRT}~$\to$~\texttt{CPT} the same happens through Doha and Johannesburg: 6.7\,\% too long. For \texttt{SIN}~$\to$~\texttt{EZE} greed happens to coincide with the optimum.
+\end{workedexample}
 
 \begin{pitfall}
-GBFS may prefer a low-heuristic state reached by an expensive path because it ranks only \(h(n)\).
+GBFS can prefer a state with a small $h$ that was reached by an expensive path, because it never looks at $g$. Its results are not optimal and are not even consistently good: the gap depends on how the graph happens to be laid out around the goal.
 \end{pitfall}
 
-\section{Manhattan distance in a grid}
+\section{A* search}
 
-The choice of distance formula must match the moves the robot can actually make
-(\figref{fig:manhattan}). With four-direction movement, Manhattan distance is the exact
-number of steps needed on an empty grid, so it is admissible and tight. Euclidean distance
-cuts the corner and always \emph{under}-estimates, which is still admissible but weaker: it
-guides the search less and A* expands more cells.
-
-\begin{aifig}[Manhattan versus Euclidean distance]{Two estimates from $(1,1)$ to $(4,3)$. With four-direction movement the true cost is 5 steps, which Manhattan reports exactly. Euclidean reports $3.6$: admissible, but a looser guide, so A* expands more cells.}{fig:manhattan}
-\begin{tikzpicture}[font=\small]
-\def\W{0.72}
-\foreach \r in {0,...,4}{\foreach \c in {0,...,5}{
-  \node[draw=MLMuted!30,fill=white,minimum width=\W cm,minimum height=\W cm,inner sep=0pt]
-    at (\W*\c,-\W*\r) {};}}
-% manhattan route
-\draw[very thick,draw=MLBlue]
-  (\W*1,-\W*3) -- (\W*4,-\W*3) -- (\W*4,-\W*1);
-% euclidean straight line
-\draw[very thick,draw=MLOrange,dashed] (\W*1,-\W*3) -- (\W*4,-\W*1);
-\node[ainodehot,minimum size=6mm,font=\scriptsize\bfseries] at (\W*1,-\W*3) {S};
-\node[ainodedone,minimum size=6mm,font=\scriptsize\bfseries] at (\W*4,-\W*1) {G};
-\node[ailabel,anchor=west,align=left,color=MLBlue] at (\W*5.6,-\W*3)
-  {Manhattan $=|4-1|+|3-1|=5$\\exact for 4-direction moves};
-\node[ailabel,anchor=west,align=left,color=MLOrange] at (\W*5.6,-\W*1.4)
-  {Euclidean $=\sqrt{3^2+2^2}=3.6$\\admissible but loose};
-\end{tikzpicture}
-\end{aifig}
-
-The Lab 2 robot-maze problem uses the Manhattan-distance heuristic. For two grid coordinates \(a=(x_a,y_a)\) and \(b=(x_b,y_b)\),
-\[
-h(a,b)=|x_a-x_b|+|y_a-y_b|.
-\]
-It measures how many horizontal and vertical coordinate differences remain when diagonal movement is not used.
-
-\begin{lstlisting}[style=mlpython]
-def manhattan(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-\end{lstlisting}
+\term{A$^\star$} orders the frontier by $f(n)=g(n)+h(n)$. The $g$ term keeps expensive paths from being pursued just because they look promising; the $h$ term keeps the search from spreading in every direction as UCS does. When $h$ never overestimates the true remaining cost, A$^\star$ returns the cheapest path, exactly as UCS does, while usually expanding far fewer states.
 
 \begin{workedexample}
-For start \((0,0)\) and goal \((3,3)\), the start heuristic is \(6\). A move to \((0,1)\) reduces the heuristic to \(5\). GBFS repeatedly prefers frontier positions with the smallest remaining Manhattan distance, subject to walls and the positions already explored.
+Suppose frontier state $X$ has $(g,h)=(5,3)$ and $Y$ has $(1,5)$. GBFS chooses $X$ because $3<5$. A$^\star$ chooses $Y$ because $f(Y)=6<f(X)=8$: the cheaper path so far is worth the extra estimated distance.
 \end{workedexample}
 
-\begin{mlfigure}
-\begin{tikzpicture}[x=0.9cm,y=0.9cm]
-  \draw[step=1,draw=MLBlue!28,line width=0.5pt] (0,0) grid (4,4);
-  \fill[MLBlue] (0.5,0.5) circle (3.2mm);
-  \node[font=\scriptsize\bfseries,text=white] at (0.5,0.5) {S};
-  \fill[MLGreen] (3.5,3.5) circle (3.2mm);
-  \node[font=\scriptsize\bfseries,text=white] at (3.5,3.5) {G};
-  \draw[-{Stealth[length=2mm]},very thick,draw=MLOrange]
-    (0.75,0.5) -- (3.5,0.5) -- (3.5,3.2);
-  \node[font=\scriptsize\bfseries\color{MLOrange!85!black}] at (2.1,0.18) {3 horizontal moves};
-  \node[rotate=90,font=\scriptsize\bfseries\color{MLOrange!85!black}] at (3.82,1.95) {3 vertical moves};
-  \node[font=\small\bfseries\color{MLNavy}] at (1.65,3.55) {$h=3+3=6$};
-\end{tikzpicture}
-\end{mlfigure}
+Implementation is one line away from UCS. In \texttt{utils/core.py} the three algorithms share \texttt{best\_first}; only the priority differs:
 
-Obstacles may lengthen the route, but the six coordinate changes remain necessary; Manhattan distance is therefore a lower bound for unit-cost four-direction movement.
-
-\section{Word-ladder heuristic}
-
-For the Lab 2 word ladder, the heuristic is the number of letters that differ from the goal word. If the goal is \texttt{cog}, then \texttt{dog} differs in one position while \texttt{dot} differs in two positions.
-
-\begin{lstlisting}[style=mlpython]
-def word_h(word, goal):
-    return sum(a != b for a, b in zip(word, goal))
+\begin{lstlisting}[style=aipython]
+def priority(state, g):
+    if mode == "ucs":
+        return g
+    if mode == "gbfs":
+        return h(state)
+    return g + h(state)            # astar
 \end{lstlisting}
 
-The representation changes from coordinates to strings, but \(h(n)\) retains the same role.
+\subsection{Admissibility: check, do not assume}
 
-\section{A* Search}
-
-\term{A* Search} combines actual and estimated cost:
+The optimality guarantee rests on one condition. A heuristic is \term{admissible} when it never overestimates the cheapest remaining cost:
 \[
-f(n)=g(n)+h(n).
+h(n)\;\le\;h^\star(n)\quad\text{for every state } n,
 \]
-Here, \(g(n)\) penalizes costly paths while \(h(n)\) guides the search toward the goal.
+where $h^\star(n)$ is the true cost of the cheapest path from $n$ to the goal. A stronger and more convenient condition is \term{consistency}: for every edge $n\to n'$ of cost $c$, $h(n)\le c+h(n')$. Consistency implies admissibility and guarantees that the first time A$^\star$ pops a state, it has found the cheapest path to it --- which is what allows the closed-set implementation in \texttt{utils} to skip re-expansions.
 
-\begin{workedexample}
-Suppose \(X\) has \((g,h)=(5,3)\) and \(Y\) has \((1,5)\). GBFS chooses \(X\) because \(3<5\); A* chooses \(Y\) because \(f(Y)=6<f(X)=8\).
-\end{workedexample}
+The Haversine heuristic is consistent by geometry: the straight-line distance from $n$ to the goal cannot exceed a flight to $n'$ plus the straight-line distance from $n'$ (the triangle inequality on a sphere). Lab~2 does not take this on trust. It runs Dijkstra backwards from each goal to obtain $h^\star$ for every airport, samples ten airports across the range, and checks $h\le h^\star$ on each. \figref{fig:admissible} shows what such a check looks like; every point must lie on or below the diagonal.
 
-For A* to guarantee an optimal result, the heuristic must not overestimate the cheapest remaining cost. Such a heuristic is \term{admissible}. A commonly used stronger condition is \term{consistency}: for every edge \(n\to n'\) of cost \(c\),
-\[
-h(n)\leq c+h(n').
-\]
-Manhattan distance is consistent for four-direction movement when every move costs at least one. If moves can cost less than one, scale the heuristic by the minimum possible move cost.
-
-For the supplied graph:
-\begin{align*}
-A&\to B:1, & A&\to C:4,\\
-B&\to D:3, & B&\to E:1,\\
-E&\to G:2, & C&\to F:5, & F&\to G:1.
-\end{align*}
-with the handout's heuristic
-\[
-h(A)=7,\; h(B)=6,\; h(C)=4,\; h(D)=3,\; h(E)=2,\; h(F)=2,\; h(G)=0.
-\]
-The optimal route is
-\[
-A\to B\to E\to G
-\]
-with path cost \(1+1+2=4\).
-
-\subsection{Is that heuristic admissible? Check, do not assume}
-
-The condition above is worth applying to the handout's own numbers rather than reading past it. Let \(h^\star(n)\) be the \emph{true} cheapest cost from \(n\) to the goal, obtained by searching backwards from \(G\). Admissibility requires \(h(n)\leq h^\star(n)\) at every node.
-
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}p{0.13\linewidth}p{0.15\linewidth}X@{}}
-\toprule
-\rowcolor{MLPaleBlue!92}
-Node & \(h(n)\) & true \(h^\star(n)\) & Admissible? \\
-\midrule
-A & 7 & 4 & \textbf{no} --- overestimates by 3 \\
-B & 6 & 3 & \textbf{no} --- overestimates by 3 \\
-C & 4 & 6 & yes \\
-D & 3 & --- & \(G\) is unreachable from \(D\) \\
-E & 2 & 2 & yes (exact) \\
-F & 2 & 1 & \textbf{no} --- overestimates by 1 \\
-G & 0 & 0 & yes \\
-\bottomrule
-\end{tabularx}
-\end{mltable}
-
-\figref{fig:admissible} plots the table. Any bar rising above the diagonal is a node where
-the estimate exceeds the truth, and a single such node is enough to void the guarantee.
-
-\begin{aifig}[Checking admissibility node by node]{The handout's heuristic against the true
-remaining cost. Admissibility requires every point to lie on or below the dashed line;
-A, B, and F sit above it. Halving the heuristic --- the largest factor the worst node allows
---- pulls all of them under.}{fig:admissible}
+\begin{aifig}[Checking admissibility state by state]{A heuristic plotted against the true remaining cost. Admissibility requires every point to lie on or below the dashed line. The red points overestimate and void the A$^\star$ guarantee; the Haversine heuristic in Lab~2 produces only green points, with slack of 0 to 23,000~km.}{fig:admissible}
 \begin{tikzpicture}
 \begin{axis}[
   width=0.62\linewidth, height=5.4cm,
@@ -255,160 +131,50 @@ A, B, and F sit above it. Halving the heuristic --- the largest factor the worst
 \addplot[only marks,mark=*,mark size=2.4pt,MLRed]
   coordinates {(4,7) (3,6) (1,2)};
 \addplot[only marks,mark=*,mark size=2.4pt,MLGreen]
-  coordinates {(6,4) (2,2) (0,0)};
-\node[font=\scriptsize\color{MLRed}] at (axis cs:4.75,7.15) {A};
-\node[font=\scriptsize\color{MLRed}] at (axis cs:3.7,6.1) {B};
-\node[font=\scriptsize\color{MLRed}] at (axis cs:1.35,2.55) {F};
-\node[font=\scriptsize\color{MLGreen}] at (axis cs:6.0,3.4) {C};
-\node[font=\scriptsize\color{MLGreen}] at (axis cs:2.55,1.5) {E};
+  coordinates {(6,4) (2,2) (0,0) (5,3.2) (3.5,1.8)};
 \node[font=\scriptsize\color{MLMuted},anchor=west] at (axis cs:4.4,4.1) {$h=h^\star$};
 \node[font=\scriptsize\color{MLRed},anchor=west,align=left] at (axis cs:0.3,6.2)
   {above the line:\\overestimates};
+\node[font=\scriptsize\color{MLGreen},anchor=west,align=left] at (axis cs:4.6,1.4)
+  {on or below:\\admissible};
 \end{axis}
 \end{tikzpicture}
 \end{aifig}
 
-\begin{pitfall}
-This heuristic is \textbf{not admissible}, so A* carries no optimality guarantee on this graph. It still returns \texttt{A -> B -> E -> G} at cost 4, which happens to be optimal --- but that is luck, not proof, and a differently shaped graph with the same style of heuristic can return a worse path.
-
-Report which heuristics in the lab are admissible and which are not. ``A* found it, so it must be optimal'' is exactly the reasoning the admissibility condition exists to prevent.
-\end{pitfall}
-
-\begin{tryit}
-\texttt{Lab02/search\_informed.py} computes the \(h^\star\) column by running a backwards search from the goal and prints this table, so you can verify the claim instead of taking it on trust.
-
-Then repair the heuristic by scaling every value by a constant \(k\). Admissibility needs \(k\,h(n)\leq h^\star(n)\) at every node, so \(k\) is limited by the worst node:
-\[
-k\leq\min_n \frac{h^\star(n)}{h(n)}
-=\min\left(\tfrac{4}{7},\tfrac{3}{6},\tfrac{6}{4},\tfrac{2}{2},\tfrac{1}{2}\right)=\tfrac12,
-\]
-with \(B\) and \(F\) both binding. Halving the heuristic makes the whole table read yes. Scaling by \(4/7\) --- the factor that fixes the largest single error, at \(A\) --- is not enough, and checking that for yourself is the point of the exercise.
-\end{tryit}
-
 \begin{intuition}
-An inadmissible heuristic makes A* behave more like Greedy Best-First Search: it trusts the estimate too much and can commit to a branch before the cost evidence says it should. Admissibility is what keeps the \(g\) term in charge when the two disagree.
+An inadmissible heuristic makes A$^\star$ behave like GBFS: it trusts the estimate too much and commits to a branch before the cost evidence justifies it. Admissibility keeps the $g$ term in charge whenever the two disagree.
 \end{intuition}
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  n/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=8mm,font=\small\bfseries\color{MLNavy}},
-  e/.style={-{Stealth[length=1.8mm]},draw=MLMuted,thick,font=\scriptsize\color{MLMuted}}
-]
-\node[n] (a) at (0,0) {A};
-\node[n] (b) at (3,1.4) {B};
-\node[n] (c) at (3,-1.4) {C};
-\node[n] (d) at (6,2.4) {D};
-\node[n] (e1) at (6,0.7) {E};
-\node[n] (f) at (6,-1.4) {F};
-\node[n] (g) at (9,0) {G};
-\draw[e] (a)--node[above] {1} (b);
-\draw[e] (a)--node[below] {4} (c);
-\draw[e] (b)--node[above] {3} (d);
-\draw[e] (b)--node[below] {1} (e1);
-\draw[e] (c)--node[below] {5} (f);
-\draw[e] (e1)--node[above] {2} (g);
-\draw[e] (f)--node[below] {1} (g);
-\end{tikzpicture}
-\end{mlfigure}
+\subsection{Weighted A*: trading the guarantee for speed}
 
-\subsection{A* implementation pattern}
+Multiplying an admissible heuristic by a factor $w>1$ gives \term{weighted A$^\star$}, with priority $g+w\,h$. The inflated estimate can now overestimate, so the guarantee is gone, but the search becomes more goal-directed and expands fewer states. Lab~2 tests $w=1.5$: expansions drop to two, three and four, and the returned routes are 7.1\,\%, 0\,\% and 0.8\,\% longer than optimal. The cost changes exactly when the optimal route detours through airports that are geographically further from the goal than a rival hop; when the optimal route already heads straight for the goal, nothing changes.
 
-The Lab 3 reference implementation stores both \(g\) and \(f\) in the heap:
-
-\begin{lstlisting}[style=mlpython]
-def astar_graph(graph, heuristic, start, goal):
-    import heapq
-    pq = [(heuristic[start], 0, [start])]
-    best_g = {start: 0}
-
-    while pq:
-        f, g, path = heapq.heappop(pq)
-        node = path[-1]
-        if g > best_g.get(node, float('inf')):
-            continue                 # stale, more expensive entry
-        if node == goal:
-            return path, g
-
-        for neighbor, cost in graph[node]:
-            new_g = g + cost
-            if new_g < best_g.get(neighbor, float('inf')):
-                best_g[neighbor] = new_g
-                heapq.heappush(
-                    pq,
-                    (new_g + heuristic[neighbor],
-                     new_g,
-                     path + [neighbor])
-                )
-    return None
-\end{lstlisting}
-
-The \texttt{best\_g} dictionary replaces costlier routes and identifies stale queue entries.
-
-\section{A* in a weighted grid}
-
-Lab 2 supplies a \(5\times5\) grid in which each cell contains a movement cost and asks for a path from \((0,0)\) to \((4,4)\). The search cost \(g\) accumulates grid-cell costs, while Manhattan distance supplies \(h\).
-
-\begin{lstlisting}[style=mlpython]
-def astar_grid(grid, start, goal):
-    import heapq
-
-    def h(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
-    rows, cols = len(grid), len(grid[0])
-    pq = [(h(start, goal), 0, [start])]
-    best_g = {start: 0}
-
-    while pq:
-        f, g, path = heapq.heappop(pq)
-        x, y = path[-1]
-        if g > best_g.get((x, y), float('inf')):
-            continue
-        if (x, y) == goal:
-            return path, g
-
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            nx, ny = x + dx, y + dy
-            if 0 <= nx < rows and 0 <= ny < cols:
-                new_g = g + grid[nx][ny]
-                if new_g < best_g.get((nx, ny), float('inf')):
-                    best_g[(nx, ny)] = new_g
-                    heapq.heappush(
-                        pq,
-                        (new_g + h((nx, ny), goal),
-                         new_g,
-                         path + [(nx, ny)])
-                    )
-    return None
-\end{lstlisting}
-
-\section{UCS, GBFS, and A* side by side}
+\section{UCS, GBFS and A* side by side}
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}
   >{\centering\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.10\linewidth}
-  >{\centering\arraybackslash}p{0.18\linewidth}
-  >{\centering\arraybackslash}p{0.23\linewidth}
+  >{\centering\arraybackslash}p{0.16\linewidth}
+  >{\centering\arraybackslash}p{0.22\linewidth}
   X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Method & Priority & Knowledge used & Main behavior in the lab material \\
+Method & Priority & Optimal? & Behaviour in Lab~2 \\
 \midrule
-UCS & \(g(n)\) & Edge/path costs & Favors the cheapest path discovered so far \\
-GBFS & \(h(n)\) & Heuristic only & Moves toward states that look closest to the goal \\
-A* & \(g(n)+h(n)\) & Cost and heuristic & Balances cost-so-far with estimated remaining cost \\
+UCS & $g(n)$ & Yes & Exact but blind: 1,851--3,042 expansions per query \\
+GBFS & $h(n)$ & No & 2--3 expansions; routes up to 9\,\% too long \\
+A$^\star$ & $g(n)+h(n)$ & Yes, if $h$ admissible & Same cost as UCS with 96\,\% fewer expansions \\
+Weighted A$^\star$ & $g(n)+1.5\,h(n)$ & No & 2--4 expansions; routes up to 7\,\% too long \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-The table states the rule; \figref{fig:expansion} shows the consequence. All three find a
-path, but they examine very different numbers of cells doing it.
+\figref{fig:expansion} shows the same story on a grid, where the expanded region is easy to see. UCS spreads in every direction because it cannot see the goal; GBFS runs almost straight at it and is drawn into a dead end; A$^\star$ expands a narrow corridor and still returns the optimal path.
 
-\begin{aifig}[Cells expanded by UCS, GBFS, and A*]{Cells expanded before the goal is reached, on an identical grid. UCS spreads in all directions because it cannot see the goal. GBFS runs almost straight at it but is drawn into the dead end. A* expands a narrow corridor and still returns the optimal path.}{fig:expansion}
+\begin{aifig}[Cells expanded by UCS, GBFS, and A*]{Cells expanded before the goal is reached, on an identical grid. UCS spreads in all directions because it cannot see the goal. GBFS runs almost straight at it but is drawn into the dead end. A$^\star$ expands a narrow corridor and still returns the optimal path.}{fig:expansion}
 \begin{tikzpicture}[font=\small]
 \def\W{0.46}
 \def\wallmark{W}
-% helper: draw a 7x5 grid; arg2 = expansion map (E = expanded, . = untouched, W = wall)
 \newcommand{\gridpanel}[3]{%
   \begin{scope}[xshift=#1 cm]
     \node[font=\bfseries\color{MLNavy}] at (1.38,1.0) {#2};
@@ -432,7 +198,6 @@ path, but they examine very different numbers of cells doing it.
     \node[ainodedone,minimum size=5mm,font=\tiny\bfseries] at (6*\W,-4*\W) {G};
   \end{scope}}
 \def\expmark{E}
-
 \gridpanel{0}{UCS (sorts on $g$)}{{%
   {E,E,E,E,E,E,E},
   {E,E,W,E,E,E,E},
@@ -440,7 +205,6 @@ path, but they examine very different numbers of cells doing it.
   {E,E,W,E,E,E,E},
   {E,E,E,E,E,E,E}}}
 \node[ailabel,anchor=north,align=center] at (1.38,-2.35) {31 cells expanded\\optimal path};
-
 \gridpanel{4.3}{GBFS (sorts on $h$)}{{%
   {E,E,E,.,.,.,.},
   {E,E,W,.,.,.,.},
@@ -449,7 +213,6 @@ path, but they examine very different numbers of cells doing it.
   {E,E,E,E,E,E,E}}}
 \node[xshift=4.3cm,ailabel,anchor=north,align=center] at (1.38,-2.35)
   {21 cells expanded\\path not guaranteed optimal};
-
 \gridpanel{8.6}{A* (sorts on $g+h$)}{{%
   {E,E,.,.,.,.,.},
   {E,E,W,.,.,.,.},
@@ -462,19 +225,21 @@ path, but they examine very different numbers of cells doing it.
 \end{aifig}
 
 \begin{keyidea}
-Shaded cells are wasted work. UCS wastes it exploring away from the goal; GBFS wastes less
-but forfeits optimality. Only A* spends little \emph{and} promises the cheapest path --- and
-only while the heuristic stays admissible. That is why the admissibility check earlier is not
-a formality.
+Expanded states are wasted work. UCS wastes them exploring away from the goal; GBFS wastes fewer but forfeits optimality. Only A$^\star$ spends little \emph{and} promises the cheapest path --- and only while the heuristic stays admissible. That is why Lab~2 checks admissibility empirically before it reports any A$^\star$ result.
 \end{keyidea}
+
+\section{Reading the lab's evidence}
+
+Lab~2 produces two tables. \texttt{metrics.csv} has one row per query and algorithm with cost, hops, expansions, peak frontier, runtime and the \term{optimality gap} --- the percentage by which the cost exceeds the UCS cost. A gap of exactly zero for A$^\star$ on every query is the empirical face of the optimality theorem; a positive gap for GBFS or weighted A$^\star$ is the price of speed, in kilometres. \texttt{heuristic\_check.csv} has thirty rows of $h$ against $h^\star$ and one Boolean column; a single \texttt{False} there would mean the A$^\star$ gaps could no longer be trusted to stay at zero on other queries.
 
 \input{labs/02-informed-search}
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item What information does GBFS ignore that A* uses?
-  \item For a grid state \((2,1)\) and goal \((4,4)\), what is the Manhattan heuristic?
-  \item In the Lab 2 A* graph, what is the total cost of \texttt{A -> B -> E -> G}?
-  \item Why can two different domains use different heuristic formulas while using the same GBFS or A* control structure?
+  \item Which quantity does GBFS ignore that A$^\star$ uses, and which failure in Lab~2 does that explain?
+  \item Frontier states $X$ and $Y$ have $(g,h)=(8,2)$ and $(3,6)$. Which does UCS expand first? GBFS? A$^\star$?
+  \item Why must $h$ be expressed in the same units as the edge costs?
+  \item Lab~2 computes $h^\star$ by running Dijkstra on the \emph{reversed} graph from the goal. Why reversed?
+  \item Weighted A$^\star$ with $w=1.5$ changed the cost for KUL$\to$KEF but not for SIN$\to$EZE. What property of the SIN$\to$EZE route explains this?
 \end{enumerate}
 \end{quickcheck}

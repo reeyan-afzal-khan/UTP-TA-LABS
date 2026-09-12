@@ -1,437 +1,168 @@
-\chapter{NLP Methods: Entities, Summaries, Sentiment, and Keywords}
+\chapter{NLP Methods: Text Classification Done Honestly}
 \label{ch:nlp-methods}
 
 \chapterguide%
-  {Understand the Chapter 6 OCR/text-processing pipeline and basic Python string operations.}
-  {explain the chapter examples, distinguish rule-based from feature-based NLP, interpret frequency and term frequency--inverse document frequency (TF--IDF) summarization, and identify limitations of simplified simulations.}
+  {Know the NLP pipeline of \chapref{ch:nlp-foundations}, basic probability, and what precision, recall and F1 measure.}
+  {turn tweets into a bag-of-words matrix; explain how Multinomial Naive Bayes scores a class and why smoothing is needed; choose metrics for imbalanced classes; run a leakage-safe train/validation/test protocol; and read a confusion matrix, a per-group table and an error sample as evidence.}
 
-This chapter surveys compact NLP pipelines based on rules, text statistics, or simple classifiers.
+Lab~7 builds a classifier that labels a tweet about an airline as negative, neutral or positive. The model at its centre --- Multinomial Naive Bayes over word counts --- is one of the oldest in the field and fits in a few lines. The lab is not really about the model. It is about the protocol around it: how to prepare text without cheating, how to choose settings without touching the test data, which numbers to report when two thirds of the tweets belong to one class, and how to look at the mistakes afterwards. That protocol transfers unchanged to models a thousand times larger.
 
-\section{Code 1: Named Entity Recognition (NER) simulation}
+\section{From text to numbers}
 
-The program tokenizes a sentence and matches each token against person, location, and organization dictionaries.
+A classifier needs a fixed-length numeric input. The simplest representation of a document is the \term{bag of words}: a vector with one position per vocabulary term holding how often that term occurs, with word order thrown away. Building it is a pipeline of its own (\figref{fig:preprocess}).
 
-\begin{lstlisting}[style=mlpython]
-text = "Barack Obama was born in Hawaii and served as the 44th President of the United States."
-entities = {
-    "Person": ["Barack Obama"],
-    "Location": ["Hawaii", "United States"],
-    "Organization": ["United Nations", "Google", "Microsoft"],
-}
-
-for entity_type, phrases in entities.items():
-    for phrase in phrases:
-        if phrase.lower() in text.lower():
-            print(f"{entity_type}: {phrase}")
-\end{lstlisting}
-
-\figref{fig:ner} shows the mismatch. Splitting on whitespace produces single tokens, but two
-of the three dictionaries hold two-word entries. Those entries can never match, so the loop
-finds only \texttt{Hawaii}.
-
-\begin{aifig}[Why the NER dictionary misses two-word entities]{Tokenising on whitespace
-yields one word per token, while the dictionaries store multi-word names. Only the
-single-word entry \texttt{Hawaii} can ever match. The fix is to compare $n$-grams, not
-tokens --- a representation problem, not a logic error.}{fig:ner}
-\begin{tikzpicture}[font=\small]
-\foreach \w [count=\i from 0] in {Barack, Obama, was, born, in, Hawaii}{
-  \ifnum\i=5
-    \node[aidone,minimum width=1.32cm,minimum height=0.62cm,font=\scriptsize\bfseries]
-      (t\i) at (1.42*\i,0) {\w};
-  \else
-    \node[aicell,minimum width=1.32cm,minimum height=0.62cm,font=\scriptsize\bfseries]
-      (t\i) at (1.42*\i,0) {\w};
-  \fi
-}
-\node[ailabel,anchor=east] at (-0.85,0) {tokens};
-% bracket over the two-word entity
-\draw[decorate,decoration={brace,amplitude=4pt,raise=3pt},draw=MLRed,semithick]
-  (-0.68,0.34) -- (2.08,0.34);
-\node[ailabel,anchor=south,color=MLRed,align=center] at (0.7,0.78)
-  {dictionary holds ``Barack Obama'' as one entry:\\no single token can match it};
-\node[ailabel,anchor=north,color=MLGreen] at (7.1,-0.42) {matches: one word, one entry};
-\draw[aiptr,draw=MLGreen] (7.1,-0.4) -- (t5.south);
-\end{tikzpicture}
-\end{aifig}
-
-\begin{pitfall}
-The original code splits the sentence into single tokens but stores multi-word entities such as ``Barack Obama'' and ``United States'' as whole dictionary entries. Those entries cannot match a single token in the loop. Consequently, the original output contains only \texttt{Location: Hawaii}. This mismatch shows why representation choices matter.
-\end{pitfall}
-
-A rule-based correction searches the normalized sentence for complete dictionary phrases:
-
-\begin{lstlisting}[style=mlpython]
-import re
-
-clean_text = re.sub(r"[^A-Za-z0-9\s]", "", text).lower()
-for entity_type, phrases in entities.items():
-    for phrase in phrases:
-        if phrase.lower() in clean_text:
-            print(f"{entity_type}: {phrase}")
-\end{lstlisting}
-
-This detects \texttt{Barack Obama}, \texttt{Hawaii}, and \texttt{United States}, but cannot identify entities absent from the dictionaries.
-
-\section{Code 2: summarization by keyword frequency}
-
-Before any counting can happen the text must be reduced to comparable units
-(\figref{fig:preprocess}). Each stage throws information away deliberately: case, punctuation,
-common words, and finally word endings.
-
-\begin{aifig}[The text preprocessing pipeline]{Preprocessing reduces raw text to countable
-tokens. Every stage discards something on purpose --- which is also how it goes wrong: stemming
-``organisation'' and ``organ'' to the same root makes them indistinguishable
-downstream.}{fig:preprocess}
+\begin{aifig}[The text preprocessing pipeline]{Preprocessing reduces raw text to countable tokens. Every stage discards something on purpose --- which is also how it goes wrong: a stopword list that drops ``not'' makes ``not good'' and ``good'' identical downstream.}{fig:preprocess}
 \begin{tikzpicture}[
   stage/.style={aibox,text width=2.7cm,minimum height=1.05cm,
     font=\scriptsize\ttfamily\color{MLNavy}},
   stagelabel/.style={ailabel,anchor=north,align=center,text width=2.7cm}
 ]
-\node[stage] (raw) {"The Robots\\Are Running."};
-\node[stage,right=0.6cm of raw] (normalized) {the robots\\are running};
-\node[stage,right=0.6cm of normalized] (filtered) {robots running};
+\node[stage] (raw) {@united Flight\\cancelled AGAIN!\\http://t.co/x};
+\node[stage,right=0.6cm of raw] (normalized) {USER flight\\cancelled again!\\URL};
+\node[stage,right=0.6cm of normalized] (filtered) {flight cancelled\\again};
 \node[stage,right=0.6cm of filtered,fill=MLPaleTeal,draw=MLGreen]
-  (stemmed) {robot run};
+  (counts) {flight:1\\cancelled:1\\again:1};
 \draw[aiarrow] (raw.east) -- (normalized.west);
 \draw[aiarrow] (normalized.east) -- (filtered.west);
-\draw[aiarrow] (filtered.east) -- (stemmed.west);
-\node[stagelabel] at ([yshift=-2mm]raw.south) {Raw text};
-\node[stagelabel] at ([yshift=-2mm]normalized.south) {Lowercase and\\strip punctuation};
-\node[stagelabel] at ([yshift=-2mm]filtered.south) {Remove\\stopwords};
-\node[stagelabel] at ([yshift=-2mm]stemmed.south) {Stem to\\word roots};
+\draw[aiarrow] (filtered.east) -- (counts.west);
+\node[stagelabel] at ([yshift=-2mm]raw.south) {Raw tweet};
+\node[stagelabel] at ([yshift=-2mm]normalized.south) {Replace mentions and\\URLs, lowercase};
+\node[stagelabel] at ([yshift=-2mm]filtered.south) {Tokenise, drop\\stopwords};
+\node[stagelabel] at ([yshift=-2mm]counts.south) {Count terms\\(the bag of words)};
 \end{tikzpicture}
 \end{aifig}
 
-The method counts words across the paragraph, scores each sentence by those frequencies, and selects the highest score.
+Lab~7's normaliser does two things beyond lowercasing. It replaces every URL with the token \texttt{URL} and every \texttt{@handle} with \texttt{USER}, because the specific address or account carries no sentiment and would otherwise create thousands of one-off vocabulary terms. \texttt{CountVectorizer} then tokenises, drops English stopwords, keeps only terms that appear in at least two training tweets, and caps the vocabulary at 20,000.
 
-\begin{mlfigure}
-\begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.55cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
-]
-\node[b] (s) {Split into sentences};
-\node[b,right=0.40cm of s] (t) {Tokenize words};
-\node[b,right=0.40cm of t] (f) {Count frequencies};
-\node[b,right=0.40cm of f] (sc) {Score sentences};
-\node[b,right=0.40cm of sc] (m) {Select max score};
-\draw[arr] (s)--(t); \draw[arr] (t)--(f); \draw[arr] (f)--(sc); \draw[arr] (sc)--(m);
-\end{tikzpicture}
-\end{mlfigure}
+\subsection{N-grams}
 
-The method is \term{extractive}: the summary is one of the original sentences rather than newly generated prose.
+A bag of single words cannot see that ``never again'' is a phrase. Adding \term{bigrams} --- every adjacent pair of tokens --- gives the model such phrases as extra terms. In the lab, unigrams alone produce 4,671 features and unigrams plus bigrams 11,850. The cost is a sparser matrix and more parameters; whether it is worth paying is a question for the validation set, not for intuition.
 
-\begin{lstlisting}[style=mlpython]
-import re
-from collections import Counter
+\section{Multinomial Naive Bayes}
 
-sentences = [
-    "AI systems process language.",
-    "AI systems learn patterns from data.",
-    "Careful evaluation makes AI systems more reliable.",
-]
-words = re.findall(r"[a-z]+", " ".join(sentences).lower())
-frequency = Counter(words)
-scores = [sum(frequency[w] for w in re.findall(r"[a-z]+", s.lower()))
-          for s in sentences]
-summary = sentences[int(np.argmax(scores))]
-print("Summary:", summary)
-print(list(zip(sentences, scores)))
-\end{lstlisting}
-
-Raw-frequency scoring may favor long sentences and function words; consider stop-word removal or length normalization.
-
-\section{Code 3: grammar correction simulation}
-
-The grammar-correction simulation handles one pattern through string replacement:
-
-\begin{lstlisting}[style=mlpython]
-input_sentence = "She go to school every day."
-patterns = {"go to school": "goes to school"}
-
-corrected = input_sentence
-for old, new in patterns.items():
-    corrected = corrected.replace(old, new)
-print("Original: ", input_sentence)
-print("Corrected:", corrected)
-\end{lstlisting}
-
-The program applies a fixed replacement rule rather than inferring grammar.
-
-\section{Code 4: dependency-parsing simulation as part-of-speech (POS) tags}
-
-The example pairs each word in ``The dog chased the cat.'' with a manual tag. Here, \texttt{DET} means determiner, \texttt{NOUN} noun, and \texttt{VERB} verb:
+Naive Bayes chooses the class $c$ that maximises the posterior probability of the document $d$:
 \[
-\texttt{DET, NOUN, VERB, DET, NOUN}.
+\hat c=\argmax_c\; P(c)\prod_{w\in d}P(w\mid c)^{n_w},
 \]
+where $n_w$ is the count of term $w$ in the document. $P(c)$ is the class's share of the training data; $P(w\mid c)$ is how often $w$ appears among all the words of class-$c$ training documents. ``Naive'' names the assumption that terms are independent given the class, which is false for language and works anyway. \figref{fig:naive-bayes} shows the arithmetic on one sentence.
 
-\begin{lstlisting}[style=mlpython]
-sentence = "The dog chased the cat."
-words = sentence.rstrip(".").split()
-tags = ["DET", "NOUN", "VERB", "DET", "NOUN"]
-
-for word, tag in zip(words, tags):
-    print(f"{word:<7} - {tag}")
-\end{lstlisting}
-
-\begin{intuition}
-The programmer supplies the tags, so the code demonstrates tagged-text representation rather than automatic parsing.
-\end{intuition}
-
-\section{Code 5: simplified Naive Bayes sentiment classification}
-
-Codes 1--4 encode knowledge the programmer already has. Code 5 is the first that does not:
-it counts how often each word appeared in positive and negative training sentences, then
-scores a new sentence by multiplying those counts together (\figref{fig:naive-bayes}). The
-``naive'' assumption is that the words are independent given the label --- which is plainly
-false for language, and works anyway.
-
-\begin{aifig}[How Naive Bayes scores a sentence]{Naive Bayes on a two-class problem. Each
-word contributes an independent likelihood, the products are compared, and the larger one
-wins. Nothing here is a rule the programmer wrote: every number comes from counting the
-training data.}{fig:naive-bayes}
+\begin{aifig}[How Naive Bayes scores a sentence]{Naive Bayes on a two-class problem. Each word contributes an independent likelihood, the products are compared, and the larger one wins. Nothing here is a rule the programmer wrote: every number comes from counting the training data.}{fig:naive-bayes}
 \begin{tikzpicture}[font=\small]
-\node[ailabel,anchor=east,color=MLNavy] at (-0.8,1.5) {\textbf{sentence}};
-\foreach \w [count=\i from 0] in {this, movie, was, great}{
+\node[ailabel,anchor=east,color=MLNavy] at (-0.8,1.5) {\textbf{tweet}};
+\foreach \w [count=\i from 0] in {flight, was, delayed, again}{
   \node[aicell,minimum width=1.25cm,minimum height=0.58cm,font=\scriptsize\bfseries]
     at (1.35*\i,1.5) {\w};}
-% two class rows
 \foreach \cls/\yy/\col/\vals in {%
-  positive/0.35/MLGreen/{0.12,0.20,0.15,0.30},
-  negative/-0.55/MLRed/{0.11,0.18,0.14,0.03}}{
+  negative/0.35/MLRed/{0.030,0.012,0.021,0.009},
+  positive/-0.55/MLGreen/{0.028,0.011,0.002,0.003}}{
   \node[ailabel,anchor=east,color=\col] at (-0.8,\yy) {\textbf{\cls}};
   \foreach \v [count=\j from 0] in \vals{
     \node[minimum width=1.25cm,minimum height=0.5cm,draw=\col!55,fill=\col!10,
           font=\scriptsize\color{MLNavy},inner sep=0pt] at (1.35*\j,\yy) {\v};}
 }
 \foreach \i in {0,...,3}{\draw[aiptr,draw=MLMuted!60] (1.35*\i,1.2) -- (1.35*\i,0.62);}
-\node[ailabel,anchor=west,align=left,color=MLGreen] at (5.5,0.35)
-  {product $=1.08\times10^{-3}$};
-\node[ailabel,anchor=west,align=left,color=MLRed] at (5.5,-0.55)
-  {product $=8.3\times10^{-5}$};
-\node[aibox,fill=MLPaleTeal,draw=MLGreen,minimum width=3.4cm,font=\scriptsize\color{MLNavy}]
-  at (2.05,-1.55) {predicted: \textbf{positive}};
-\node[ailabel,anchor=west,align=left,text width=4.6cm] at (5.5,-1.55)
-  {``great'' does the work: it is ten times more likely under the positive class.};
+\node[ailabel,anchor=west,align=left,color=MLRed] at (5.5,0.35)
+  {$P(c)\times$ product $=0.63\times6.8\times10^{-8}$};
+\node[ailabel,anchor=west,align=left,color=MLGreen] at (5.5,-0.55)
+  {$P(c)\times$ product $=0.16\times1.8\times10^{-9}$};
+\node[aibox,fill=MLPaleRed,draw=MLRed,minimum width=3.4cm,font=\scriptsize\color{MLNavy}]
+  at (2.05,-1.55) {predicted: \textbf{negative}};
+\node[ailabel,anchor=west,align=left,text width=4.9cm] at (5.5,-1.55)
+  {``delayed'' does the work: it is ten times more likely under the negative class. ``flight'' is neutral and contributes almost equally to both.};
 \end{tikzpicture}
 \end{aifig}
 
-Five labelled sentences are converted to binary count features with \texttt{CountVectorizer}, used to train \texttt{MultinomialNB}, and tested on ``The product is wonderful.''
+\subsection{Smoothing}
 
-\begin{lstlisting}[style=mlpython]
-import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
+A term that never appears in the positive training tweets has $P(w\mid\text{positive})=0$, and one zero factor annihilates the whole product no matter what the other words say. \term{Laplace smoothing} adds a pseudo-count $\alpha$ to every term in every class:
+\[
+P(w\mid c)=\frac{\text{count}(w,c)+\alpha}{\sum_{w'}\text{count}(w',c)+\alpha\,|V|}.
+\]
+Small $\alpha$ trusts the counts; large $\alpha$ pulls every probability towards uniform. In practice the products are computed as sums of logarithms to avoid underflow, and $\alpha$ is a hyperparameter to be chosen on validation data. Lab~7 tries $\alpha\in\{0.3,0.5,1,2\}$ and finds $0.3$ best, with the n-gram choice mattering more than the smoothing.
 
-texts = [
-    "I love this product",
-    "This is terrible",
-    "Very happy with the results",
-    "It is bad and disappointing",
-    "Absolutely wonderful experience",
-]
-labels = np.array([1, 0, 1, 0, 1])
+\begin{intuition}
+Naive Bayes is a vote in which every word in the tweet casts a weighted ballot for each class, and the weights are how much more often that word appeared in one class's training tweets than another's. Smoothing makes sure no single unseen word can veto the vote.
+\end{intuition}
 
-vectorizer = CountVectorizer(binary=True)
-X = vectorizer.fit_transform(texts)
-model = MultinomialNB().fit(X, labels)
+\section{Metrics for imbalanced classes}
 
-test_text = "The product is wonderful"
-prediction = model.predict(vectorizer.transform([test_text]))[0]
-print("Predicted sentiment:", "Positive" if prediction else "Negative")
-\end{lstlisting}
-
-For the supplied test sentence, the program reports \texttt{Predicted Sentiment: Positive}.
-
-Fit the vectorizer on training text only, then call \texttt{transform} on validation or test text. This preserves the same vocabulary and column order without leaking information from held-out examples.
-
-\section{Code 6: summarization with TF--IDF}
-
-Raw frequency treats every word as equally informative, which is why ``the'' outranks the
-topic. TF--IDF fixes this by scaling each count down by how many documents the word appears
-in (\figref{fig:tfidf}). A word that occurs everywhere carries almost no information about
-\emph{which} document you are reading, and its weight collapses accordingly.
-
-\begin{aifig}[Raw counts versus TF--IDF weights]{The same three-sentence document scored two
-ways. Raw frequency puts the stopword ``the'' on top; TF--IDF divides it out because it
-appears in every sentence, letting the words that actually distinguish the document rise.
-Nothing was removed by hand --- the weighting did the filtering.}{fig:tfidf}
-\begin{tikzpicture}
-\begin{axis}[
-  name=raw, width=6.5cm, height=4.6cm,
-  title={Raw frequency},
-  xbar, y dir=reverse,
-  xmin=0, xmax=6,
-  ytick=data,
-  symbolic y coords={the,robot,sensor,battery,charge},
-  nodes near coords, nodes near coords style={font=\tiny\color{MLMuted}},
-  bar width=7pt, axis lines=left,
-  tick label style={font=\scriptsize\color{MLMuted}},
-  enlarge y limits=0.16]
-\addplot[draw=MLRed,fill=MLPaleRed] coordinates {(5,the) (3,robot) (2,sensor) (2,battery) (1,charge)};
-\end{axis}
-\begin{axis}[
-  at={(raw.right of south east)}, xshift=1.35cm, anchor=left of south west,
-  width=6.5cm, height=4.6cm,
-  title={TF--IDF weight},
-  xbar, y dir=reverse,
-  xmin=0, xmax=1.05,
-  ytick=data,
-  symbolic y coords={the,robot,sensor,battery,charge},
-  nodes near coords, nodes near coords style={font=\tiny\color{MLMuted}},
-  bar width=7pt, axis lines=left,
-  tick label style={font=\scriptsize\color{MLMuted}},
-  enlarge y limits=0.16]
-\addplot[draw=MLGreen,fill=MLPaleTeal] coordinates {(0.00,the) (0.41,robot) (0.62,sensor) (0.62,battery) (0.48,charge)};
-\end{axis}
-\end{tikzpicture}
-\end{aifig}
-
-
-The summarization example uses scikit-learn's \texttt{TfidfVectorizer}. Four sentences are converted into a TF--IDF matrix, sentence scores are computed by summing each row, and the highest-scoring sentence is returned.
-
-\begin{lstlisting}[style=mlpython]
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-
-text = [
-    "Artificial intelligence is a broad field.",
-    "Machine learning enables systems to learn patterns from data.",
-    "NLP helps computers process human language.",
-    "Robotics connects sensing, planning, and action.",
-]
-
-X = TfidfVectorizer(stop_words="english").fit_transform(text)
-scores = np.asarray(X.sum(axis=1)).ravel()
-print("Summary:", text[int(scores.argmax())])
-print(list(zip(text, scores.round(3))))
-\end{lstlisting}
-
-For the supplied text, the program selects ``Machine learning enables systems to learn patterns from data.''
-
-Summed TF--IDF may favor sentences with more distinct terms; compare length-normalized scores when sentence lengths differ.
-
-\section{Code 7: rule-based sentiment analysis}
-
-The second sentiment method uses positive and negative word lists rather than a trained classifier.
-
-\begin{lstlisting}[style=mlpython]
-import re
-
-text = "The scenery was amazing but the final scene was dull."
-positive_words = {"good", "great", "excellent", "fantastic", "amazing", "breathtaking"}
-negative_words = {"bad", "terrible", "awful", "boring", "worst", "dull"}
-words = set(re.findall(r"[a-z]+", text.lower()))
-pos_count = len(words & positive_words)
-neg_count = len(words & negative_words)
-sentiment = "Positive" if pos_count > neg_count else "Negative" if neg_count > pos_count else "Neutral"
-print(f"Positive={pos_count}, Negative={neg_count}, Result={sentiment}")
-\end{lstlisting}
-
-The program returns Positive, Negative, or Neutral according to which count is larger.
-
-\section{Code 8: heuristic language detection}
-
-The language detector defines small keyword lists for English, French, and German. It counts word matches for each list, takes the largest count, and maps the index to a language label. For the supplied French sentence, the program reports French.
-
-\begin{lstlisting}[style=mlpython]
-import re
-
-text = "Bonjour, comment allez-vous aujourd'hui"
-lexicons = {
-    "English": {"the", "and", "hello", "good"},
-    "French": {"bonjour", "comment", "vous", "aujourd'hui"},
-    "German": {"hallo", "wie", "geht", "ihnen"},
-}
-words = set(re.findall(r"[a-zA-Z']+", text.lower()))
-counts = {language: len(words & lexicon) for language, lexicon in lexicons.items()}
-best = max(counts, key=counts.get)
-print("Detected language:", best if counts[best] else "Unknown")
-\end{lstlisting}
-
-The zero-match and tie checks prevent the program from reporting English merely because it occupies the first array position.
-
-\section{Code 9: keyword extraction}
-
-The final example tokenizes a paragraph, removes stop words and punctuation, builds a bag-of-words model, sorts vocabulary counts in descending order, and returns the top five words.
-
-\begin{lstlisting}[style=mlpython]
-import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-
-text = ("Data science involves extracting insights from structured and "
-        "unstructured data using statistical and machine learning techniques.")
-vectorizer = CountVectorizer(stop_words="english")
-X = vectorizer.fit_transform([text])
-counts = np.asarray(X.sum(axis=0)).ravel()
-terms = np.array(vectorizer.get_feature_names_out())
-for i in np.argsort(counts)[::-1][:5]:
-    print(terms[i], int(counts[i]))
-\end{lstlisting}
-
-\begin{pitfall}
-\textbf{Two preprocessing details decide whether this ranking means anything.}
-
-\emph{Case.} Normalise case before counting tokens. Otherwise \texttt{Data} and \texttt{data} become separate vocabulary items and the frequency evidence is fragmented. Scikit-learn lowercases by default; for manual tokenisation, call \texttt{text.lower()} before extracting words.
-
-\emph{Order.} Remove punctuation before applying a manual stop-word list. A token such as \texttt{and.} does not match the stop word \texttt{and} until punctuation has been stripped.
-
-\begin{lstlisting}[style=mlpython]
-import re
-
-text = ("Data science involves extracting insights from structured and "
-        "unstructured data using statistical and machine learning techniques.")
-stop_words = {"the", "and", "from", "using", "is", "a", "an"}
-tokens = [w for w in re.findall(r"[a-z]+", text.lower()) if w not in stop_words]
-print(tokens)
-\end{lstlisting}
-\end{pitfall}
-
-\begin{pitfall}
-\textbf{Print the counts, not only the words.} After case folding, ``data'' appears 3 times and every other term appears once. A top-five list built from that is one real keyword followed by four arbitrary ties, resolved by whatever order the tokenizer happened to produce.
-
-A ranking in which almost everything ties is not a ranking. Report the counts alongside the words so the reader can see how thin the evidence is, and do not present all five as findings.
-\end{pitfall}
-
-\section{A taxonomy of the chapter methods}
-
-\begin{aifig}[Where the decision logic comes from]{The chapter programs arranged by the
-source of their decision logic. Moving right shifts the work from the programmer to the data.
-The axis is not a quality ranking: a dictionary lookup beats a trained classifier whenever
-the rules are genuinely known.}{fig:nlp-taxonomy}
-\begin{tikzpicture}[
-  b/.style={rounded corners=2mm,minimum width=4.0cm,minimum height=1.45cm,align=center,font=\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},very thick,draw=MLMuted}
-]
-\node[b,draw=MLOrange,fill=MLPaleOrange] (rules)
-  {\textbf{Rules and dictionaries}\\\scriptsize NER, grammar correction, lexicon sentiment};
-\node[b,draw=MLTeal,fill=MLPaleTeal,right=0.75cm of rules] (stats)
-  {\textbf{Text statistics}\\\scriptsize frequency, TF--IDF, keyword counts};
-\node[b,draw=MLBlue,fill=MLPaleBlue,right=0.75cm of stats] (learned)
-  {\textbf{Trained model}\\\scriptsize Naive Bayes from labeled examples};
-\draw[arr] (rules)--(stats);
-\draw[arr] (stats)--(learned);
-\node[font=\scriptsize\color{MLMuted}] at ($(stats.south)+(0,-0.55)$)
-  {increasing reliance on patterns learned from data};
-\end{tikzpicture}
-\end{aifig}
+In the lab data 63\,\% of tweets are negative, 21\,\% neutral and 16\,\% positive. A classifier that answers ``negative'' to everything scores 63\,\% accuracy while learning nothing, so accuracy cannot be the headline number. Per class, three quantities matter:
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.26\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.36\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Example & Main mechanism & What supplies the intelligence \\
+Metric & Definition & Answers \\
 \midrule
-NER simulation & Exact dictionary matching & Hand-written entity lists \\
-Frequency summary & Word counts & Repetition-based sentence score \\
-Grammar correction & String replacement & Hand-written correction rules \\
-POS-style output & Fixed tag list & Programmer-supplied tags \\
-Naive Bayes sentiment & Binary word features + classifier & Labeled examples and manual vocabulary \\
-TF--IDF summary & Weighted term representation & Document statistics \\
-Rule sentiment & Positive/negative lexicons & Hand-written sentiment lists \\
-Language detection & Keyword counts & Language-specific keyword lists \\
-Keyword extraction & Bag-of-words counts & Frequency after stop-word/punctuation removal \\
+Precision & Of the tweets predicted as class $c$, the fraction that are $c$ & When the model says positive, how often is it right? \\
+Recall & Of the tweets that are $c$, the fraction predicted as $c$ & How many of the positive tweets did it find? \\
+F1 & Harmonic mean of precision and recall & One number per class that punishes neglecting either \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
+\term{Macro F1} averages the three class F1 scores with equal weight, so the 16\,\% positive class counts as much as the 63\,\% negative one. The majority baseline has recall~1 on negative and recall~0 on the other two, giving macro F1 of $0.26$; that is the number a real model must beat. Naive Bayes reaches $0.70$.
+
+\begin{pitfall}
+Always compute the majority-class baseline before training anything. Without it, ``77\,\% accuracy'' sounds like an achievement; next to a baseline of 63\,\% it is a modest gain, and next to macro F1 of $0.26$ versus $0.70$ it is a large one. The baseline is what makes the comparison honest.
+\end{pitfall}
+
+\section{A leakage-safe protocol}
+
+\term{Leakage} is any way that information from the test data reaches the model or the choices made about it. Text classification has more of these leaks than most tasks, and Lab~7 closes each one in a specific place (\figref{fig:protocol}).
+
+\begin{aifig}[The evaluation protocol of Lab~7]{Where each decision is made and what data it may see. Duplicates are removed before the split so no near-copy can straddle it; the vectoriser and the model are fitted on training tweets only; every hyperparameter choice uses the validation set; the test set is read once, at the end.}{fig:protocol}
+\begin{tikzpicture}[font=\small,
+  s/.style={aibox,minimum width=2.6cm,minimum height=1.0cm,font=\scriptsize\color{MLNavy},align=center}]
+\node[s] (dedup) at (0,0) {\textbf{1. Deduplicate}\\exact and normalised\\copies removed};
+\node[s,right=0.45cm of dedup] (split) {\textbf{2. Split 70/15/15}\\stratified, seed 42\\saved to split.csv};
+\node[s,right=0.45cm of split,fill=MLPaleOrange,draw=MLOrange] (fit) {\textbf{3. Fit on train}\\vocabulary and\\Naive Bayes};
+\node[s,right=0.45cm of fit,fill=MLPaleOrange,draw=MLOrange] (tune) {\textbf{4. Tune on validation}\\n-grams and $\alpha$\\by macro F1};
+\node[s,right=0.45cm of tune,fill=MLPaleTeal,draw=MLGreen] (test) {\textbf{5. Test once}\\metrics, confusion\\matrix, errors};
+\foreach \a/\b in {dedup/split, split/fit, fit/tune, tune/test}{\draw[aiarrow] (\a)--(\b);}
+\node[ailabel,anchor=north,color=MLOrange] at (7.05,-0.75) {sees training and validation rows only};
+\node[ailabel,anchor=north,color=MLGreen] at (11.9,-0.75) {sees test rows: once};
+\end{tikzpicture}
+\end{aifig}
+
+\begin{description}
+  \item[Duplicates before the split.] 213 tweets are exact copies of another and 355 become identical after URLs and mentions are replaced. A retweet in the training set with its twin in the test set would be a memorised answer. The lab keeps one copy of each, \emph{then} splits.
+  \item[Stratified, seeded, saved.] The 70/15/15 split preserves the class mix in every subset, uses a fixed seed so it can be reproduced, and writes the assignment to a file so it can be audited.
+  \item[Vocabulary from training text only.] \texttt{CountVectorizer} is fitted on training tweets and merely applied to the rest. A word that occurs only in test tweets is unknown to the model --- which is exactly the situation a deployed classifier faces.
+  \item[Selection on validation, one look at test.] Eight settings are scored on the validation set; the best is refitted and scored on the test set exactly once. The test score is then an estimate of performance on new tweets, not the best of eight draws.
+\end{description}
+
+\begin{keyidea}
+The order of operations is the method. Deduplicate, split, fit, tune, test --- each step may only see the data the previous steps left it. Reversing any two adjacent steps leaks information forward, and the leak shows up as a test score that is too good to be true.
+\end{keyidea}
+
+\section{Reading the evidence}
+
+The lab produces four kinds of evidence, each answering a question the headline score cannot.
+
+\begin{description}
+  \item[The confusion matrix.] A $3\times3$ table of true class against predicted class. For the lab's model the off-diagonal mass sits between neutral and negative: neutral tweets are pulled towards negative, because complaint vocabulary dominates the corpus and a neutral question about a delay contains the word ``delay''.
+  \item[Per-class scores.] Negative F1 $0.86$, positive $0.67$, neutral $0.56$. Neutral is the hardest class: it has the fewest distinctive words and sits between the other two.
+  \item[Per-group scores.] Macro F1 computed separately for each airline ranges from $0.66$ to $0.78$. This is a diagnostic, not a league table: the airlines differ in how many test tweets they have (63 to 594), in their class mix and in what customers write about. A subgroup breakdown shows where the model is weak; it does not rank the subjects.
+  \item[An error sample.] The four most confident mistakes for each true class --- twelve tweets, chosen by a rule so that the sample is reproducible --- tagged with a simple category. In the lab's sample the categories are negations the bag of words cannot see, questions with little sentiment vocabulary, very short tweets, and one joke retweeted many times and labelled differently by different annotators. The last of these is a label-quality finding, not a model finding, and only an error sample could have surfaced it.
+\end{description}
+
+\begin{pitfall}
+Confidence is not correctness. Every tweet in the error sample was misclassified with a posterior above $0.999$. Naive Bayes multiplies many small probabilities, so its posteriors are extreme by construction; treat them as a ranking, never as a calibrated chance of being right.
+\end{pitfall}
+
+\section{What the protocol does not fix}
+
+A bag of words with Naive Bayes has known limits, and the error sample shows them: negation, sarcasm, and any meaning carried by word order. Better representations --- weighted counts, word embeddings, contextual language models --- address these, and the lab's deliverable asks what you would try next. The protocol is what stays fixed when the model changes: the same deduplicated split, the same validation-based selection, the same single look at the test set. A stronger model evaluated with a weaker protocol is not an improvement; it is a number nobody can trust.
+
 \input{labs/07-nlp-part-b}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why are URLs and \texttt{@handles} replaced by placeholder tokens rather than deleted or kept?
+  \item A term appears 0 times in the positive training tweets. What happens to a tweet containing it under Naive Bayes without smoothing, and with $\alpha=1$?
+  \item The majority baseline scores 63\,\% accuracy and 0.26 macro F1. Explain both numbers from the class shares alone.
+  \item Which step would leak if the vectoriser were fitted on all 14,285 tweets, and what would the symptom be?
+  \item Virgin America has the highest per-airline macro F1 and only 63 test tweets. Why does the lab warn against reading this as an airline ranking?
+\end{enumerate}
+\end{quickcheck}

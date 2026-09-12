@@ -2,14 +2,12 @@
 \label{ch:python}
 
 \chapterguide%
-  {You should be comfortable creating folders and running a command in a terminal.}
-  {Create a clean project workspace, manually download the course datasets into dedicated dataset folders, create and activate a virtual environment, install the project dependencies from the included requirements file, and save your practical work as Jupyter notebooks in \texttt{all\_experiments/}.}
-
-Machine learning combines ideas with computation. From this chapter onward, major methods are paired with complete Python examples and small public Kaggle datasets. You will still type, run, modify, and explain the code yourself. The objective of the setup is not automation; it is to make every path predictable enough that the machine-learning ideas stay in focus.
+  {Create folders and run basic \textbf{terminal commands}.}
+  {Organize \textbf{datasets}, create a \textbf{virtual environment}, and install \textbf{dependencies}.}
 
 \section{The course project layout}
 
-Use one root folder for the course. Inside it, keep \emph{datasets} and \emph{experiments} separate:
+Use one \textbf{project root}, with separate folders for \textbf{datasets} and \textbf{notebooks}:
 
 \begin{lstlisting}[style=mlterminal]
 UTP_MACHINE_LEARNING/
@@ -35,18 +33,14 @@ UTP_MACHINE_LEARNING/
   requirements.txt
 \end{lstlisting}
 
-\begin{keyidea}
-\texttt{all\_datasets/} is only the dataset \emph{root}. Do not throw every CSV into that root. Each downloaded dataset gets its own folder because a Kaggle download may contain one file, several related files, a README, or supporting metadata. Your code should therefore use paths such as \texttt{all\_datasets/titanic\_dataset/Titanic-Dataset.csv}.
-\end{keyidea}
+\section{Download the datasets}
 
-\section{Download the course datasets manually from Kaggle}
-
-Open the dataset page by clicking on the name of the dataset in the table below, download the archive, extract it, and place the extracted files in the dedicated folder.
-
-\subsection{Core datasets reused across several chapters}
+Click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
 
 \begin{mltable}
 \footnotesize
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{4pt}
 \begin{tabularx}{\linewidth}{@{}p{0.38\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
@@ -67,53 +61,49 @@ Kaggle dataset & Main use in these notes \\
 \end{tabularx}
 \end{mltable}
 
-\subsection{One download, step by step}
-
-Use the same procedure for every dataset:
+\subsection{Download steps}
 
 \begin{mlsteps}
-  \item Open the Kaggle Dataset link in the table.
-  \item Click \textbf{Download}. If Kaggle gives you a ZIP file, extract it normally using your operating system.
-  \item Create the dedicated course folder named in the second column if it does not already exist.
-  \item Copy the required file or files into that dedicated folder. Keep additional documentation from the download there too if it helps you understand the data.
-  \item Confirm that the path in your notebook exactly matches the folder name and filename, including capitalization.
+  \item Open the link, click \textbf{Download}, and \textbf{extract} the archive.
+  \item Copy the required \textbf{CSV files or images} into \textbf{\texttt{all\_datasets/}}.
+  \item Check that your notebook's \textbf{file paths} match the filenames, including \textbf{capitalization}.
 \end{mlsteps}
 
 \begin{pitfall}
-A path error is not a machine-learning error. If \texttt{pd.read\_csv(...)} raises \texttt{FileNotFoundError}, first print or inspect your working directory, then compare the actual folder and filename with the path in the notebook. Do not ``fix'' the problem by moving random files into the project root.
+For \textbf{\texttt{FileNotFoundError}}, check the \textbf{working directory}, \textbf{folder}, and \textbf{filename}. Correct the path instead of moving files into the project root.
 \end{pitfall}
 
-\section{Install Python and make it available in the terminal}
+\section{Install Python and configure PATH}
 
-Download a currently supported release from the \href{https://www.python.org/downloads/}{official Python downloads page}.
+Download Python from the \href{https://www.python.org/downloads/}{\textbf{official downloads page}}.
 
 \begin{description}[leftmargin=1.15in,style=nextline]
-  \item[Windows] Run the official installer, install for your account, and allow it to add Python to \texttt{PATH}. Reopen the terminal, then use \texttt{py}.
-  \item[macOS] Run the signed \texttt{.pkg} installer with the default options, then restart Terminal. Do not remove the system Python in \texttt{/usr/bin}.
-  \item[Linux] Install Python 3 through your distribution's package manager. It normally adds \texttt{python3} to \texttt{PATH}; do not replace the operating system's Python.
+  \item[Windows] Run the installer, enable \textbf{\texttt{PATH}}, and reopen the terminal. Use \textbf{\texttt{py}}.
+  \item[macOS] Run the \textbf{\texttt{.pkg} installer} and restart Terminal. Keep the \textbf{system Python} unchanged.
+  \item[Linux] Install \textbf{Python 3} with your package manager. Do not replace the \textbf{system Python}.
 \end{description}
 
-If Windows does not recognize \texttt{py}, add Python's command directory to your system \texttt{PATH} so PowerShell and Command Prompt can find it. Open the Start menu, search for \emph{Edit environment variables for your account}, select \texttt{Path}, click \emph{Edit}, and add the directory shown by the Python installer. With the current install manager, this directory is normally:
+\textbf{Windows PATH fix.} If \texttt{py} is not found, open \textbf{Edit environment variables for your account}, select \textbf{Path}, then \textbf{Edit}. Add the command directory shown by your installer, for example:
 
 \begin{lstlisting}[style=mlterminal]
 %LocalAppData%\Python\bin
 \end{lstlisting}
 
-On macOS, the installer should configure the path automatically. If \texttt{which -a python3} does not show \texttt{/usr/local/bin/python3}, make sure \texttt{/usr/local/bin} is in the path used by the default Z shell:
+\textbf{macOS PATH fix.} If the installer placed Python in \texttt{/usr/local/bin} but your terminal cannot find it, add that directory to your Z shell's \textbf{PATH}:
 
 \begin{lstlisting}[style=mlterminal]
 echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 \end{lstlisting}
 
-For Debian or Ubuntu:
+For \textbf{Debian or Ubuntu}:
 
 \begin{lstlisting}[style=mlterminal]
 sudo apt update
 sudo apt install python3 python3-venv python3-pip
 \end{lstlisting}
 
-Verify the installation and see which executable the terminal found:
+\textbf{Verify} the installation and executable location:
 
 \begin{lstlisting}[style=mlterminal]
 # Windows
@@ -129,9 +119,9 @@ which -a python3
 
 \section{Create an isolated virtual environment}
 
-Python's standard-library \texttt{venv} module creates a lightweight environment with its own installed packages. This keeps the course dependencies separate from other Python projects. \href{https://docs.python.org/3/library/venv.html}{Python \texttt{venv} documentation}.
+\textbf{\texttt{venv}} keeps this project's packages separate from other projects. See the \href{https://docs.python.org/3/library/venv.html}{\textbf{venv documentation}}.
 
-The repository includes a normal text file named \texttt{requirements.txt} in the project root. It contains the course dependencies:
+The root-level \textbf{\texttt{requirements.txt}} lists the course \textbf{dependencies}:
 
 \begin{lstlisting}[style=mlterminal]
 numpy
@@ -141,7 +131,7 @@ scikit-learn
 jupyter
 \end{lstlisting}
 
-If you installed standard Python, use the command for your operating system to create a virtual environment. The name \texttt{.venv} is a common convention, but you may choose a different name.
+\textbf{Create} the environment in the \textbf{project root}:
 
 \begin{lstlisting}[style=mlterminal]
 # Windows
@@ -151,17 +141,17 @@ py -m venv .venv
 python3 -m venv .venv
 \end{lstlisting}
 
-Then, while remaining in the project root, activate the virtual environment in PowerShell or Terminal:
+\textbf{Activate} it from the same folder:
 
 \begin{lstlisting}[style=mlterminal]
-# Windows
+# Windows (PowerShell)
 .venv\Scripts\Activate.ps1
 
 # macOS/Linux
 source .venv/bin/activate
 \end{lstlisting}
 
-After activation, upgrade pip and install the course requirements:
+\textbf{Install dependencies} after activation:
 
 \begin{lstlisting}[style=mlterminal]
 # Windows
@@ -173,7 +163,7 @@ python3 -m pip install --upgrade pip
 python3 -m pip install -r requirements.txt
 \end{lstlisting}
 
-Package installation is normally a one-time setup. On later study sessions, activate \texttt{.venv} again; you do not need to reinstall the requirements each time.
+\textbf{Install once; activate every session.} Reuse \textbf{\texttt{.venv}} without reinstalling unchanged requirements.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -205,13 +195,13 @@ Package installation is normally a one-time setup. On later study sessions, acti
 \draw[pygo, draw=MLOrange]
   (work.south) -- ++(0,-0.85) -| (act.south);
 \node[pynote, text=MLOrange] at (8.10,-1.15)
-  {next study session --- reactivate, do not reinstall};
+  {next session: \textbf{reactivate}, do not reinstall};
 
 \end{tikzpicture}
 \end{mlfigure}
 
 \begin{keyidea}
-Do not install packages globally simply because a tutorial requests them. Activate the project environment first, then install the packages inside it.
+\textbf{Activate first, then install.} Keep course packages inside the \textbf{project environment}, not in a shared global installation.
 \end{keyidea}
 
 \begin{mlfigure}
@@ -228,42 +218,18 @@ Do not install packages globally simply because a tutorial requests them. Activa
 \node[sysbox] (sys) at (0,2.45) {system Python};
 \node[pkg,text=MLMuted,anchor=west] at (2.35,2.45) {leave this alone};
 
-\node[envbox] (a) at (-2.80,0) {\texttt{UTP\_MACHINE\_LEARNING/.venv}};
+\node[envbox] (a) at (-2.80,0) {\texttt{THIS DIRECTORY/.venv}};
 \node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
 
-\node[envbox] (b) at (2.80,0) {\texttt{some\_other\_project/.venv}};
+\node[envbox] (b) at (2.80,0) {\texttt{some other project/.venv}};
 \node[pkg,anchor=north] at (2.80,-0.52) {its own versions\\of the same names};
 
 \draw[hit] (sys) -- (a);
 \draw[hit] (sys) -- (b);
 
-\node[lbl,text width=11.5cm] at (0,-2.60)
-  {\textbf{\color{MLNavy}Activate first, then install.} \texttt{pip install}
-   writes into whichever environment is active. With none active it writes
-   into the system Python, and every project on the machine shares the
-   result.};
+\node[lbl,text width=\linewidth,inner xsep=0pt] at (0,-2.60)
+  {\textbf{\color{MLNavy}Separate environments, separate packages.}
+   Activate the intended \textbf{project environment} before running \texttt{pip install}.};
 
 \end{tikzpicture}
 \end{mlfigure}
-
-\section{Verify the scientific stack}
-
-Use the practical lab below as the primary environment check. It imports the core scientific packages and records their versions, so the notebook also serves as a reproducibility record. If all four imports succeed, the core environment is ready.
-
-
-\begin{quickcheck}
-\begin{enumerate}
-  \item Why should datasets, notebooks, and generated code listings live in separate folders?
-  \item Why is a project-local virtual environment safer than installing course packages globally?
-  \item If a notebook raises \texttt{FileNotFoundError}, what should you inspect before changing any data files?
-\end{enumerate}
-\end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item \texttt{all\_datasets/} is the dataset root; every Kaggle dataset lives inside its own dedicated subfolder.
-  \item A dataset folder may legitimately contain several related files, as with Optical Digits, Student Performance, and Bike Sharing.
-  \item Install the included \texttt{requirements.txt} inside a project-local virtual environment.
-  \item Save your practical work as notebooks in \texttt{all\_experiments/}; a good notebook records code, plots, results, and interpretation.
-\end{itemize}
-\end{chapterrecap}
