@@ -5,13 +5,13 @@
   {Know the NLP pipeline of \chapref{ch:nlp-foundations}, basic probability, and what precision, recall and F1 measure.}
   {turn tweets into a bag-of-words matrix; explain how Multinomial Naive Bayes scores a class and why smoothing is needed; choose metrics for imbalanced classes; run a leakage-safe train/validation/test protocol; and read a confusion matrix, a per-group table and an error sample as evidence.}
 
-Lab~7 builds a classifier that labels a tweet about an airline as negative, neutral or positive. The model at its centre --- Multinomial Naive Bayes over word counts --- is one of the oldest in the field and fits in a few lines. The lab is not really about the model. It is about the protocol around it: how to prepare text without cheating, how to choose settings without touching the test data, which numbers to report when two thirds of the tweets belong to one class, and how to look at the mistakes afterwards. That protocol transfers unchanged to models a thousand times larger.
+Lab~7 classifies airline tweets as negative, neutral or positive using Multinomial Naive Bayes on word counts. The focus is the evaluation protocol: prepare text without leakage, tune on validation data, report imbalance-aware metrics and inspect errors. The same protocol applies to larger models.
 
 \section{From text to numbers}
 
-A classifier needs a fixed-length numeric input. The simplest representation of a document is the \term{bag of words}: a vector with one position per vocabulary term holding how often that term occurs, with word order thrown away. Building it is a pipeline of its own (\figref{fig:preprocess}).
+A \term{bag of words} represents each document as vocabulary-term counts, discarding word order (\figref{fig:preprocess}).
 
-\begin{aifig}[The text preprocessing pipeline]{Preprocessing reduces raw text to countable tokens. Every stage discards something on purpose --- which is also how it goes wrong: a stopword list that drops ``not'' makes ``not good'' and ``good'' identical downstream.}{fig:preprocess}
+\begin{aifig}[The text preprocessing pipeline]{Preprocessing converts text to tokens but discards information. Removing ``not'', for example, makes ``not good'' indistinguishable from ``good''.}{fig:preprocess}
 \begin{tikzpicture}[
   stage/.style={aibox,text width=2.7cm,minimum height=1.05cm,
     font=\scriptsize\ttfamily\color{MLNavy}},
@@ -32,11 +32,11 @@ A classifier needs a fixed-length numeric input. The simplest representation of 
 \end{tikzpicture}
 \end{aifig}
 
-Lab~7's normaliser does two things beyond lowercasing. It replaces every URL with the token \texttt{URL} and every \texttt{@handle} with \texttt{USER}, because the specific address or account carries no sentiment and would otherwise create thousands of one-off vocabulary terms. \texttt{CountVectorizer} then tokenises, drops English stopwords, keeps only terms that appear in at least two training tweets, and caps the vocabulary at 20,000.
+Lab~7 lowercases text and replaces URLs with \texttt{URL} and handles with \texttt{USER}, reducing one-off terms. \texttt{CountVectorizer} tokenises, removes English stopwords, requires occurrence in at least two training tweets, and caps the vocabulary at 20,000.
 
 \subsection{N-grams}
 
-A bag of single words cannot see that ``never again'' is a phrase. Adding \term{bigrams} --- every adjacent pair of tokens --- gives the model such phrases as extra terms. In the lab, unigrams alone produce 4,671 features and unigrams plus bigrams 11,850. The cost is a sparser matrix and more parameters; whether it is worth paying is a question for the validation set, not for intuition.
+\term{Bigrams} add adjacent token pairs such as ``never again''. They increase features from 4,671 to 11,850 in the lab, making the matrix sparser. Use validation performance to decide whether they help.
 
 \section{Multinomial Naive Bayes}
 
@@ -44,9 +44,9 @@ Naive Bayes chooses the class $c$ that maximises the posterior probability of th
 \[
 \hat c=\argmax_c\; P(c)\prod_{w\in d}P(w\mid c)^{n_w},
 \]
-where $n_w$ is the count of term $w$ in the document. $P(c)$ is the class's share of the training data; $P(w\mid c)$ is how often $w$ appears among all the words of class-$c$ training documents. ``Naive'' names the assumption that terms are independent given the class, which is false for language and works anyway. \figref{fig:naive-bayes} shows the arithmetic on one sentence.
+Here $n_w$ counts term $w$, $P(c)$ is the training class share, and $P(w\mid c)$ its term probability. The ``naive'' assumption treats terms as independent given the class; despite its limitations for language, it is useful (\figref{fig:naive-bayes}).
 
-\begin{aifig}[How Naive Bayes scores a sentence]{Naive Bayes on a two-class problem. Each word contributes an independent likelihood, the products are compared, and the larger one wins. Nothing here is a rule the programmer wrote: every number comes from counting the training data.}{fig:naive-bayes}
+\begin{aifig}[How Naive Bayes scores a sentence]{Two-class Naive Bayes compares scores from training-derived priors and term likelihoods; the larger score wins.}{fig:naive-bayes}
 \begin{tikzpicture}[font=\small]
 \node[ailabel,anchor=east,color=MLNavy] at (-0.8,1.5) {\textbf{tweet}};
 \foreach \w [count=\i from 0] in {flight, was, delayed, again}{
@@ -74,19 +74,19 @@ where $n_w$ is the count of term $w$ in the document. $P(c)$ is the class's shar
 
 \subsection{Smoothing}
 
-A term that never appears in the positive training tweets has $P(w\mid\text{positive})=0$, and one zero factor annihilates the whole product no matter what the other words say. \term{Laplace smoothing} adds a pseudo-count $\alpha$ to every term in every class:
+An unseen class--term pair has probability zero, eliminating that class from the product. \term{Laplace smoothing} adds pseudo-count $\alpha$ to each term:
 \[
 P(w\mid c)=\frac{\text{count}(w,c)+\alpha}{\sum_{w'}\text{count}(w',c)+\alpha\,|V|}.
 \]
-Small $\alpha$ trusts the counts; large $\alpha$ pulls every probability towards uniform. In practice the products are computed as sums of logarithms to avoid underflow, and $\alpha$ is a hyperparameter to be chosen on validation data. Lab~7 tries $\alpha\in\{0.3,0.5,1,2\}$ and finds $0.3$ best, with the n-gram choice mattering more than the smoothing.
+Small $\alpha$ trusts observed counts; large $\alpha$ moves probabilities towards uniform. Log sums prevent numerical underflow. Lab~7 selects $\alpha=0.3$ from $\{0.3,0.5,1,2\}$ on validation data; n-grams matter more than smoothing here.
 
 \begin{intuition}
-Naive Bayes is a vote in which every word in the tweet casts a weighted ballot for each class, and the weights are how much more often that word appeared in one class's training tweets than another's. Smoothing makes sure no single unseen word can veto the vote.
+Each term contributes evidence for each class based on training counts. Smoothing prevents an unseen term from eliminating a class.
 \end{intuition}
 
 \section{Metrics for imbalanced classes}
 
-In the lab data 63\,\% of tweets are negative, 21\,\% neutral and 16\,\% positive. A classifier that answers ``negative'' to everything scores 63\,\% accuracy while learning nothing, so accuracy cannot be the headline number. Per class, three quantities matter:
+Tweets are 63\,\% negative, 21\,\% neutral and 16\,\% positive. Always predicting negative achieves 63\,\% accuracy, so report per-class metrics too:
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.36\linewidth}X@{}}
@@ -101,17 +101,17 @@ F1 & Harmonic mean of precision and recall & One number per class that punishes 
 \end{tabularx}
 \end{mltable}
 
-\term{Macro F1} averages the three class F1 scores with equal weight, so the 16\,\% positive class counts as much as the 63\,\% negative one. The majority baseline has recall~1 on negative and recall~0 on the other two, giving macro F1 of $0.26$; that is the number a real model must beat. Naive Bayes reaches $0.70$.
+\term{Macro F1} weights class F1 scores equally. The majority baseline has recall~1 for negative and~0 otherwise, giving macro F1 $0.26$; Naive Bayes reaches $0.70$.
 
 \begin{pitfall}
-Always compute the majority-class baseline before training anything. Without it, ``77\,\% accuracy'' sounds like an achievement; next to a baseline of 63\,\% it is a modest gain, and next to macro F1 of $0.26$ versus $0.70$ it is a large one. The baseline is what makes the comparison honest.
+Compute the majority baseline first: accuracy rises from 63\,\% to 77\,\%, while macro F1 rises from $0.26$ to $0.70$. Together they show what the model adds.
 \end{pitfall}
 
 \section{A leakage-safe protocol}
 
-\term{Leakage} is any way that information from the test data reaches the model or the choices made about it. Text classification has more of these leaks than most tasks, and Lab~7 closes each one in a specific place (\figref{fig:protocol}).
+\term{Leakage} occurs when test information influences training or model selection. Lab~7 controls it at each stage (\figref{fig:protocol}).
 
-\begin{aifig}[The evaluation protocol of Lab~7]{Where each decision is made and what data it may see. Duplicates are removed before the split so no near-copy can straddle it; the vectoriser and the model are fitted on training tweets only; every hyperparameter choice uses the validation set; the test set is read once, at the end.}{fig:protocol}
+\begin{aifig}[The evaluation protocol of Lab~7]{Deduplicate before splitting, fit vocabulary and model on training data, select settings on validation data, and evaluate once on test data.}{fig:protocol}
 \begin{tikzpicture}[font=\small,
   s/.style={aibox,minimum width=2.6cm,minimum height=1.0cm,font=\scriptsize\color{MLNavy},align=center}]
 \node[s] (dedup) at (0,0) {\textbf{1. Deduplicate}\\exact and normalised\\copies removed};
@@ -126,14 +126,14 @@ Always compute the majority-class baseline before training anything. Without it,
 \end{aifig}
 
 \begin{description}
-  \item[Duplicates before the split.] 213 tweets are exact copies of another and 355 become identical after URLs and mentions are replaced. A retweet in the training set with its twin in the test set would be a memorised answer. The lab keeps one copy of each, \emph{then} splits.
-  \item[Stratified, seeded, saved.] The 70/15/15 split preserves the class mix in every subset, uses a fixed seed so it can be reproduced, and writes the assignment to a file so it can be audited.
-  \item[Vocabulary from training text only.] \texttt{CountVectorizer} is fitted on training tweets and merely applied to the rest. A word that occurs only in test tweets is unknown to the model --- which is exactly the situation a deployed classifier faces.
-  \item[Selection on validation, one look at test.] Eight settings are scored on the validation set; the best is refitted and scored on the test set exactly once. The test score is then an estimate of performance on new tweets, not the best of eight draws.
+  \item[Duplicates before the split.] There are 213 exact duplicates and 355 duplicates after URL and mention replacement. Keep one copy of each normalised text before splitting to prevent shared answers.
+  \item[Stratified, seeded, saved.] Preserve class proportions in a seeded 70/15/15 split and save the assignment for audit.
+  \item[Vocabulary from training text only.] Fit \texttt{CountVectorizer} on training tweets, then transform validation and test tweets. Test-only words remain unknown.
+  \item[Selection on validation, one look at test.] Compare eight settings on validation data, refit the winner, then evaluate once on test data.
 \end{description}
 
 \begin{keyidea}
-The order of operations is the method. Deduplicate, split, fit, tune, test --- each step may only see the data the previous steps left it. Reversing any two adjacent steps leaks information forward, and the leak shows up as a test score that is too good to be true.
+Deduplicate, split, fit, tune, test. Respecting these data boundaries keeps the final score separate from model development.
 \end{keyidea}
 
 \section{Reading the evidence}
@@ -141,19 +141,19 @@ The order of operations is the method. Deduplicate, split, fit, tune, test --- e
 The lab produces four kinds of evidence, each answering a question the headline score cannot.
 
 \begin{description}
-  \item[The confusion matrix.] A $3\times3$ table of true class against predicted class. For the lab's model the off-diagonal mass sits between neutral and negative: neutral tweets are pulled towards negative, because complaint vocabulary dominates the corpus and a neutral question about a delay contains the word ``delay''.
+  \item[The confusion matrix.] The $3\times3$ table shows neutral tweets often predicted as negative: questions about delays share complaint vocabulary.
   \item[Per-class scores.] Negative F1 $0.86$, positive $0.67$, neutral $0.56$. Neutral is the hardest class: it has the fewest distinctive words and sits between the other two.
-  \item[Per-group scores.] Macro F1 computed separately for each airline ranges from $0.66$ to $0.78$. This is a diagnostic, not a league table: the airlines differ in how many test tweets they have (63 to 594), in their class mix and in what customers write about. A subgroup breakdown shows where the model is weak; it does not rank the subjects.
-  \item[An error sample.] The four most confident mistakes for each true class --- twelve tweets, chosen by a rule so that the sample is reproducible --- tagged with a simple category. In the lab's sample the categories are negations the bag of words cannot see, questions with little sentiment vocabulary, very short tweets, and one joke retweeted many times and labelled differently by different annotators. The last of these is a label-quality finding, not a model finding, and only an error sample could have surfaced it.
+  \item[Per-group scores.] Airline macro F1 ranges from $0.66$ to $0.78$, with 63--594 test tweets per airline. Different sample sizes, class mixes and topics make this a diagnostic, not an airline ranking.
+  \item[An error sample.] Tag the four most confident mistakes per true class (twelve tweets). The reproducible sample reveals missed negation, low-sentiment questions, short texts and a repeatedly retweeted joke with inconsistent labels. The last is a data-quality issue, not just a model error.
 \end{description}
 
 \begin{pitfall}
-Confidence is not correctness. Every tweet in the error sample was misclassified with a posterior above $0.999$. Naive Bayes multiplies many small probabilities, so its posteriors are extreme by construction; treat them as a ranking, never as a calibrated chance of being right.
+Every sampled error has posterior above $0.999$. Confidence is not correctness: use these uncalibrated Naive Bayes scores for ranking, not as reliable probabilities of being right.
 \end{pitfall}
 
 \section{What the protocol does not fix}
 
-A bag of words with Naive Bayes has known limits, and the error sample shows them: negation, sarcasm, and any meaning carried by word order. Better representations --- weighted counts, word embeddings, contextual language models --- address these, and the lab's deliverable asks what you would try next. The protocol is what stays fixed when the model changes: the same deduplicated split, the same validation-based selection, the same single look at the test set. A stronger model evaluated with a weaker protocol is not an improvement; it is a number nobody can trust.
+Bag-of-words Naive Bayes struggles with negation, sarcasm and word order. The deliverable asks what representation to try next: weighted counts, embeddings or contextual models. Keep the deduplicated split, validation-based selection and single final test evaluation unchanged.
 
 \input{labs/07-nlp-part-b}
 

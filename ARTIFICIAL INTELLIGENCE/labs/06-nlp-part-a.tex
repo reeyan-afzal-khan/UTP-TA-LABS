@@ -2,13 +2,15 @@
 
 \begin{labproject}{Evaluate OCR on real handwritten medicine names}
 \textbf{Scenario.} A clinic wants to digitise handwritten medicine names before storage or search.\\
-\textbf{Goal.} Build a reproducible OCR benchmark on 89 labelled photographs, test one controlled preprocessing change, and analyse the failures.\\
+\textbf{Objective.} Benchmark OCR on 89 labelled images, test one controlled preprocessing pipeline, and classify the failures.\\
 \textbf{Data.} \texttt{all\_datasets/lab06-ocr-handwritten-prescription.zip} --- one label CSV and 89 images. The notebook extracts it next to the archive.\\
-\textbf{Source files.} \texttt{all\_experiments/lab06\_handwriting\_ocr\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab06\_handwriting\_ocr\_worked.ipynb}.\\
 \end{labproject}
 
 \begin{labmode}
-\texttt{pytesseract} is only a wrapper; the Tesseract \emph{engine} must be installed separately and the kernel restarted afterwards. The setup cell looks for it on \texttt{PATH} and in the default Windows install folder.
+\texttt{pytesseract} is only a wrapper. Live OCR requires the
+Tesseract \emph{engine}; if it is unavailable, the notebook clearly reports that it is
+using the included validated predictions instead.
 \begin{lstlisting}[style=aiterminal]
 winget install --id UB-Mannheim.TesseractOCR    # Windows
 sudo apt-get install tesseract-ocr              # Ubuntu / Debian
@@ -28,17 +30,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pytesseract
 from IPython.display import display
-from PIL import Image, ImageOps
+from PIL import Image, ImageFile, ImageOps
 
 ROOT = Path.cwd().parent
 DATA = ROOT / "all_datasets"
 RESULTS = ROOT / "results" / "lab06"
 RESULTS.mkdir(parents=True, exist_ok=True)
 
-# The engine is found on PATH or in the default Windows install folder.
-tesseract = shutil.which("tesseract") or r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-pytesseract.pytesseract.tesseract_cmd = tesseract
-print("Tesseract", pytesseract.get_tesseract_version(), "at", tesseract)
+# Accept mildly truncated photographs and record any OCR-engine failure per image.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+windows_default = Path(r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+tesseract = shutil.which("tesseract")
+if tesseract is None and windows_default.is_file():
+    tesseract = str(windows_default)
+
+OCR_MODE = "live" if tesseract else "cached"
+if OCR_MODE == "live":
+    pytesseract.pytesseract.tesseract_cmd = tesseract
+    print("OCR mode: live | Tesseract", pytesseract.get_tesseract_version(), "at", tesseract)
+else:
+    print("OCR mode: cached | install Tesseract and restart the kernel for a live rerun")
 \end{lstlisting}
 
 \begin{labquestion}{1}{Validate the archive}
@@ -56,9 +67,16 @@ labels["path"] = [IMAGES / "img" / "img" / name for name in labels.filename]
 assert len(labels) == 89 and labels.filename.is_unique and all(p.exists() for p in labels.path)
 print("Labelled images:", len(labels), "| unique labels:", labels.label.nunique())
 
+
+def load_image(path):
+    """Load the pixels now so the source file can close safely."""
+    with Image.open(path) as image:
+        return image.copy()
+
+
 fig, axes = plt.subplots(3, 3, figsize=(10, 6))
 for ax, row in zip(axes.flat, labels.head(9).itertuples()):
-    ax.imshow(Image.open(row.path))
+    ax.imshow(load_image(row.path))
     ax.set_title(row.label, fontsize=9)
     ax.axis("off")
 plt.tight_layout()
@@ -72,7 +90,7 @@ One label file and 89 photographs, each present exactly once; the 89 labels hold
 \end{labanswer}
 
 \begin{labquestion}{2}{Run the baseline OCR}
-Use one fixed Tesseract configuration for every raw image (LSTM engine, page-segmentation mode~7 = one text line) and normalise both prediction and label to lowercase letters and digits, so punctuation and spacing do not count as errors.
+Use one fixed Tesseract configuration for every raw image (LSTM engine, page-segmentation mode~7 = one text line) and normalise both prediction and label to lowercase letters and digits. Record a per-image engine failure instead of dropping the sample or stopping the benchmark.
 \end{labquestion}
 
 \begin{labanswer}
@@ -85,17 +103,35 @@ def normalise(text):
 
 
 def run_ocr(paths, pipeline):
-    """One row per image: the raw prediction and its normalised form."""
+    """Return one auditable row per image, including engine status."""
+    if OCR_MODE == "cached":
+        cache_path = RESULTS / "predictions.csv"
+        if not cache_path.is_file():
+            raise RuntimeError("Tesseract is unavailable and predictions.csv is missing; install Tesseract and rerun.")
+        cached = pd.read_csv(cache_path).fillna("")
+        cached = cached[cached.pipeline == pipeline].copy()
+        assert len(cached) == len(labels) and set(cached.filename) == set(labels.filename)
+        cached["ocr_status"] = "cached"
+        cached["ocr_detail"] = "validated prediction supplied with the course package"
+        return cached
+
     rows = []
     for row, path in zip(labels.itertuples(), paths):
-        prediction = pytesseract.image_to_string(Image.open(path), config=OCR_CONFIG).strip()
+        try:
+            prediction = pytesseract.image_to_string(load_image(path), config=OCR_CONFIG).strip()
+            status, detail = "ok", ""
+        except pytesseract.TesseractError as error:
+            prediction = ""
+            status, detail = "engine_error", error.message[:160]
         rows.append({"filename": row.filename, "pipeline": pipeline, "truth": row.label, "prediction": prediction,
-                     "truth_norm": normalise(row.label), "prediction_norm": normalise(prediction)})
+                     "truth_norm": normalise(row.label), "prediction_norm": normalise(prediction),
+                     "ocr_status": status, "ocr_detail": detail})
     return pd.DataFrame(rows)
 
 
 baseline = run_ocr(labels.path, "baseline")
-display(baseline[["truth", "prediction", "prediction_norm"]].head(8))
+display(baseline[["truth", "prediction", "prediction_norm", "ocr_status"]].head(8))
+print("OCR engine errors:", int((baseline.ocr_status == "engine_error").sum()))
 \end{lstlisting}
 \expectedoutput
 \begin{lstlisting}[style=aiterminal]
@@ -107,7 +143,7 @@ display(baseline[["truth", "prediction", "prediction_norm"]].head(8))
 4      dicloran        divlarew        divlarew
 ...
 \end{lstlisting}
-The first rows already show the two failure modes the lab will quantify: images where Tesseract returns nothing, and images where it returns text that shares only a few characters with the label. The configuration is now fixed, so any later improvement must come from the image, not from tuning the engine.
+The first rows distinguish a blank recognition from an OCR-engine error, while keeping every labelled image in the benchmark. The configuration is fixed, so any later improvement must come from the image rather than engine tuning.
 \end{labanswer}
 
 \begin{labquestion}{3}{Measure recognition quality}
@@ -152,7 +188,7 @@ display(pd.DataFrame([summarise(baseline)]).round(4))
    pipeline  exact_match_accuracy  mean_normalised_edit_distance  character_error_rate  blank_predictions
 0  baseline                   0.0                         0.8559                0.8753                 39
 \end{lstlisting}
-Generic OCR on raw handwriting is poor: none of the 89 names is read exactly, the character error rate is close to~0.9, and 39 images yield no text at all. The metrics are reproducible because the normalisation and the distance are written out rather than taken from a library with hidden options.
+Generic OCR on raw handwriting is poor: none of the 89 names is read exactly, the character error rate is close to~0.9, and 39 images yield no text. Any engine error is counted as a failed recognition, not silently removed.
 \end{labanswer}
 
 \begin{labquestion}{4}{Build one preprocessing pipeline}
@@ -162,7 +198,7 @@ Convert each image to grayscale, add a 20-pixel white border, cap the width at 1
 \begin{labanswer}
 \begin{lstlisting}[style=aipython]
 def preprocess(path, output):
-    image = ImageOps.exif_transpose(Image.open(path)).convert("L")
+    image = ImageOps.exif_transpose(load_image(path)).convert("L")
     image = ImageOps.expand(image, border=20, fill=255)
     if image.width > 1200:
         image = image.resize((1200, round(image.height * 1200 / image.width)), Image.Resampling.LANCZOS)
@@ -213,19 +249,23 @@ Preprocessing cuts the blank predictions from 39 to 15 and lowers the character 
 \end{labanswer}
 
 \begin{labquestion}{6}{Analyse the failures}
-Take the worst preprocessed predictions by normalised edit distance, tag each one as \emph{no text detected} or \emph{character confusion}, save the table as \texttt{error\_analysis.csv}, and save a figure of the six hardest images.
+Take the worst preprocessed predictions by normalised edit distance and tag each as an \emph{engine error}, \emph{no text detected}, or \emph{character confusion}. Save \texttt{error\_analysis.csv} and a figure of the six hardest images.
 \end{labquestion}
 
 \begin{labanswer}
 \begin{lstlisting}[style=aipython]
 errors = preprocessed[~preprocessed.exact].sort_values(["normalised_edit_distance", "filename"], ascending=[False, True]).head(8)
-errors = errors.assign(failure_type=np.where(errors.prediction_norm == "", "no text detected", "character confusion"))
+errors = errors.assign(failure_type=np.select(
+    [errors.ocr_status == "engine_error", errors.prediction_norm == ""],
+    ["engine error", "no text detected"],
+    default="character confusion",
+))
 errors[["filename", "truth", "prediction", "failure_type"]].to_csv(RESULTS / "error_analysis.csv", index=False)
 display(errors[["truth", "prediction", "failure_type"]])
 
 fig, axes = plt.subplots(2, 3, figsize=(11, 5.5))
 for ax, row in zip(axes.flat, errors.head(6).itertuples()):
-    ax.imshow(Image.open(IMAGES / "img" / "img" / row.filename))
+    ax.imshow(load_image(IMAGES / "img" / "img" / row.filename))
     ax.set_title(f"Reference: {row.truth}\nOCR: {row.prediction[:28]}", fontsize=8)
     ax.axis("off")
 plt.tight_layout()
@@ -241,7 +281,16 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir() if p.is_file()))
 ...
 Saved: ['error_analysis.csv', 'metrics.csv', 'ocr_failures.png', 'predictions.csv', 'sample_grid.png']
 \end{lstlisting}
-The hardest cases split into two kinds. \emph{No text detected} is a segmentation failure --- faint strokes, low contrast or slanted writing that the line finder rejects. \emph{Character confusion} is a recognition failure --- a line is found but cursive shapes are mapped to the wrong printed letters. Preprocessing helps the first kind and barely touches the second, which is why exact-match accuracy stays low.
+The status separates three cases. An \emph{engine error} is a recorded runtime failure;
+\emph{no text detected} is a segmentation failure; and \emph{character confusion} is a
+recognition failure. Preprocessing mainly reduces blank detections and barely changes
+cursive recognition, which is why exact-match accuracy stays low.
 
 This is a benchmark of model--domain fit, not evidence that generic OCR suits clinical transcription. A medical system would need a handwriting-specific recogniser, representative data, external validation, privacy controls and mandatory human verification, and must never decide medication or dosage from uncertain text.
 \end{labanswer}
+
+\begin{labdeliverable}
+Submit the executed notebook, the reported OCR mode (and Tesseract version for a live run), and
+\texttt{results/lab06/}. State which OCR stage improved, which failure remained, and why
+the tested pipeline is not suitable for autonomous clinical transcription.
+\end{labdeliverable}

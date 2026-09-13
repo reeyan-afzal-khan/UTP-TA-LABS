@@ -1,19 +1,18 @@
-\labsection{3}{Search Engineering: Package, Tests, and Benchmark}{sec:lab03-search-code}
+\labsection{3}{Search Engineering: Package, Tests, CLI, and Benchmark}{sec:lab03-search-code}
 
 \begin{labproject}{Turn Labs 1--2 into a reproducible Python toolkit}
 \textbf{Scenario.} Convert notebook logic into reusable, testable software.\\
-\textbf{Goal.} Keep BFS, DFS, UCS, GBFS and A$^\star$ behind one common interface, verify them with dataset-free unit tests, drive them from the command line, and benchmark them on ten real route queries.\\
-\textbf{Source files.} The package \texttt{all\_experiments/utils/} --- \texttt{core.py}, \texttt{openflights.py}, \texttt{plotting.py}, \texttt{\_\_main\_\_.py}, \texttt{test\_search.py}, \texttt{search\_queries.csv} --- and \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}.\\
+\textbf{Objective.} Standardise five algorithms, verify them with dataset-free tests, expose a CLI, and benchmark ten route queries.\\
+\textbf{Data.} The OpenFlights files and \texttt{all\_experiments/utils/search\_queries.csv}; unit tests use hand-made graphs.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}; implementation and tests are in \texttt{all\_experiments/utils/}.\\
 \end{labproject}
 
-\begin{labmode}
-Only the benchmark touches the OpenFlights files; the unit tests use tiny hand-made graphs and run in under a second. Before opening the notebook, run the tests and the command line from a terminal in \texttt{all\_experiments} to see that the package works on its own:
+The same package can be checked independently from a terminal:
 \begin{lstlisting}[style=aiterminal]
 cd all_experiments
 python -m pytest utils -q
 python -m utils --algorithm astar --start KUL --goal KEF
 \end{lstlisting}
-\end{labmode}
 
 \noindent\textbf{Setup cell.}
 \begin{lstlisting}[style=aipython]
@@ -44,7 +43,7 @@ Every algorithm must return the same fields: found flag, path, hops, path cost, 
 print("SearchResult fields:", list(SearchResult.__dataclass_fields__))
 
 toy = {"S": [("A", 2.0), ("B", 5.0)], "A": [("G", 5.0)], "B": [("G", 1.0)], "G": []}
-h = {"S": 5.0, "A": 4.0, "B": 1.0, "G": 0.0}.get      # a hand-made admissible heuristic
+h = {"S": 5.0, "A": 4.0, "B": 1.0, "G": 0.0}.get      # a hand-made consistent heuristic
 
 results = {
     "BFS": bfs(toy, "S", "G"),
@@ -97,7 +96,7 @@ Exported names: SearchResult, astar, best_first, bfs, dfs, gbfs, ucs, haversine_
 \end{labanswer}
 
 \begin{labquestion}{3}{Run the automated tests}
-The tests use tiny hand-made graphs and cover start~=~goal, unreachable goal, cycles, different objectives, frontier updates, admissible A$^\star$, non-optimal GBFS and negative costs. Run them with \texttt{pytest} from inside the notebook.
+The tests use tiny hand-made graphs and cover start~=~goal, unreachable goal, cycles, different objectives, frontier updates, consistent A$^\star$, non-optimal GBFS and negative costs. Run them with \texttt{pytest} from inside the notebook.
 \end{labquestion}
 
 \begin{labanswer}
@@ -203,3 +202,9 @@ Terminal command (from all_experiments):  python -m pytest utils -q
 \end{lstlisting}
 \texttt{python -m pytest utils -q} runs the same tests from a clean checkout, which is exactly what a continuous-integration job would do. Setting up such a job is an optional extension; the required evidence is the passing local run.
 \end{labanswer}
+
+\begin{labdeliverable}
+Submit the executed notebook, \texttt{all\_experiments/utils/}, and
+\texttt{results/lab03/}. Include the passing test summary and a brief recommendation of
+the default search method for distance-based routing.
+\end{labdeliverable}

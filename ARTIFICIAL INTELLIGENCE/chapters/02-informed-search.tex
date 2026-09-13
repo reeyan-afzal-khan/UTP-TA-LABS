@@ -5,7 +5,7 @@
   {Trace BFS, DFS and UCS (\chapref{ch:uninformed}) and explain what a priority queue does.}
   {define a heuristic and compute $g$, $h$ and $f$ for a state; trace Greedy Best-First Search and A$^\star$; decide whether a heuristic is admissible and why that matters; and read the effort-versus-quality trade-off in Lab~2's tables.}
 
-UCS found the shortest route from Kuala Lumpur to Keflav\'ik in \chapref{ch:uninformed}, but it expanded 1,851 airports to do so, most of them in the wrong direction. It had no way to know that Adelaide is a poor first step towards Iceland. Lab~2 gives the search that knowledge in the form of a \term{heuristic} --- an estimate of the distance still to go --- and studies what the estimate buys and what it can cost.
+UCS found the shortest Kuala Lumpur--Keflav\'ik route but expanded 1,851 airports without geographical guidance. Lab~2 adds a \term{heuristic} --- an estimate of remaining distance --- and measures its effect on search effort and route quality.
 
 \section{Three quantities on one path}
 
@@ -27,9 +27,9 @@ $f(n)=g(n)+h(n)$ & Estimated total cost of a solution through $n$ & A$^\star$ \\
 \end{tabularx}
 \end{mltable}
 
-\figref{fig:fgh} places them on a single journey. The cost behind the frontier state is known exactly; the cost ahead of it is a guess. UCS looks only backwards, GBFS only forwards, A$^\star$ at both.
+\figref{fig:fgh} separates known cost from estimated remaining cost: UCS uses the former, GBFS the latter, and A$^\star$ both.
 
-\begin{aifig}[The three quantities $g$, $h$, and $f$]{The decomposition $f(n)=g(n)+h(n)$. The cost $g$ behind the node is known exactly; the estimate $h$ ahead of it is a guess. UCS prioritises $g$, GBFS prioritises $h$, and A$^\star$ prioritises their sum.}{fig:fgh}
+\begin{aifig}[The three quantities $g$, $h$, and $f$]{$f(n)=g(n)+h(n)$ combines known cost with estimated remaining cost. UCS prioritises $g$, GBFS $h$, and A$^\star$ their sum.}{fig:fgh}
 \begin{tikzpicture}[font=\small,
   method/.style={rounded corners=2mm,text width=2.75cm,minimum height=1.02cm,
                  align=center,font=\scriptsize\color{MLNavy},inner sep=1.5mm,
@@ -56,12 +56,12 @@ $f(n)=g(n)+h(n)$ & Estimated total cost of a solution through $n$ & A$^\star$ \\
 \end{aifig}
 
 \begin{keyidea}
-Greedy Best-First Search asks ``which frontier state \emph{looks} closest to the goal?'' A$^\star$ asks ``which frontier state gives the best combination of cost already paid and cost still expected?'' The first question is cheap to answer and can mislead; the second is only slightly dearer and, with a suitable heuristic, cannot.
+GBFS asks which frontier state \emph{looks} closest to the goal. A$^\star$ also accounts for the cost already paid and, with a suitable heuristic, guarantees the cheapest path.
 \end{keyidea}
 
 \section{The Haversine heuristic}
 
-A heuristic must be cheap to compute and must measure something in the same units as the path cost. For routes measured in kilometres, the natural estimate is the great-circle distance from the current airport to the destination --- the length of the straight flight that may or may not exist. The \term{Haversine formula} gives it from two latitude--longitude pairs:
+A heuristic should be cheap to compute and use the same units as path cost. For kilometre-based routes, use the great-circle distance to the goal, whether or not a direct flight exists. The \term{Haversine formula} computes it from latitude--longitude pairs:
 \[
 h(n)=2R\,\arcsin\!\sqrt{\sin^2\!\tfrac{\Delta\varphi}{2}+\cos\varphi_n\cos\varphi_{\text{goal}}\sin^2\!\tfrac{\Delta\lambda}{2}}
 \]
@@ -75,23 +75,23 @@ def heuristic_to(goal, weight=1.0):
     return h
 \end{lstlisting}
 
-The search functions in \texttt{utils/core.py} accept any callable from a state to a number, which is what makes this design reusable: swap the function and the same code searches with a different heuristic.
+\texttt{utils/core.py} accepts any state-to-number callable, so changing the heuristic requires no changes to the search code.
 
 \section{Greedy Best-First Search}
 
-\term{Greedy Best-First Search (GBFS)} orders the frontier by $h(n)$ alone. It always expands the state that appears closest to the goal and ignores what it cost to get there. On the airline graph this is remarkably effective at \emph{finding} a route --- two or three expansions instead of thousands --- and unreliable at finding a good one.
+\term{Greedy Best-First Search (GBFS)} prioritises $h(n)$ alone, ignoring the cost already paid. It finds routes in two or three expansions on the airline graph, but need not find cheap ones.
 
 \begin{workedexample}
-From \texttt{KUL} to \texttt{KEF}, GBFS expands only two airports and returns \texttt{KUL -> LHR -> KEF}: 12,500~km, 9\,\% longer than the optimum. London looks close to Iceland, so the greedy rule jumps there without noticing that the long first leg to London costs more than the whole optimal route through Phuket, St Petersburg and Helsinki. For \texttt{NRT}~$\to$~\texttt{CPT} the same happens through Doha and Johannesburg: 6.7\,\% too long. For \texttt{SIN}~$\to$~\texttt{EZE} greed happens to coincide with the optimum.
+GBFS expands two airports for \texttt{KUL -> LHR -> KEF}: 12,500~km, 9\,\% above the optimum. London looks close to Iceland, but the first leg alone exceeds the optimal route through Phuket, St Petersburg and Helsinki. Its \texttt{NRT}$\to$\texttt{CPT} route is 6.7\,\% too long; its \texttt{SIN}$\to$\texttt{EZE} route happens to be optimal.
 \end{workedexample}
 
 \begin{pitfall}
-GBFS can prefer a state with a small $h$ that was reached by an expensive path, because it never looks at $g$. Its results are not optimal and are not even consistently good: the gap depends on how the graph happens to be laid out around the goal.
+Because GBFS ignores $g$, a small $h$ can conceal an expensive path. Route quality depends on the graph around the goal.
 \end{pitfall}
 
 \section{A* search}
 
-\term{A$^\star$} orders the frontier by $f(n)=g(n)+h(n)$. The $g$ term keeps expensive paths from being pursued just because they look promising; the $h$ term keeps the search from spreading in every direction as UCS does. When $h$ never overestimates the true remaining cost, A$^\star$ returns the cheapest path, exactly as UCS does, while usually expanding far fewer states.
+\term{A$^\star$} prioritises $f(n)=g(n)+h(n)$, balancing cost so far against estimated cost ahead. With a consistent $h$, this closed-set implementation returns the cheapest path, usually with far fewer expansions than UCS.
 
 \begin{workedexample}
 Suppose frontier state $X$ has $(g,h)=(5,3)$ and $Y$ has $(1,5)$. GBFS chooses $X$ because $3<5$. A$^\star$ chooses $Y$ because $f(Y)=6<f(X)=8$: the cheaper path so far is worth the extra estimated distance.
@@ -108,7 +108,7 @@ def priority(state, g):
     return g + h(state)            # astar
 \end{lstlisting}
 
-\subsection{Admissibility: check, do not assume}
+\subsection{Admissibility and consistency}
 
 The optimality guarantee rests on one condition. A heuristic is \term{admissible} when it never overestimates the cheapest remaining cost:
 \[
@@ -116,7 +116,7 @@ h(n)\;\le\;h^\star(n)\quad\text{for every state } n,
 \]
 where $h^\star(n)$ is the true cost of the cheapest path from $n$ to the goal. A stronger and more convenient condition is \term{consistency}: for every edge $n\to n'$ of cost $c$, $h(n)\le c+h(n')$. Consistency implies admissibility and guarantees that the first time A$^\star$ pops a state, it has found the cheapest path to it --- which is what allows the closed-set implementation in \texttt{utils} to skip re-expansions.
 
-The Haversine heuristic is consistent by geometry: the straight-line distance from $n$ to the goal cannot exceed a flight to $n'$ plus the straight-line distance from $n'$ (the triangle inequality on a sphere). Lab~2 does not take this on trust. It runs Dijkstra backwards from each goal to obtain $h^\star$ for every airport, samples ten airports across the range, and checks $h\le h^\star$ on each. \figref{fig:admissible} shows what such a check looks like; every point must lie on or below the diagonal.
+Haversine is consistent by the triangle inequality on a sphere. Lab~2 also runs Dijkstra backwards from each goal to obtain $h^\star$, samples ten airports across the range, and checks $h\le h^\star$. In \figref{fig:admissible}, every sampled point must lie on or below the diagonal.
 
 \begin{aifig}[Checking admissibility state by state]{A heuristic plotted against the true remaining cost. Admissibility requires every point to lie on or below the dashed line. The red points overestimate and void the A$^\star$ guarantee; the Haversine heuristic in Lab~2 produces only green points, with slack of 0 to 23,000~km.}{fig:admissible}
 \begin{tikzpicture}
@@ -147,7 +147,7 @@ An inadmissible heuristic makes A$^\star$ behave like GBFS: it trusts the estima
 
 \subsection{Weighted A*: trading the guarantee for speed}
 
-Multiplying an admissible heuristic by a factor $w>1$ gives \term{weighted A$^\star$}, with priority $g+w\,h$. The inflated estimate can now overestimate, so the guarantee is gone, but the search becomes more goal-directed and expands fewer states. Lab~2 tests $w=1.5$: expansions drop to two, three and four, and the returned routes are 7.1\,\%, 0\,\% and 0.8\,\% longer than optimal. The cost changes exactly when the optimal route detours through airports that are geographically further from the goal than a rival hop; when the optimal route already heads straight for the goal, nothing changes.
+\term{Weighted A$^\star$} uses $g+w\,h$ with $w>1$, trading the optimality guarantee for more goal-directed search. At $w=1.5$, Lab~2 uses two, three and four expansions, with routes 7.1\,\%, 0\,\% and 0.8\,\% above optimum. Inflating $h$ can discourage useful detours away from the goal.
 
 \section{UCS, GBFS and A* side by side}
 
@@ -163,15 +163,15 @@ Method & Priority & Optimal? & Behaviour in Lab~2 \\
 \midrule
 UCS & $g(n)$ & Yes & Exact but blind: 1,851--3,042 expansions per query \\
 GBFS & $h(n)$ & No & 2--3 expansions; routes up to 9\,\% too long \\
-A$^\star$ & $g(n)+h(n)$ & Yes, if $h$ admissible & Same cost as UCS with 96\,\% fewer expansions \\
+A$^\star$ & $g(n)+h(n)$ & Yes, if $h$ consistent & Same cost as UCS with 96\,\% fewer expansions \\
 Weighted A$^\star$ & $g(n)+1.5\,h(n)$ & No & 2--4 expansions; routes up to 7\,\% too long \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\figref{fig:expansion} shows the same story on a grid, where the expanded region is easy to see. UCS spreads in every direction because it cannot see the goal; GBFS runs almost straight at it and is drawn into a dead end; A$^\star$ expands a narrow corridor and still returns the optimal path.
+\figref{fig:expansion} visualises these expansion patterns on a shared grid.
 
-\begin{aifig}[Cells expanded by UCS, GBFS, and A*]{Cells expanded before the goal is reached, on an identical grid. UCS spreads in all directions because it cannot see the goal. GBFS runs almost straight at it but is drawn into the dead end. A$^\star$ expands a narrow corridor and still returns the optimal path.}{fig:expansion}
+\begin{aifig}[Cells expanded by UCS, GBFS, and A*]{Expansion on an identical grid: UCS spreads widely, GBFS heads towards the goal but enters a dead end, and A$^\star$ finds the optimal path through a narrower corridor.}{fig:expansion}
 \begin{tikzpicture}[font=\small]
 \def\W{0.46}
 \def\wallmark{W}
@@ -225,12 +225,12 @@ Weighted A$^\star$ & $g(n)+1.5\,h(n)$ & No & 2--4 expansions; routes up to 7\,\%
 \end{aifig}
 
 \begin{keyidea}
-Expanded states are wasted work. UCS wastes them exploring away from the goal; GBFS wastes fewer but forfeits optimality. Only A$^\star$ spends little \emph{and} promises the cheapest path --- and only while the heuristic stays admissible. That is why Lab~2 checks admissibility empirically before it reports any A$^\star$ result.
+A$^\star$ combines low effort with optimality here because Haversine is consistent. UCS explores without guidance; GBFS reduces effort but gives up the guarantee.
 \end{keyidea}
 
 \section{Reading the lab's evidence}
 
-Lab~2 produces two tables. \texttt{metrics.csv} has one row per query and algorithm with cost, hops, expansions, peak frontier, runtime and the \term{optimality gap} --- the percentage by which the cost exceeds the UCS cost. A gap of exactly zero for A$^\star$ on every query is the empirical face of the optimality theorem; a positive gap for GBFS or weighted A$^\star$ is the price of speed, in kilometres. \texttt{heuristic\_check.csv} has thirty rows of $h$ against $h^\star$ and one Boolean column; a single \texttt{False} there would mean the A$^\star$ gaps could no longer be trusted to stay at zero on other queries.
+\texttt{metrics.csv} records cost, hops, expansions, peak frontier, runtime and the \term{optimality gap}: percentage cost above UCS. A$^\star$ has zero gap on every query; positive GBFS or weighted A$^\star$ gaps quantify the cost of speed. \texttt{heuristic\_check.csv} compares $h$ with $h^\star$ for thirty samples. Any failed check would invalidate the admissibility claim.
 
 \input{labs/02-informed-search}
 

@@ -5,11 +5,11 @@
   {Know Boolean true/false logic and be comfortable with NumPy arrays and a scikit-learn train/test split.}
   {express a graded concept as a membership function; trace the four stages of a fuzzy inference system on one reading; distinguish Mamdani from Sugeno rules; explain what ANFIS learns and how; and evaluate a learned model without leaking test data into its selection.}
 
-Lab~4 builds two models from one air-quality dataset, and they answer different questions. A \term{fuzzy controller} turns temperature and humidity into a ventilation demand using rules an engineer wrote down; nothing is learned, and every decision can be read. An \term{ANFIS} regressor predicts carbon-monoxide concentration from two gas sensors; its rules have the same shape, but their parameters are fitted to 5,000 measurements. The chapter follows the lab's order: the controller first, then the learner.
+Lab~4 uses one air-quality dataset for two tasks. A hand-written \term{fuzzy controller} maps temperature and humidity to ventilation demand. An \term{ANFIS} regressor predicts carbon monoxide from two gas sensors, fitting its rule parameters to 5,000 measurements. We examine the controller first, then the learner.
 
 \section{From crisp truth to fuzzy membership}
 
-Classical logic assigns every statement one of two values. Fuzzy logic assigns a \term{degree of membership} anywhere in the interval $0\le\mu(x)\le1$, so that ``the room is cold'' can be true to degree $0.17$. \figref{fig:crisp-fuzzy} shows the difference for ``hot''. A crisp set has a cliff: not hot at $29.9^\circ$, fully hot at $30.0^\circ$. A fuzzy set replaces the cliff with a ramp, so a small change in temperature produces a small change in membership. That continuity is the practical reason for fuzzy control: a controller built on cliffs judders whenever a reading hovers near a threshold.
+Classical logic uses true or false; fuzzy logic assigns a \term{degree of membership} $0\le\mu(x)\le1$. For ``hot'', a crisp threshold jumps at $30^\circ$, while fuzzy membership changes gradually (\figref{fig:crisp-fuzzy}). Gradual transitions reduce abrupt control changes near a threshold.
 
 \begin{aifig}[Crisp versus fuzzy membership]{``Hot'' as a crisp set and as a fuzzy set. The crisp version forces a decision at one point; the fuzzy version reports a degree, so $35^\circ$ is hot to degree $0.5$.}{fig:crisp-fuzzy}
 \begin{tikzpicture}
@@ -44,7 +44,7 @@ Classical logic assigns every statement one of two values. Fuzzy logic assigns a
 \end{aifig}
 
 \begin{intuition}
-People describe the world in graded words --- somewhat cold, fairly humid, very fast. Fuzzy logic keeps those words but attaches a number to each, so a rule written in words can be evaluated by a program.
+Fuzzy logic attaches numbers to graded words such as ``cold'', ``humid'' and ``fast'', making verbal rules executable.
 \end{intuition}
 
 \section{Membership functions}
@@ -53,9 +53,9 @@ A \term{membership function} maps a crisp value to a degree. The lab uses triang
 \[
 \mu(x)=\max\!\Big(0,\;\min\!\Big(\frac{x-a}{b-a},\;\frac{c-x}{c-b}\Big)\Big).
 \]
-The two outer sets of a variable are \term{shoulders}: a triangle with $a=b$ stays at~1 for every value below the peak, one with $b=c$ stays at~1 above it. Shoulders guarantee that extreme readings --- a heatwave, a freezing night --- still belong fully to some set and still fire a rule. The lab's temperature sets are cold $(0,0,18)$, mild $(12,22,32)$ and hot $(26,45,45)$; \figref{fig:membership} plots them.
+The outer sets are \term{shoulders}: $a=b$ gives membership~1 below the peak; $b=c$ gives membership~1 above it. Extreme readings therefore still activate rules. The temperature sets are cold $(0,0,18)$, mild $(12,22,32)$ and hot $(26,45,45)$ (\figref{fig:membership}).
 
-\begin{aifig}[The lab's temperature memberships]{The three temperature sets of the Lab~4 controller. Cold and hot are shoulders; mild is a triangle. The sets overlap, so a reading of $15^\circ$C is cold to degree $0.17$ and mild to degree $0.30$ at the same time, and two rules will fire.}{fig:membership}
+\begin{aifig}[The lab's temperature memberships]{Cold and hot are shoulders; mild is triangular. At $15^\circ$C, cold membership is $0.17$ and mild membership $0.30$, activating both rules.}{fig:membership}
 \begin{tikzpicture}
 \begin{axis}[
   width=0.88\linewidth, height=5.6cm,
@@ -91,14 +91,14 @@ def trimf(x, a, b, c):
 \end{lstlisting}
 
 \begin{pitfall}
-The shoulder cases are not decoration. A \texttt{trimf} that only handles $a<b<c$ divides by zero when $a=b$ and, depending on how the division is guarded, returns~0 almost everywhere for the outer sets. Every ``cold'' and ``dry'' rule then fires at strength~0, and the controller silently reports the same fallback value for every cool input. The lab's Question~3 --- evaluate five points whose answer you already know --- is the check that catches this.
+A \texttt{trimf} that assumes $a<b<c$ divides by zero for shoulders or returns incorrect zero memberships. This can disable the ``cold'' and ``dry'' rules, leaving only a fallback output. Question~3 catches this by checking five points with known answers.
 \end{pitfall}
 
 \section{The four stages of a fuzzy inference system}
 
-A \term{fuzzy inference system} (FIS) takes crisp inputs in and gives a crisp output out; fuzziness exists only in between (\figref{fig:fis-pipeline}).
+A \term{fuzzy inference system} (FIS) maps crisp inputs to a crisp output through fuzzy intermediate stages (\figref{fig:fis-pipeline}).
 
-\begin{aifig}[The four stages of a fuzzy inference system]{The Lab~4 controller traced on one reading. Crisp inputs of $15^\circ$C and 45\,\% enter, become membership degrees, fire the rules those degrees activate, and collapse back to one ventilation demand. Both ends are ordinary numbers.}{fig:fis-pipeline}
+\begin{aifig}[The four stages of a fuzzy inference system]{Inputs of $15^\circ$C and 45\,\% become membership degrees, activate rules and yield one crisp ventilation demand.}{fig:fis-pipeline}
 \begin{tikzpicture}[font=\small]
 \node[aibox,minimum width=1.65cm,minimum height=0.9cm,fill=MLPaleGray,draw=MLMuted,
       font=\scriptsize\color{MLNavy}] (in) at (0,0) {crisp in\\\textbf{$15^\circ$C, 45\,\%}};
@@ -158,7 +158,7 @@ high & hot, \quad or \quad humid \\
 \end{tabularx}
 \end{mltable}
 
-In code the rule base is three lines. \texttt{min} implements AND because a conjunction can be no truer than its weakest part; \texttt{max} joins alternatives because a conclusion is as true as its best-supported reason.
+The three-line rule base uses \texttt{min} for AND (the weakest condition) and \texttt{max} for alternatives (the strongest support).
 
 \begin{lstlisting}[style=aipython]
 low = max(min(t["cold"], h["dry"]), min(t["cold"], h["comfortable"]))
@@ -168,7 +168,7 @@ high = max(t["hot"], h["humid"])
 
 \subsection{Defuzzification by centroid}
 
-Firing rules produce a fuzzy \emph{set} over the output range, and a fan needs a number. \figref{fig:defuzz} shows the last stage for the $15^\circ$C, 45\,\% reading: the low set is clipped at $0.17$, the medium set at $0.30$, the two are joined, and the centre of area of the joined shape is reported.
+The rules produce a fuzzy output set; the fan needs a number. At $15^\circ$C and 45\,\%, clip low at $0.17$ and medium at $0.30$, combine them, and report the centroid (\figref{fig:defuzz}).
 
 \begin{aifig}[Defuzzification by centroid]{Defuzzifying the $15^\circ$C, 45\,\% reading. Low is clipped at $0.17$ and medium at $0.30$; high does not fire. The centre of area of their union is $40.4\,\%$. A stronger medium rule would pull the centroid to the right.}{fig:defuzz}
 \begin{tikzpicture}
@@ -207,22 +207,22 @@ Clipping the low and medium output sets at those strengths and taking the centro
 
 \section{Validating a controller}
 
-A rule base compiles and runs whether or not it makes sense, so a controller must be checked against expectations that were written down \emph{before} looking at its output. Lab~4 does this in two ways.
+Check the controller against expectations defined \emph{before} viewing its output. Lab~4 uses two checks:
 
 \begin{description}
   \item[Fixed points.] Five operating conditions with a qualitative expected answer: $(10^\circ, 30\,\%)$ should be low, $(20^\circ, 50\,\%)$ medium, $(35^\circ, 50\,\%)$, $(25^\circ, 80\,\%)$ and $(40^\circ, 80\,\%)$ high. The controller returns 18.9, 50.0, 82.3, 83.8 and 84.2\,\%. Each lands in its band.
-  \item[The control surface.] The output evaluated on a grid of every temperature and humidity, drawn as a contour plot. It should rise monotonically towards the hot-and-humid corner and have no cliffs. Cliffs mean a gap between sets; a flat plateau at a strange value means a rule that never fires.
+  \item[The control surface.] Plot output over a temperature--humidity grid. It should rise towards hot, humid conditions without cliffs or unexplained plateaus; these can reveal membership gaps or inactive rules.
 \end{description}
 
 \begin{keyidea}
-Never judge a controller from one input. Evaluate it at points whose answer you know, then over the whole input range, and look at the shape. A single call that returns a plausible number can hide a rule base in which half the rules are dead.
+Check known inputs and the full control surface. One plausible output can hide inactive rules.
 \end{keyidea}
 
 \section{Mamdani and Sugeno systems}
 
-The controller above is a \term{Mamdani} system: each rule concludes with a fuzzy \emph{set} (``ventilation is high''), and defuzzification is needed to turn the joined sets into a number. A \term{Sugeno} system concludes each rule with a \emph{function} of the inputs --- a constant, or a linear expression such as $0.6\,x_1+0.2\,x_2+1.3$ --- and the output is simply the firing-strength-weighted average of the rule functions. \figref{fig:mamdani-sugeno} contrasts the two.
+A \term{Mamdani} rule outputs a fuzzy \emph{set}, which is combined with others and defuzzified. A \term{Sugeno} rule outputs a constant or function such as $0.6\,x_1+0.2\,x_2+1.3$; its final output is the firing-strength-weighted average of these functions (\figref{fig:mamdani-sugeno}).
 
-\begin{aifig}[Mamdani versus Sugeno rule output]{The same kind of rule under both systems. Mamdani's consequent is a fuzzy set that must be joined with the others and defuzzified; Sugeno's is a formula that evaluates straight to a number, and the rule outputs are averaged by firing strength. Sugeno skips the centroid step, which is why it is the form ANFIS can train.}{fig:mamdani-sugeno}
+\begin{aifig}[Mamdani versus Sugeno rule output]{Mamdani combines fuzzy output sets and defuzzifies them. Sugeno averages numeric rule outputs by firing strength, enabling ANFIS training.}{fig:mamdani-sugeno}
 \begin{tikzpicture}[font=\small]
 \begin{scope}
 \node[font=\bfseries\color{MLNavy}] at (2.5,2.2) {Mamdani};
@@ -270,9 +270,9 @@ The Sugeno form is what makes learning possible. Given the firing strengths, the
 
 \section{ANFIS: a fuzzy system that learns}
 
-An \term{Adaptive Neuro-Fuzzy Inference System} (ANFIS) is a Sugeno FIS drawn as a five-layer network so that its parameters can be fitted to data (\figref{fig:anfis}). The reasoning is unchanged; only who chooses the numbers.
+An \term{Adaptive Neuro-Fuzzy Inference System} (ANFIS) expresses a Sugeno FIS as a five-layer network with learnable parameters (\figref{fig:anfis}). The inference structure stays the same; data determine the parameters.
 
-\begin{aifig}[The five layers of an ANFIS network]{ANFIS for two inputs and two membership functions per input. Shaded layers (1 and 4) hold the trainable parameters; layers 2, 3 and 5 are fixed arithmetic. The stages are those of \figref{fig:fis-pipeline}, drawn so a learning algorithm can reach inside.}{fig:anfis}
+\begin{aifig}[The five layers of an ANFIS network]{ANFIS with two inputs and two memberships each. Layers 1 and 4 contain trainable parameters; layers 2, 3 and 5 perform fixed arithmetic.}{fig:anfis}
 \begin{tikzpicture}[font=\small,
   L/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=7.5mm,
             font=\scriptsize\color{MLNavy},inner sep=0.5pt},
@@ -332,14 +332,14 @@ Layers 1--3 are the method \texttt{\_weights}, layer~4 is \texttt{\_design}, lay
 
 \subsection{Hybrid learning}
 
-The two parameter groups are fitted differently, which is the idea that makes ANFIS practical.
+Hybrid learning fits the two parameter groups differently:
 
 \begin{description}
-  \item[Consequents by least squares.] For fixed premise parameters, the output is linear in the coefficients $p$, so the training mean squared error is minimised exactly by solving one linear system --- \texttt{\_solve\_outputs} does this with a small ridge term for numerical safety.
-  \item[Premises by numerical optimisation.] The centres and widths enter through the exponential and cannot be solved in closed form. The lab hands the training MSE, \emph{with the consequents re-solved inside it}, to L-BFGS-B, a gradient-based optimiser from SciPy, with bounds that keep the widths sensible.
+  \item[Consequents by least squares.] With premises fixed, output is linear in $p$. \texttt{\_solve\_outputs} solves the linear system with a small ridge term for numerical stability.
+  \item[Premises by numerical optimisation.] SciPy\textquotesingle s L-BFGS-B optimises centres and widths against training MSE, re-solving consequents at each evaluation and bounding widths.
 \end{description}
 
-Each evaluation of the objective therefore solves the consequents afresh, so the optimiser only has to search over the premise parameters: $2m$ centres and $2m$ widths, rather than those plus $3m^2$ coefficients.
+Re-solving consequents leaves only $2m$ centres and $2m$ widths to optimise, rather than an additional $3m^2$ coefficients.
 
 \begin{keyidea}
 Use a hand-written fuzzy system when the rules are the knowledge you want to encode and audit. Use ANFIS when data should decide the numbers and the rule structure is only a flexible, interpretable function family.
@@ -351,7 +351,7 @@ ANFIS is a regressor, and it is judged like one: by its error on data it never s
 
 \begin{description}
   \item[Split once, before anything else.] 7,344 complete rows are divided 70/15/15 into training, validation and test with a fixed seed, and the assignment is saved to \texttt{split.csv}. The test rows are read once, in the final question.
-  \item[Fit the scaler on the training rows only.] Standardising the inputs uses a mean and standard deviation; computing them over all rows would leak validation and test information into the model. \texttt{StandardScaler().fit(X[train])} then \texttt{transform(X)} is the whole discipline.
+  \item[Fit the scaler on training rows only.] Use \texttt{StandardScaler().fit(X[train])}, then \texttt{transform(X)}. Fitting on all rows would leak validation and test statistics.
   \item[Select on validation, report on test.] Two ANFIS sizes are trained. The one with the lower validation RMSE is chosen; its test RMSE is then reported once, next to the linear baseline's.
 \end{description}
 
@@ -371,10 +371,10 @@ ANFIS, 3 sets per input (selected) & 0.449 & 0.467 & 0.325 \\
 The selected ANFIS lowers test RMSE by 13\,\% relative to the linear baseline. The predicted-versus-actual plot shows where the gain comes from: the sensor response is nonlinear at high CO, where a straight line under-predicts and a fuzzy blend of local linear rules does not.
 
 \begin{pitfall}
-\textbf{Do not choose the model on the test column.} Both ANFIS sizes are close, and had the choice been made on test RMSE the reported number would no longer be an unbiased estimate of performance on new data --- it would be the best of two draws. The lab's deliverable asks you to explain this in your own words.
+\textbf{Do not select on test RMSE.} Choosing the better of two test results makes the reported score a selected best result, not an unbiased estimate on new data.
 \end{pitfall}
 
-Two caveats belong in any honest report. A random split of hourly measurements ignores time order and sensor drift, so the test error is optimistic for a sensor that keeps running for months. And the controller and the regressor are not rivals: one encodes a policy an engineer can defend, the other fits a curve, and a better RMSE does not make the second a substitute for the first.
+A random split of hourly readings ignores time order and sensor drift, so it may overstate long-term performance. Also, the controller encodes a policy while the regressor fits measurements; lower RMSE does not make one a substitute for the other.
 
 \input{labs/04-fuzzy-anfis}
 

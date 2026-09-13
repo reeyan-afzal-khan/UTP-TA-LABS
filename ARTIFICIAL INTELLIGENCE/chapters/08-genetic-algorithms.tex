@@ -5,7 +5,7 @@
   {Be comfortable with NumPy arrays and random numbers, and know what a regression model and its RMSE are.}
   {name the parts of a genetic algorithm and what each contributes; encode a real-valued problem as a chromosome; implement tournament selection, blend crossover, Gaussian mutation and elitism; evaluate a stochastic optimiser over repeated seeds; and decide when an evolutionary method is justified against an exact one.}
 
-A \term{genetic algorithm} (GA) is an optimiser that keeps a population of candidate solutions and improves them by imitating natural selection: the better candidates are more likely to reproduce, reproduction mixes their parts, and small random changes keep new possibilities arriving. It needs no derivatives, no convexity and no closed form --- only a way to score a candidate. That generality is its appeal and its cost, and Lab~8 is designed to show both. The GA is first verified on a one-dimensional function whose answer is known, then set to fit the coefficients of a linear regression, a problem that ordinary least squares solves exactly in a fraction of a millisecond. The point is not that the GA wins. It is to learn how to run and judge a stochastic optimiser, using a case where the right answer is available to check against.
+A \term{genetic algorithm} (GA) improves a population of solutions through selection, recombination and random mutation. It needs only a scoring function, not derivatives or convexity. Lab~8 tests a GA on a known one-dimensional function, then fits linear-regression coefficients. Ordinary least squares provides an exact, faster reference: the aim is to evaluate a stochastic optimiser, not to claim it beats an exact method.
 
 \section{Vocabulary}
 
@@ -30,9 +30,9 @@ Generation & One pass of evaluate, select, cross, mutate, replace & 160 passes p
 
 \section{One generation}
 
-\figref{fig:ga-loop} is the whole algorithm. Each stage has one job, and the population only improves when all three pressures --- selection, recombination, novelty --- act together.
+\figref{fig:ga-loop} combines selection pressure, recombination, mutation and preservation of the best candidates.
 
-\begin{aifig}[The genetic algorithm loop]{One generation of a genetic algorithm. Selection supplies the pressure towards better solutions, crossover recombines what already works, mutation supplies the novelty that stops the population collapsing onto one answer, and elitism guarantees the best solution found so far is never lost.}{fig:ga-loop}
+\begin{aifig}[The genetic algorithm loop]{Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.}{fig:ga-loop}
 \begin{tikzpicture}[
   b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
@@ -50,7 +50,7 @@ Generation & One pass of evaluate, select, cross, mutate, replace & 160 passes p
 \end{tikzpicture}
 \end{aifig}
 
-The lab implements the loop twice with the same structure --- once for a scalar $x$, once for a five-gene vector --- so the two versions can be read side by side. In the scalar version:
+The lab uses the same loop for a scalar $x$ and a five-gene vector. The scalar version is:
 
 \begin{lstlisting}[style=aipython]
 for _ in range(generations):
@@ -65,19 +65,19 @@ for _ in range(generations):
     population = np.r_[elite, children]
 \end{lstlisting}
 
-Every operator is one line of array arithmetic; there is no loop over individuals. That is why 160 generations of 100 chromosomes take a few hundredths of a second.
+Vectorised operators avoid individual-level loops; 160 generations of 100 chromosomes take a few hundredths of a second.
 
 \section{Encoding: the chromosome is the answer}
 
-The first design decision is what a chromosome \emph{is}. For a linear model $\hat y=p_0+p_1x_1+\dots+p_4x_4$ the natural encoding is direct: five real numbers, one per coefficient. The GA then searches the same five-dimensional space that least squares solves algebraically, which is what makes the comparison in Lab~8 clean. Two practical details follow from the encoding.
+For $\hat y=p_0+p_1x_1+\dots+p_4x_4$, encode each chromosome as five real coefficients. The GA searches the same space as least squares, enabling direct comparison. Two details matter:
 
 \begin{description}
-  \item[Initialisation matters.] Charges are in the thousands of dollars, so a population drawn from $\mathcal N(0,1)$ would start absurdly far from any good solution. The lab draws coefficients from $\mathcal N(0,5000)$ and shifts the intercept gene to start near the mean charge.
-  \item[Standardise the inputs.] One mutation step size is used for every coefficient gene. If \texttt{age} ran 18--64 and \texttt{smoker} 0--1, the same step would be huge for one coefficient and negligible for the other. Standardising the predictors puts all four on the same scale --- with statistics from the training rows only, as in every other lab.
+  \item[Initialisation matters.] Charges are in thousands of dollars. Draw coefficients with mean~0 and standard deviation~5000, then shift the intercept towards mean charge; $\mathcal N(0,1)$ would start far from useful values.
+  \item[Standardise the inputs.] Age (18--64) and smoker status (0--1) have different scales. Standardise all four predictors using training statistics so coefficient mutation steps are comparable.
 \end{description}
 
 \begin{intuition}
-The chromosome is not a description of the answer; it \emph{is} the answer, and the fitness function is what reads it. Change the encoding and every operator has to be reconsidered: blend crossover makes sense for real coefficients and none at all for a permutation.
+The chromosome \emph{is} the candidate answer, read by the fitness function. Operators depend on encoding: blend crossover suits real coefficients, not permutations.
 \end{intuition}
 
 \section{The operators}
@@ -92,13 +92,13 @@ def training_mse(individuals):
     return ((predictions - y_train) ** 2).mean(axis=1)
 \end{lstlisting}
 
-A $100\times5$ population against $1{,}070$ training rows is a $100\times1{,}070$ prediction matrix; NumPy does it in microseconds. Fitness evaluation is usually the expensive part of a GA, so vectorising it is the single most effective optimisation.
+Evaluating 100 five-gene chromosomes on 1,070 training rows produces a $100\times1{,}070$ prediction matrix. Vectorisation reduces fitness-evaluation overhead.
 
 \subsection{Selection}
 
-\term{Tournament selection} picks $k$ chromosomes at random and keeps the fittest; the lab uses $k=3$. It is cheap, needs no scaling of fitness values, and gives every individual a chance while favouring the good ones. The classic alternative, \term{roulette-wheel} selection (\figref{fig:roulette}), makes the probability of being chosen proportional to fitness; it is intuitive but sensitive to the scale of the fitness values and to a single dominant individual, and it must be inverted for minimisation problems. Tournament selection sidesteps all of that.
+\term{Tournament selection} samples $k$ chromosomes and keeps the fittest; Lab~8 uses $k=3$. Unlike \term{roulette-wheel} selection (\figref{fig:roulette}), it does not depend on fitness scale or require a minimisation-to-selection-weight conversion.
 
-\begin{aifig}[Roulette-wheel selection]{Roulette-wheel selection for four individuals. Arc width is proportional to fitness, so B is picked about four times as often as D --- but D keeps a real chance. Tournament selection, which the lab uses instead, achieves the same bias without depending on the scale of the fitness values.}{fig:roulette}
+\begin{aifig}[Roulette-wheel selection]{Arc widths are proportional to fitness: B is selected four times as often as D. Tournament selection favours fitter candidates without depending on fitness scale.}{fig:roulette}
 \begin{tikzpicture}[font=\small]
 \node[ailabel,font=\small\bfseries\color{MLNavy}] at (0,2.1) {Selection probabilities};
 \def\rad{1.75}
@@ -133,9 +133,9 @@ A $100\times5$ population against $1{,}070$ training rows is a $100\times1{,}070
 
 \subsection{Crossover and mutation}
 
-For real-valued genes the lab uses \term{blend crossover}: each child is a weighted average of its two parents, $\alpha\,a+(1-\alpha)\,b$, with $\alpha$ drawn at random. With $\alpha\in[0,1]$ the child lies on the segment between the parents; the regression GA draws $\alpha\in[-0.1,1.1]$ so that children can land slightly \emph{outside} the segment and the population does not shrink towards its own centre (\figref{fig:crossover}). \term{Gaussian mutation} then adds normal noise to a random 15\,\% of the genes, scaled by a per-gene step size --- the only operator that can produce a value neither parent had.
+\term{Blend crossover} forms $\alpha\,a+(1-\alpha)\,b$ from two parents. With $\alpha\in[0,1]$, children lie between them; the regression GA uses $\alpha\in[-0.1,1.1]$ to allow extrapolation (\figref{fig:crossover}). \term{Gaussian mutation} adds noise to a random 15\,\% of genes using per-gene step sizes.
 
-\begin{aifig}[Crossover and mutation for real-valued genes]{Left: blend crossover places the child on the segment between its parents (or just beyond it, when $\alpha$ may leave $[0,1]$), so it recombines what already exists. Right: mutation moves a child by a random Gaussian step --- the only source of values that neither parent had.}{fig:crossover}
+\begin{aifig}[Crossover and mutation for real-valued genes]{Left: blend crossover places children between parents or slightly beyond them. Right: Gaussian mutation perturbs a child by a random step.}{fig:crossover}
 \begin{tikzpicture}[font=\small]
 \begin{scope}
 \node[font=\bfseries\color{MLNavy}] at (2.0,2.65) {Blend crossover};
@@ -165,19 +165,19 @@ For real-valued genes the lab uses \term{blend crossover}: each child is a weigh
 
 \subsection{Elitism}
 
-Selection is probabilistic and mutation is blind, so without a safeguard the best chromosome of one generation can be lost in the next. \term{Elitism} copies the best few individuals into the new generation unchanged. It costs a few population slots and guarantees that the best-so-far fitness never gets worse --- which is what makes the convergence curves in Lab~8 monotone.
+\term{Elitism} copies the best chromosomes unchanged, preventing selection or mutation from losing them. It reserves population slots and keeps best-so-far fitness from worsening, producing monotone convergence curves.
 
 \begin{keyidea}
-Selection exploits, mutation explores, crossover recombines, elitism remembers. Remove any one and the GA either stalls, wanders, or forgets; the settings in the lab (tournament of 3, 15\,\% mutation, 4 elites) are one workable balance, not the only one.
+Selection favours good candidates, crossover recombines, mutation explores and elitism preserves. Tournament size~3, 15\,\% mutation and four elites are one workable balance, not universal settings.
 \end{keyidea}
 
 \section{Verifying before trusting}
 
-A GA can run without error and be wrong: a sign flipped in the fitness, a crossover that averages towards zero, a mutation scale so small that nothing moves. Lab~8 therefore starts with $f(x)=(x-3)^2$, whose minimum is known. The scalar GA lands within $10^{-5}$ of $x=3$ in 80 generations. Only then is the same loop applied to the regression problem, where the answer is not known in advance --- or rather, is known through a different method, which is the next section.
+Wrong fitness signs or mutation scales may not raise errors. Lab~8 first minimises $f(x)=(x-3)^2$, reaching within $10^{-5}$ of $x=3$ in 80 generations, then checks regression against least squares.
 
 \section{Judging a stochastic optimiser}
 
-A GA's output depends on its random seed. One run tells you what happened once; it does not tell you what the algorithm does. Lab~8 therefore runs ten seeds and reports the distribution, and then compares it with an exact method.
+One seed shows one outcome. Lab~8 reports results over ten seeds and compares them with an exact method.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -192,21 +192,21 @@ Ordinary least squares & 5829.38 & --- & $<$ 0.001 s \\
 \end{tabularx}
 \end{mltable}
 
-Three observations follow, and each is a general lesson.
+Three lessons follow:
 
 \begin{description}
-  \item[The GA found the optimum.] Ten seeds agree with each other to a few thousandths and with least squares to the same precision; the GA's median coefficients match the OLS coefficients to one decimal place. On an unconstrained quadratic objective there is nowhere else for a well-tuned GA to go.
-  \item[It did not beat the optimum.] Least squares solves the same problem exactly, in closed form, in a fraction of the time. A GA that reaches the OLS answer has confirmed its own correctness, not demonstrated an advantage.
-  \item[Population size trades speed for spread.] Forty chromosomes reach the same median in half the time, but the standard deviation across seeds grows by an order of magnitude. A smaller population has less diversity and depends more on where it started. Whether that trade is acceptable depends on how much a single bad run would cost.
+  \item[The GA approaches the optimum.] Runs agree within a few thousandths and match OLS performance; median coefficients match OLS to one decimal place.
+  \item[It did not beat the optimum.] Least squares solves the same problem exactly and faster. Agreement verifies the GA, not an advantage over OLS.
+  \item[Population size trades speed for spread.] Forty chromosomes halve runtime with the same median, but increase seed-to-seed standard deviation by an order of magnitude. Judge the trade against the cost of a poor run.
 \end{description}
 
 \begin{pitfall}
-Never report a GA result from one seed, and never report the \emph{best} of several seeds as if it were typical. The median and the spread over independent runs are the result; the best run is a lucky draw.
+Report the median and spread across independent seeds, not one run or the best run presented as typical.
 \end{pitfall}
 
 \section{When is a genetic algorithm the right tool?}
 
-Least squares wins Lab~8 because the problem is smooth, convex and unconstrained --- exactly the conditions under which exact methods exist. A GA earns its cost when those conditions fail:
+Least squares suits Lab~8\textquotesingle s smooth, convex, unconstrained objective. Consider a GA when the problem instead has:
 
 \begin{itemize}
   \item the objective is \textbf{non-differentiable} or only available as a black box (a simulation, a physical test rig);
@@ -215,7 +215,7 @@ Least squares wins Lab~8 because the problem is smooth, convex and unconstrained
   \item the constraints are \textbf{awkward}: business rules, integer budgets, feasibility checks that are easy to test and impossible to write as equations.
 \end{itemize}
 
-Change Lab~8's problem in any of these directions --- require the coefficients to be integers, penalise the number of non-zero coefficients, replace squared error with a loss that has plateaus --- and least squares no longer applies while the GA needs only a new fitness function and, sometimes, a new mutation operator. The lab's deliverable asks you to name one such change and the operator it would touch.
+Integer coefficients, penalties on non-zero coefficients or a plateaued loss would invalidate ordinary least squares. A GA would need a revised fitness function and possibly new operators; the deliverable asks you to identify one such change.
 
 \begin{keyidea}
 Match the optimiser to the structure of the problem. Reach for an exact method when one exists; reach for a genetic algorithm when the objective is a black box, the variables are discrete, or the constraints do not fit an equation --- and then judge it over repeated seeds.

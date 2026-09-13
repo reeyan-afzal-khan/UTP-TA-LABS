@@ -5,13 +5,13 @@
   {Know what a classifier is, what a train/test split is for, and how to read a confusion matrix.}
   {describe the sense--think--act loop; explain wall following as a reactive policy; turn logged sensor data into a supervised control problem; read a decision tree as a set of threshold rules; evaluate a controller with the right metrics; and state why offline accuracy is not the same as safe control.}
 
-A mobile robot is a loop: it senses, decides, acts, and the world it acted on is what it senses next. Lab~5 studies the middle of that loop. A SCITOS G5 robot with a ring of 24 ultrasonic sensors was driven around a room by a working wall-following controller, and every sensor reading was logged together with the action taken. The lab uses those 5,456 records to build a controller of its own --- one compact enough to read as a list of if--then rules --- and to measure what such a controller gives up against a more powerful but opaque model.
+Lab~5 learns the decision stage of a robot\textquotesingle s sense--act loop. A SCITOS G5 robot logged 5,456 readings from 24 ultrasonic sensors alongside a wall-following controller\textquotesingle s actions. The lab learns readable if--then rules and compares them with a more powerful, opaque model.
 
 \section{The sense--think--act loop}
 
-Every autonomous robot, from a vacuum cleaner to a planetary rover, runs the loop in \figref{fig:sta-loop}. Sensors turn the physical world into numbers; a controller maps those numbers to a command; actuators execute the command and change the world; the sensors read the changed world. The controller is where the intelligence lives, and it can be a hand-written rule, a lookup table, a learned classifier, or a planner such as the A$^\star$ of \chapref{ch:informed}.
+Sensors measure the world, a controller selects commands, and actuators change what the sensors see next (\figref{fig:sta-loop}). The controller may use rules, a lookup table, a classifier or a planner such as A$^\star$ (\chapref{ch:informed}).
 
-\begin{aifig}[The sense--think--act loop]{The loop every mobile robot runs. Lab~5 replaces the ``think'' box with a classifier learned from logged sensor--action pairs. The dashed arrow is the part the lab cannot test: the robot's action changes what it senses next.}{fig:sta-loop}
+\begin{aifig}[The sense--think--act loop]{Lab~5 learns the ``think'' stage from sensor--action pairs. The dashed feedback arrow --- actions changing future readings --- is not tested offline.}{fig:sta-loop}
 \begin{tikzpicture}[font=\small]
 \node[aibox,minimum width=2.9cm,minimum height=1.1cm] (sense) at (0,0) {\textbf{Sense}\\24 ultrasonic distances};
 \node[aibox,minimum width=2.9cm,minimum height=1.1cm,fill=MLPaleOrange,draw=MLOrange,line width=1pt] (think) at (4.6,0) {\textbf{Think}\\readings $\to$ action};
@@ -27,12 +27,12 @@ Every autonomous robot, from a vacuum cleaner to a planetary rover, runs the loo
 \end{aifig}
 
 \begin{intuition}
-Offline, the ``think'' box looks like an ordinary classification problem: 24 numbers in, one of four labels out. What makes robotics different is the dashed arrow. A wrong action does not just cost one point of accuracy; it puts the robot somewhere the training data never saw.
+Offline control looks like classification: 24 readings in, one of four actions out. In a robot, however, a wrong action can lead to states absent from the training data.
 \end{intuition}
 
 \section{Wall following as a reactive policy}
 
-The task is \term{wall following}: keep moving while holding a fixed distance to the wall on the robot's right. The sensors are arranged around the body (\figref{fig:sensor-ring}); the ones facing the wall read short distances, the ones facing the open room read long ones, and the sensors near the front see corners and doorways coming.
+\term{Wall following} maintains a fixed distance from the wall on the robot\textquotesingle s right. Wall-facing sensors read short distances; others read open space, corners and doorways (\figref{fig:sensor-ring}).
 
 \begin{aifig}[The ultrasonic ring and the wall-following task]{The SCITOS robot seen from above, with its ring of 24 ultrasonic sensors. Sensors on the wall side read short distances; the four that Lab~5 selects are the cluster that measures the wall from slightly different angles. The four actions keep the robot moving along the wall.}{fig:sensor-ring}
 \begin{tikzpicture}[font=\small]
@@ -67,27 +67,27 @@ The natural controller for this task is \term{reactive}: no map, no memory, just
   \item Otherwise, move forward.
 \end{itemize}
 
-Such rules are cheap to run and easy to audit, and their weakness is equally clear: the thresholds are numbers someone has to choose. Lab~5 chooses them from data.
+These rules are cheap and auditable, but need thresholds. Lab~5 learns them from data.
 
 \section{Learning a controller from logged behaviour}
 
-Because a working controller was driving the robot when the data was logged, every row is a demonstration: \emph{in this sensor state, the right action was this one}. Learning a policy from such pairs is \term{behavioural cloning}, and technically it is supervised classification with 24 numeric features and four classes. Three properties of the data shape every decision in the lab.
+Each logged sensor--action pair demonstrates the original controller\textquotesingle s policy. Learning from these pairs is \term{behavioural cloning}: supervised classification with 24 features and four classes. Three data properties matter:
 
 \begin{description}
-  \item[The classes are imbalanced.] Move-Forward is 40\,\% of the rows, Sharp-Right-Turn 38\,\%, Slight-Right-Turn 15\,\% and Slight-Left-Turn only 6\,\%. A controller that never turns slightly left would still score 94\,\% accuracy. The lab therefore reports \term{macro F1} --- the F1 score averaged over the four classes with equal weight --- so that the rare actions count as much as the common ones, and it trains with \texttt{class\_weight="balanced"} so that the learner does not ignore them.
-  \item[Consecutive rows are not independent.] The readings were logged as the robot moved, so neighbouring rows look alike. A random split is still what the lab uses, and its test score is therefore somewhat optimistic; the noise experiment later is one way to probe beyond it.
-  \item[The test rows are held back from everything.] A stratified 70/30 split with a fixed seed is made first and saved. Feature selection, depth tuning and the reference model all use the training rows only; the test rows are read once, in Question~5.
+  \item[The classes are imbalanced.] Move-Forward accounts for 40\,\% of rows, Sharp-Right-Turn 38\,\%, Slight-Right-Turn 15\,\% and Slight-Left-Turn 6\,\%. Ignoring slight left turns could still yield 94\,\% accuracy. Report \term{macro F1}, which weights classes equally, and train with \texttt{class\_weight="balanced"}.
+  \item[Consecutive rows are not independent.] Nearby readings resemble each other, making the lab\textquotesingle s random-split test score optimistic. The noise experiment probes robustness beyond this split.
+  \item[Hold test rows back.] Save a seeded, stratified 70/30 split first. Select features, tune depth and fit the reference model on training rows; evaluate test rows in Question~5.
 \end{description}
 
 \subsection{Choosing the sensors}
 
-Twenty-four sensors are more than a readable controller needs. The lab ranks them by \term{mutual information} with the action --- how much knowing the reading reduces uncertainty about which action was taken --- computed on the training rows only, and keeps the top four. They turn out to be US13, US14, US17 and US18, a cluster from one short arc of the ring: the sensors that see the wall. The ranking is saved so that the choice can be audited.
+Rank sensors by \term{mutual information} with actions, using training rows only. Keep and save the top four: US13, US14, US17 and US18, a wall-facing cluster. Mutual information measures how much a reading reduces uncertainty about the action.
 
 \section{An interpretable controller: the decision tree}
 
-A \term{decision tree} is a sequence of threshold tests on single features that ends in a class. Read from the root, every path is an if--then rule; read as a whole, the tree \emph{is} a reactive controller of the kind sketched above, with the thresholds chosen to fit the demonstrations (\figref{fig:tree-rules}).
+A \term{decision tree} applies feature thresholds until it reaches a class. Each root-to-leaf path is an if--then rule learned from demonstrations (\figref{fig:tree-rules}).
 
-\begin{aifig}[A decision tree is a list of threshold rules]{The top three levels of the tree Lab~5 learns, and three of its paths written as rules. Each internal node compares one sensor with one threshold; each leaf is an action. Depth limits how many tests a rule may contain, which is what keeps the controller readable.}{fig:tree-rules}
+\begin{aifig}[A decision tree is a list of threshold rules]{The learned tree\textquotesingle s top three levels and three example rules. Nodes test sensor thresholds; leaves select actions. Limiting depth keeps rules readable.}{fig:tree-rules}
 \begin{tikzpicture}[font=\small,
   q/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=2.3cm,minimum height=0.7cm,align=center,font=\scriptsize\color{MLNavy}},
   a/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=2.2cm,minimum height=0.6cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
@@ -128,7 +128,7 @@ Interpretability is a design constraint, not a by-product. The lab fixes the num
 
 \section{A reference model and a fair comparison}
 
-To know what the constraints cost, the lab also trains a \term{random forest} --- 200 trees on all 24 sensors, each grown on a bootstrap sample, voting together. It is not a candidate controller; nobody can read 200 trees. It is a ceiling: roughly the best accuracy this data supports. Both models are evaluated once on the same held-out rows.
+The reference \term{random forest} uses 200 bootstrap-trained trees and all 24 sensors. It provides a less interpretable comparison for the compact rule tree. Evaluate both on the same held-out rows.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.30\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -142,11 +142,11 @@ Random forest, 24 sensors & 0.995 & 0.993 & 0.992 & 0.992 \\
 \end{tabularx}
 \end{mltable}
 
-Seven points of accuracy and ten of macro F1 is the price of a controller that fits on one page. Whether that price is worth paying depends on who must sign off on the robot's behaviour, which is a question the numbers cannot answer on their own.
+The readable controller sacrifices seven percentage points of accuracy and ten of macro F1. Whether this is acceptable depends on the need to audit its behaviour.
 
 \subsection{Reading the confusion matrix}
 
-A single score hides \emph{which} actions the controller confuses. The per-class table for the rule tree shows recall of $0.94$ for Move-Forward, $0.91$ for Sharp-Right-Turn, $0.94$ for Slight-Left-Turn and $0.89$ for Slight-Right-Turn, the hardest action. The confusion matrix explains why: slight right turns are mistaken for their two neighbours, Move-Forward and Sharp-Right-Turn. \figref{fig:bands} shows the geometry. Along the wall-side distance the three actions occupy adjacent bands, and a ``slight'' turn is the narrow band in the middle; a threshold placed on either side of it is close to some of its examples.
+The rule tree\textquotesingle s recalls are $0.94$ for Move-Forward, $0.91$ for Sharp-Right-Turn, $0.94$ for Slight-Left-Turn and $0.89$ for Slight-Right-Turn. The confusion matrix shows slight right turns mistaken for forward motion or sharp right turns: the narrow middle band is sensitive to nearby thresholds (\figref{fig:bands}).
 
 \begin{aifig}[Adjacent actions along one sensor]{Why Slight-Right-Turn is the hardest action. Along the wall-side distance the actions occupy adjacent bands, and the slight turn is the narrow one between the other two. A tree draws thresholds at the band edges, and readings near an edge are classified by luck.}{fig:bands}
 \begin{tikzpicture}[font=\small]
@@ -169,7 +169,7 @@ A single score hides \emph{which} actions the controller confuses. The per-class
 
 \section{Robustness: what noise does to thresholds}
 
-Ultrasonic sensors are noisy: a reading of 0.90\,m may come back as 0.87 or 0.93 a moment later. A threshold controller has no tolerance for this. A reading just inside a band is classified correctly; the same reading plus a little noise crosses the threshold and becomes a different action. The lab measures the effect directly: Gaussian noise with a standard deviation of 2, 5 and 10\,\% of each selected sensor's training standard deviation is added to the test readings, and the rule tree's macro F1 falls from $0.90$ to $0.86$, $0.79$ and $0.71$.
+Noise can move readings across action thresholds: 0.90\,m may become 0.87 or 0.93\,m. Lab~5 adds Gaussian noise at 2, 5 and 10\,\% of each selected sensor\textquotesingle s training standard deviation. Test macro F1 falls from $0.90$ to $0.86$, $0.79$ and $0.71$.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.34\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -182,24 +182,24 @@ Rule-tree macro F1 & 0.895 & 0.858 & 0.787 & 0.706 \\
 \end{tabularx}
 \end{mltable}
 
-Three remedies exist, and each costs something the lab deliberately held fixed: more sensors give the tree redundant evidence, a deeper tree can carve finer bands, and an ensemble averages away single-threshold flips. The lab's deliverable asks which you would choose for a 5\,\% noise budget and why; the honest answer names the cost.
+Possible changes trade simplicity for robustness: more sensors provide redundancy, deeper trees allow finer partitions, and ensembles combine decisions. For a 5\,\% noise budget, justify a choice and its cost.
 
 \begin{pitfall}
-Adding noise to the \emph{test} readings only, as the lab does, measures how a controller trained on clean data copes with a noisier sensor. It does not measure what a controller trained on noisy data could achieve, which is a different and usually better number. State which experiment you ran.
+Noise added only to \emph{test} readings measures robustness of a clean-trained controller. Training with noisy data is a different experiment; state which you ran.
 \end{pitfall}
 
 \section{From offline accuracy to safe control}
 
-The scores above are computed on a fixed table of readings. A running robot is not a fixed table, and four things separate the two.
+Four factors separate fixed-table evaluation from a running robot:
 
 \begin{description}
-  \item[Feedback.] Each action changes the next reading. A controller that is wrong 8\,\% of the time on independent rows may be wrong far more often in practice, because one wrong turn leads to states the training log never contained.
-  \item[Timing.] Sensors sample, controllers compute and motors respond with delays. A rule that is correct for the reading it sees may be acting on a world that has already moved.
-  \item[Failure modes.] A sensor that returns its maximum range when it fails, or a wall that absorbs ultrasound, produces readings the classifier has never seen and will classify anyway --- confidently.
-  \item[Safety limits.] A real controller wraps any learned policy in hard constraints: minimum distances, speed caps, an emergency stop. None of these appear in a classification score.
+  \item[Feedback.] A wrong action changes subsequent readings and may lead beyond the training distribution, compounding errors.
+  \item[Timing.] Sensor, computation and motor delays can make a correct decision act on an outdated reading.
+  \item[Failure modes.] Sensor failures or ultrasound-absorbing walls can produce unfamiliar readings that the classifier still labels confidently.
+  \item[Safety limits.] Minimum distances, speed caps and emergency stops must constrain the learned policy; accuracy does not measure them.
 \end{description}
 
-The lab's own summary is the right framing: the rule tree is a \emph{perception-to-action prototype}, evaluated offline, whose readability makes it a good starting point for a controller that would then have to be tested in the loop.
+The rule tree is an offline \emph{perception-to-action prototype}, not a validated robot controller. Its readability supports further closed-loop testing.
 
 \input{labs/05-robotics}
 

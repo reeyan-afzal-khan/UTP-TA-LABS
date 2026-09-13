@@ -2,14 +2,10 @@
 
 \begin{labproject}{Fit a medical-cost regression model with a Genetic Algorithm}
 \textbf{Scenario.} Test whether a real-valued GA can recover useful linear-regression coefficients, and compare its stochastic behaviour with an exact baseline.\\
-\textbf{Goal.} Implement a GA in plain NumPy, verify it on a toy objective, run it over ten seeds on the medical-cost data, and explain when an evolutionary optimiser is or is not justified.\\
+\textbf{Objective.} Verify a NumPy GA, evaluate it across ten seeds, and compare it with exact least squares.\\
 \textbf{Data.} \texttt{all\_datasets/lab08-insurance.csv} (1,338 policies).\\
-\textbf{Source files.} \texttt{all\_experiments/lab08\_genetic\_algorithm\_regression\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab08\_genetic\_algorithm\_regression\_worked.ipynb}.\\
 \end{labproject}
-
-\begin{labmode}
-The GA is written twice on purpose: a short scalar version in Question~1 whose answer is known ($x=3$), and the regression version in Question~3 with the same loop. If the first one does not converge, fix it before going on --- a bug is much easier to see when the right answer is a single number.
-\end{labmode}
 
 \noindent\textbf{Setup cell.}
 \begin{lstlisting}[style=aipython]
@@ -243,3 +239,9 @@ Least squares & 5829.38 & --- & exact, closed form \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
+
+\begin{labdeliverable}
+Submit the executed notebook and \texttt{results/lab08/}. Report the median and spread
+across seeds, explain why matching OLS is not beating it, and name one problem change that
+would make a GA more appropriate.
+\end{labdeliverable}

@@ -6,11 +6,8 @@
   {Organize \textbf{datasets}, create a \textbf{virtual environment}, and install \textbf{dependencies}.}
 
 \section{The course project layout}
-
-Use one \textbf{project root} with four folders: \textbf{datasets}, \textbf{experiments} (the notebooks and every helper module they import), the book's \textbf{chapters} and \textbf{lab sheets}, and a \textbf{results} folder that the notebooks fill:
-
 \begin{lstlisting}[style=mlterminal]
-ARTIFICIAL INTELLIGENCE/
+UTP-ARTIFICIAL-INTELLIGENCE/
   all_datasets/                 # every dataset, one file per lab
     lab01-03_airports.csv
     lab01-03_routes.csv
@@ -39,9 +36,10 @@ ARTIFICIAL INTELLIGENCE/
   requirements.txt
 \end{lstlisting}
 
-\section{Download the datasets}
+\section{Check the datasets and their sources}
 
-Click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
+The course package includes all datasets. Use these links to check sources or restore
+missing files; keep the filenames unchanged.
 
 \begin{mltable}
 \footnotesize
@@ -69,7 +67,7 @@ Click a \textbf{dataset name} to download it, then extract the files into \textb
 \end{tabularx}
 \end{mltable}
 
-\subsection{Download steps}
+\subsection{If a dataset must be restored}
 
 \begin{mlsteps}
   \item Open the link, click \textbf{Download}, and \textbf{extract} the archive.
@@ -78,7 +76,7 @@ Click a \textbf{dataset name} to download it, then extract the files into \textb
 \end{mlsteps}
 
 \begin{pitfall}
-For \textbf{\texttt{FileNotFoundError}}, check the \textbf{working directory}, \textbf{folder}, and \textbf{filename}. Correct the path instead of moving files into the project root.
+For \textbf{\texttt{FileNotFoundError}}, check the working directory and filename. Fix the path; do not move files into the project root.
 \end{pitfall}
 
 \section{Install Python and configure PATH}
@@ -132,20 +130,21 @@ which -a python3
 The root-level \textbf{\texttt{requirements.txt}} lists the course \textbf{dependencies}:
 
 \begin{lstlisting}[style=mlterminal]
-numpy
-pandas
-scipy
-scikit-learn
+numpy  
+pandas  
+scipy  
+scikit-learn 
 matplotlib
 jupyter
-nbformat
+nbformat  
+nbclient  
 nbconvert
-pillow
-pytesseract
+pillow  
+pytesseract  
 pytest
 \end{lstlisting}
 
-Lab~6 additionally needs the Tesseract OCR \emph{engine}, which is not a Python package; its lab sheet gives the one-line installer for each operating system.
+Lab~6 also requires the separate Tesseract OCR \emph{engine}; see its lab setup.
 
 \textbf{Create} the environment in the \textbf{project root}:
 
@@ -229,7 +228,7 @@ python3 -m pip install -r requirements.txt
 \node[pkg,text=MLMuted,anchor=west] at (2.35,2.45) {leave this alone};
 
 \node[envbox] (a) at (-2.80,0) {\texttt{THIS DIRECTORY/.venv}};
-\node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
+\node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\etc.};
 
 \node[envbox] (b) at (2.80,0) {\texttt{some other project/.venv}};
 \node[pkg,anchor=north] at (2.80,-0.52) {its own versions\\of the same names};

@@ -5,11 +5,11 @@
   {Read a graph drawn as nodes and edges, and use a Python list, set, dictionary and \texttt{for} loop.}
   {state a route-finding task as a search problem; trace BFS, DFS and UCS by hand; explain which quantity each one optimises; read the search code in \texttt{utils/core.py}; and judge a search algorithm by completeness, optimality, time and memory.}
 
-Lab~1 asks a concrete question: \emph{how do you fly from Kuala Lumpur to Keflav\'ik?} There is no direct flight, so an answer is a chain of routes, and there are many chains. This chapter gives the vocabulary for asking such questions precisely and the three \term{uninformed} algorithms --- Breadth-First Search, Depth-First Search and Uniform-Cost Search --- that answer them without any knowledge of geography. \chapref{ch:informed} adds that knowledge; \chapref{ch:searchpatterns} turns the code into a tested package.
+Lab~1 asks: \emph{how do you fly from Kuala Lumpur to Keflav\'ik without a direct flight?} This chapter introduces three \term{uninformed} algorithms --- Breadth-First Search, Depth-First Search and Uniform-Cost Search --- that find routes without geographical guidance. \chapref{ch:informed} adds that guidance; \chapref{ch:searchpatterns} packages and tests the code.
 
 \section{Route finding as a search problem}
 
-A \term{search problem} is defined by five ingredients. The table gives each one in general and as it appears in the airline network built by \texttt{utils/openflights.py}.
+A \term{search problem} has five ingredients, shown here for the airline network built by \texttt{utils/openflights.py}.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.36\linewidth}X@{}}
@@ -26,7 +26,7 @@ Path cost & The accumulated cost of a path & Number of legs, \emph{or} the sum o
 \end{tabularx}
 \end{mltable}
 
-The last row is the important one. The same graph supports two different cost definitions, and the three algorithms in this chapter do not agree on which to use. BFS and DFS treat every route as one step; UCS adds up kilometres. ``Shortest route'' means nothing until the cost is stated.
+The cost definition matters: BFS and DFS treat each route as one step; UCS sums kilometres. ``Shortest route'' is ambiguous until the cost is stated.
 
 In Python the graph is a dictionary from each airport to a list of \texttt{(neighbour, distance\_km)} pairs:
 
@@ -35,17 +35,17 @@ graph["KUL"][:3]
 # [('ADL', 5681.8), ('AKL', 8703.4), ('ALA', 5130.5)]
 \end{lstlisting}
 
-The cleaned OpenFlights graph has 6,464 airports and 37,337 directed routes. It is an educational abstraction: distance stands in for the real costs of fares, schedules and connections, and the lab says so in its interpretation.
+The cleaned OpenFlights graph has 6,464 airports and 37,337 directed routes. Distance is an educational proxy for fares, schedules and connection costs.
 
 \begin{intuition}
-A search algorithm needs only two things from a problem: a way to list the successors of a state, and a rule for choosing which frontier state to look at next. Everything about airports lives in the first; everything about BFS, DFS and UCS lives in the second.
+The problem supplies successors; the search algorithm chooses which frontier state to examine next. Airport details belong to the first, the distinction between BFS, DFS and UCS to the second.
 \end{intuition}
 
 \section{The graph-search loop}
 
-All three algorithms run the same loop. They keep a \term{frontier} of states that have been discovered but not yet examined, and a record of states already seen so that no state is processed twice. \figref{fig:search-loop} shows the loop; only the shaded box differs between algorithms.
+All three algorithms maintain a \term{frontier} of discovered but unexamined states and track visited states to avoid repeated work. Their frontier policies differ (\figref{fig:search-loop}).
 
-\begin{aifig}[The general graph-search loop]{The graph-search loop shared by BFS, DFS and UCS. Only the shaded box differs: BFS takes the oldest frontier entry, DFS the newest, UCS the cheapest. Successor generation, the goal test and the duplicate check are identical code.}{fig:search-loop}
+\begin{aifig}[The general graph-search loop]{BFS, DFS and UCS share a graph-search structure. The highlighted frontier policy selects the oldest, newest or cheapest entry, respectively.}{fig:search-loop}
 \begin{tikzpicture}[font=\small]
 \node[aibox,minimum width=2.3cm] (start) at (0,0) {Start\\state};
 \node[aibox,minimum width=2.6cm,fill=MLPaleOrange,draw=MLOrange,line width=1pt]
@@ -70,8 +70,8 @@ All three algorithms run the same loop. They keep a \term{frontier} of states th
 Two bookkeeping choices are shared by every implementation in \texttt{utils/core.py}:
 
 \begin{description}
-  \item[Parent links instead of copied paths.] Each discovered state records which state discovered it. The path is rebuilt only once, by following the links back from the goal. This uses far less memory than storing a full path in every frontier entry.
-  \item[Effort counters.] Every function counts the states it \term{expands} (generates successors for) and the largest size the frontier reaches. These two numbers, not the wall-clock time, are how the labs compare search effort, because they do not change from one computer to the next.
+  \item[Parent links instead of copied paths.] Record each state\textquotesingle s predecessor, then reconstruct the path backwards from the goal. This saves storing a full path in every frontier entry.
+  \item[Effort counters.] Count states \term{expanded} (whose successors are generated) and peak frontier size. Unlike runtime, these measures are machine-independent.
 \end{description}
 
 The BFS function is short enough to read in full; DFS and UCS differ from it in a handful of lines each.
@@ -100,7 +100,7 @@ Mark a state as seen when it is \emph{added} to the frontier, not when it is rem
 
 \section{Breadth-First Search}
 
-\term{Breadth-First Search (BFS)} uses a first-in, first-out queue, so it examines every state one step from the start before any state two steps away, and so on outwards. The first time it touches the goal, it has arrived by a path with the fewest possible edges.
+\term{Breadth-First Search (BFS)} uses a first-in, first-out queue, examining states in increasing numbers of steps from the start. Its first path to the goal therefore has the fewest edges.
 
 \begin{mlsteps}
   \item Put the start state in the queue.
@@ -110,9 +110,9 @@ Mark a state as seen when it is \emph{added} to the frontier, not when it is rem
   \item Repeat until the queue is empty.
 \end{mlsteps}
 
-\figref{fig:bfs-wave} shows why the first arrival is a fewest-edges path: BFS expands as a wavefront, and the wavefront cannot reach distance~8 without passing through distance~7 first.
+BFS expands as a wavefront (\figref{fig:bfs-wave}): it must pass distance~7 before reaching distance~8.
 
-\begin{aifig}[BFS expanding as a wavefront]{BFS on a grid, each cell shaded by the step at which it is first reached. The frontier is always one connected ring, so the goal is first touched at its true fewest-steps distance. Dark cells are walls and are never entered.}{fig:bfs-wave}
+\begin{aifig}[BFS expanding as a wavefront]{Cells are shaded by their first BFS arrival step; dark cells are walls. Layer-by-layer expansion reaches the goal in the fewest steps.}{fig:bfs-wave}
 \begin{tikzpicture}[font=\small]
 \def\W{0.72}
 \def\wallmark{W}
@@ -146,14 +146,14 @@ Mark a state as seen when it is \emph{added} to the frontier, not when it is rem
 \end{aifig}
 
 \begin{workedexample}
-On the airline graph, BFS from \texttt{KUL} to \texttt{KEF} expands 284 airports and returns \texttt{KUL -> AMS -> KEF}: two legs, 12,274~km. Every other route to Keflav\'ik needs at least two legs as well, so on the \emph{fewest legs} objective this answer is optimal. It is not the shortest in kilometres, because BFS never looked at the distances.
+BFS from \texttt{KUL} to \texttt{KEF} expands 284 airports and returns \texttt{KUL -> AMS -> KEF}: two legs, 12,274~km. This minimises legs, not kilometres; BFS ignores distances.
 \end{workedexample}
 
 \section{Depth-First Search}
 
-\term{Depth-First Search (DFS)} replaces the queue with a stack: the \emph{most recently} discovered state is examined next. The search therefore follows one branch as deep as it can go and only backs up when the branch is exhausted. \figref{fig:bfs-dfs-order} contrasts the two visit orders on one tree.
+\term{Depth-First Search (DFS)} uses a stack to examine the newest state first. It follows one branch until exhausted, then backtracks (\figref{fig:bfs-dfs-order}).
 
-\begin{aifig}[BFS and DFS visit order compared]{BFS and DFS on one tree, each node numbered by visit order. BFS finishes a level before descending; DFS exhausts \texttt{B}'s subtree before touching \texttt{C}. The frontier column is the memory argument: wide for BFS, shallow for DFS.}{fig:bfs-dfs-order}
+\begin{aifig}[BFS and DFS visit order compared]{Numbered visit orders on one tree. BFS completes each level; DFS exhausts B\textquotesingle s subtree before C. The frontier illustrates their different memory demands.}{fig:bfs-dfs-order}
 \begin{tikzpicture}[font=\small]
 \newcommand{\ordertree}[7]{%
   \node[ainode,minimum size=7.5mm] (#1a) at (0,1.3) {A};
@@ -290,7 +290,7 @@ for neighbour, cost in graph.get(state, ()):
         heappush(frontier, (priority(neighbour, new_g), counter, neighbour, new_g))
 \end{lstlisting}
 
-Three details matter. The goal test happens when a state is \emph{popped}, not when it is generated --- testing on generation would return the first path found, not the cheapest. A state can be pushed more than once when a cheaper path to it is found later; the \texttt{expanded\_states} check discards the stale copies when they surface. And the \texttt{counter} sits between the priority and the state so that ties are broken by insertion order rather than by comparing states, which would fail for mixed types. \chapref{ch:searchpatterns} returns to this last point.
+Test for the goal when a state is \emph{popped}, not generated, to avoid returning the first rather than cheapest path. Cheaper paths may add duplicate entries; \texttt{expanded\_states} skips stale copies. The \texttt{counter} breaks priority ties by insertion order without comparing potentially incompatible state types (\chapref{ch:searchpatterns}).
 
 \begin{keyidea}
 BFS orders the frontier by discovery time, DFS by recency, UCS by accumulated cost. The graph, the successor function and the goal test never change; only the frontier policy does, and that single choice is the name of the algorithm.
@@ -363,16 +363,16 @@ Here $C^\star$ is the cost of the optimal solution and $\varepsilon$ the smalles
 \end{aifig}
 
 \begin{pitfall}
-Two table entries are easy to misread.
+Two qualifications matter:
 
-\textbf{``BFS is optimal''} holds only for \emph{equal} step costs. On the airline graph BFS returns \texttt{KUL -> AMS -> KEF} at 12,274~km while UCS returns \texttt{KUL -> HKT -> LED -> HEL -> KEF} at 11,461~km. Fewest legs and fewest kilometres are different questions, and BFS only answers the first.
+\textbf{``BFS is optimal''} requires \emph{equal} step costs. BFS returns \texttt{KUL -> AMS -> KEF} at 12,274~km; UCS returns \texttt{KUL -> HKT -> LED -> HEL -> KEF} at 11,461~km. Fewest legs need not mean fewest kilometres.
 
-\textbf{``DFS is not complete''} refers to spaces that are infinite or contain cycles without a seen-set. On a \emph{finite} graph with the \texttt{parent} dictionary --- every graph in these labs --- DFS terminates and finds a goal if one is reachable. It still gives no guarantee about which one.
+\textbf{``DFS is not complete''} concerns infinite spaces or cycles without a seen-set. On the finite lab graphs, the \texttt{parent} dictionary ensures termination and finding a reachable goal, but not an optimal path.
 \end{pitfall}
 
 \section{What the lab measures}
 
-Lab~1 runs the three algorithms on three queries and records six numbers for each run. Reading them correctly is the point of the exercise.
+Lab~1 runs each algorithm on three queries and records the following fields.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
@@ -389,7 +389,7 @@ Field & What it tells you \\
 \end{tabularx}
 \end{mltable}
 
-The last row is a habit worth keeping: a search result is only evidence once it has been checked independently of the search that produced it. Lab~1 recomputes every path cost from the edge list and asserts that every leg is a real route; a search bug that returned an impossible path would fail loudly instead of quietly entering the report.
+Validate results independently: Lab~1 checks every returned leg against the graph and recomputes its cost from the edge list, catching impossible paths before reporting them.
 
 \begin{workedexample}
 The three queries of Lab~1, as the notebook reports them:
@@ -403,7 +403,7 @@ The three queries of Lab~1, as the notebook reports them:
 \text{NRT}\to\text{CPT} & 2 & 19{,}006 & 64 & 91{,}541 & 3 & 14{,}813
 \end{array}
 \]
-BFS wins every hops column, UCS wins every kilometre column, and DFS wins neither. Read across a row and the trade-off is visible: UCS pays one or two extra legs to save 800--4,200~km.
+BFS minimises hops, UCS kilometres, and DFS neither. UCS uses one or two extra legs to save 800--4,200~km.
 \end{workedexample}
 
 \input{labs/01-search-foundations}

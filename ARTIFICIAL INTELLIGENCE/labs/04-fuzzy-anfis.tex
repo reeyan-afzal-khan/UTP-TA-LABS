@@ -2,9 +2,9 @@
 
 \begin{labproject}{Combine expert rules with data-driven prediction}
 \textbf{Scenario.} An environmental monitor needs an interpretable ventilation policy and a nonlinear predictor for carbon-monoxide concentration.\\
-\textbf{Goal.} Build a Mamdani fuzzy controller and a compact Sugeno ANFIS in plain Python, then compare ANFIS with linear regression on a held-out test set.\\
+\textbf{Objective.} Build a Mamdani controller and a compact Sugeno ANFIS, then compare ANFIS with linear regression on held-out data.\\
 \textbf{Data.} \texttt{all\_datasets/lab04-AirQuality.csv} (UCI Air Quality, hourly sensor readings).\\
-\textbf{Source files.} \texttt{all\_experiments/lab04\_fuzzy\_anfis\_worked.ipynb}. No fuzzy-logic toolbox is used: the inference and the ANFIS training are written out with NumPy, SciPy and scikit-learn.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab04\_fuzzy\_anfis\_worked.ipynb}; inference and ANFIS training are implemented with NumPy, SciPy, and scikit-learn.\\
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
@@ -295,3 +295,9 @@ ANFIS-3MF (selected) & 0.4489 & 0.4672 & 0.3246 \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
+
+\begin{labdeliverable}
+Submit the executed notebook and \texttt{results/lab04/}. Briefly justify the selected
+ANFIS size, explain why the test set cannot be used for model selection, and state one
+limitation of the random split for time-ordered sensor data.
+\end{labdeliverable}

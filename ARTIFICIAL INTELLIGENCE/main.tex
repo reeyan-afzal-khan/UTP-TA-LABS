@@ -4,6 +4,7 @@
 \def\utprunninghead{Artificial Intelligence}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
+\def\utpdocumentsubtitle{Laboratory Guide}
 \def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and evolutionary optimization.}
 
 % ---------- boxes this book renames ----------
@@ -12,6 +13,7 @@
 \def\utptitleoptional{Extension}
 \def\utptitletryit{Practice}
 \def\utptitlelabmode{Lab setup}
+\def\utptitledeliverable{Submission checklist}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
@@ -55,10 +57,14 @@
 \newtcolorbox{labanswer}{enhanced,breakable,colback=white,colframe=UTPTeal,
   boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
   fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title=Worked answer}
-\newcommand{\expectedoutput}{\par\smallskip\noindent\textbf{\color{UTPNavy}Expected output.}\nopagebreak\par\nopagebreak}
+\newcommand{\expectedoutput}{\par\smallskip\noindent\textbf{\color{UTPNavy}Reference output.}\nopagebreak\par\nopagebreak}
 \newcommand{\requiredoutput}[1]{%
   \par\smallskip\noindent\textbf{Required output:} #1\par
 }
+\newcommand{\labruninstruction}{%
+  From the course folder, run \texttt{cd all\_experiments}, start Jupyter, open the named
+  notebook, and choose \textbf{Restart Kernel and Run All Cells}. Generated evidence belongs
+  in the matching \texttt{results/labXX/} folder; do not edit those files by hand.\space}
 
 % ---------- other settings used only in this book ----------
 \utpfigalias{aifig}
@@ -68,6 +74,8 @@
 \begin{document}
 \utpfrontmatter
 
+% Number the environment guide as Chapter 0 so Chapters 1--8 align with Labs 1--8.
+\setcounter{chapter}{-1}
 \input{chapters/00-your-python-toolkit.tex}
 
 \part{Search and Problem Solving}

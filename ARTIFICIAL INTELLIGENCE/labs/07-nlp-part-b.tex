@@ -2,14 +2,10 @@
 
 \begin{labproject}{Build and evaluate a three-class sentiment classifier}
 \textbf{Scenario.} An airline support team wants to classify customer tweets as negative, neutral or positive.\\
-\textbf{Goal.} Build a leakage-safe benchmark from the single supplied \texttt{Tweets.csv}: a majority-class baseline and a Multinomial Naive Bayes model tuned on validation data and evaluated once on an untouched test set.\\
+\textbf{Objective.} Compare a majority baseline with validation-tuned Multinomial Naive Bayes under a leakage-safe protocol.\\
 \textbf{Data.} \texttt{all\_datasets/lab07-Tweets.csv} (14,640 tweets about six US airlines).\\
-\textbf{Source files.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.\\
 \end{labproject}
-
-\begin{labmode}
-The purpose is model evaluation, not ranking airlines: subgroup scores reflect sample size, topic mix and class balance as much as service quality. The test subset is created in Question~2 and read exactly once, in Question~6; every decision before that is made on training or validation rows.
-\end{labmode}
 
 \noindent\textbf{Setup cell.}
 \begin{lstlisting}[style=aipython]
@@ -280,3 +276,9 @@ Virgin America      63     0.778     0.782
 \end{lstlisting}
 \emph{Neutral} is the weakest class (F1 about 0.56): it has the fewest distinctive words and sits between the other two. Airline-level macro F1 ranges from about 0.66 to 0.78, but these are diagnostic subgroup results, not airline ratings --- Virgin America has only 63 test tweets, and airlines differ in class mix and topics. The twelve reviewed errors are dominated by negations the bag-of-words model cannot see, questions and requests that carry little sentiment vocabulary, and retweets of one joke that different annotators labelled differently. The categories are reproducible heuristics, not replacement labels; ambiguous cases still need a human reader.
 \end{labanswer}
+
+\begin{labdeliverable}
+Submit the executed notebook and \texttt{results/lab07/}. Explain why macro F1 is the
+headline metric, name the weakest class, and propose one stronger text representation
+that could be tested without changing the evaluation protocol.
+\end{labdeliverable}

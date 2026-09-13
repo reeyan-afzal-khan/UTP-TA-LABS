@@ -144,5 +144,5 @@ def gbfs(graph: dict, start, goal, heuristic) -> SearchResult:
 
 
 def astar(graph: dict, start, goal, heuristic) -> SearchResult:
-    """A* search: optimal when the heuristic never overestimates."""
+    """A* search: optimal here when the heuristic is consistent."""
     return best_first(graph, start, goal, heuristic, mode="astar")

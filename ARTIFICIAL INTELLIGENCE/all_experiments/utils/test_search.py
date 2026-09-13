@@ -42,7 +42,7 @@ def test_frontier_update_finds_cheaper_path():
     assert result.path_cost_km == pytest.approx(3.0)
 
 
-def test_astar_matches_ucs_with_admissible_heuristic():
+def test_astar_matches_ucs_with_consistent_heuristic():
     graph = {"S": [("A", 2.0), ("B", 5.0)], "A": [("G", 5.0)], "B": [("G", 1.0)], "G": []}
     heuristic = {"S": 5.0, "A": 4.0, "B": 1.0, "G": 0.0}.__getitem__
     assert astar(graph, "S", "G", heuristic).path_cost_km == ucs(graph, "S", "G").path_cost_km

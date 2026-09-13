@@ -2,10 +2,11 @@
 
 \begin{labproject}{Build and compare BFS, DFS, and Uniform-Cost Search}
 \textbf{Scenario.} Build a route planner over real airline connections and compare route quality with search effort.\\
-\textbf{Goal.} Run BFS, DFS and UCS on one cleaned OpenFlights graph, verify every answer independently, and explain why the three algorithms disagree.\\
+\textbf{Objective.} Run BFS, DFS and UCS on one cleaned graph, verify every path, and explain why the algorithms disagree.\\
 \textbf{Data.} \texttt{all\_datasets/lab01-03\_airports.csv} and \texttt{lab01-03\_routes.csv}.\\
-\textbf{Source files.} \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}; the algorithms and the loader are in \texttt{all\_experiments/utils/} (\texttt{core.py}, \texttt{openflights.py}), which Labs 1--3 share.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}; Labs 1--3 share \texttt{all\_experiments/utils/}.\\
 \end{labproject}
+
 
 \noindent\textbf{Setup cell.} Imports, the search functions from \texttt{utils}, and the three folders every lab uses.
 \begin{lstlisting}[style=aipython]
@@ -183,3 +184,9 @@ Saved: ['metrics.csv', 'route_comparison.png']
 \end{lstlisting}
 The figure is a longitude/latitude sketch, not a map projection, but it makes the difference visible: BFS jumps through one hub, UCS follows the geographically short chain, and DFS wanders.
 \end{labanswer}
+
+\begin{labdeliverable}
+Submit the executed notebook and \texttt{results/lab01/}. In a short conclusion, identify
+which method minimises hops, which minimises distance, why DFS changes with neighbour
+order, and which effort measure is comparable across computers.
+\end{labdeliverable}

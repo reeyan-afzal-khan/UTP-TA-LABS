@@ -5,13 +5,13 @@
   {Know what BFS, DFS, UCS, GBFS and A$^\star$ each optimise (\chapsref{ch:uninformed}{ch:informed}).}
   {explain why the five algorithms are one loop with a pluggable frontier; read and extend the \texttt{utils} package; write a unit test for a search function; run the toolkit from the command line; and design a benchmark whose numbers can be compared fairly.}
 
-Labs~1 and~2 produced working code inside notebooks. Lab~3 asks what has to change for that code to be trusted by someone else: put it in a package, give every algorithm the same interface, test it on graphs small enough to check by hand, drive it from a terminal, and benchmark it on more than three queries. None of this is specific to search; it is how any piece of analysis code becomes software.
+Lab~3 turns the search code from Labs~1--2 into reusable software: a package with a common interface, hand-checkable tests, a command-line interface and a broader benchmark.
 
 \section{The pluggable frontier}
 
-Every search program in this course has four parts, and three of them are fixed by the problem. The state representation and the successor function come from the graph; the goal test comes from the query. Only the frontier policy is a design choice, and that single choice names the algorithm (\figref{fig:pluggable}).
+The graph supplies states and successors; the query supplies the goal test. The frontier policy determines the algorithm (\figref{fig:pluggable}).
 
-\begin{aifig}[The pluggable frontier policy]{The four components of every search program in this course. Three are fixed by the problem; only the frontier policy is chosen by the programmer, and that one choice is what names the algorithm.}{fig:pluggable}
+\begin{aifig}[The pluggable frontier policy]{States, successors and the goal test come from the problem. The frontier policy determines the search algorithm.}{fig:pluggable}
 \begin{tikzpicture}[
   box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=0.9cm,align=center,font=\small\bfseries\color{MLNavy}},
   policy/.style={draw=MLOrange!70!black,fill=MLPaleOrange,rounded corners=1.5mm,minimum width=1.55cm,minimum height=0.65cm,align=center,font=\scriptsize\bfseries\color{MLOrange!85!black}},
@@ -34,7 +34,7 @@ Every search program in this course has four parts, and three of them are fixed 
 \end{tikzpicture}
 \end{aifig}
 
-\texttt{utils/core.py} takes this literally. BFS and DFS are two short functions that differ in \texttt{popleft} versus \texttt{pop}. UCS, GBFS and A$^\star$ are one function, \texttt{best\_first}, with a \texttt{mode} argument that selects the priority; \texttt{ucs}, \texttt{gbfs} and \texttt{astar} are one-line wrappers around it. When Lab~2 needed weighted A$^\star$, no new search code was written --- the heuristic was multiplied by 1.5 and passed to the same function.
+In \texttt{utils/core.py}, BFS and DFS use \texttt{popleft} and \texttt{pop}, respectively. UCS, GBFS and A$^\star$ wrap \texttt{best\_first}, whose \texttt{mode} selects the priority. Weighted A$^\star$ reuses it with the heuristic multiplied by 1.5.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.12\linewidth}p{0.30\linewidth}X@{}}
@@ -53,7 +53,7 @@ A$^\star$ & \texttt{heapq} min-heap & \texttt{(g + h(state), counter, state, g)}
 
 \section{One result type for every algorithm}
 
-A benchmark loop can only compare algorithms that return the same thing. \texttt{utils} defines one frozen dataclass and every function returns it:
+Every algorithm returns the same frozen dataclass, allowing one benchmark loop to compare them:
 
 \begin{lstlisting}[style=aipython]
 @dataclass(frozen=True)
@@ -73,12 +73,12 @@ class SearchResult:
 Three design decisions are hidden in those seven fields.
 
 \begin{description}
-  \item[The cost is recomputed from the path.] \texttt{path\_cost\_km} is the sum of the edge weights along the returned path, computed by a helper after the search finishes, not the $g$ value the search happened to carry. The reported cost and the reported path can therefore never disagree.
-  \item[Failure has a shape.] An unreachable goal returns \texttt{found=False}, an empty path, \texttt{hops=-1} and an infinite cost, so a caller can test \texttt{result.found} instead of catching an exception or checking for \texttt{None}.
+  \item[The cost is recomputed from the path.] A helper sums edge weights after search, rather than using its stored $g$, keeping \texttt{path\_cost\_km} consistent with the returned path.
+  \item[Failure has a shape.] An unreachable goal returns \texttt{found=False}, an empty path, \texttt{hops=-1} and infinite cost. Callers check \texttt{result.found}.
   \item[Effort is part of the answer.] \texttt{expanded} and \texttt{max\_frontier} are counted inside the loop, so every comparison in Labs 1--3 comes from the same counters.
 \end{description}
 
-\texttt{as\_dict()} is what turns a result into a row of a pandas table with one expression, \texttt{\{**result.as\_dict()\}}, which is how every metrics file in the labs is built.
+\texttt{as\_dict()} converts a result into a pandas row via \texttt{\{**result.as\_dict()\}}, as used in every lab metrics file.
 
 \section{Separating responsibilities}
 
@@ -99,7 +99,7 @@ Module & Responsibility \\
 \end{tabularx}
 \end{mltable}
 
-\begin{aifig}[One search loop across four graph sources]{The same search code applied to four kinds of graph. Everything below the dashed line produces a \texttt{\{state: [(neighbour, cost)]\}} dictionary and is specific to its source; everything above it is shared and never changes. Recognising where the line falls is the point of the chapter.}{fig:domains}
+\begin{aifig}[One search loop across four graph sources]{Graph-specific loaders below the dashed line produce \texttt{\{state: [(neighbour, cost)]\}} dictionaries for shared search code above it.}{fig:domains}
 \begin{tikzpicture}[font=\small]
 \node[aibox,fill=MLPaleTeal,draw=MLGreen,minimum width=12.6cm,minimum height=1.0cm]
   (shared) at (0,1.5) {\textbf{\texttt{core.py}: the shared search loop}\ \ \ frontier $\cdot$ seen set $\cdot$ goal test $\cdot$ path building};
@@ -118,13 +118,13 @@ Module & Responsibility \\
 \end{tikzpicture}
 \end{aifig}
 
-The payoff is concrete. To search a road network instead of airports, only a new loader is needed; \texttt{core.py} and its tests are untouched. To try a new algorithm, only \texttt{core.py} changes; the loader, the CLI and the benchmark keep working. Lab~3's deliverable asks you to name which module you would change for a road network, and the answer is a test of whether the boundary in \figref{fig:domains} has been understood.
+A road network needs a new loader, not new search code or tests. A new algorithm changes \texttt{core.py}, not the loader, CLI or benchmark. Lab~3 asks you to identify this boundary (\figref{fig:domains}).
 
 \section{Priority queues and tuple ordering}
 
 Python's \texttt{heapq} pops the smallest tuple, comparing element by element from the left. The frontier entries in \texttt{best\_first} are \texttt{(priority, counter, state, g)}, and the \texttt{counter} is there for a reason (\figref{fig:tuple}).
 
-\begin{aifig}[How heapq breaks priority ties]{Tuples are compared left to right. When two entries tie on priority, Python compares the next field. The \texttt{counter} guarantees that the next field is a unique integer, so ties resolve by insertion order and the state itself is never compared.}{fig:tuple}
+\begin{aifig}[How heapq breaks priority ties]{Heap tuples compare left to right. A unique counter breaks priority ties by insertion order, avoiding comparisons between states.}{fig:tuple}
 \begin{tikzpicture}[font=\small]
 \foreach \a/\b/\c/\y in {%
   {4.0}/{17}/{'LED'}/{0.7},
@@ -149,12 +149,12 @@ Python's \texttt{heapq} pops the smallest tuple, comparing element by element fr
 \end{aifig}
 
 \begin{pitfall}
-Putting the path list, or any payload, directly after the priority is a correctness smell even when it runs: two equal-priority entries are then ordered by comparing their payloads, so the algorithm's output depends on state names. One unique increasing integer between the priority and the payload makes ties resolve by insertion order and stops the payload from ever being compared.
+Placing a payload directly after the priority makes ties depend on payload comparisons and possibly state names. Insert a unique increasing counter to resolve ties by insertion order without comparing payloads.
 \end{pitfall}
 
 \section{Testing search code}
 
-A search function can be wrong in ways that a successful run on 6,464 airports never reveals: it may return a path but not the cheapest, count expansions off by one, or loop forever on a cycle. Tests on graphs of four or five states catch these because the correct answer can be worked out by hand. \texttt{utils/test\_search.py} has eight, one per failure mode:
+A successful run on 6,464 airports can hide wrong costs, expansion counts or cycle handling. Tiny graphs make these errors hand-checkable. \texttt{utils/test\_search.py} contains eight tests, one per failure mode:
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.34\linewidth}X@{}}
@@ -167,7 +167,7 @@ unreachable goal & Failure is reported as \texttt{found=False}, not an exception
 cycles terminate & The seen-set stops DFS from looping forever. \\
 BFS and UCS optimise different objectives & The two algorithms give different answers on a graph built so that they must. \\
 frontier update finds the cheaper path & A state first reached expensively is later replaced by a cheaper route. \\
-A$^\star$ matches UCS with an admissible heuristic & The optimality guarantee holds on a hand-checked graph. \\
+A$^\star$ matches UCS with a consistent heuristic & The optimality guarantee holds on a hand-checked graph. \\
 GBFS is not assumed optimal & The test asserts the \emph{expected} suboptimality rather than pretending it away. \\
 negative cost is rejected & The precondition of UCS is enforced with a clear error. \\
 \bottomrule
@@ -184,7 +184,7 @@ def test_frontier_update_finds_cheaper_path():
     assert result.path_cost_km == pytest.approx(3.0)
 \end{lstlisting}
 
-The tests import \texttt{core} only, so they need no dataset, run in well under a second, and can execute on any machine --- including a continuous-integration server that runs them on every commit. That is the practical meaning of ``dataset-free'': a test that needs a 2~MB download is a test that will not be run.
+These dataset-free tests import only \texttt{core}, run in under a second, and can run on any machine or continuous-integration server.
 
 \begin{keyidea}
 Test the algorithm on the smallest graph that can expose the bug, and test the dataset loader separately. A test that needs real data to run tests both at once and diagnoses neither.
@@ -192,7 +192,7 @@ Test the algorithm on the smallest graph that can expose the bug, and test the d
 
 \section{A command-line interface}
 
-A package that can only be used from a notebook is only half reusable. \texttt{utils/\_\_main\_\_.py} lets Python run the package as a program:
+\texttt{utils/\_\_main\_\_.py} makes the package runnable outside a notebook:
 
 \begin{lstlisting}[style=aiterminal]
 cd all_experiments
@@ -201,11 +201,11 @@ ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=4.20
 KUL -> HKT -> LED -> HEL -> KEF
 \end{lstlisting}
 
-The module is thirty lines: \texttt{argparse} declares the three options, the loader builds the graph, a dictionary maps the algorithm name to the function, and the result is printed. It contains no search logic and no data cleaning --- it only \emph{calls} them --- which is why the answer it prints is, to the metre, the one Lab~2 found. Lab~3 runs this command as a subprocess from the notebook and asserts that it exits with status~0.
+The thirty-line module parses three options, loads the graph, selects an algorithm and prints its result. It calls existing search and cleaning code, reproducing Lab~2\textquotesingle s answer. Lab~3 runs it as a subprocess and checks exit status~0.
 
 \section{Benchmarking fairly}
 
-Three queries make a demonstration; ten make a benchmark. Lab~3 runs BFS, UCS, GBFS and A$^\star$ on the ten route pairs in \texttt{utils/search\_queries.csv} and summarises them:
+Lab~3 benchmarks BFS, UCS, GBFS and A$^\star$ on ten route pairs in \texttt{utils/search\_queries.csv}:
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.12\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -221,16 +221,16 @@ A$^\star$ & 1.0 & 14,321 & 2.2 & 63 \\
 \end{tabularx}
 \end{mltable}
 
-A benchmark is only fair if a few conditions hold, and each one is visible in the notebook.
+The notebook enforces four conditions for a fair comparison:
 
 \begin{itemize}
   \item \textbf{Same graph, same queries, same machine.} Every algorithm sees the identical cleaned graph and the identical ten pairs.
-  \item \textbf{Success rate before averages.} A mean cost over the queries an algorithm happened to solve would flatter an algorithm that fails on hard queries. All four succeed on all ten here, which makes the means comparable.
+  \item \textbf{Success rate before averages.} Averaging only solved queries hides failures on hard cases. All four methods solve all ten queries here.
   \item \textbf{Effort in expansions, not milliseconds.} The runtime column is kept but is not the basis for conclusions.
   \item \textbf{Every path validated.} The notebook checks that A$^\star$'s cost equals UCS's on all ten queries and counts the queries on which GBFS is costlier (seven of ten).
 \end{itemize}
 
-The result is a recommendation with evidence behind it: for kilometre-based routing, A$^\star$ is the default --- UCS's answer at 2\,\% of UCS's effort. BFS is the right tool only when the objective really is fewest legs; GBFS is an approximation to reach for when effort matters more than the last few percent of cost.
+For these kilometre-based queries, A$^\star$ matches UCS at 2\,\% of its effort. Choose BFS for fewest legs and GBFS when reduced effort matters more than optimal cost.
 
 \input{labs/03-search-consolidation}
 

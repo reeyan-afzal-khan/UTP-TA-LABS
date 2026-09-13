@@ -2,14 +2,10 @@
 
 \begin{labproject}{Compare UCS, Greedy Best-First Search, and A$^\star$}
 \textbf{Scenario.} Improve the Lab~1 planner by adding geographic knowledge while keeping a clear quality baseline.\\
-\textbf{Goal.} Run GBFS and A$^\star$ with the Haversine heuristic, check that the heuristic is admissible, and measure the trade-off between route cost and search effort.\\
+\textbf{Objective.} Run GBFS and A$^\star$ with a Haversine heuristic, check admissibility, and measure quality against search effort.\\
 \textbf{Data.} The Lab~1 OpenFlights files.\\
-\textbf{Source files.} \texttt{all\_experiments/lab02\_informed\_search\_worked.ipynb} and the shared \texttt{all\_experiments/utils/}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab02\_informed\_search\_worked.ipynb} and the shared \texttt{all\_experiments/utils/}.\\
 \end{labproject}
-
-\begin{labmode}
-The lab separates two questions that are easy to blur: \emph{does the method keep the route optimal?} and \emph{how much search effort does it spend?} Keep both columns in view for every algorithm. The setup cell differs from Lab~1 only in what it imports and where it writes.
-\end{labmode}
 
 \noindent\textbf{Setup cell.}
 \begin{lstlisting}[style=aipython]
@@ -148,7 +144,7 @@ Admissibility violations: 0 of 30
 4       Q1     OAK  KEF        6731.3             6893.0     161.8        True
 ...
 \end{lstlisting}
-Zero violations in thirty checks: the slack column is never negative. A straight-line distance can never exceed the length of any actual route between the same two points, so the Haversine heuristic is admissible by construction. The sample is evidence; the triangle inequality is the proof. Reversing the graph turns ``cost from the goal'' into ``cost to the goal'', which is what $h$ estimates.
+Zero violations in thirty checks: the slack column is never negative. Haversine is admissible and consistent by the triangle inequality: direct distance cannot exceed any routed distance, or one flight plus the remaining direct distance. The table is an empirical check; the geometry is the guarantee. Reversing the graph turns ``cost from the goal'' into ``cost to the goal'', which is what $h$ estimates.
 \end{labanswer}
 
 \begin{labquestion}{4}{Compare the methods}
@@ -187,7 +183,7 @@ print("Mean A* expansion reduction vs UCS: {:.1%}".format(1 - astar_rows.expande
 A* matches UCS on every query: True
 Mean A* expansion reduction vs UCS: 96.4%
 \end{lstlisting}
-A$^\star$ keeps the UCS cost (gap 0\,\%) while expanding roughly 96\,\% fewer states. GBFS is the cheapest to run but returns routes up to 9\,\% longer. The admissible heuristic buys speed without giving up optimality; greed buys more speed by giving it up.
+A$^\star$ keeps the UCS cost (gap 0\,\%) while expanding roughly 96\,\% fewer states. GBFS is the cheapest to run but returns routes up to 9\,\% longer. The consistent Haversine heuristic buys speed without giving up optimality; greed buys more speed by giving it up.
 \end{labanswer}
 
 \begin{labquestion}{5}{Stress the guarantee}
@@ -241,3 +237,9 @@ Saved: ['expanded_nodes.png', 'heuristic_check.csv', 'metrics.csv']
 \end{lstlisting}
 Expanded-state counts are the primary effort measure; wall-clock times depend on the machine and should not be compared across computers.
 \end{labanswer}
+
+\begin{labdeliverable}
+Submit the executed notebook and \texttt{results/lab02/}. Briefly explain why A$^\star$
+matches UCS, why GBFS can return a longer route, and what is lost when the heuristic is
+multiplied by 1.5.
+\end{labdeliverable}
