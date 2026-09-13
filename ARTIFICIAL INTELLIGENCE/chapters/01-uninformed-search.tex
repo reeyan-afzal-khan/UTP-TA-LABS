@@ -78,6 +78,7 @@ The BFS function is short enough to read in full; DFS and UCS differ from it in 
 
 \begin{lstlisting}[style=aipython]
 def bfs(graph, start, goal):
+    started = perf_counter()
     frontier = deque([start])            # FIFO queue
     parent = {start: None}               # also serves as the "seen" set
     expanded, max_frontier = 0, 1
@@ -416,3 +417,12 @@ BFS minimises hops, UCS kilometres, and DFS neither. UCS uses one or two extra l
   \item Lab~1 reports \texttt{expanded} and \texttt{runtime\_ms}. Which one should you use to compare BFS and UCS with a classmate's run on a different laptop, and why?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item BFS orders its frontier by discovery time alone (a FIFO queue), so the weights never influence which state is examined next. It answers the fewest-edges question and nothing else.
+  \item \texttt{frontier.popleft()} becomes \texttt{frontier.pop()} (newest first), and the successors are pushed in reverse order. The second change fixes which neighbour is tried first, which is why the DFS route changes when the neighbour lists are reversed.
+  \item A state can be reached first by an expensive path; testing on generation would return that path. Testing on pop guarantees that no cheaper entry for the goal is still waiting in the heap.
+  \item \texttt{expanded}: it depends only on the graph and the algorithm, not on the hardware. Runtimes differ between laptops and even between runs.
+\end{enumerate}
+\end{checkanswers}

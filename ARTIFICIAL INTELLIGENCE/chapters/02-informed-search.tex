@@ -243,3 +243,13 @@ A$^\star$ combines low effort with optimality here because Haversine is consiste
   \item Weighted A$^\star$ with $w=1.5$ changed the cost for KUL$\to$KEF but not for SIN$\to$EZE. What property of the SIN$\to$EZE route explains this?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item GBFS ignores $g$, the cost already paid. That is why it jumps to London for KUL$\to$KEF: the first leg alone costs more than the whole optimal route, but London \emph{looks} close to Iceland.
+  \item UCS expands $Y$ ($g=3<8$). GBFS expands $X$ ($h=2<6$). A$^\star$ expands $Y$ ($f(Y)=9<f(X)=10$).
+  \item Because $f=g+h$ adds them. If $h$ were in hours and $g$ in kilometres the sum would be meaningless, and one term would either dominate or vanish.
+  \item Dijkstra from a start gives the cheapest cost \emph{from} it to every state. Reversing every edge and starting at the goal gives the cheapest cost \emph{to} the goal from every airport, which is what $h^\star$ is.
+  \item The optimal SIN$\to$JNB$\to$GRU$\to$EZE route heads towards the goal on every leg, so inflating $h$ does not make any of its legs look worse. The optimal KUL route detours through Phuket, and an inflated $h$ penalises that detour.
+\end{enumerate}
+\end{checkanswers}

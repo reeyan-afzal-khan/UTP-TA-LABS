@@ -243,9 +243,3 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 Macro F1 falls from 0.90 with clean readings to about 0.71 at 10\,\% noise. Hard thresholds are brittle: a reading that sits near a split boundary flips class as soon as noise pushes it across. Offline classification accuracy is not the same as safe control --- deployment adds sequential feedback, actuator delay and sensor failure --- so the tree is a perception-policy prototype, not deployment-ready autonomy.
 \end{labanswer}
-
-\begin{labdeliverable}
-Submit the executed notebook and \texttt{results/lab05/}. Identify the rule controller's
-hardest action and recommend one response to a 5\,\% sensor-noise budget, including the
-trade-off it introduces.
-\end{labdeliverable}

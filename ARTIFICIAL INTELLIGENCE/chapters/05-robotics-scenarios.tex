@@ -32,7 +32,7 @@ Offline control looks like classification: 24 readings in, one of four actions o
 
 \section{Wall following as a reactive policy}
 
-\term{Wall following} maintains a fixed distance from the wall on the robot\textquotesingle s right. Wall-facing sensors read short distances; others read open space, corners and doorways (\figref{fig:sensor-ring}).
+\term{Wall following} keeps the robot moving along a wall at a fixed distance --- in this dataset the robot circled the room clockwise, so the wall stayed on its left. Wall-facing sensors read short distances; others read open space, corners and doorways (\figref{fig:sensor-ring}).
 
 \begin{aifig}[The ultrasonic ring and the wall-following task]{The SCITOS robot seen from above, with its ring of 24 ultrasonic sensors. Sensors on the wall side read short distances; the four that Lab~5 selects are the cluster that measures the wall from slightly different angles. The four actions keep the robot moving along the wall.}{fig:sensor-ring}
 \begin{tikzpicture}[font=\small]
@@ -116,7 +116,7 @@ A \term{decision tree} applies feature thresholds until it reaches a class. Each
 \end{tikzpicture}
 \end{aifig}
 
-The first split is the wall-following reflex itself: \emph{if the wall-side sensor reads less than 0.9\,m, turn sharply right}. Nobody typed that threshold; it was found from the demonstrations.
+The first split is the wall-following reflex itself: \emph{if the wall-side sensor reads less than 0.9\,m, turn sharply right, away from the wall}. Nobody typed that threshold; it was found from the demonstrations.
 
 \subsection{Choosing the depth}
 
@@ -212,3 +212,13 @@ The rule tree is an offline \emph{perception-to-action prototype}, not a validat
   \item Name one reason a controller with 92\,\% offline accuracy could still drive a robot into a wall.
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Accuracy is dominated by the two large classes; a controller that never predicts Slight-Left-Turn could still score about 94\,\%. Macro F1 gives each action equal weight, so the rare turns count.
+  \item The test rows would have influenced which sensors were chosen, so the test score would no longer estimate performance on data the model had never seen.
+  \item \emph{If sensor US14 reads less than 0.9\,m, turn sharply right.} The robot has come too close to the wall it is following and must steer away from it.
+  \item Slight-Right-Turn. Its readings occupy a narrow band between Move-Forward and Sharp-Right-Turn, so both of its thresholds sit close to its own examples and small differences flip the class.
+  \item Any of: feedback (one wrong action leads to a sensor state the training data never contained), actuator and sensing delays, a failed sensor returning an unfamiliar reading, or the absence of hard safety limits.
+\end{enumerate}
+\end{checkanswers}

@@ -387,3 +387,13 @@ A random split of hourly readings ignores time order and sensor drift, so it may
   \item The scaler in Lab~4 is fitted on the training rows only. What would be wrong with the reported test RMSE if it had been fitted on all rows?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Mild: $(32-28)/(32-22)=0.4$. Hot: $(28-26)/(45-26)\approx0.11$. Cold: $0$, because $28>18$.
+  \item A conjunction cannot be truer than its weakest part, so AND takes the minimum. A conclusion supported by several rules is as true as its best-supported reason, so alternatives take the maximum.
+  \item Replace each rule's output \emph{set} by a linear function of the inputs. The output then becomes a firing-strength-weighted average that is linear in the coefficients, so least squares can solve for them in one step.
+  \item $3^2=9$ rules, one per combination of an $x_1$ set and an $x_2$ set; three coefficients each gives $27$ consequent coefficients.
+  \item It would be optimistic: the mean and standard deviation used for scaling would carry information from the test rows into the model. That is leakage, even though the target column was never touched.
+\end{enumerate}
+\end{checkanswers}

@@ -7,7 +7,6 @@
 \textbf{Notebook.} \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}; Labs 1--3 share \texttt{all\_experiments/utils/}.\\
 \end{labproject}
 
-
 \noindent\textbf{Setup cell.} Imports, the search functions from \texttt{utils}, and the three folders every lab uses.
 \begin{lstlisting}[style=aipython]
 from pathlib import Path
@@ -184,9 +183,3 @@ Saved: ['metrics.csv', 'route_comparison.png']
 \end{lstlisting}
 The figure is a longitude/latitude sketch, not a map projection, but it makes the difference visible: BFS jumps through one hub, UCS follows the geographically short chain, and DFS wanders.
 \end{labanswer}
-
-\begin{labdeliverable}
-Submit the executed notebook and \texttt{results/lab01/}. In a short conclusion, identify
-which method minimises hops, which minimises distance, why DFS changes with neighbour
-order, and which effort measure is comparable across computers.
-\end{labdeliverable}

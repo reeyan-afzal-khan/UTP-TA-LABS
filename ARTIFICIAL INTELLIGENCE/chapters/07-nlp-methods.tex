@@ -166,3 +166,13 @@ Bag-of-words Naive Bayes struggles with negation, sarcasm and word order. The de
   \item Virgin America has the highest per-airline macro F1 and only 63 test tweets. Why does the lab warn against reading this as an airline ranking?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Kept, every distinct URL and handle becomes a one-off feature that cannot generalise; deleted, the model loses the signal that a link or mention was present. One placeholder token keeps the signal in a single feature.
+  \item Without smoothing $P(w\mid\text{positive})=0$, so the product is zero and \emph{positive} can never win, whatever the other words say. With $\alpha=1$ the term gets a small non-zero probability and the remaining words decide.
+  \item Predicting \emph{negative} for everything is right 63\,\% of the time --- the class share. Recall is $1$ for negative and $0$ for the other two classes, so the class F1 scores are about $0.78$, $0$ and $0$, and their mean is $0.26$.
+  \item The vocabulary would include terms that occur only in validation or test tweets, so the feature space would be shaped by data the model must never see. The symptom is a test score that is slightly too good and does not reproduce on genuinely new tweets.
+  \item With 63 tweets, one or two mistakes move macro F1 by several points, and the airline's class mix and topics differ from the others'. The score reflects the sample and its content, not service quality.
+\end{enumerate}
+\end{checkanswers}

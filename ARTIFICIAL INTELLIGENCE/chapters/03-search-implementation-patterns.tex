@@ -243,3 +243,13 @@ For these kilometre-based queries, A$^\star$ matches UCS at 2\,\% of its effort.
   \item The benchmark reports GBFS as costlier than UCS on seven of ten queries. Why is ``seven of ten'' more informative than the mean cost gap alone?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item The \texttt{priority} function: it returns \texttt{g} for UCS and \texttt{g + h(state)} for A$^\star$. A fourth mode would be added in \texttt{core.py} only.
+  \item So that the reported cost and the reported path can never disagree: the cost is derived from the path that is actually returned.
+  \item It breaks priority ties. Without it, \texttt{heapq} compares the states themselves, which raises \texttt{TypeError} for tuples of mixed types and, even when it works, orders equal-priority entries by name rather than by the search.
+  \item The correct answer can be worked out by hand, a failure is easy to diagnose, and the test needs no data and runs in milliseconds --- so it will actually be run.
+  \item A mean gap can be dominated by one bad query. ``Seven of ten'' says how \emph{often} GBFS is worse, which is what someone choosing an algorithm needs to know.
+\end{enumerate}
+\end{checkanswers}

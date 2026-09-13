@@ -8,9 +8,7 @@
 \end{labproject}
 
 \begin{labmode}
-\texttt{pytesseract} is only a wrapper. Live OCR requires the
-Tesseract \emph{engine}; if it is unavailable, the notebook clearly reports that it is
-using the included validated predictions instead.
+Live OCR needs the Tesseract \emph{engine}; \texttt{pytesseract} is only a wrapper. Install it with one of the commands below and restart the kernel. Without it the notebook reports \emph{cached} mode and reuses the validated predictions supplied with the course package; it never presents cached text as a live run. A live run takes about a minute.
 \begin{lstlisting}[style=aiterminal]
 winget install --id UB-Mannheim.TesseractOCR    # Windows
 sudo apt-get install tesseract-ocr              # Ubuntu / Debian
@@ -288,9 +286,3 @@ cursive recognition, which is why exact-match accuracy stays low.
 
 This is a benchmark of model--domain fit, not evidence that generic OCR suits clinical transcription. A medical system would need a handwriting-specific recogniser, representative data, external validation, privacy controls and mandatory human verification, and must never decide medication or dosage from uncertain text.
 \end{labanswer}
-
-\begin{labdeliverable}
-Submit the executed notebook, the reported OCR mode (and Tesseract version for a live run), and
-\texttt{results/lab06/}. State which OCR stage improved, which failure remained, and why
-the tested pipeline is not suitable for autonomous clinical transcription.
-\end{labdeliverable}

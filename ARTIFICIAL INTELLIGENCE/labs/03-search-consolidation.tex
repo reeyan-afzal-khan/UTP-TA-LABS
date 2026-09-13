@@ -7,12 +7,14 @@
 \textbf{Notebook.} \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}; implementation and tests are in \texttt{all\_experiments/utils/}.\\
 \end{labproject}
 
-The same package can be checked independently from a terminal:
+\begin{labmode}
+Before opening the notebook, check the package from a terminal. The unit tests need no dataset and finish in under a second; the command line reproduces the Lab~2 answer:
 \begin{lstlisting}[style=aiterminal]
 cd all_experiments
 python -m pytest utils -q
 python -m utils --algorithm astar --start KUL --goal KEF
 \end{lstlisting}
+\end{labmode}
 
 \noindent\textbf{Setup cell.}
 \begin{lstlisting}[style=aipython]
@@ -202,9 +204,3 @@ Terminal command (from all_experiments):  python -m pytest utils -q
 \end{lstlisting}
 \texttt{python -m pytest utils -q} runs the same tests from a clean checkout, which is exactly what a continuous-integration job would do. Setting up such a job is an optional extension; the required evidence is the passing local run.
 \end{labanswer}
-
-\begin{labdeliverable}
-Submit the executed notebook, \texttt{all\_experiments/utils/}, and
-\texttt{results/lab03/}. Include the passing test summary and a brief recommendation of
-the default search method for distance-based routing.
-\end{labdeliverable}

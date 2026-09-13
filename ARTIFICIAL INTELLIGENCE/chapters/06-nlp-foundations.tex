@@ -136,7 +136,7 @@ Blanks fall from 39 to 15 and CER by about $0.09$, but only one image becomes an
 
 \section{Error analysis: which stage failed?}
 
-Lab~6 sorts predictions by normalised edit distance and tags the worst cases with two failure categories:
+Lab~6 sorts predictions by normalised edit distance and tags the worst cases. It
 Lab~6 keeps all 89 samples, records any OCR-engine exception instead of dropping the image,
 and assigns each difficult case one of three reproducible labels. If Tesseract is not
 installed, the notebook identifies the run as \emph{cached} and loads the validated
@@ -169,3 +169,13 @@ The benchmark shows a poor fit between printed-text OCR and cursive handwriting,
   \item The lab's normaliser deletes spaces. Name a task for which that would be the wrong choice.
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item An engine error is a recorded runtime failure of Tesseract on that image; a blank prediction means the segmenter found no text line; \texttt{nidu} means a line was found but the recogniser misread its characters. Only the last is a recognition failure.
+  \item Delete one \texttt{r}: distance $1$. Normalised by the longer length, $1/6\approx0.17$.
+  \item Otherwise an improvement could come from the engine settings rather than from the images. A controlled experiment changes one factor at a time.
+  \item The segmentation stage improved --- many more images now yield some text --- while the recognition stage still misreads cursive, so few of those texts are exactly right.
+  \item Any task in which spacing carries meaning: distinguishing ``40 mg'' from ``4 0mg'', counting words, or matching multi-word names.
+\end{enumerate}
+\end{checkanswers}

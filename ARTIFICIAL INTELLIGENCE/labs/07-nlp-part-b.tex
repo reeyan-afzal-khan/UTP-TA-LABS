@@ -276,9 +276,3 @@ Virgin America      63     0.778     0.782
 \end{lstlisting}
 \emph{Neutral} is the weakest class (F1 about 0.56): it has the fewest distinctive words and sits between the other two. Airline-level macro F1 ranges from about 0.66 to 0.78, but these are diagnostic subgroup results, not airline ratings --- Virgin America has only 63 test tweets, and airlines differ in class mix and topics. The twelve reviewed errors are dominated by negations the bag-of-words model cannot see, questions and requests that carry little sentiment vocabulary, and retweets of one joke that different annotators labelled differently. The categories are reproducible heuristics, not replacement labels; ambiguous cases still need a human reader.
 \end{labanswer}
-
-\begin{labdeliverable}
-Submit the executed notebook and \texttt{results/lab07/}. Explain why macro F1 is the
-headline metric, name the weakest class, and propose one stronger text representation
-that could be tested without changing the evaluation protocol.
-\end{labdeliverable}

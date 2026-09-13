@@ -206,7 +206,7 @@ Report the median and spread across independent seeds, not one run or the best r
 
 \section{When is a genetic algorithm the right tool?}
 
-Least squares suits Lab~8\textquotesingle s smooth, convex, unconstrained objective. Consider a GA when the problem instead has:
+Least squares suits Lab~8\textquotesingle s smooth, convex, unconstrained objective. Consider a GA when:
 
 \begin{itemize}
   \item the objective is \textbf{non-differentiable} or only available as a black box (a simulation, a physical test rig);
@@ -216,10 +216,6 @@ Least squares suits Lab~8\textquotesingle s smooth, convex, unconstrained object
 \end{itemize}
 
 Integer coefficients, penalties on non-zero coefficients or a plateaued loss would invalidate ordinary least squares. A GA would need a revised fitness function and possibly new operators; the deliverable asks you to identify one such change.
-
-\begin{keyidea}
-Match the optimiser to the structure of the problem. Reach for an exact method when one exists; reach for a genetic algorithm when the objective is a black box, the variables are discrete, or the constraints do not fit an equation --- and then judge it over repeated seeds.
-\end{keyidea}
 
 \input{labs/08-genetic-algorithms}
 
@@ -232,3 +228,13 @@ Match the optimiser to the structure of the problem. Reach for an exact method w
   \item Ten seeds gave test RMSE within $0.002$ of each other. Why is that a stronger statement than one run that hit the OLS value exactly?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item A vector of five real numbers: the intercept and the coefficients of age, BMI, children and smoker status.
+  \item One mutation step size is used for every coefficient gene. With unstandardised inputs the same step would be huge for one coefficient and negligible for another; least squares is indifferent because it solves the problem exactly rather than searching it.
+  \item The best-so-far fitness could get worse: the best chromosome might not be selected, or might be mutated away. Elitism copies it forward unchanged, which is what makes the curve monotone.
+  \item The population contracts towards its own centre, because every child lies between two existing points. The lab counteracts this with $\alpha\in[-0.1,1.1]$ (children can land just beyond a parent) and with Gaussian mutation.
+  \item Agreement across ten independent seeds shows the algorithm \emph{reliably} finds the optimum. One exact hit could be a lucky seed and says nothing about the next run.
+\end{enumerate}
+\end{checkanswers}
