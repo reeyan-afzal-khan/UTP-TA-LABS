@@ -3,21 +3,17 @@
 
 \chapterguide%
   {\chapref{ch:supervised}, \chapref{ch:training}, and probability/odds from \chapref{ch:statistics}.}
-  {Fit and interpret logistic regression, extend it to many classes with softmax, explain how discriminant analysis reaches a linear boundary from a different direction, recognize ordered-category labels, and place the perceptron in its historical role.}
+  {interpret logistic, softmax, ordinal, and discriminant models; tune thresholds and compare linear classifiers.}
 
-Classification asks the model to choose a category. The simplest useful family of classifiers draws a straight line (in higher dimensions, a flat plane) through feature space and predicts one class on each side. This chapter covers the three classical ways to find that line: logistic regression, discriminant analysis, and the perceptron.
-
-\begin{firstread}
-Core path: logistic regression, cross-entropy, decision thresholds, and softmax regression. Ordinal labels are a useful special case. LDA and the perceptron are comparison models for a second pass rather than prerequisites for later chapters.
-\end{firstread}
+Linear classifiers separate categories with flat boundaries. Logistic regression, discriminant analysis, and the perceptron choose those boundaries differently; QDA extends discriminant analysis to curved boundaries.
 
 \section{Why not just use linear regression?}
 
-A tempting shortcut is to represent the classes as $y\in\{0,1\}$ and fit ordinary least squares. It fails in two instructive ways: the model happily predicts values like $-0.3$ or $1.7$, which cannot be probabilities, and squared error punishes the model for being \emph{too correct} --- an extremely obvious positive example far from the boundary pulls the line toward itself just as an outlier would. Classification needs an output that lives in $[0,1]$ and a loss that rewards confident correct answers.
+OLS on $0/1$ labels can predict outside $[0,1]$. Logistic regression constrains probabilities and fits them with cross-entropy.
 
 \section{From probabilities to odds to a linear model}
 
-If an event has probability $p$, its \term{odds} are $p/(1-p)$: a probability of $0.75$ means odds of $3$ (``three to one''). Odds run from $0$ to infinity, and their logarithm --- the \term{log-odds} or \term{logit} --- runs over the whole real line. Logistic regression makes one clean assumption: \emph{the log-odds are a linear function of the features},
+\term{Odds} are $p/(1-p)$: $p=0.75$ gives odds~3. Their logarithm, the \term{logit}, spans the real line. Logistic regression assumes linear log-odds:
 
 \begin{mltable}
 \begin{tabularx}{0.78\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}X X X@{}}
@@ -31,8 +27,6 @@ $90\%$ & $9:1$ & nine chances for, one against \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
-
-Logistic regression uses log-odds because an unrestricted score can then be converted into a valid probability between 0 and 1. You do not normally calculate the logarithm by hand; the library performs the conversion.
 
 \[
   \log\frac{p}{1-p}
@@ -67,10 +61,10 @@ Solving for $p$ inverts the logarithm and produces the familiar S-shaped \term{s
 \end{mlfigure}
 
 \begin{intuition}
-The sigmoid is a ``squashing'' function: it takes any score, from minus infinity to plus infinity, and gently bends it into the range $0$ to $1$ so it can be read as a probability. Scores near zero mean the model is unsure; scores far from zero mean it is confident.
+The sigmoid maps an unrestricted score to a probability. Scores near zero give probabilities near $0.5$; large magnitudes indicate confidence.
 \end{intuition}
 
-The coefficients have a crisp interpretation: increasing $x_j$ by one unit multiplies the odds by $e^{\beta_j}$. A coefficient of $0.7$ roughly doubles the odds ($e^{0.7}\approx 2.01$); a coefficient of $-0.7$ roughly halves them.
+A unit increase in $x_j$ multiplies the odds by $e^{\beta_j}$, holding other features fixed. Thus $\beta_j=0.7$ roughly doubles odds; $-0.7$ roughly halves them.
 
 \begin{workedexample}
 Suppose a pass/fail model based on hours studied has $\beta_0=-4$ and $\beta_1=0.08$.
@@ -86,20 +80,20 @@ For binary classification with predicted probability $p$, the loss for one obser
   \mathcal{L}(y,p)
   =-[y\log p+(1-y)\log(1-p)].
 \]
-When $y=1$ the loss is $-\log p$: near zero if the model was confident and right, and enormous if the model was confident and wrong. The gradient of the average loss has a strikingly simple form,
+For $y=1$, loss is $-\log p$, strongly penalizing confident errors. The average-loss gradient is
 \[
   \nabla_{\bm{\beta}}J
   =\frac{1}{n}\sum_{i=1}^{n}(p_i-y_i)\,\bm{x}_i,
 \]
-so each update is driven directly by the prediction error $p_i-y_i$. There is no closed-form solution; the parameters are found by iterative optimization such as gradient descent or Newton-type methods (\chapref{ch:training}). With the usual convex objective and an appropriate solver, optimization is not trapped by inferior local minima.
+so updates depend on $p_i-y_i$. Fit iteratively with gradient or Newton-type methods. Convexity rules out nonglobal local minima but does not guarantee a unique finite solution.
 
 \subsection{The decision boundary and the threshold}
 
-Predicting class $1$ whenever $p\geq 0.5$ is the same as predicting class $1$ whenever the score $z\geq 0$, so the boundary between the classes is the flat surface $\beta_0+\bm{\beta}^{\mathsf T}\bm{x}=0$ --- hence ``linear'' classifier. The threshold need not stay at $0.5$: when a missed positive costs more than a false alarm, a lower threshold may be appropriate; in the opposite case a higher one may be. \chapref{ch:evaluation} shows how to choose it with validation or out-of-fold predictions.
+At threshold $0.5$, class~1 means $z\ge0$, giving boundary $\beta_0+\bm{\beta}^{\mathsf T}\bm{x}=0$. Tune other thresholds on validation or out-of-fold predictions to reflect error costs (\chapref{ch:evaluation}).
 
 \subsection{Regularization}
 
-Exactly as in \chapref{ch:regression}, an $L_2$ or $L_1$ penalty on $\bm{\beta}$ controls overfitting when features are numerous or correlated. Features should usually be standardized before coefficient penalties are compared, the penalty strength is tuned on validation data, and regularization also cures a quirk of the unpenalized model: on perfectly separable data, plain logistic regression pushes its coefficients toward infinity chasing ever-more-confident probabilities.
+Use $L_1$ or $L_2$ penalties with appropriately scaled features and validation-selected strength (\chapref{ch:regression}). Regularization also prevents coefficients diverging on perfectly separable data.
 
 \section{Softmax regression for multiple classes}
 
@@ -109,14 +103,14 @@ For $K$ classes, each class $k$ receives its own weight vector, and the \term{so
   =\frac{\exp(\bm{\beta}_k^{\mathsf T}\bm{x})}
         {\sum_{j=1}^{K}\exp(\bm{\beta}_j^{\mathsf T}\bm{x})}.
 \]
-Each class's score is exponentiated (making it positive) and divided by the total (making the probabilities sum to one); the largest score wins the largest probability. Training minimizes the multiclass cross-entropy $\mathcal{L}=-\log P(Y=y\given\bm{x})$, the direct generalization of the binary loss.
+Exponentiating and normalizing preserves score order and makes probabilities sum to one. Training minimizes $\mathcal{L}=-\log P(Y=y\given\bm{x})$.
 
-A simpler alternative that works with any binary classifier is \term{one-vs-rest}: train $K$ separate binary models (``class $k$ against everything else'') and predict the class whose model is most confident.
+\term{One-vs-rest} trains $K$ binary classifiers, one class against all others, and predicts the highest-scoring class.
 
 \section{Ordered categories are not ordinary multiclass labels}
 \label{sec:ordinal-labels}
 
-Some labels are categories with a meaningful order: \emph{low $<$ medium $<$ high}, satisfaction ratings, or disease stages. This is an \term{ordinal} label. Ordinary softmax classification ignores the order, while coding the labels as $1,2,3$ and using ordinary regression invents equal numerical gaps that may not exist.
+\term{Ordinal labels} have order, such as low $<$ medium $<$ high. Softmax ignores order; numerical coding for regression assumes meaningful gaps.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}p{0.25\linewidth}X@{}}
@@ -131,44 +125,44 @@ Regression on integer codes & Use only when the numerical spacing itself is defe
 \end{tabularx}
 \end{mltable}
 
-There is no single universally appropriate model for ordinal labels. The important first-course skill is recognizing the ordered label structure and choosing an order-aware method or metric when the application requires it. Validation still decides whether that added structure improves the real task.
+Choose order-aware methods or metrics when warranted, and validate whether they help.
 
 \section{Linear discriminant analysis}
 
-Logistic regression is a \term{discriminative} model: it learns $P(y\given\bm{x})$ directly and never asks what the features of each class look like. \term{Linear discriminant analysis (LDA)} takes the opposite, \term{generative} route: model what each class's data looks like, then use Bayes' theorem to classify.
+Logistic regression is \term{discriminative}: it models $P(y\given\bm{x})$. \term{Linear discriminant analysis (LDA)} is \term{generative}: it models each class's feature distribution and applies Bayes' theorem.
 
-LDA assumes each class $k$ generates its features from a Gaussian with its own mean $\bm{\mu}_k$ but a \emph{shared} covariance matrix $\Sigma$, and that class $k$ occurs with prior probability $\pi_k$. Bayes' theorem then assigns a new point to the class with the largest \term{discriminant score}
+LDA assumes Gaussian classes with means $\bm\mu_k$, shared covariance $\Sigma$, and priors $\pi_k$. Choose the largest discriminant score:
 \[
   \delta_k(\bm{x})
   =\bm{x}^{\mathsf T}\Sigma^{-1}\bm{\mu}_k
   -\tfrac{1}{2}\bm{\mu}_k^{\mathsf T}\Sigma^{-1}\bm{\mu}_k
   +\log\pi_k.
 \]
-Every term is estimated by counting and averaging: $\pi_k$ from class frequencies, $\bm{\mu}_k$ from class means, and $\Sigma$ from pooled within-class spread. Because $\bm{x}$ enters only linearly, the boundary between any two classes is again a straight line --- LDA and logistic regression draw the same \emph{kind} of boundary, found by different reasoning.
+Estimate priors from frequencies, means within classes, and covariance from pooled within-class variation. Linear dependence on $\bm x$ gives flat boundaries.
 
 \begin{intuition}
-Picture two hills of sand of identical shape, one centered on each class's average, scaled by how common each class is. LDA classifies a new point by asking which hill stands taller at that spot. With identically shaped hills, the tie line between them is straight --- and it shifts toward the rarer class, since its hill is lower everywhere.
+With equal-shaped Gaussian class densities, the tie boundary is linear; class priors shift its position.
 \end{intuition}
 
 When to prefer which:
 
 \begin{itemize}
-  \item LDA estimates its parameters in one pass with simple formulas, so it is fast and remarkably stable on \emph{small} datasets --- when its Gaussian assumption is roughly right, it can beat logistic regression there.
+  \item LDA can be stable on small datasets when Gaussian assumptions are reasonable.
   \item Logistic regression assumes less about the features and is more robust when classes are far from Gaussian (heavy tails, strong outliers, many binary features).
-  \item LDA doubles as a supervised dimensionality-reduction method: for $K$ classes it finds up to $K-1$ directions that best separate them, a useful companion to PCA (\chapref{ch:dimred}).
+  \item LDA also finds up to $K-1$ supervised projection directions for $K$ classes (\chapref{ch:dimred}).
 \end{itemize}
 
 \term{Quadratic discriminant analysis (QDA)} drops the shared-covariance assumption and gives each class its own $\Sigma_k$. The boundaries become curved (quadratic), which is more flexible but requires estimating many more parameters --- QDA needs considerably more data per class to stay reliable.
 
 \section{The perceptron}
 
-The \term{perceptron} (1958) is the historical ancestor of this whole family. It predicts with the sign of a linear score, $\hat{y}=\operatorname{sign}(\bm{w}^{\mathsf T}\bm{x}+b)$ with $y\in\{-1,+1\}$, and learns by an appealingly simple rule: visit the training examples one at a time, and whenever one is misclassified, nudge the boundary toward it,
+The \term{perceptron} predicts $\hat y=\operatorname{sign}(\bm w^{\mathsf T}\bm x+b)$ for $y\in\{-1,+1\}$. For each misclassified example, update
 \[
   \bm{w}\leftarrow\bm{w}+\eta\,y_i\,\bm{x}_i,
   \qquad
   b\leftarrow b+\eta\,y_i.
 \]
-Correctly classified points cause no update at all. If the classes are linearly separable, the perceptron is guaranteed to find a separating boundary in finitely many mistakes; if they are not, the basic algorithm need not settle down. It outputs no probabilities, and among the many separating lines it stops at one determined by the update path. Logistic regression and the support vector machine (\chapref{ch:svm}) address these weaknesses differently --- one models probabilities, while the other maximizes a margin.
+Correct predictions cause no update. Separable data yields convergence; otherwise convergence is not guaranteed. The boundary depends on the training path and supplies no probabilities.
 
 \section{Choosing among linear classifiers}
 
@@ -187,7 +181,7 @@ Perceptron & Simplest possible trainer; historically important & No probabilitie
 \end{mltable}
 
 \begin{keyidea}
-Logistic regression, LDA, and the perceptron separate classes with flat boundaries, but choose those boundaries differently. Logistic regression maximizes the conditional likelihood; LDA models each class and applies Bayes' theorem; the perceptron nudges a line after each mistake and may not settle when classes overlap. QDA is the exception here: separate class covariances produce curved boundaries. The coming chapters add other forms of nonlinearity through neighborhoods, trees, ensembles, and kernels.
+Logistic regression fits conditional probabilities; LDA models class distributions; the perceptron updates after mistakes. All use flat boundaries, while QDA's separate covariance matrices allow curves.
 \end{keyidea}
 
 \begin{modelcard}{Linear Classifiers - Quick Guide}
@@ -203,12 +197,25 @@ Watch for & Nonlinear class structure, poorly calibrated probabilities, rare cla
 \section{Using linear classifiers in practice}
 \label{sec:logistic-practice}
 
-\subsection{Probabilities, not just labels}
-
 \subsection{Moving the threshold on purpose}
 
+One fitted model, three thresholds. These are the Titanic validation results printed in Lab~2, Part~C:
+
+\begin{mltable}
+\begin{tabularx}{0.82\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.2\linewidth}X X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Threshold & Precision & Recall & What changed \\
+\midrule
+$0.30$ & $0.64$ & $0.81$ & many passengers flagged; most survivors caught \\
+$0.50$ & $0.73$ & $0.67$ & the default \\
+$0.70$ & $0.90$ & $0.50$ & few flagged; half the survivors missed \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
 \begin{intuition}
-Read the table as a dial, not a set of separate models. It is a single trained model being asked to be more or less cautious. A cancer screening service would choose the top row and accept the false alarms. A system that automatically freezes bank accounts would choose the bottom row, because wrongly freezing an account is expensive.
+Only the cutoff changes. Lower thresholds favor recall; higher thresholds reduce alerts. Choose using costs and response capacity.
 \end{intuition}
 
 Choose the operating point from out-of-fold predictions and a stated cost or capacity constraint. Then refit the model on all training data and assess that locked rule on the test set once.
@@ -216,7 +223,7 @@ Choose the operating point from out-of-fold predictions and a stated cost or cap
 \subsection{Reading the coefficients}
 
 \begin{workedexample}
-Suppose the coefficient for ``hours studied'' is $0.62$. Then $e^{0.62}\approx 1.86$. Interpretation: each extra hour of study multiplies the \emph{odds} of passing by about 1.86 --- roughly an 86\% increase in the odds, holding the other features fixed. Note that this is odds, not probability; the effect on probability depends on where you started.
+For an ``hours studied'' coefficient of $0.62$, each extra hour multiplies passing odds by $e^{0.62}\approx1.86$, holding other features fixed. The probability increase depends on the starting probability.
 \end{workedexample}
 
 \subsection{More than two classes}
@@ -242,11 +249,11 @@ Suppose the coefficient for ``hours studied'' is $0.62$. Then $e^{0.62}\approx 1
 \end{mlfigure}
 
 \begin{keyidea}
-Softmax is the sigmoid's multi-class cousin. It takes one raw score per class, makes them all positive by exponentiating, and then divides by the total so the results form a genuine probability distribution. The largest score always becomes the largest probability, but softmax also tells you \emph{how much} larger.
+Softmax preserves score order while normalizing exponentials to a probability distribution.
 \end{keyidea}
 
 \begin{tryit}
-Fit a logistic regression, obtain out-of-fold probabilities on the training data, then sweep the threshold from 0.05 to 0.95 in steps of 0.05, recording precision and recall at each point. Plot recall on the $x$-axis against precision on the $y$-axis. You have just drawn a precision-recall curve by hand, as introduced in \chapref{ch:evaluation}, without using the test set.
+Fit logistic regression and obtain out-of-fold training probabilities. Sweep thresholds from 0.05 to 0.95 in steps of 0.05; plot precision against recall without using test data.
 \end{tryit}
 
 \begin{debugtask}
@@ -257,6 +264,7 @@ A teammate lowers the probability threshold until test-set recall reaches the de
 For a rare positive class, choose between an unweighted logistic model, class weighting, and a lower decision threshold. State which quantity each intervention changes, which validation metric you would inspect, and why the three options are not interchangeable.
 \end{decisionmemo}
 
+\input{labs/02-supervised-workflow}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -265,13 +273,3 @@ For a rare positive class, choose between an unweighted logistic model, class we
   \item What changes when binary logistic regression is extended to a multiclass softmax model?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Logistic regression turns a linear score into a probability with the sigmoid function.
-  \item The decision threshold converts a probability into a class and can be changed to match error costs.
-  \item Cross-entropy strongly penalizes confident wrong predictions.
-  \item Softmax regression extends the idea to multiple classes.
-  \item LDA uses a probability model for each class; the perceptron learns a separating boundary but not probabilities.
-\end{itemize}
-\end{chapterrecap}

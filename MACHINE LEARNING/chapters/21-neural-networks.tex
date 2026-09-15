@@ -1,0 +1,197 @@
+\chapter{Neural Networks, CNNs, and Sequence Models}
+\label{ch:deep}
+
+\chapterguide%
+  {Logistic regression from \chapref{ch:classification}, gradient descent from \chapref{ch:learning}, overfitting and validation from \chapref{ch:training}.}
+  {explain layers, training, CNNs, and recurrent models; validate networks against simpler baselines.}
+
+Neural networks combine weighted layers with nonlinear activations. CNNs suit image grids; recurrent models suit sequences. Keep the same split--fit--validate--test workflow.
+
+\section{From logistic regression to a neural network}
+
+A \term{layer} computes weighted sums, applies nonlinear \term{activations}, and passes outputs onward. Use a logistic/softmax output for classification or a linear output for regression.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  n/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{MLNavy}},
+  h/.style={circle,draw=MLTeal,fill=MLPaleTeal,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{MLNavy}},
+  o/.style={circle,draw=MLOrange,fill=MLPaleOrange,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{MLNavy}},
+  e/.style={draw=MLMuted!55,thin}
+]
+\foreach \i/\y in {1/1.6,2/0.8,3/0,4/-0.8} \node[n] (x\i) at (0,\y) {$x_\i$};
+\foreach \j/\y in {1/1.6,2/0.8,3/0,4/-0.8,5/-1.6} \node[h] (h\j) at (2.6,\y) {};
+\foreach \k/\y in {1/0.8,2/0,3/-0.8} \node[h] (g\k) at (5.2,\y) {};
+\node[o] (out) at (7.8,0) {$\hat{y}$};
+\foreach \i in {1,...,4} \foreach \j in {1,...,5} \draw[e] (x\i) -- (h\j);
+\foreach \j in {1,...,5} \foreach \k in {1,...,3} \draw[e] (h\j) -- (g\k);
+\foreach \k in {1,...,3} \draw[e] (g\k) -- (out);
+\node[font=\scriptsize\color{MLMuted}] at (0,-1.6) {inputs};
+\node[font=\scriptsize\color{MLMuted},align=center] at (2.6,-2.4) {hidden layer 1\\(5 weighted sums, each\\passed through ReLU)};
+\node[font=\scriptsize\color{MLMuted}] at (5.2,-1.6) {hidden layer 2};
+\node[font=\scriptsize\color{MLMuted}] at (7.8,-1.0) {output};
+\end{tikzpicture}
+\end{mlfigure}
+
+\term{ReLU}, $\max(0,z)$, retains positive inputs and zeros negative ones. Without nonlinear activations, stacked linear layers collapse to one linear map.
+
+\begin{workedexample}
+Take two inputs $x=(2,1)$, a hidden layer with two units and weights $w_1=(1,-1)$, $w_2=(0.5,0.5)$, no biases, and ReLU. The two sums are $2-1=1$ and $1+0.5=1.5$; ReLU leaves both as they are. An output unit with weights $(1,-2)$ then gives $1-3=-2$; through a sigmoid that is a probability of about $0.12$. Change $x$ to $(1,2)$: the first sum becomes $-1$, ReLU sets it to $0$, and the output becomes $0-3=-3$. The zero is the non-linearity at work: the network can behave differently on the two sides of the line $x_1=x_2$, which no single linear model can do.
+\end{workedexample}
+
+\begin{intuition}
+Hidden units create nonlinear features; later layers combine them into richer decision boundaries.
+\end{intuition}
+
+\section{How a network is trained}
+
+Train by gradient-based optimization (\secref{sec:gradient-descent}):
+
+\begin{mlsteps}
+  \item \term{Forward pass.} Predict a minibatch and compute classification cross-entropy or regression squared loss.
+  \item \term{Backward pass.} Backpropagation applies the chain rule to compute every weight's gradient.
+  \item \term{Update.} An optimizer uses those gradients; the learning rate controls step size. The labs use Adam.
+  \item \term{Repeat.} One pass through training batches is an \term{epoch}. Record validation performance each epoch.
+\end{mlsteps}
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}\ttfamily}p{0.2\linewidth}p{0.18\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+\normalfont\bfseries\leavevmode\color{MLNavy}Setting & \normalfont\bfseries\leavevmode\color{MLNavy}Typical value & \normalfont\bfseries\leavevmode\color{MLNavy}What raising it does \\
+\midrule
+learning rate & 0.001--0.01 & Bigger steps: faster at first, unstable if too big \\
+batch size & 32--128 & Smoother gradients, fewer updates per epoch \\
+epochs & 10--50 & More passes; watch validation, not training \\
+hidden units & 32--256 & More capacity; more risk of memorising \\
+dropout & 0.1--0.5 & Randomly silences units during training; a regularizer \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Monitor overfitting (\chapref{ch:training}). \term{Early stopping} retains the best validation weights; \term{dropout} randomly disables units during training.
+
+\begin{keyidea}
+Extra capacity makes validation and a one-time final test more important, not less.
+\end{keyidea}
+
+\begin{pitfall}
+Scale inputs before training and save any training-fitted scaling statistics.
+\end{pitfall}
+
+\section{Convolutional networks for images}
+
+A \term{convolutional layer} slides learned local \term{filters} across an image. Each weighted response forms part of a \term{feature map}.
+
+\begin{mlfigure}
+\begin{tikzpicture}[font=\scriptsize]
+% image grid
+\foreach \i in {0,...,5} \foreach \j in {0,...,5} \draw[MLMuted!50] (\j*0.5,-\i*0.5) rectangle ++(0.5,-0.5);
+\fill[MLPaleBlue,opacity=0.7] (0.5,-0.5) rectangle (2.0,-2.0);
+\draw[MLBlue,very thick] (0.5,-0.5) rectangle (2.0,-2.0);
+\node[font=\small\bfseries\color{MLNavy}] at (1.5,0.35) {image $8\times8$};
+\node[color=MLBlue] at (1.25,-1.25) {$3\times3$};
+\draw[-{Stealth[length=1.6mm]},MLBlue,thick] (2.05,-1.25) -- (2.55,-1.25);
+\draw[-{Stealth[length=1.6mm]},MLBlue,thick] (1.25,-2.05) -- (1.25,-2.55);
+% filter
+\begin{scope}[xshift=4.2cm]
+\foreach \i in {0,...,2} \foreach \j in {0,...,2} \draw[MLMuted!60] (\j*0.5,-\i*0.5) rectangle ++(0.5,-0.5);
+\node at (0.25,-0.25) {$-1$}; \node at (0.75,-0.25) {$0$}; \node at (1.25,-0.25) {$1$};
+\node at (0.25,-0.75) {$-1$}; \node at (0.75,-0.75) {$0$}; \node at (1.25,-0.75) {$1$};
+\node at (0.25,-1.25) {$-1$}; \node at (0.75,-1.25) {$0$}; \node at (1.25,-1.25) {$1$};
+\node[font=\small\bfseries\color{MLNavy}] at (0.75,0.35) {one filter};
+\node[color=MLMuted,align=center] at (0.75,-2.05) {this one responds\\to vertical edges};
+\end{scope}
+% feature map
+\begin{scope}[xshift=7.4cm]
+\foreach \i in {0,...,5} \foreach \j in {0,...,5} \draw[MLMuted!50] (\j*0.5,-\i*0.5) rectangle ++(0.5,-0.5);
+\fill[MLTeal!70] (1.0,-0.5) rectangle (1.5,-3.0);
+\fill[MLTeal!35] (1.5,-0.5) rectangle (2.0,-3.0);
+\node[font=\small\bfseries\color{MLNavy}] at (1.5,0.35) {feature map};
+\node[color=MLMuted,align=center] at (1.5,-3.4) {bright where the\\pattern occurs};
+\end{scope}
+\draw[-{Stealth[length=2mm]},MLTeal,thick] (3.1,-1.5) -- (4.1,-1.5);
+\draw[-{Stealth[length=2mm]},MLTeal,thick] (6.0,-1.5) -- (7.3,-1.5);
+\end{tikzpicture}
+\end{mlfigure}
+
+Filters share weights across locations. \term{Max pooling} retains maxima within blocks, reducing spatial size. A small CNN repeats convolution--ReLU--pooling, then flattens maps into a dense classifier.
+
+\begin{workedexample}
+Lab~7 uses 16 then 32 filters on $8\times8$ digits. Two pooling stages leave $2\times2$ maps: $32\times2\times2=128$ values feed the ten-class classifier. The network trains on a CPU.
+\end{workedexample}
+
+\begin{intuition}
+Training learns filters that reduce loss, rather than relying on hand-specified edges or shapes.
+\end{intuition}
+
+\section{Sequence models: RNNs and LSTMs}
+
+A \term{recurrent network} processes ordered inputs using a \term{hidden state}. Each step combines the new input with the previous state; the resulting state supports prediction.
+
+\begin{mlfigure}
+\begin{tikzpicture}[
+  cell/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,minimum height=0.9cm,font=\scriptsize\bfseries\color{MLNavy}},
+  inp/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.2mm,minimum width=1.2cm,minimum height=0.6cm,font=\scriptsize\color{MLNavy}},
+  outp/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.2mm,minimum width=1.5cm,minimum height=0.6cm,font=\scriptsize\color{MLNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+]
+\foreach \t/\x in {1/0,2/2.4,3/4.8,24/8.4} {
+  \node[cell] (c\t) at (\x,0) {LSTM};
+  \node[inp] (i\t) at (\x,-1.4) {$x_{\t}$};
+  \draw[arr] (i\t) -- (c\t);
+}
+\node[font=\Large\color{MLMuted}] at (6.6,0) {$\cdots$};
+\draw[arr] (c1) -- node[above,font=\scriptsize\color{MLMuted}] {state} (c2);
+\draw[arr] (c2) -- node[above,font=\scriptsize\color{MLMuted}] {state} (c3);
+\draw[arr] (c3) -- (6.1,0);
+\draw[arr] (7.1,0) -- (c24);
+\node[outp] (o) at (8.4,1.5) {$\hat{y}_{25}$};
+\draw[arr] (c24) -- (o);
+\node[font=\scriptsize\color{MLMuted},align=center] at (4.2,-2.3) {24 hourly demand values go in, one step at a time; the same cell (same weights) is used at every step;\\the final state predicts the next hour};
+\end{tikzpicture}
+\end{mlfigure}
+
+An \term{LSTM} adds a memory cell and learned forget, input, and output gates. These control what to retain, write, and expose, helping preserve longer-term dependencies.
+
+Lab~8 predicts hour $t$ from the previous 24 demand values. Sliding windows form supervised rows; split chronologically to prevent future leakage.
+
+\begin{pitfall}
+Compare against last-value and same-hour-yesterday forecasts. Keep the network only if its validated gain justifies its cost.
+\end{pitfall}
+
+\section{Practical notes}
+
+\begin{itemize}
+  \item \term{Set the seed} (\texttt{torch.manual\_seed}) and expect small run-to-run differences anyway; training is stochastic.
+  \item \term{Scale inputs} using training data only; save the fitted scaling.
+  \item \term{Save weights} with \texttt{torch.save(model.state\_dict(), path)}. Include the architecture and model card needed to reload them.
+  \item \term{Windows OpenMP conflicts:} duplicate runtimes may trigger ``OMP: Error \#15''. Check the environment setup before rerunning.
+  \item \term{A CPU suffices} for these labs; larger workloads may benefit from a GPU.
+  \item \term{Keep classical baselines.} Compare neural models with boosting on tables and simpler predictors on images or sequences.
+\end{itemize}
+
+\begin{modelcard}{Neural Networks - Quick Guide}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+Best when & Inputs are images, sequences, or text; there is plenty of data; useful features are hard to write by hand. \cr
+Start with & A small dense network as the reference, then a CNN for grids or an LSTM for sequences; always beside a classical baseline. \cr
+Preprocessing & Scale inputs to a small range using training data; window a time series; split chronologically when rows overlap in time. \cr
+Main controls & Learning rate, epochs (with early stopping), batch size, layer sizes, dropout. \cr
+Watch for & Memorising the training set, unscaled inputs, run-to-run variation, and a baseline that was never beaten. \cr
+\end{tabularx}
+\end{modelcard}
+
+\begin{libnote}
+Labs~7--8 use \lib{PyTorch} tensors, \texttt{nn.Sequential}, and explicit training loops. \lib{Keras} instead offers a higher-level \texttt{model.fit} interface.
+\end{libnote}
+
+\input{labs/07-deep-learning-cnn}
+
+\input{labs/08-deep-learning-lstm}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does a network with two linear layers and no activation function have no more power than one linear layer?
+  \item What does a convolutional filter share across the image, and why does that reduce the number of weights?
+  \item Why must the rows built from a windowed time series be split chronologically rather than at random?
+\end{enumerate}
+\end{quickcheck}

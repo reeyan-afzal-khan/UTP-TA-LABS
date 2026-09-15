@@ -1,0 +1,252 @@
+\labsection{7}{Deep learning I: a first neural network and a CNN for images}{sec:lab07-cnn}
+
+\begin{labproject}{Train a dense network and a convolutional network on the handwritten digits}
+\textbf{Goal.} Build tensors, train dense/CNN models, compare Lab~4's baseline, inspect errors and filters, and save weights with a card.
+
+\medskip\noindent\textbf{Setup.}\par
+\begin{lstlisting}[style=mlpython]
+import json
+import os
+import zipfile
+from pathlib import Path
+
+# Anaconda's NumPy and pip's PyTorch each ship an OpenMP runtime on Windows; let them coexist.
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import torch
+from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
+from torch import nn
+
+torch.manual_seed(42)
+PROJECT_ROOT = Path.cwd().parent
+DATA = PROJECT_ROOT / "all_datasets"
+MODELS = PROJECT_ROOT / "models"
+MODELS.mkdir(exist_ok=True)
+print("PyTorch", torch.__version__, "| device: cpu")
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part A --- Images as tensors.}\par
+
+Reshape 64-pixel digits to $1\times8\times8$ and divide brightnesses by 16. CNN tensors use (batch, channels, height, width). Reserve one-quarter of training rows for validation and the official test file for final evaluation.
+
+\begin{lstlisting}[style=mlpython]
+columns = [f"pixel_{i}" for i in range(64)] + ["label"]
+with zipfile.ZipFile(DATA / "optical_recognition_handwritten_digits.zip") as archive:
+    members = {Path(name).name: name for name in archive.namelist()}
+    train = pd.read_csv(archive.open(members["optdigits.tra"]), header=None, names=columns)
+    test = pd.read_csv(archive.open(members["optdigits.tes"]), header=None, names=columns)
+
+def to_tensors(frame):
+    X = torch.tensor(frame.drop(columns="label").to_numpy(), dtype=torch.float32)
+    X = X.reshape(-1, 1, 8, 8) / 16.0            # (rows, channels, height, width), values in [0, 1]
+    y = torch.tensor(frame["label"].to_numpy(), dtype=torch.long)
+    return X, y
+
+X_dev, y_dev = to_tensors(train)
+X_test, y_test = to_tensors(test)
+perm = torch.randperm(len(X_dev), generator=torch.Generator().manual_seed(42))
+n_val = len(X_dev) // 4
+X_val, y_val = X_dev[perm[:n_val]], y_dev[perm[:n_val]]
+X_fit, y_fit = X_dev[perm[n_val:]], y_dev[perm[n_val:]]
+print("fit:", X_fit.shape, " validation:", X_val.shape, " test:", X_test.shape)
+
+fig, axes = plt.subplots(1, 10, figsize=(10, 1.4))
+for ax, image, label in zip(axes, X_fit[:10], y_fit[:10]):
+    ax.imshow(image[0], cmap="gray_r")
+    ax.set_title(int(label), fontsize=9)
+    ax.axis("off")
+plt.suptitle("Ten training digits as the network sees them", y=1.05)
+plt.show()
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part B --- A first neural network and the training loop.}\par
+
+The dense model maps 64 pixels through 128 ReLU units to ten scores. Logistic regression is the no-hidden-layer baseline.
+
+\begin{lstlisting}[style=mlpython]
+def make_mlp():
+    return nn.Sequential(
+        nn.Flatten(),                 # 1 x 8 x 8  ->  64
+        nn.Linear(64, 128), nn.ReLU(),
+        nn.Linear(128, 10),           # ten class scores
+    )
+
+mlp = make_mlp()
+print(mlp)
+print("trainable weights:", sum(p.numel() for p in mlp.parameters()))
+\end{lstlisting}
+
+Each epoch shuffles rows into batches of 32. Compute scores, cross-entropy, gradients via \texttt{backward()}, and optimizer updates; record training/validation accuracy.
+
+\begin{lstlisting}[style=mlpython]
+def accuracy(model, X, y):
+    model.eval()
+    with torch.no_grad():
+        return (model(X).argmax(dim=1) == y).float().mean().item()
+
+def train_classifier(model, X, y, X_v, y_v, epochs=20, lr=3e-3, batch_size=32):
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
+    history = {"train": [], "validation": []}
+    for epoch in range(epochs):
+        model.train()
+        order = torch.randperm(len(X))
+        for start in range(0, len(X), batch_size):
+            batch = order[start:start + batch_size]
+            optimizer.zero_grad()                    # forget the previous gradients
+            loss = loss_fn(model(X[batch]), y[batch])
+            loss.backward()                          # backpropagation: gradient for every weight
+            optimizer.step()                         # move every weight a small step
+        history["train"].append(accuracy(model, X, y))
+        history["validation"].append(accuracy(model, X_v, y_v))
+    return history
+
+torch.manual_seed(42)
+mlp_history = train_classifier(mlp, X_fit, y_fit, X_val, y_val)
+print("dense network: validation accuracy =", round(mlp_history["validation"][-1], 4))
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+def plot_history(history, title):
+    plt.figure(figsize=(5.5, 3.4))
+    plt.plot(range(1, len(history["train"]) + 1), history["train"], marker="o", label="training")
+    plt.plot(range(1, len(history["validation"]) + 1), history["validation"],
+             marker="o", label="validation")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title(title)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+plot_history(mlp_history, "Dense network: accuracy per epoch")
+\end{lstlisting}
+
+\textbf{Inspect.} Training accuracy rises while validation plateaus. If validation falls, retain an earlier validated epoch.
+
+\medskip\noindent\textbf{Part C --- A convolutional network.}\par
+
+The CNN applies 16 then 32 filters, pooling after each stage, followed by flattening and dense classification. Print intermediate shapes.
+
+\begin{lstlisting}[style=mlpython]
+def make_cnn():
+    return nn.Sequential(
+        nn.Conv2d(1, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),   # 16 x 4 x 4
+        nn.Conv2d(16, 32, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),  # 32 x 2 x 2
+        nn.Flatten(),                                                             # 128
+        nn.Linear(32 * 2 * 2, 64), nn.ReLU(), nn.Dropout(0.2),
+        nn.Linear(64, 10),
+    )
+
+cnn = make_cnn()
+print("trainable weights:", sum(p.numel() for p in cnn.parameters()))
+sample = X_fit[:1]
+for layer in cnn:
+    sample = layer(sample)
+    if isinstance(layer, (nn.Conv2d, nn.MaxPool2d, nn.Flatten, nn.Linear)):
+        print(f"{layer.__class__.__name__:10s} -> {tuple(sample.shape[1:])}")
+\end{lstlisting}
+
+The same loop trains it; nothing else changes.
+
+\begin{lstlisting}[style=mlpython]
+torch.manual_seed(42)
+cnn_history = train_classifier(cnn, X_fit, y_fit, X_val, y_val)
+print("CNN: validation accuracy =", round(cnn_history["validation"][-1], 4))
+plot_history(cnn_history, "CNN: accuracy per epoch")
+\end{lstlisting}
+
+Now the official test file, opened once for each model. The third number is the PCA-plus-logistic result from Lab~4 on the same file.
+
+\begin{lstlisting}[style=mlpython]
+test_scores = {
+    "logistic on PCA (Lab 4)": 0.9477,
+    "dense network": accuracy(mlp, X_test, y_test),
+    "CNN": accuracy(cnn, X_test, y_test),
+}
+for name, value in test_scores.items():
+    print(f"{name:26s} test accuracy = {value:.4f}")
+
+plt.figure(figsize=(5, 3.2))
+plt.bar(list(test_scores), list(test_scores.values()))
+plt.ylim(0.9, 1.0)
+plt.ylabel("Official test accuracy")
+plt.title("Three models, one test file")
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\textbf{Inspect.} Compare gains across linear, dense, and convolutional models on 1,797 test digits. CNN filters reuse learned patterns across locations.
+
+Inspect the test confusion matrix and misclassified images.
+
+\begin{lstlisting}[style=mlpython]
+cnn.eval()
+with torch.no_grad():
+    test_pred = cnn(X_test).argmax(dim=1)
+
+ConfusionMatrixDisplay.from_predictions(y_test.numpy(), test_pred.numpy(), colorbar=False)
+plt.title("CNN confusion matrix on the official test file")
+plt.tight_layout()
+plt.show()
+
+wrong = torch.nonzero(test_pred != y_test).flatten()[:10]
+fig, axes = plt.subplots(1, len(wrong), figsize=(10, 1.6))
+for ax, i in zip(axes, wrong):
+    ax.imshow(X_test[i, 0], cmap="gray_r")
+    ax.set_title(f"{int(y_test[i])} read as {int(test_pred[i])}", fontsize=8)
+    ax.axis("off")
+plt.suptitle("Ten of the CNN's mistakes", y=1.1)
+plt.show()
+\end{lstlisting}
+
+\textbf{Inspect.} Check 8/1, 9/5, and 3/8 confusions. Examine images before attributing errors to ambiguity or systematic bias.
+
+Visualize the sixteen first-layer $3\times3$ filters.
+
+\begin{lstlisting}[style=mlpython]
+filters = cnn[0].weight.detach()[:, 0]
+fig, axes = plt.subplots(2, 8, figsize=(8, 2.4))
+for ax, kernel in zip(axes.flat, filters):
+    ax.imshow(kernel, cmap="coolwarm", vmin=-filters.abs().max(), vmax=filters.abs().max())
+    ax.axis("off")
+plt.suptitle("The sixteen 3x3 filters of the first convolutional layer", y=1.02)
+plt.show()
+\end{lstlisting}
+
+\textbf{Inspect.} Bright/dark filter contrasts can detect oriented edges learned through loss minimization.
+
+\medskip\noindent\textbf{Part D --- Save the weights with a card.}\par
+
+\texttt{torch.save} writes the learned weights (the \emph{state dict}) to a file. Loading them requires building the same architecture first, which is why \texttt{make\_cnn} and the model card belong beside the file. The reloaded model is checked against the in-memory one before the file is trusted.
+
+\begin{lstlisting}[style=mlpython]
+weights_path = MODELS / "digits_cnn.pt"
+torch.save(cnn.state_dict(), weights_path)
+
+card = {
+    "task": "classify 8x8 handwritten digits (0-9)",
+    "input": "tensor of shape (n, 1, 8, 8), pixel values divided by 16",
+    "architecture": "make_cnn() in Lab 7: conv16-pool-conv32-pool-dense64-dense10",
+    "training": {"epochs": 20, "learning_rate": 3e-3, "batch_size": 32, "seed": 42},
+    "official_test_accuracy": round(test_scores["CNN"], 4),
+    "torch_version": torch.__version__,
+}
+(MODELS / "digits_cnn_card.json").write_text(json.dumps(card, indent=2))
+
+restored = make_cnn()
+restored.load_state_dict(torch.load(weights_path))
+restored.eval()
+with torch.no_grad():
+    same = torch.equal(restored(X_test).argmax(dim=1), test_pred)
+size_kb = weights_path.stat().st_size / 1024
+print(f"saved {weights_path.name} ({size_kb:.0f} KB); reload reproduces predictions: {same}")
+\end{lstlisting}
+
+\begin{tryit}
+Compare 5 versus 40 epochs using validation curves. Remove the second convolution/ReLU/pooling block, adjust flattening to $16\times4\times4$, and assess its contribution.
+\end{tryit}
+\end{labproject}

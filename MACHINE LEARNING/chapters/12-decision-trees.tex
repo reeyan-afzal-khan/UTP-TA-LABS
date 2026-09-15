@@ -3,13 +3,9 @@
 
 \chapterguide%
   {\chapref{ch:training} plus basic probability from \chapref{ch:statistics}; entropy is helpful but re-explained here.}
-  {Grow a classification tree by hand using Gini impurity and information gain, build regression trees with variance reduction, and control tree size with stopping rules and pruning.}
+  {choose tree splits, interpret paths, control growth, prune, and assess feature importance.}
 
-A decision tree predicts by asking a sequence of simple questions --- ``Is age below 30?'' and ``Is income at least 50{,}000?'' --- and routing each observation down the branches until it reaches a \term{leaf}, which holds the prediction. Small trees are among the most human-readable models: their learned rules can be printed, drawn, and discussed. Trees are also the building blocks of random forests and gradient boosting (\chapref{ch:ensembles}), two strong families for tabular data.
-
-\begin{firstread}
-A decision tree is a flowchart learned from examples. Training chooses questions that separate the known answers well. Prediction follows one path of yes/no answers to a final box. \term{Impurity} is only a score for how mixed the answers remain in a box.
-\end{firstread}
+A decision tree routes observations through questions such as ``age below 30?'' to a \term{leaf} prediction. Small trees are readable; forests and boosting combine trees into stronger models (\chapref{ch:ensembles}).
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -33,17 +29,13 @@ A decision tree is a flowchart learned from examples. Training chooses questions
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{intuition}
-A decision tree is a flowchart of yes/no questions, like the game ``twenty questions.'' Training is simply the process of discovering which question to ask first, second, and third so that each question splits the data as cleanly as possible.
-\end{intuition}
-
 \section{How a tree is grown}
 \label{sec:decision-tree}
 
 Standard tree learning (the CART algorithm) is \term{greedy and recursive}:
 
 \begin{enumerate}
-  \item At the current node, consider candidate splits: for a numerical feature, thresholds between sorted values; for categorical features, the available split rules depend on the tree formulation and representation.
+  \item At the current node, consider candidate splits: for a numerical feature, thresholds between sorted values; for categorical features, the rules depend on the implementation; scikit-learn expects them one-hot encoded, which is what Lab~3 does.
   \item Score each candidate by how much it \emph{purifies} the data --- how well it separates the classes (or, for regression, how much it shrinks the spread of the label).
   \item Apply the best split, sending observations left and right.
   \item Repeat on each child until a stopping rule fires; each final node becomes a leaf that predicts its majority class (classification) or mean label (regression).
@@ -89,12 +81,12 @@ $G_{\text{parent}}=1-(0.6^2+0.4^2)=0.48$.
 
 \section{Finding the best split}
 
-The split search follows the verbal rule from earlier in the chapter: examine candidate features and thresholds, compute the weighted impurity after each split, and keep the candidate with the largest impurity reduction.
+Evaluate candidate feature thresholds and choose the largest weighted impurity reduction.
 
-Consider six one-dimensional observations where the classes separate cleanly. If one threshold places every class-$0$ point on one side and every class-$1$ point on the other, both children have zero impurity. The information gain is therefore equal to the parent impurity, which is the largest possible gain for that node.
+If a threshold perfectly separates two classes, child impurity is zero and gain equals parent impurity.
 
 \begin{libnote}
-Different tree formulations may report an observed boundary value or the midpoint between two adjacent observed values. If both thresholds send all training observations to the same children, the fitted partition is identical even though the printed threshold differs. Midpoint thresholds are often convenient because they define a boundary between observations rather than directly on one observation.
+Observed-value and midpoint thresholds can partition training rows identically despite different printed values.
 \end{libnote}
 
 \section{The geometry: rectangles in feature space}
@@ -115,21 +107,21 @@ Because every question compares one feature to one threshold, a tree carves feat
 \end{tikzpicture}
 \end{mlfigure}
 
-This geometry explains both a strength and a weakness: boundaries that align with the axes (rules, thresholds, interactions of a few features) are captured perfectly, while a simple diagonal boundary must be approximated by a staircase of many small splits.
+Axis-aligned rules fit naturally; diagonal boundaries require staircases of splits.
 
 \section{Regression trees}
 
-For a numerical label, impurity becomes the spread of $y$ within a node --- its variance (equivalently, the mean squared error around the node mean) --- and a split is chosen to reduce it the most. Each leaf predicts the mean label of its training observations, so the fitted function is piecewise constant.
+Regression trees choose splits that reduce within-node variance. Each leaf predicts its training-label mean, producing a piecewise-constant function.
 
 \begin{workedexample}
-A node holds labels $y=\{2,3,10,11\}$ with mean $6.5$ and variance $16.25$. Splitting into $\{2,3\}$ and $\{10,11\}$ gives children with means $2.5$ and $10.5$ and variance $0.25$ each --- a weighted variance of $0.25$. The split explains almost all the spread, and the two leaves predict $2.5$ and $10.5$.
+Labels $\{2,3,10,11\}$ have mean $6.5$ and variance $16.25$. Splitting into $\{2,3\}$ and $\{10,11\}$ reduces weighted variance to $0.25$; leaves predict $2.5$ and $10.5$.
 \end{workedexample}
 
-One consequence deserves a warning label: a regression tree can never predict a value outside the range of its training labels. Asked about a house larger than any it has seen, it predicts the mean of its largest-house leaf --- trees do not extrapolate.
+Leaf means stay within the training-label range: ordinary regression trees do not extrapolate beyond observed labels.
 
 \section{Stopping and pruning}
 
-An unrestricted tree keeps splitting until every leaf is pure --- typically one training observation per leaf, which is memorization, not learning. Two complementary defenses:
+Unrestricted growth can produce pure leaves and memorize observations. Use two complementary controls:
 
 \begin{mltable}
 \renewcommand{\arraystretch}{1.16}
@@ -147,7 +139,7 @@ Post-pruning & Grow a deliberately large tree first, then cut back branches whos
 
 \section{Depth: the dial between too simple and memorized}
 
-This section applies the bias--variance framework from \secref{sec:bias-variance} to one tree-specific control: depth. The framework itself is not re-derived here.
+Tree depth controls the bias--variance trade-off from \secref{sec:bias-variance}.
 
 \begin{mlfigure}
 \begin{tikzpicture}
@@ -191,18 +183,24 @@ class\_weight & Make rare-class rows count for more. \\
 
 \subsection{Cost-complexity pruning, properly}
 
+Grow the tree until every leaf is pure or tiny. Then define, for a penalty $\alpha\ge0$, the score
+\[
+  \text{(training impurity of the subtree)}+\alpha\times\text{(number of leaves)}.
+\]
+Increasing $\alpha$ trades fit for fewer leaves along a nested pruning path. Cross-validate \texttt{ccp\_alpha}; unlike a uniform depth limit, pruning retains detail where useful.
+
 \section{Strengths, limitations, and practical notes}
 
 \begin{itemize}
   \item \term{Interpretability:} the model \emph{is} an explanation; individual predictions can be justified by reading off the path.
-  \item \term{Low preprocessing:} numerical splits depend only on value order, so trees need no feature scaling. Category and missing-value support is implementation-specific, so the representation must match the chosen tree formulation.
+  \item \term{Preprocessing:} numerical trees need no scaling; categorical and missing-value handling depends on the implementation.
   \item \term{Nonlinearity for free:} interactions and thresholds emerge automatically, with no feature engineering.
-  \item \term{Instability:} a small change in the training data can produce a substantially different tree, because one changed early split reroutes everything below it. Single trees are therefore high-variance models --- the direct motivation for the ensembles of \chapref{ch:ensembles}.
+  \item \term{Instability:} small data changes can alter early splits and whole subtrees, motivating the ensembles in \chapref{ch:ensembles}.
   \item \term{Feature importance:} use the interpretation and bias cautions in \secref{sec:tree-feature-importance}.
 \end{itemize}
 
 \begin{keyidea}
-A decision tree converts learning into a sequence of best-question choices, scored by impurity reduction. Its readable rules and zero-fuss data handling make it the friendliest nonlinear model --- and its instability makes it the perfect raw material for ensembles, where many imperfect trees are combined into one accurate, stable predictor.
+Trees learn readable nonlinear rules through impurity reduction. Their instability also makes them useful base learners for ensembles.
 \end{keyidea}
 
 \begin{modelcard}{Decision Trees - Quick Guide}
@@ -217,18 +215,23 @@ Watch for & High variance, unstable splits, misleading feature importance, and b
 
 \section{Interpreting a fitted tree}
 
-A decision tree is one of the very few models you can print out and check by eye. Take advantage of that.
+Inspect paths and leaf counts. Lab~3's Titanic tree splits first on \texttt{Sex}, then \texttt{Age} for men and \texttt{Pclass} for women.
 
 \begin{keyidea}
-That is the fitted decision rule itself, not a post-hoc approximation. A small tree is unusually easy to inspect among nonlinear models, which helps explain its popularity in rule-oriented settings. Inspection alone does not make a model fair, causal, stable, or suitable for a high-stakes decision; those claims require separate evidence and governance.
+The printed paths are the model's actual rules, not a post-hoc approximation. Readability alone does not establish fairness, causality, stability, or safety.
 \end{keyidea}
 
 \section{Feature importance, and why to distrust it}
 \label{sec:tree-feature-importance}
 
-\begin{workedexample}
-Permutation importance works by an elegant trick: shuffle one column at random, destroying its relationship with the label, and measure how much the score drops. If shuffling ``age'' costs three points of accuracy and shuffling ``customer ID'' costs nothing, then age was genuinely being used and the ID was not.
-\end{workedexample}
+\term{Impurity importance} sums a feature's impurity reductions. Two cautions:
+
+\begin{itemize}
+  \item Many candidate thresholds can inflate importance, favoring continuous features over binary ones.
+  \item Correlated features can substitute for one another, making importance unstable.
+\end{itemize}
+
+\term{Permutation importance} is the safer alternative: shuffle one feature's values in the validation data and measure how much the score drops. A large drop means this fitted model relied on that column. It is computed on held-out rows, so it also reflects generalization rather than training fit.
 
 \begin{keyidea}
 Feature importance describes which columns this fitted model used. Apply the general association-versus-causation rule from \secref{sec:correlation}; importance is not causal evidence.
@@ -242,7 +245,6 @@ A depth-20 tree has nearly perfect training accuracy and unstable feature import
 Choose between a shallow single tree and a random forest for a decision that must be explained to a nontechnical reviewer. Your memo must separate predictive performance from interpretability and state what level of performance loss, if any, you would accept for the simpler model.
 \end{decisionmemo}
 
-
 \begin{quickcheck}
 \begin{enumerate}
   \item What does a decision-tree split try to improve at each node?
@@ -250,13 +252,3 @@ Choose between a shallow single tree and a random forest for a decision that mus
   \item Why are ordinary decision trees largely insensitive to monotonic rescaling of a numerical feature?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A decision tree repeatedly splits the feature space with yes/no questions.
-  \item Classification trees reduce impurity; regression trees reduce label variation.
-  \item Deep trees can memorize training data and become unstable.
-  \item Depth limits, minimum leaf sizes, and pruning control complexity.
-  \item A small tree is interpretable, but an ensemble of trees is often more accurate.
-\end{itemize}
-\end{chapterrecap}

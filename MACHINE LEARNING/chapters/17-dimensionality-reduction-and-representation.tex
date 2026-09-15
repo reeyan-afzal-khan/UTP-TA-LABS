@@ -3,13 +3,9 @@
 
 \chapterguide%
   {\chapref{ch:unsupervised}, dot products and projections from \chapref{ch:foundations}, and scaling from \chapref{ch:data}. Eigenvectors and eigenvalues are re-introduced from scratch here.}
-  {Run PCA step by step, decide how many components to keep, interpret what is gained and lost, and use t-SNE and UMAP for visualization without over-reading their pictures.}
+  {compute PCA, choose components, assess information loss, and interpret nonlinear visualizations cautiously.}
 
-Real datasets often carry many redundant or weakly informative features: sensors that echo one another, survey questions that ask similar things, or thousands of pixels describing a handful of shapes. Dimensionality reduction is the classical form of representation learning developed in this book: it compresses data into fewer variables while preserving a stated property, such as variance or local neighborhoods. Possible payoffs include visualization, denoising, faster downstream models, and relief from the distance problems discussed in \chapref{ch:knn-nb}.
-
-\begin{firstread}
-Core path: PCA, explained variance, component choice, and the fact that compression loses information. Treat t-SNE and UMAP as second-pass visualization methods; they answer a different question from PCA.
-\end{firstread}
+Dimensionality reduction compresses redundant features while preserving a stated property, such as variance or neighborhoods. It can support visualization, denoising, faster models, and more manageable geometry (\chapref{ch:knn-nb}).
 
 \section{The idea: find better axes}
 
@@ -109,12 +105,12 @@ The proportion of variance explained by component $j$ is
 \[
   \frac{\lambda_j}{\sum_{k}\lambda_k},
 \]
-which reports how much of the dataset's total variance lies along each new axis. The predictive-value caveat is stated once in \secref{sec:pca-limitations}. Because the components are eigenvectors of a symmetric matrix, they are mutually perpendicular, and their scores are uncorrelated in the fitted sample. The singular value decomposition introduced in \chapref{ch:linear-algebra} computes the same directions directly from the centered data matrix, which is how software commonly implements PCA.
+explaining the variance along each axis, not its predictive value (\secref{sec:pca-limitations}). Components are orthogonal and fitted scores uncorrelated. SVD of centered data computes the same directions.
 
 \begin{workedexample}
 Take five centered points that lie exactly on a line: $(-2,-2)$, $(-1,-1)$, $(0,0)$, $(1,1)$, $(2,2)$. Each feature has variance $10/4=2.5$ and their covariance is also $2.5$, so the covariance matrix is
 $\begin{bsmallmatrix}2.5 & 2.5\\ 2.5 & 2.5\end{bsmallmatrix}$
-with eigenvalues $\lambda_1=5$ and $\lambda_2=0$. The first component is $\bm{v}_1=(1,1)/\sqrt{2}$, and it explains $5/(5+0)=100\%$ of the variance. Projecting gives one score per point --- $-2.83, -1.41, 0, 1.41, 2.83$ --- so two columns of data have been compressed to one with \emph{no loss at all}. Real data is never this tidy, but the mechanism is identical: keep the big-$\lambda$ directions, drop the small ones, lose only what the small ones carried.
+with $\lambda_1=5$, $\lambda_2=0$, and $\bm v_1=(1,1)/\sqrt2$. Scores $(-2.83,-1.41,0,1.41,2.83)$ retain 100\% of variance in one dimension. Dropping nonzero components instead loses variance.
 \end{workedexample}
 
 \section{Explained variance: the compression budget}
@@ -137,7 +133,7 @@ with eigenvalues $\lambda_1=5$ and $\lambda_2=0$. The first component is $\bm{v}
 \end{tikzpicture}
 \end{mlfigure}
 
-Three complementary rules: use a cumulative-variance threshold when the application can justify one; look for an elbow in the \term{scree plot}; or, when PCA feeds a supervised model, treat $k$ as a hyperparameter and let training-fold validation decide. Under squared reconstruction loss, retaining the top $k$ components gives the best rank-$k$ linear reconstruction, and the discarded eigenvalues quantify the average variance lost.
+Choose components by a variance target, scree plot, or downstream training-fold validation. In Lab~4, 29 of 64 digit components retain 95\% of variance without reducing test accuracy. Discarded eigenvalues sum to lost variance.
 
 \subsection{What PCA cannot promise}
 \label{sec:pca-limitations}
@@ -145,17 +141,15 @@ Three complementary rules: use a cumulative-variance threshold when the applicat
 \begin{itemize}
   \item It is \term{linear}: a spiral or a curved sheet of data has structure PCA cannot straighten out.
   \item It is \term{scale-sensitive}: changing units changes the covariance matrix. Standardize when that influence is arbitrary, not as an automatic rule.
-  \item \term{Variance is not predictive importance}: the directions that vary most are not necessarily the ones that predict a label --- a low-variance component can carry crucial signal. (\chapref{ch:classification}'s LDA is a supervised method that seeks class-separating directions instead.)
-  \item \term{Components resist interpretation}: each is a weighted blend of all original features, so ``component 3 increased'' rarely means anything to a domain expert without inspecting its weights.
+  \item \term{Variance is not predictive importance}: low-variance directions may carry label signal. LDA instead seeks class separation (\chapref{ch:classification}).
+  \item \term{Interpretation}: inspect component weights; each component blends original features.
 \end{itemize}
 
 \begin{pitfall}
-Using PCA to \emph{plot} clusters is not the same as clustering on the PCA coordinates. If $K$-means is fitted on four scaled features and the result is then projected to two principal components for a picture, the assignments came from four-dimensional geometry. Fitting $K$-means on only the two PCA columns is a different model that intentionally discards some variance.
+Projecting a four-feature clustering into two PCA dimensions only visualizes its existing assignments. Clustering the two PCA columns instead is a different model with reduced information.
 \end{pitfall}
 
 \section{Choosing the component count in practice}
-
-PCA gives you as many components as you like, ordered by how much variance each captures.
 
 \begin{mlfigure}
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -189,13 +183,13 @@ PCA gives you as many components as you like, ordered by how much variance each 
 \end{mlfigure}
 
 \begin{analogy}
-PCA is like photographing a chair. Photograph it from directly above and you see a confusing square. Photograph it from the side and it is instantly recognizable --- same object, better angle. PCA searches for the angle from which the data varies the most, then the next best angle at right angles to that, and so on. The scree plot tells you how many angles you actually need before the rest is just dust.
+PCA chooses viewing directions with the greatest variance, each orthogonal to the previous ones. A scree plot shows how much each additional direction contributes.
 \end{analogy}
 
 \section{t-SNE and UMAP: maps for the eye}
 \label{sec:tsne-umap}
 
-PCA preserves global variance; sometimes the goal is instead a two-dimensional \emph{map} in which similar observations sit together --- to eyeball cluster structure in document word-counts, customer measurements, or product features. Two nonlinear methods dominate this niche.
+For two-dimensional neighborhood maps rather than global variance preservation, consider t-SNE or UMAP.
 
 \term{t-SNE} converts distances into neighbor probabilities and arranges points in 2-D so that neighborhoods are preserved: points close in the original space stay close on the map. Its main hyperparameter, \term{perplexity}, roughly sets the neighborhood size being honored (typical values 5--50).
 
@@ -205,8 +199,8 @@ Both need cautious reading:
 
 \begin{itemize}
   \item cluster sizes, empty gaps, and distances between separated groups can be artifacts; even apparent neighborhoods should be checked against original-space distances;
-  \item different random seeds and hyperparameters can produce visibly different maps, so check that the story survives a few reruns;
-  \item a map can suggest questions but cannot demonstrate that discrete clusters exist; confirm any claimed grouping with stability, held-out information, and domain evidence;
+  \item check whether the interpretation survives changes in seeds and hyperparameters;
+  \item apparent clusters need independent stability and domain evidence;
   \item for ordinary predictive preprocessing, PCA is the simpler default because it has an explicit out-of-sample projection. Nonlinear embeddings need a justified validation design.
 \end{itemize}
 
@@ -224,10 +218,10 @@ Best use & preprocessing, compression, denoising & exploratory visualization \\
 \end{tabular}
 \end{mltable}
 
-Note the family distinction: PCA, t-SNE, and UMAP perform \term{feature extraction} --- they build new variables. \term{Feature selection} (\secref{sec:feature-selection}) instead keeps a subset of the original variables, often retaining more direct interpretability.
+PCA, t-SNE, and UMAP \term{extract} new features; \term{selection} retains original columns (\secref{sec:feature-selection}).
 
 \begin{keyidea}
-Dimensionality reduction trades a little information for a lot of manageability. PCA makes the trade with an exact receipt --- the discarded eigenvalues are the price paid --- while t-SNE and UMAP make beautiful maps whose distances must not be over-read. Reduce to work; visualize to explore; and never mistake the picture for the data.
+PCA quantifies lost variance; nonlinear maps emphasize neighborhoods and need cautious interpretation. A visualization is evidence to investigate, not a substitute for the original data.
 \end{keyidea}
 
 \begin{modelcard}{Dimensionality Reduction - Quick Guide}
@@ -240,8 +234,7 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
 \end{tabularx}
 \end{modelcard}
 
-
-\input{labs/08-unsupervised}
+\input{labs/04-clustering-pca}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -250,13 +243,3 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
   \item Why should distances and apparent cluster sizes in a t-SNE or UMAP plot not be interpreted as exact properties of the original high-dimensional data?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Dimensionality reduction replaces many features with fewer informative coordinates.
-  \item PCA finds orthogonal directions that capture maximum variance.
-  \item Explained-variance ratios help choose how many components to retain.
-  \item PCA is linear and may not preserve class separation or nonlinear structure.
-  \item t-SNE and UMAP are mainly visualization tools; apparent cluster sizes and distances require caution.
-\end{itemize}
-\end{chapterrecap}

@@ -3,38 +3,38 @@
 \addcontentsline{toc}{chapter}{The Machine-Learning Map}
 \markboth{The Machine-Learning Map}{}
 
-Machine learning is easier to navigate when you stop treating it as one list of algorithms. The same project can be described in several ways at once: by the \emph{feedback} available, the \emph{job} to be done, the \emph{kind of data}, the \emph{model family}, and the \emph{stage of the lifecycle}. Use the maps on the next pages in that order.
+Describe a project by its feedback, task, data structure, model family, and lifecycle stage. Read the maps in that order.
 
 \begin{keyidea}
-Do not begin with ``Which algorithm should I use?'' Begin with four questions: \textbf{What decision or output do I need? What feedback is available? What structure does the data have? How will success be measured on future data?}
+Ask: \textbf{What output? What feedback? What data structure? How will future performance be measured?}
 \end{keyidea}
 
 \section*{1. The whole picture}
 
-Machine learning is a major approach within artificial intelligence, but it also overlaps heavily with statistics, optimization, scientific computing, and data systems. The boundaries are not clean, so the useful map is a set of connected views rather than one perfect tree.
+Machine learning connects AI with statistics, optimization, computing, and data systems. These overlapping views are more useful than a rigid hierarchy.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
   box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.8mm,
-              minimum width=3.0cm,minimum height=0.82cm,align=center,
-              font=\scriptsize\bfseries\color{MLNavy}},
+              text width=4.35cm,minimum height=1.5cm,align=center,
+              font=\footnotesize\color{MLNavy}},
   core/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,
               minimum width=3.4cm,minimum height=1.0cm,align=center,
               font=\small\bfseries\color{MLNavy}},
   adj/.style={draw=MLMuted!70,fill=MLPaleGray,rounded corners=1.8mm,
-              minimum width=3.0cm,minimum height=0.82cm,align=center,
+              text width=4.35cm,minimum height=0.9cm,align=center,
               font=\scriptsize\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
 ]
 \node[core] (ml) at (0,0) {MACHINE LEARNING\\\scriptsize\mdseries learn patterns from data or interaction};
 
-\node[box] (feedback) at (-5.0,2.1) {Learning signal\\labels, no labels, rewards};
-\node[box] (task) at (0,2.1) {Task\\predict, discover, generate, decide};
-\node[box] (data) at (5.0,2.1) {Data structure\\tables, time, text, images, graphs};
+\node[box] (feedback) at (-5.0,2.1) {\textbf{Learning signal}\\[2pt]labels or no labels;\\rewards from interaction};
+\node[box] (task) at (0,2.1) {\textbf{Task}\\[2pt]predict, discover,\\generate, decide};
+\node[box] (data) at (5.0,2.1) {\textbf{Data structure}\\[2pt]tables, time, text,\\images, graphs};
 
-\node[box] (family) at (-5.0,-2.1) {Model family\\linear, trees, kernels, neural};
-\node[box] (eval) at (0,-2.1) {Evaluation\\split, metric, uncertainty, error analysis};
-\node[box] (life) at (5.0,-2.1) {Lifecycle\\train, deploy, monitor, govern};
+\node[box] (family) at (-5.0,-2.1) {\textbf{Model family}\\[2pt]linear models, trees,\\kernels, neural networks};
+\node[box] (eval) at (0,-2.1) {\textbf{Evaluation}\\[2pt]splits, metrics,\\uncertainty, error analysis};
+\node[box] (life) at (5.0,-2.1) {\textbf{Lifecycle}\\[2pt]train and deploy,\\monitor and govern};
 
 \draw[arr] (feedback) -- (ml);
 \draw[arr] (task) -- (ml);
@@ -43,9 +43,9 @@ Machine learning is a major approach within artificial intelligence, but it also
 \draw[arr] (ml) -- (eval);
 \draw[arr] (ml) -- (life);
 
-\node[adj] at (-4.8,3.65) {Statistics and probability};
+\node[adj] at (-5.0,3.65) {Statistics and probability};
 \node[adj] at (0,3.65) {Optimization and linear algebra};
-\node[adj] at (4.8,3.65) {Computer and data systems};
+\node[adj] at (5.0,3.65) {Computer and data systems};
 \end{tikzpicture}
 \end{mlfigure}
 
@@ -55,12 +55,12 @@ Machine learning is a major approach within artificial intelligence, but it also
 \rowcolor{MLPaleBlue!92}
 View & Main branches \\
 \midrule
-Feedback & Full labels; limited labels; no external labels; rewards from interaction. \\
-Task & Prediction, ranking, forecasting, structure discovery, representation, generation, anomaly detection, or sequential decision-making. \\
-Data & Tabular, temporal, text, image/video, audio, graph/spatial, or multimodal. \\
-Model family & Linear/probabilistic, neighbors, trees/ensembles, kernels, neural networks, generative models, graph models. \\
-Evaluation & Generalization, realistic splits, baselines, task metrics, calibration, uncertainty, subgroup and failure analysis. \\
-Lifecycle & Problem framing, data collection, preparation, training, evaluation, deployment, monitoring, maintenance, governance. \\
+Feedback & Full, partial, or no external labels; interaction rewards. \\
+Task & Predict, rank, forecast, discover structure, represent, generate, detect anomalies, or choose actions. \\
+Data & Tables, time series, text, images/video, audio, graphs, spatial, or multimodal data. \\
+Model family & Linear, probabilistic, neighbor, tree/ensemble, kernel, neural, generative, or graph models. \\
+Evaluation & Realistic splits, baselines, metrics, calibration, uncertainty, and subgroup errors. \\
+Lifecycle & Frame, collect, prepare, train, evaluate, deploy, monitor, maintain, govern. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -104,7 +104,7 @@ Lifecycle & Problem framing, data collection, preparation, training, evaluation,
 \end{mlfigure}
 
 \begin{intuition}
-\textbf{Self-supervised learning} creates a training signal from the data itself --- for example, predicting a hidden word or a missing part of an image. It is one of the main bridges from unlabeled data to modern representation learning. \textbf{Active learning} is different: the model chooses which examples would be most valuable for a human to label.
+\textbf{Self-supervised learning} derives targets from data, such as hidden words. \textbf{Active learning} instead chooses examples for human labeling.
 \end{intuition}
 
 \section*{3. Start from the job you need done}
@@ -126,13 +126,13 @@ Compress or build a representation & PCA, embeddings, representation learning & 
 Find unusual cases & Anomaly detection & Core: \chapref{ch:anomaly} \\
 Model a full distribution or generate samples & Density estimation / generative modeling & GMM is introduced in \chapref{ch:clustering}; modern generative models are beyond \\
 Choose actions over time & Bandits / reinforcement learning & Extension: \chapref{ch:rl} \\
-Estimate what an intervention will change & Causal inference / experimentation & Adjacent to prediction; introduced as a direction in \hyperref[ch:next]{the Epilogue} \\
+Estimate what an intervention will change & Causal inference / experimentation & Beyond the core; requires causal assumptions or experiments \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \begin{keyidea}
-Prediction asks ``what is likely to happen?'' Causal inference asks ``what would change if we acted differently?'' A highly predictive model does not automatically answer the second question.
+Prediction estimates outcomes; causal inference estimates intervention effects. Predictive success does not establish causality.
 \end{keyidea}
 
 \section*{4. Start from the data structure}
@@ -140,35 +140,39 @@ Prediction asks ``what is likely to happen?'' Causal inference asks ``what would
 The input representation often narrows the sensible model families before tuning begins.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.31\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4.5pt}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.21\linewidth}>{\raggedright\arraybackslash}p{0.33\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Data & Strong classical starting point & Modern directions and the main caution \\
+\bfseries Data & \bfseries Strong classical starting point & \bfseries Modern directions and the main caution \\
 \midrule
-Tabular rows & Linear/logistic models, trees, random forests, gradient boosting & Deep tabular models can help, but strong tree baselines remain essential. \\
-Time series / events & Lagged features plus linear or tree models & Sequence models and transformers; preserve chronology, horizon, and label availability. \\
-Text & Counts or TF--IDF with naive Bayes, logistic regression, or linear SVM & Embeddings, transformers, foundation language models; evaluate meaning, not fluency alone. \\
-Images / video & Hand-designed features, PCA, linear/SVM models & CNNs, vision transformers, diffusion models; transfer learning is usually the practical route. \\
-Audio / speech & Spectral features plus classical classifiers & Neural audio encoders and transformers; sampling and temporal alignment matter. \\
-Graphs / networks & Engineered node, edge, and graph statistics & Graph neural networks; random row splits can leak through connected structure. \\
-Spatial data & Domain features plus linear/tree models & Spatial statistics and geospatial deep learning; nearby observations may not be independent. \\
-Multimodal & Separate feature pipelines combined carefully & Multimodal representation and foundation models; alignment between modalities is part of the problem. \\
+Tabular rows & Linear/logistic models, trees, forests, boosting & Deep tabular models; compare with strong tree baselines. \\
+Time series / events & Lagged features with linear/tree models & Sequence models, transformers; respect chronology, horizon, and label timing. \\
+Text & Counts/TF--IDF with naive Bayes, logistic regression, or SVM & Embeddings, language models; assess meaning, not just fluency. \\
+Images / video & Handcrafted features, PCA, linear/SVM models & CNNs, vision transformers, diffusion; consider transfer learning. \\
+Audio / speech & Spectral features with classical classifiers & Audio encoders, transformers; check sampling and alignment. \\
+Graphs / networks & Node, edge, and graph statistics & Graph neural networks; avoid leakage through connections. \\
+Spatial data & Domain features with linear/tree models & Spatial statistics, geospatial networks; account for nearby dependencies. \\
+Multimodal & Combine separate feature pipelines & Multimodal models; align modalities carefully. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \section*{5. Model families are reusable building blocks}
 
-A model family is \emph{not} the same thing as a task. Trees, kernels, and neural networks can all be adapted to several prediction problems.
+Model families are reusable across tasks: trees, kernels, and networks support multiple prediction problems.
 
 \enlargethispage{4\baselineskip}
 \begin{mltable}
 \renewcommand{\arraystretch}{1.12}
 \setlength{\tabcolsep}{4.5pt}
-\begin{tabularx}{\linewidth}{@{}>{\footnotesize\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}>{\footnotesize}p{0.24\linewidth}>{\footnotesize}X@{}}
+\footnotesize
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash\bfseries\leavevmode\color{MLNavy}}p{0.23\linewidth}>{\raggedright\arraybackslash}p{0.30\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-\normalfont\bfseries Family & \bfseries Core idea & \bfseries Examples in or beyond these notes \\
+\bfseries Family & \bfseries Core idea & \bfseries Examples in or beyond these notes \\
 \midrule
 Baselines & Simple reference rule & Mean, median, majority, random, or domain rule \\
 Linear / GLMs & Weighted feature combinations & Linear, ridge, lasso, logistic, softmax \\
@@ -183,7 +187,7 @@ Generative / foundation & Learn distributions or reusable representations & Auto
 \end{mltable}
 
 \begin{keyidea}
-A good workflow climbs a ladder: \textbf{baseline $\rightarrow$ simple model $\rightarrow$ stronger model $\rightarrow$ tuned system}. Stop when added complexity no longer improves the real decision enough to justify its cost.
+Compare a baseline, simple model, and stronger model in turn. Stop when further gains no longer justify complexity.
 \end{keyidea}
 
 \section*{6. Good first models for the core problems}
@@ -213,7 +217,7 @@ Anomaly detection & Simple statistical rules & Local methods, isolation forest, 
 \color{MLNavy}Scope & \bfseries\color{MLNavy}Topics \\
 \midrule
 \color{MLGreen}Core in these notes & \normalfont Problem framing and leakage-safe preparation; baselines and evaluation; classical supervised and unsupervised methods. \\
-\color{MLBlue}Introduced / bridged & \normalfont Limited-label and reinforcement learning; image features and transfer learning; deployment, drift, and responsibility. \\
+\color{MLBlue}Introduced / bridged & \normalfont Limited-label and reinforcement learning; neural networks, CNNs, and LSTMs on small data; transfer learning; deployment, drift, and responsibility. \\
 \color{MLOrange!85!black}Beyond the core & \normalfont Deep, foundation, generative, graph, Bayesian, causal, online, federated, privacy-preserving, and production ML. \\
 \bottomrule
 \end{tabularx}

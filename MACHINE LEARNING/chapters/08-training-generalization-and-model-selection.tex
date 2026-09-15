@@ -3,17 +3,13 @@
 
 \chapterguide%
   {\chapref{ch:supervised} and \chapref{ch:evaluation}: supervised objectives, realistic holdouts, and metric choice.}
-  {diagnose underfitting and overfitting, control model capacity, choose hyperparameters without test leakage, set a safe imbalance policy, and reproduce the full selection process without allowing development decisions to leak into the final test evaluation.}
+  {diagnose fit, regularize, tune, handle imbalance, select features, and save reproducible models without leakage.}
 
-Now that the supervised objective and evaluation procedure are fixed, learn the controls that apply to nearly all supervised model families. Training must reduce error without turning validation and test data into part of the learning process; model selection must choose complexity without rewarding accidental validation noise.
+Training lowers error on the data the model sees; model selection chooses how flexible the model may be without being fooled by noise in the validation set. Every development decision is made before the test set is opened.
 
 \begin{coursechoice}
-This chapter is about the training and model-selection process, not about memorizing model families before their chapters arrive. Follow the workflow boundary first; Chapters 9--14 explain the algorithms themselves. Feature selection and imbalance interventions belong to model development, so this chapter places their workflow rules next to tuning and validation. Some methods make more sense after you meet lasso, trees, or nearest neighbors; when that happens, return to this section rather than attaching the method to one model family.
+This chapter sets workflow rules for tuning, feature selection, and imbalance interventions. Chapters 9--14 explain model families; revisit these rules when lasso, trees, and nearest neighbors make them concrete.
 \end{coursechoice}
-
-\begin{firstread}
-Core path: underfitting/overfitting, capacity, regularization, learning curves, hyperparameter tuning, imbalance policy, feature selection boundaries, and reproducibility. Optimization mechanics were introduced in \secref{sec:gradient-descent}; detailed optimizer behavior is intentionally deferred to the epilogue.
-\end{firstread}
 
 \section{What training is optimizing: empirical risk}
 
@@ -26,7 +22,7 @@ Training commonly minimizes average loss plus a regularization term:
 \]
 The first term fits the observed data; $\Omega$ discourages undesirable complexity. This objective is only a proxy for the true goal of low expected error on future data.
 
-An optimization problem may have a unique global solution, many equivalent solutions, or numerous local and saddle regions. Reaching a low training loss does not guarantee good generalization.
+The objective may have one best solution, several equally good ones, or many local dips that can trap an optimizer. Either way, reaching a low training loss does not guarantee good generalization.
 
 \section{Underfitting and overfitting}
 
@@ -59,13 +55,13 @@ An optimization problem may have a unique global solution, many equivalent solut
 \end{mlfigure}
 
 \begin{intuition}
-When model classes are nested and optimization succeeds, the best achievable training error cannot increase with flexibility. Validation error often falls and then rises as variance takes over, but real curves can be noisy or monotonic. Choose capacity from validation evidence and practical constraints, not from the training curve alone.
+For nested model classes with successful optimization, added flexibility cannot worsen the best training fit. Choose capacity using validation, whose error need not follow a smooth U-curve.
 \end{intuition}
 
 % === VISUAL ADDITION: three-fit-regimes ===
 \subsection{Underfit, good fit, and overfit on the same observations}
 
-The training--validation curves above are the diagnostic view. The geometric view below shows what those three regimes can look like in feature space.
+The same observations illustrate three levels of flexibility.
 
 \begin{mlfigure}
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -112,13 +108,13 @@ The training--validation curves above are the diagnostic view. The geometric vie
 \end{mlfigure}
 
 \begin{keyidea}
-Overfitting is not ``a curve is bad.'' A curved relationship may be exactly right. Overfitting means the chosen flexibility follows accidents of the training sample that do not repeat on unseen data.
+Overfitting means following sample-specific noise, not merely fitting a curve.
 \end{keyidea}
 % === END VISUAL ADDITION ===
 
 \section{Model capacity and the bias-variance trade-off}\label{sec:bias-variance}
 
-Model capacity describes the complexity of functions a model can represent. A low-capacity model has high bias and may miss real structure. A high-capacity model can have high variance and respond strongly to noise or sampling changes.
+Capacity is representational flexibility. Too little may cause bias; too much may increase sensitivity to sampling noise.
 
 For squared-error regression, the expected error at a point $\bm{x}$ decomposes exactly into three parts. Writing $\hat{f}$ for the model trained on a random dataset and $f$ for the true function with noise variance $\sigma^2$,
 \[
@@ -127,10 +123,10 @@ For squared-error regression, the expected error at a point $\bm{x}$ decomposes 
   +\underbrace{\operatorname{Var}\!\left(\hat{f}(\bm{x})\right)}_{\text{variance}}
   +\underbrace{\sigma^2}_{\text{irreducible noise}}.
 \]
-Bias measures systematic error from a model that is too rigid; variance measures sensitivity to which particular training set was drawn; the noise term cannot be removed by any model. Regularization deliberately accepts a little bias to remove a lot of variance.
+Bias is systematic error; variance is sensitivity to training samples; irreducible noise remains. Regularization trades some bias for lower variance.
 
 \begin{workedexample}
-The decomposition is easier to believe once you have computed it. Fix one test point where the true value is $f(\bm{x})=2$ and the noise variance is $\sigma^2=1$. Train three models on three different random training sets and record what each predicts at that point.
+At a fixed test point, let $f(\bm{x})=2$ and $\sigma^2=1$. Compare predictions from three model families, each trained on three random datasets.
 
 \begin{mltable}\small
 \begin{tabular}{lcccccc}
@@ -147,22 +143,22 @@ Wild     & $-1.0$ & $2.0$ & $5.0$ & $0.000$ & $6.000$ & $\mathbf{7.000}$ \\
 \end{tabular}
 \end{mltable}
 
-Work the first row through. The three predictions average to $3.0$, and the truth is $2$, so the bias is $3.0-2=1.0$ and $\text{bias}^2=1.0$. The spread around their own average is
+The first row averages $3.0$ against truth $2$, giving bias $1$ and squared bias $1$. Its variance is
 \[
   \frac{{(2.6-3)}^2+{(3.0-3)}^2+{(3.4-3)}^2}{3}=\frac{0.16+0+0.16}{3}\approx 0.107,
 \]
 and the total is $1.000+0.107+1=2.107$.
 
-Two things are worth noticing. First, the rigid model is the most \emph{consistent} of the three --- its predictions barely move --- and it is still beaten, because it is consistently aimed at the wrong place. Second, the wild model has \emph{zero} bias: on average it is exactly right. Averaged over training sets it hits the truth perfectly, and it is by far the worst model here, because you never get the average --- you get one training set and one prediction. Unbiasedness is not the goal. Low total error is.
+The rigid model is biased; the wild model is unbiased but highly variable. Minimize total error, not bias alone.
 
-Note also that $\sigma^2=1$ appears in every row and no model can touch it. If the best possible total error is $1.0$, then a model scoring $1.667$ is much closer to the ceiling than it looks.
+Every row includes irreducible noise $\sigma^2=1$, so no model can reduce expected error below~$1$.
 \end{workedexample}
 
 \begin{intuition}
-Think of throwing darts. High bias, low variance: your darts land tightly grouped, but in the wrong corner of the board --- consistent, yet consistently wrong. Low bias, high variance: your darts scatter widely around the bullseye --- right on average, but unreliable on any single throw. The noise term is a wobbly dartboard: no amount of skill removes it.
+Bias is a tight group of darts away from the bullseye; variance is a wide scatter around it. Irreducible noise is a wobbling dartboard.
 \end{intuition}
 
-More data generally reduces variance, while stronger assumptions can reduce variance at the cost of bias. The best model is not the most complicated one; it is the model whose assumptions and capacity produce the best reliable validation performance for the task.
+More data often reduces variance; stronger assumptions may exchange bias for lower variance. Choose reliable validation performance over complexity.
 
 \section{Regularization}
 
@@ -178,7 +174,7 @@ Regularization discourages unnecessarily large or complex parameter values. Two 
 $L_1$ regularization can make some parameters exactly zero. $L_2$ regularization smoothly shrinks large parameters. The strength $\lambda$ is normally selected with validation data.
 
 \begin{workedexample}
-Why does $L_1$ hit exactly zero while $L_2$ only approaches it? Take a one-parameter least-squares problem written on a normalized scale so the unpenalized quadratic objective is $\tfrac12(\beta-\hat\beta_{\text{OLS}})^2$, with $\hat{\beta}_{\text{OLS}}=4$. Using $\lambda\beta^2/2$ for ridge and $\lambda|\beta|$ for lasso, the two penalized solutions have the closed forms:
+For the one-parameter objective $\tfrac12(\beta-\hat\beta_{\text{OLS}})^2$ with $\hat\beta_{\text{OLS}}=4$, ridge adds $\lambda\beta^2/2$ and lasso adds $\lambda|\beta|$. Their solutions are
 \[
   \hat{\beta}_{\text{ridge}}=\frac{\hat{\beta}_{\text{OLS}}}{1+\lambda},
   \qquad
@@ -198,7 +194,7 @@ $5$ & $0.667$ & $0.000$ & ridge is small but alive; lasso has deleted the featur
 \end{tabular}
 \end{mltable}
 
-Ridge \emph{divides}, so no finite $\lambda$ can ever reach zero --- $4/(1+\lambda)$ shrinks forever and arrives nowhere. Lasso \emph{subtracts}, so once $\lambda$ reaches $4$ the coefficient hits zero and stays there. That single difference, division versus subtraction, is the whole of why lasso selects features and ridge does not.
+Here ridge divides by $1+\lambda$, approaching zero without reaching it at finite $\lambda$. Lasso subtracts $\lambda$ and clips at zero once $\lambda\ge4$.
 \end{workedexample}
 
 \subsection{Other ways to regularize}
@@ -213,7 +209,7 @@ Regularization is broader than adding a penalty to the objective.
   \item \term{Noise injection} trains the model to remain stable under small perturbations.
 \end{itemize}
 
-The correct method depends on why the model overfits. Regularization cannot repair a leaking split or a mismatch between training and deployment data.
+Match regularization to the failure mode; it cannot fix leakage or distribution mismatch.
 
 \section{Learning curves}
 
@@ -225,8 +221,6 @@ A learning curve plots training and validation performance against training-set 
   \item Improvement in both curves as more data is added suggests that additional representative data may help.
   \item Highly unstable curves suggest sensitivity to the split, seed, or a small validation sample.
 \end{itemize}
-
-Learning curves distinguish problems that can be addressed by a larger model from those that need more data, better features, stronger regularization, or corrected labels.
 
 \subsection{Reading learning curves in practice}
 
@@ -265,7 +259,7 @@ Learning curves distinguish problems that can be addressed by a larger model fro
 \end{mlfigure}
 
 \begin{keyidea}
-Read the two curves as evidence. A wide, slowly closing gap suggests variance: more representative data, simpler capacity, or stronger regularization may help. Two curves that meet at a poor level suggest limited signal, optimization trouble, or underfitting; richer features or models are candidates, but more data can still help feature learning or reveal rare cases.
+A persistent gap suggests variance: try more representative data or stronger regularization. Both curves poor suggest limited signal, underfitting, or optimization failure; investigate features and fitting.
 \end{keyidea}
 
 \section{Hyperparameter tuning}
@@ -286,23 +280,21 @@ Sequential search & Uses earlier results to choose promising later experiments. 
 \end{tabularx}
 \end{mltable}
 
-The validation procedure must be identical across candidates. Repeatedly adapting decisions to one validation set can overfit that set, so a final untouched test set remains necessary.
+Use identical validation across candidates. Repeated tuning can overfit validation, so retain an untouched final test set.
 
 \subsection{Tuning without fooling yourself}
 
 \begin{intuition}
-Random search is often more efficient than a Cartesian grid when only a few of many hyperparameters matter, because every trial explores a new value on each dimension. A small grid remains useful for one or two well-understood controls. Neither method compensates for a flawed validation design.
+Random search explores more distinct values when few hyperparameters matter. Small grids suit one or two controls; neither fixes invalid validation.
 \end{intuition}
 
 \subsection{Nested cross-validation for the selection procedure}
 
-Each outer validation fold is untouched by the tuning performed inside that outer training split. This estimates the performance of the \emph{whole selection procedure} with less selection bias; it is not literally unbiased in every finite sample, and its fold scores are still dependent.
+Tune inside each outer training split; outer holdouts evaluate the complete search-plus-model procedure. Lab~2, Part~D instead uses one training-only search and a final test.
 
 \section{Imbalanced classification: change the policy, not the test set}
 
-Class imbalance changes what a useful training policy looks like. Accuracy can be misleading. A model that always predicts the common class may look accurate while completely missing the rare class. Possible responses include class weights, careful training-set resampling, threshold adjustment, and metrics such as recall, precision, balanced accuracy, or area under the precision-recall curve.
-
-Four responses are worth knowing by name, roughly in the order you should try them.
+Imbalance can make majority predictions look accurate while missing rare cases. Consider metrics, thresholds, class weights, and training-only resampling.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
@@ -310,54 +302,55 @@ Four responses are worth knowing by name, roughly in the order you should try th
 \rowcolor{MLPaleBlue!92}
 Strategy & How it helps \\
 \midrule
-Change the metric first & This costs nothing and is often the whole fix. If the rare class is what matters, stop reporting accuracy and report recall, precision, balanced accuracy, or average precision instead (\chapref{ch:evaluation}). \\
-Move the threshold & A probability model does not have to decide at $0.5$. Choosing a lower cutoff on validation data raises recall directly, with no retraining at all. \\
-Resampling & Either drop majority rows (\term{undersampling}) or create extra minority training examples (\term{oversampling}). SMOTE is a common method that creates synthetic minority examples between nearby minority observations; it is useful only inside the training portion of each validation split. \\
+Change the metric first & For rare-class performance, use recall, precision, balanced accuracy, or average precision rather than accuracy alone (\chapref{ch:evaluation}). \\
+Move the threshold & Choose a lower probability cutoff on validation data to increase recall without retraining. \\
+Class weights & Tell the model that a mistake on the rare class costs more (\texttt{class\_weight="balanced"}). Lab~2's grid search includes this option and selects it. \\
+Resampling & Drop majority rows (\term{undersampling}) or add minority examples (\term{oversampling}). SMOTE interpolates between nearby minority examples. Resample only within each validation split\textquotesingle s training portion. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \begin{coursechoice}
-SMOTE uses nearest-neighbor geometry, which \chapref{ch:knn-nb} develops in detail. You do not need that geometry yet to learn the workflow rule: split first, and create synthetic examples only from the training portion of a fold. Never oversample the full labeled table before validation, because synthetic points can then carry information from held-out rows into training.
+SMOTE's geometry is developed in \chapref{ch:knn-nb}. Its rule applies now: split first and synthesize only within training folds, never from held-out observations.
 \end{coursechoice}
 
 \begin{pitfall}
-Resampling changes the training distribution. It does \emph{not} justify changing the validation or test distribution to look balanced. Keep evaluation prevalence realistic unless the deployment question itself defines a different population of interest.
+Resampling changes training prevalence, not the target evaluation population. Keep validation and test distributions realistic.
 \end{pitfall}
 
 \section{Feature selection is part of model development} \label{sec:feature-selection}
 
-\term{Feature selection} keeps a subset of the original variables. It can reduce measurement cost, training time, noise, and explanation burden, but it is not automatically beneficial. A regularized model with a few dozen sensible features often needs no separate selector.
+\term{Feature selection} keeps a subset of the original columns to cut cost, noise, or complexity. It is not always worth doing: a regularized model with a modest number of features may not need it.
 
-The important conceptual distinction is between \emph{selection} and \emph{extraction}. Feature selection keeps original columns; PCA in \chapref{ch:dimred} creates new component features.
+Selection retains original columns; extraction creates new ones, as in PCA (\chapref{ch:dimred}).
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.43\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.38\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Family & How it works & Main trade-off \\
 \midrule
-Filter methods & Score columns before fitting the final model, using variance, correlation, statistical tests, or mutual information. & Fast and model-agnostic, but may miss interactions between features. \\
-Wrapper methods & Repeatedly fit a chosen model on different feature subsets; recursive feature elimination is a common example. & Can adapt to a model family, but is computationally expensive. \\
-Embedded methods & Selection happens during model fitting. Lasso can drive coefficients to zero; tree-based models can support importance-based selection. & Efficient, but the chosen subset inherits the assumptions and instability of the fitted model. \\
+Filter methods & Score features by variance, correlation, tests, or mutual information before model fitting. & Fast and model-agnostic, but may miss interactions. \\
+Wrapper methods & Fit a model on different feature subsets, as in recursive feature elimination. & Model-specific, but computationally expensive. \\
+Embedded methods & Use selection learned during fitting: zero lasso coefficients or tree-based importances. & Efficient, but inherits model assumptions and instability. \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \begin{secondpass}
-After \chapref{ch:regression}, revisit lasso as an embedded selector. After \chapref{ch:decision-trees} and \chapref{ch:ensembles}, revisit importance-based selection. After \chapref{ch:knn-nb}, revisit why irrelevant dimensions can damage distance-based models. The workflow rule remains unchanged across all of them.
+Revisit lasso in \chapref{ch:regression}, tree importances in \chapsref{ch:decision-trees}{ch:ensembles}, and irrelevant dimensions in \chapref{ch:knn-nb}. The validation rules stay the same.
 \end{secondpass}
 
 \begin{pitfall}
-Supervised feature selection sees the label, so fitting a selector once on the complete labeled table before cross-validation leaks information. Put the selector inside the same pipeline that is validated with the model. If the number of selected features is tuned, that choice is a hyperparameter too.
+Fit supervised selectors inside the validated pipeline, separately in each training fold. Selecting once on all labels leaks information; the number of retained features is also a hyperparameter.
 \end{pitfall}
 
 \begin{keyidea}
-Ask three questions before selecting features: \textbf{Do I have enough features for selection to matter?} \textbf{Is the goal predictive performance, cheaper data collection, or interpretability?} \textbf{Can I validate the entire selection-plus-model procedure without touching the final test set?}
+Before selecting features, specify the goal: accuracy, collection cost, or interpretability. Validate selection together with the model, without using the test set.
 \end{keyidea}
 
 \begin{debugtask}
-A researcher selects the top 20 features using all labeled rows, applies SMOTE to the full table, then runs cross-validation and reports the best result. Redesign the experiment so splitting, selection, resampling, and tuning respect the information boundary.
+A researcher selects the top 20 features using all labeled rows, applies SMOTE to the full table, then runs cross-validation and reports the best result. Redesign the experiment so that nothing from the held-out rows can influence selection, resampling, or tuning.
 \end{debugtask}
 
 \section{Reproducible training}
@@ -373,10 +366,10 @@ A reproducible experiment records:
   \item training curves, checkpoints, and evaluation outputs.
 \end{itemize}
 
-Exact numerical reproduction may be difficult on parallel hardware, but the conclusions should remain stable across reasonable reruns. Report variation rather than presenting one favorable seed as definitive.
+Report variation across reruns rather than one favorable seed; parallel hardware may prevent bit-for-bit reproduction.
 
 \begin{keyidea}
-Optimization asks whether the model can fit the training objective. Generalization asks whether the learned solution works on new data. Successful machine learning requires both.
+Training fit and generalization are distinct requirements.
 \end{keyidea}
 
 \begin{modelcard}{Training and Tuning - Practical Checklist}
@@ -409,11 +402,38 @@ Reproducibility & Record the data version, split logic, preprocessing, model spe
 \end{mltable}
 
 \begin{keyidea}
-Item 7 is easy to omit. Models are most uncertain on populations poorly represented in development data, and subgroup analysis may expose other failures. Recording known limits is part of responsible deployment, not an admission that the project failed.
+Record weakly represented populations and known subgroup failures. These limits guide responsible use, not a judgment that the project failed.
 \end{keyidea}
 
+\subsection{Save the model you would deploy}
+
+After locking and testing the procedure, save the whole preprocessing-and-estimator pipeline with a model card for reuse.
+
+\begin{lstlisting}[style=mlpython]
+import joblib, json
+
+joblib.dump(final_model, MODELS / "titanic_survival.joblib")
+(MODELS / "titanic_survival_card.json").write_text(json.dumps({
+    "features": features,                 # the columns the model expects
+    "final_test_roc_auc": 0.837,          # the one test result
+    "decision_threshold": 0.5,            # the policy chosen on validation data
+    "scikit_learn_version": sklearn.__version__,
+}, indent=2))
+
+loaded = joblib.load(MODELS / "titanic_survival.joblib")
+loaded.predict_proba(new_rows)            # new_rows has the same columns as training
+\end{lstlisting}
+
+Verify the saved artifact:
+
+\begin{itemize}
+  \item \textbf{Save the pipeline.} Include fitted scaling and encoding, not just the estimator.
+  \item \textbf{Check that the file reproduces the test predictions.} Load it back and compare with the in-memory model before calling it done.
+  \item \textbf{Include a model card:} features, threshold, test score, and library version. Lab~2 saves the model; Lab~3 verifies it; \texttt{predict\_passenger.py} loads it.
+\end{itemize}
+
 \begin{tryit}
-Before opening the test set, repeat the complete training and validation procedure across several stochastic seeds using the same prespecified splits. Report how predictions and validation metrics vary. Lock the seed policy and model choice, refit as planned, and evaluate the test set once; do not repeatedly probe test sensitivity.
+Repeat training and validation across prespecified seeds and splits. Report variation, lock the seed policy and model, refit, then test once.
 \end{tryit}
 
 \begin{debugtask}
@@ -425,11 +445,8 @@ Two models have nearly equal mean validation performance. One has lower fold-to-
 \end{decisionmemo}
 
 \begin{tryit}
-Choose one supervised pipeline and one fixed cross-validation design. Plot or tabulate training versus validation performance as model capacity changes. Then tune only the development data, lock the final procedure, and write down exactly which steps would be refitted before a one-time test evaluation.
+Using fixed validation folds, compare training and validation performance across capacities. Tune on development data, lock the procedure, and list the refitting steps before one final test.
 \end{tryit}
-
-
-\input{labs/03-supervised-workflow}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -438,14 +455,3 @@ Choose one supervised pipeline and one fixed cross-validation design. Plot or ta
   \item Which decisions must be locked before the final test set is evaluated?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Underfitting, good fit, and overfitting are different relationships between model capacity and unseen-data performance.
-  \item Regularization trades some training fit for a simpler rule that may generalize better.
-  \item Learning curves help distinguish data shortage, insufficient capacity, and persistent training--validation gaps.
-  \item Hyperparameter tuning and class-imbalance interventions are model-development choices and must stay inside the validation process; feature selection and resampling are model-development steps and must stay inside the validation process.
-  \item The final test set evaluates the locked procedure; it does not choose thresholds, resampling rules, hyperparameters, or later feature-selection rules.
-  \item Reproducibility requires recording data, split logic, preprocessing, search space, seeds, versions, and the final pipeline.
-\end{itemize}
-\end{chapterrecap}

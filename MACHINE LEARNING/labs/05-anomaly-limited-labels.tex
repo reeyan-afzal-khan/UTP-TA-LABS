@@ -1,0 +1,202 @@
+\labsection{5}{Unsupervised learning II: anomaly detection and limited labels}{sec:lab05-anomaly-labels}
+
+\begin{labproject}{Learn when labels are absent, rare, or expensive}
+\textbf{Goal.} Evaluate anomaly rankings with held-back labels; compare self-training and active learning under limited labels.
+
+\medskip\noindent\textbf{Setup.}\par
+\begin{lstlisting}[style=mlpython]
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.semi_supervised import SelfTrainingClassifier
+
+PROJECT_ROOT = Path.cwd().parent
+DATA = PROJECT_ROOT / "all_datasets"
+\end{lstlisting}
+
+\medskip\noindent\textbf{Part A --- Isolation Forest fraud ranking.}\par
+
+Fit Isolation Forest without \texttt{is\_fraud} on 10,000 transactions with about 1.5\% fraud. Short isolation paths score as unusual; held-back labels evaluate the ranking.
+
+\begin{lstlisting}[style=mlpython]
+fraud = pd.read_csv(DATA / "credit_card_fraud_dataset.csv")
+print(fraud.head())
+
+feature_cols = [
+    "amount", "transaction_hour", "foreign_transaction", "location_mismatch",
+    "device_trust_score", "velocity_last_24h", "cardholder_age",
+]
+X = fraud[feature_cols]
+y = fraud["is_fraud"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.30, random_state=42, stratify=y
+)
+
+forest = IsolationForest(n_estimators=300, contamination="auto", random_state=42, n_jobs=-1)
+forest.fit(X_train)                                   # no labels passed
+anomaly_score = -forest.decision_function(X_test)     # higher = more unusual
+\end{lstlisting}
+
+Report ROC AUC, average precision, and operational precision among the top 100 alerts.
+
+\begin{lstlisting}[style=mlpython]
+prevalence = y_test.mean()
+ap = average_precision_score(y_test, anomaly_score)
+print("fraud prevalence:", round(prevalence, 4))
+print("ROC AUC:", round(roc_auc_score(y_test, anomaly_score), 4))
+print("average precision:", round(ap, 4), " (", round(ap / prevalence, 1), "x prevalence)")
+
+ranked = X_test.copy()
+ranked["fraud_label"] = y_test.to_numpy()
+ranked["anomaly_score"] = anomaly_score
+ranked = ranked.sort_values("anomaly_score", ascending=False)
+review_budget = 100
+top_k_precision = ranked.head(review_budget)["fraud_label"].mean()
+print(f"fraud found in the top {review_budget}: {top_k_precision:.0%}")
+print(ranked[["fraud_label", "anomaly_score", "amount"]].head(10))
+\end{lstlisting}
+
+Plot score overlap and precision versus review budget.
+
+\begin{lstlisting}[style=mlpython]
+hits = ranked["fraud_label"].to_numpy()
+k_values = np.arange(10, 1001, 10)
+precision_at_k = [hits[:k].mean() for k in k_values]
+
+fig, axes = plt.subplots(1, 2, figsize=(10, 3.6))
+axes[0].hist(anomaly_score[y_test.to_numpy() == 0], bins=30, alpha=0.65, label="non-fraud")
+axes[0].hist(anomaly_score[y_test.to_numpy() == 1], bins=30, alpha=0.65, label="fraud")
+axes[0].set_xlabel("Anomaly score")
+axes[0].set_ylabel("Transactions")
+axes[0].set_title("Isolation Forest score distribution")
+axes[0].legend()
+axes[1].plot(k_values, precision_at_k)
+axes[1].axhline(prevalence, linestyle="--", color="grey", label=f"prevalence {prevalence:.1%}")
+axes[1].set_xlabel("Number of top-ranked cases reviewed (k)")
+axes[1].set_ylabel("Fraud rate among those k")
+axes[1].set_title("Precision falls as the review budget grows")
+axes[1].legend()
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\textbf{Inspect.} Abundant negatives create false alarms despite strong AUC. Use precision at the actual review budget.
+
+\medskip\noindent\textbf{Part B --- Self-training and active learning with few labels.}\par
+
+Split breast-cancer rows into a query pool, validation set, and sealed test set.
+
+\begin{lstlisting}[style=mlpython]
+rng = np.random.default_rng(42)
+
+cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
+X_c = cancer.drop(columns=["id", "diagnosis", "Unnamed: 32"], errors="ignore")
+y_c = (cancer["diagnosis"] == "M").astype(int).to_numpy()
+
+X_dev, Xc_test, y_dev, yc_test = train_test_split(
+    X_c, y_c, test_size=0.25, random_state=42, stratify=y_c
+)
+X_pool, X_val, y_pool, y_val = train_test_split(
+    X_dev, y_dev, test_size=0.25, random_state=7, stratify=y_dev
+)
+X_pool = X_pool.reset_index(drop=True)
+y_pool = np.asarray(y_pool)
+print("pool:", len(X_pool), " validation:", len(X_val), " test:", len(Xc_test))
+
+def make_model():
+    return Pipeline([
+        ("scale", StandardScaler()),
+        ("model", LogisticRegression(max_iter=2000)),
+    ])
+\end{lstlisting}
+
+Hide 70\% of pool labels as $-1$. Self-training adds predictions above confidence 0.90 and refits; erroneous pseudo-labels can reinforce mistakes.
+
+\begin{lstlisting}[style=mlpython]
+y_partial = y_pool.copy()
+y_partial[rng.random(len(y_partial)) < 0.70] = -1
+print("labels kept:", int((y_partial != -1).sum()), "of", len(y_partial))
+
+semi = Pipeline([
+    ("scale", StandardScaler()),
+    ("model", SelfTrainingClassifier(LogisticRegression(max_iter=2000), threshold=0.90)),
+])
+semi.fit(X_pool, y_partial)
+print("self-training validation accuracy:",
+      round(accuracy_score(y_val, semi.predict(X_val)), 3))
+\end{lstlisting}
+
+Start both policies with 40 labels and add 15 per round. Compare queries nearest probability 0.5 with equal-budget random queries.
+
+\begin{lstlisting}[style=mlpython]
+class0 = np.where(y_pool == 0)[0]
+class1 = np.where(y_pool == 1)[0]
+initial = np.concatenate([rng.choice(class0, 20, replace=False),
+                          rng.choice(class1, 20, replace=False)])
+active_labeled = set(initial.tolist())
+random_labeled = set(initial.tolist())
+rng_random = np.random.default_rng(123)
+
+query_batch, rounds = 15, 8
+label_counts, active_scores, random_scores = [], [], []
+
+for round_no in range(rounds):
+    active_idx, random_idx = sorted(active_labeled), sorted(random_labeled)
+    active = make_model().fit(X_pool.iloc[active_idx], y_pool[active_idx])
+    random_model = make_model().fit(X_pool.iloc[random_idx], y_pool[random_idx])
+
+    label_counts.append(len(active_labeled))
+    active_scores.append(accuracy_score(y_val, active.predict(X_val)))
+    random_scores.append(accuracy_score(y_val, random_model.predict(X_val)))
+    print(f"round {round_no + 1}: labels={label_counts[-1]:3d}  "
+          f"uncertainty={active_scores[-1]:.3f}  random={random_scores[-1]:.3f}")
+    if round_no == rounds - 1:
+        break
+
+    unlabeled = np.array([i for i in range(len(X_pool)) if i not in active_labeled])
+    uncertainty = np.abs(active.predict_proba(X_pool.iloc[unlabeled])[:, 1] - 0.5)
+    active_labeled.update(unlabeled[np.argsort(uncertainty)[:query_batch]].tolist())
+
+    unlabeled = np.array([i for i in range(len(X_pool)) if i not in random_labeled])
+    random_labeled.update(rng_random.choice(unlabeled, query_batch, replace=False).tolist())
+\end{lstlisting}
+
+\begin{lstlisting}[style=mlpython]
+plt.figure(figsize=(6, 3.6))
+plt.plot(label_counts, active_scores, marker="o", label="uncertainty sampling")
+plt.plot(label_counts, random_scores, marker="o", label="random querying")
+plt.xlabel("Number of labelled pool examples")
+plt.ylabel("Validation accuracy")
+plt.title("Label efficiency during development")
+plt.legend()
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+\textbf{Inspect.} Both curves flatten quickly; uncertainty sampling shows no clear gain over random queries with this initial label budget.
+
+Both policies are finished, so the test set is opened once for each.
+
+\begin{lstlisting}[style=mlpython]
+active_idx, random_idx = sorted(active_labeled), sorted(random_labeled)
+active_final = make_model().fit(X_pool.iloc[active_idx], y_pool[active_idx])
+random_final = make_model().fit(X_pool.iloc[random_idx], y_pool[random_idx])
+print("final test accuracy, uncertainty sampling:",
+      round(accuracy_score(yc_test, active_final.predict(Xc_test)), 3))
+print("final test accuracy, random querying:    ",
+      round(accuracy_score(yc_test, random_final.predict(Xc_test)), 3))
+\end{lstlisting}
+
+\begin{tryit}
+Compare fraud precision for review budgets 50 and 300. Then start with ten labels per class and reassess uncertainty sampling.
+\end{tryit}
+\end{labproject}

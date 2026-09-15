@@ -1,0 +1,9 @@
+part,dataset,model,metric,validation,test
+A,medical_cost,linear regression,mae,4181.1945,
+A,medical_cost,ridge,mae,4238.8239,
+B,bike_sharing_day,random_forest (chronological),mae,1040.4151,
+B,bike_sharing_hour,random_forest (chronological),mae,56.509,
+C,titanic,logistic,roc_auc,0.8421,
+C,titanic,random_forest,roc_auc,0.8344,
+C,breast_cancer,logistic,roc_auc,0.9962,
+D,titanic,"logistic {'model__C': 0.1, 'model__class_weight': 'balanced'}",roc_auc,0.85,0.8374

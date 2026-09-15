@@ -3,13 +3,9 @@
 
 \chapterguide%
   {Distance measures from \chapref{ch:linear-algebra}, Bayes' theorem from \chapref{ch:statistics}, and model-selection ideas from \chapref{ch:training}.}
-  {Run $k$-nearest neighbors by hand, choose $k$ and a distance sensibly, explain why naive Bayes multiplies per-feature probabilities, and apply Laplace smoothing to a small text example.}
+  {apply nearest neighbors and naive Bayes; explain scaling, smoothing, and their assumptions.}
 
-This chapter pairs two refreshingly simple classifiers. $k$-nearest neighbors predicts from raw similarity: ``you are probably like the examples closest to you.'' Naive Bayes predicts from probability bookkeeping: ``which class makes these feature values least surprising?'' Both can be computed by hand, both make strong baselines, and both teach lessons that echo through the rest of machine learning.
-
-\begin{firstread}
-Think of two human strategies. Nearest neighbors asks, ``what happened to the most similar past cases?'' Naive Bayes asks, ``which possible answer makes the evidence I see most believable?'' Learn those questions first; the distance and probability calculations merely make the questions repeatable.
-\end{firstread}
+$k$-nearest neighbors predicts from similar examples; naive Bayes compares how well each class explains the observed features. Both are useful baselines with hand-checkable calculations.
 
 \section{$k$-nearest neighbors}
 \label{sec:knn}
@@ -55,11 +51,11 @@ The three nearest are $B$ (Red), $A$ (Red), and $C$ (Blue). The vote is Red 2, B
 The single hyperparameter $k$ is a smoothness dial:
 
 \begin{itemize}
-  \item \term{Small $k$} (say $k=1$) yields a jagged, flexible boundary that can capture fine structure but also copies every mislabeled or noisy training point --- low bias, high variance.
-  \item \term{Large $k$} averages over a wide neighborhood, producing a smooth, stable boundary that may blur real distinctions; at the extreme $k=n$, the model always predicts the overall majority class --- high bias, low variance.
+  \item \term{Small $k$} gives a flexible boundary that follows local patterns but also noise: low bias, high variance.
+  \item \term{Large $k$} smooths the boundary but can blur distinctions. At $k=n$, classification always predicts the majority class: high bias, low variance.
 \end{itemize}
 
-Choose $k$ with validation data or cross-validation, use an odd $k$ in binary problems to avoid tied votes, and consider \term{distance-weighted voting}, in which each neighbor's vote is weighted by $1/d$ so nearer neighbors count more.
+Validate $k$. Odd $k$ avoids binary majority-vote ties; distance weighting gives nearer neighbors more influence.
 
 \subsection{What $k$-NN is sensitive to}
 
@@ -69,7 +65,7 @@ Choose $k$ with validation data or cross-validation, use an odd $k$ in binary pr
 \rowcolor{MLPaleBlue!92}
 Sensitivity & Why it matters & Practical response \\
 \midrule
-Feature scale & Distance inherits the unit problem from \secref{sec:scaling}. & Reuse that scaling/weighting rule rather than redefining it here. \\
+Feature scale & Distance inherits the unit problem from \secref{sec:scaling}: an unscaled \texttt{area} column would decide every neighbour on its own. & Standardize inside the pipeline, as Labs~1 and~3 do. \\
 Irrelevant features & Every feature affects the distance, so noise features dilute the signal. & Feature selection helps $k$-NN more than most models. \\
 High dimensions & With many weak or noisy features, distance contrast can shrink --- the \term{curse of dimensionality} --- and ``nearest'' may stop meaning ``similar.'' & Feature selection or dimensionality reduction (\chapref{ch:dimred}) can help. \\
 Dataset size & Predicting requires comparing against the whole training set. & Tree-based indexes (KD-trees, ball trees) and approximate nearest-neighbor methods make this workable at scale. \\
@@ -85,7 +81,7 @@ $k$-NN never builds a theory of the data; it just answers every question with ``
 
 \section{How $k$ reshapes the boundary}
 
-The single control on $k$-NN is $k$ itself, and its effect is easiest to see as a picture of the decision boundary.
+The boundary changes as $k$ changes.
 
 \begin{mlfigure}
 \begin{tikzpicture}[scale=0.88, every node/.style={font=\scriptsize}]
@@ -119,8 +115,20 @@ The single control on $k$-NN is $k$ itself, and its effect is easiest to see as 
 \end{mlfigure}
 
 \begin{intuition}
-The lone orange point sitting up in the blue region is probably noise. With $k=1$ the boundary detours around it, carving out a little island --- the model has memorized a mistake. With $k=15$ that point is outvoted by its fifteen neighbors and the boundary sails straight past. Small $k$ means low bias and high variance; large $k$ means the reverse.
+At $k=1$, the boundary forms an island around the isolated orange point. At $k=15$, surrounding blue votes outweigh it. Smoothing reduces sensitivity to isolated noise.
 \end{intuition}
+
+\subsection{SMOTE: nearest neighbours used to invent minority examples}
+\label{sec:smote}
+
+\chapref{ch:training} listed SMOTE as one way to handle a rare class. Its mechanics are pure $k$-NN. Take one minority-class row, find its $k$ nearest \emph{minority} neighbours, pick one of them at random, and create a new synthetic row somewhere on the straight line between the two. Repeat until the classes are as balanced as you want.
+
+SMOTE inherits distance-scaling sensitivity. Interpolation can create invalid categorical or binary values, so use appropriate representations and methods:
+
+\begin{itemize}
+  \item scale the features first, inside the pipeline;
+  \item split first, and synthesize only from the training portion of each fold, never from held-out rows.
+\end{itemize}
 
 \section{Naive Bayes}
 \label{sec:naive-bayes}
@@ -131,9 +139,9 @@ Naive Bayes turns classification into the question Bayes' theorem was built for:
   \;\propto\;
   P(y)\prod_{j=1}^{p}P(x_j\given y).
 \]
-Decoding the formula: $P(y)$ is the \term{prior} --- how common the class is before looking at any features; each $P(x_j\given y)$ is the \term{likelihood} of one feature value within that class; and the product is where the ``naive'' assumption lives --- the features are treated as conditionally independent given the class (\chapref{ch:statistics}). That assumption is often false (words in an email are not independent), yet the resulting classifier can still rank classes well in practice.
+$P(y)$ is the class \term{prior}; $P(x_j\given y)$ is a feature \term{likelihood}. Multiplying likelihoods assumes conditional independence (\chapref{ch:statistics}). Though often unrealistic, this can still rank classes usefully.
 
-Prediction picks the class with the largest score, $\hat{y}=\argmax_y P(y)\prod_j P(x_j\given y)$, and in software the product is computed as a sum of logarithms so that multiplying hundreds of small probabilities does not underflow to zero.
+Predict $\hat y=\argmax_y P(y)\prod_jP(x_j\given y)$. Compute in log space to avoid underflow.
 
 \subsection{Three standard variants}
 
@@ -152,13 +160,13 @@ Bernoulli NB & Binary presence/absence features & Explicitly models both a word 
 
 \subsection{Laplace smoothing}
 
-Estimating $P(\text{word}\given\text{class})$ by raw frequency has a fatal flaw: any word never seen in a class's training text gets probability zero, and one zero annihilates the whole product. \term{Laplace (add-one) smoothing} pretends every word was seen once more than it was:
+Raw counts assign zero probability to unseen class--word pairs, eliminating the whole product. \term{Laplace (add-one) smoothing} adds one to every count:
 \[
   P(w\given y)
   =\frac{\operatorname{count}(w,y)+1}
         {\operatorname{total\ words\ in\ }y+V},
 \]
-where $V$ is the vocabulary size. No probability is ever exactly zero, and the estimates barely change for well-observed words.
+where $V$ is vocabulary size. Smoothing prevents zero probabilities.
 
 \begin{workedexample}
 A tiny spam filter with vocabulary $\{$money, free, meeting, lunch$\}$ ($V=4$) is trained on 10 words of spam and 10 words of ham, with equal priors $P(\text{spam})=P(\text{ham})=0.5$:
@@ -183,16 +191,16 @@ With smoothing, every likelihood is $(\text{count}+1)/(10+4)$; for example $P(\t
   \text{ham score}=0.5\times\tfrac{2}{14}\times\tfrac{2}{14}
   =\tfrac{2}{196}.
 \]
-Normalizing, $P(\text{spam}\given\text{message})=15/(15+2)\approx 0.88$: the message is classified as spam. Note that without smoothing, a message containing ``lunch'' could never be spam, no matter what else it said.
+Normalizing gives spam probability $15/(15+2)\approx0.88$. Without smoothing, any message containing ``lunch'' would receive zero spam probability.
 \end{workedexample}
 
 \subsection{Strengths and limitations}
 
 \begin{itemize}
-  \item Training is a single counting pass, prediction is instant, and the model scales effortlessly to millions of features --- which is why it remains a standard first model for text.
-  \item It performs surprisingly well with little training data, because it estimates only per-feature statistics rather than feature interactions.
-  \item Its predicted probabilities are often \emph{overconfident} (the independence assumption can double-count correlated evidence), so validate the probability values and recalibrate them when decisions require calibrated risk (\chapref{ch:evaluation}).
-  \item It cannot represent interactions: if a pattern only exists in a \emph{combination} of features (``free'' and ``money'' together, but neither alone), naive Bayes cannot learn it.
+  \item Per-feature statistics make training and prediction efficient, especially for sparse text.
+  \item Few estimated interactions make it effective with limited data.
+  \item Correlated evidence can produce overconfident probabilities; validate calibration when risk estimates matter (\chapref{ch:evaluation}).
+  \item Conditional independence prevents explicit modeling of feature interactions.
 \end{itemize}
 
 \begin{keyidea}
@@ -213,23 +221,9 @@ Main risks & Scale, irrelevant features, slow prediction, high dimensions & Unre
 \end{tabularx}
 \end{modelcard}
 
-
-\input{labs/05-classification-models}
-
 \begin{quickcheck}
 \begin{enumerate}
   \item Why is feature scaling usually essential for KNN, and what role does \(k\) play in the bias--variance trade-off?
-  \item What conditional-independence assumption gives naive Bayes its name?
   \item Why can KNN become expensive at prediction time even though its training step is simple?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item $k$-NN predicts from the labels of nearby training observations.
-  \item Small $k$ can overfit; large $k$ can smooth away real local structure.
-  \item Scaling is crucial for distance-based methods; feature selection is treated as a model-development step in \chapref{ch:training}; revisit it after seeing lasso and trees.
-  \item Naive Bayes applies Bayes' theorem with conditional-independence assumptions.
-  \item Laplace smoothing prevents unseen feature-class combinations from receiving zero probability.
-\end{itemize}
-\end{chapterrecap}

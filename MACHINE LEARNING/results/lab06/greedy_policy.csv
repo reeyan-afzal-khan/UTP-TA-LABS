@@ -1,0 +1,5 @@
+,col0,col1,col2,col3
+row0,down,down,down,left
+row1,down,down,down,TRAP
+row2,right,down,down,down
+row3,right,right,right,GOAL

@@ -3,15 +3,11 @@
 
 \chapterguide%
   {Supervised learning, validation, classification probabilities, and similarity measures.}
-  {explain why unlabeled data may help, follow pseudo-labeling and graph-based methods, describe active learning, and recognize when these methods can reinforce mistakes.}
+  {compare pseudo-labeling, propagation, co-training, and active learning while preserving genuine evaluation labels.}
 
-Stages 3 and 4 showed the two clean endpoints: labels for the supervised branch and no supplied labels for the unsupervised branch. Real projects often sit between them. In ordinary supervised learning, every training row has a label. In many real projects, raw examples are plentiful but labels are expensive. A doctor may need to label scans, an engineer may need to inspect machine failures, or a legal expert may need to categorize documents.
+Raw examples may be plentiful while expert labels are costly. Semi-supervised and active learning address this gap.
 
 \term{Semi-supervised learning} uses a small labeled dataset together with a larger unlabeled dataset. \term{Active learning} asks a human to label the examples that would be most useful.
-
-\begin{firstread}
-Think of a box of photographs where only a few have names written on the back. Semi-supervised learning uses the named photos for meaning and the unnamed photos for structure. Active learning chooses which unnamed photo would be most useful to ask a person about next.
-\end{firstread}
 
 \section{The data setting}
 
@@ -25,11 +21,7 @@ be the labeled data and
 \]
 be the unlabeled data, usually with $n_U\gg n_L$.
 
-Unlabeled data can show where observations are concentrated, which examples are similar, and where natural groups may exist. It cannot by itself reveal the meaning of a class label.
-
-\begin{intuition}
-Imagine a map with only a few towns named. The unnamed dots still show where settlements are clustered. The labeled towns provide meaning; the unlabeled dots provide structure.
-\end{intuition}
+Unlabeled data reveal concentration and similarity, not class meaning.
 
 \section{When unlabeled data can help}
 
@@ -41,7 +33,7 @@ Semi-supervised methods rely on assumptions such as:
   \item the decision boundary should pass through low-density areas rather than cutting through a cluster.
 \end{itemize}
 
-These assumptions may be wrong. Two nearby customers can have different outcomes, or a cluster can contain several classes. Unlabeled data helps only when its structure relates to the label.
+Nearby observations or shared clusters need not share labels. Unlabeled structure helps only when it relates to the target.
 
 \section{Self-training and pseudo-labeling}
 
@@ -56,16 +48,16 @@ Self-training is the simplest semi-supervised approach.
 \end{mlsteps}
 
 \begin{workedexample}
-A classifier has 1,000 labeled messages and 20,000 unlabeled messages. It assigns 1,500 unlabeled messages a predicted class probability above 0.98. Those high-confidence predictions are added as temporary labels. The model is retrained, but final evaluation still uses a genuinely labeled validation and test set.
+A model trained on 1,000 labeled messages pseudo-labels 1,500 of 20,000 unlabeled messages above confidence 0.98. Validation still requires genuine labels.
 \end{workedexample}
 
 \begin{pitfall}
-A confidently wrong model can teach itself the wrong answer. Pseudo-labeling should use conservative thresholds, class-balance checks, limited rounds, and validation against human labels.
+Pseudo-labeling can reinforce confident mistakes. Limit rounds, check class balance, and validate against human labels.
 \end{pitfall}
 
 \section{Graph-based label propagation}
 
-A graph-based method treats each observation as a node. Similar observations are joined by stronger edges. Labels then spread from labeled nodes to nearby unlabeled nodes.
+Connect similar observations with weighted edges; propagate labels through the graph.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -95,13 +87,13 @@ This works well when similarity is meaningful and clusters line up with classes.
 
 \section{Co-training}
 
-Co-training uses two different views of the same observation. For example, a webpage may have text content and link information. Two models are trained separately; each adds high-confidence labels for the other.
+Co-training fits two views, such as webpage text and links, whose models exchange high-confidence pseudo-labels.
 
-The method is most plausible when both views contain useful information and make partly independent errors. It is not appropriate when the two views are nearly identical.
+Both views must be informative and offer complementary errors; nearly identical views add little.
 
 \section{Active learning}
 
-Active learning spends a labeling budget carefully. Instead of labeling random examples, the model selects examples expected to teach it the most.
+Active learning queries labels expected to be most informative within a fixed budget.
 
 Common selection strategies include:
 
@@ -134,10 +126,6 @@ Expected impact & Examples whose labels are estimated to improve the model most 
 \end{tikzpicture}
 \end{mlfigure}
 
-\section{The active learning loop, drawn}
-
-Active learning inverts the usual arrangement. Instead of being handed labels, the model asks for the ones it most needs.
-
 \begin{mlfigure}
 \begin{tikzpicture}[
   node distance=1.05cm and 1.35cm,
@@ -157,9 +145,7 @@ Active learning inverts the usual arrangement. Instead of being handed labels, t
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{analogy}
-A student revising for an exam has limited time. The inefficient approach is to reread the whole textbook. The efficient approach is to attempt practice questions, notice which topics produce hesitation, and study only those. Active learning is a model doing exactly that: spending its scarce labeling budget on the examples that confuse it most.
-\end{analogy}
+In Lab~5, uncertainty sampling does not beat random queries: 40 labels already give near-perfect separation. The Try-it starts with fewer labels to test when querying helps.
 
 \section{A safe practical workflow}
 
@@ -186,8 +172,7 @@ Main risks & Confirmation bias, class imbalance, poor similarity measures, sampl
 Unlabeled data provides structure, not truth. Human labels remain the source of meaning and the basis of fair evaluation.
 \end{keyidea}
 
-
-\input{labs/09-anomaly-limited-labels}
+\input{labs/05-anomaly-limited-labels}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -196,13 +181,3 @@ Unlabeled data provides structure, not truth. Human labels remain the source of 
   \item Why must final validation and test labels come from a genuine labeling source rather than from the model itself?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Semi-supervised learning combines a small labeled set with a larger unlabeled set.
-  \item Pseudo-labeling adds only high-confidence model predictions and must be checked for error reinforcement.
-  \item Graph methods spread labels through similarity connections.
-  \item Active learning asks humans to label examples that are uncertain, disputed, diverse, or high impact.
-  \item Final validation and testing must use genuine human labels.
-\end{itemize}
-\end{chapterrecap}

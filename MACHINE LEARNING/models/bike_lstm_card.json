@@ -1,0 +1,18 @@
+{
+  "task": "forecast next-hour bike rentals from the previous 24 hours",
+  "input": "tensor of shape (n, 24, 1): the last 24 hourly counts divided by scale",
+  "scale": 957.0,
+  "architecture": "LSTMForecaster(hidden_size=32) in Lab 8",
+  "training": {
+    "epochs": 8,
+    "learning_rate": 0.003,
+    "batch_size": 64,
+    "seed": 42
+  },
+  "validation_mae_rentals": 41.9,
+  "baseline_mae_rentals": {
+    "persistence (last hour)": 85.2,
+    "same hour yesterday": 80.5
+  },
+  "torch_version": "2.14.0+cpu"
+}

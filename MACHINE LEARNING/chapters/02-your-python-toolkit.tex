@@ -3,35 +3,49 @@
 
 \chapterguide%
   {Create folders and run basic \textbf{terminal commands}.}
-  {Organize \textbf{datasets}, create a \textbf{virtual environment}, and install \textbf{dependencies}.}
+  {organize data and notebooks, configure an environment, install dependencies, and run labs reproducibly.}
 
 \section{The course project layout}
 
-Use one \textbf{project root}, with separate folders for \textbf{datasets} and \textbf{notebooks}:
+Use \texttt{UTP-MACHINE-LEARNING/} as the project root, with these folders:
 
+\noindent
+\begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}[style=mlterminal]
-UTP_MACHINE_LEARNING/
-  all_datasets/                  # one subfolder per dataset
-    titanic_dataset/
-    medical_cost_personal_dataset/
-    breast_cancer_dataset/
-    ames_housing_dataset/
-    mall_customers_dataset/
-    optical_recognition_dataset/
-    credit_card_fraud_dataset/
-    student_performance_dataset/
-    heart_failure_dataset/
-    red_wine_quality_dataset/
-    bike_sharing_dataset/
-
-  all_experiments/              # one dedicated folder for each lab
-    lab01/
-    lab02/
-    ...
-    lab10/
-
-  requirements.txt
+all_datasets/
+  ames_housing_dataset.csv
+  bike_sharing_dataset_day.csv
+  bike_sharing_dataset_hour.csv
+  breast_cancer_dataset.csv
+  credit_card_fraud_dataset.csv
+  heart_failure_dataset.csv
+  mall_customers_dataset.csv
+  medical_cost_personal_dataset.csv
+  optical_recognition_handwritten_digits.zip
+  red_wine_quality_dataset.csv
+  student_performance_dataset.csv
+  titanic_dataset.csv
 \end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\begin{lstlisting}[style=mlterminal]
+all_experiments/
+  lab01_features_worked.ipynb
+  lab02_supervised_workflow_worked.ipynb
+  lab03_supervised_models_worked.ipynb
+  lab04_clustering_pca_worked.ipynb
+  lab05_anomaly_limited_labels_worked.ipynb
+  lab06_reinforcement_worked.ipynb
+  lab07_deep_learning_cnn_worked.ipynb
+  lab08_deep_learning_lstm_worked.ipynb
+  predict_passenger.py
+models/
+results/lab01/ ... lab08/
+requirements.txt
+\end{lstlisting}
+\end{minipage}
+
+{\footnotesize Keep the digits ZIP intact. Each lab has one worked notebook; \texttt{predict\_passenger.py} uses the saved Lab~2 model. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs.\par}
 
 \section{Download the datasets}
 
@@ -41,22 +55,22 @@ Click a \textbf{dataset name} to download it, then extract the files into \textb
 \footnotesize
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\linewidth}{@{}p{0.38\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.40\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Kaggle dataset & Main use in these notes \\
+\textbf{Kaggle Dataset} & \textbf{Description} \\
 \midrule
-\href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & data quality assessment, baselines, model selection, logistic regression, trees \\
-\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & first pipeline, linear and ridge regression \\
-\href{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin} & geometry, evaluation, KNN, naive Bayes, SVM, limited labels \\
-\href{https://www.kaggle.com/datasets/shashanknecrothapa/ames-housing-dataset}{Ames Housing} & random forests and gradient boosting \\
-\href{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customers} & unsupervised workflow, K-means, DBSCAN \\
-\href{https://www.kaggle.com/datasets/yadavhim/optical-recognition-of-handwritten-digits}{Optical Recognition of Handwritten Digits} & PCA and representation learning \\
-\href{https://www.kaggle.com/datasets/miadul/credit-card-fraud-detection-dataset}{Credit Card Fraud Detection} & anomaly detection and imbalanced evaluation \\
-\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & unfamiliar-data assessment, delimiter/schema comparison, stage checkpoint \\
-\href{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}{Heart Failure Prediction} & classification evaluation on a new mixed-type schema \\
-\href{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009}{Red Wine Quality} & ensemble transfer exercise \\
-\href{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing} & chronological splitting, leakage checks, regression transfer lab \\
+\href{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin} & Lab~1: scaling; Lab~2: thresholds; Lab~3: KNN, naive Bayes, SVM; Lab~5: limited labels \\
+\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & Lab~1: pipelines; Lab~2: linear and ridge regression \\
+\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & Lab~1: data quality, prediction timing, feature selection \\
+\href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & Lab~1: feature engineering; Lab~2: baselines, tuning, saving; Lab~3: trees \\
+\href{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing} & Lab~2: daily/hourly time splits; Lab~8: LSTM forecasting \\
+\href{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}{Heart Failure Prediction} & Lab~2 Try-it: mixed-type classification \\
+\href{https://www.kaggle.com/datasets/shashanknecrothapa/ames-housing-dataset}{Ames Housing} & Lab~3: random forests and gradient boosting \\
+\href{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009}{Red Wine Quality} & Lab~3: ensembles and feature importance \\
+\href{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customers} & Lab~4: K-means and DBSCAN \\
+\href{https://www.kaggle.com/datasets/yadavhim/optical-recognition-of-handwritten-digits}{Optical Recognition of Handwritten Digits} & Lab~4: PCA; Lab~7: CNNs \\
+\href{https://www.kaggle.com/datasets/miadul/credit-card-fraud-detection-dataset}{Credit Card Fraud Detection} & Lab~5: anomaly detection and imbalanced evaluation \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
@@ -70,10 +84,16 @@ Kaggle dataset & Main use in these notes \\
 \end{mlsteps}
 
 \begin{pitfall}
-For \textbf{\texttt{FileNotFoundError}}, check the \textbf{working directory}, \textbf{folder}, and \textbf{filename}. Correct the path instead of moving files into the project root.
+For \textbf{\texttt{FileNotFoundError}}, check the working directory and filename. Fix the path rather than moving files into the project root.
 \end{pitfall}
 
-\section{Install Python and configure PATH}
+\section{Two ways to set up: plain Python or Anaconda}
+
+\begin{keyidea}
+Use one environment per project; activate it before installing or running packages.
+\end{keyidea}
+
+\section{Route A: install Python and configure PATH}
 
 Download Python from the \href{https://www.python.org/downloads/}{\textbf{official downloads page}}.
 
@@ -83,7 +103,7 @@ Download Python from the \href{https://www.python.org/downloads/}{\textbf{offici
   \item[Linux] Install \textbf{Python 3} with your package manager. Do not replace the \textbf{system Python}.
 \end{description}
 
-\textbf{Windows PATH fix.} If \texttt{py} is not found, open \textbf{Edit environment variables for your account}, select \textbf{Path}, then \textbf{Edit}. Add the command directory shown by your installer, for example:
+\textbf{Windows PATH fix.} If \texttt{py} is missing, open \textbf{Edit environment variables for your account}, then \textbf{Path > Edit}. Add the installer's command directory, for example:
 
 \begin{lstlisting}[style=mlterminal]
 %LocalAppData%\Python\bin
@@ -117,18 +137,20 @@ python3 -m pip --version
 which -a python3
 \end{lstlisting}
 
-\section{Create an isolated virtual environment}
+\section{Route A: create an isolated virtual environment}
 
 \textbf{\texttt{venv}} keeps this project's packages separate from other projects. See the \href{https://docs.python.org/3/library/venv.html}{\textbf{venv documentation}}.
 
-The root-level \textbf{\texttt{requirements.txt}} lists the course \textbf{dependencies}:
+The root-level \textbf{\texttt{requirements.txt}} lists dependencies, including PyTorch (\texttt{torch}) for Labs~7--8. A CPU is sufficient.
 
 \begin{lstlisting}[style=mlterminal]
 numpy
 pandas
 matplotlib
 scikit-learn
+joblib
 jupyter
+torch
 \end{lstlisting}
 
 \textbf{Create} the environment in the \textbf{project root}:
@@ -233,3 +255,40 @@ python3 -m pip install -r requirements.txt
 
 \end{tikzpicture}
 \end{mlfigure}
+
+\section{Route B: Anaconda or Miniconda}
+
+\textbf{Miniconda} supplies Python and \texttt{conda}; \textbf{Anaconda} adds Navigator and preinstalled packages. Download \href{https://docs.anaconda.com/miniconda/}{\textbf{Miniconda}} or \href{https://www.anaconda.com/download}{\textbf{Anaconda}}.
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Windows] Use default installer options without adding conda to PATH. Open \textbf{Anaconda Prompt} from Start.
+  \item[macOS / Linux] Run the \texttt{.pkg} or \texttt{.sh} installer, then close and reopen the terminal. The prompt shows \texttt{(base)}, which means conda is active.
+\end{description}
+
+\textbf{Create} one environment for the course, with a Python version the libraries support, then \textbf{activate} it:
+
+\begin{lstlisting}[style=mlterminal]
+conda create -n ml python=3.12
+conda activate ml
+\end{lstlisting}
+
+\textbf{Install dependencies} with the same \texttt{requirements.txt} used in Route A:
+
+\begin{lstlisting}[style=mlterminal]
+pip install -r requirements.txt
+\end{lstlisting}
+
+Create once, activate each session, and avoid installing into \texttt{(base)}. Check the active environment and Python:
+
+\begin{lstlisting}[style=mlterminal]
+conda env list
+python -c "import sys; print(sys.executable)"
+\end{lstlisting}
+
+\begin{pitfall}
+Avoid installing the same package with both conda and pip. Use pip with the course requirements. Recreate a broken environment with \texttt{conda env remove -n ml}, then repeat setup.
+\end{pitfall}
+
+\begin{troubleshoot}
+\textbf{Conda not found on Windows:} use Anaconda Prompt, or initialize PowerShell there with \texttt{conda init powershell}. \textbf{Jupyter import failure:} activate \texttt{ml}, restart Jupyter, and check the kernel with Lab~1's environment cell.
+\end{troubleshoot}

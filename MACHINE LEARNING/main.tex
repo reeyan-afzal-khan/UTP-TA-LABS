@@ -2,12 +2,12 @@
 
 % ---------- course configuration ----------
 \def\utprunninghead{Machine Learning Notes}
-\def\utplabtotal{10}
+\def\utplabtotal{8}
 \def\utpcoursetitle{Machine Learning}
 \def\utpcourseoutline{%
   A step-by-step path through data preparation, shared mathematical
-  foundations, supervised and unsupervised learning, and directions for
-  further study.%
+  foundations, supervised and unsupervised learning, and a little touch of
+  Deep Learning.%
 }
 
 % ---------- everything shared with the other courses ----------
@@ -44,11 +44,11 @@
 \input{chapters/05-statistics-geometry-and-similarity}
 
 \part{Supervised Learning}
-\substage{3A}{Supervised Workflow}{Learn how supervised problems are framed, evaluated, and selected before changing model families.}
+\substage{3A}{Supervised Workflow}{Define objectives, evaluation, and selection before comparing models.}
 \input{chapters/06-how-supervised-learning-works}
 \input{chapters/07-evaluating-supervised-models}
 \input{chapters/08-training-generalization-and-model-selection}
-\substage{3B}{Supervised Model Families}{Hold the workflow fixed and change one model family at a time so comparisons stay meaningful.}
+\substage{3B}{Supervised Model Families}{Compare model families under one fixed validation workflow.}
 \input{chapters/09-linear-models-for-regression}
 \input{chapters/10-linear-models-for-classification}
 \input{chapters/11-nearest-neighbors-and-naive-bayes}
@@ -57,9 +57,9 @@
 \input{chapters/14-support-vector-machines}
 
 \part{Unsupervised Learning}
-\substage{4A}{Unsupervised Workflow}{Reset the objective: no label is supplied during fitting, so validation must focus on structure, stability, usefulness, and domain evidence.}
+\substage{4A}{Unsupervised Workflow}{Evaluate unlabeled structure through stability, usefulness, and domain evidence.}
 \input{chapters/15-how-unsupervised-learning-works}
-\substage{4B}{Unsupervised Model Families}{Apply the unsupervised workflow to clustering, representation learning, and anomaly detection without pretending that internal structure is automatically ground truth.}
+\substage{4B}{Unsupervised Model Families}{Compare clustering, representations, and anomaly detection; validate their meaning.}
 \input{chapters/16-clustering}
 \input{chapters/17-dimensionality-reduction-and-representation}
 \input{chapters/18-anomaly-detection}
@@ -67,8 +67,8 @@
 \part{Advanced Concepts}
 \input{chapters/19-semi-supervised-and-active-learning}
 \input{chapters/20-reinforcement-learning}
+\input{chapters/21-neural-networks}
 
 \input{chapters/capstone-project}
-\input{chapters/epilogue-where-to-go-next}
 
 \end{document}

@@ -5,16 +5,12 @@
 
 \chapterguide%
   {\chapref{ch:data}, \chapref{ch:learning}, and comfort with arithmetic, fractions, powers, and basic algebra.}
-  {use the minimum statistical and geometric vocabulary needed by later models, recognize when scale or uncertainty changes an analysis, and know which second-pass topics can safely wait until a later chapter requires them.}
+  {use statistics, probability, vectors, matrices, distances, and gradients; recognize uncertainty and scaling effects.}
 
-Machine learning repeatedly asks two kinds of questions about data: \emph{what does this collection look like?} and \emph{how are these observations related?} Statistics answers the first with center, spread, probability, and association. Geometry and linear algebra answer the second with vectors, distances, dot products, and transformations. Keeping them together gives the shared vocabulary needed by both supervised and unsupervised learning, but this chapter is deliberately layered: the first pass gives you enough mathematics to continue; the second pass deepens ideas when you have a concrete reason to return.
-
-\begin{firstread}
-\textbf{First pass --- learn these now:} mean versus median, spread and quantiles, probability intuition, correlation versus causation, vectors, matrix shapes, dot products, norms, Euclidean distance, cosine similarity, feature scaling, and the idea that a gradient points uphill. These concepts recur immediately in the model chapters.
-\end{firstread}
+Statistics describes variation, uncertainty, and association; geometry describes vectors, distances, and transformations.
 
 \begin{secondpass}
-\textbf{Return later when needed:} standard errors and confidence intervals, the bootstrap, detailed probability distributions, Bayes' theorem algebra, matrix inverses, eigenvectors/SVD, and curvature. They are valuable, but none should block a beginner from reaching the first models.
+\textbf{Second pass:} standard errors, confidence intervals, bootstrap, distributions, Bayes' algebra, inverses, eigenvectors/SVD, and curvature. These need not delay the first models.
 \end{secondpass}
 
 \section*{Part A: Describe data with statistics and probability}
@@ -33,14 +29,14 @@ For values $x_1,\ldots,x_N$, the population mean is
 \[
   \mu=\frac{1}{N}\sum_{i=1}^{N}x_i.
 \]
-The capital sigma $\sum$ means ``add the values.'' The formula therefore says exactly what an ordinary average does: add all $N$ values and divide by $N$.
+The symbol $\sum$ means summation: add the $N$ values, then divide by $N$.
 
 The sample mean is usually written $\bar{x}$ and uses the same calculation on a sample.
 
 The \term{median} is the middle value after sorting. It is less affected by extreme values.
 
 \begin{workedexample}
-For $30,32,35,38,500$, the mean is $127$, while the median is $35$. The mean answers ``what would everyone receive if the total were shared equally?'' The median answers ``what value sits in the middle?'' The median better represents a typical income in this strongly skewed example.
+For $30,32,35,38,500$, the mean is $127$ and median $35$. The median better describes typical income here because the extreme value pulls the mean upward.
 \end{workedexample}
 
 \subsection{Variance and standard deviation}
@@ -107,12 +103,8 @@ The mean and median agree on symmetric data and disagree sharply on skewed data.
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{analogy}
-Put ten ordinary people in a room and the mean and median income are similar. Now let a billionaire walk in. The median barely moves --- there is still an ordinary person in the middle --- but the mean leaps to something no one in the room actually earns. The median is stubborn; the mean is easily dragged.
-\end{analogy}
-
 \begin{keyidea}
-If the mean is far above the median, the data has a long right tail. That can motivate a log transform or robust scaler. In \chapref{ch:evaluation}, the same idea reappears when MAE and RMSE react differently to extreme prediction errors.
+A mean far above the median suggests right skew. Consider a log transform or robust scaler; extreme errors also affect RMSE more than MAE (\chapref{ch:evaluation}).
 \end{keyidea}
 
 \section{The normal distribution}
@@ -143,12 +135,12 @@ The normal distribution is the familiar bell-shaped curve. It is controlled by a
 Many measurement errors and averages are approximately normal, but real data should not be assumed normal without inspection.
 
 \begin{intuition}
-The mean moves the bell left or right. The standard deviation controls its width. A small standard deviation creates a narrow bell; a large one creates a wide bell.
+$\mu$ sets the bell's center; $\sigma$ sets its width.
 \end{intuition}
 
 \section{Population, sample, and sampling bias}
 
-A \term{population} is the full group we want to understand. A \term{sample} is the smaller group actually observed. We calculate a statistic from the sample to estimate an unknown population parameter.
+A \term{sample} is the observed subset of a \term{population}. Sample statistics estimate population parameters.
 
 For a sample of size $n$, the common sample variance is
 \[
@@ -157,7 +149,7 @@ For a sample of size $n$, the common sample variance is
 The denominator $n-1$ corrects the tendency to underestimate population variance when deviations are measured around the sample mean.
 
 \begin{pitfall}
-A large sample is not automatically a good sample. If the sample systematically excludes part of the population, collecting more of the same biased data gives a more precise answer to the wrong question.
+More observations do not correct systematic sampling bias.
 \end{pitfall}
 
 \section{Standard error and confidence intervals}
@@ -166,18 +158,18 @@ Standard deviation describes variation among individual observations. \term{Stan
 \[
   \operatorname{SE}(\bar{x})=\frac{s}{\sqrt{n}}.
 \]
-Larger samples reduce standard error, but the improvement follows $1/\sqrt{n}$. To cut standard error in half, we need about four times as much data.
+Standard error falls as $1/\sqrt{n}$: halving it requires about four times the data.
 
-For independent observations from the same distribution with finite variance, the central limit theorem says that sample means become approximately normally distributed as the sample size grows. The approximation may be poor for small samples, very heavy tails, or dependent observations. Under suitable conditions it supports an approximate confidence interval:
+For independent, identically distributed observations with finite variance, sample means approach normality as sample size grows. Small samples, heavy tails, or dependence can invalidate the approximation. Under suitable conditions:
 \[
   \bar{x}\pm z_{1-\alpha/2}\frac{s}{\sqrt{n}}.
 \]
 
-A 95\% confidence procedure produces intervals that contain the true parameter in about 95\% of repeated samples, assuming the method's conditions are satisfied.
+A valid 95\% confidence procedure covers the true parameter in about 95\% of repeated samples.
 
 \subsection{The bootstrap}
 
-When an estimator has no convenient standard-error formula, the \term{bootstrap} repeatedly samples rows \emph{with replacement} from the observed sample and recalculates the estimator. The resulting distribution describes sensitivity to sampling variation.
+The \term{bootstrap} estimates sampling variability by repeatedly resampling observations with replacement and recalculating the statistic.
 
 \begin{mlsteps}
   \item Draw $n$ rows with replacement from the $n$ observed rows.
@@ -185,7 +177,7 @@ When an estimator has no convenient standard-error formula, the \term{bootstrap}
   \item Repeat many times and use suitable quantiles as an interval.
 \end{mlsteps}
 
-This ordinary row bootstrap assumes the rows are exchangeable. Time series, groups, repeated measurements, and paired model predictions require a structure-preserving procedure. A bootstrap interval is only as valid as its sampling design.
+Resampling must preserve dependence: use blocks for time series, groups for repeated measurements, and matched observations for paired comparisons.
 
 \section{Probability basics}
 
@@ -270,7 +262,7 @@ Pearson correlation standardizes covariance:
 It lies between $-1$ and $1$ and measures linear association.
 
 \begin{pitfall}
-Correlation does not prove causation. A hidden variable may affect both quantities, the direction may be reversed, or the relationship may result from how the data was selected.
+Correlation does not establish causation: confounding, reverse direction, or selection may explain it.
 \end{pitfall}
 
 A correlation near zero also does not rule out a curved or other nonlinear relationship.
@@ -280,7 +272,7 @@ A correlation near zero also does not rule out a curved or other nonlinear relat
 \[
 L(\theta)=\prod_{i=1}^{n}p(x_i\given\theta).
 \]
-Maximum likelihood estimation chooses the parameter that makes the observed data most probable. In practice, we maximize the log-likelihood because it turns a product into a sum:
+Maximum likelihood selects the parameter making the observations most probable. Taking logs converts products into sums:
 \[
 \hat{\theta}_{\mathrm{MLE}}=\argmax_{\theta}\sum_{i=1}^{n}\log p(x_i\given\theta).
 \]
@@ -288,11 +280,11 @@ Many familiar machine-learning losses are negative log-likelihoods.
 \end{optionaltopic}
 
 \begin{optionaltopic}
-\textbf{Hypothesis tests, p-values, and effect size.} A hypothesis test asks whether data would be surprising under a stated null model. A p-value is the probability, assuming the null model, of seeing a result at least as extreme as the observed one. It is not the probability that the null hypothesis is true. Report practical effect size and uncertainty, not only statistical significance.
+\textbf{Hypothesis tests.} A p-value is the probability, under the null model, of a result at least as extreme as observed---not the probability the null is true. Report effect size and uncertainty too.
 \end{optionaltopic}
 
 \begin{optionaltopic}
-\textbf{Entropy, cross-entropy, and KL divergence.} Entropy measures uncertainty in a probability distribution. Cross-entropy measures how well predicted probabilities match true outcomes and is widely used in classification. KL divergence measures how one probability distribution differs from another. These ideas reappear in \chapref{ch:classification} and \chapref{ch:evaluation}.
+\textbf{Entropy} measures uncertainty; \textbf{cross-entropy} evaluates predicted probabilities; \textbf{KL divergence} compares distributions (\chapref{ch:classification}, \chapref{ch:evaluation}).
 \end{optionaltopic}
 
 \section{Scalars, vectors, and matrices}
@@ -310,12 +302,12 @@ For $n$ observations and $p$ features, the design matrix has shape
 The first number is the number of rows; the second is the number of columns.
 
 \begin{workedexample}
-If 500 students are described by age, study hours, attendance, and previous score, then $X$ has shape $500\times4$. One row is a four-number vector describing one student.
+Five hundred students with four features give $X\in\mathbb{R}^{500\times4}$. Lab~1's Student Performance matrix has 649 rows and 32 feature columns.
 \end{workedexample}
 
 \section{Matrix shapes: the rule that governs everything}
 
-Most linear-algebra errors in machine learning are shape errors. One rule prevents nearly all of them: the inner dimensions must match, and the outer dimensions survive.
+For matrix multiplication, inner dimensions must match; outer dimensions determine the result.
 
 \begin{mlfigure}
 \begin{tikzpicture}[font=\small]
@@ -338,10 +330,6 @@ Most linear-algebra errors in machine learning are shape errors. One rule preven
 \node[font=\scriptsize\color{MLGreen}] at (3.0,2.5) {these survive into the answer};
 \end{tikzpicture}
 \end{mlfigure}
-
-\begin{analogy}
-Think of matrices as adaptors. A cable with a $p$-shaped plug fits a socket with a $p$-shaped hole. What comes out the other end has whatever shape that device produces. If the dimensions disagree, the multiplication is not defined.
-\end{analogy}
 
 \section{Vector arithmetic}
 
@@ -415,7 +403,7 @@ Distance-based models can be meaningless when features use very different scales
 
 \subsection*{The same two points can look different under different measures}
 
-The course material lists Euclidean, Manhattan, Jaccard, Minkowski, and cosine measures because there is no universal definition of ``close.'' The data representation and the question determine the geometry.
+Euclidean, Manhattan, Jaccard, Minkowski, and cosine measures encode different meanings of ``close''. Choose one for the representation and task.
 
 \begin{workedexample}
 For points $P=(1,2)$ and $Q=(4,6)$,
@@ -434,18 +422,18 @@ The \term{Minkowski distance} unifies both:
  d_p(\bm{x},\bm{z})=
  \left(\sum_j |x_j-z_j|^p\right)^{1/p}.
 \]
-Setting $p=1$ gives Manhattan distance and $p=2$ gives Euclidean distance. Changing $p$ changes which differences matter most, so it is a modeling choice rather than a cosmetic parameter.
+Minkowski uses Manhattan distance at $p=1$ and Euclidean distance at $p=2$. Choose $p$ to match the task.
 
 \begin{workedexample}
 For sets $A=\{0,1,2,5,6\}$ and $B=\{0,2,3,4,5,7,9\}$, the intersection has three elements and the union has nine. Therefore
 \[
  J(A,B)=\frac{|A\cap B|}{|A\cup B|}=\frac{3}{9}=0.33.
 \]
-Jaccard similarity ignores shared absences and focuses on overlap among present items, which is why it is natural for sets and sparse binary indicators.
+Jaccard measures overlap among present items, ignoring shared absences.
 \end{workedexample}
 
 \begin{keyidea}
-Choose the representation and the distance together. Euclidean distance on one-hot categories, cosine similarity on raw physical measurements, or Jaccard similarity on dense continuous variables may all produce numbers while answering the wrong geometric question.
+Choose representation and distance together; a computable distance need not be meaningful.
 \end{keyidea}
 
 \section{Cosine similarity visually}
@@ -479,10 +467,8 @@ Depending on its values, $A$ can rotate, stretch, shrink, reflect, or combine co
   \hat{\bm{y}}=X\bm{\beta}.
 \]
 
-Matrix multiplication is possible when the inner dimensions match. If $A$ is $m\times p$ and $B$ is $p\times k$, then $AB$ is $m\times k$.
-
 \begin{intuition}
-Think of matrix multiplication as a factory line. Each output column is built from weighted combinations of the input columns. The shape tells you whether the machines can connect.
+Matrix multiplication forms weighted combinations; compatible shapes determine which products exist.
 \end{intuition}
 
 \section{Transpose, identity, and inverse}
@@ -497,7 +483,7 @@ When an inverse exists,
 \[
   A^{-1}A=I.
 \]
-In practice, machine-learning software usually solves linear systems using stable numerical methods instead of explicitly calculating an inverse.
+Solve linear systems numerically rather than explicitly computing inverses.
 
 \section{Gradients: which way changes the loss?}
 
@@ -515,22 +501,19 @@ The gradient points toward the fastest increase in $J$. To reduce a loss, gradie
   \bm{\theta}\leftarrow\bm{\theta}-\alpha\nabla_{\bm{\theta}}J.
 \]
 
-This chapter needs only the direction: the gradient points uphill, so optimization moves against it. The full gradient-descent intuition, learning-rate cases, and worked example appear once in \secref{sec:gradient-descent}.
+For step sizes and a worked gradient-descent update, see \secref{sec:gradient-descent}.
 
 \begin{optionaltopic}
-\textbf{Eigenvectors, eigenvalues, and singular value decomposition.} An eigenvector of a square matrix keeps its direction after the matrix transformation, changing only in size. Singular value decomposition factors any matrix into rotations and axis-wise scaling. These ideas power principal component analysis in \chapref{ch:dimred}. On a first reading, understand the purpose: they reveal important directions in data.
+\textbf{Eigenvectors and SVD.} An eigenvector is scaled by a square matrix. SVD factors a matrix into rotations/reflections and scaling. Both reveal directions used in PCA (\chapref{ch:dimred}).
 \end{optionaltopic}
 
 \begin{optionaltopic}
-\textbf{The Hessian and curvature.} A Hessian matrix collects second derivatives and describes how the gradient changes. Positive curvature suggests a bowl-like objective; negative curvature suggests a hill-like direction. This is useful for advanced optimization but is not required for the algorithms in this beginner edition.
+\textbf{Hessian.} This matrix of second derivatives describes curvature: positive in bowl-like directions, negative in hill-like directions. It supports advanced optimization.
 \end{optionaltopic}
 
 \begin{keyidea}
 Vectors represent observations and parameters; matrices represent datasets and transformations; dot products create weighted sums; distances compare observations; and gradients tell optimization which direction to move.
 \end{keyidea}
-
-
-\input{labs/02-learning-loop-geometry}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -539,15 +522,3 @@ Vectors represent observations and parameters; matrices represent datasets and t
   \item Why can standardizing features change a nearest-neighbor or clustering result even though the observations themselves did not change?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Center and spread describe a distribution together; samples estimate populations but sampling bias is not repaired by sample size.
-  \item Probability, Bayes' theorem, and correlation provide shared language for uncertainty and association without implying causation.
-  \item A dataset with $n$ rows and $p$ features is an $n\times p$ matrix.
-  \item Dot products are weighted sums and measures of alignment.
-  \item Norms measure size; distances compare observations.
-  \item Feature scale strongly affects distance-based methods.
-  \item The negative gradient gives a local direction for reducing an objective.
-\end{itemize}
-\end{chapterrecap}

@@ -3,19 +3,13 @@
 
 \chapterguide%
   {\chapref{ch:unsupervised}, feature scaling, vectors, distances, and the Gaussian distribution from \chapref{ch:foundations}.}
-  {distinguish hard from soft clustering, run $K$-means by hand, choose and justify cluster structure, and compare $K$-means, fuzzy $C$-means, Gaussian mixtures, hierarchical clustering, and DBSCAN under the Stage 4A evaluation workflow.}
+  {compare centroid, hierarchical, density, and soft clustering; assess stability and usefulness.}
 
-Stage 4A already established what changes when no label is supplied and how unsupervised evidence should be judged. Stage 4B now holds that workflow fixed while changing the model family. We begin with \term{clustering}: methods that propose a grouping, hierarchy, density partition, or soft membership structure for observations.
+This chapter applies the unsupervised workflow to \term{clustering}: finding groups, hierarchies, dense regions, or partial memberships.
 
-The central question is no longer ``what is unsupervised learning?'' but \textbf{what notion of a group does this clustering method assume?} $K$-means prefers compact center-based groups; hierarchical methods expose nested structure; DBSCAN defines groups through density connectivity and can leave points as noise; mixture models assign probabilistic memberships. The quantitative score is therefore evidence about a chosen structure, not an answer key.
+Each method defines a group differently: $K$-means uses compact center-based groups, hierarchical methods nested structure, DBSCAN density connectivity, and mixtures probabilistic components.
 
-Without labels there is no single correct output to compare against, so results must be judged by a combination of quantitative scores, stability checks, visualization, and domain knowledge. The Stage 4A warning applies throughout this chapter: internal metrics can compare candidate structures, but they do not prove that a cluster is meaningful for the application.
-
-Clustering asks: do the observations form useful, stable groups --- customer segments, document topics, cell types? For distance-based clustering, reuse the scaling decision from \secref{sec:scaling}; original units may be retained when they intentionally encode domain priorities.
-
-\begin{firstread}
-Core path: understand $K$-means, scaling, cluster evaluation, and DBSCAN. Treat Gaussian mixtures, fuzzy $C$-means, and hierarchical clustering as additional cluster shapes to learn after the two core ideas are comfortable.
-\end{firstread}
+Combine scores, stability, plots, and domain knowledge; an internal score alone does not make a clustering meaningful.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.34\linewidth}X@{}}
@@ -66,10 +60,12 @@ The algorithm (Lloyd's algorithm) alternates between two steps until nothing cha
 \begin{enumerate}
   \item \term{Assign}: send each observation to its nearest center.
   \item \term{Update}: move each center to the mean of the observations assigned to it.
+\end{enumerate}
+
 % === VISUAL ADDITION: kmeans-four-frame ===
 \subsection{$K$-means as a four-frame loop}
 
-The two instructions above become easier to remember as a repeated picture: choose centers, assign points, move centers, and repeat until the assignments stop changing.
+Initialize centers, assign points, update centers, and repeat.
 
 \begin{mlfigure}
 \begin{tikzpicture}[font=\scriptsize,scale=0.78]
@@ -136,8 +132,6 @@ The two instructions above become easier to remember as a repeated picture: choo
 \end{mlfigure}
 % === END VISUAL ADDITION ===
 
-\end{enumerate}
-
 \begin{workedexample}
 Cluster the one-dimensional points $\{1,2,3,10,11,12\}$ with $K=2$, starting from centers $c_1=1$ and $c_2=12$.
 \emph{Assign:} points $1,2,3$ are nearer $c_1$; points $10,11,12$ are nearer $c_2$.
@@ -145,13 +139,13 @@ Cluster the one-dimensional points $\{1,2,3,10,11,12\}$ with $K=2$, starting fro
 \emph{Assign again:} nothing moves (e.g.\ point 3 is at distance 1 from $c_1$ and 8 from $c_2$), so the algorithm stops. The objective is $(1+0+1)+(1+0+1)=4$, and the two obvious groups have been found in one round.
 \end{workedexample}
 
-Each assignment/update step cannot increase the objective, so with a consistent rule for distance ties, Lloyd's $K$-means algorithm reaches a stable solution after finitely many distinct assignments. That solution need not be globally best and depends on the starting centers. Standard practice is the \term{$k$-means++} initialization, which picks starting centers that are spread out, combined with several random restarts, keeping the run with the lowest objective. For very large datasets, \term{mini-batch $K$-means} updates centers from small random batches and trades a little accuracy for a lot of speed.
+Each round cannot increase the objective, but convergence may be local. Use $k$-means++ and multiple restarts (Lab~4 sets \texttt{n\_init} to at least 20). Mini-batches trade some fit quality for speed.
 
 $K$-means implicitly assumes clusters are compact, roughly spherical, and similar in size; it struggles with elongated or irregular shapes, very different cluster sizes, and outliers (a single far-away point drags its center toward it).
 
 \section{Choosing $K$: the elbow and the silhouette}
 
-Clustering has no correct answer to check against, so choosing the number of clusters relies on two diagnostics rather than one.
+Use inertia, silhouette, stability, and domain evidence to choose $K$.
 
 \begin{mlfigure}
 \begin{tikzpicture}[baseline=(current bounding box.north)]
@@ -186,19 +180,17 @@ Clustering has no correct answer to check against, so choosing the number of clu
 \end{mlfigure}
 
 \begin{intuition}
-Inertia always falls as $K$ rises --- give every point its own cluster and it reaches zero --- so you cannot simply minimize it. Look for a bend after which extra clusters buy little. The silhouette has a maximum, but it also embeds a preference for compact, separated groups. Agreement between diagnostics supports a candidate $K$; it does not establish that the groups are stable or useful.
+Inertia decreases as $K$ increases, reaching zero with one cluster per point. Look for diminishing gains rather than its minimum. Silhouette favors compact, separated groups; neither diagnostic alone establishes usefulness.
 \end{intuition}
 
-\section{Lloyd's algorithm and initialization}
+\section{Initialization and stability}
 
-Lloyd's algorithm alternates between two operations: assign each observation to its nearest center, then replace each center with the mean of the observations currently assigned to that cluster. Each iteration cannot increase the within-cluster sum of squares, so the procedure eventually stops changing.
+Different starting centers can end in different solutions, with different inertia and different assignments.
 
-The important limitation is that the objective is not globally convex in all cluster centers at once. Different initial centers can therefore lead to different local optima. A poor start may produce a clustering with substantially larger inertia than a better start even when the same value of $K$ is used.
-
-The practical principle is simple: use multiple initializations and compare their final objective values and assignments. If the same $K$ repeatedly produces very different solutions, that instability is evidence that the proposed cluster structure is weak or ambiguous rather than a detail to hide.
+Compare restarts and resamples. Very different solutions at the same $K$ indicate ambiguity worth reporting.
 
 \begin{keyidea}
-Never interpret one random initialization as definitive. Stability across sensible initializations or resamples is part of the evidence for a useful clustering.
+Check multiple initializations and resamples before interpreting clusters.
 \end{keyidea}
 
 \subsection{$K$-medoids}
@@ -222,13 +214,13 @@ Instead of hard assignments, each observation receives a \term{responsibility}: 
   =\frac{\pi_k\,\mathcal{N}(\bm{x}_i\given\bm{\mu}_k,\Sigma_k)}
         {\sum_{j=1}^{K}\pi_j\,\mathcal{N}(\bm{x}_i\given\bm{\mu}_j,\Sigma_j)} .
 \]
-The \term{expectation-maximization (EM)} algorithm alternates between an E-step, which computes the responsibilities with the current parameters, and an M-step, which re-estimates $\pi_k$, $\bm{\mu}_k$, and $\Sigma_k$ as responsibility-weighted averages. Each cycle increases the data log-likelihood until convergence.
+\term{Expectation-maximization (EM)} alternates responsibility estimation (E-step) with weighted updates of $\pi_k$, $\bm\mu_k$, and $\Sigma_k$ (M-step), improving data log-likelihood until convergence.
 
 \begin{intuition}
-EM solves a chicken-and-egg problem. If we knew which cluster each point belonged to, estimating the cluster shapes would be easy; if we knew the cluster shapes, assigning points would be easy. Since we know neither, EM alternates: guess the memberships, refit the shapes, re-guess the memberships, and repeat until the answer stops changing. $K$-means does the same dance with hard yes/no assignments.
+EM alternates estimating memberships and component shapes. $K$-means follows a similar cycle with hard assignments.
 \end{intuition}
 
-What the extra machinery buys, compared with $K$-means: \emph{soft} memberships (``62\% component 1, 38\% component 2''), \emph{elliptical} components of different shapes and sizes through the covariance matrices $\Sigma_k$, and a probability density that can also support anomaly scoring (\chapref{ch:anomaly}). These probabilities are conditional on the mixture assumptions; they are not proof that a real-world entity literally belongs to a group with that probability.
+GMMs provide soft memberships, elliptical components, and density-based anomaly scores (\chapref{ch:anomaly}). Responsibilities are probabilities under the mixture assumptions, not proof of real-world group membership.
 
 \section{Fuzzy $C$-means: soft distance-based clustering}
 
@@ -250,13 +242,13 @@ $K$-means asks, ``Which center is closest?'' FCM asks, ``How strongly does each 
 \end{intuition}
 
 \begin{pitfall}
-FCM membership values are not automatically calibrated probabilities. They are distance-based degrees determined by the chosen scale, number of clusters, and fuzziness parameter. Gaussian-mixture responsibilities have a probabilistic model underneath them; FCM memberships do not make the same generative claim.
+FCM memberships are distance-based degrees controlled by scale, cluster count, and fuzziness. Unlike GMM responsibilities, they do not imply a generative probability model.
 \end{pitfall}
 
 \section{Hierarchical clustering}
 \label{sec:hierarchical-clustering}
 
-Hierarchical clustering builds a whole family of clusterings at once, organized as a tree called a \term{dendrogram}. The common \term{agglomerative} version starts with every observation in its own cluster and repeatedly merges the two closest clusters until one remains.
+\term{Agglomerative clustering} starts with one cluster per observation and repeatedly merges the closest pair. A \term{dendrogram} records the hierarchy.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}p{0.27\linewidth}X@{}}
@@ -270,10 +262,10 @@ Divisive (top-down) & One cluster containing all observations & Split a current 
 \end{tabularx}
 \end{mltable}
 
-Agglomerative clustering is far more common in general-purpose software because the merge sequence is straightforward to compute and visualize. Divisive methods work in the opposite direction and need an explicit rule for which cluster to split and how to split it; a practical divisive strategy can use two very dissimilar observations as seeds for a two-way partition, then recurse.
+Divisive clustering instead recursively splits clusters, sometimes starting from dissimilar seed observations.
 
 \begin{workedexample}
-Cluster the points $\{1,2,4,8\}$ on a number line with single linkage. The closest pair is $\{1\}$ and $\{2\}$ (distance 1) --- merge them. The closest pair is now $\{1,2\}$ and $\{4\}$ (distance $|4-2|=2$) --- merge. Finally $\{1,2,4\}$ meets $\{8\}$ at distance $|8-4|=4$. The dendrogram records each merge at the height of its distance:
+For $\{1,2,4,8\}$, single linkage merges 1 and 2 at distance 1, adds 4 at distance 2, then adds 8 at distance 4:
 \end{workedexample}
 
 \begin{mlfigure}
@@ -299,7 +291,7 @@ Cluster the points $\{1,2,4,8\}$ on a number line with single linkage. The close
 \end{tikzpicture}
 \end{mlfigure}
 
-Cutting the dendrogram at any height produces a clustering, so the number of clusters is chosen \emph{after} seeing the whole merge history --- a genuine advantage when $K$ is unclear. The meaning of ``closest clusters'' is set by the \term{linkage} rule:
+Cut the dendrogram at a chosen height to obtain clusters. The \term{linkage} rule defines distance between clusters:
 
 \begin{itemize}
   \item \term{single linkage} uses the closest pair of observations --- follows chains, finds elongated clusters, sensitive to noise bridges;
@@ -308,7 +300,7 @@ Cutting the dendrogram at any height produces a clustering, so the number of clu
   \item \term{Ward linkage} merges whichever pair least increases within-cluster variance --- behaves most like $K$-means and is a common default.
 \end{itemize}
 
-The price of the full merge history is computation: pairwise distances make the method expensive for large datasets, and it offers no built-in way to assign brand-new observations to existing clusters.
+Pairwise distances can be costly for large datasets; standard hierarchical clustering has no built-in new-point assignment.
 
 \section{DBSCAN: clustering by density}
 \label{sec:dbscan}
@@ -338,7 +330,7 @@ DBSCAN defines clusters as regions where points are packed densely, using two hy
 \end{tikzpicture}
 \end{mlfigure}
 
-A cluster is then grown outward: start from any core point, absorb everything within $\varepsilon$, and keep expanding through core points until the density runs out; border points join the cluster that reached them, and noise stays unlabeled. The consequences are exactly DBSCAN's selling points --- it discovers clusters of arbitrary shape, needs no $K$ in advance, and labels outliers explicitly --- and its weaknesses: a single $(\varepsilon,\text{minPts})$ pair cannot fit clusters of very different densities, and in high dimensions distance itself becomes uninformative. A common way to choose $\varepsilon$ is to plot each point's distance to its $k$-th nearest neighbor, sorted, and take the elbow.
+Connected core points form clusters, border points attach, and noise remains unassigned. DBSCAN handles irregular shapes but struggles with varying densities or high dimensions. Use a sorted neighbor-distance plot to guide $\varepsilon$. In Lab~4, changing $\varepsilon$ from 0.75 to 0.5 changes one cluster with 14 noise points into five clusters with roughly one-third noise.
 
 \section{Which clustering method?}
 
@@ -364,12 +356,12 @@ The \term{silhouette coefficient} for observation $i$ compares cohesion with sep
 \[
   s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}},
 \]
-where $a(i)$ is its average distance to its own cluster and $b(i)$ is the smallest average distance to another cluster. Values near $1$ indicate a point nestled deep in its own cluster; values near $0$ sit between clusters; negative values suggest a probable misassignment. Averaging $s(i)$ over the data scores a whole clustering and can compare different $K$.
+$a(i)$ is mean within-cluster distance; $b(i)$ is the smallest mean distance to another cluster. Near 1 means separation, near 0 a boundary, and negative values possible misassignment. Lab~4 reports the mean silhouette.
 
 When reference labels happen to exist (for validation only), agreement measures such as the \term{adjusted Rand index} compare the discovered clusters with the labeled groups while correcting for chance.
 
 \begin{keyidea}
-No internal score can prove that clusters are \emph{meaningful}. A trustworthy clustering earns its keep three ways: reasonable scores, stability under resampling and reasonable parameter changes, and an interpretation a domain expert recognizes. Treat every clustering as a hypothesis about the data, not a fact extracted from it.
+Treat clusters as hypotheses. Support interpretation with scores, stability, and domain evidence.
 \end{keyidea}
 
 \begin{modelcard}{Clustering - Quick Guide}
@@ -386,22 +378,9 @@ DBSCAN & Irregular shapes and explicit noise points & Density parameters and var
 \end{tabularx}
 \end{modelcard}
 
-
 \begin{quickcheck}
 \begin{enumerate}
   \item What kind of cluster geometry does \(K\)-means favor, and why can scaling change the resulting partition?
-  \item Why can a high silhouette score fail to prove that a segmentation is useful in the application?
   \item What does DBSCAN do with observations that do not belong to a sufficiently dense region?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Clustering searches for groups without supplied labels.
-  \item $K$-means alternates between assigning points and updating centroids.
-  \item Fuzzy $C$-means gives distance-based soft memberships; Gaussian mixtures give model-based component responsibilities.
-  \item Hierarchical clustering can build groups bottom-up by merging or top-down by splitting, and a dendrogram records the hierarchy.
-  \item DBSCAN finds dense regions and labels isolated points as noise.
-  \item A clustering must be evaluated for stability, separation, and usefulness in the real application.
-\end{itemize}
-\end{chapterrecap}

@@ -3,12 +3,12 @@
 
 \chapterguide%
   {\chapref{ch:data}: a trustworthy table, a clear observation unit, and a split that matches the real prediction setting.}
-  {separate learning settings by their feedback signal, explain what an algorithm is trying to learn in each setting, distinguish model fitting from evaluation, and identify which mathematical ideas you actually need next.}
+  {distinguish learning signals, fitting objectives, evaluation, and the mathematics each workflow needs.}
 
-Up to this point, the book has deliberately avoided committing to one kind of machine-learning problem. You now know how to represent data and prepare it safely. Before studying a large block of mathematics, first identify the learning signal and the kind of structure a model must learn. That context tells you why later ideas such as probability, distance, dot products, and gradients matter: \emph{what feedback is available, and what structure are we trying to learn?}
+The available feedback determines the learning objective and the mathematics needed.
 
 \begin{keyidea}
-A machine-learning algorithm extracts useful structure from data. What counts as ``useful'' changes with the feedback signal. With labels, the structure should predict those labels. Without labels, the structure must be judged by stability, geometry, reconstruction, density, downstream usefulness, or domain meaning. With rewards, the structure must support good decisions over time.
+Labels guide prediction; unlabeled data supports structure discovery; rewards guide actions.
 \end{keyidea}
 
 \section{Start with the learning signal}
@@ -51,8 +51,6 @@ Reinforcement & States, actions, rewards, transitions & A policy or value rule f
 
 \section{The common skeleton}
 
-Despite the different learning signals, most projects share a small backbone:
-
 \begin{mlfigure}
 \begin{tikzpicture}[
   node distance=0.3cm,
@@ -68,7 +66,7 @@ Despite the different learning signals, most projects share a small backbone:
 \end{tikzpicture}
 \end{mlfigure}
 
-The details inside the boxes change. Supervised learning can compare predictions with known labels. Unsupervised learning often has no single correct answer and therefore needs several kinds of evidence. Reinforcement learning evaluates behavior across trajectories rather than independent labeled rows.
+Supervised learning compares predictions with labels. Unsupervised learning needs evidence beyond an answer key. Reinforcement learning evaluates behavior across trajectories.
 
 \section{What changes between supervised and unsupervised learning}
 
@@ -78,64 +76,43 @@ The details inside the boxes change. Supervised learning can compare predictions
 \rowcolor{MLPaleBlue!92}
 Question & Supervised learning & Unsupervised learning \\
 \midrule
-What data are fitted? & Features $X$ plus label $y$ & Features $X$ only \\
-What guides fitting? & A loss comparing predictions with known answers & An objective such as compact clusters, reconstruction, variance preservation, density, or local isolation \\
-What is the output? & Prediction rule, score, or probability & Groups, coordinates, components, density model, anomaly score, or discovered pattern \\
-What is a baseline? & Mean/median/majority or a domain rule & Simple geometry or domain reference, random/naive partition, reconstruction reference, or stability comparison depending on the task \\
-What does ``good'' mean? & Strong performance on realistic unseen labeled data & Structure that is stable, meaningful, useful downstream, or supported by appropriate internal/external criteria \\
+Data? & Features $X$ and labels $y$ & Features $X$ only \\
+Fitting objective? & Minimize prediction loss & Cluster compactness, reconstruction, variance, density, or isolation \\
+Output? & Predictions, scores, or probabilities & Groups, representations, densities, anomalies, or patterns \\
+Baseline? & Mean, median, majority, or domain rule & A trivial structure to beat: one cluster, a random partition, or the mean as the reconstruction \\
+What counts as ``good''? & Strong performance on realistic unseen data & Structure that is stable, makes sense to a domain expert, and is useful for a downstream task \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
 \begin{pitfall}
-Do not force supervised language onto every problem. A cluster does not automatically have a ``correct class,'' a PCA component is not a prediction, and an anomaly score is not automatically a probability of fraud. First identify the learning objective; only then choose an evaluation method.
+A cluster need not be a class, a PCA component is not a prediction, and an anomaly score is not a fraud probability. Choose evaluation to match the objective.
 \end{pitfall}
 
 \section{A first look at optimization: improve the objective step by step}
 \label{sec:gradient-descent}
 
-Some models can be fitted by a direct formula; many others are trained iteratively. The common idea is to define an objective $J(\bm{\theta})$ and update the parameters in a direction that reduces it. For gradient descent,
+Some models fit directly; others iteratively reduce an objective $J(\bm{\theta})$. Gradient descent updates parameters by
 \[
   \bm{\theta}\leftarrow\bm{\theta}-\alpha\nabla J(\bm{\theta}),
 \]
 where $\nabla J$ points in the direction of steepest increase and the learning rate $\alpha$ controls the step size.
 
 \begin{intuition}
-Imagine walking downhill in fog. The local slope tells you which direction descends; the learning rate is your stride length. Tiny steps are safe but slow, sensible steps make steady progress, and steps that are too large can overshoot and diverge.
+The gradient sets direction; the learning rate sets stride. Small steps may be slow; large steps may overshoot.
 \end{intuition}
 
 \begin{workedexample}
-For $J(w)=(w-4)^2$, the minimum is at $w=4$ and $J'(w)=2(w-4)$. Starting from $w=0$ with $\alpha=0.1$ gives $w\leftarrow0-0.1(-8)=0.8$ on the first step. Repeating the update moves $w$ toward $4$. You do not need the full calculus derivation yet; Chapter~\ref{ch:foundations} explains what gradients mean geometrically.
+For $J(w)=(w-4)^2$, $J'(w)=2(w-4)$ and the minimum is $w=4$. Starting at $w=0$ with $\alpha=0.1$ gives $w\leftarrow0-0.1(-8)=0.8$. Repeated updates approach $4$; \chapref{ch:foundations} explains the gradient geometry.
 \end{workedexample}
 
 \begin{keyidea}
-Optimization is part of \emph{fitting}, not evaluation. A training loss can fall perfectly while generalization remains poor. Later chapters therefore separate ``did the optimizer fit the training objective?'' from ``does the fitted procedure work on realistic unseen data?''
-\end{keyidea}
-
-\section{The path through the rest of the book}
-
-The book now branches cleanly.
-
-\begin{description}[leftmargin=1.55in,style=nextline]
-  \item[Stage 3A: supervised workflow] Learn the prediction objective, baselines, evaluation, and model-selection discipline before comparing algorithms.
-  \item[Stage 3B: supervised model families] Hold that workflow fixed while changing one family at a time from linear models through SVMs.
-  \item[Stage 4A: unsupervised workflow] Reset the objective: no label is supplied during fitting, so evidence must come from geometry, stability, usefulness, or external meaning.
-  \item[Stage 4B: unsupervised model families] Apply that workflow to clustering, representation learning, and anomaly detection.
-  \item[Stage 5: other signals] Change the amount or type of feedback: limited labels in semi-supervised/active learning, then rewards from interaction in reinforcement learning.
-\end{description}
-
-\begin{keyidea}
-The field map tells you where ideas belong. The learning path tells you what to learn next. Do not try to memorize the whole field at once: learn one workflow, then change one axis at a time.
+Reducing training loss does not establish generalization; evaluate on unseen data.
 \end{keyidea}
 
 \section{Now learn only the mathematics that the workflow needs}
 
-The next chapter supplies a shared mathematical toolkit. Read it with a purpose rather than as a prerequisite exam. On the first pass, focus on center and spread, probability intuition, vectors and matrix shapes, dot products, distance, scaling, and gradient direction. Return to confidence intervals, distribution families, matrix inverses, and decomposition details when a later model gives you a reason to use them.
-
-\begin{firstread}
-\textbf{First-pass contract.} You do not need to master every derivation before continuing. Your first goal is recognition: when a later chapter says ``standardize before measuring distance,'' ``optimize a loss,'' or ``project onto a component,'' you should know which mathematical idea is being reused and where to review it.
-\end{firstread}
-
+Start with center, spread, probability, vectors, matrix shapes, dot products, distances, scaling, and gradients. Revisit deeper mathematics when needed.
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -144,12 +121,3 @@ The next chapter supplies a shared mathematical toolkit. Read it with a purpose 
   \item What is the difference between reducing a training objective and demonstrating generalization?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Learning settings are separated first by the feedback available, not by algorithm names.
-  \item Supervised learning learns a label mapping; unsupervised learning learns structure without a supplied label; limited-label methods mix labeled and unlabeled evidence; reinforcement learning learns from rewards.
-  \item Data preparation, representation, evaluation discipline, and monitoring remain shared foundations even though the fitting objective changes.
-  \item Stage 3 first establishes the supervised workflow and then compares supervised model families; Stage 4 mirrors that structure for unsupervised learning.
-\end{itemize}
-\end{chapterrecap}

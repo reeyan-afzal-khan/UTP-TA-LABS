@@ -1,0 +1,7 @@
+part,dataset,model,metric,validation,test
+A,breast_cancer,KNN,roc_auc,0.9864,
+A,breast_cancer,GaussianNB,roc_auc,0.9925,
+B,titanic,decision_tree(depth=4),accuracy,0.7668,
+C,red_wine_quality,random_forest,mae,0.432,
+C,red_wine_quality,gradient_boosting,mae,0.4763,
+D,breast_cancer,"svc {'model__C': 10, 'model__gamma': 0.01, 'model__kernel': 'rbf'}",roc_auc,0.9954,0.9969

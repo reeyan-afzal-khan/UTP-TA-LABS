@@ -1,0 +1,37 @@
+|--- cat__Sex_female <= 0.50
+|   |--- num__Age <= 3.50
+|   |   |--- class: 1
+|   |--- num__Age >  3.50
+|   |   |--- cat__Pclass_1 <= 0.50
+|   |   |   |--- num__Fare <= 48.09
+|   |   |   |   |--- class: 0
+|   |   |   |--- num__Fare >  48.09
+|   |   |   |   |--- class: 0
+|   |   |--- cat__Pclass_1 >  0.50
+|   |   |   |--- num__Age <= 53.00
+|   |   |   |   |--- class: 0
+|   |   |   |--- num__Age >  53.00
+|   |   |   |   |--- class: 0
+|--- cat__Sex_female >  0.50
+|   |--- cat__Pclass_3 <= 0.50
+|   |   |--- num__Fare <= 28.86
+|   |   |   |--- num__Age <= 37.00
+|   |   |   |   |--- class: 1
+|   |   |   |--- num__Age >  37.00
+|   |   |   |   |--- class: 1
+|   |   |--- num__Fare >  28.86
+|   |   |   |--- num__Parch <= 1.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- num__Parch >  1.50
+|   |   |   |   |--- class: 1
+|   |--- cat__Pclass_3 >  0.50
+|   |   |--- num__Fare <= 7.89
+|   |   |   |--- cat__Embarked_S <= 0.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- cat__Embarked_S >  0.50
+|   |   |   |   |--- class: 1
+|   |   |--- num__Fare >  7.89
+|   |   |   |--- num__Age <= 5.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- num__Age >  5.50
+|   |   |   |   |--- class: 0

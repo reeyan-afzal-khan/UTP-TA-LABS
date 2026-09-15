@@ -3,17 +3,13 @@
 
 \chapterguide%
   {Probability, expected value, optimization, and the idea of sequential decisions.}
-  {describe the agent-environment loop, calculate a discounted return, interpret state and action values, follow tabular Q-learning, and explain the exploration-exploitation trade-off.}
+  {define states, actions, rewards, policies, and values; apply Q-learning and evaluate separately from exploration.}
 
-The final learning signal changes more radically. Supervised learning receives labeled examples, unsupervised learning receives no external answer key, and reinforcement learning receives rewards after actions. Reinforcement learning (RL) studies decisions that affect what happens next. Instead of receiving the correct answer for every action, an agent receives rewards and must discover which behavior produces the best long-term outcome.
+Reinforcement learning (RL) learns sequential decisions from rewards rather than correct action labels. Actions change future states, so the objective is long-term return.
 
-\begin{firstread}
-Translate the vocabulary before reading the equations: the \term{agent} is the decision-maker, the \term{state} is the current situation, an \term{action} is a choice, and the \term{reward} is feedback. The difficult part is that a choice can change later situations, so the best immediate reward may not produce the best long-term result.
-\end{firstread}
-
-\begin{optionaltopic}
-This is an optional survey rather than part of the course's classical supervised/unsupervised core. Teach it after the classical core when students need vocabulary for sequential decision problems; omit it when time is limited.
-\end{optionaltopic}
+\begin{coursechoice}
+Lab~6 implements tabular RL. Neural function approximation for deep RL lies beyond this course.
+\end{coursechoice}
 
 \section{The agent-environment loop}
 
@@ -40,12 +36,12 @@ At time $t$:
 \end{mlfigure}
 
 \begin{workedexample}
-A warehouse robot observes its location and remaining battery. It chooses to move, wait, or recharge. It may receive a small cost for time, a larger cost for collisions, and a positive reward for delivering an item. A good policy must consider future consequences, not only the next reward.
+A warehouse robot tracks location and battery, chooses movement or charging, and balances time and collision costs against delivery rewards.
 \end{workedexample}
 
 \section{A simpler case: multi-armed bandits}
 
-A multi-armed bandit has several actions but no changing state. Each action gives an uncertain reward. The goal is to discover and repeatedly choose the most rewarding action.
+A bandit chooses among uncertain-reward actions without changing state, balancing learning with reward.
 
 This creates the central RL problem:
 
@@ -68,7 +64,7 @@ A classical RL problem is often written as a Markov decision process (MDP) with:
   \item a discount factor $\gamma\in[0,1)$.
 \end{itemize}
 
-The Markov assumption says the current state contains the information needed to predict the next state distribution. The full distant past does not need to be stored separately.
+Under the Markov assumption, the current state and action contain the information needed for the next-state distribution.
 
 \section{Return and discounting}
 
@@ -146,8 +142,10 @@ The bracketed quantity is the \term{temporal-difference error}: the difference b
   \item Repeat over many episodes, gradually reducing exploration when appropriate.
 \end{mlsteps}
 
+Lab~6 trains on a $4\times4$ grid. After 5,000 episodes, its greedy policy reaches the goal in six moves for return $0.8$; the saved model is the Q-table.
+
 \begin{workedexample}
-Suppose $Q(s,a)=2$, reward $r=1$, $\gamma=0.9$, the best next-state Q-value is $4$, and $\alpha=0.5$. The backup value is $1+0.9(4)=4.6$. The temporal-difference error is $4.6-2=2.6$. The update gives
+With $Q(s,a)=2$, $r=1$, $\gamma=0.9$, next-state maximum 4, and $\alpha=0.5$, the backup is $4.6$ and TD error $2.6$:
 \[
 Q(s,a)\leftarrow2+0.5(2.6)=3.3.
 \]
@@ -156,7 +154,7 @@ The estimate moves halfway toward the new backup value.
 
 \section{One Q-learning update, drawn}
 
-The whole of tabular Q-learning is one line of arithmetic applied millions of times. It is worth seeing that line as a picture.
+The diagram separates a Q-update into its current estimate, backup value, and step size.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -179,10 +177,6 @@ The whole of tabular Q-learning is one line of arithmetic applied millions of ti
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{analogy}
-You believed the journey to school takes 20 minutes. Today it took 26. You do not now believe it takes 26 minutes --- one bad day is not the truth --- but you do not keep saying 20 either. You settle on something like 21. The learning rate $\alpha$ is how much you let a single experience change your mind, and $\gamma$ is how much you care about consequences that arrive later rather than immediately.
-\end{analogy}
-
 \section{Exploration strategies}
 
 \begin{mltable}
@@ -202,7 +196,7 @@ Too little exploration can trap the agent in a poor policy. Too much exploration
 
 \section{Evaluation and responsible use}
 
-RL evaluation is harder than ordinary prediction because the policy changes the data it experiences. Use repeated runs with different random seeds and report both average return and variation.
+Policies change the data they encounter. Evaluate across seeds and report mean return and variation.
 
 Important concerns include:
 
@@ -217,7 +211,7 @@ Important concerns include:
 For high-stakes applications, exploration should occur in a safe simulator or under strict constraints before real-world use.
 
 \begin{modelcard}{Classical Reinforcement Learning - Quick Guide}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.14\linewidth}X@{}}
 Best when & Actions affect future states and rewards, and interaction or a realistic simulator is available. \cr
 Start with & A bandit or small tabular MDP before moving to larger problems. \cr
 Main controls & Learning rate $\alpha$, discount factor $\gamma$, exploration rate $\varepsilon$, state representation, reward design. \cr
@@ -231,8 +225,23 @@ Reinforcement learning does not learn from a correct answer for every action. It
 
 \section{Bandit exploration behavior}
 
+Three bandit arms pay $0.2$, $0.5$, and $0.8$ on average. An $\varepsilon=0.1$ agent over 1,000 rounds might produce:
+
+\begin{mltable}
+\begin{tabularx}{0.75\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Machine & True mean reward & Pulls in 1,000 rounds \\
+\midrule
+A & $0.2$ & about 40 \\
+B & $0.5$ & about 40 \\
+C & $0.8$ & about 920 \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
 \begin{keyidea}
-Look at the pull counts. The agent spent almost all its attempts on the best machine but never stopped sampling the others entirely. A fixed 10\% of decisions use a random exploratory action; some of those random actions still choose the current best arm. Continued exploration reduces the risk of settling early on the wrong answer, at the cost of occasionally taking an action believed to be worse.
+The agent mostly exploits the best arm while exploring in one decision out of ten. Exploration reduces premature commitment at the cost of immediate reward.
 \end{keyidea}
 
 \begin{mlfigure}
@@ -269,7 +278,7 @@ episodes & thousands & More practice; tabular methods need a lot \\
 \end{mltable}
 
 \begin{pitfall}
-In a continuing task, an undiscounted infinite sum may be undefined, so the discounted formulation normally uses $\gamma<1$. Episodic tasks with guaranteed finite termination can permit $\gamma=1$. A fixed nonzero $\varepsilon$ deliberately keeps exploring; that may waste reward in a stationary deployment, but can remain useful in a changing environment. Evaluate the exploratory behavior separately from the greedy policy.
+Continuing tasks generally use $\gamma<1$ for a finite discounted return; finite episodes can allow $\gamma=1$. Fixed exploration can help in changing environments but costs reward. Evaluate exploratory and greedy policies separately.
 \end{pitfall}
 
 \begin{libnote}
@@ -277,11 +286,10 @@ In a continuing task, an undiscounted infinite sum may be undefined, so the disc
 \end{libnote}
 
 \begin{keyidea}
-Tabular Q-learning needs one table cell per state-action pair. For very large or continuous state spaces, the table cannot exist. Replacing it with a function approximator, sometimes a neural network that estimates $Q(s,a)$, leads toward deep reinforcement learning (\hyperref[ch:next]{the Epilogue}).
+Large or continuous state spaces require function approximation; neural approximators lead to deep RL.
 \end{keyidea}
 
-
-\input{labs/10-reinforcement}
+\input{labs/06-reinforcement}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -290,13 +298,3 @@ Tabular Q-learning needs one table cell per state-action pair. For very large or
   \item Why should the exploratory training policy be evaluated separately from the final greedy policy?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item An agent observes a state, takes an action, receives a reward, and moves to a new state.
-  \item Return is the discounted sum of future rewards.
-  \item $V(s)$ values a state; $Q(s,a)$ values an action in a state.
-  \item Tabular Q-learning moves an old estimate toward reward plus discounted best future value.
-  \item Exploration is necessary for learning but must be controlled for safety.
-\end{itemize}
-\end{chapterrecap}

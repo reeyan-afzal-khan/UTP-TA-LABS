@@ -1,0 +1,3 @@
+dataset,model,test_accuracy
+optdigits (official test),"logistic, 64 pixels",0.9477
+optdigits (official test),PCA(29) -> logistic,0.9477
