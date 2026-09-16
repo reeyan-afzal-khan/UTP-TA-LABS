@@ -61,11 +61,11 @@ Start with the foundations, then learn each workflow before exploring its models
 \draw[arr] (split) -| node[pos=0.5,above,branchlabel] {Unlabelled Data} (u1.north);
 \draw[arr] (s1.south) -- (s2.north);
 \draw[arr] (u1.south) -- (u2.north);
-\coordinate (merge) at ($(c.north)+(0,0.30)$);
+\coordinate (merge) at ($(c.north)+(0,0.60cm)$);
 \draw[flow] (s2.south) |- (merge);
 \draw[flow] (u2.south) |- (merge);
 \node[junction] at (merge) {};
-\draw[arr] (merge) -- (c.north);
+\draw[arr,shorten >=1.5pt] (merge) -- (c.north);
 \draw[arr] (c.south) -- (d.north);
 \end{tikzpicture}
 \end{mlfigure}
