@@ -9,5 +9,6 @@
     "seed": 42
   },
   "official_test_accuracy": 0.9711,
-  "torch_version": "2.14.0+cpu"
+  "torch_version": "2.14.0+cpu",
+  "trained_on": "cpu"
 }

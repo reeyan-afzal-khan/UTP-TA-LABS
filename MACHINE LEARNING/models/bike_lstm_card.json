@@ -14,5 +14,6 @@
     "persistence (last hour)": 85.2,
     "same hour yesterday": 80.5
   },
-  "torch_version": "2.14.0+cpu"
+  "torch_version": "2.14.0+cpu",
+  "trained_on": "cpu"
 }

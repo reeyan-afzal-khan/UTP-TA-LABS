@@ -16,8 +16,35 @@ jupyter lab
 
 Open a notebook and choose **Restart Kernel and Run All Cells**. Paths are relative to the
 course folder (`Path.cwd().parent`), so launch Jupyter from this directory. Every notebook
-finishes in under a minute on a laptop CPU; the two deep-learning labs need PyTorch
-(`pip install -r requirements.txt` installs the CPU build).
+finishes in under a minute on a laptop CPU.
+
+### PyTorch, GPUs, and kernels (Labs 7 and 8)
+
+The two deep-learning labs need PyTorch. Their Setup cell handles the common situations:
+
+- **PyTorch already installed** in the Python behind the kernel: it is imported and the cell
+  prints the version and the device.
+- **PyTorch missing**: the cell installs the CPU build into that same Python once
+  (`pip install torch --index-url https://download.pytorch.org/whl/cpu`, about 200 MB) and
+  continues. `pip install -r requirements.txt` from the course folder does the same up front.
+  If pip had to use the per-user folder (`%APPDATA%\Python\...` on Windows), which some Jupyter
+  launchers hide from the kernel, the cell adds that folder to the path as well.
+- **GPU or not**: the cell sets `DEVICE` to `cuda` (NVIDIA) or `mps` (Apple Silicon) when PyTorch
+  can see one, otherwise `cpu`. The rest of the lab is written once and runs on whichever was
+  chosen. A GPU is a convenience, not a requirement; the stored outputs come from a CPU run,
+  and GPU runs differ from them in the last digits because GPU kernels are not bit-for-bit
+  deterministic.
+
+The first line the Setup cell prints is the Python that is actually running the notebook. If it
+is not the environment you installed PyTorch into (a common cause of `No module named 'torch'`),
+the notebook is on the wrong kernel. Register the right environment once, then pick it under
+*Kernel > Change Kernel* (Jupyter) or the interpreter picker (VS Code):
+
+```bash
+conda activate my_env
+pip install ipykernel
+python -m ipykernel install --user --name my_env --display-name "Python (my_env)"
+```
 
 ## Index
 
