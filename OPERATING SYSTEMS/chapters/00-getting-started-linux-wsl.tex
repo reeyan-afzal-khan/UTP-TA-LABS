@@ -1,0 +1,190 @@
+\chapter*{Getting Ready: Linux, the Terminal, and WSL}
+\addcontentsline{toc}{chapter}{Getting Ready: Linux, the Terminal, and WSL}
+\markboth{Getting Ready: Linux, the Terminal, and WSL}{}
+\chapterguide{No Linux experience is required. You only need a computer on which you can install or access a Unix-like terminal.}{Choose a suitable lab environment, explain what WSL is, compile and run a small C program, move around the Linux file system, and know where to ask for help when setup fails.}
+
+\section{Why this course uses a Linux environment}
+Operating-systems ideas are not limited to Linux, but Linux gives students a convenient place to \emph{observe} them. Processes have visible process IDs, file permissions can be inspected from a terminal, C compilers and debugging tools are readily available, and the operating system exposes many of its interfaces through standard commands.
+
+The objective is not to turn this course into a Linux-administration course. Linux is the laboratory bench: we use it because the objects discussed in lectures --- processes, files, threads, memory and IPC --- can be seen and experimented with directly.
+
+\begin{keyidea}
+You do not need to memorize dozens of terminal commands before beginning. Learn a small working vocabulary, understand what each command changes, and build confidence by running short experiments.
+\end{keyidea}
+
+\section{Choose your working environment}
+Students can complete the core practicals in any of the following environments:
+\begin{itemize}
+  \item \textbf{Linux computer or Linux virtual machine:} use the normal terminal supplied by the system.
+  \item \textbf{macOS:} many shell and C exercises work directly in Terminal, although Linux-specific system calls and System V IPC behavior can differ. A Linux virtual machine is the most predictable option for the full course.
+  \item \textbf{Windows:} use \term{Windows Subsystem for Linux (WSL)} unless your instructor supplies a separate Linux virtual machine.
+\end{itemize}
+
+\section{What WSL is}
+WSL gives Windows users a Linux environment that runs alongside Windows. You open a Linux shell, install Linux tools such as \texttt{gcc}, create Linux files, and run Linux programs without replacing Windows or setting up a traditional full-screen virtual machine.
+
+For this course, the important idea is simple: \textbf{Windows remains your main operating system, while WSL provides the Linux laboratory environment used by the practicals.}
+
+\begin{intuition}
+Think of WSL as a dedicated Linux workspace inside your Windows computer. Your browser, Microsoft Office and other Windows applications keep working normally; the WSL terminal is where you compile and run the operating-systems experiments.
+\end{intuition}
+
+\section{Installing WSL on Windows}
+The simple installation command requires Windows 11 or Windows 10 version 2004
+(build 19041) or later. Press \texttt{Windows+R}, run \texttt{winver}, and
+install pending Windows updates if your version is older. On a university or
+work computer, ask the administrator before changing Windows features.
+
+On a personal computer, open \textbf{PowerShell or Windows Terminal as
+Administrator} and run:
+\begin{lstlisting}[style=osbash]
+wsl --install
+\end{lstlisting}
+This enables WSL and its virtual-machine support, installs WSL~2, and normally
+adds Ubuntu as the default Linux distribution. Restart Windows when requested.
+
+After restarting, open \textbf{Ubuntu} from the Start menu. The first launch may
+take a few minutes while Linux files are unpacked. You will then create a Linux
+username and password. They are separate from your Windows account. The
+password remains invisible while you type; this is normal.
+
+Return to PowerShell and verify/update the installation:
+\begin{lstlisting}[style=osbash]
+wsl --status
+wsl --list --verbose
+wsl --update
+\end{lstlisting}
+The list should show Ubuntu using WSL version~2. You can start it later from the
+Start menu or by entering \texttt{wsl} in PowerShell.
+
+If \texttt{wsl --install} only displays help text, select and install a
+distribution explicitly:
+\begin{lstlisting}[style=osbash]
+wsl --list --online
+wsl --install -d Ubuntu
+\end{lstlisting}
+
+\section{Know which terminal you are using}
+Windows students work with two command environments during setup, and confusing
+them is one of the most common beginner problems.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}p{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Environment & Typical commands here & How to recognise it \\
+\midrule
+Windows PowerShell / Windows Terminal & \texttt{wsl --install}, \texttt{wsl --status}, \texttt{wsl --update} & Prompt normally shows a Windows path such as \texttt{PS C:\textbackslash Users\textbackslash ...> } \\
+Ubuntu / WSL shell & \texttt{sudo apt}, \texttt{gcc}, \texttt{ls}, \texttt{ps}, lab programs & Prompt normally contains your Linux username and a path such as \texttt{\string~} \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+Once WSL is installed, almost every command in the practical chapters is run
+\textbf{inside the Ubuntu/WSL terminal}, not in PowerShell.
+
+\section{Prepare the tools}
+Inside Ubuntu/WSL, update the package list and install the basic compiler toolchain:
+\begin{lstlisting}[style=osbash]
+sudo apt update
+sudo apt install build-essential gdb make
+\end{lstlisting}
+The password prompt does not display dots or asterisks while you type. That is normal.
+
+Check the tools:
+\begin{lstlisting}[style=osbash]
+gcc --version
+gdb --version
+uname -a
+\end{lstlisting}
+
+\section{Where should course files live in WSL?}
+Windows drives are visible from WSL under \texttt{/mnt}. For example, the Windows C drive is available under \texttt{/mnt/c}. For projects compiled with Linux tools, Microsoft recommends keeping the working files in the Linux file system for better performance and more predictable Linux file behaviour. For this course, create the working folder inside your Linux home directory:
+\begin{lstlisting}[style=osbash]
+mkdir -p ~/operating-systems
+cd ~/operating-systems
+pwd
+\end{lstlisting}
+Copy the supplied \texttt{experiments} folder there, or extract the course package directly into your Linux home directory. From WSL, \texttt{explorer.exe .} opens the current Linux folder in Windows File Explorer when you need a graphical view.
+
+\begin{firstread}
+The prompt, folder names, and username on your screen may look different from examples in this book. That is expected. Focus on the command and the idea being observed, not on reproducing every character of a screenshot.
+\end{firstread}
+
+\section{The six commands you need first}
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.28\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Command & Meaning & Example \\
+\midrule
+\texttt{pwd} & show current folder & \texttt{pwd} \\
+\texttt{ls} & list files & \texttt{ls -la} \\
+\texttt{cd} & change folder & \texttt{cd Lab01} \\
+\texttt{mkdir} & create a folder & \texttt{mkdir practice} \\
+\texttt{cp} & copy a file & \texttt{cp input.txt backup.txt} \\
+\texttt{rm} & remove a file & \texttt{rm backup.txt} \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{pitfall}
+Linux paths and commands are case-sensitive. \texttt{Lab01}, \texttt{lab01}, and \texttt{LAB01} are different names. Also remember that \texttt{rm} normally removes immediately; there may be no recycle bin for terminal deletions.
+\end{pitfall}
+
+\section{Your first compile-run cycle}
+Create a file named \texttt{hello.c}:
+\begin{lstlisting}[style=osc]
+#include <stdio.h>
+
+int main(void) {
+    printf("My OS lab environment is ready.\\n");
+    return 0;
+}
+\end{lstlisting}
+Compile it with warnings enabled, then run it:
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra hello.c -o hello
+./hello
+\end{lstlisting}
+The first command translates source code into an executable file named \texttt{hello}. The second asks the shell to run that executable from the current directory.
+
+\begin{verification}
+Your setup is ready for the course if all four statements are true:
+\begin{enumerate}
+  \item \texttt{gcc --version} prints compiler information.
+  \item The example compiles without an error.
+  \item \texttt{./hello} prints the expected line.
+  \item You can locate the course \texttt{experiments} folder using \texttt{pwd} and \texttt{ls}.
+\end{enumerate}
+\end{verification}
+
+\section{How to read practical instructions}
+Each lab in this book follows the same teaching pattern:
+\begin{enumerate}
+  \item \textbf{Prepare:} enter the lab folder, compile the program and read the short concept reminder.
+  \item \textbf{Predict:} write down what you expect before running it.
+  \item \textbf{Run:} collect terminal output or a trace table.
+  \item \textbf{Change one thing:} alter one input or one line of code so cause and effect stay visible.
+  \item \textbf{Explain:} connect the observed result to an OS concept in plain language.
+\end{enumerate}
+
+\begin{keyidea}
+In an operating-systems laboratory, a correct screenshot is not the final learning outcome. The important question is: \emph{what changed inside the system, and why did that produce the output you saw?}
+\end{keyidea}
+
+\begin{troubleshoot}
+\textbf{\texttt{gcc: command not found}:} install \texttt{build-essential}.\par
+\textbf{\texttt{Permission denied} when running a shell script:} use \texttt{chmod +x script.sh} or run it with \texttt{bash script.sh}.\par
+\textbf{A C program will not compile:} start with the \emph{first} compiler error, not the last. Later errors are often consequences of the first one.\par
+\textbf{A Linux command differs on macOS:} complete the practical in Linux/WSL when the task uses Linux-specific process or IPC behavior.
+\end{troubleshoot}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Linux is the practical environment, not the subject of the entire course.
+  \item WSL gives Windows students a convenient Linux workspace without replacing Windows.
+  \item Compile with warnings enabled and treat warnings as learning feedback.
+  \item Practical work should follow predict $\rightarrow$ run $\rightarrow$ observe $\rightarrow$ explain.
+\end{itemize}
+\end{chapterrecap}

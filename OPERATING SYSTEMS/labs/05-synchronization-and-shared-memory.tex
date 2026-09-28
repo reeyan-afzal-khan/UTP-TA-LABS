@@ -1,28 +1,66 @@
-\labsection{5}{Synchronization and shared memory}{sec:lab05}
-\begin{labproject}{Model producer-consumer state and inspect System V shared memory}
-\textbf{Coverage.} Chapter 5.\\
-\textbf{Source files.} \texttt{Lab05/Task01.c}, \texttt{Task02.c}.\\
-\textbf{Goal.} Distinguish synchronization state from IPC state.
+\labsection{5}{Synchronization and interprocess communication}{sec:lab05}
+\begin{labproject}{Trace bounded-buffer state and compare a pipe with shared memory}
+\textbf{Suggested time:} 100--120 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter files:} \texttt{producer\_consumer\_sim.c}, \texttt{pipe\_demo.c}, \texttt{shm\_writer.c}, \texttt{shm\_reader.c}.\par
+\textbf{Evidence to keep:} invariant trace, IPC comparison table, and shared-memory lifecycle evidence.
 
-\medskip\noindent\textbf{Task A --- Producer-consumer counters.}\par
-For the supplied capacity of 3, verify the invariant
+\begin{labmode}
+Two questions stay separate throughout this lab: \emph{how do processes exchange data?} and \emph{how do concurrent activities coordinate safe access to shared state?}
+\end{labmode}
+
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item use a simple invariant to reason about producer-consumer state;
+  \item explain the communication model of a pipe and of shared memory;
+  \item identify create/attach/use/detach/remove stages for System V shared memory.
+\end{enumerate}
+
+\medskip\noindent\textbf{Part A --- Producer-consumer as a state problem.}
+Compile and run \texttt{producer\_consumer\_sim.c}. For each action record \texttt{empty}, \texttt{full}, and whether the action was allowed. With capacity 3, check after every successful operation that
 \[
-\texttt{empty} + \texttt{full} = 3
+\texttt{empty} + \texttt{full} = 3.
 \]
-after every valid produce/consume action.
+Explain why producing into a full buffer and consuming from an empty buffer must wait or fail rather than blindly changing the counters.
 
 \begin{pitfall}
-The lab's integer \texttt{wait()} and \texttt{signal()} are a sequential simulation. Do not claim that they provide thread-safe atomic semaphore behavior.
+This first program is a sequential model of semaphore state. It helps you understand the rules, but the integers are not themselves a real thread-safe semaphore implementation.
 \end{pitfall}
 
-\medskip\noindent\textbf{Task B --- Shared-memory lifecycle.}\par
-Trace \texttt{ftok} $\rightarrow$ \texttt{shmget} $\rightarrow$ \texttt{shmat} $\rightarrow$ access $\rightarrow$ \texttt{shmdt} $\rightarrow$ \texttt{shmctl(IPC\_RMID)}. Use \texttt{ipcs -m} before and after removal to observe the kernel object.
+\medskip\noindent\textbf{Part B --- A pipe moves bytes through the kernel.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra pipe_demo.c -o pipe_demo
+./pipe_demo
+\end{lstlisting}
+Find the call that creates the pipe, the parent's write end, and the child's read end. Explain why the unused ends are closed in each process.
 
-\begin{tryit}
-Split shared-memory writing and reading into two separate programs. Run the writer first, keep the segment alive, then run the reader. Add synchronization only if both can access the same bytes concurrently.
-\end{tryit}
+\medskip\noindent\textbf{Part C --- Shared memory exposes the same bytes to two processes.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra shm_writer.c -o shm_writer
+gcc -Wall -Wextra shm_reader.c -o shm_reader
+ipcs -m
+./shm_writer
+ipcs -m
+./shm_reader
+ipcs -m
+\end{lstlisting}
+Record the shared-memory segment ID and compare the three \texttt{ipcs -m} snapshots. Map each program operation to the lifecycle: create/find $\rightarrow$ attach $\rightarrow$ access $\rightarrow$ detach $\rightarrow$ remove.
+
+\begin{workedexample}
+A shared-memory segment is a kernel-managed IPC object. Each process attaches that object into its own address space. Detaching one process does not automatically mean the object has been removed from the system.
+\end{workedexample}
+
+\medskip\noindent\textbf{Part D --- Compare the mechanisms.}
+Complete a small comparison with rows for data movement, lifetime, setup complexity, and need for synchronization. A pipe provides an ordered byte stream; shared memory gives processes access to a common region and therefore usually needs an additional coordination mechanism when both sides can write.
+
+\medskip\noindent\textbf{Part E --- Failure case.}
+Run the reader before the writer and record the error. Then run the normal writer/reader sequence again. A useful systems program should make failure visible instead of silently continuing with invalid state.
+
+\begin{verification}
+Submit the producer-consumer trace, one paragraph comparing pipe and shared memory, and terminal evidence showing a shared segment appear and later disappear.
+\end{verification}
+
+\begin{troubleshoot}
+If a segment remains after a crash, inspect only your own IPC objects with \texttt{ipcs -m}. Remove a known stale segment with \texttt{ipcrm -m ID}. On a shared university machine, never remove another user's IPC object.
+\end{troubleshoot}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit an invariant trace for producer-consumer, shared-memory terminal output, and a diagram showing the segment's lifecycle and which step creates, maps, detaches, and removes it.
-\end{labdeliverable}

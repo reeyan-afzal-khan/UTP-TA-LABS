@@ -178,32 +178,32 @@ one. Neither affects an enclosing loop.}{fig:break-next}
 % the loop body, as a shaded region
 \begin{scope}[on background layer]
 \fill[UTPPaleGray,rounded corners=2mm,draw=UTPMuted!50]
-  (-0.05,-3.05) rectangle (4.6,0.45);
+  (-0.15,-3.45) rectangle (4.85,0.55);
 \end{scope}
-\node[tagb,anchor=north west] at (0.1,0.35) {loop body};
+\node[tagb,anchor=north west] at (0.05,0.45) {loop body};
 
-\node[fcstart] (top) at (2.25,-0.25) {next iteration starts};
-\node[fcbox,minimum width=24mm] (s1) at (2.25,-1.1) {statement};
-\node[fcdiamond] (t) at (2.25,-1.95) {test};
-\node[fcbox,minimum width=24mm] (s2) at (2.25,-2.75) {statement};
+\node[fcstart] (top) at (2.35,-0.25) {next iteration starts};
+\node[fcbox,minimum width=24mm] (s1) at (2.35,-1.20) {statement};
+\node[fcdiamond] (t) at (2.35,-2.15) {test};
+\node[fcbox,minimum width=24mm] (s2) at (2.35,-3.05) {statement};
 
 \draw[fcedge] (top)--(s1);
 \draw[fcedge] (s1)--(t);
-\draw[fcedge] (t)--node[fclabel,right,pos=0.45]{otherwise}(s2);
+\draw[fcedge] (t)--node[fclabel,right,pos=0.52,xshift=2pt]{otherwise}(s2);
 
 % next: back to the top of the body
 \draw[-{Stealth[length=2mm]},semithick,draw=UTPTeal]
-  (t.west) -- ++(-1.55,0)
+  (t.west) -- ++(-1.65,0)
   |- node[fclabel,left,pos=0.25,text=UTPTeal]{\texttt{next}} (top.west);
 
 % break: out of the body altogether
-\node[fcstart,draw=UTPRed,fill=UTPPaleRed] (out) at (6.9,-1.95) {after the loop};
+\node[fcstart,draw=UTPRed,fill=UTPPaleRed] (out) at (7.15,-2.15) {after the loop};
 \draw[-{Stealth[length=2mm]},semithick,draw=UTPRed]
-  (t) -- node[fclabel,above,text=UTPRed]{\texttt{break}} (out);
+  (t) -- node[fclabel,above,pos=0.55,text=UTPRed]{\texttt{break}} (out);
 
-\node[tag,anchor=west,text width=4.3cm] at (5.4,-0.7)
+\node[tag,anchor=west,text width=4.3cm] at (5.45,-0.75)
   {\textcolor{UTPTeal}{\texttt{next}} skips the rest of \emph{this} pass.};
-\node[tag,anchor=west,text width=4.3cm] at (5.4,-2.9)
+\node[tag,anchor=west,text width=4.3cm] at (5.45,-3.15)
   {\textcolor{UTPRed}{\texttt{break}} skips every remaining pass.};
 \end{tikzpicture}
 \end{utpfig}

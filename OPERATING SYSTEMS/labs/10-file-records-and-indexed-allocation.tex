@@ -1,23 +1,62 @@
-\labsection{10}{File records and indexed allocation}{sec:lab10}
-\begin{labproject}{Store application records and simulate indexed file allocation}
-\textbf{Coverage.} Chapter 10.\\
-\textbf{Source files.} Three C programs in \texttt{Lab10}.\\
-\textbf{Goal.} Separate application-level record format from file-system-level block allocation.
+\labsection{10}{File records and indexed block allocation}{sec:lab10}
+\begin{labproject}{Separate application record formats from file-system block allocation}
+\textbf{Suggested time:} 100--110 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter files:} \texttt{text\_records.c}, \texttt{binary\_records.c}, \texttt{indexed\_allocation.c}.\par
+\textbf{Evidence to keep:} text/binary comparison, successful and missing search cases, and allocation-state trace.
 
-\medskip\noindent\textbf{Task A --- Binary student records.}\par
-Write structures with \texttt{fwrite()}, rewind the stream for display/search, and use \texttt{fread()} until it returns fewer than one complete record.
+\begin{labmode}
+This practical deliberately works at two layers. First the application decides how records become bytes. Then a separate simulator shows how a file system could map a file through an index block to storage blocks.
+\end{labmode}
 
-\medskip\noindent\textbf{Task B --- Text employee records.}\par
-Write with \texttt{fprintf()} and parse with \texttt{fscanf()}. Compare readability and portability with raw structure bytes.
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item compare text and raw binary record encodings;
+  \item explain why sequential record search is simple but may require scanning many records;
+  \item describe indexed allocation and explain why validate-then-commit protects allocation state.
+\end{enumerate}
 
-\medskip\noindent\textbf{Task C --- Indexed allocation simulation.}\par
-Model an index block pointing to several allocated data blocks. Validate that all requested blocks are free before committing the allocation.
+\medskip\noindent\textbf{Part A --- Text records are easy to inspect.}
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab10
+gcc -Wall -Wextra text_records.c -o text_records
+./text_records
+cat employees.txt
+ls -l employees.txt
+\end{lstlisting}
+Identify the record delimiter and field delimiter. Change the target ID to a missing value, rerun, and ensure the program reports the missing record clearly.
 
-\begin{debugtask}
-Improve the indexed-allocation program so a failed request does not leak the newly marked index block. Implement a two-phase pattern: validate every block first, then mark all blocks allocated only if validation succeeds.
-\end{debugtask}
+\medskip\noindent\textbf{Part B --- Binary records preserve machine representation.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra binary_records.c -o binary_records
+./binary_records
+ls -l students.bin
+hexdump -C students.bin | head
+\end{lstlisting}
+If \texttt{hexdump} is unavailable, use \texttt{od -Ax -tx1 students.bin | head}. Compare readability and size with the text file.
+
+\begin{pitfall}
+Writing a C structure directly with \texttt{fwrite()} is convenient for a controlled lab, but it is not a portable long-term interchange format. Structure padding, integer representation, endianness, and compiler choices can differ.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part C --- Trace indexed allocation.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra indexed_allocation.c -o indexed_allocation
+./indexed_allocation
+\end{lstlisting}
+Draw file A as one index block pointing to its three data blocks. Then explain why file B is rejected and verify that the printed allocation map is unchanged after that rejected request.
+
+\medskip\noindent\textbf{Part D --- Explain validate first, commit second.}
+Read the two functions \texttt{request\_is\_valid()} and \texttt{allocate\_file()}. In 4--6 sentences explain why checking the whole request before marking any block avoids a partially committed allocation after an error.
+
+\medskip\noindent\textbf{Part E --- Connect the two layers.}
+Draw two small diagrams: one showing fields inside an employee/student record, and one showing logical file blocks reached through an index block. Label which decisions belong to the application and which belong to the file system.
+
+\begin{verification}
+A complete submission includes a text/binary comparison, one successful and one missing record search, an indexed-allocation diagram, and evidence that a rejected overlapping allocation leaves block state unchanged.
+\end{verification}
+
+\begin{tryit}
+Optional extension: add a deletion operation to the allocation simulator that frees an index block and all data blocks belonging to one simulated file. Print the allocation map before and after deletion.
+\end{tryit}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit binary/text record examples, a search demonstration, and an indexed-allocation trace that includes at least one rejected overlapping request and one successful allocation.
-\end{labdeliverable}

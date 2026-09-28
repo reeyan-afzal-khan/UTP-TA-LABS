@@ -123,17 +123,22 @@ A process is not always running. Most of the time it is waiting for something. T
   st/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.1cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
   arr/.style={-{Stealth[length=2mm]},draw=MLTeal,thick}
 ]
-\node[st] (new) {New};
-\node[st,right=1.1cm of new] (ready) {Ready};
-\node[st,right=1.1cm of ready] (run) {Running};
-\node[st,below=1.4cm of run] (wait) {Waiting};
-\node[st,right=1.1cm of run] (term) {Terminated};
+\node[st] (new) at (0,0) {New};
+\node[st] (ready) at (3.6,0) {Ready};
+\node[st] (run) at (7.2,0) {Running};
+\node[st] (term) at (11.0,0) {Terminated};
+\node[st] (wait) at (7.2,-2.3) {Waiting};
+
 \draw[arr] (new)--node[above,font=\scriptsize]{admit}(ready);
 \draw[arr] (ready)--node[above,font=\scriptsize]{dispatch}(run);
-\draw[arr,bend left=25] (run) to node[below,font=\scriptsize]{preempt} (ready);
 \draw[arr] (run)--node[above,font=\scriptsize]{exit}(term);
 \draw[arr] (run)--node[right,font=\scriptsize]{wait for I/O}(wait);
-\draw[arr] (wait)--node[left,font=\scriptsize]{event done}(ready);
+
+\draw[arr] (run.south west) to[bend left=38]
+  node[below,font=\scriptsize]{preempt} (ready.south east);
+\coordinate (eventturn) at (3.6,-2.3);
+\draw[arr] (wait.west) -- node[below,font=\scriptsize]{event done}
+  (eventturn) -- (ready.south);
 \end{tikzpicture}
 \end{mlfigure}
 
@@ -146,8 +151,6 @@ Two arrows deserve attention, because students routinely confuse them.
 \begin{pitfall}
 ``Ready'' does not mean idle. A ready process wants the CPU right now and cannot have it, because another process is using it. On a busy machine, the ready queue is where processes spend most of their existence.
 \end{pitfall}
-
-\input{chapters/concepts/01-foundations-deep-dive}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -165,13 +168,3 @@ Two arrows deserve attention, because students routinely confuse them.
   \item Not blocked. Ready means it is able to run and is waiting only for a turn on the CPU. A blocked process waits for an event; a ready one waits for the scheduler.
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item The OS provides abstractions while managing and protecting hardware resources; those two goals frequently conflict.
-  \item The CPU enforces the user/kernel boundary. Control crosses it by system call, exception, or interrupt --- and by nothing else.
-  \item A process is a running instance with its own resources; a thread is a flow of execution that shares them.
-  \item Preemption and blocking both stop a running process, for completely different reasons.
-  \item Scheduling, memory, I/O, and file systems all participate in ordinary program execution.
-\end{itemize}
-\end{chapterrecap}

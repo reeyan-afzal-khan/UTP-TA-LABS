@@ -5,15 +5,10 @@
 Paging divides virtual memory into fixed-size \term{pages} and physical memory into equal-size \term{frames}. A page table records which frame currently contains each resident virtual page. Because pages need not occupy adjacent frames, paging removes external fragmentation from physical allocation, though the last page of an object can still create internal fragmentation.
 
 \section{Address translation}
-If the page size is $P$, a virtual address $v$ can be decomposed into
-\[
-\text{page} = \left\lfloor \frac{v}{P}\right\rfloor, \qquad
-\text{offset} = v \bmod P.
-\]
-If the page table maps that page to frame $f$, then
-\[
-\text{physical address} = fP + \text{offset}.
-\]
+Divide the virtual address by the page size. The quotient is the page number;
+the remainder is the offset. The page table replaces the page number with a
+frame number, while the offset stays unchanged. In compact form:
+\texttt{physical address = frame $\times$ page size + offset}.
 
 \begin{mlfigure}
 \centering
@@ -102,22 +97,22 @@ LFU retains frequently referenced pages. Pure cumulative counts can preserve sta
 With three frames and reference string 1, 2, 3, 1, 4: the first three references fault and fill the frames. The second reference to 1 is a hit. On reference 4, FIFO evicts 1 if 1 was loaded earliest, whereas LRU evicts 2 because 2 is the least recently used at that moment.
 \end{workedexample}
 
-\section{Mutex exercise in this lab set}
-The first program in Lab 8 is actually a mutex synchronization demonstration rather than an address-translation program, despite its opening comment. This is a good reminder that source comments are documentation, not truth: read the executable logic and verify what it does.
+\section{Locality explains why replacement policies can work}
+Programs often reuse recently accessed instructions and data (temporal locality) and access addresses close to one another (spatial locality). Page-replacement policies try to exploit these patterns indirectly. LRU uses recent history; LFU uses frequency history; FIFO deliberately ignores reference history and uses load order only.
 
 \begin{keyidea}
-A page-replacement algorithm is a prediction policy: it tries to choose the resident page whose removal will hurt future execution least.
+A page-replacement algorithm is a prediction policy: it tries to choose a resident page whose removal will hurt future execution as little as possible. The policy never knows the future perfectly, so the workload matters.
 \end{keyidea}
 
-\input{chapters/concepts/08-virtual-memory-deep-dive}
+\section{How to trace replacement professionally}
+A trustworthy trace shows the reference, frame contents after the reference, hit/fault result, and enough policy state to justify a victim. Totals are useful only after individual decisions can be checked.
 
-\input{labs/08-mutex-and-page-replacement}
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which part of a virtual address remains unchanged during page-table translation?
+  \item What is the difference between a page hit and a page fault?
+  \item Why can LRU and LFU choose different victims even on the same reference string?
+\end{enumerate}
+\end{quickcheck}
 
-\begin{chapterrecap}
-\begin{itemize}
-  \item Paging separates virtual pages from physical frames through a page table.
-  \item A page fault is an exceptional control transfer caused by a non-resident or otherwise invalid mapping.
-  \item FIFO uses age, LRU uses recency, and LFU uses frequency to choose victims.
-  \item The correctness of a trace depends on frame count, reference order, hit handling, and tie-breaking rules.
-\end{itemize}
-\end{chapterrecap}
+\input{labs/08-virtual-memory-and-page-replacement}

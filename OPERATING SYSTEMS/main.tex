@@ -4,10 +4,9 @@
 \def\utprunninghead{Operating Systems}
 \def\utplabtotal{10}
 \def\utpcoursetitle{Operating Systems}
+\def\utpdocumentsubtitle{Student Course and Laboratory Guide}
 \def\utpcourseoutline{%
-  A lab-aligned guide to Linux system interfaces, process management, CPU
-  scheduling, synchronization, deadlocks, memory management, virtual memory,
-  and file-system organization.%
+  A practical, student-focused introduction to operating systems using Linux, with Windows/WSL setup, readable starter code, and guided experiments in processes, scheduling, concurrency, memory, and file systems.
 }
 
 % ---------- everything shared with the other courses ----------
@@ -40,6 +39,7 @@
 \utpfrontmatter
 
 \part{Operating-System Foundations}
+\input{chapters/00-getting-started-linux-wsl}
 \input{chapters/01-operating-systems-at-a-glance}
 \input{chapters/02-linux-processes-files-and-system-calls}
 

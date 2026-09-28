@@ -1,88 +1,78 @@
-\labsection{1}{Directories and process creation}{sec:lab01}
-\begin{labproject}{Explore a directory and create a child process}
-\textbf{Coverage.} Chapters 1--2.\\
-\textbf{Source files.} \texttt{Lab01/Task01.c}, \texttt{Lab01/Task02.c}.\\
-\textbf{Goal.} Observe two fundamental OS abstractions: the directory namespace and process identity.
+\labsection{1}{Processes and the Linux namespace}{sec:lab01}
+\begin{labproject}{Observe how Linux represents directories and parent/child processes}
+\textbf{Suggested time:} 90 minutes \hfill
+\textbf{Level:} introductory\par
+\textbf{Starter files:} \texttt{experiments/Lab01/directory\_list.c}, \texttt{fork\_demo.c}.\par
+\textbf{Evidence to keep:} one directory-change table, one process table, and short explanations in your own words.
 
 \begin{labmode}
-Both programs are deliberately tiny. Treat them as instruments rather than as products: run one, read its output, change exactly one thing, and run it again. The value is in connecting a line of C to an effect you can see.
-
-Build either with warnings on. They are worth reading, not silencing:
-\begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra Task01.c -o task01 && ./task01
-\end{lstlisting}
+This practical is about observation, not memorising C library calls. Predict first, run the experiment, then connect what you saw to one operating-system idea.
 \end{labmode}
 
-\medskip\noindent\textbf{Task A --- Walking a directory.}\par
-A directory is not a list of files. It is a file that happens to contain name-to-inode mappings, and \texttt{readdir()} is how you step through them.
-
-\begin{lstlisting}[style=osc]
-DIR *dirp = opendir(path);
-if (dirp == NULL) {
-    perror(path);            /* prints the reason, not just "failed" */
-    return EXIT_FAILURE;
-}
-
-struct dirent *entry;
-while ((entry = readdir(dirp)) != NULL) {
-    printf("%s\n", entry->d_name);
-}
-
-closedir(dirp);
-\end{lstlisting}
-
-Three details in that fragment are doing real work.
-
-The extra parentheses around the assignment say ``I meant to assign here.'' Without them the compiler warns, because \texttt{=} inside a condition is far more often a typo for \texttt{==}.
-
-\texttt{perror()} appends the actual reason --- \texttt{No such file or directory}, \texttt{Permission denied} --- which turns a dead end into a diagnosis.
-
-\texttt{closedir()} sits \emph{after} the loop. Putting it inside is the subject of Lab 2, Task B.
-
-\begin{tryit}
-Run it on \texttt{.}, then on \texttt{/etc}, then on a path that does not exist, then on a directory you lack permission to read. Four different outcomes, all handled by the same six lines.
-
-Now answer: why do \texttt{.} and \texttt{..} appear in the listing, and is the order alphabetical? Check by running it twice on a directory you have just added a file to.
-\end{tryit}
-
-\medskip\noindent\textbf{Task B --- Parent and child.}\par
-\texttt{fork()} is the strangest system call you will meet this semester: it is called once and returns twice.
-
-\begin{lstlisting}[style=osc]
-pid_t pid = fork();
-
-if (pid == -1) {
-    perror("fork");                    /* creation failed */
-} else if (pid == 0) {
-    printf("child : pid=%ld\n", (long)getpid());
-} else {
-    printf("parent: pid=%ld, child=%ld\n", (long)getpid(), (long)pid);
-    waitpid(pid, &status, 0);
-}
-\end{lstlisting}
-
-After \texttt{fork()} there are two processes, both sitting on the next line, both holding identical copies of every variable. They are told apart by the return value alone: \texttt{0} in the child, the child's PID in the parent, \texttt{-1} if no child was made.
-
-\begin{pitfall}
-Use \texttt{pid\_t}, not \texttt{int}. The width of a process ID is platform-defined, and \texttt{int} happens to work on Linux today. Cast to \texttt{long} for printing, since there is no portable \texttt{printf} specifier for \texttt{pid\_t}.
-\end{pitfall}
-
-\begin{tryit}
-Comment out the \texttt{waitpid()} call and run the program twenty times in a row:
-\begin{lstlisting}[style=osbash]
-for i in $(seq 20); do ./task02; done
-\end{lstlisting}
-Does the parent line always print first? Put \texttt{waitpid()} back and repeat. You have just observed a race condition and then removed it.
-
-Then try this: put a \texttt{printf()} \emph{before} the \texttt{fork()} without a trailing newline, and run the program with output redirected to a file. Count how many times that line appears. Chapter~\ref{ch:overview} explains why.
-\end{tryit}
-\end{labproject}
-
-\begin{labdeliverable}
-Submit terminal output for both tasks, plus short answers to:
+\medskip\noindent\textbf{Learning outcomes.} By the end of the session you should be able to:
 \begin{enumerate}
-  \item What does \texttt{readdir()} return, and how do you tell end-of-directory from an error?
-  \item What are the three possible return values of \texttt{fork()}, and what does each mean?
-  \item Why can output order vary without \texttt{waitpid()}, and why is that not a bug in your program?
+  \item explain that a directory maps names into a file-system namespace;
+  \item distinguish a process ID (PID) from a parent process ID (PPID);
+  \item explain what \texttt{fork()} changes and what remains the same immediately after it returns.
 \end{enumerate}
-\end{labdeliverable}
+
+\medskip\noindent\textbf{Pre-lab check (5--10 minutes).}
+Without running the programs, answer these two questions: What is the difference between a program and a process? After a successful \texttt{fork()}, how many processes continue from the next line?
+
+\medskip\noindent\textbf{Part A --- Observe a changing directory namespace.}
+Compile and run the directory program:
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab01
+gcc -Wall -Wextra directory_list.c -o directory_list
+./directory_list .
+\end{lstlisting}
+Now perform one change at a time:
+\begin{lstlisting}[style=osbash]
+touch observation.txt
+mv observation.txt renamed.txt
+rm renamed.txt
+\end{lstlisting}
+Run \texttt{./directory\_list .} after every command. Record which name appeared, changed, or disappeared. Compare with \texttt{ls -la}.
+
+\begin{keyidea}
+The directory experiment is about \emph{names}. Creating or renaming a name changes the namespace; it does not mean the file's data must be stored physically beside another file.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part B --- Observe a parent and child process.}
+Compile and run:
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra fork_demo.c -o fork_demo
+./fork_demo
+\end{lstlisting}
+Record the PID printed by the parent, the PID printed by the child, the child's PPID, and the value returned by \texttt{fork()} in each branch. Run the program three times and note which values change.
+
+\medskip\noindent\textbf{Part C --- Inspect the processes while they are alive.}
+The program accepts a short pause so there is time to inspect it:
+\begin{lstlisting}[style=osbash]
+./fork_demo 10 &
+ps -C fork_demo -o pid,ppid,state,cmd
+wait
+\end{lstlisting}
+Use the PID/PPID columns to identify the parent-child relationship. The exact process state letter may vary because timing is real.
+
+\begin{workedexample}
+If the parent is PID 4200 and the child is PID 4201, the child should normally report PPID 4200 while the parent remains alive. Your numbers will be different; the relationship is the evidence that matters.
+\end{workedexample}
+
+\medskip\noindent\textbf{Part D --- Small controlled change.}
+Add a second line of text inside the child branch, recompile, and predict whether the parent will print that line too. Explain the result using separate process execution rather than saying only ``because of the if statement.''
+
+\begin{verification}
+Your lab record is complete when it contains: (1) before/after directory observations, (2) a PID/PPID table from at least one run, and (3) a 3--5 sentence explanation of how one executable produced two processes after \texttt{fork()}.
+\end{verification}
+
+\begin{tryit}
+Optional extension: temporarily remove \texttt{fflush(stdout)} before \texttt{fork()}, redirect output to a file, and investigate how buffered output can be duplicated. Restore the original file when finished.
+\end{tryit}
+
+\begin{troubleshoot}
+\textbf{\texttt{ps -C} shows nothing:} run the paused version again and issue \texttt{ps} before the 10 seconds expire.\par
+\textbf{Compilation fails at \texttt{waitpid}:} check that \texttt{<sys/wait.h>} is included.\par
+\textbf{PIDs differ from the notes:} expected; PIDs are assigned dynamically by the kernel.
+\end{troubleshoot}
+\end{labproject}

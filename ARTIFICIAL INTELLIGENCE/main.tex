@@ -4,7 +4,7 @@
 \def\utprunninghead{Artificial Intelligence}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
-\def\utpdocumentsubtitle{Laboratory Guide}
+\def\utpdocumentsubtitle{Teaching Assistant Guide}
 \def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and evolutionary optimization.}
 
 % ---------- boxes this book renames ----------
@@ -74,24 +74,23 @@
 \begin{document}
 \utpfrontmatter
 
-% Number the environment guide as Chapter 0 so Chapters 1--8 align with Labs 1--8.
-\setcounter{chapter}{-1}
-\input{chapters/00-your-python-toolkit.tex}
+% Begin with the environment guide as Chapter 1.
+\input{chapters/01-your-python-toolkit.tex}
 
 \part{Search and Problem Solving}
-\input{chapters/01-uninformed-search}
-\input{chapters/02-informed-search}
-\input{chapters/03-search-implementation-patterns}
+\input{chapters/02-uninformed-search}
+\input{chapters/03-informed-search}
+\input{chapters/04-search-implementation-patterns}
 
 \part{Approximate Reasoning and Intelligent Control}
-\input{chapters/04-fuzzy-logic-and-anfis}
-\input{chapters/05-robotics-scenarios}
+\input{chapters/05-fuzzy-logic-and-anfis}
+\input{chapters/06-robotics-scenarios}
 
 \part{Language Intelligence}
-\input{chapters/06-nlp-foundations}
-\input{chapters/07-nlp-methods}
+\input{chapters/07-nlp-foundations}
+\input{chapters/08-nlp-methods}
 
 \part{Evolutionary Optimization}
-\input{chapters/08-genetic-algorithms}
+\input{chapters/09-genetic-algorithms}
 
 \end{document}

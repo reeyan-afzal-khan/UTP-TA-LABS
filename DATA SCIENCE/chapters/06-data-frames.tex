@@ -36,13 +36,13 @@ everything.}{fig:dataframe}
   \node[dscol] at (3.7,-\r*0.62) {\v};
 
 \foreach \t/\x in {integer/0, character/1.85, double/3.7}
-  \node[tag] at (\x,-3.42) {\texttt{\t}};
+  \node[tag] at (\x,-3.72) {\texttt{\t}};
 
 \draw[decorate,decoration={brace,amplitude=3.5pt},draw=UTPTeal]
-  (4.62,-0.31) -- (4.62,-3.19);
-\node[tag,anchor=west,text width=3.5cm] at (4.82,-1.75)
+  (4.80,-0.27) -- (4.80,-3.45);
+\node[tag,anchor=west,text width=3.5cm] at (5.05,-1.85)
   {one vector per column, all of length 5};
-\node[tag,anchor=west,text width=3.9cm] at (-2.6,-1.75)
+\node[tag,anchor=east,align=left,text width=3.5cm] at (-1.15,-1.85)
   {\texttt{nrow(emp.data)} counts rows;\\ \texttt{length(emp.data)} counts
    \emph{columns}, because the object is a list};
 \end{tikzpicture}

@@ -1,20 +1,60 @@
-\labsection{7}{First fit, best fit, and worst fit}{sec:lab07}
-\begin{labproject}{Compare contiguous allocation policies on identical requests}
-\textbf{Coverage.} Chapter 7.\\
-\textbf{Source files.} Three C programs in \texttt{Lab07}.\\
-\textbf{Goal.} See how a local placement rule changes fragmentation and future choices.
+\labsection{7}{Contiguous memory allocation and fragmentation}{sec:lab07}
+\begin{labproject}{Compare first fit, best fit, and worst fit using the same sequence of requests}
+\textbf{Suggested time:} 90--100 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter file:} \texttt{memory\_fit.c}.\par
+\textbf{Evidence to keep:} allocation trace for three policies, fragmentation observations, and one designed counterexample.
 
-Use the same block and request sequence for all policies. For each request record: selected block, block size, request size, fragment, and whether allocation failed.
+\begin{labmode}
+Allocation policies are easiest to understand as evolving state. Record the free-hole list after every request rather than looking only at the final result.
+\end{labmode}
 
-\begin{workedexample}
-If free blocks are 120, 500, 250 and the request is 200, first fit chooses 500, best fit chooses 250, and worst fit chooses 500. The immediate fragment is 300 for first/worst fit and 50 for best fit.
-\end{workedexample}
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item apply first-fit, best-fit, and worst-fit rules correctly;
+  \item explain external fragmentation using both total free memory and largest available hole;
+  \item compare policies on identical input without over-generalising from one data set.
+\end{enumerate}
+
+\medskip\noindent\textbf{Dataset.}
+Initial holes are 100, 500, 200, 300, 600. Requests arrive in the order 212, 417, 112, 426.
+
+\medskip\noindent\textbf{Pre-lab prediction.}
+For the first request only, identify which hole each policy will choose and calculate the remainder. This gives you a quick check that you understand the three selection rules before running code.
+
+\medskip\noindent\textbf{Part A --- Run one simulator under three policies.}
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab07
+gcc -Wall -Wextra memory_fit.c -o memory_fit
+./memory_fit first
+./memory_fit best
+./memory_fit worst
+\end{lstlisting}
+For every request, record the chosen hole and the complete hole list afterwards. Use one table with separate columns for the three policies.
+
+\medskip\noindent\textbf{Part B --- Diagnose a failed request.}
+Whenever a request fails, calculate:
+\[
+\text{total free memory} = \sum \text{all hole sizes}, \qquad
+\text{largest hole} = \max(\text{hole sizes}).
+\]
+If total free memory is sufficient but the largest hole is too small, explain why this is external fragmentation rather than a lack of total free space.
+
+\begin{keyidea}
+``Best fit'' is the historical name of a policy. It means ``choose the smallest hole that currently fits,'' not ``guarantee the best final memory use.''
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Design a small counterexample.}
+Create three or four initial holes and three requests such that two policies make different early choices and a later request succeeds for one policy but fails for another. Keep the numbers small enough to trace by hand. Your explanation is more important than finding a dramatic difference.
+
+\medskip\noindent\textbf{Part D --- Connect the simulation to a real allocator.}
+In 4--6 sentences, explain what this model leaves out. Mention at least two of: allocation metadata, deallocation, coalescing adjacent holes, alignment, paging, or compaction.
+
+\begin{verification}
+A complete submission includes three full traces on identical input, at least one fragmentation calculation, and a student-designed request sequence with a clear explanation of the different outcome.
+\end{verification}
 
 \begin{tryit}
-Find a request sequence for which best fit allocates an early request efficiently but causes a later request to fail while first fit succeeds. Explain the state left after each decision.
+Optional extension: add a \texttt{next} policy that resumes searching after the position of the previous successful allocation. Compare search behaviour, not only the final holes.
 \end{tryit}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit outputs for all three algorithms using one common dataset and a comparison table of total reported fragmentation and number of failed requests.
-\end{labdeliverable}

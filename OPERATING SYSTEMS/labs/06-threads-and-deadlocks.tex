@@ -1,23 +1,64 @@
-\labsection{6}{Threads, Banker's algorithm, and deadlock reasoning}{sec:lab06}
-\begin{labproject}{Combine thread lifecycle with resource-allocation safety analysis}
-\textbf{Coverage.} Chapter 6.\\
-\textbf{Source files.} Three C programs in \texttt{Lab06}.\\
-\textbf{Goal.} Practice POSIX thread creation/joining and matrix-based resource reasoning.
+\labsection{6}{Threads, mutexes, and resource safety}{sec:lab06}
+\begin{labproject}{Observe a race condition, protect a shared counter, and trace Banker's safety test}
+\textbf{Suggested time:} 110--120 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter files:} \texttt{threads\_demo.c}, \texttt{banker.c}.\par
+\textbf{Evidence to keep:} repeated counter results, critical-section explanation, Need matrix, and safe/unsafe trace.
 
-\medskip\noindent\textbf{Task A --- Banker's safety algorithm.}\par
-After input, calculate every Need entry with \texttt{Need = Max - Allocation}. Maintain \texttt{Work} and \texttt{Finish}. Record the process selected on each pass and the Work vector after its resources are released.
+\begin{labmode}
+Threads and Banker's algorithm solve different problems. The first half asks how concurrent execution can safely share data; the second asks whether a resource-allocation state leaves a guaranteed route to completion.
+\end{labmode}
 
-\medskip\noindent\textbf{Task B --- Detection terminology.}\par
-Compare \texttt{Task01.c} and \texttt{Task02.c}. Both derive Need from Max. Explain why a strict deadlock-detection algorithm is conceptually different from a Banker's safe-state test.
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item explain why threads in one process can race on a shared variable;
+  \item identify the critical section protected by a mutex;
+  \item calculate Need and execute the Banker's safety test without confusing ``unsafe'' with ``already deadlocked.''
+\end{enumerate}
 
-\medskip\noindent\textbf{Task C --- POSIX threads.}\par
-Create two threads, identify them with \texttt{pthread\_self()}, compare identifiers with \texttt{pthread\_equal()}, and join both before process exit.
+\medskip\noindent\textbf{Part A --- Establish the correct threaded result.}
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab06
+gcc -Wall -Wextra threads_demo.c -o threads_demo -pthread
+./threads_demo
+\end{lstlisting}
+Run the locked version three times. The final counter should equal the printed expected value. Find \texttt{pthread\_create}, \texttt{pthread\_join}, and the mutex lock/unlock pair.
+
+\medskip\noindent\textbf{Part B --- Remove protection and observe a race.}
+\begin{lstlisting}[style=osbash]
+./threads_demo --no-lock
+./threads_demo --no-lock
+./threads_demo --no-lock
+\end{lstlisting}
+Record the actual counter each time. If one run happens to equal the expected value, do not conclude the program is safe; repeat it. Explain the lost-update idea using the read-modify-write sequence on \texttt{counter}.
+
+\begin{keyidea}
+A mutex protects a rule about shared state: only one thread at a time may execute the critical update. It does not make all thread execution sequential.
+\end{keyidea}
+
+\medskip\noindent\textbf{Part C --- Deadlock conditions as a design checklist.}
+Consider two threads: T1 locks A then asks for B; T2 locks B then asks for A. Identify where mutual exclusion, hold-and-wait, no preemption, and circular wait appear. Then state one simple prevention rule based on lock ordering.
+
+\medskip\noindent\textbf{Part D --- Compute Need before running Banker's algorithm.}
+For each process calculate
+\[
+\texttt{Need} = \texttt{Maximum} - \texttt{Allocation}.
+\]
+Then compile and run \texttt{banker.c}. For every chosen process, record Work before, Need, and Work after its allocated resources are conceptually released.
+
+\medskip\noindent\textbf{Part E --- Compare a safe and unsafe starting point.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra banker.c -o banker
+./banker
+./banker --unsafe
+\end{lstlisting}
+Explain the first point at which the unsafe run cannot make progress. Use the phrase ``no complete safe sequence can be guaranteed'' rather than claiming that an actual circular wait has already been observed.
+
+\begin{verification}
+Your record should include at least three locked and three unlocked counter results, a short critical-section explanation, the complete Need matrix, and a trace showing why the safe run progresses while the unsafe run stops.
+\end{verification}
 
 \begin{tryit}
-Remove the busy delay and run the thread program several times. Then add a shared counter without a mutex, followed by a mutex-protected version. Compare results.
+Optional extension: change the initial Work vector by one resource unit and identify the exact Need $\leq$ Work comparison that becomes possible or impossible.
 \end{tryit}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit one safe and one unsafe Banker's input with full Work/Finish traces, a paragraph distinguishing unsafe from deadlocked, and thread output showing successful creation and joining.
-\end{labdeliverable}

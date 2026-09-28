@@ -1,38 +1,50 @@
 \chapter{File Organization and Disk-Block Allocation}\label{ch:filesystems}
-\chapterguide{Read Chapter~\ref{ch:directories} first.}{Explain text versus binary records, sequential search, indexed allocation, and compare contiguous, linked, and indexed file allocation.}
+\chapterguide{Read Chapter~\ref{ch:directories} first.}{Distinguish application record formats from file-system block allocation, compare basic access methods, and explain contiguous, linked, and indexed allocation at an introductory level.}
 
-\section{Records inside files}
-Applications often impose a record structure on a byte stream. The Lab 10 programs store student or employee records and then display/search them. Two broad encodings appear:
+\section{A file is a byte sequence; applications add meaning}
+To the operating system, a regular file can be treated as a sequence of bytes plus metadata. Applications decide how those bytes represent records such as students, employees, images, or database pages.
+
+This gives us two layers to keep separate:
 \begin{itemize}
-  \item \textbf{text format}: fields are converted to characters with functions such as \texttt{fprintf()} and parsed with \texttt{fscanf()};
-  \item \textbf{binary format}: an in-memory structure is written as raw bytes with \texttt{fwrite()} and read with \texttt{fread()}.
+  \item \textbf{application organization:} how fields and records are encoded inside the file;
+  \item \textbf{file-system allocation:} how logical file blocks are mapped onto storage.
 \end{itemize}
 
+\section{Text and binary records}
+Text formats convert values into readable characters. Binary formats can store compact machine-oriented representations.
+
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}XX@{}}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}XX@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
 Format & Strength & Caution \\
 \midrule
-Text & Human-readable, easier interoperability & Parsing overhead and larger representation \\
-Raw binary struct & Simple and compact within one build environment & Padding, endianness, type sizes, and ABI make it non-portable as a durable interchange format \\
+Text & readable with ordinary tools, easy to exchange & parsing and formatting add overhead \\
+Raw C struct & compact and easy for a controlled exercise & padding, endianness, and type sizes can reduce portability \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\section{Sequential search}
-A simple search rewinds the file and scans one record at a time until a key matches. Cost is $O(n)$ records in the worst case. Larger systems add indexing structures to reduce lookup cost.
+\begin{pitfall}
+``Binary'' does not automatically mean ``better.'' A durable binary format normally defines its byte layout explicitly instead of simply dumping a compiler-dependent in-memory structure.
+\end{pitfall}
 
-\section{File allocation on storage}
-The OS/file system must map a file's logical blocks to physical storage blocks.
-\begin{itemize}
-  \item \term{Contiguous allocation}: file occupies consecutive blocks. Fast sequential/random access, but growth and external fragmentation are concerns.
-  \item \term{Linked allocation}: each block points to the next. Easy growth and no external fragmentation, but random access is inefficient and pointer integrity matters.
-  \item \term{Indexed allocation}: a dedicated index block stores pointers to the file's data blocks. Supports direct access but consumes index space.
-\end{itemize}
+\section{Sequential access and sequential search}
+A small record file can be searched by reading one record after another until the key is found. This is easy to implement and understand, but the worst case may inspect every record.
 
-\section{Indexed allocation in the supplied lab}
-Lab 10 task 3 uses an integer array to model whether a disk block is allocated. The user chooses an index block and a set of data blocks. The simulation rejects a request if any referenced block is already marked allocated.
+Larger systems introduce indexes so a key can point more directly to the needed location. The idea is similar to a book index: extra structure is maintained so lookup does not require scanning every page.
+
+\section{Logical blocks and physical placement}
+A file system commonly views a file as logical blocks numbered 0, 1, 2, and so on. The allocation method determines where those logical blocks are stored physically.
+
+\section{Contiguous allocation}
+All file blocks occupy consecutive storage blocks. Sequential and random access are simple, but file growth can be difficult when the following physical blocks are already occupied.
+
+\section{Linked allocation}
+Each allocated block identifies the next block in the file. Files can grow without requiring adjacent space, but following a long chain is inefficient for direct/random access and damaged pointers are a concern.
+
+\section{Indexed allocation}
+A separate index block stores references to the file's data blocks. Logical block 0 can be found through the first index entry, logical block 1 through the second, and so on. The data blocks themselves do not need to be adjacent.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
@@ -48,21 +60,47 @@ Lab 10 task 3 uses an integer array to model whether a disk block is allocated. 
 \end{tikzpicture}
 \end{mlfigure}
 
-\begin{pitfall}
-Using \texttt{goto START} after discovering a conflict can leave earlier temporary choices or the index-block mark in an inconsistent state unless rollback is carefully implemented. Transaction-like allocation should validate the whole request before committing state changes.
-\end{pitfall}
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Method & Main advantage & Main limitation \\
+\midrule
+Contiguous & simple, efficient direct access & growth and external fragmentation \\
+Linked & easy growth without contiguous space & poor direct access \\
+Indexed & direct access without contiguous data blocks & index-space overhead \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 
-\section{Durability and consistency}
-Real file systems must survive partial writes and crashes. Journaling, copy-on-write, checksums, write ordering, and recovery tools are examples of mechanisms used to keep metadata and file content consistent.
+\section{Free-space management}
+A file system also needs to know which storage blocks are free. A bitmap is one common idea: each bit records whether one block is free or allocated. Other structures can use lists or grouped free blocks.
 
-\input{chapters/concepts/10-filesystem-deep-dive}
+The Lab 10 simulator uses a simple integer array as an easy-to-see allocation map. It is a model, not a complete disk file system.
+
+\section{Validate first, commit second}
+Suppose a request needs one index block and three data blocks. If the program marks the first two blocks as used and only later discovers that the third is unavailable, it has partially changed state.
+
+A safer introductory pattern is:
+\begin{enumerate}
+  \item validate the complete request without modifying shared state;
+  \item if every block is valid and free, commit all allocation changes;
+  \item otherwise, leave the map unchanged.
+\end{enumerate}
+This transaction-like reasoning appears throughout systems software.
+
+\section{Durability and crash consistency}
+Real file systems must survive interruptions during metadata updates. Techniques such as journaling, copy-on-write, checksums, and careful write ordering help prevent inconsistent states after a crash. These mechanisms are beyond the Lab 10 implementation, but the validate-then-commit habit is an accessible first step toward the same design concern.
+
+\section{Keep the layers separate}
+When an application stores a student record, it decides which bytes represent the ID, name, and GPA. When the file system stores the file, it decides how file offsets map to blocks. One file can change its physical allocation without changing its application record format.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which layer decides how an employee record is encoded?
+  \item Which allocation method uses a dedicated block of pointers?
+  \item Why should a multi-block allocation request be fully checked before state is modified?
+\end{enumerate}
+\end{quickcheck}
 
 \input{labs/10-file-records-and-indexed-allocation}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Text and binary files encode records differently and have different portability trade-offs.
-  \item Sequential search is simple but scales linearly with record count.
-  \item Contiguous, linked, and indexed allocation trade placement simplicity, access speed, growth flexibility, and metadata overhead.
-\end{itemize}
-\end{chapterrecap}

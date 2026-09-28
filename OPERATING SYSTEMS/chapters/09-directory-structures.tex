@@ -1,55 +1,101 @@
-\chapter{Directories and File-System Namespace}\label{ch:directories}
-\chapterguide{Know how \texttt{opendir/readdir} expose directory entries.}{Explain directory trees, absolute and relative pathnames, distinguish file names from file metadata, and connect the Lab 9 visualizations to real file-system structures.}
+\chapter{Directories and the File-System Namespace}\label{ch:directories}
+\chapterguide{Know how a Linux path names a file or directory.}{Explain hierarchical namespaces, resolve absolute and relative paths, distinguish names from inode metadata, compare hard and symbolic links, and connect recursive traversal to directory lookup.}
 
 \section{Why directories exist}
-A file system needs a namespace that maps human-readable pathnames to file-system objects. A directory stores associations between names and underlying objects or metadata references. Hierarchical directories allow organization, delegation, and scalable lookup.
+Storage blocks do not naturally come with human-friendly names such as \texttt{report.txt}. A file system therefore provides a \term{namespace}: a structured way to associate names with file-system objects.
 
-\section{Common directory organizations}
-Textbooks often introduce:
+A directory is part of that namespace. In a Unix-like file system, directory entries associate names with underlying objects identified by metadata such as inode numbers.
+
+\section{From flat names to a hierarchy}
+Textbooks often describe several directory organizations:
 \begin{itemize}
-  \item \textbf{single-level}: every file shares one directory;
-  \item \textbf{two-level}: each user gets a separate directory;
-  \item \textbf{tree-structured}: directories may contain files and subdirectories;
-  \item \textbf{acyclic/general graph}: links allow more complex sharing, requiring cycle/reference management.
+  \item \textbf{single-level:} every file shares one directory;
+  \item \textbf{two-level:} each user receives a separate directory;
+  \item \textbf{tree-structured:} directories contain files and subdirectories;
+  \item \textbf{graph-like structures:} links allow an object to be reachable through more than one path.
 \end{itemize}
+Modern general-purpose systems use hierarchical trees with linking mechanisms.
 
 \begin{mlfigure}
 \begin{tikzpicture}[
+  grow=down,
+  level distance=1.55cm,
+  level 1/.style={sibling distance=4.2cm},
+  level 2/.style={sibling distance=2.35cm},
   dir/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.75cm,font=\small\bfseries\color{MLNavy}},
   file/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1mm,minimum width=1.9cm,minimum height=0.65cm,font=\scriptsize\color{MLNavy}},
   edge from parent/.style={draw=MLMuted,thick,-{Stealth[length=1.8mm]}}
 ]
 \node[dir] {root}
- child {node[dir] {home} child {node[file] {notes.tex}} child {node[file] {code.c}}}
+ child {node[dir] {home} child {node[file] {notes.txt}} child {node[file] {code.c}}}
  child {node[dir] {etc} child {node[file] {config}}}
  child {node[dir] {tmp}};
 \end{tikzpicture}
 \end{mlfigure}
 
 \section{Absolute and relative paths}
-An \term{absolute path} begins from the root of the namespace. A \term{relative path} begins from the process's current working directory. Special entries such as \texttt{.} and \texttt{..} conventionally mean current and parent directory.
+An \term{absolute path} begins at the root directory, for example \texttt{/home/student/notes.txt}. A \term{relative path} begins at the process's current working directory.
 
-\section{Name versus metadata}
-A filename is not the complete file. Real file systems maintain metadata such as object type, owner, permissions, timestamps, size, and pointers to data blocks. In Unix-like systems, directory entries associate names with inode numbers; the inode stores most metadata and block mapping information.
+Two special names appear frequently:
+\begin{itemize}
+  \item \texttt{.} means the current directory;
+  \item \texttt{..} means the parent directory.
+\end{itemize}
+The shell maintains a current working directory for itself, and a child process normally inherits that starting directory.
 
-\section{What Lab 9 visualizes}
-The supplied OpenGL programs model a root directory with file children and a more general interactive tree whose nodes may represent directories or files. The graphics are not implementing an on-disk file system; they visualize the \emph{namespace structure} and parent-child relationships.
+\section{Pathname resolution is repeated lookup}
+To resolve a path such as \texttt{/home/student/notes.txt}, the system conceptually starts at the root, finds the entry named \texttt{home}, then inside that directory finds \texttt{student}, and finally finds \texttt{notes.txt}.
 
-\begin{pitfall}
-A GUI tree node should not be confused with the physical location of file data. Directory hierarchy is a logical namespace; data blocks can be placed elsewhere on storage.
-\end{pitfall}
+This is why permissions on intermediate directories matter: reaching a file requires traversing the path, not merely knowing the final filename.
 
-\section{Directory operations}
-Important logical operations include search, create, delete, list, rename, link/unlink, and traverse. A well-designed file system must implement these while preserving consistency if power fails or operations race.
+\section{Name, metadata, and data are different layers}
+A filename is not the complete file. Metadata can include object type, owner, permissions, timestamps, size, link count, and pointers or mappings to data blocks.
 
-\input{chapters/concepts/09-directories-deep-dive}
+\begin{keyidea}
+The namespace tells us \emph{how an object is named}. Metadata tells us \emph{what the object is and its properties}. Storage allocation tells us \emph{where its bytes are represented on storage}.
+\end{keyidea}
+
+\section{Hard links}
+A hard link gives another directory entry to the same underlying inode. The two names are peers: neither is inherently the ``real'' name. Removing one name does not remove the file data while another hard link still refers to the inode.
+
+The inode's link count helps the file system track how many directory entries refer to it.
+
+\section{Symbolic links}
+A symbolic link is a separate small file-system object whose content is a pathname. Following the link causes another pathname lookup.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}XX@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Feature & Hard link & Symbolic link \\
+\midrule
+Underlying inode & same inode as target & separate inode \\
+Stores a pathname & no & yes \\
+Can become dangling & not in the same way & yes, if target path disappears \\
+Recursive traversal concern & ordinary name to same object & can create path-following cycles \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Recursive traversal}
+A directory walker opens a directory, reads each entry, and recursively repeats the operation for child directories. Two practical rules matter:
+\begin{enumerate}
+  \item do not recurse into \texttt{.} and \texttt{..};
+  \item decide deliberately whether symbolic links will be followed.
+\end{enumerate}
+Blindly following links can revisit the same locations indefinitely if links form a cycle.
+
+\section{Directory operations and consistency}
+Common namespace operations include create, list, rename, link, unlink, and traverse. A real file system must update its metadata consistently even if two processes act at once or a crash interrupts an update.
+
+The lab stays at an observable introductory level: you create a small tree, inspect inode identity and links, and compare the shell's view with a recursive C walker.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the starting point of an absolute path? A relative path?
+  \item Why can two different names report the same inode number?
+  \item Why might a directory walker choose not to follow symbolic links?
+\end{enumerate}
+\end{quickcheck}
 
 \input{labs/09-directory-visualization}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Directories provide a pathname namespace over file-system objects.
-  \item Tree structures make nested organization natural, while links can introduce graph-like sharing.
-  \item Pathnames describe logical location; storage blocks need not mirror the directory tree physically.
-\end{itemize}
-\end{chapterrecap}

@@ -1,34 +1,71 @@
-\labsection{4}{CPU scheduling algorithms}{sec:lab04}
-\begin{labproject}{Trace and compare four CPU schedulers}
-\textbf{Coverage.} Chapter 4.\\
-\textbf{Source files.} Four C programs in \texttt{Lab04}.\\
-\textbf{Goal.} Implement and compare FCFS, non-preemptive SJF, priority scheduling, and Round Robin.
+\labsection{4}{CPU scheduling: compare policies on one workload}{sec:lab04}
+\begin{labproject}{Use hand traces and small simulators to compare FCFS, SJF, Priority, and Round Robin}
+\textbf{Suggested time:} 110--120 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter files:} \texttt{fcfs.c}, \texttt{sjf.c}, \texttt{priority.c}, \texttt{round\_robin.c}.\par
+\textbf{Evidence to keep:} Gantt charts, timing table, one quantum comparison, and one interpretation paragraph.
 
-Use one common workload so comparisons are meaningful. For the supplied programs, arrival times are effectively assumed equal unless you extend the code.
+\begin{labmode}
+The code is a checker for your reasoning, not a substitute for it. Keep the workload constant while comparing policies so the scheduling rule is the only deliberate change.
+\end{labmode}
+
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item calculate completion, turnaround, waiting, and response time;
+  \item distinguish non-preemptive selection from Round Robin time slicing;
+  \item explain a scheduling trade-off without declaring one policy ``best'' for every workload.
+\end{enumerate}
+
+\medskip\noindent\textbf{Common workload.}
+All processes arrive at time 0. Burst times are P1=8, P2=4, P3=2, P4=1. Priorities are 3, 1, 4, 2 respectively, where a smaller number is higher priority. Start Round Robin with quantum 2.
+
+\medskip\noindent\textbf{Pre-lab trace.}
+Before compiling anything, draw the FCFS Gantt chart and calculate each process's waiting and turnaround time. Check the identity
+\[
+\text{turnaround} = \text{completion} - \text{arrival},\qquad
+\text{waiting} = \text{turnaround} - \text{burst}.
+\]
+
+\medskip\noindent\textbf{Part A --- FCFS establishes the baseline.}
+Compile and run \texttt{fcfs.c}. Compare every value with your hand trace. Then reverse the burst order in the source and rerun. Explain why total CPU work is unchanged while average waiting time can change.
+
+\medskip\noindent\textbf{Part B --- SJF changes the selection rule.}
+Run \texttt{sjf.c} on the original workload. Draw its Gantt chart and compare average waiting time with FCFS. State the information SJF needs that a real scheduler cannot know perfectly in advance.
+
+\medskip\noindent\textbf{Part C --- Priority requires a convention.}
+Run \texttt{priority.c}. Record the priority convention. Give P1 and P2 equal priority, rerun, and identify the tie-break rule implemented by the starter program.
+
+\medskip\noindent\textbf{Part D --- Round Robin makes response visible.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra round_robin.c -o round_robin
+./round_robin 2
+./round_robin 1
+./round_robin 8
+\end{lstlisting}
+For quantum 2, draw every slice. Record each process's first response time, waiting time, and turnaround time. Then compare only these three quantum choices.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}p{0.23\linewidth}X@{}}
 \toprule
 \rowcolor{MLPaleBlue!92}
-Program & Policy & Verify \\
+Policy & Decision rule & Question to answer \\
 \midrule
-\texttt{Task03.c} & FCFS & cumulative waiting time in input order \\
-\texttt{Task04.c} & SJF & ascending burst order and original PID preservation \\
-\texttt{Task01.c} & Priority & priority convention and tie handling \\
-\texttt{Task02.c} & Round Robin & quantum, remaining burst, completion, waiting calculation \\
+FCFS & earliest in queue & how strongly does input order matter? \\
+SJF & shortest available burst & what assumption is needed about burst length? \\
+Priority & highest-priority ready job & what happens on a tie or long wait? \\
+Round Robin & cyclic queue + quantum & how does quantum affect first response? \\
 \bottomrule
 \end{tabularx}
 \end{mltable}
 
-\begin{debugtask}
-For Round Robin, validate waiting time against a hand-drawn Gantt chart. A program can print plausible totals while still updating waiting time incorrectly during intermediate quanta.
-\end{debugtask}
+\medskip\noindent\textbf{Part E --- Interpret, do not just rank.}
+Write 5--7 sentences comparing the policies for this workload. Mention at least two metrics and one limitation or assumption. Avoid a blanket statement such as ``SJF is the best scheduler.''
+
+\begin{verification}
+A complete lab record contains four labelled Gantt charts, a timing table, the quantum 1/2/8 comparison, and calculations that can be checked independently from the program output.
+\end{verification}
 
 \begin{tryit}
-Use bursts P1=8, P2=4, P3=2, P4=1. Compare FCFS and SJF. Then use RR with quantum 2 and report first-response time for every process.
+Optional extension: introduce a non-zero arrival time for one process on paper. Explain why simply sorting all jobs once at time 0 no longer represents a correct scheduler.
 \end{tryit}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit source/output for all four algorithms, one common workload, hand-checked Gantt charts, and a comparison table of average waiting and turnaround times.
-\end{labdeliverable}

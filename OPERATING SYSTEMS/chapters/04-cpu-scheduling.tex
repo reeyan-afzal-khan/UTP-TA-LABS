@@ -4,20 +4,17 @@
 \section{The decision the scheduler makes}
 Three processes are ready. One CPU is free. Which one runs?
 
-That is the entire question, and the OS answers it thousands of times per second. The \term{scheduler} applies a policy to choose; the \term{dispatcher} performs the context switch and hands over the CPU.
+The OS answers this repeatedly. The \term{scheduler} chooses a process; the
+\term{dispatcher} gives it the CPU.
 
-What makes this interesting is that there is no correct answer --- only trade-offs. Finishing the shortest job first minimises average waiting. Giving everyone a small turn keeps an interactive session responsive. Honouring priorities respects what the user considers important. These goals genuinely conflict, and every policy below picks a side.
+There is no single best choice. Short jobs reduce average waiting, small turns
+improve responsiveness, and priorities favour important work.
 
 \section{Five quantities, and what each one means to a user}
-For process $i$, write $A_i$ for arrival time, $B_i$ for total CPU burst, $S_i$ for the moment it first gets the CPU, and $C_i$ for completion time. Then:
+Use $A$ for arrival, $B$ for CPU burst, $S$ for first start, and $C$ for
+completion. The three rules are: $T=C-A$, $W=T-B$, and $R=S-A$.
 
-\[
-\underbrace{T_i = C_i - A_i}_{\text{turnaround}}, \qquad
-\underbrace{W_i = T_i - B_i}_{\text{waiting}}, \qquad
-\underbrace{R_i = S_i - A_i}_{\text{response}}
-\]
-
-These are not three ways of saying the same thing.
+Each measures a different delay.
 
 \begin{mltable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}X X@{}}
@@ -33,21 +30,15 @@ Response $R$ & Delay before \emph{any} progress is visible & ``The window froze 
 \end{mltable}
 
 \begin{keyidea}
-Waiting time is turnaround minus the work the process actually needed. Since $B_i$ is fixed by the program, minimising average waiting time and minimising average turnaround time are the same problem.
-
-Response time is a different problem, and a policy can be excellent at one and poor at the other. That is the single most important idea in this chapter.
+Waiting and turnaround are closely related because the burst time is fixed.
+Response time is different: it measures how quickly a process starts, not how
+quickly it finishes.
 \end{keyidea}
 
 \begin{workedexample}
 A process arrives at time 2, first receives the CPU at time 5, needs 4 CPU units in total, and finishes at time 11.
 
-\smallskip
-$R = 5 - 2 = 3$ \quad (waited 3 units before anything happened)\\
-$T = 11 - 2 = 9$ \quad (9 units from arrival to completion)\\
-$W = 9 - 4 = 5$ \quad (of those 9, only 4 were useful work)
-
-\smallskip
-Sanity check: it existed for 9 units, ran for 4, so it must have waited 5. If your $W$ ever exceeds $T$, or comes out negative, you have made an arithmetic error.
+$R=3$, $T=9$, and $W=5$. A negative waiting time always signals an error.
 \end{workedexample}
 
 \section{One workload, four policies}
@@ -199,18 +190,14 @@ Round Robin ($q=2$) & 7.33 & 4.33 & \bfseries 2.00 \\
 \end{tabularx}
 \end{mltable}
 
-Two things in that table are worth more than the numbers themselves.
-
-\textbf{Round Robin matched FCFS on waiting time and halved response time.} Look at the completion times: FCFS produced $\{5, 8, 9\}$ and so did Round Robin. The same three numbers --- handed to different processes. FCFS gave the earliest completion to the longest job; RR gave it to the shortest. Round Robin did not make the machine faster. It changed who waits.
-
-\textbf{SJF won on every column here, and is still not the answer.} It needs burst lengths in advance, and it starves long jobs whenever short ones keep arriving. A policy that is optimal under assumptions you cannot satisfy is a benchmark, not a design.
+Round Robin improves first response without making the CPU faster; it changes
+how waiting is shared. SJF performs best here, but it needs future burst lengths
+and can delay long jobs indefinitely.
 
 \begin{intuition}
-The quantum $q$ is a dial between the two policies you already know.
-
-Set $q$ larger than every burst and no process is ever preempted --- Round Robin becomes FCFS. Set $q$ very small and responsiveness improves, but each switch costs real time saving and restoring registers, so an ever-larger share of the CPU goes to switching rather than working.
-
-Real systems land near 10--100\,ms, which is short enough to feel instant and long enough that the switch cost stays negligible.
+The quantum controls the trade-off. A large quantum makes Round Robin behave
+like FCFS. A very small quantum improves response but causes more context
+switches.
 \end{intuition}
 
 \section{Drawing a Gantt chart that survives checking}
@@ -236,8 +223,6 @@ Redo the same workload with $q = 1$, then with $q = 5$. Confirm that $q = 5$ rep
 Then change the arrivals to $A_1 = 0$, $A_2 = 1$, $A_3 = 2$ and redo FCFS. The chart now contains idle time if a process has not arrived yet --- make sure your $C$ values account for it.
 \end{tryit}
 
-\input{chapters/concepts/04-scheduling-deep-dive}
-
 \input{labs/04-cpu-scheduling}
 
 \begin{quickcheck}
@@ -256,13 +241,3 @@ Then change the arrivals to $A_1 = 0$, $A_2 = 1$, $A_3 = 2$ and redo FCFS. The c
   \item Starvation. Priority scheduling needs it: without aging, a steady stream of urgent work means a low-priority process may never run at all.
 \end{enumerate}
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Scheduling chooses among ready processes; the dispatcher performs the switch.
-  \item Turnaround, waiting, and response measure different user-visible effects, and no policy optimises all three.
-  \item FCFS is simple and suffers the convoy effect; SJF minimises average waiting but needs unknowable information; priority expresses urgency and needs aging; Round Robin trades throughput for responsiveness.
-  \item Compute waiting as $T - B$, never by summing gaps.
-  \item Every result depends on stated assumptions: arrival times, preemption, quantum, and the priority convention.
-\end{itemize}
-\end{chapterrecap}

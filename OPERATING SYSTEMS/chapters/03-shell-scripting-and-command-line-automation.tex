@@ -1,64 +1,130 @@
 \chapter{Shell Scripting and Command-Line Automation}\label{ch:shell}
-\chapterguide{You should be able to run commands in a Unix-like terminal.}{Explain the shell's role, use variables, arithmetic, tests, loops and exit status, and write small Bash scripts safely.}
+\chapterguide{You should be able to open a Linux/WSL terminal and run basic commands.}{Explain the shell's role, use variables and quoting safely, combine commands with redirection and pipelines, interpret exit status, and automate simple OS observations with Bash.}
 
-\section{The shell is a command interpreter}
-A shell such as Bash reads commands, performs expansions, starts programs, connects I/O streams, and exposes programming constructs. It is not the kernel; it is an ordinary user-space program that makes system services convenient to invoke.
+\section{Why the shell belongs in an operating-systems course}
+A shell such as Bash is an ordinary user-space program, but it is unusually useful for observing an operating system. It starts other programs, connects their input and output, reports whether they succeeded, and gives us a small programming language for repeating tasks.
 
-\section{Variables and input}
-Assignments do not use spaces around \texttt{=}. Values are expanded with \texttt{\$name}. Quoting matters because unquoted expansions can undergo word splitting and wildcard expansion.
-
-\begin{lstlisting}[style=osbash]
-#!/bin/bash
-read -r n
-remainder=$(( n % 2 ))
-if [ "$remainder" -eq 0 ]; then
-    echo "$n is even"
-else
-    echo "$n is odd"
-fi
-\end{lstlisting}
-
-\section{Arithmetic and conditions}
-Modern Bash arithmetic expansion \texttt{\$(( ... ))} is usually clearer than legacy \texttt{expr}. Numeric tests include \texttt{-eq}, \texttt{-ne}, \texttt{-lt}, \texttt{-le}, \texttt{-gt}, and \texttt{-ge}.
-
-\begin{pitfall}
-A year divisible by 4 is not always a leap year. The Gregorian rule is: divisible by 400, or divisible by 4 but not by 100. A lab script using only \texttt{year \% 4} is a useful starting exercise but not the complete calendar rule.
-\end{pitfall}
-
-\section{Loops and factorial}
-A factorial for non-negative integer $n$ is
-\[
- n! = \prod_{k=1}^{n} k, \qquad 0! = 1.
-\]
-A shell loop can implement the repeated multiplication directly.
-
-\begin{lstlisting}[style=osbash]
-result=1
-for ((i=2; i<=n; i++)); do
-    result=$(( result * i ))
-done
-echo "$result"
-\end{lstlisting}
-
-\section{Exit status and composition}
-Every command returns an integer exit status. By convention, 0 means success and non-zero means some form of failure. Shell operators exploit this: \texttt{cmd1 \&\& cmd2} runs the second command only if the first succeeds; \texttt{cmd1 || cmd2} runs the second only if the first fails.
-
-\section{Pipes and redirection}
-The shell can wire one process's standard output to another process's standard input using \texttt{|}. Redirection changes the source or destination of a standard stream. These features are built on OS primitives such as file descriptors, pipes, \texttt{fork()}, and \texttt{exec()}.
+This makes the shell a convenient bridge between theory and experiment. Instead of writing C code every time we want to inspect a process or count log messages, we can combine existing tools such as \texttt{ps}, \texttt{grep}, \texttt{wc}, \texttt{df}, and \texttt{uname}.
 
 \begin{keyidea}
-Shell scripting is operating-systems practice because it exposes process creation, file descriptors, exit status, and command composition without requiring you to implement the low-level plumbing yourself.
+A good shell script is usually not doing everything itself. It coordinates small programs and lets the operating system connect them through processes, files, and standard streams.
 \end{keyidea}
 
-\input{chapters/concepts/03-shell-deep-dive}
+\section{What happens when you run a command}
+When you enter an external command such as \texttt{ps}, the shell performs a simple sequence conceptually:
+\begin{enumerate}
+  \item interpret the command line and expand variables;
+  \item prepare redirection or pipes if requested;
+  \item start the requested program;
+  \item wait for it if it is a foreground command;
+  \item collect its exit status.
+\end{enumerate}
+You do not need to implement these steps in Bash, but recognising them helps connect shell work to processes, file descriptors, \texttt{fork()}, and \texttt{exec()}.
+
+\section{Variables, arguments, and quoting}
+A shell variable stores text. Script arguments are available as \texttt{\$1}, \texttt{\$2}, and so on. Quoting matters because the shell processes text before the final command runs.
+
+\begin{lstlisting}[style=osbash]
+file=${1:-report.txt}
+echo "Writing report to: $file"
+df -h . > "$file"
+\end{lstlisting}
+
+The double quotes around \texttt{"\$file"} preserve a filename containing spaces as one argument.
+
+\begin{pitfall}
+Unquoted variables are a common source of scripting errors. If \texttt{file="OS Lab.txt"}, then \texttt{cat \$file} can be interpreted as two filenames. Prefer \texttt{cat "\$file"}.
+\end{pitfall}
+
+\section{Standard input, output, and error}
+Most command-line programs begin with three standard streams:
+\begin{itemize}
+  \item \textbf{standard input} --- where normal input is read;
+  \item \textbf{standard output} --- where normal results are written;
+  \item \textbf{standard error} --- where diagnostics are written.
+\end{itemize}
+The shell can redirect these streams without changing the program.
+
+\begin{mltable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.26\linewidth}X@{}}
+\toprule
+\rowcolor{MLPaleBlue!92}
+Syntax & Meaning & Example \\
+\midrule
+\texttt{>} & replace a file with standard output & \texttt{ps > processes.txt} \\
+\texttt{>>} & append standard output & \texttt{date >> history.txt} \\
+\texttt{<} & take standard input from a file & \texttt{wc -l < events.log} \\
+\texttt{2>} & redirect standard error & \texttt{cmd 2> errors.txt} \\
+\texttt{|} & connect one program's output to another's input & \texttt{ps | grep bash} \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section{Pipelines are process composition}
+Consider:
+\begin{lstlisting}[style=osbash]
+ps -eo pid,ppid,stat,comm | grep bash
+\end{lstlisting}
+The first process produces text. The shell connects that output to a pipe. The second process reads from the pipe and keeps selected lines. The programs do not need to know each other's implementation.
+
+\begin{intuition}
+A pipeline is like an assembly line for bytes. Each program performs one small job, while the shell and operating system arrange the connections.
+\end{intuition}
+
+\section{Exit status is part of the interface}
+Every command returns an integer status. By convention, 0 means success and a non-zero value means failure or a false result. The shell stores the most recent status in \texttt{\$?}.
+
+\begin{lstlisting}[style=osbash]
+grep kernel notes.txt
+echo $?
+\end{lstlisting}
+This is why commands can be composed inside \texttt{if}, \texttt{\&\&}, and \texttt{||} expressions.
+
+\begin{workedexample}
+A search tool can use status 0 for ``match found'', 1 for ``no match'', and 2 for ``could not read the file''. A script can then react to the condition without trying to interpret printed sentences.
+\end{workedexample}
+
+\section{Conditions and loops for repeatable observations}
+Shell conditions and loops are most useful here when they automate repeated OS observations. For example, a script can count several log levels using one loop:
+\begin{lstlisting}[style=osbash]
+for level in INFO WARN ERROR; do
+    count=$(grep -c "^$level " events.log || true)
+    echo "$level: $count"
+done
+\end{lstlisting}
+The mathematics is simple; the important idea is repeatability. If the log changes, rerunning the same script applies the same method again.
+
+\section{Background work and process observation}
+Adding \texttt{\&} runs a command in the background:
+\begin{lstlisting}[style=osbash]
+sleep 30 &
+ps -o pid,ppid,state,comm
+wait
+\end{lstlisting}
+This provides an easy way to create a temporary process and then inspect it. The \texttt{wait} command asks the shell to wait for its outstanding background job.
+
+\section{A professional scripting workflow}
+For a student lab script, a reliable workflow is:
+\begin{enumerate}
+  \item define the intended input and output;
+  \item make one normal case work;
+  \item quote variables and check required arguments;
+  \item add one failure or boundary test;
+  \item return a meaningful exit status;
+  \item add a short usage message if another person will run the script.
+\end{enumerate}
+
+\begin{keyidea}
+The goal of Bash in this course is not to memorise syntax. It is to make OS observations reproducible: the same commands, in the same order, with failures handled clearly.
+\end{keyidea}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why should a filename variable usually be quoted?
+  \item What OS idea is visible in a pipeline such as \texttt{ps | grep bash}?
+  \item Why is exit status more useful to another program than a human-readable sentence alone?
+  \item What does appending \texttt{\&} change about how the shell treats a command?
+\end{enumerate}
+\end{quickcheck}
 
 \input{labs/03-shell-scripting}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item The shell is a user-space command interpreter, not the kernel.
-  \item Bash scripts combine command execution with variables, tests, loops, and arithmetic.
-  \item Quoting and exit-status checking make scripts more reliable.
-  \item Pipes and redirection are convenient syntax over OS-level I/O and process mechanisms.
-\end{itemize}
-\end{chapterrecap}

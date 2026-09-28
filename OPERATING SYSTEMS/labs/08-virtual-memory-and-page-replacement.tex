@@ -1,0 +1,58 @@
+\labsection{8}{Virtual memory and page replacement}{sec:lab08}
+\begin{labproject}{Translate addresses and compare FIFO, LRU, and LFU page-replacement decisions}
+\textbf{Suggested time:} 100--110 minutes \hfill
+\textbf{Level:} intermediate\par
+\textbf{Starter file:} \texttt{page\_replacement.c}.\par
+\textbf{Evidence to keep:} one address-translation exercise, one complete hand trace, simulator results for all policies, and a short comparison.
+
+\begin{labmode}
+This lab now stays focused on virtual memory. First practise page/offset translation, then study what happens when a referenced page is not resident and every frame is already occupied.
+\end{labmode}
+
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item split a virtual address into page number and offset;
+  \item distinguish a page hit from a page fault;
+  \item trace FIFO, LRU, and LFU with an explicit tie-breaking rule.
+\end{enumerate}
+
+\medskip\noindent\textbf{Part A --- Address translation warm-up.}
+Assume a page size of 4096 bytes and virtual address 9000. Calculate page number and offset. If page 2 maps to frame 5, calculate the physical address. Show the arithmetic rather than writing only the final number.
+
+\medskip\noindent\textbf{Part B --- Hand trace FIFO before using the simulator.}
+Use three frames and the reference string
+\texttt{7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2}.
+Create one row per reference and mark each step hit or fault. For FIFO, maintain a replacement pointer that advances only when a replacement/load occurs, not on a hit.
+
+\medskip\noindent\textbf{Part C --- Compare simulator results.}
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab08
+gcc -Wall -Wextra page_replacement.c -o page_replacement
+./page_replacement fifo
+./page_replacement lru
+./page_replacement lfu
+\end{lstlisting}
+Check that the FIFO trace matches your hand calculation. Then inspect the first point where LRU makes a different victim choice. For LFU, note that the starter program breaks equal-frequency ties using least-recent use.
+
+\begin{pitfall}
+A policy name is not always a complete specification. LFU needs a tie rule, and every policy needs a clear statement of when its metadata changes.
+\end{pitfall}
+
+\medskip\noindent\textbf{Part D --- Change one reference pattern.}
+Edit the reference array so that one page is used repeatedly early and then never used again. Rerun LRU and LFU. Explain why ``recent'' and ``frequent'' can point to different victims.
+
+\medskip\noindent\textbf{Part E --- Report the evidence.}
+For each policy report total references, hits, faults, and fault rate. Verify that
+\[
+\text{hits} + \text{faults} = \text{total references}.
+\]
+Write one paragraph explaining what historical information each policy uses.
+
+\begin{verification}
+Your submission should make every replacement decision auditable: frame contents, hit/fault label, and the reason for at least three victim choices. A total fault count without the trace is not sufficient evidence.
+\end{verification}
+
+\begin{tryit}
+Optional extension: research or construct a FIFO reference string that demonstrates Belady's anomaly by producing more faults with more frames. Treat it as an extension, not a required memorisation task.
+\end{tryit}
+\end{labproject}

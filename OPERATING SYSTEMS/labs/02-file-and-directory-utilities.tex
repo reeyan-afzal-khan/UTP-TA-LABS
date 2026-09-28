@@ -1,95 +1,71 @@
-\labsection{2}{File scanning and directory utilities}{sec:lab02}
-\begin{labproject}{Build small Unix-style text and directory tools}
-\textbf{Coverage.} Chapter 2.\\
-\textbf{Source files.} \texttt{Lab02/Task01.c}--\texttt{Lab02/Task03.c}.\\
-\textbf{Goal.} Practise robust read loops, pathname arguments, directory traversal, and line-oriented searching.
+\labsection{2}{Files, metadata, and reliable command-line utilities}{sec:lab02}
+\begin{labproject}{Inspect a file, copy it with OS interfaces, and build a searchable utility}
+\textbf{Suggested time:} 90--110 minutes \hfill
+\textbf{Level:} introductory/intermediate\par
+\textbf{Starter files:} \texttt{file\_info.c}, \texttt{file\_copy.c}, \texttt{mini\_grep.c}, \texttt{sample.txt}.\par
+\textbf{Evidence to keep:} metadata comparison, copy verification, search tests, and exit statuses.
 
 \begin{labmode}
-Each of these three programs is built around one mistake that is easy to make, hard to spot, and common in production code. The supplied sources show the correct form; this section explains what the wrong form looks like and why it fails, because recognising the wrong form is the transferable skill.
+A professional utility must work on normal input and fail clearly on bad input. Every program in this lab is tested both ways.
 \end{labmode}
 
-\medskip\noindent\textbf{Task A --- Count spaces, and loop correctly.}\par
-The natural-sounding version is wrong:
+\medskip\noindent\textbf{Learning outcomes.}
+\begin{enumerate}
+  \item distinguish file content from metadata such as size, permissions, and inode number;
+  \item recognise the open/read/write/close resource lifecycle;
+  \item use exit status as part of a command-line program's interface.
+\end{enumerate}
 
-\begin{lstlisting}[style=osc]
-/* WRONG --- do not write this */
-while (!feof(fp)) {
-    ch = fgetc(fp);
-    if (ch == ' ') spaces++;
-}
+\medskip\noindent\textbf{Part A --- Inspect metadata.}
+\begin{lstlisting}[style=osbash]
+cd experiments/Lab02
+gcc -Wall -Wextra file_info.c -o file_info
+./file_info sample.txt
+stat sample.txt
+ls -li sample.txt
 \end{lstlisting}
+Create a copy of the file and compare inode number, size, and permissions. Then rename the original and inspect it again. Explain which properties belong to the file object and which belong to the directory entry/name.
 
-\texttt{feof()} does not predict the end of the file; it reports that a read has \emph{already} failed. So on the last iteration \texttt{fgetc()} returns \texttt{EOF}, \texttt{feof()} only becomes true afterwards, and the loop body has already run one extra time on a value that is not a character.
-
-Loop on the read itself:
-
-\begin{lstlisting}[style=osc]
-int ch, spaces = 0;
-while ((ch = fgetc(fp)) != EOF) {
-    if (ch == ' ') spaces++;
-}
-if (ferror(fp)) { perror(filename); }   /* real error, not clean EOF */
+\medskip\noindent\textbf{Part B --- Copy bytes using file descriptors.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra file_copy.c -o file_copy
+./file_copy sample.txt copied.txt
+cmp sample.txt copied.txt
+echo $?
 \end{lstlisting}
+If \texttt{cmp} prints nothing and returns 0, the files have identical content. Read the source and mark the four stages: acquire descriptors, read, write, release descriptors.
 
 \begin{pitfall}
-\texttt{ch} must be \texttt{int}, never \texttt{char}.
-
-\texttt{fgetc()} returns 256 possible byte values \emph{plus} the distinct sentinel \texttt{EOF}. That needs more range than a \texttt{char} has. Squeeze it into a \texttt{char} and one real byte becomes indistinguishable from \texttt{EOF} --- the loop then ends early on binary input, or on some platforms never ends at all.
+Do not assume one \texttt{write()} call must always accept every byte requested. The starter code uses a small inner loop so a partial write is handled correctly.
 \end{pitfall}
 
-\medskip\noindent\textbf{Task B --- Release resources once, in the right place.}\par
-The failure here is placement, not logic:
-
-\begin{lstlisting}[style=osc]
-/* WRONG --- closedir() inside the loop */
-while ((link = readdir(dp)) != 0) {
-    printf("%s", link->d_name);
-    closedir(dp);          /* handle is dead after the first pass */
-}
+\medskip\noindent\textbf{Part C --- Search and use exit status.}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra mini_grep.c -o mini_grep
+./mini_grep kernel sample.txt
+echo $?
+./mini_grep missingword sample.txt
+echo $?
+./mini_grep kernel does-not-exist.txt
+echo $?
+\end{lstlisting}
+Interpret the three status values. Then use the program in a shell decision:
+\begin{lstlisting}[style=osbash]
+if ./mini_grep kernel sample.txt >/dev/null; then
+    echo "kernel was found"
+else
+    echo "kernel was not found"
+fi
 \end{lstlisting}
 
-The first iteration releases the directory handle. Every \texttt{readdir()} after that reads through a dangling pointer. That is undefined behaviour: it may print rubbish, loop forever, or crash --- and which one you get can change between compilers.
+\medskip\noindent\textbf{Part D --- Make one improvement.}
+Choose one of the following: add a byte counter to \texttt{file\_copy}, add a \texttt{--help} message to \texttt{mini\_grep}, or extend \texttt{file\_info} to print whether the path is a directory. Keep the change small and demonstrate it with one test.
 
-\begin{keyidea}
-Acquire, use, release --- in that order, once each. The release belongs at the same nesting level as the acquire, never inside a loop that the resource is driving.
-
-The same shape governs \texttt{malloc}/\texttt{free}, \texttt{fopen}/\texttt{fclose}, and lock/unlock in Lab 5.
-\end{keyidea}
-
-The corrected program also checks \texttt{opendir()} for \texttt{NULL} and prints one entry per line, so the output is readable rather than a single run-on string.
-
-\medskip\noindent\textbf{Task C --- A miniature grep.}\par
-Read with \texttt{fgets()}, strip the newline, search with \texttt{strstr()}, print with a line number:
-
-\begin{lstlisting}[style=osc]
-while (fgets(line, (int)sizeof line, fp) != NULL) {
-    line_number++;
-
-    char *newline = strchr(line, '\n');
-    if (newline != NULL) *newline = '\0';
-
-    if (strstr(line, word) != NULL) {
-        printf("%s:%ld: %s\n", filename, line_number, line);
-        matches++;
-    }
-}
-\end{lstlisting}
-
-\texttt{fgets()} keeps the newline when the line fits in the buffer and omits it when the line is too long. Stripping it conditionally --- hence the \texttt{NULL} check --- is what makes your own formatting predictable.
+\begin{verification}
+Submit evidence for one successful and one failing case for each utility. For the copy task, include an independent verification such as \texttt{cmp}; for the search task, include the exit status as well as printed output.
+\end{verification}
 
 \begin{tryit}
-Feed it a file whose longest line exceeds \texttt{MAX\_LINE}. What happens to that line, and does the line counter still tell the truth? Then make the program exit with status 0 when something matched and 1 when nothing did, and confirm with \texttt{echo \$?}. That is what real \texttt{grep} does, and it is what makes it usable in a shell pipeline.
+Optional Linux extension: if \texttt{strace} is installed, run \texttt{strace -e trace=openat,read,write,close ./file\_copy sample.txt copied2.txt}. You do not need to understand every line; identify only the file-related system calls you already know.
 \end{tryit}
-
-\begin{debugtask}
-Compile all three with diagnostics enabled and read every line of output:
-\begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra -fsanitize=address,undefined Task02.c -o task02
-\end{lstlisting}
-Then deliberately reintroduce one of the three bugs above and run again. AddressSanitizer names the use-after-free in Task B directly, with the line that freed the handle and the line that used it. Record what it printed --- learning to read that output is worth more than the exercise itself.
-\end{debugtask}
 \end{labproject}
-
-\begin{labdeliverable}
-Submit source and output for all three tasks, plus a one-page note explaining why loop-on-the-read beats loop-on-\texttt{feof()}, and why acquire/use/release discipline matters when the resource is owned by the kernel rather than by your program.
-\end{labdeliverable}

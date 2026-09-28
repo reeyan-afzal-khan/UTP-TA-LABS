@@ -30,22 +30,22 @@ A \term{mutex} protects a critical section so only one thread owns the lock at a
   lab/.style={font=\scriptsize\color{MLMuted},align=center},
   warn/.style={font=\scriptsize\color{MLOrange},align=center}]
 
-\draw[draw=MLNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.35) rectangle (8.5,1.55);
-\node[font=\small\bfseries\color{MLNavy},anchor=north west] at (-2.0,1.45) {one process};
+\draw[draw=MLNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.75) rectangle (8.7,1.75);
+\node[font=\small\bfseries\color{MLNavy},anchor=north west] at (-2.0,1.65) {one process};
 
-\node[seg]    at (-0.4,0.75) {code (text)};
-\node[shared] at (-0.4,-0.20) {globals};
-\node[shared] at (-0.4,-1.15) {heap};
-\node[lab,text width=2.6cm] at (-0.4,-1.95) {one copy, seen by every thread};
+\node[seg]    at (-0.4,0.85) {code (text)};
+\node[shared] at (-0.4,-0.35) {globals};
+\node[shared] at (-0.4,-1.55) {heap};
+\node[lab,text width=2.6cm] at (-0.4,-2.30) {one copy, seen by every thread};
 
-\foreach \i/\x in {1/3.0, 2/5.0, 3/7.0} {
-  \node[stk] at (\x,0.75) {stack \i};
-  \node[stk] at (\x,-0.20) {registers \i};
-  \node[lab] at (\x,-0.85) {thread \i};
+\foreach \i/\x in {1/2.9, 2/5.2, 3/7.5} {
+  \node[stk] at (\x,0.85) {stack \i};
+  \node[stk] at (\x,-0.35) {registers \i};
+  \node[lab] at (\x,-1.08) {thread \i};
 }
-\node[lab,text width=5.6cm] at (5.0,-1.75) {private to each thread --- no synchronisation needed};
+\node[lab,text width=5.6cm] at (5.2,-2.05) {private to each thread --- no synchronisation needed};
 
-\node[warn,text width=11cm] at (3.2,-3.05)
+\node[warn,text width=11cm] at (3.3,-3.55)
   {The orange region is the whole reason a mutex exists. Two threads writing a
    global without one is a data race, and the outcome depends on scheduling ---
    which is why such a bug reproduces only sometimes.};
@@ -112,11 +112,11 @@ Detection/recovery & Allow deadlock, detect it later, then recover & Detection a
 \end{mltable}
 
 \section{Banker's algorithm}
-Banker's algorithm is a deadlock-avoidance method. For each process and resource type,
-\[
-\text{Need} = \text{Max} - \text{Allocation}.
-\]
-The safety algorithm starts with \texttt{Work = Available}. It repeatedly finds an unfinished process whose Need vector is component-wise no larger than Work. That process is assumed able to finish, so its Allocation is released into Work. If every process can be placed into such an order, the state is \term{safe}.
+Banker's algorithm avoids unsafe allocations. First calculate
+\texttt{Need = Max - Allocation}. Start with \texttt{Work = Available}, then
+find a process whose needs fit within Work. Assume it finishes and returns its
+allocation to Work. If every process can finish in some order, the state is
+\term{safe}.
 
 \begin{workedexample}
 Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while P2 has Need $(2,1)$ and Allocation $(1,0)$. P1 can finish first because $(1,0)\le(1,1)$. Work becomes $(2,2)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.
@@ -163,15 +163,5 @@ An \term{unsafe state} is not identical to an already existing deadlock. Unsafe 
 \section{Detection versus the supplied exercise}
 A textbook deadlock-detection algorithm normally uses current outstanding requests rather than each process's declared future maximum. The supplied lab calculates \texttt{Need = Max - Allocation}; this is close to a safety/avoidance test. Treat the code as a useful matrix exercise, but keep the conceptual distinction clear.
 
-\input{chapters/concepts/06-threads-deadlocks-deep-dive}
-
 \input{labs/06-threads-and-deadlocks}
 
-\begin{chapterrecap}
-\begin{itemize}
-  \item Threads share a process's resources and therefore need synchronization around shared mutable state.
-  \item Deadlock requires mutual exclusion, hold-and-wait, no preemption, and circular wait.
-  \item Banker's algorithm avoids unsafe allocations by searching for a safe completion sequence.
-  \item Unsafe, deadlocked, and merely blocked are different states.
-\end{itemize}
-\end{chapterrecap}
