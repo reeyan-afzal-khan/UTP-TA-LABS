@@ -1,5 +1,5 @@
 \chapter{Directories and the File-System Namespace}\label{ch:directories}
-\chapterguide{Know how a Linux path names a file or directory.}{Explain hierarchical namespaces, resolve absolute and relative paths, distinguish names from inode metadata, compare hard and symbolic links, and connect recursive traversal to directory lookup.}
+\chapterguide{Chapter 2: files and metadata, especially inode numbers and permissions.}{read absolute and relative paths, distinguish directory entries from inodes, compare hard and symbolic links, and follow recursive traversal in Lab 9.}
 
 \section{Why directories exist}
 Storage blocks do not naturally come with human-friendly names such as \texttt{report.txt}. A file system therefore provides a \term{namespace}: a structured way to associate names with file-system objects.
@@ -64,10 +64,14 @@ The inode's link count helps the file system track how many directory entries re
 A symbolic link is a separate small file-system object whose content is a pathname. Following the link causes another pathname lookup.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}XX@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.28\linewidth}
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Feature & Hard link & Symbolic link \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Feature} & \textbf{Hard link} & \textbf{Symbolic link} \\
 \midrule
 Underlying inode & same inode as target & separate inode \\
 Stores a pathname & no & yes \\

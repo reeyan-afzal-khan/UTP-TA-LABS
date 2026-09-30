@@ -1,57 +1,68 @@
 \labsection{9}{File-system namespace, paths, and links}{sec:lab09}
-\begin{labproject}{Build a directory tree and investigate names, inode identity, and links}
-\textbf{Suggested time:} 90--100 minutes \hfill
-\textbf{Level:} introductory/intermediate\par
-\textbf{Starter files:} \texttt{make\_demo\_tree.sh}, \texttt{directory\_walk.c}.\par
-\textbf{Evidence to keep:} hand-drawn tree, pathname examples, inode/link table, and recursive-walk output.
+\begin{labproject}{Build a real directory tree, inspect links, and walk it recursively}
 
-\begin{labmode}
-Use the real Linux/WSL file system. No graphics library is required. The goal is to understand what a directory tree represents, not to draw a decorative visualization.
-\end{labmode}
+\oslabflow{Chapter 9: paths, directory entries, inodes, hard links, symbolic links.}{Create a small namespace containing both link types and inspect it with shell tools.}{Explain which names share an inode and which link stores another pathname.}
 
-\medskip\noindent\textbf{Learning outcomes.}
-\begin{enumerate}
-  \item distinguish absolute and relative pathnames;
-  \item explain why a filename is not the same thing as the file's metadata/inode;
-  \item distinguish a hard link from a symbolic link at an introductory level;
-  \item explain how recursive directory traversal follows the namespace.
-\end{enumerate}
+\section*{Source code}
+\ossourcecard{\texttt{make\_demo\_tree.sh}}{Create a controlled hierarchy with one hard link and one symbolic link.}{\texttt{ln} and \texttt{ln -s} create different relationships even when both look like extra names.}
+\lstinputlisting[style=oslabsh]{all_experiments/Lab09/make_demo_tree.sh}
 
-\medskip\noindent\textbf{Part A --- Create and draw a known hierarchy.}
+\ossourcecard{\texttt{directory\_walk.c}}{Recursively traverse subdirectories without following symbolic links as directories.}{The walker skips \texttt{.} and \texttt{..}, builds a child path, then uses \texttt{lstat()} before recursing.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab09/directory_walk.c}
+
+\section*{Task 1 --- Create and inspect the hierarchy}
 \begin{lstlisting}[style=osbash]
-cd experiments/Lab09
+cd all_experiments/Lab09
 bash make_demo_tree.sh
-find demo_tree -maxdepth 4 -print
+find demo_tree -maxdepth 5 -print
 \end{lstlisting}
-Draw the tree by hand. Label directories, regular files, the hard link, and the symbolic link. Your diagram should reflect the names reported by \texttt{find}.
+Draw the result as a small tree. Use an arrow for the symbolic link.
 
-\medskip\noindent\textbf{Part B --- Navigate using different path forms.}
-Move into \texttt{demo\_tree/home/student}. Display \texttt{notes.txt} using: (1) a relative path, (2) an absolute path, and (3) a relative path containing \texttt{..}. Run \texttt{realpath notes.txt} and explain what it resolves.
-
-\medskip\noindent\textbf{Part C --- Compare names with inode identity.}
+\section*{Task 2 --- Compare hard and symbolic links}
 \begin{lstlisting}[style=osbash]
-ls -li notes.txt notes-hardlink.txt code-link.c
-stat notes.txt
-stat notes-hardlink.txt
-readlink code-link.c
+ls -li demo_tree/home/student/notes.txt \
+       demo_tree/home/student/notes-hardlink.txt \
+       demo_tree/home/student/code-link.c
+readlink demo_tree/home/student/code-link.c
 \end{lstlisting}
-Record inode numbers and link counts. Explain why the hard-linked names refer to the same inode while a symbolic link stores a pathname to another object.
+Record name, inode number, and link count where visible.
 
-\begin{keyidea}
-A directory gives names to objects in a namespace. The inode/metadata identifies properties of the underlying file object; storage blocks hold the file's data. These are related layers, not the same thing.
-\end{keyidea}
+\begin{mltable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.32\linewidth}
+  >{\raggedright\arraybackslash}p{0.25\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\textbf{Name} & \textbf{Inode relationship} & \textbf{Meaning} \\
+\midrule
+\texttt{notes.txt} & & original hard-linked object \\
+\texttt{notes-hardlink.txt} & & second name for same inode \\
+\texttt{code-link.c} & & symlink stores a pathname target \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
 
-\medskip\noindent\textbf{Part D --- Walk the tree recursively.}
+\section*{Task 3 --- Compare shell traversal with C traversal}
 \begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra directory_walk.c -o directory_walk
+gcc -Wall -Wextra -std=c11 directory_walk.c -o directory_walk
 ./directory_walk demo_tree
 \end{lstlisting}
-Find the recursive function call in the source. Explain the stopping rule and why the program deliberately does not recurse through symbolic links.
+Check that the hierarchy agrees with \texttt{find}. Explain why the program uses \texttt{lstat()} rather than blindly following every link.
 
-\medskip\noindent\textbf{Part E --- Controlled namespace change.}
-Rename \texttt{notes.txt} while the hard link still exists. Inspect both names again. Then remove one hard link and inspect the remaining link count. Record the observations before deleting the demo tree.
+\section*{Task 4 --- Controlled namespace change}
+Create a new subdirectory and file under \texttt{demo\_tree/tmp}, rerun both \texttt{find} and \texttt{directory\_walk}, then remove your additions. No source-code change is required for the traversal to discover the new names.
 
-\begin{verification}
-Submit the tree, three pathname examples, the inode/link comparison, and a short explanation of why following symbolic links recursively without a policy could create cycles.
-\end{verification}
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between a pathname and an inode?
+  \item Why do two hard-link names show the same inode number?
+  \item Why can recursively following symbolic links create a traversal problem?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{labdeliverable}
+Submit the tree sketch, inode/link table, recursive walker output, and a short explanation distinguishing a path, a directory entry, an inode, a hard link, and a symbolic link.
+\end{labdeliverable}
 \end{labproject}

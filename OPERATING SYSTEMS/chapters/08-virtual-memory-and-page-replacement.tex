@@ -1,5 +1,5 @@
 \chapter{Virtual Memory and Page Replacement}\label{ch:vm}
-\chapterguide{Understand contiguous allocation from Chapter~\ref{ch:allocation}.}{Explain pages and frames, translate a virtual page through a page table, define page faults, and trace FIFO, LRU, and LFU replacement.}
+\chapterguide{Chapter 7: physical-memory placement and fragmentation.}{translate page/frame terminology, identify hits and page faults, and justify FIFO, LRU, and LFU replacement decisions in Lab 8.}
 
 \section{Why virtual memory changes the problem}
 Paging divides virtual memory into fixed-size \term{pages} and physical memory into equal-size \term{frames}. A page table records which frame currently contains each resident virtual page. Because pages need not occupy adjacent frames, paging removes external fragmentation from physical allocation, though the last page of an object can still create internal fragmentation.
@@ -72,10 +72,14 @@ A \term{page fault} occurs when a referenced virtual page is not currently resid
 When no free frame exists, the OS needs a victim page.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}p{0.29\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.12\linewidth}
+  >{\raggedright\arraybackslash}p{0.44\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Policy & Victim rule & State required \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Policy} & \textbf{Victim rule} & \textbf{State required} \\
 \midrule
 FIFO & Page resident for the longest time & Arrival/load order \\
 LRU & Page whose most recent use is farthest in the past & Recency information \\

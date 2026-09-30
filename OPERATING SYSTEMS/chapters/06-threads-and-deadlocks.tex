@@ -1,5 +1,5 @@
 \chapter{Threads, Resource Allocation, and Deadlocks}\label{ch:deadlock}
-\chapterguide{Read Chapter~\ref{ch:ipc} first.}{Create and join POSIX threads, explain mutex protection, state the four deadlock conditions, distinguish prevention/avoidance/detection, and execute the Banker's safety test.}
+\chapterguide{Chapter 5: shared state, race conditions, and synchronization.}{distinguish processes from threads, use a mutex to protect a critical section, identify the four deadlock conditions, and reason about safe states in Lab 6.}
 
 \section{POSIX threads}
 The POSIX threads API creates multiple execution streams inside one process. \texttt{pthread\_create()} starts a thread, \texttt{pthread\_self()} identifies the calling thread, \texttt{pthread\_equal()} compares thread identifiers, and \texttt{pthread\_join()} waits for completion.
@@ -99,10 +99,14 @@ Breaking any one condition prevents this class of deadlock.
 
 \section{Prevention, avoidance, and detection}
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.22\linewidth}
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Strategy & Core idea & Trade-off \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Strategy} & \textbf{Core idea} & \textbf{Trade-off} \\
 \midrule
 Prevention & Design the protocol so a Coffman condition cannot hold & Can reduce utilization or flexibility \\
 Avoidance & Grant a request only if the resulting state remains safe & Requires future maximum-demand information \\
@@ -164,4 +168,3 @@ An \term{unsafe state} is not identical to an already existing deadlock. Unsafe 
 A textbook deadlock-detection algorithm normally uses current outstanding requests rather than each process's declared future maximum. The supplied lab calculates \texttt{Need = Max - Allocation}; this is close to a safety/avoidance test. Treat the code as a useful matrix exercise, but keep the conceptual distinction clear.
 
 \input{labs/06-threads-and-deadlocks}
-

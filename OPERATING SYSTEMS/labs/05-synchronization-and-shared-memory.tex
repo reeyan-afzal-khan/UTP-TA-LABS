@@ -1,66 +1,59 @@
-\labsection{5}{Synchronization and interprocess communication}{sec:lab05}
-\begin{labproject}{Trace bounded-buffer state and compare a pipe with shared memory}
-\textbf{Suggested time:} 100--120 minutes \hfill
-\textbf{Level:} intermediate\par
-\textbf{Starter files:} \texttt{producer\_consumer\_sim.c}, \texttt{pipe\_demo.c}, \texttt{shm\_writer.c}, \texttt{shm\_reader.c}.\par
-\textbf{Evidence to keep:} invariant trace, IPC comparison table, and shared-memory lifecycle evidence.
+\labsection{5}{Interprocess communication and synchronization}{sec:lab05}
+\begin{labproject}{Compare a pipe, shared memory, and producer-consumer state}
 
-\begin{labmode}
-Two questions stay separate throughout this lab: \emph{how do processes exchange data?} and \emph{how do concurrent activities coordinate safe access to shared state?}
-\end{labmode}
+\oslabflow{Chapter 5: IPC models, shared state, synchronization conditions.}{Move one message through a pipe and another through a shared-memory segment.}{Explain who owns each communication object and why shared memory needs separate synchronization.}
 
-\medskip\noindent\textbf{Learning outcomes.}
-\begin{enumerate}
-  \item use a simple invariant to reason about producer-consumer state;
-  \item explain the communication model of a pipe and of shared memory;
-  \item identify create/attach/use/detach/remove stages for System V shared memory.
-\end{enumerate}
+\section*{Source code}
+\ossourcecard{\texttt{pipe\_demo.c}}{Parent writes bytes; child reads them through a unidirectional pipe.}{Each process closes the pipe end it does not use. Closing the write end is also how end-of-stream can be signalled.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab05/pipe_demo.c}
 
-\medskip\noindent\textbf{Part A --- Producer-consumer as a state problem.}
-Compile and run \texttt{producer\_consumer\_sim.c}. For each action record \texttt{empty}, \texttt{full}, and whether the action was allowed. With capacity 3, check after every successful operation that
-\[
-\texttt{empty} + \texttt{full} = 3.
-\]
-Explain why producing into a full buffer and consuming from an empty buffer must wait or fail rather than blindly changing the counters.
+\ossourcecard{\texttt{producer\_consumer\_sim.c}}{Make full/empty buffer state visible without threads yet.}{The invariant is \texttt{empty + full = CAPACITY}; blocked operations do not change the counters.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab05/producer_consumer_sim.c}
 
-\begin{pitfall}
-This first program is a sequential model of semaphore state. It helps you understand the rules, but the integers are not themselves a real thread-safe semaphore implementation.
-\end{pitfall}
+\ossourcecard{\texttt{shm\_writer.c}}{Create/attach a System V shared-memory segment and place a message in it.}{The writer detaches but deliberately leaves the segment available for another process.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab05/shm_writer.c}
 
-\medskip\noindent\textbf{Part B --- A pipe moves bytes through the kernel.}
+\ossourcecard{\texttt{shm\_reader.c}}{Attach to the existing segment, read the message, then mark the segment for removal.}{The reader demonstrates cleanup with \texttt{shmdt()} and \texttt{shmctl(..., IPC\_RMID,...)}.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab05/shm_reader.c}
+
+\section*{Task 1 --- Pipe: follow the data path}
 \begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra pipe_demo.c -o pipe_demo
+cd all_experiments/Lab05
+gcc -Wall -Wextra -std=c11 pipe_demo.c -o pipe_demo
 ./pipe_demo
 \end{lstlisting}
-Find the call that creates the pipe, the parent's write end, and the child's read end. Explain why the unused ends are closed in each process.
+Draw one arrow from parent to kernel pipe to child. Label which file descriptor end each process closes.
 
-\medskip\noindent\textbf{Part C --- Shared memory exposes the same bytes to two processes.}
+\section*{Task 2 --- Producer/consumer state}
 \begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra shm_writer.c -o shm_writer
-gcc -Wall -Wextra shm_reader.c -o shm_reader
-ipcs -m
+gcc -Wall -Wextra -std=c11 producer_consumer_sim.c -o producer_consumer_sim
+./producer_consumer_sim
+\end{lstlisting}
+For every row, verify \texttt{empty + full = 3}. Circle the first blocked produce and first blocked consume. Explain why the counters do not change on a blocked action.
+
+\section*{Task 3 --- Shared-memory lifecycle}
+\begin{lstlisting}[style=osbash]
+gcc -Wall -Wextra -std=c11 shm_writer.c -o shm_writer
+gcc -Wall -Wextra -std=c11 shm_reader.c -o shm_reader
 ./shm_writer
 ipcs -m
 ./shm_reader
 ipcs -m
 \end{lstlisting}
-Record the shared-memory segment ID and compare the three \texttt{ipcs -m} snapshots. Map each program operation to the lifecycle: create/find $\rightarrow$ attach $\rightarrow$ access $\rightarrow$ detach $\rightarrow$ remove.
+Record the segment ID after the writer and check whether it remains after the reader marks it for removal.
 
-\begin{workedexample}
-A shared-memory segment is a kernel-managed IPC object. Each process attaches that object into its own address space. Detaching one process does not automatically mean the object has been removed from the system.
-\end{workedexample}
+\section*{Task 4 --- Failure case}
+Run \texttt{./shm\_reader} again after the segment has been removed. The failure is intentional. Explain why a clear error message is better than creating a new empty segment in the reader.
 
-\medskip\noindent\textbf{Part D --- Compare the mechanisms.}
-Complete a small comparison with rows for data movement, lifetime, setup complexity, and need for synchronization. A pipe provides an ordered byte stream; shared memory gives processes access to a common region and therefore usually needs an additional coordination mechanism when both sides can write.
+\begin{quickcheck}
+\begin{enumerate}
+  \item How is a pipe different from shared memory?
+  \item What makes a section of code a critical section?
+  \item Why can two correct operations still produce an incorrect result when they race?
+\end{enumerate}
+\end{quickcheck}
 
-\medskip\noindent\textbf{Part E --- Failure case.}
-Run the reader before the writer and record the error. Then run the normal writer/reader sequence again. A useful systems program should make failure visible instead of silently continuing with invalid state.
-
-\begin{verification}
-Submit the producer-consumer trace, one paragraph comparing pipe and shared memory, and terminal evidence showing a shared segment appear and later disappear.
-\end{verification}
-
-\begin{troubleshoot}
-If a segment remains after a crash, inspect only your own IPC objects with \texttt{ipcs -m}. Remove a known stale segment with \texttt{ipcrm -m ID}. On a shared university machine, never remove another user's IPC object.
-\end{troubleshoot}
+\begin{labdeliverable}
+Submit: pipe sketch, producer-consumer state check, shared-memory before/after evidence, and a comparison table with columns \textbf{pipe} vs. \textbf{shared memory}: data movement, lifetime, and synchronization concern.
+\end{labdeliverable}
 \end{labproject}

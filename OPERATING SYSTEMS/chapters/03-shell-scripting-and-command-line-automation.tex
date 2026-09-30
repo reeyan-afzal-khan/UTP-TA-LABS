@@ -1,5 +1,5 @@
 \chapter{Shell Scripting and Command-Line Automation}\label{ch:shell}
-\chapterguide{You should be able to open a Linux/WSL terminal and run basic commands.}{Explain the shell's role, use variables and quoting safely, combine commands with redirection and pipelines, interpret exit status, and automate simple OS observations with Bash.}
+\chapterguide{Chapter 2: files, command-line utilities, and exit status.}{use variables, quoting, redirection, pipelines, conditions, and loops to automate repeatable OS observations in Lab 3.}
 
 \section{Why the shell belongs in an operating-systems course}
 A shell such as Bash is an ordinary user-space program, but it is unusually useful for observing an operating system. It starts other programs, connects their input and output, reports whether they succeeded, and gives us a small programming language for repeating tasks.
@@ -46,10 +46,14 @@ Most command-line programs begin with three standard streams:
 The shell can redirect these streams without changing the program.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.26\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.10\linewidth}
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}p{0.38\linewidth}@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Syntax & Meaning & Example \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Syntax} & \textbf{Meaning} & \textbf{Example} \\
 \midrule
 \texttt{>} & replace a file with standard output & \texttt{ps > processes.txt} \\
 \texttt{>>} & append standard output & \texttt{date >> history.txt} \\

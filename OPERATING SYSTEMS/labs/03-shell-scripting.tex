@@ -1,59 +1,77 @@
 \labsection{3}{Shell scripting for OS observation and automation}{sec:lab03}
-\begin{labproject}{Automate a system report, process query, and log summary}
-\textbf{Suggested time:} 90 minutes \hfill
-\textbf{Level:} introductory\par
-\textbf{Starter files:} \texttt{system\_report.sh}, \texttt{process\_summary.sh}, \texttt{log\_summary.sh}, \texttt{events.log}.\par
-\textbf{Evidence to keep:} generated report, process query results, log summary, and one script improvement.
+\begin{labproject}{Turn repeatable terminal observations into readable Bash scripts}
 
-\begin{labmode}
-This lab uses Bash for tasks that resemble real administration and testing work. The focus is command composition, quoting, redirection, pipelines, and exit status---not complicated mathematics.
-\end{labmode}
+\oslabflow{Chapter 3: quoting, pipelines, redirection, exit status.}{Read and run three scripts that inspect the actual Linux environment.}{Explain what data each command produces and where that data flows next.}
 
-\medskip\noindent\textbf{Learning outcomes.}
+\section*{Source code}
+\ossourcecard{\texttt{system\_report.sh}}{Collect a compact system report and optionally redirect it to a named file.}{The function produces normal output; the final \texttt{if} decides whether it goes to the terminal or a file.}
+\lstinputlisting[style=oslabsh]{all_experiments/Lab03/system_report.sh}
+
+\ossourcecard{\texttt{process\_summary.sh}}{Filter the process table by command name.}{\texttt{ps} produces rows; \texttt{awk} filters; \texttt{wc} counts; exit status 1 means no match.}
+\lstinputlisting[style=oslabsh]{all_experiments/Lab03/process_summary.sh}
+
+\ossourcecard{\texttt{log\_summary.sh}}{Count log levels and print error lines.}{Quoted filenames, a loop over log levels, and \texttt{grep -c} make the script reusable.}
+\lstinputlisting[style=oslabsh]{all_experiments/Lab03/log_summary.sh}
+
+\section*{Task 1 --- Syntax check before execution}
+\begin{lstlisting}[style=osbash]
+cd all_experiments/Lab03
+bash -n system_report.sh
+bash -n process_summary.sh
+bash -n log_summary.sh
+\end{lstlisting}
+No output means Bash found no syntax error.
+
+\section*{Task 2 --- System report and redirection}
+\begin{lstlisting}[style=osbash]
+bash system_report.sh
+bash system_report.sh my-system.txt
+cat my-system.txt
+\end{lstlisting}
+Mark three facts that came from commands rather than hard-coded text.
+
+\section*{Task 3 --- Process observation}
+\begin{lstlisting}[style=osbash]
+bash process_summary.sh bash
+echo "status=$?"
+bash process_summary.sh definitely_not_running
+echo "status=$?"
+\end{lstlisting}
+Explain why the second call can be a valid execution even though its status is non-zero.
+
+\section*{Task 4 --- Log pipeline}
+\begin{lstlisting}[style=osbash]
+bash log_summary.sh events.log
+\end{lstlisting}
+Open \texttt{events.log} in Vim, add one new line beginning with \texttt{ERROR }, save, and run the script again. The ERROR count should increase by exactly one.
+
+\begin{mltable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.30\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\textbf{Shell feature} & \textbf{Where you saw it} \\
+\midrule
+Quoting & \texttt{"\$log"}, \texttt{"\$output"} \\
+Pipeline & \texttt{ps | awk}, then text passed onward \\
+Command substitution & \texttt{\$(...)} captures command output \\
+Redirection & \texttt{make\_report > "\$output"} \\
+Exit status & success, no-match, and error cases differ \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\begin{quickcheck}
 \begin{enumerate}
-  \item explain how a shell script composes existing programs;
-  \item use variables, quoting, redirection, pipelines, and exit status safely;
-  \item automate a repeatable OS observation instead of copying terminal commands manually.
+  \item What is the difference between redirection and a pipeline?
+  \item Why should shell variables that contain filenames normally be quoted?
+  \item What does a non-zero exit status tell the script that called a command?
 \end{enumerate}
+\end{quickcheck}
 
-\medskip\noindent\textbf{Part A --- Generate a reproducible system report.}
-\begin{lstlisting}[style=osbash]
-cd experiments/Lab03
-chmod +x *.sh
-./system_report.sh
-./system_report.sh my-report.txt
-less my-report.txt
-\end{lstlisting}
-Identify which commands provide the kernel version, disk information, and process list. Explain why saving the report to a file makes the observation easier to compare later.
-
-\medskip\noindent\textbf{Part B --- Query running processes.}
-Try a process name that should exist, followed by one that should not:
-\begin{lstlisting}[style=osbash]
-./process_summary.sh bash
-echo $?
-./process_summary.sh definitely-not-a-process
-echo $?
-\end{lstlisting}
-State what status 0 and a non-zero status mean in this script. Then start a harmless background process with \texttt{sleep 30 \&} and use the script to find it.
-
-\medskip\noindent\textbf{Part C --- Summarise a log with standard tools.}
-\begin{lstlisting}[style=osbash]
-./log_summary.sh events.log
-\end{lstlisting}
-Trace how \texttt{grep}, \texttt{wc}, variables, and a loop cooperate. Add one new line to \texttt{events.log} and predict which count will change before running the script again.
-
-\begin{keyidea}
-Shell scripts are valuable in an OS course because they expose process creation, standard streams, exit status, and composition while letting existing programs perform most of the low-level work.
-\end{keyidea}
-
-\medskip\noindent\textbf{Part D --- Improve one tool.}
-Choose one improvement: add a \texttt{--help} option, allow \texttt{system\_report.sh} to include memory information using \texttt{free -h}, or add an optional log level argument to \texttt{log\_summary.sh}. Demonstrate both a valid use and an invalid use.
-
-\begin{verification}
-Your submission should contain the report file, two process-query examples with exit statuses, the log summary before and after one controlled change, and a short note describing the script improvement you implemented.
-\end{verification}
-
-\begin{pitfall}
-Quote variables that may contain spaces, for example \texttt{"\$file"}. Unquoted expansion can split one filename into several shell words and make a script behave unpredictably.
-\end{pitfall}
+\begin{labdeliverable}
+Submit \texttt{my-system.txt}, the two process-query results with statuses, and before/after log summaries. Add 4--6 sentences describing one pipeline as \emph{producer $\rightarrow$ pipe $\rightarrow$ consumer}.
+\end{labdeliverable}
 \end{labproject}

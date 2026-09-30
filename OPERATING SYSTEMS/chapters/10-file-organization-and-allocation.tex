@@ -1,5 +1,5 @@
 \chapter{File Organization and Disk-Block Allocation}\label{ch:filesystems}
-\chapterguide{Read Chapter~\ref{ch:directories} first.}{Distinguish application record formats from file-system block allocation, compare basic access methods, and explain contiguous, linked, and indexed allocation at an introductory level.}
+\chapterguide{Chapter 2: file I/O and Chapter 9: names, inodes, and file-system objects.}{separate application record formats from file-system block placement, compare text and binary records, and trace indexed allocation in Lab 10.}
 
 \section{A file is a byte sequence; applications add meaning}
 To the operating system, a regular file can be treated as a sequence of bytes plus metadata. Applications decide how those bytes represent records such as students, employees, images, or database pages.
@@ -14,10 +14,14 @@ This gives us two layers to keep separate:
 Text formats convert values into readable characters. Binary formats can store compact machine-oriented representations.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}XX@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.19\linewidth}
+  >{\raggedright\arraybackslash}X
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Format & Strength & Caution \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Format} & \textbf{Strength} & \textbf{Caution} \\
 \midrule
 Text & readable with ordinary tools, easy to exchange & parsing and formatting add overhead \\
 Raw C struct & compact and easy for a controlled exercise & padding, endianness, and type sizes can reduce portability \\
@@ -61,10 +65,14 @@ A separate index block stores references to the file's data blocks. Logical bloc
 \end{mlfigure}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}p{0.27\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.18\linewidth}
+  >{\raggedright\arraybackslash}p{0.40\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Method & Main advantage & Main limitation \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Method} & \textbf{Main advantage} & \textbf{Main limitation} \\
 \midrule
 Contiguous & simple, efficient direct access & growth and external fragmentation \\
 Linked & easy growth without contiguous space & poor direct access \\

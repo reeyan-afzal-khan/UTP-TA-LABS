@@ -1,5 +1,5 @@
 \chapter{Contiguous Memory Allocation}\label{ch:allocation}
-\chapterguide{Know that a running process needs memory for code, data, heap, and stack.}{Explain dynamic contiguous allocation, distinguish internal from external fragmentation, trace first-fit/best-fit/worst-fit, and explain how freeing and coalescing change the hole list.}
+\chapterguide{Basic arithmetic and the idea that a process needs memory while it runs.}{trace free holes and requests, distinguish internal from external fragmentation, and compare First Fit, Best Fit, and Worst Fit in Lab 7.}
 
 \section{The allocation problem}
 In a simple contiguous-allocation model, each request must be placed into one sufficiently large free region, often called a \term{hole}. If a 120-byte request is placed into a 500-byte hole, the remaining 380 bytes become a smaller free hole.

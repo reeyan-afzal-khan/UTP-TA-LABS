@@ -13,10 +13,14 @@ Most Operating Systems questions become manageable if you use a repeatable metho
 \end{enumerate}
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}p{0.30\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.24\linewidth}
+  >{\raggedright\arraybackslash}p{0.30\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Question type & State to draw & Final evidence \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Question type} & \textbf{State to draw} & \textbf{Final evidence} \\
 \midrule
 CPU scheduling & Ready queue + Gantt chart & Completion, turnaround, waiting, response \\
 Banker's algorithm & Allocation, Max, Need, Work, Finish & Safe sequence or reason none exists \\

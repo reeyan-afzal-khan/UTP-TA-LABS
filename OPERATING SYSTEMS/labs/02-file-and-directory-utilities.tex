@@ -1,71 +1,62 @@
-\labsection{2}{Files, metadata, and reliable command-line utilities}{sec:lab02}
-\begin{labproject}{Inspect a file, copy it with OS interfaces, and build a searchable utility}
-\textbf{Suggested time:} 90--110 minutes \hfill
-\textbf{Level:} introductory/intermediate\par
-\textbf{Starter files:} \texttt{file\_info.c}, \texttt{file\_copy.c}, \texttt{mini\_grep.c}, \texttt{sample.txt}.\par
-\textbf{Evidence to keep:} metadata comparison, copy verification, search tests, and exit statuses.
+\labsection{2}{Files, metadata, and reliable CLI utilities}{sec:lab02}
+\begin{labproject}{Read file metadata, copy bytes safely, and report search status}
 
-\begin{labmode}
-A professional utility must work on normal input and fail clearly on bad input. Every program in this lab is tested both ways.
-\end{labmode}
+\oslabflow{Chapter 2: contents vs. metadata, file descriptors, exit status.}{Run three small utilities and verify them with standard Linux commands.}{Explain what each utility promises to the user and how it reports failure.}
 
-\medskip\noindent\textbf{Learning outcomes.}
-\begin{enumerate}
-  \item distinguish file content from metadata such as size, permissions, and inode number;
-  \item recognise the open/read/write/close resource lifecycle;
-  \item use exit status as part of a command-line program's interface.
-\end{enumerate}
+\section*{Source code}
+\ossourcecard{\texttt{file\_info.c}}{Read metadata with \texttt{stat()}.}{The program does not read the file's contents; it reads information \emph{about} the file.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab02/file_info.c}
 
-\medskip\noindent\textbf{Part A --- Inspect metadata.}
+\ossourcecard{\texttt{file\_copy.c}}{Copy bytes using POSIX file descriptors.}{The outer loop reads chunks; the inner loop handles a write that may complete only part of a chunk.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab02/file_copy.c}
+
+\ossourcecard{\texttt{mini\_grep.c}}{Search a text file and return a useful exit status.}{\texttt{0}=match, \texttt{1}=no match, \texttt{2}=usage/file error.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab02/mini_grep.c}
+
+\section*{Task 1 --- Build and inspect metadata}
 \begin{lstlisting}[style=osbash]
-cd experiments/Lab02
-gcc -Wall -Wextra file_info.c -o file_info
+cd all_experiments/Lab02
+gcc -Wall -Wextra -std=c11 file_info.c -o file_info
+gcc -Wall -Wextra -std=c11 file_copy.c -o file_copy
+gcc -Wall -Wextra -std=c11 mini_grep.c -o mini_grep
 ./file_info sample.txt
 stat sample.txt
-ls -li sample.txt
 \end{lstlisting}
-Create a copy of the file and compare inode number, size, and permissions. Then rename the original and inspect it again. Explain which properties belong to the file object and which belong to the directory entry/name.
+Match at least three fields between the program and \texttt{stat}: size, inode, link count, or permissions.
 
-\medskip\noindent\textbf{Part B --- Copy bytes using file descriptors.}
+\section*{Task 2 --- Verify the copy, not just the message}
 \begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra file_copy.c -o file_copy
-./file_copy sample.txt copied.txt
-cmp sample.txt copied.txt
+./file_copy sample.txt copy.txt
+cmp sample.txt copy.txt
 echo $?
+ls -l sample.txt copy.txt
 \end{lstlisting}
-If \texttt{cmp} prints nothing and returns 0, the files have identical content. Read the source and mark the four stages: acquire descriptors, read, write, release descriptors.
+A \texttt{cmp} status of 0 is independent evidence that the byte contents are equal.
 
-\begin{pitfall}
-Do not assume one \texttt{write()} call must always accept every byte requested. The starter code uses a small inner loop so a partial write is handled correctly.
-\end{pitfall}
-
-\medskip\noindent\textbf{Part C --- Search and use exit status.}
+\section*{Task 3 --- Treat exit status as part of the interface}
 \begin{lstlisting}[style=osbash]
-gcc -Wall -Wextra mini_grep.c -o mini_grep
-./mini_grep kernel sample.txt
-echo $?
-./mini_grep missingword sample.txt
-echo $?
-./mini_grep kernel does-not-exist.txt
-echo $?
+./mini_grep kernel sample.txt; echo "status=$?"
+./mini_grep pineapple sample.txt; echo "status=$?"
+./mini_grep kernel missing.txt; echo "status=$?"
 \end{lstlisting}
-Interpret the three status values. Then use the program in a shell decision:
-\begin{lstlisting}[style=osbash]
-if ./mini_grep kernel sample.txt >/dev/null; then
-    echo "kernel was found"
-else
-    echo "kernel was not found"
-fi
-\end{lstlisting}
+Create a three-row table: command, visible output, exit status, meaning.
 
-\medskip\noindent\textbf{Part D --- Make one improvement.}
-Choose one of the following: add a byte counter to \texttt{file\_copy}, add a \texttt{--help} message to \texttt{mini\_grep}, or extend \texttt{file\_info} to print whether the path is a directory. Keep the change small and demonstrate it with one test.
+\section*{Task 4 --- Controlled edit in Vim}
+Open \texttt{mini\_grep.c}. Change the match output from \texttt{FILE:LINE: text} to begin with \texttt{MATCH }. Save, recompile, and confirm that the exit status rules did not change.
 
-\begin{verification}
-Submit evidence for one successful and one failing case for each utility. For the copy task, include an independent verification such as \texttt{cmp}; for the search task, include the exit status as well as printed output.
-\end{verification}
+\begin{keyidea}
+A professional CLI tool has two audiences: a person reads its output; another program can read its exit status.
+\end{keyidea}
 
-\begin{tryit}
-Optional Linux extension: if \texttt{strace} is installed, run \texttt{strace -e trace=openat,read,write,close ./file\_copy sample.txt copied2.txt}. You do not need to understand every line; identify only the file-related system calls you already know.
-\end{tryit}
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which information belongs to file metadata rather than file contents?
+  \item Why must a copy program check the return value from 	exttt{read()} and 	exttt{write()}?
+  \item Why is exit status useful even when a command already prints a message?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{labdeliverable}
+Submit: metadata comparison, copy verification, the three-case exit-status table, and one screenshot or terminal capture showing the modified \texttt{MATCH} output.
+\end{labdeliverable}
 \end{labproject}

@@ -1,65 +1,55 @@
-\chapter*{Course Map: From Setup to a Complete Operating-System Story}
-\addcontentsline{toc}{chapter}{Course Map: From Setup to a Complete Operating-System Story}
-\markboth{Course Map}{}
+\chapter*{Course Map: Foundations to Practice}
+\addcontentsline{toc}{chapter}{Course Map: Foundations to Practice}
+\markboth{Course Map}{Course Map}
 
-This course is organized around one question: \emph{what has to happen between starting a program and seeing useful work completed safely?} The chapters move from the execution environment to processes and CPU time, then to concurrency, memory, and persistent storage.
+Start with the command-line environment, then follow the operating system from
+\textbf{processes} to \textbf{CPU time}, \textbf{shared resources}, \textbf{memory},
+and finally \textbf{persistent storage}. Each numbered chapter is followed by the
+lab that puts that chapter's ideas into practice.
 
-\begin{firstread}
-If you use Windows, begin with the Getting Ready chapter. It introduces WSL and makes a clear distinction between commands typed in Windows PowerShell and commands typed inside the Linux/Ubuntu terminal. If you already use Linux, skim the setup chapter and complete its verification checklist.
-\end{firstread}
+\vfill
 
 \begin{mlfigure}
 \begin{tikzpicture}[
-  node distance=0.48cm,
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.2cm,minimum height=1.08cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\small\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.3mm]},thick,draw=MLTeal}
+  stage/.style={draw=UTPBlue,fill=white,rounded corners=2mm,text width=13.4cm,
+                minimum height=2.10cm,align=left,font=\small\color{UTPNavy},inner sep=4.5mm},
+  stage2/.style={stage,draw=UTPTeal},
+  stage3/.style={stage,draw=UTPOrange},
+  arrow/.style={-{Stealth[length=2.1mm]},thick,draw=UTPMuted!75},
+  tag/.style={font=\scriptsize\bfseries\color{UTPNavy}}
 ]
-\node[stage] (s0) {\textbf{0. Prepare the environment} --- Linux terminal, WSL for Windows users, compiler, folders, and a reliable compile-run workflow.};
-\node[stage,below=of s0] (s1) {\textbf{1. Interface to the OS} --- processes, PIDs, files, metadata, system calls, shell commands, and automation.};
-\node[stage,below=of s1] (s2) {\textbf{2. CPU and concurrency} --- scheduling, IPC, synchronization, POSIX threads, mutexes, resource safety, and deadlock.};
-\node[stage,below=of s2] (s3) {\textbf{3. Memory} --- contiguous allocation, fragmentation, virtual memory, page faults, and replacement policies.};
-\node[stage,below=of s3] (s4) {\textbf{4. Persistent storage} --- directory trees, links, records, metadata, and block allocation.};
-\draw[arr] (s0) -- (s1); \draw[arr] (s1) -- (s2); \draw[arr] (s2) -- (s3); \draw[arr] (s3) -- (s4);
+\node[stage] (s1) at (0,6.6) {\textbf{Stage 1: Orientation and tools}\hfill \textbf{Setup + Primer}\\
+Linux/WSL, the terminal, Vim, GCC, Git/SSH, and the role of an operating system.\\
+\textbf{Checkpoint:} open, edit, compile, run, and explain where the OS sits between a program and hardware.};
+
+\node[stage2] (s2) at (0,3.3) {\textbf{Stage 2: Processes and the command line}\hfill \textbf{Chapters 1--3 / Labs 1--3}\\
+Processes and PID/PPID; files and metadata; shell pipelines and automation.\\
+\textbf{Checkpoint:} inspect live OS state and build small tools that report it reliably.};
+
+\node[stage3] (s3) at (0,0) {\textbf{Stage 3: CPU, concurrency, and resources}\hfill \textbf{Chapters 4--6 / Labs 4--6}\\
+Scheduling policies, IPC, shared state, threads, mutexes, and safe resource allocation.\\
+\textbf{Checkpoint:} trace state changes and explain why a policy or lock changes the outcome.};
+
+\node[stage2] (s4) at (0,-3.3) {\textbf{Stage 4: Memory management}\hfill \textbf{Chapters 7--8 / Labs 7--8}\\
+Contiguous placement, fragmentation, paging, page faults, and replacement policies.\\
+\textbf{Checkpoint:} compare policies on the same workload and justify every placement or victim choice.};
+
+\node[stage] (s5) at (0,-6.6) {\textbf{Stage 5: File systems and storage}\hfill \textbf{Chapters 9--10 / Labs 9--10}\\
+Paths, inodes, links, recursive traversal, record formats, and indexed block allocation.\\
+\textbf{Checkpoint:} separate names and records seen by applications from the storage structures managed below them.};
+
+\draw[arrow] (s1.south) -- (s2.north);
+\draw[arrow] (s2.south) -- (s3.north);
+\draw[arrow] (s3.south) -- (s4.north);
+\draw[arrow] (s4.south) -- (s5.north);
 \end{tikzpicture}
 \end{mlfigure}
 
+\vfill
+
 \begin{keyidea}
-Do not memorize algorithms as unrelated loops. For every topic ask three questions: \textbf{What state is maintained? What event changes it? What policy decides the next action?}
+Learn the idea first, then test it. In every lab, keep three questions visible:
+\textbf{What state exists? What event changes it? What rule decides the next state?}
 \end{keyidea}
 
-\section*{How the practicals are designed}
-Every practical has a core path that should fit a normal supervised lab session and an optional extension for students who finish early. The recurring workflow is:
-\begin{enumerate}
-  \item \textbf{Predict} one observable result before running the program.
-  \item \textbf{Run} the supplied starter code with a known data set.
-  \item \textbf{Verify} the result using an independent check where possible.
-  \item \textbf{Change one thing} so cause and effect remain visible.
-  \item \textbf{Explain} the observation using an OS concept, not only program syntax.
-\end{enumerate}
-
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.09\linewidth}p{0.27\linewidth}p{0.27\linewidth}X@{}}
-\toprule
-\rowcolor{MLPaleBlue!92}
-Lab & Practical focus & What students observe & Evidence to keep \\
-\midrule
-1 & Processes and namespace & directory changes, PID/PPID relationships & change table + process table \\
-2 & Files and utilities & metadata, descriptors, copy/search status & verification + failure tests \\
-3 & Shell automation & processes, streams, pipelines, exit status & system report + script tests \\
-4 & CPU scheduling & execution order and timing metrics & Gantt charts + metric table \\
-5 & IPC and synchronization & buffer invariants, pipe, shared-memory lifecycle & state trace + IPC evidence \\
-6 & Threads and resource safety & race condition, mutex, safe sequences & counter results + Banker trace \\
-7 & Memory placement & changing hole lists and fragmentation & allocation trace + comparison \\
-8 & Virtual memory & translation, hits/faults, victim decisions & frame traces + fault totals \\
-9 & File-system namespace & paths, inode identity, links, recursion & tree + inode/link table \\
-10 & Records and allocation & record encoding vs storage mapping & format comparison + block trace \\
-\bottomrule
-\end{tabularx}
-\end{mltable}
-
-\section*{What a professional lab record looks like}
-A strong submission is concise but auditable. It identifies the input used, includes the relevant output or trace, verifies at least one important result independently, and explains why the result occurred. Screenshots without interpretation are evidence of execution, not evidence of understanding.
-
-\begin{decisionmemo}
-The practicals deliberately avoid asking students to implement a full operating-system subsystem from scratch. Starter programs keep the coding load manageable so class time can be spent observing state, checking assumptions, and explaining OS behaviour.
-\end{decisionmemo}
+\vfill

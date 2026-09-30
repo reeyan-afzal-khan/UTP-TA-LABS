@@ -75,16 +75,16 @@ python -m utils --algorithm astar --start KUL --goal KEF
 
 ## All courses
 
-| Course | PDFs | Note coverage |
-| --- | --- | --- |
-| [Algorithms and Data Structures](<ALGORITHMS & DATA STRUCTURES/main.tex>) | In progress | Arrays through hashing, algorithm comparison, correctness arguments, complexity models, edge-case testing, and reproducible benchmarking |
-| [Artificial Intelligence](<ARTIFICIAL INTELLIGENCE/main.tex>) | [Book and 8 labs](#artificial-intelligence) | Search, fuzzy logic, ANFIS, robotics, NLP, genetic algorithms, experimental evaluation, error analysis, and responsible AI practice |
-| [Data Communication and Networking](<DATA COMMUNICATION & NETWORKING/main.tex>) | In progress | Packet analysis, routing, services, switching, WAN links, layered troubleshooting, hardening, change control, and incident records |
-| [Data Science](<DATA SCIENCE/main.tex>) | In progress | R foundations, data structures, data frames, visualization, correlation, normalization, data contracts, reproducible EDA, and evidence-based communication |
-| [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/main.tex>) | In progress | Integrated processes, Odoo practice, governance, segregation of duties, master-data controls, audit trails, and process analytics |
-| [FinTech Innovation](<FINTECH INNOVATION/main.tex>) | In progress | Inclusion, alternative finance, digital banking, blockchain, Big Tech, cryptocurrencies, product economics, risk governance, and operational resilience |
-| [Machine Learning](<MACHINE LEARNING/main.tex>) | [Book and 8 labs](#machine-learning) | Supervised, unsupervised, limited-label, and reinforcement learning, plus leakage prevention, reproducibility, subgroup evaluation, model cards, and monitoring |
-| [Operating Systems](<OPERATING SYSTEMS/main.tex>) | In progress | Processes, scheduling, concurrency, memory, storage, security boundaries, least privilege, defensive programming, and observability |
+| Course | Note coverage |
+| --- | --- |
+| [Algorithms and Data Structures](<ALGORITHMS & DATA STRUCTURES/main.tex>) | Arrays through hashing, algorithm comparison, correctness arguments, complexity models, edge-case testing, and reproducible benchmarking |
+| [Artificial Intelligence](<ARTIFICIAL INTELLIGENCE/main.tex>) | Search, fuzzy logic, ANFIS, robotics, NLP, genetic algorithms, experimental evaluation, error analysis, and responsible AI practice |
+| [Data Communication and Networking](<DATA COMMUNICATION & NETWORKING/main.tex>) | Packet analysis, routing, services, switching, WAN links, layered troubleshooting, hardening, change control, and incident records |
+| [Data Science](<DATA SCIENCE/main.tex>) | R foundations, data structures, data frames, visualization, correlation, normalization, data contracts, reproducible EDA, and evidence-based communication |
+| [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/main.tex>) | Integrated processes, Odoo practice, governance, segregation of duties, master-data controls, audit trails, and process analytics |
+| [FinTech Innovation](<FINTECH INNOVATION/main.tex>) | Inclusion, alternative finance, digital banking, blockchain, Big Tech, cryptocurrencies, product economics, risk governance, and operational resilience |
+| [Machine Learning](<MACHINE LEARNING/main.tex>) | Supervised, unsupervised, limited-label, and reinforcement learning, plus leakage prevention, reproducibility, subgroup evaluation, model cards, and monitoring |
+| [Operating Systems](<OPERATING SYSTEMS/main.tex>) | Processes, scheduling, concurrency, memory, storage, security boundaries, least privilege, defensive programming, and observability |
 
 ## Repository layout
 

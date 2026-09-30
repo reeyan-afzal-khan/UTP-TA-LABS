@@ -1,60 +1,68 @@
 \labsection{7}{Contiguous memory allocation and fragmentation}{sec:lab07}
-\begin{labproject}{Compare first fit, best fit, and worst fit using the same sequence of requests}
-\textbf{Suggested time:} 90--100 minutes \hfill
-\textbf{Level:} intermediate\par
-\textbf{Starter file:} \texttt{memory\_fit.c}.\par
-\textbf{Evidence to keep:} allocation trace for three policies, fragmentation observations, and one designed counterexample.
+\begin{labproject}{Compare First Fit, Best Fit, and Worst Fit on the same requests}
 
-\begin{labmode}
-Allocation policies are easiest to understand as evolving state. Record the free-hole list after every request rather than looking only at the final result.
-\end{labmode}
+\oslabflow{Chapter 7: holes, requests, placement rules, external fragmentation.}{Watch the free-hole list after every allocation.}{Explain how an early placement changes whether later requests can fit.}
 
-\medskip\noindent\textbf{Learning outcomes.}
-\begin{enumerate}
-  \item apply first-fit, best-fit, and worst-fit rules correctly;
-  \item explain external fragmentation using both total free memory and largest available hole;
-  \item compare policies on identical input without over-generalising from one data set.
-\end{enumerate}
+\section*{Source code}
+\ossourcecard{\texttt{first\_fit.c}}{Choose the first hole that is large enough.}{The search stops immediately when a suitable hole is found.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab07/first_fit.c}
 
-\medskip\noindent\textbf{Dataset.}
-Initial holes are 100, 500, 200, 300, 600. Requests arrive in the order 212, 417, 112, 426.
+\ossourcecard{\texttt{best\_fit.c}}{Choose the smallest hole that can satisfy the request.}{The whole hole list must be scanned to find the tightest fit.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab07/best_fit.c}
 
-\medskip\noindent\textbf{Pre-lab prediction.}
-For the first request only, identify which hole each policy will choose and calculate the remainder. This gives you a quick check that you understand the three selection rules before running code.
+\ossourcecard{\texttt{worst\_fit.c}}{Choose the largest suitable hole.}{The policy tries to leave a relatively large remainder, but the future workload still decides whether that helps.}
+\lstinputlisting[style=oslabc]{all_experiments/Lab07/worst_fit.c}
 
-\medskip\noindent\textbf{Part A --- Run one simulator under three policies.}
+\section*{Task 1 --- Compile and run}
 \begin{lstlisting}[style=osbash]
-cd experiments/Lab07
-gcc -Wall -Wextra memory_fit.c -o memory_fit
-./memory_fit first
-./memory_fit best
-./memory_fit worst
+cd all_experiments/Lab07
+for f in first_fit best_fit worst_fit; do
+  gcc -Wall -Wextra -std=c11 "$f.c" -o "$f"
+  ./$f
+  echo
+ done
 \end{lstlisting}
-For every request, record the chosen hole and the complete hole list afterwards. Use one table with separate columns for the three policies.
 
-\medskip\noindent\textbf{Part B --- Diagnose a failed request.}
-Whenever a request fails, calculate:
-\[
-\text{total free memory} = \sum \text{all hole sizes}, \qquad
-\text{largest hole} = \max(\text{hole sizes}).
-\]
-If total free memory is sufficient but the largest hole is too small, explain why this is external fragmentation rather than a lack of total free space.
+For each policy, copy the hole list after every request. Do not compare only the final line; the intermediate state is the algorithm.
+
+\section*{Task 2 --- Visual comparison}
+Use the same starting holes: 100, 500, 200, 300, 600. Shade the selected hole for the first request (212) under each policy.
+
+\begin{mltable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.19\linewidth}
+  *{3}{>{\raggedright\arraybackslash}X}@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\textbf{Policy} & \textbf{Hole chosen for 212} & \textbf{Remainder created} & \textbf{Later consequence} \\
+\midrule
+First Fit & & & \\
+Best Fit & & & \\
+Worst Fit & & & \\
+\bottomrule
+\end{tabularx}
+\end{mltable}
+
+\section*{Task 3 --- Independent verification}
+Before looking at the program's second line of output, manually choose a hole for request 417 using each policy. Then compare your prediction with the code.
+
+\section*{Task 4 --- Controlled edit}
+Pick one of the three programs. Open it in Vim and change the final request from 426 to 250. Predict whether that request will now fit and which hole will be selected. Recompile and check your prediction.
 
 \begin{keyidea}
-``Best fit'' is the historical name of a policy. It means ``choose the smallest hole that currently fits,'' not ``guarantee the best final memory use.''
+``Best Fit'' is the name of a rule, not a guarantee of the best final memory layout. Every policy is making a decision without knowing future requests.
 \end{keyidea}
 
-\medskip\noindent\textbf{Part C --- Design a small counterexample.}
-Create three or four initial holes and three requests such that two policies make different early choices and a later request succeeds for one policy but fails for another. Keep the numbers small enough to trace by hand. Your explanation is more important than finding a dramatic difference.
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is external fragmentation?
+  \item Why can two placement policies leave different hole lists after the same request?
+  \item Why does a request sometimes fail even when the total free memory is large enough?
+\end{enumerate}
+\end{quickcheck}
 
-\medskip\noindent\textbf{Part D --- Connect the simulation to a real allocator.}
-In 4--6 sentences, explain what this model leaves out. Mention at least two of: allocation metadata, deallocation, coalescing adjacent holes, alignment, paging, or compaction.
-
-\begin{verification}
-A complete submission includes three full traces on identical input, at least one fragmentation calculation, and a student-designed request sequence with a clear explanation of the different outcome.
-\end{verification}
-
-\begin{tryit}
-Optional extension: add a \texttt{next} policy that resumes searching after the position of the previous successful allocation. Compare search behaviour, not only the final holes.
-\end{tryit}
+\begin{labdeliverable}
+Submit the three allocation traces, the first-request comparison table, your manual prediction for request 417, and the before/after result of the 426 $\rightarrow$ 250 edit.
+\end{labdeliverable}
 \end{labproject}

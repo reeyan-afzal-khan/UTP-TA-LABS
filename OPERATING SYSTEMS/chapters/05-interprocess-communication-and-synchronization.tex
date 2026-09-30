@@ -1,5 +1,5 @@
 \chapter{Interprocess Communication and Synchronization}\label{ch:ipc}
-\chapterguide{Know what a process is and understand that concurrent execution order is not deterministic.}{Explain race conditions and critical sections, use semaphore-style state to reason about producer-consumer, compare basic IPC models, and describe the lifecycle of shared memory.}
+\chapterguide{Chapter 1: processes and Chapter 3: standard input/output and pipelines.}{compare pipes and shared memory, identify a critical section and race condition, and explain why shared state requires synchronization before Lab 5.}
 
 \section{Concurrency creates more than one valid execution order}
 When two activities can make progress at the same time, their individual instructions may interleave in several valid ways. The operating system may preempt one process or thread, run another, and later return to the first.
@@ -19,10 +19,14 @@ Synchronization is not about forcing the whole program to run one step at a time
 A \term{mutex} is commonly used to give one thread at a time exclusive access to a critical section. A \term{semaphore} maintains a count that can represent available units of a resource or coordinate producer-consumer conditions.
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.28\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.22\linewidth}
+  >{\raggedright\arraybackslash}p{0.32\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Mechanism & Think of it as & Typical use \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{Mechanism} & \textbf{Think of it as} & \textbf{Typical use} \\
 \midrule
 Mutex & one key to a protected region & protect a shared counter or data structure \\
 Counting semaphore & a controlled count of available units & free slots, queued items, limited resources \\
@@ -45,10 +49,14 @@ For capacity 3, the initial state may be \texttt{empty=3, full=0}. After one suc
 Processes have separate address spaces, so they need an interprocess communication (IPC) mechanism to exchange data. Common models include:
 
 \begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}p{0.29\linewidth}X@{}}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}p{0.19\linewidth}
+  >{\raggedright\arraybackslash}p{0.35\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-IPC model & Main idea & Introductory trade-off \\
+\rowcolor{UTPPaleBlue!92}
+\textbf{IPC model} & \textbf{Main idea} & \textbf{Introductory trade-off} \\
 \midrule
 Pipe & ordered byte stream between endpoints & simple flow, usually directional \\
 Message queue & discrete messages managed by the kernel & message boundaries are preserved \\
