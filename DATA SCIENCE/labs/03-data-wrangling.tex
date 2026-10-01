@@ -1,0 +1,20 @@
+\labsection{3}{Reshape time-aware data and engineer defensible features}{sec:lab03}
+
+\begin{labproject}{Lab 3 wrangling and feature engineering}
+\textbf{Dataset.} \texttt{bike\_sharing\_dataset\_hour.csv}.\\
+\textbf{Goal.} Transform a large hourly table into features and summaries that answer a specific demand question.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Parse the date field and document the row grain: one row represents one observed hour.
+  \item Create readable day-type and hour labels without destroying the original coded variables.
+  \item Engineer peak-period categories and cyclical sine/cosine encodings for hour-of-day.
+  \item Aggregate mean demand by hour and working-day status, reducing more than 17,000 rows to an interpretable profile.
+  \item Compare casual and registered demand across time periods and explain why aggregating these columns separately matters.
+  \item Check the engineered cyclical features mathematically and visually.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} Feature engineering changes the representation, not the underlying evidence. Every engineered variable should have a clear definition that another analyst can reproduce.
+
+\lstinputlisting[style=dsr]{all_experiments/lab03_wrangling.R}
+\end{labproject}

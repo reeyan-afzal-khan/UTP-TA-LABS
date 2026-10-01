@@ -1,0 +1,20 @@
+\labsection{4}{Explore distributions, subgroups, and relationships}{sec:lab04}
+
+\begin{labproject}{Lab 4 exploratory analysis}
+\textbf{Dataset.} \texttt{medical\_cost\_personal\_dataset.csv}.\\
+\textbf{Goal.} Build an EDA narrative that separates distribution shape, subgroup differences, and relationships.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Inspect the distribution of insurance charges using mean, median, quartiles, IQR, and a histogram.
+  \item Use the IQR rule as an \emph{outlier flag}, not an automatic deletion rule.
+  \item Compare charges for smokers and non-smokers using robust and non-robust summaries.
+  \item Compare median charges across regions and decide whether the observed differences appear substantial relative to within-group spread.
+  \item Examine the relationship between BMI and charges overall and within smoking groups.
+  \item Write an EDA conclusion that identifies at least one pattern worth modelling and at least one possible confounder or interaction.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} When groups have very different distributions, an overall correlation can hide or exaggerate within-group relationships.
+
+\lstinputlisting[style=dsr]{all_experiments/lab04_eda.R}
+\end{labproject}

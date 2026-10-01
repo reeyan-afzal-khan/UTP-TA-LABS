@@ -1,0 +1,22 @@
+\labsection{8}{Evaluate probabilistic classification}{sec:lab08}
+
+\begin{labproject}{Lab 8 classification}
+\textbf{Datasets.} \texttt{heart\_failure\_dataset.csv}, with Breast Cancer and Optical Digits extensions.\\
+\textbf{Goal.} Fit a logistic model, preserve probabilistic output, and evaluate different kinds of classification error.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Identify the binary target and convert categorical predictors to factors.
+  \item Create a stratified train/test split so outcome prevalence remains comparable.
+  \item Fit logistic regression using demographic, symptom, exercise, and clinical measurements.
+  \item Generate holdout probabilities, then apply a 0.50 threshold to obtain class decisions.
+  \item Build the confusion matrix and calculate accuracy, sensitivity, specificity, and precision.
+  \item Inspect the probability distributions for the two observed classes and explain why overlap is unavoidable.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} This exercise is about statistical classification, not clinical diagnosis. Dataset labels, measurement processes, and error costs must be understood before any real-world medical use.
+
+\textbf{Extension comparison.} First compare \texttt{radius\_mean} and \texttt{texture\_mean} by diagnosis in the Breast Cancer dataset. Then open the Optical Digits training/test files from the supplied ZIP and reconstruct at least one $8\times8$ digit from its 64 pixel-intensity features. Identify how evaluation must change when the target has ten classes rather than two.
+
+\lstinputlisting[style=dsr]{all_experiments/lab08_classification.R}
+\end{labproject}

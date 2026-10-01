@@ -1,126 +1,123 @@
-\chapter*{Capstone: Cleaning a Real Messy Dataset}
+\chapter{Capstone: An End-to-End Data-Science Analysis}
 \label{chap:capstone}
-\addcontentsline{toc}{chapter}{Capstone: Cleaning a Real Messy Dataset}
-\markboth{Capstone: Cleaning a Messy Dataset}{}
+\chapterguide
+  {You should have completed the ten labs and be able to audit, explore, model, validate, and communicate tabular data.}
+  {produce a compact, reproducible analysis in which every technical choice is connected to a question and every conclusion is connected to evidence.}
 
-Every earlier lab handed you data that was already tidy. This one does not.
-\texttt{Unclean Dataset.csv} is a student enrolment file that has been through
-several careless hands, and the task is to turn it into something a database
-could accept --- then say honestly what the cleaning cost.
+\section{The capstone is a workflow, not a bigger coding exercise}
+Choose one bundled dataset or an instructor-approved external dataset. The goal is to demonstrate analytical judgment across the full lifecycle.
 
-\textbf{Source files.} \texttt{Lab Final Project/Lab Final Project.R},
-\texttt{Unclean Dataset.csv} (136 data rows), and
-\texttt{Cleaned Dataset.csv} (the expected 64-row result).\\
-\textbf{Goal.} Repair a file with mixed delimiters, shifted columns, inconsistent
-categories, three date formats, and currency text, and report what was
-discarded.
+\begin{utpfig}[Capstone evidence chain]{A professional analysis keeps a visible line from the original question to the final limitations.}{fig:capstone-chain}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.6pt,text width=0.155\linewidth,minimum height=1.55cm,
+    inner xsep=1.8mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[stage] (q) at (0,0) {\textbf{Question}\\[4pt]
+  Define the goal\\and population};
+\node[stage] (d) at (0.205,0) {\textbf{Data audit}\\[4pt]
+  Check quality\\and provenance};
+\node[stage] (e) at (0.410,0) {\textbf{EDA}\\[4pt]
+  Explore patterns\\and relationships};
+\node[stage] (m) at (0.615,0) {\textbf{Method}\\[4pt]
+  Model or infer\\with justification};
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (v) at (0.820,0)
+  {\textbf{Validation}\\[4pt]
+   Assess evidence\\and state limits};
+\draw[flow] (q.east) -- (d.west);
+\draw[flow] (d.east) -- (e.west);
+\draw[flow] (e.east) -- (m.west);
+\draw[flow] (m.east) -- (v.west);
+\end{tikzpicture}
+\end{utpfig}
 
-\begin{labmode}
-Run it from the folder that holds it, so the relative paths resolve:
 
-\begin{lstlisting}[style=dsr]
-setwd("path/to/DATA SCIENCE/Lab Final Project")
-source("Lab Final Project.R")
-\end{lstlisting}
+\section{Build the report around an evidence chain}
+A capstone becomes easier to follow when every section answers one question. The introduction defines the target population and analytical goal. The data section establishes whether the observations are fit for purpose. EDA develops evidence and candidate explanations. The method section describes how uncertainty or generalisation is quantified. The conclusion states only what the design and validation support.
 
-It needs \texttt{tidyverse} and \texttt{lubridate}. The script checks for them
-and stops with instructions rather than installing them, because a lab script
-that silently writes to a shared machine's package library is bad manners.
-\end{labmode}
+\begin{utpfig}[Recommended capstone report architecture]{The figure or table in each stage should answer a specific analytical question rather than exist merely to demonstrate a technique.}{fig:capstone-report-architecture}
+\begin{tikzpicture}[node distance=0.24cm,
+  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.6pt,text width=0.68\linewidth,minimum height=0.90cm,
+    inner xsep=3mm,inner ysep=1.5mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  endpoint/.style={stage,draw=UTPTeal!80,fill=UTPPaleTeal},
+  flow/.style={-{Stealth[length=1.6mm,width=1.3mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[endpoint] (q) {\textbf{1. Question and scope}\\[2pt]
+  Target population and unit of observation};
+\node[stage,below=of q] (audit) {\textbf{2. Data audit}\\[2pt]
+  Data dictionary, quality checks, and exclusions};
+\node[stage,below=of audit] (eda) {\textbf{3. Exploratory analysis}\\[2pt]
+  3--5 purposeful figures with evidence sentences};
+\node[stage,below=of eda] (method) {\textbf{4. Method and justification}\\[2pt]
+  Inference, prediction, or structure discovery};
+\node[stage,below=of method] (val) {\textbf{5. Validation}\\[2pt]
+  Error analysis and sensitivity checks};
+\node[endpoint,below=of val] (claim) {\textbf{6. Finding and implications}\\[2pt]
+  Practical meaning, limitations, and next evidence};
+\draw[flow] (q.south) -- (audit.north);
+\draw[flow] (audit.south) -- (eda.north);
+\draw[flow] (eda.south) -- (method.north);
+\draw[flow] (method.south) -- (val.north);
+\draw[flow] (val.south) -- (claim.north);
+\end{tikzpicture}
+\end{utpfig}
 
-\section*{Seven defects, and what each one teaches}
+\section{Required components}
+\begin{mlsteps}
+  \item \textbf{Problem framing.} State the analytical question, target population, unit of observation, and why the answer would matter.
+  \item \textbf{Data understanding.} Provide a data dictionary for variables used, source/provenance, shape, missingness, and quality constraints.
+  \item \textbf{Preparation.} Show filters, cleaning rules, transformations, and feature engineering with counts of affected records.
+  \item \textbf{EDA.} Include at least three purposeful visualisations and concise evidence sentences.
+  \item \textbf{Method.} Use an appropriate inferential, supervised, or unsupervised method and justify why it matches the question.
+  \item \textbf{Validation.} Use held-out data, cross-validation, uncertainty intervals, or stability checks appropriate to the method.
+  \item \textbf{Communication.} State the main result, practical meaning, limitations, and a next step without overclaiming causality.
+\end{mlsteps}
 
+
+\section{Minimum visual standard}
+Use at least three analytical figures, not including decorative diagrams. A strong submission normally includes one distribution or group-comparison view, one relationship or multivariate view, and one method-specific diagnostic such as a residual plot, confusion matrix, validation-fold chart, cluster view, or PCA projection.
+
+Every figure should have a title or caption that answers: \emph{what should the reader notice, and why does it matter for the question?} Figures with no analytical interpretation do not strengthen the report.
+
+
+\section{Suggested capstone directions}
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{DSNavy}}p{0.21\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}p{3.2cm}p{4.2cm}X@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Defect in the file & Why it cannot simply be read with \texttt{read.csv()} \\
+Dataset & Possible question & Suitable methods \\
 \midrule
-Two delimiters & Some rows use \texttt{|}, others use \texttt{,}. One
-\texttt{read\_csv()} call cannot parse both, so the script splits the lines
-first and parses each group with the right delimiter. \\
-Trailing commas & Pipe rows end in \texttt{\$1200,,,,,,,}, which would create
-phantom empty columns. \\
-Shifted columns & In some comma rows the age has slipped into the
-\texttt{Gender} field, so a value like \texttt{M24} holds two variables at once. \\
-Inconsistent categories & Gender appears as \texttt{M}, \texttt{Male},
-\texttt{male}, \texttt{F}, \texttt{Female}; the script folds case and keys on
-the first letter. \\
-Misspelt courses & \texttt{Machine Learnin}, \texttt{Web Develpment}. Repaired
-by pattern, not by a lookup table, because the truncations vary. \\
-Three date formats & \texttt{ymd}, \texttt{dmy}, and \texttt{mdy} in one column.
-\texttt{parse\_date\_time()} is given all three orders. \\
-Currency as text & \texttt{\$1,200} is a string. Strip every non-digit, then
-convert. \\
+Iris & Which measurements separate species and how does unsupervised structure compare? & EDA, PCA, k-means, classification extension \\
+Wine recognition & Which chemical measurements are most associated with cultivar or alcohol? & EDA, inference, regression, multiclass extension \\
+Breast cancer diagnostic & How do selected measurements separate diagnostic labels? & EDA, logistic classification, cross-validation \\
 \bottomrule
 \end{tabularx}
 \end{dstable}
 
-\begin{keyidea}
-Notice the order the script works in. It repairs \emph{structure} first (split
-the delimiters, unshift the columns), then \emph{values} (categories, dates,
-currency), and only then drops rows. Reversing that order throws away rows that
-were merely mis-parsed rather than genuinely bad.
-\end{keyidea}
-
-\section*{The number that matters most}
-
-The script now prints a cleaning summary. On the supplied file it reads:
-
-\begin{lstlisting}[style=dsr]
-raw data lines read      : 136
-  pipe-delimited         : 76
-  comma-delimited        : 60
-rows after merge         : 136
-rows after clean/dedupe  : 64
-dropped                  : 72
-Dates that failed to parse: 7
-\end{lstlisting}
-
 \begin{pitfall}
-\textbf{53\% of the rows did not survive.} A cleaning script that printed only
-\texttt{head(clean\_df)} would look like a complete success while discarding
-more than half the dataset, and nobody reading the tidy output would know.
-
-Before you present the cleaned file, account for those 72 rows. How many were
-true duplicates removed by \texttt{distinct()}? How many failed the
-\texttt{!is.na(Student\_ID)} filter, and were those genuinely unusable or just
-parsed badly? Seven enrolment dates are still \texttt{NA} even in the output
-you keep.
-
-``Rows dropped'' is not a footnote. It is the main finding of a cleaning
-exercise, and it belongs in the report next to the row count you kept.
+Do not choose a model first and then invent a question that fits it. The capstone is assessed on coherence of the evidence chain, not algorithm complexity.
 \end{pitfall}
 
-\begin{tryit}
-Add one line before the \texttt{distinct()} call to count exact duplicates
-separately from rows removed by the \texttt{is.na} filter:
 
-\begin{lstlisting}[style=dsr]
-cat("exact duplicates:", nrow(full_df) - nrow(distinct(full_df)), "\n")
-\end{lstlisting}
+\section{Recommended checks before submission}
+\begin{mlsteps}
+  \item Restart R and run the analysis script from top to bottom using relative paths.
+  \item Confirm that raw data files are not modified by the script.
+  \item Compare row counts before and after every major filter or join.
+  \item Verify that test or validation data do not influence learned preprocessing.
+  \item Check that every reported number and figure can be reproduced from code.
+  \item Read every claim and ask whether it is descriptive, predictive, or causal; revise wording that exceeds the design.
+  \item State at least two limitations that could materially change the conclusion.
+\end{mlsteps}
 
-Then inspect the seven unparsed dates and decide whether a fourth format order
-would rescue them, or whether they are genuinely unreadable:
 
-\begin{lstlisting}[style=dsr]
-full_df$Enrollment_Date[is.na(clean_df$Enrollment_Date)]
-\end{lstlisting}
-
-Either answer is acceptable in the report. Not looking is not.
-\end{tryit}
+\section{Submission structure}
+Submit one analysis script, one concise report, and any generated figures or derived data required to reproduce the result. The script should run from a clean session with local relative paths. The report should be readable without executing code.
 
 \begin{keyidea}
-The script also adds a \texttt{System\_Record\_ID} surrogate key, because
-\texttt{Student\_ID} repeats in this file. A natural key that is not actually
-unique will break the first join you attempt, so a cleaning step that will feed
-a database should end by giving every row an identifier it controls.
+A strong capstone makes uncertainty and limitations easy to find. Professional data science is credible because it exposes what could be wrong as clearly as what appears to be true.
 \end{keyidea}
-
-\begin{labdeliverable}
-Submit the cleaned CSV, the script, and a short data-quality note stating: the
-original and final row counts, how many rows each cleaning rule removed and
-why, which fields you standardised and to what convention, how many dates
-remain unparsed, and one sentence on whether the surviving 64 rows are still
-representative of the original file.
-\end{labdeliverable}

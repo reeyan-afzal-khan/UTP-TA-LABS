@@ -1,0 +1,22 @@
+\labsection{5}{Design graphics that answer a question}{sec:lab05}
+
+\begin{labproject}{Lab 5 visual communication}
+\textbf{Datasets.} \texttt{red\_wine\_quality\_dataset.csv}, with a Bike Sharing hourly extension.\\
+\textbf{Goal.} Match chart form and visual encoding to the analytical task.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Use a bar chart to show the frequency of each discrete quality score.
+  \item Use side-by-side boxplots to compare alcohol content across quality levels.
+  \item Use a scatterplot to inspect the joint behaviour of volatile acidity and alcohol.
+  \item Redesign one chart by changing the question rather than merely changing colours or fonts.
+  \item For each figure, write a caption that states the data, the encoding, the main visible pattern, and one limitation.
+  \item Identify one misleading visual choice that would make the same data harder to interpret.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} Quality score is ordered but discrete. Treating it as continuous may be convenient for some models, but a graphic should not hide that measurement scale.
+
+\textbf{Extension visual.} Use \texttt{bike\_sharing\_dataset\_hour.csv} to create an hour-by-weekday heatmap of mean rentals. Explain what the heatmap reveals that a single hourly line chart does not, and what information is lost through aggregation.
+
+\lstinputlisting[style=dsr]{all_experiments/lab05_visualization.R}
+\end{labproject}

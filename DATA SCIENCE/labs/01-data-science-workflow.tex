@@ -1,0 +1,24 @@
+\labsection{1}{Frame a question and build a reproducible data profile}{sec:lab01}
+
+\begin{labproject}{Lab 1 guided workflow}
+\textbf{Dataset.} \texttt{bike\_sharing\_dataset\_day.csv}.\\
+\textbf{Goal.} Convert a real operational dataset into a traceable question--evidence workflow.
+
+The daily bike-sharing table contains one row per calendar day, weather/context variables, and the total rental count \rcode{cnt}. It is a useful first dataset because students must recognise \textbf{time}, \textbf{measurement grain}, and \textbf{context} before calculating anything.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item State the unit of observation and distinguish identifiers, contextual variables, predictors, and outcomes.
+  \item Parse \rcode{dteday} as a date and inspect dimensions, column types, ranges, and missingness.
+  \item Write one descriptive, one comparative, and one relational question before computing any result.
+  \item Compare rental demand between working and non-working days and examine the relationship between temperature and demand.
+  \item Plot demand over time and identify at least two features that a single overall mean would hide.
+  \item Record \rcode{sessionInfo()} so the computational environment becomes part of the evidence record.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} A correlation between temperature and rentals does not by itself show that changing temperature causes demand to change; season, month, weather state, and long-term trend are competing explanations.
+
+\medskip
+\textbf{Executable experiment.} Run and edit the file below from a clean R session.
+\lstinputlisting[style=dsr]{all_experiments/lab01_workflow.R}
+\end{labproject}

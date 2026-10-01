@@ -1,0 +1,20 @@
+\labsection{10}{Discover structure with clustering and PCA}{sec:lab10}
+
+\begin{labproject}{Lab 10 unsupervised learning}
+\textbf{Datasets.} \texttt{mall\_customers\_dataset.csv} and \texttt{wine\_recognition\_dataset.csv}.\\
+\textbf{Goal.} Separate two unsupervised tasks: grouping observations and compressing correlated features.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Standardise Mall Customer age, income, and spending score before distance-based clustering.
+  \item Fit k-means with multiple random starts and describe the resulting cluster profiles in original units.
+  \item Plot income against spending score with cluster membership and discuss what the two-dimensional view omits.
+  \item For Wine Recognition, exclude \texttt{cultivar} and \texttt{sample\_id} before PCA.
+  \item Standardise the 13 chemical measurements, fit PCA, and report explained variance and influential loadings.
+  \item Only after fitting PCA, use cultivar labels to interpret whether the unsupervised representation aligns with known classes.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} A cluster is an algorithmic partition, not automatically a customer ``type.'' A principal component is a mathematical direction, not automatically a meaningful latent construct.
+
+\lstinputlisting[style=dsr]{all_experiments/lab10_unsupervised.R}
+\end{labproject}

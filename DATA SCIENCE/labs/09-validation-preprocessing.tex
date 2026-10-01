@@ -1,0 +1,22 @@
+\labsection{9}{Validate an imbalanced classifier without leakage}{sec:lab09}
+
+\begin{labproject}{Lab 9 validation and preprocessing}
+\textbf{Datasets.} \texttt{credit\_card\_fraud\_dataset.csv}, with a Heart Failure calibration extension.\\
+\textbf{Goal.} Use stratified cross-validation, fold-local preprocessing, and threshold-sensitive metrics for a rare outcome.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Quantify fraud prevalence and calculate the accuracy of the trivial ``always legitimate'' classifier.
+  \item Build five stratified folds so each fold contains examples of the rare class.
+  \item Within each fold, estimate scaling parameters on the training portion only and apply them to validation data.
+  \item Fit logistic regression and keep predicted probabilities.
+  \item Evaluate thresholds 0.10, 0.25, and 0.50 using accuracy, precision, recall, and specificity.
+  \item Compare mean metrics across folds and inspect fold-to-fold variation in recall.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} High accuracy is almost guaranteed when fraud is rare. Model value depends on the balance between missed fraud and false alarms, not on accuracy alone.
+
+\textbf{Probability-quality extension.} Reuse the held-out Heart Failure probabilities from Lab 8 and group them into probability bins. Compare the mean predicted probability with the observed event fraction in each bin. Explain why discrimination, threshold metrics, and calibration are three different validation questions.
+
+\lstinputlisting[style=dsr]{all_experiments/lab09_validation.R}
+\end{labproject}

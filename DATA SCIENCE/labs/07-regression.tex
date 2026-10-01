@@ -1,0 +1,22 @@
+\labsection{7}{Build and diagnose a regression model}{sec:lab07}
+
+\begin{labproject}{Lab 7 regression}
+\textbf{Dataset.} \texttt{ames\_housing\_dataset.csv}.\\
+\textbf{Goal.} Predict house sale price using a realistic mixed-quality dataset and evaluate errors on unseen records.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Select a defensible subset of predictors: living area, overall quality, year built, garage capacity, and basement area.
+  \item Handle missingness in the selected variables transparently and report how many rows remain.
+  \item Create a reproducible 80/20 train/test split before fitting the model.
+  \item Fit a multiple linear regression and interpret coefficient signs in context without treating them automatically as causal effects.
+  \item Evaluate holdout MAE, RMSE, and $R^2$.
+  \item Inspect predicted-versus-observed and residual-versus-fitted plots for nonlinearity, heteroscedasticity, or extreme errors.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} A good average error can coexist with systematic failure for expensive homes, unusual properties, or neighbourhoods not represented by the selected predictors.
+
+\textbf{Model-development extension.} Compare neighbourhood-level median prices and sample sizes before deciding whether \texttt{Neighborhood} should enter the predictive model. If you add it, treat it as a categorical predictor and report whether holdout error improves. Explain why target-derived encodings must be learned from training data only.
+
+\lstinputlisting[style=dsr]{all_experiments/lab07_regression.R}
+\end{labproject}

@@ -1,0 +1,20 @@
+\labsection{6}{Quantify uncertainty with bootstrap and permutation logic}{sec:lab06}
+
+\begin{labproject}{Lab 6 sampling and inference}
+\textbf{Dataset.} \texttt{student\_performance\_dataset.csv}.\\
+\textbf{Goal.} Estimate a group difference, quantify sampling uncertainty, and separate association from causal interpretation.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Compare final grade \texttt{G3} between students who report intending higher education and those who do not.
+  \item Compute the observed mean difference and a standardised effect-size measure.
+  \item Use bootstrap resampling within groups to construct a 95\% interval for the mean difference.
+  \item Build a permutation reference distribution under a no-group-association null and estimate a two-sided p-value.
+  \item Compare interval, p-value, and effect size: explain what each contributes and what none of them establish.
+  \item Identify at least three plausible confounders available in the dataset.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} The dataset is observational. A statistically clear difference between groups does not establish that changing a student's intention would cause a grade change.
+
+\lstinputlisting[style=dsr]{all_experiments/lab06_inference.R}
+\end{labproject}

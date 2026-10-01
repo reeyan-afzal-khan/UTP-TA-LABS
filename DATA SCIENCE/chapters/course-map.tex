@@ -1,47 +1,70 @@
-\chapter*{Course Map: From R Commands to Data Insight}
-\addcontentsline{toc}{chapter}{Course Map: From R Commands to Data Insight}
+\chapter*{Course Map: From Question to Defensible Evidence}
+\addcontentsline{toc}{chapter}{Course Map: From Question to Defensible Evidence}
 \markboth{Course Map}{}
 
-The course progresses from R fundamentals to data structures, data management, visualization, and introductory analysis.
+Data science turns questions and data into evidence that others can inspect, reproduce, and challenge. This course emphasises analytical workflow, with R as a tool.
+Chapter~\ref{ch:rsetup} introduces R, RStudio, optional conda management, and the required Git/GitHub SSH workflow. Later chapters use varied datasets to build transferable skills rather than familiarity with a single dataset.
 
-\begin{dsfigure}
-\begin{tikzpicture}[
-  stage/.style={draw=DSBlue,fill=DSPaleBlue,rounded corners=2mm,text width=12.4cm,minimum height=1.36cm,align=left,inner xsep=4mm,inner ysep=2.5mm,font=\scriptsize\color{DSNavy}},
-  arr/.style={-{Stealth[length=2.2mm]},thick,draw=DSTeal}
-]
-\node[stage] (s1) at (0,5.4) {{\normalsize\bfseries\color{DSBlue}Stage 1: R orientation and language foundations}\hfill{\footnotesize Labs 1--2}\par
-\smallskip Set up R/RStudio; use scripts, variables, arithmetic, logic, comparisons, and strings.};
-\node[stage] (s2) at (0,3.45) {{\normalsize\bfseries\color{DSBlue}Stage 2: Core R data structures}\hfill{\footnotesize Labs 3--4}\par
-\smallskip Construct, index, and manipulate vectors, lists, factors, matrices, and arrays.};
-\node[stage] (s3) at (0,1.50) {{\normalsize\bfseries\color{DSBlue}Stage 3: Programming flow and data frames}\hfill{\footnotesize Labs 5--7}\par
-\smallskip Apply control flow; create, import, clean, filter, sort, and export data frames.};
-\node[stage] (s4) at (0,-0.45) {{\normalsize\bfseries\color{DSBlue}Stage 4: Visualization and introductory analysis}\hfill{\footnotesize Labs 8--9}\par
-\smallskip Create charts, compute Pearson correlation, build heatmaps, and compare transformations and scaling methods.};
-\draw[arr] (s1.south) -- (s2.north);
-\draw[arr] (s2.south) -- (s3.north);
-\draw[arr] (s3.south) -- (s4.north);
+\begin{utpfig}[Course workflow]{The course revisits the same workflow at increasing depth. Each lab sits immediately after the chapter that supplies its concepts.}{fig:course-workflow}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.7pt,text width=0.155\linewidth,minimum height=1.65cm,
+    inner xsep=1.8mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal},
+  feedback/.style={arr,draw=UTPMuted,rounded corners=2mm}]
+\node[stage] (q) at (0,0) {\textbf{1. Frame}\\[4pt]
+  Define the question\\and scope};
+\node[stage] (a) at (0.205,0) {\textbf{2. Prepare}\\[4pt]
+  Audit quality\\and organise data};
+\node[stage] (e) at (0.410,0) {\textbf{3. Explore}\\[4pt]
+  Visualise patterns\\and relationships};
+\node[stage] (m) at (0.615,0) {\textbf{4. Model}\\[4pt]
+  Fit models and\\assess uncertainty};
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (v) at (0.820,0)
+  {\textbf{5. Validate}\\[4pt]
+   Check results\\and communicate};
+\draw[arr] (q.east) -- (a.west);
+\draw[arr] (a.east) -- (e.west);
+\draw[arr] (e.east) -- (m.west);
+\draw[arr] (m.east) -- (v.west);
+\draw[feedback] (v.south) -- (0.820,-1.30) --
+  node[midway,below=3pt,inner sep=1pt,font=\scriptsize\color{UTPMuted}]
+    {New evidence refines the question}
+  (0,-1.30) -- (q.south);
 \end{tikzpicture}
-\end{dsfigure}
-
-\begin{keyidea}
-The sequence is cumulative: Labs 7--9 assume proficiency with indexing, conditions, data frames, packages, and files.
-\end{keyidea}
+\end{utpfig}
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{1.4cm}p{4.1cm}X@{}}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.25}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\AtBeginEnvironment{tabularx}{\footnotesize\setlength{\extrarowheight}{0.6pt}}
+\begin{tabularx}{\linewidth}{@{}
+  >{\raggedright\arraybackslash}m{0.045\linewidth}
+  >{\raggedright\arraybackslash}m{0.23\linewidth}
+  >{\raggedright\arraybackslash}m{0.235\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Lab & Main topic & Practical emphasis \\
+\textbf{Lab} & \textbf{Analytical focus} & \textbf{Dataset(s)} & \textbf{Key outputs} \\
 \midrule
-1 & RStudio, R, variables, arithmetic & Set up R; write code; use assignment, types, arithmetic, and input. \\
-2 & Logic, relations, strings & Evaluate Boolean conditions and manipulate text. \\
-3 & Vectors and lists & Store, index, and manipulate homogeneous and mixed collections. \\
-4 & Factors, matrices, arrays & Work with categorical values and multidimensional structures. \\
-5 & Selection and repetition & Select code paths and repeat operations. \\
-6 & Data frames & Create, inspect, access, and modify tabular data. \\
-7 & Managing data frames & Import, clean, filter, sort, and export data. \\
-8 & Data visualization & Create and interpret common statistical charts. \\
-9 & Correlation and scaling & Analyze relationships and transform numeric data. \\
+1 & Workflow and reproducibility & Bike Sharing (daily) & Data profile, analytical question, and time-aware summaries \\
+2 & Data quality & Iris and Titanic & Missingness audit, category checks, and cleaning decisions \\
+3 & Wrangling and features & Bike Sharing (hourly) & Parsed dates, derived features, and temporal summaries \\
+4 & Exploratory analysis & Medical Costs & Distributions, outliers, subgroup comparisons, and relationships \\
+5 & Visual communication & Red Wine Quality & Purposeful graphics with evidence-based interpretations \\
+6 & Sampling and inference & Student Performance & Bootstrap interval, group comparison, effect size, and limitations \\
+7 & Regression & Ames Housing & Held-out MAE and RMSE, with residual diagnostics \\
+8 & Classification & Heart Failure & Predicted probabilities, confusion matrix, sensitivity, specificity, and precision \\
+9 & Validation and preprocessing & Credit-card Fraud & Stratified cross-validation and threshold trade-offs \\
+10 & Unsupervised learning & Mall Customers and Wine Recognition & Standardised k-means segments and PCA representation \\
 \bottomrule
 \end{tabularx}
 \end{dstable}
+
+\begin{keyidea}
+Every practical submission should answer four questions: \emph{What was the question? What data were used? What evidence was produced? What are the limitations?}
+\end{keyidea}

@@ -1,0 +1,474 @@
+\chapter{R, RStudio, and the Course Environment}
+\label{ch:rsetup}
+
+\chapterguide%
+  {Basic familiarity with files and folders is enough; no previous R installation is assumed.}
+  {install R and RStudio, optionally manage R through Anaconda/conda, configure Git and GitHub with SSH, create a reproducible course project, verify the software stack, and understand the datasets used throughout the course.}
+
+\section{What you are installing---and why}
+
+The course uses \textbf{R} as the statistical computing engine and \textbf{RStudio} as the main integrated development environment (IDE). These are related but separate pieces of software. R performs the computation; RStudio provides an editor, console, data viewer, plotting pane, help system, project management, and an integrated terminal.
+
+\begin{utpfig}[The course software stack]{R is the computation engine. RStudio is the working environment around it. The course files remain ordinary folders, scripts, and datasets that can be inspected independently of the IDE.}{fig:r-stack}
+\begin{tikzpicture}[node distance=0.30cm,
+  layer/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.7pt,text width=0.82\linewidth,minimum height=1.05cm,
+    inner xsep=3mm,inner ysep=2mm,align=left,
+    font=\footnotesize\color{UTPNavy}},
+  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[layer] (project) {\textbf{Course project --- files and evidence}\\[3pt]
+  Chapters, labs, \texttt{all\_datasets/}, and \texttt{all\_experiments/}};
+\node[layer,below=of project,draw=UTPTeal!80,fill=UTPPaleTeal] (studio)
+  {\textbf{RStudio Desktop --- working environment}\\[3pt]
+   Edit scripts; use the console, plots, help, and project tools};
+\node[layer,below=of studio] (r)
+  {\textbf{R --- computation engine}\\[3pt]
+   Work with data, fit statistical models, and create graphics};
+\node[layer,below=of r,draw=UTPMuted!70,fill=UTPPaleGray] (os)
+  {\textbf{Operating system --- platform}\\[3pt]
+   Windows, macOS, or Linux};
+\draw[flow] (project.south) -- (studio.north);
+\draw[flow] (studio.south) -- (r.north);
+\draw[flow] (r.south) -- (os.north);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+Install \textbf{R first}, then install \textbf{RStudio}. RStudio does not replace R; it discovers and launches an installed R version.
+\end{keyidea}
+
+\section{Course project layout}
+
+Use \texttt{UTP-DATA-SCIENCE/} as the project root, with these folders:
+
+\noindent
+\begin{minipage}[t]{0.49\linewidth}
+\begin{lstlisting}[style=mlterminal]
+all_datasets/
+  ames_housing_dataset.csv
+  bike_sharing_dataset_day.csv
+  bike_sharing_dataset_hour.csv
+  breast_cancer_dataset.csv
+  credit_card_fraud_dataset.csv
+  heart_failure_dataset.csv
+  mall_customers_dataset.csv
+  medical_cost_personal_dataset.csv
+  optical_recognition_handwritten_digits.zip
+  red_wine_quality_dataset.csv
+  student_performance_dataset.csv
+  titanic_dataset.csv
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.49\linewidth}
+\begin{lstlisting}[style=mlterminal]
+all_experiments/
+  lab01_features_worked.ipynb
+  lab02_supervised_workflow_worked.ipynb
+  lab03_supervised_models_worked.ipynb
+  lab04_clustering_pca_worked.ipynb
+  lab05_anomaly_limited_labels_worked.ipynb
+  lab06_reinforcement_worked.ipynb
+  lab07_deep_learning_cnn_worked.ipynb
+  lab08_deep_learning_lstm_worked.ipynb
+  predict_passenger.py
+\end{lstlisting}
+\end{minipage}
+
+\section{Route A---recommended: install R natively}
+
+For most students, the simplest and most reliable setup is a native installation of R from the \href{https://cran.r-project.org/}{\textbf{Comprehensive R Archive Network (CRAN)}} followed by RStudio Desktop from \href{https://posit.co/download/rstudio-desktop/}{\textbf{Posit}}.
+
+\subsection{Windows}
+
+\begin{mlsteps}
+  \item Open the \href{https://cran.r-project.org/}{CRAN home page}, select \textbf{Download R for Windows}, then choose \textbf{base}.
+  \item Download the current stable Windows installer and run it. The default 64-bit installation is suitable for this course.
+  \item Keep the default components unless your institution provides different instructions.
+  \item After installation, open the Windows Start menu and confirm that an \textbf{R} entry exists.
+\end{mlsteps}
+
+From a terminal, installation can be verified with:
+
+\begin{lstlisting}[style=mlterminal]
+R --version
+\end{lstlisting}
+
+If the terminal cannot find \texttt{R} but R opens normally from the Start menu, the installation itself may still be correct. RStudio can discover standard Windows installations without requiring students to edit the system PATH manually.
+
+\subsection{macOS}
+
+\begin{mlsteps}
+  \item Open the \href{https://cran.r-project.org/}{CRAN home page} and select \textbf{Download R for macOS}.
+  \item Choose the installer that matches the machine architecture. Recent Apple Silicon Macs use the ARM64 build; older Intel Macs use the Intel build.
+  \item Open the downloaded \texttt{.pkg} and follow the installer prompts.
+  \item Close and reopen Terminal after installation, then verify R.
+\end{mlsteps}
+
+\begin{lstlisting}[style=mlterminal]
+R --version
+which R
+\end{lstlisting}
+
+\subsection{Linux}
+
+Linux installation differs by distribution. Use the distribution-specific instructions under \textbf{Download R for Linux} on CRAN. On Debian/Ubuntu systems, a basic repository installation is commonly performed with:
+
+\begin{lstlisting}[style=mlterminal]
+sudo apt update
+sudo apt install r-base
+\end{lstlisting}
+
+Institutional machines may use a managed repository or module system instead. The objective is the same: the command below should start a current R session.
+
+\begin{lstlisting}[style=mlterminal]
+R
+\end{lstlisting}
+
+Exit the interactive R console with \rcode{q()} and answer \texttt{n} if asked whether to save the workspace.
+
+\section{Install RStudio Desktop}
+
+RStudio Desktop is available from \href{https://posit.co/download/rstudio-desktop/}{\textbf{Posit's RStudio Desktop download page}}. Posit's current documentation states that RStudio requires an existing R installation, which is why R is installed first.
+
+\begin{description}[leftmargin=1.25in,style=nextline]
+  \item[Windows] Download the stable \texttt{.exe}, run the installer, and launch RStudio from the Start menu.
+  \item[macOS] Download the stable \texttt{.dmg}, open it, and drag RStudio to \textbf{Applications}.
+  \item[Linux] Download the package matching the supported distribution, such as \texttt{.deb} for Ubuntu/Debian or \texttt{.rpm} for Fedora/RHEL-family systems, then install it with the system package manager.
+\end{description}
+
+\begin{utpfig}[A useful mental model of the RStudio interface]{The exact pane arrangement can be changed, but the distinction between source code and the console should remain clear. Saved scripts are the reproducible record; console commands are temporary unless copied into a script.}{fig:rstudio-layout}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  pane/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.7pt,text width=0.39\linewidth,minimum height=1.85cm,
+    inner xsep=3mm,inner ysep=2mm,align=left,
+    font=\footnotesize\color{UTPNavy}}]
+\node[pane] (source) at (0,0)
+  {\textbf{Source editor}\\[5pt]
+   Write and save \texttt{.R} scripts.\\
+   Run selected lines or the whole file.};
+\node[pane,draw=UTPMuted!70,fill=UTPPaleGray] (env) at (0.49,0)
+  {\textbf{Environment / History}\\[5pt]
+   Inspect objects in memory.\\
+   Review earlier console commands.};
+\node[pane,draw=UTPTeal!80,fill=UTPPaleTeal] (console) at (0,-2.15)
+  {\textbf{Console}\\[5pt]
+   Execute R commands.\\
+   Read printed output and errors.};
+\node[pane] (tools) at (0.49,-2.15)
+  {\textbf{Files / Plots / Packages / Help}\\[5pt]
+   Browse files and manage packages.\\
+   View figures and documentation.};
+\end{tikzpicture}
+\end{utpfig}
+
+\subsection{Verify that RStudio is using R}
+
+Open RStudio and run these commands in the Console:
+
+\begin{lstlisting}[style=dsr]
+R.version.string
+R.home()
+getwd()
+\end{lstlisting}
+
+The first two lines identify the R installation. The working directory should eventually be the supplied \texttt{DATA SCIENCE/} folder once the course project is opened.
+
+\section{Create an RStudio Project for the course}
+
+An RStudio Project gives the course a stable root folder. This makes relative paths predictable and reduces dependence on machine-specific absolute paths.
+
+\begin{mlsteps}
+  \item In RStudio choose \textbf{File $>$ New Project $>$ Existing Directory}.
+  \item Select the supplied \texttt{DATA SCIENCE/} directory.
+  \item RStudio creates a small \texttt{.Rproj} file in that directory. This file stores IDE-level project settings; it does not modify the datasets.
+  \item Reopen the course later by double-clicking the \texttt{.Rproj} file or using \textbf{File $>$ Open Project}.
+\end{mlsteps}
+
+Verify the expected directories:
+
+\begin{lstlisting}[style=dsr]
+list.files()
+list.files("all_datasets")
+list.files("all_experiments")
+\end{lstlisting}
+
+A correctly opened project should show both \texttt{all\_datasets} and \texttt{all\_experiments} without any call to \rcode{setwd()}.
+
+\begin{keyidea}
+Prefer an RStudio Project and relative paths over repeated calls to \rcode{setwd()}. A script containing a path such as \texttt{C:/Users/Alice/Desktop/...} is unlikely to run unchanged on another student's computer.
+\end{keyidea}
+
+\section{Run the first R script}
+
+Open \texttt{all\_experiments/lab01\_workflow.R} in the Source editor. Execute the whole file with the \textbf{Source} button, or run it from the Console:
+
+\begin{lstlisting}[style=dsr]
+source("all_experiments/lab01_workflow.R")
+\end{lstlisting}
+
+The script should read a bundled dataset, print its dimensions and structure, compute a grouped summary, and report session information. This is a more useful installation test than simply opening RStudio because it verifies \textbf{R + project paths + data access + script execution} together.
+
+\section{Installing R packages}
+
+The core lab scripts are deliberately written so that they can run with base R on a standard installation. Additional packages are valuable for larger projects, publication graphics, reshaping, and reporting.
+
+Packages from CRAN are installed once and loaded in each new R session when needed:
+
+\begin{lstlisting}[style=dsr]
+install.packages(c("ggplot2", "dplyr", "tidyr", "readr", "broom"))
+
+library(ggplot2)
+library(dplyr)
+\end{lstlisting}
+
+\begin{utpfig}[Install once; load when needed]{Package installation writes software to an R library on the computer. \texttt{library()} attaches an installed package to the current R session.}{fig:r-packages}
+\begin{tikzpicture}[node distance=1.1cm]
+\node[fcbox,text width=3.8cm] (cran) {CRAN package repository};
+\node[fcbox,text width=4.2cm,right=of cran] (lib) {Computer's R library\\\texttt{install.packages()} once};
+\node[fcbox,text width=4.2cm,right=of lib,fill=UTPPaleTeal,draw=UTPTeal] (session) {Current R session\\\texttt{library()} when needed};
+\draw[fcedge] (cran)--(lib); \draw[fcedge] (lib)--(session);
+\end{tikzpicture}
+\end{utpfig}
+
+\section{Route B---optional: Anaconda or Miniconda with R}
+
+Some students already work in environments managed by \texttt{conda}. This is a valid optional route, especially when a broader workflow combines multiple languages or command-line tools. However, \textbf{native R + RStudio is the recommended course setup} because it has the fewest moving parts.
+
+Download \href{https://www.anaconda.com/download}{\textbf{Anaconda Distribution}} or follow the \href{https://docs.conda.io/projects/conda/en/stable/user-guide/install/}{\textbf{conda installation guide}} for Miniconda.
+
+\begin{referencebox}
+\textbf{Current R channel note.} Anaconda announced that it no longer maintains its own R channel. For current R packages inside conda environments, Anaconda directs users toward \textbf{conda-forge} or a native CRAN installation. For this reason, the commands below request R explicitly from conda-forge rather than relying on Anaconda's legacy R packages.
+\end{referencebox}
+
+Create a course-specific environment rather than installing project software into \texttt{base}:
+
+\begin{lstlisting}[style=mlterminal]
+conda create -n ds-r conda-forge::r-base conda-forge::r-tidyverse
+conda activate ds-r
+R --version
+R
+\end{lstlisting}
+
+Inside the R session, verify the environment's R installation:
+
+\begin{lstlisting}[style=dsr]
+R.version.string
+R.home()
+q()
+\end{lstlisting}
+
+Use the same environment on later sessions:
+
+\begin{lstlisting}[style=mlterminal]
+conda activate ds-r
+R
+\end{lstlisting}
+
+\begin{pitfall}
+Do not mix several installation strategies casually. A machine can contain a native CRAN R, a conda R, and multiple package libraries at the same time. When troubleshooting, first determine which executable is active with \texttt{where R} on Windows or \texttt{which -a R} on macOS/Linux, then check \rcode{R.home()} inside R.
+\end{pitfall}
+
+\subsection{RStudio with a conda-managed R}
+
+RStudio normally discovers standard system installations of R. A conda-managed R lives inside an environment-specific directory, so discovery can be less automatic and varies by operating system. Students who require both RStudio and conda should confirm which R instance RStudio launches by checking \rcode{R.home()} and compare it with the R executable shown by the activated conda environment.
+
+For this course, if RStudio is using the native CRAN R while the terminal uses conda R, choose one route for course work and stay consistent. Reproducibility improves when all labs use the same interpreter and package library.
+
+
+\section{Git, GitHub, and SSH setup (required)}
+\label{sec:git-ssh}
+
+The \href{https://git-scm.com/install/}{\textbf{official Git download page}} lists current installers and package-manager commands.
+
+\subsection{Install Git}
+
+Use the command for your operating system, then reopen the terminal:
+
+\begin{lstlisting}[style=mlterminal]
+# Windows PowerShell
+winget install --id Git.Git -e --source winget
+
+# macOS: install Apple's command-line tools
+brew install git
+
+# Linux
+sudo apt update
+sudo apt install git
+\end{lstlisting}
+
+On Windows, use \textbf{Git Bash} for the SSH commands below. Confirm the installation on any system:
+
+\begin{lstlisting}[style=mlterminal]
+git --version
+\end{lstlisting}
+
+\subsection{Configure your commit identity}
+
+Set the name and email that should appear on future commits. Use an email
+connected to your GitHub account, or your GitHub-provided private email.
+
+\begin{lstlisting}[style=mlterminal]
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main
+
+git config --global --list
+\end{lstlisting}
+
+\subsection{Create an SSH key for GitHub}
+
+SSH lets Git authenticate without asking for a GitHub password on every push.
+First check whether this computer already has a key:
+
+\begin{lstlisting}[style=mlterminal]
+ls -al ~/.ssh
+\end{lstlisting}
+
+If \texttt{id\_ed25519} and \texttt{id\_ed25519.pub} do not exist, create them.
+Enter the email connected to GitHub and choose a passphrase when prompted:
+
+\begin{lstlisting}[style=mlterminal]
+ssh-keygen -t ed25519 -C "you@example.com"
+\end{lstlisting}
+
+Press Enter to accept the default file location. Then load the \emph{private}
+key into the SSH agent:
+
+\begin{lstlisting}[style=mlterminal]
+# Windows Git Bash or Linux
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+# macOS
+eval "$(ssh-agent -s)"
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+\end{lstlisting}
+
+Copy the \emph{public} key. Never upload or share the file without
+\texttt{.pub}.
+
+\begin{lstlisting}[style=mlterminal]
+# Windows Git Bash
+clip < ~/.ssh/id_ed25519.pub
+
+# macOS
+pbcopy < ~/.ssh/id_ed25519.pub
+
+# Linux: display it, then copy the complete line
+cat ~/.ssh/id_ed25519.pub
+\end{lstlisting}
+
+In GitHub, open \textbf{Settings $>$ SSH and GPG keys $>$ New SSH key}. Give the
+key a name such as \emph{Course laptop}, paste it, and select
+\textbf{Authentication Key}. The full procedure is maintained in the
+\href{https://docs.github.com/en/authentication/connecting-to-github-with-ssh}{\textbf{GitHub SSH guide}}
+
+\subsection{Video walkthroughs for SSH setup}
+
+Use the walkthrough for your operating system if you prefer to follow the SSH
+setup on screen:
+
+\begin{tcolorbox}[
+  enhanced,
+  breakable,
+  colback=UTPPaleOrange,
+  colframe=UTPOrange,
+  colbacktitle=UTPOrange,
+  boxrule=1pt,
+  arc=2mm,
+  title={Choose your operating system},
+  fonttitle=\bfseries\color{white},
+  left=3mm,right=3mm,top=2mm,bottom=2mm
+]
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Linux]
+    \href{https://youtu.be/AOM8CEyu3Ug?t=121}{Set up GitHub SSH on Linux}
+  \item[Windows]
+    \href{https://youtu.be/YT5YimhyX18?t=5}{Set up GitHub SSH on Windows}
+  \item[macOS]
+    \href{https://youtu.be/ACvE5Uy7ZB0?t=437}{Set up GitHub SSH on macOS}
+\end{description}
+\end{tcolorbox}
+
+Do not copy another person's email address, key, username, or repository name from the video; replace each example with your own details.
+
+\subsection{Prepare the course repository}
+
+Do not upload the virtual environment, passwords, tokens, or API keys. In the project root, create a file named \texttt{.gitignore} containing:
+
+\begin{lstlisting}[style=mlterminal]
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+\end{lstlisting}
+
+Create a new repository on GitHub. Use a name such as
+\texttt{utp-machine-learning}, select the visibility required by the
+instructor, and leave \textbf{README}, \textbf{.gitignore}, and
+\textbf{license} unchecked because the local project already exists.
+
+From the project root, create the first commit and connect it to the empty
+GitHub repository. Replace \texttt{USERNAME} and \texttt{REPOSITORY}:
+
+\begin{lstlisting}[style=mlterminal]
+git init -b main
+git add .
+git status
+git commit -m "Add machine-learning course work"
+
+git remote add origin git@github.com:USERNAME/REPOSITORY.git
+git remote -v
+git push -u origin main
+\end{lstlisting}
+
+\begin{pitfall}
+Always read \texttt{git status} before committing. If a dataset, password,
+token, \texttt{.env} file, or virtual environment appears, stop and update
+\texttt{.gitignore} before running \texttt{git commit}. Deleting a secret in a
+later commit does not remove it from earlier repository history.
+\end{pitfall}
+
+\subsection{Submit later changes}
+
+Use short commits as each lab progresses:
+
+\begin{lstlisting}[style=mlterminal]
+git status
+git add .
+git commit -m "Complete Lab 1 feature preparation"
+git push
+\end{lstlisting}
+
+Submit the GitHub repository address requested by the instructor and confirm that the latest commit and required notebooks are visible on GitHub.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What is the difference between R and RStudio?
+  \item Why should R be installed before RStudio?
+  \item Why is native R + RStudio the recommended route for this course even though an Anaconda route is documented?
+  \item What does \rcode{R.home()} tell you when troubleshooting multiple R installations?
+  \item Why are relative paths and an RStudio Project preferable to machine-specific absolute paths?
+  \item What is the difference between Git, GitHub, and SSH?
+  \item Which SSH key file may be uploaded to GitHub, and which file must remain private?
+  \item What command verifies GitHub SSH authentication before the first push?
+  \item Why should \texttt{.Renviron} be excluded from version control while \texttt{renv.lock} is normally committed?
+  \item Name two bundled datasets that represent fundamentally different analytical structures.
+\end{enumerate}
+\end{quickcheck}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item R is the statistical engine; RStudio is the IDE used to organise and execute the work.
+  \item The recommended setup installs R from CRAN, then RStudio Desktop from Posit.
+  \item Anaconda/Miniconda can manage R, but current R packages should come from conda-forge because Anaconda no longer maintains its R channel.
+  \item RStudio Projects and relative paths make course scripts portable across computers.
+  \item Git is required for version history; GitHub provides the remote repository; SSH authenticates push and pull operations without storing account passwords in the project.
+  \item The private SSH key stays on the local machine, while only its \texttt{.pub} counterpart is added to GitHub.
+  \item A safe submission workflow uses \texttt{git status}, reviewed diffs, focused commits, and a successful push before the repository link is submitted.
+  \item The bundled datasets deliberately vary in size, grain, missingness, target structure, and analytical purpose.
+  \item A clean-session rerun is the minimum reproducibility check before lab submission.
+\end{itemize}
+\end{chapterrecap}

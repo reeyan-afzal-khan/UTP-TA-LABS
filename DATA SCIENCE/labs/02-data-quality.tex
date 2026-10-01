@@ -1,0 +1,24 @@
+\labsection{2}{Audit missingness, categories, and validity}{sec:lab02}
+
+\begin{labproject}{Lab 2 data-quality audit}
+\textbf{Datasets.} \texttt{iris\_dataset.csv}, \texttt{titanic\_dataset.csv}, with Ames Housing and Red Wine Quality extensions.\\
+\textbf{Goal.} Distinguish missing data, inconsistent categories, invalid values, and modelling decisions.
+
+The Iris file is deliberately small enough to inspect manually, yet it contains missing measurements and an inconsistent species label. Titanic contains concentrated missingness in \texttt{Age}, \texttt{Cabin}, and \texttt{Embarked}. Together they show why ``cleaning'' is not one generic operation.
+
+\textbf{Procedure.}
+\begin{enumerate}
+  \item Produce a missingness table for every variable in both datasets.
+  \item Check uniqueness of the record identifiers and validate permitted values for categorical variables.
+  \item Standardise the Iris species labels in a \emph{new} variable and verify that the transformation reduces accidental category duplication.
+  \item Check numeric domain rules: positive flower measurements, non-negative fares, and valid binary/class codes.
+  \item Create an imputed Titanic age field using a documented group median strategy, but preserve the original \texttt{Age} column.
+  \item Explain when dropping \texttt{Cabin}, imputing \texttt{Age}, or adding a missingness indicator could be defensible---and when each decision could distort the analysis.
+\end{enumerate}
+
+\textbf{Interpretation checkpoint.} A value can be syntactically valid and still be scientifically implausible. Data-quality rules should come from the variable's meaning, not only from software type checks.
+
+\textbf{Extension audit.} Use \texttt{ames\_housing\_dataset.csv} to identify variables whose missingness may represent structural absence (for example, no pool or no alley). Then inspect exact duplicate rows in \texttt{red\_wine\_quality\_dataset.csv}. Do not remove either missing values or duplicates until you have written the observational-unit rule that would justify the action.
+
+\lstinputlisting[style=dsr]{all_experiments/lab02_data_quality.R}
+\end{labproject}
