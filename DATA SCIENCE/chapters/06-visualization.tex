@@ -8,10 +8,10 @@
 A chart is an argument made with visual encodings. The plot type should match the task rather than personal preference.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.0cm}p{3.5cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{4.0cm}D{4.1cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Analytical task & Useful chart & Read from the chart \\
+\textbf{Analytical task} & \textbf{Useful chart} & \textbf{Read from the chart} \\
 \midrule
 Distribution & histogram / density / box plot & shape, center, spread, unusual values \\
 Compare categories & bar chart / box plot & differences in counts or distributions \\
@@ -27,30 +27,41 @@ Humans compare positions along a common axis more accurately than angles, areas,
 
 \begin{utpfig}[Visual encoding hierarchy]{Prefer encodings that support precise comparison when the analytical goal depends on small differences.}{fig:encoding-hierarchy}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  encoding/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.155\linewidth,minimum height=1.55cm,
-    inner xsep=1.8mm,inner ysep=2mm,align=center,
+  encoding/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.14\linewidth,
+    minimum width=0.18\linewidth,minimum height=1.70cm,
+    inner xsep=2.5mm,inner ysep=2.5mm,align=center,
     font=\scriptsize\color{UTPNavy}},
-  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
-    line width=0.8pt,draw=UTPTeal}]
-\node[encoding,draw=UTPTeal!80,fill=UTPPaleTeal] (p) at (0,0)
-  {\textbf{Position}\\[4pt]
-   location on a\\common axis};
-\node[encoding] (l) at (0.205,0) {\textbf{Length}\\[4pt]
-  extent along\\one dimension};
-\node[encoding] (a) at (0.410,0) {\textbf{Angle / slope}\\[4pt]
-  angle or\\inclination};
-\node[encoding] (ar) at (0.615,0) {\textbf{Area}\\[4pt]
-  size in\\two dimensions};
-\node[encoding] (c) at (0.820,0) {\textbf{Colour intensity}\\[4pt]
-  variation in\\colour strength};
-\draw[flow] (p.east) -- (l.west);
-\draw[flow] (l.east) -- (a.west);
-\draw[flow] (a.east) -- (ar.west);
-\draw[flow] (ar.east) -- (c.west);
-\node[font=\scriptsize\color{UTPMuted},align=center,
-  text width=0.82\linewidth] at (0.410,-1.15)
-  {Comparison precision typically decreases from left to right $\longrightarrow$};
+  precision/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=1.0pt,draw=UTPTeal}]
+\node[encoding,draw=UTPTeal!80,fill=UTPPaleTeal] (p) at (0.10,0)
+  {\textcolor{UTPTeal}{\textbf{01}}\\[4pt]
+   \textbf{POSITION}\\[5pt]
+   Location on a\\common axis};
+\node[encoding] (l) at (0.30,0)
+  {\textcolor{UTPBlue}{\textbf{02}}\\[4pt]
+   \textbf{LENGTH}\\[5pt]
+   Extent along\\one dimension};
+\node[encoding] (a) at (0.50,0)
+  {\textcolor{UTPBlue}{\textbf{03}}\\[4pt]
+   \textbf{ANGLE / SLOPE}\\[5pt]
+   Angle or\\inclination};
+\node[encoding] (ar) at (0.70,0)
+  {\textcolor{UTPBlue}{\textbf{04}}\\[4pt]
+   \textbf{AREA}\\[5pt]
+   Size in\\two dimensions};
+\node[encoding,draw=UTPOrange!75,fill=UTPPaleOrange] (c) at (0.90,0)
+  {\textcolor{UTPOrange!85!black}{\textbf{05}}\\[4pt]
+   \textbf{COLOUR}\\[5pt]
+   Variation in\\intensity};
+\draw[precision] (0.08,-1.12) -- (0.92,-1.12);
+\foreach \x in {0.10,0.30,0.50,0.70,0.90}
+  \draw[draw=UTPMuted!75,line width=0.65pt]
+    (\x,-1.04) -- (\x,-1.20);
+\node[anchor=north west,font=\scriptsize\bfseries\color{UTPTeal}]
+  at (0.08,-1.27) {HIGHER PRECISION};
+\node[anchor=north east,font=\scriptsize\bfseries\color{UTPOrange!85!black}]
+  at (0.92,-1.27) {LOWER PRECISION};
 \end{tikzpicture}
 \end{utpfig}
 
@@ -160,12 +171,3 @@ The Bike Sharing hourly table contains two discrete coordinates that are easy to
 
 This example also illustrates a design principle: aggregation should match the visual question. Each cell is a mean across many observed hours. The chart is therefore suitable for a recurring pattern, but not for showing day-to-day volatility, weather shocks, or uncertainty around each cell. A professional report should not ask one graphic to answer all of those questions simultaneously.
 
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Select visualisations by analytical task.
-  \item Prefer precise encodings such as position and length.
-  \item Show distributions and relationships before summarising them numerically.
-  \item Pair each plot with a precise, non-causal interpretation unless design supports causality.
-\end{itemize}
-\end{chapterrecap}

@@ -1,24 +1,28 @@
 \labsection{1}{Frame a question and build a reproducible data profile}{sec:lab01}
 
-\begin{labproject}{Lab 1 guided workflow}
+\begin{labproject}{Lab 1 guided workflow: from question to evidence}
 \textbf{Dataset.} \texttt{bike\_sharing\_dataset\_day.csv}.\\
-\textbf{Goal.} Convert a real operational dataset into a traceable question--evidence workflow.
+\textbf{Scenario.} A bike-sharing operator wants a concise first assessment of daily demand. Before modelling anything, the analyst must define what one row means, identify the variables that can support the question, and produce an analysis another person can reproduce.
 
-The daily bike-sharing table contains one row per calendar day, weather/context variables, and the total rental count \rcode{cnt}. It is a useful first dataset because students must recognise \textbf{time}, \textbf{measurement grain}, and \textbf{context} before calculating anything.
+\textbf{Learning outcomes.} By the end of the lab, you should be able to frame an estimable question, distinguish analytical roles of variables, construct a compact data profile, and document the computational environment that produced the result.
 
-\textbf{Procedure.}
+\textbf{Core workflow.}
 \begin{enumerate}
-  \item State the unit of observation and distinguish identifiers, contextual variables, predictors, and outcomes.
-  \item Parse \rcode{dteday} as a date and inspect dimensions, column types, ranges, and missingness.
-  \item Write one descriptive, one comparative, and one relational question before computing any result.
-  \item Compare rental demand between working and non-working days and examine the relationship between temperature and demand.
-  \item Plot demand over time and identify at least two features that a single overall mean would hide.
-  \item Record \rcode{sessionInfo()} so the computational environment becomes part of the evidence record.
+  \item \textbf{Define the observational unit.} State precisely what one row represents. Classify \texttt{instant}, \texttt{dteday}, weather/context variables, \texttt{casual}, \texttt{registered}, and \texttt{cnt} as identifiers, context, predictors, component measures, or outcomes.
+  \item \textbf{Audit before analysing.} Parse \texttt{dteday} as a date; report row/column counts, variable classes, missing values, and the date range. Confirm that \texttt{cnt = casual + registered} for every row.
+  \item \textbf{Write three questions first.} Formulate one descriptive question, one comparative question, and one relational question. For each, name the quantity you will estimate before computing it.
+  \item \textbf{Establish a baseline.} Summarise daily rental demand with center, spread, and range. Explain why a single mean is not an adequate description of a two-year time series.
+  \item \textbf{Compare groups.} Contrast working and non-working days using both mean and median demand. Report group sizes so the comparison is interpretable.
+  \item \textbf{Examine a relationship.} Quantify the association between normalised temperature and total rentals, then identify at least two variables that could partly explain that association.
+  \item \textbf{Inspect time structure.} Plot demand over time and add a simple moving average. Identify trend, seasonal structure, abrupt changes, or periods that deserve further investigation.
+  \item \textbf{Record reproducibility evidence.} Save the input path, analysis script, random seed if used, and \rcode{sessionInfo()} output. The result should be reproducible from a clean R session.
 \end{enumerate}
 
-\textbf{Interpretation checkpoint.} A correlation between temperature and rentals does not by itself show that changing temperature causes demand to change; season, month, weather state, and long-term trend are competing explanations.
+\textbf{Required evidence.} Submit a one-page analysis note containing: the observational unit; the three questions; a compact data-profile summary; one time-series figure; two numerical findings; and one limitation. Every finding must be written as a complete evidence statement, not as raw console output.
 
-\medskip
-\textbf{Executable experiment.} Run and edit the file below from a clean R session.
+\textbf{Decision checkpoint.} End with one recommendation for the \emph{next analysis step}. Examples include modelling seasonality, separating casual from registered users, or investigating weather effects. State what additional evidence would be needed before making an operational decision.
+
+\tcbbreak
+\textbf{Executable experiment.} Run the file below from a clean R session, then modify it so your submitted questions and evidence are your own.
 \lstinputlisting[style=dsr]{all_experiments/lab01_workflow.R}
 \end{labproject}

@@ -219,10 +219,10 @@ Automation can also create \term{automation bias}: people may over-trust a recom
 A responsible project records facts that future users would otherwise have to rediscover. Useful documents include a dataset sheet and a model card or model report.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.0cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.0cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Document & Minimum useful content \\
+\textbf{Document} & \textbf{Minimum useful content} \\
 \midrule
 Dataset sheet & source, intended population, collection process, time coverage, exclusions, missingness, known limitations \\
 Model report & target, features, training data version, validation design, metrics, subgroup checks, threshold, known failure modes \\
@@ -260,10 +260,10 @@ Ethical and professional questions are not confined to explicitly sensitive data
 
 \begin{dstable}
 \footnotesize
-\begin{tabularx}{\linewidth}{@{}p{3.3cm}p{4.2cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.3cm}D{4.2cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Dataset & Responsible question & Why it matters \\
+\textbf{Dataset} & \textbf{Responsible question} & \textbf{Why it matters} \\
 \midrule
 Student Performance & Could the model encode prior disadvantage or school-level differences? & Predictions about students can become self-fulfilling if used to allocate opportunity. \\
 Medical Costs & Are group associations being interpreted as individual risk or causal effects? & Insurance and health variables can be sensitive and strongly confounded. \\
@@ -275,13 +275,3 @@ Titanic & Are historical group differences being described as context-specific r
 \end{dstable}
 
 A professional report should state the intended use and the non-use cases explicitly. ``This model predicts labels in a teaching dataset'' is a much narrower claim than ``this model can make real decisions about patients, students, or customers.''
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Responsible data science begins with purpose, necessity, and affected populations.
-  \item Representation, measurement, and label processes shape model behaviour before algorithm choice.
-  \item Privacy risk includes linkage and indirect identifiers, not only names and IDs.
-  \item Fairness analysis requires context, subgroup denominators, multiple error measures, and explicit trade-offs.
-  \item Deployment creates feedback and governance responsibilities that a static validation score cannot capture.
-\end{itemize}
-\end{chapterrecap}

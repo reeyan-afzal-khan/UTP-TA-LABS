@@ -22,15 +22,42 @@ Data provenance is part of the dataset. A value without information about how it
 \end{keyidea}
 
 \begin{utpfig}[From source systems to an analytical table]{A data-science table is usually produced by several systems and transformations. Each arrow is a place where information can be filtered, duplicated, recoded, delayed, or lost.}{fig:source-to-analysis}
-\begin{tikzpicture}[x=1cm,y=1cm]
-\node[fcbox,text width=2.2cm] (ops) at (-4.7,1.1) {operational\\database};
-\node[fcbox,text width=2.2cm] (sensor) at (-4.7,0) {sensor /\\instrument};
-\node[fcbox,text width=2.2cm] (survey) at (-4.7,-1.1) {survey /\\manual entry};
-\node[fcbox,text width=2.7cm] (extract) at (-1.5,0) {extract, validate,\\standardise};
-\node[fcbox,text width=2.7cm] (store) at (1.8,0) {versioned\\data store};
-\node[fcbox,text width=2.8cm] (analysis) at (5.0,0) {analysis-ready\\table};
-\draw[fcedge] (ops)--(extract); \draw[fcedge] (sensor)--(extract); \draw[fcedge] (survey)--(extract);
-\draw[fcedge] (extract)--(store); \draw[fcedge] (store)--(analysis);
+\begin{tikzpicture}[x=1cm,y=1cm,
+  source/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=2.05cm,minimum width=2.45cm,
+    minimum height=0.92cm,inner xsep=3mm,inner ysep=2mm,
+    align=center,font=\scriptsize\color{UTPNavy}},
+  stage/.style={draw=UTPBlue!65,fill=white,rounded corners=1.8mm,
+    line width=0.7pt,text width=2.15cm,minimum width=2.55cm,
+    minimum height=1.35cm,inner xsep=3mm,inner ysep=2.5mm,
+    align=center,font=\scriptsize\color{UTPNavy}},
+  connector/.style={line width=0.9pt,draw=UTPTeal},
+  flow/.style={connector,-{Stealth[length=2.2mm,width=1.6mm]}}]
+\node[font=\scriptsize\bfseries\color{UTPBlue}] at (-5.0,2.05)
+  {SOURCE SYSTEMS};
+\node[source] (ops) at (-5.0,1.20)
+  {\textbf{Operational database}};
+\node[source] (sensor) at (-5.0,0)
+  {\textbf{Sensor / instrument}};
+\node[source] (survey) at (-5.0,-1.20)
+  {\textbf{Survey / manual entry}};
+\node[stage,fill=UTPPaleBlue] (extract) at (-1.60,0)
+  {\textcolor{UTPBlue}{\textbf{01  PREPARE}}\\[5pt]
+   Extract, validate,\\and standardise};
+\node[stage] (store) at (1.80,0)
+  {\textcolor{UTPBlue}{\textbf{02  VERSION}}\\[5pt]
+   Store a reproducible\\data snapshot};
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (analysis) at (5.10,0)
+  {\textcolor{UTPTeal}{\textbf{03  ANALYSE}}\\[5pt]
+   Produce the\\analysis-ready table};
+\coordinate (merge) at (-3.45,0);
+\draw[connector] (ops.east) -| (merge);
+\draw[connector] (sensor.east) -- (merge);
+\draw[connector] (survey.east) -| (merge);
+\fill[UTPTeal] (merge) circle (1.2pt);
+\draw[flow] (merge) -- (extract.west);
+\draw[flow] (extract.east) -- (store.west);
+\draw[flow] (store.east) -- (analysis.west);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -40,10 +67,10 @@ Data provenance is part of the dataset. A value without information about how it
 The distinction matters because the analytical work differs. A relational table may require joins and type checks; event logs may require parsing and session construction; text may require tokenisation or embeddings; images require numerical representation before most statistical models can use them.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.0cm}p{3.3cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.0cm}D{3.3cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Data form & Typical example & Questions before analysis \\
+\textbf{Data form} & \textbf{Typical example} & \textbf{Questions before analysis} \\
 \midrule
 Structured & transactions table & What is the primary key? What is the row grain? \\
 Semi-structured & JSON event log & Which fields are optional? Can schemas change over time? \\
@@ -340,13 +367,3 @@ If the question concerns commuter peaks, the daily table has already aggregated 
 \begin{keyidea}
 Grain is part of provenance. Two files can contain the same variable names and still support different claims because one row means something different.
 \end{keyidea}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Data acquisition determines what the analysis can legitimately represent.
-  \item Grain, keys, and time semantics should be explicit before transformation.
-  \item SQL is a language for expressing relational transformations, not a substitute for analytical reasoning.
-  \item Collection mechanisms can create selection bias even when recorded values are accurate.
-  \item Provenance and lineage make analytical results traceable and reproducible.
-\end{itemize}
-\end{chapterrecap}

@@ -8,10 +8,13 @@
 A useful analysis begins before code. A data scientist translates a broad concern into a question that can be answered with observable variables.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.1cm}p{4.0cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  D{0.15\linewidth}
+  D{0.47\linewidth}
+  Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Question type & Example & Typical evidence \\
+\textbf{Question type} & \textbf{Example} & \textbf{Typical evidence} \\
 \midrule
 Descriptive & What does the dataset contain? & counts, distributions, summaries \\
 Comparative & How do groups differ? & group summaries, intervals, tests \\
@@ -33,14 +36,36 @@ Broad topics become data-science problems only after the analyst specifies \emph
 For example, ``Are flowers different?'' is too vague. ``How much does mean petal length differ among the three species represented in this dataset?'' identifies the unit of observation, the grouping variable, the outcome, and the comparison. A predictive version would be different again: ``How accurately can species be predicted for unseen flowers using the four measurements?''
 
 \begin{utpfig}[Question-to-evidence ladder]{A strong analysis makes every transition explicit. If a link is vague, later modelling sophistication cannot repair the ambiguity.}{fig:question-evidence-ladder}
-\begin{tikzpicture}[node distance=0.85cm]
-\node[fcbox,text width=8.7cm] (context) {Context: what decision, scientific concern, or operational need motivates the work?};
-\node[fcbox,text width=8.7cm,below=of context] (question) {Question: what exactly should be learned, compared, predicted, or discovered?};
-\node[fcbox,text width=8.7cm,below=of question] (unit) {Unit + population: what does one row represent, and to which cases should conclusions apply?};
-\node[fcbox,text width=8.7cm,below=of unit] (vars) {Variables + estimand: which measurements and which target quantity answer the question?};
-\node[fcbox,text width=8.7cm,below=of vars] (method) {Method + validation: what analysis produces credible evidence and how will error be checked?};
-\node[fcbox,text width=8.7cm,below=of method] (claim) {Claim: what can be stated, with uncertainty and limitations, without exceeding the design?};
-\draw[fcedge] (context)--(question); \draw[fcedge] (question)--(unit); \draw[fcedge] (unit)--(vars); \draw[fcedge] (vars)--(method); \draw[fcedge] (method)--(claim);
+\begin{tikzpicture}[node distance=0.28cm,
+  laddercard/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.7pt,text width=0.78\linewidth,minimum height=1.10cm,
+    inner xsep=9mm,inner ysep=2.5mm,align=left,
+    font=\footnotesize\color{UTPNavy}},
+  badge/.style={circle,fill=UTPBlue,draw=white,line width=0.7pt,
+    minimum size=6.5mm,inner sep=0pt,
+    font=\scriptsize\bfseries\color{white}},
+  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[laddercard] (context) {\textbf{Context and purpose}\\[2pt]
+  Identify the decision, scientific concern, or operational need.};
+\node[laddercard,below=of context] (question) {\textbf{Answerable question}\\[2pt]
+  State exactly what should be learned, compared, predicted, or discovered.};
+\node[laddercard,below=of question] (unit) {\textbf{Unit and population}\\[2pt]
+  Define what one row represents and where the conclusion should apply.};
+\node[laddercard,below=of unit] (vars) {\textbf{Variables and estimand}\\[2pt]
+  Select the measurements and target quantity that answer the question.};
+\node[laddercard,below=of vars] (method) {\textbf{Method and validation}\\[2pt]
+  Choose an analysis and specify how uncertainty or error will be checked.};
+\node[laddercard,below=of method,draw=UTPTeal!80,fill=UTPPaleTeal] (claim)
+  {\textbf{Evidence-supported claim}\\[2pt]
+   Report only what the design supports, with uncertainty and limitations.};
+\foreach \target/\labelnum in {context/1,question/2,unit/3,vars/4,method/5,claim/6}
+  \node[badge] at ([xshift=4.5mm]\target.west) {\labelnum};
+\draw[flow] (context.south) -- (question.north);
+\draw[flow] (question.south) -- (unit.north);
+\draw[flow] (unit.south) -- (vars.north);
+\draw[flow] (vars.south) -- (method.north);
+\draw[flow] (method.south) -- (claim.north);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -50,16 +75,43 @@ The unit of observation is one of the most important pieces of metadata in a dat
 
 \section{A practical analytical cycle}
 \begin{utpfig}[Analytical cycle]{A good workflow is iterative rather than a straight line. Quality problems found during exploration can send the analyst back to preparation or even to the original question.}{fig:analytical-cycle}
-\begin{tikzpicture}[node distance=1.2cm and 1.25cm]
-\node[fcbox,text width=2.6cm] (q) {Question\\and context};
-\node[fcbox,text width=2.6cm,right=of q] (d) {Acquire and\\understand data};
-\node[fcbox,text width=2.6cm,right=of d] (p) {Prepare and\\audit};
-\node[fcbox,text width=2.6cm,below=of p] (e) {Explore and\\visualise};
-\node[fcbox,text width=2.6cm,left=of e] (m) {Model and\\quantify};
-\node[fcbox,text width=2.6cm,left=of m] (c) {Validate and\\communicate};
-\draw[fcedge] (q)--(d); \draw[fcedge] (d)--(p); \draw[fcedge] (p)--(e); \draw[fcedge] (e)--(m); \draw[fcedge] (m)--(c);
-\draw[fcedge] (e.west) to[bend left=20] (d.south);
-\draw[fcedge] (c.north) to[bend left=25] (q.south);
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  stagecard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.19\linewidth,minimum height=1.25cm,
+    inner xsep=4mm,inner ysep=2.5mm,align=left,
+    font=\scriptsize\color{UTPNavy}},
+  hub/.style={draw=UTPMuted!65,fill=UTPPaleGray,rounded corners=5mm,
+    line width=0.7pt,text width=0.13\linewidth,minimum height=0.85cm,
+    inner xsep=3mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  mainflow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.9pt,draw=UTPTeal}]
+\node[stagecard] (q) at (0.50,1.85)
+  {\textcolor{UTPBlue}{\textbf{01}}\quad\textbf{Frame the question}\\[4pt]
+   Purpose, scope, and intended claim};
+\node[stagecard] (d) at (0.79,0.95)
+  {\textcolor{UTPBlue}{\textbf{02}}\quad\textbf{Inspect the data}\\[4pt]
+   Source, unit, coverage, and constraints};
+\node[stagecard,draw=UTPOrange!80,fill=UTPPaleOrange] (p) at (0.79,-0.95)
+  {\textcolor{UTPOrange!85!black}{\textbf{03}}\quad\textbf{Prepare and audit}\\[4pt]
+   Quality checks and feature creation};
+\node[stagecard] (e) at (0.50,-1.85)
+  {\textcolor{UTPBlue}{\textbf{04}}\quad\textbf{Explore patterns}\\[4pt]
+   Relationships, distributions, and anomalies};
+\node[stagecard] (m) at (0.21,-0.95)
+  {\textcolor{UTPBlue}{\textbf{05}}\quad\textbf{Model and quantify}\\[4pt]
+   Effects, predictions, and uncertainty};
+\node[stagecard,draw=UTPTeal!80,fill=UTPPaleTeal] (c) at (0.21,0.95)
+  {\textcolor{UTPTeal}{\textbf{06}}\quad\textbf{Validate and report}\\[4pt]
+   Errors, limitations, and evidence};
+\node[hub] at (0.50,0)
+  {\textbf{Iterate}\\[3pt]\color{UTPMuted}as evidence changes};
+\draw[mainflow] (q.east) to[out=0,in=120] (d.north west);
+\draw[mainflow] (d.south) -- (p.north);
+\draw[mainflow] (p.south west) to[out=240,in=0] (e.east);
+\draw[mainflow] (e.west) to[out=180,in=300] (m.south east);
+\draw[mainflow] (m.north) -- (c.south);
+\draw[mainflow] (c.north east) to[out=60,in=180] (q.west);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -68,12 +120,39 @@ The unit of observation is one of the most important pieces of metadata in a dat
 The question determines the role of each column. In the Iris data, \rcode{Species} is a grouping variable in a descriptive comparison, but becomes the target in a classification task. The four measurements can be outcomes in one analysis and predictive features in another.
 
 \begin{utpfig}[Variable roles depend on the question]{Roles such as feature, target, identifier, and grouping variable are analytical roles, not permanent properties of a column.}{fig:variable-roles}
-\begin{tikzpicture}[x=1cm,y=1cm]
-\node[fcbox,text width=3.0cm] (data) at (0,1.7) {Same Iris table};
-\node[fcbox,text width=3.5cm] (desc) at (-4.0,0) {Descriptive question\\Species = group\\Petal length = outcome};
-\node[fcbox,text width=3.5cm] (pred) at (0,0) {Predictive question\\Species = target\\Measurements = features};
-\node[fcbox,text width=3.5cm] (struct) at (4.0,0) {Structural question\\Measurements = geometry\\Species withheld};
-\draw[fcedge] (data)--(desc); \draw[fcedge] (data)--(pred); \draw[fcedge] (data)--(struct);
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  sourcecard/.style={draw=UTPBlue!75,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.75pt,text width=0.46\linewidth,minimum height=1.20cm,
+    inner xsep=4mm,inner ysep=2.5mm,align=center,
+    font=\footnotesize\color{UTPNavy}},
+  rolecard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.235\linewidth,minimum height=2.05cm,
+    inner xsep=3.5mm,inner ysep=3mm,align=left,
+    font=\scriptsize\color{UTPNavy}},
+  roleflow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.85pt,draw=UTPTeal}]
+\node[sourcecard] (data) at (0.50,2.35)
+  {\textcolor{UTPBlue}{\textbf{SHARED INPUT}}\\[3pt]
+   \textbf{The same Iris dataset}\\[3pt]
+   Four measurements and a species label};
+\node[rolecard] (desc) at (0.17,-0.25)
+  {\textcolor{UTPBlue}{\textbf{DESCRIBE}}\\[5pt]
+   \textbf{Question:} How do species differ?\\[4pt]
+   \textbf{Group:} species\\[2pt]
+   \textbf{Outcome:} petal length};
+\node[rolecard,draw=UTPTeal!80,fill=UTPPaleTeal] (pred) at (0.50,-0.25)
+  {\textcolor{UTPTeal}{\textbf{PREDICT}}\\[5pt]
+   \textbf{Question:} Which species is this?\\[4pt]
+   \textbf{Target:} species\\[2pt]
+   \textbf{Features:} four measurements};
+\node[rolecard,draw=UTPOrange!80,fill=UTPPaleOrange] (struct) at (0.83,-0.25)
+  {\textcolor{UTPOrange!85!black}{\textbf{DISCOVER STRUCTURE}}\\[5pt]
+   \textbf{Question:} What patterns emerge without labels?\\[4pt]
+   \textbf{Geometry:} measurements\\[2pt]
+   \textbf{Label:} species withheld};
+\draw[roleflow] (data.south west) to[out=235,in=90] (desc.north);
+\draw[roleflow] (data.south) -- (pred.north);
+\draw[roleflow] (data.south east) to[out=305,in=90] (struct.north);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -97,30 +176,30 @@ Reproducibility is easier to reason about when separated into three layers. \tex
 A script that runs but silently drops rows is computationally reproducible yet analytically weak. A well-documented analysis that cannot generalise beyond one convenience sample may be reproducible but still limited scientifically.
 
 \begin{utpfig}[Reproducibility layers]{A professional workflow records enough information to reproduce both the computation and the reasoning, while recognising that new data provide the strongest test of generalisation.}{fig:repro-layers}
-\begin{tikzpicture}[x=1cm,y=1cm]
-\node[fcbox,text width=3.1cm] (comp) at (-3.7,0) {Computational\\same files + code\\same result};
-\node[fcbox,text width=3.1cm] (anal) at (0,0) {Analytical\\same rules + assumptions\\same reasoning};
-\node[fcbox,text width=3.1cm] (sci) at (3.7,0) {Scientific\\new sample/data\\similar conclusion?};
-\draw[fcedge] (comp)--(anal); \draw[fcedge] (anal)--(sci);
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  layercard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.235\linewidth,
+    minimum width=0.285\linewidth,minimum height=1.85cm,
+    inner xsep=3.5mm,inner ysep=3mm,align=left,
+    font=\footnotesize\color{UTPNavy}},
+  layerflow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.9pt,draw=UTPTeal}]
+\node[layercard] (comp) at (0.17,0)
+  {\textcolor{UTPBlue}{\textbf{01  COMPUTATIONAL}}\\[5pt]
+   \textbf{Does the code rerun?}\\[4pt]
+   Same files + software $\rightarrow$ same output};
+\node[layercard,draw=UTPTeal!80,fill=UTPPaleTeal] (anal) at (0.50,0)
+  {\textcolor{UTPTeal}{\textbf{02  ANALYTICAL}}\\[5pt]
+   \textbf{Can choices be repeated?}\\[4pt]
+   Same rules + assumptions $\rightarrow$ same reasoning};
+\node[layercard,draw=UTPOrange!80,fill=UTPPaleOrange] (sci) at (0.83,0)
+  {\textcolor{UTPOrange!85!black}{\textbf{03  SCIENTIFIC}}\\[5pt]
+   \textbf{Does it generalise?}\\[4pt]
+   New data $\rightarrow$ similar result?};
+\draw[layerflow] (comp.east) -- (anal.west);
+\draw[layerflow] (anal.east) -- (sci.west);
 \end{tikzpicture}
 \end{utpfig}
-
-\section{Reproducibility is part of the result}
-An analysis is reproducible when another person can rerun the saved code against the stated data and obtain the same outputs. Keep the project structure predictable:
-
-\begin{utpfig}[Course project structure]{The data are read-only inputs. Executable lab scripts live separately so code, data, and generated outputs do not become mixed together.}{fig:project-structure}
-\begin{tikzpicture}[x=1cm,y=1cm]
-\node[fcbox,text width=4.2cm] (root) at (0,1.5) {DATA SCIENCE/};
-\node[fcbox,text width=3.6cm] (data) at (-3.6,0) {all\_datasets/\\local CSV inputs};
-\node[fcbox,text width=3.6cm] (exp) at (0,0) {all\_experiments/\\executable lab code};
-\node[fcbox,text width=3.6cm] (tex) at (3.6,0) {chapters/ + labs/\\course source};
-\draw[fcedge] (root)--(data); \draw[fcedge] (root)--(exp); \draw[fcedge] (root)--(tex);
-\end{tikzpicture}
-\end{utpfig}
-
-\begin{keyidea}
-Treat raw data as evidence, not scratch space. Read it, transform it in code, and write derived outputs somewhere else. That preserves a traceable path from source to result.
-\end{keyidea}
 
 \section{R essentials used throughout the course}
 The course assumes only a small R core: assignment with \rcode{<-}, functions such as \rcode{mean()}, indexing with brackets, data frames, and saved scripts. The important habit is not memorising syntax but reading code as a sequence of data transformations.
@@ -163,10 +242,13 @@ These comments force the analyst to move from ``the code ran'' to ``the evidence
 The bundled daily Bike Sharing data contain 731 days. A broad topic such as ``bike usage'' becomes useful only after the analyst specifies the quantity of interest. Three different questions lead to three different evidential objects:
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{4.2cm}p{3.8cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}
+  D{0.35\linewidth}
+  D{0.28\linewidth}
+  Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Question & Estimand / target & Evidence \\
+\textbf{Question} & \textbf{Estimand / target} & \textbf{Evidence} \\
 \midrule
 How variable is daily demand? & distribution of \texttt{cnt} & median, IQR, histogram/time plot \\
 Does demand differ on working days? & difference in group means/medians & grouped summaries with uncertainty \\
@@ -184,12 +266,3 @@ In this file, mean demand is about 4,504 rentals per day and normalized temperat
 \begin{keyidea}
 The first professional judgment is often not which model to fit, but which comparisons are legitimate given the unit of observation, time ordering, sampling process, and intended claim.
 \end{keyidea}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Data science connects questions, data, evidence, and decisions.
-  \item Rows are observations; columns are variables with analytical roles.
-  \item Inspection comes before transformation or modelling.
-  \item Reproducible projects separate raw data, executable code, and outputs.
-\end{itemize}
-\end{chapterrecap}

@@ -1,4 +1,4 @@
-# Lab 9 - Stratified cross-validation and threshold choice with fraud data
+# Lab 9 - Stratified cross-validation and leakage-safe preprocessing with fraud data
 course_root <- if (dir.exists("all_datasets")) "." else ".."
 path <- file.path(course_root, "all_datasets", "credit_card_fraud_dataset.csv")
 
@@ -6,6 +6,8 @@ d <- read.csv(path, stringsAsFactors = FALSE)
 d$merchant_category <- factor(d$merchant_category)
 cat("Fraud prevalence:", round(mean(d$is_fraud), 4), "\n")
 print(table(d$is_fraud))
+majority_accuracy <- mean(d$is_fraud == 0)
+cat("Always-legitimate baseline accuracy:", round(majority_accuracy, 4), "\n")
 
 # Create stratified fold labels.
 set.seed(42)
@@ -15,6 +17,8 @@ for (cls in sort(unique(d$is_fraud))) {
   ids <- sample(which(d$is_fraud == cls))
   fold[ids] <- rep(seq_len(K), length.out = length(ids))
 }
+cat("\nClass counts by fold:\n")
+print(table(fold, d$is_fraud))
 
 numeric_to_scale <- c("amount", "transaction_hour", "device_trust_score",
                       "velocity_last_24h", "cardholder_age")
@@ -23,11 +27,14 @@ results <- data.frame()
 
 metric_row <- function(obs, prob, threshold) {
   pred <- ifelse(prob >= threshold, 1, 0)
-  tp <- sum(pred == 1 & obs == 1); fp <- sum(pred == 1 & obs == 0)
-  tn <- sum(pred == 0 & obs == 0); fn <- sum(pred == 0 & obs == 1)
-  safe <- function(a,b) ifelse(b == 0, NA, a/b)
+  tp <- sum(pred == 1 & obs == 1)
+  fp <- sum(pred == 1 & obs == 0)
+  tn <- sum(pred == 0 & obs == 0)
+  fn <- sum(pred == 0 & obs == 1)
+  safe <- function(a, b) ifelse(b == 0, NA_real_, a / b)
   data.frame(
     threshold = threshold,
+    TP = tp, FP = fp, TN = tn, FN = fn,
     accuracy = safe(tp + tn, length(obs)),
     precision = safe(tp, tp + fp),
     recall = safe(tp, tp + fn),
@@ -39,10 +46,11 @@ for (k in seq_len(K)) {
   train <- d[fold != k, ]
   valid <- d[fold == k, ]
 
-  # Fit preprocessing parameters on the training fold only.
+  # Fit preprocessing parameters on the training portion only.
   for (v in numeric_to_scale) {
     mu <- mean(train[[v]])
     sig <- sd(train[[v]])
+    if (is.na(sig) || sig == 0) stop("Cannot scale variable: ", v)
     train[[v]] <- (train[[v]] - mu) / sig
     valid[[v]] <- (valid[[v]] - mu) / sig
   }
@@ -60,16 +68,25 @@ for (k in seq_len(K)) {
   }
 }
 
-cat("\nCross-validation metrics by threshold:\n")
-print(aggregate(cbind(accuracy, precision, recall, specificity) ~ threshold,
-                data = results, FUN = mean, na.rm = TRUE))
+mean_metrics <- aggregate(cbind(accuracy, precision, recall, specificity) ~ threshold,
+                          data = results, FUN = mean, na.rm = TRUE)
+sd_metrics <- aggregate(cbind(accuracy, precision, recall, specificity) ~ threshold,
+                        data = results, FUN = sd, na.rm = TRUE)
+cat("\nMean cross-validation metrics by threshold:\n")
+print(round(mean_metrics, 3))
+cat("\nCross-validation metric SD by threshold:\n")
+print(round(sd_metrics, 3))
 cat("\nFold-to-fold recall:\n")
-print(results[, c("fold", "threshold", "recall")])
+print(results[, c("fold", "threshold", "FN", "recall")])
 
-cat("\nWhy accuracy can mislead: always predicting 'not fraud' would score",
-    round(mean(d$is_fraud == 0), 4), "accuracy on this dataset.\n")
+# Illustrative operational choice: missing a fraud costs 5 times a false alarm.
+# This cost ratio is an external assumption, not something learned by the model.
+results$cost_5_to_1 <- 5 * results$FN + results$FP
+cost_summary <- aggregate(cost_5_to_1 ~ threshold, data = results, FUN = mean)
+cat("\nMean illustrative cost (5*FN + FP) by threshold:\n")
+print(cost_summary)
 
-# Extension - calibration with Heart Failure probabilities on a fresh holdout split.
+# Calibration extension with Heart Failure probabilities on a fresh holdout split.
 heart_path <- file.path(course_root, "all_datasets", "heart_failure_dataset.csv")
 heart <- read.csv(heart_path, stringsAsFactors = FALSE)
 for (v in c("Sex", "ChestPainType", "RestingECG", "ExerciseAngina", "ST_Slope")) {

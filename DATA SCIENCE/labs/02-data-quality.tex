@@ -1,24 +1,29 @@
 \labsection{2}{Audit missingness, categories, and validity}{sec:lab02}
 
-\begin{labproject}{Lab 2 data-quality audit}
-\textbf{Datasets.} \texttt{iris\_dataset.csv}, \texttt{titanic\_dataset.csv}, with Ames Housing and Red Wine Quality extensions.\\
-\textbf{Goal.} Distinguish missing data, inconsistent categories, invalid values, and modelling decisions.
+\begin{labproject}{Lab 2 data-quality audit: define rules before cleaning}
+\textbf{Datasets.} \texttt{iris\_dataset.csv} and \texttt{titanic\_dataset.csv}; Ames Housing and Red Wine Quality are used as extensions.\\
+\textbf{Scenario.} You have received data from multiple sources and must decide whether it is fit for analysis. The objective is not to make the data ``look clean'', but to identify defects, document rules, and preserve an auditable record of every transformation.
 
-The Iris file is deliberately small enough to inspect manually, yet it contains missing measurements and an inconsistent species label. Titanic contains concentrated missingness in \texttt{Age}, \texttt{Cabin}, and \texttt{Embarked}. Together they show why ``cleaning'' is not one generic operation.
+\textbf{Learning outcomes.} You should be able to distinguish missingness, invalid values, inconsistent categories, duplicate records, and structural absence; then choose a defensible treatment based on variable meaning and analytical purpose.
 
-\textbf{Procedure.}
+\textbf{Core audit.}
 \begin{enumerate}
-  \item Produce a missingness table for every variable in both datasets.
-  \item Check uniqueness of the record identifiers and validate permitted values for categorical variables.
-  \item Standardise the Iris species labels in a \emph{new} variable and verify that the transformation reduces accidental category duplication.
-  \item Check numeric domain rules: positive flower measurements, non-negative fares, and valid binary/class codes.
-  \item Create an imputed Titanic age field using a documented group median strategy, but preserve the original \texttt{Age} column.
-  \item Explain when dropping \texttt{Cabin}, imputing \texttt{Age}, or adding a missingness indicator could be defensible---and when each decision could distort the analysis.
+  \item \textbf{Create a quality profile.} For both primary datasets, report dimensions, variable classes, key uniqueness, and missing count/percentage for every variable.
+  \item \textbf{Define validity rules.} Write rules before testing them: positive flower measurements; valid Titanic class and survival codes; non-negative fares; and plausible identifier uniqueness.
+  \item \textbf{Standardise categories safely.} Inspect raw Iris species labels, create a new cleaned label, and verify that accidental spelling/format variants collapse to the intended categories. Do not overwrite the raw field.
+  \item \textbf{Investigate missingness.} For Titanic, compare the concentration of missing values across \texttt{Age}, \texttt{Cabin}, and \texttt{Embarked}. Explain why one treatment is not appropriate for all three variables.
+  \item \textbf{Demonstrate transparent imputation.} Create \texttt{Age\_imputed} using a documented group-median rule while preserving \texttt{Age}. Report how many values were changed and which grouping variables determined the replacement.
+  \item \textbf{Check consequences.} Compare the age distribution before and after imputation. State one benefit and one distortion that the chosen rule can introduce.
 \end{enumerate}
 
-\textbf{Interpretation checkpoint.} A value can be syntactically valid and still be scientifically implausible. Data-quality rules should come from the variable's meaning, not only from software type checks.
+\textbf{Extension A---structural missingness.} In \texttt{ames\_housing\_dataset.csv}, inspect variables with the highest missingness. Identify at least three fields where missing may mean ``feature absent'' rather than ``measurement unknown''. Explain how that semantic distinction changes preprocessing.
 
-\textbf{Extension audit.} Use \texttt{ames\_housing\_dataset.csv} to identify variables whose missingness may represent structural absence (for example, no pool or no alley). Then inspect exact duplicate rows in \texttt{red\_wine\_quality\_dataset.csv}. Do not remove either missing values or duplicates until you have written the observational-unit rule that would justify the action.
+\textbf{Extension B---duplicate semantics.} In \texttt{red\_wine\_quality\_dataset.csv}, count exact duplicate rows. Before removing any, define the intended observational unit and explain why identical measurements do not automatically prove that a row is erroneous.
 
+\textbf{Required evidence.} Submit a data-quality log with each issue written as \emph{rule $\rightarrow$ evidence $\rightarrow$ action $\rightarrow$ consequence}. Include at least one issue you deliberately leave unchanged because the evidence is insufficient to justify a transformation.
+
+\textbf{Professional standard.} A cleaning step is acceptable only when another analyst can determine what changed, why it changed, and whether the original value is still recoverable.
+
+\tcbbreak
 \lstinputlisting[style=dsr]{all_experiments/lab02_data_quality.R}
 \end{labproject}

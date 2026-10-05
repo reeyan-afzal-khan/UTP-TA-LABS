@@ -9,23 +9,34 @@ Data wrangling prepares the evidence needed for analysis. Common operations are 
 
 \begin{utpfig}[Wrangling pipeline]{Each operation should be explainable as a transformation from one table to another.}{fig:wrangling-pipeline}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.155\linewidth,minimum height=1.55cm,
-    inner xsep=1.8mm,inner ysep=2mm,align=center,
+  stage/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.14\linewidth,
+    minimum width=0.18\linewidth,minimum height=1.70cm,
+    inner xsep=2.5mm,inner ysep=2.5mm,align=center,
     font=\scriptsize\color{UTPNavy}},
   endpoint/.style={stage,draw=UTPTeal!80,fill=UTPPaleTeal},
   flow/.style={-{Stealth[length=2mm,width=1.5mm]},
-    line width=0.8pt,draw=UTPTeal}]
-\node[endpoint] (raw) at (0,0) {\textbf{Raw table}\\[4pt]
-  original records\\and variables};
-\node[stage] (sel) at (0.205,0) {\textbf{Select / filter}\\[4pt]
-  retain relevant\\rows and columns};
-\node[stage] (feat) at (0.410,0) {\textbf{Create features}\\[4pt]
-  derive meaningful\\new variables};
-\node[stage] (grp) at (0.615,0) {\textbf{Group / aggregate}\\[4pt]
-  summarise at the\\required level};
-\node[endpoint] (ana) at (0.820,0) {\textbf{Analysis table}\\[4pt]
-  structured evidence\\for the question};
+    line width=0.9pt,draw=UTPTeal}]
+\node[endpoint] (raw) at (0.10,0)
+  {\textcolor{UTPTeal}{\textbf{01  INPUT}}\\[5pt]
+   \textbf{Raw table}\\[3pt]
+   Original records\\and variables};
+\node[stage] (sel) at (0.30,0)
+  {\textcolor{UTPBlue}{\textbf{02  SCOPE}}\\[5pt]
+   \textbf{Select and filter}\\[3pt]
+   Relevant rows\\and columns};
+\node[stage] (feat) at (0.50,0)
+  {\textcolor{UTPBlue}{\textbf{03  DERIVE}}\\[5pt]
+   \textbf{Create features}\\[3pt]
+   Interpretable\\derived variables};
+\node[stage] (grp) at (0.70,0)
+  {\textcolor{UTPBlue}{\textbf{04  SUMMARISE}}\\[5pt]
+   \textbf{Aggregate}\\[3pt]
+   Summaries at\\the required grain};
+\node[endpoint] (ana) at (0.90,0)
+  {\textcolor{UTPTeal}{\textbf{05  OUTPUT}}\\[5pt]
+   \textbf{Analysis table}\\[3pt]
+   Evidence for\\the question};
 \draw[flow] (raw.east) -- (sel.west);
 \draw[flow] (sel.east) -- (feat.west);
 \draw[flow] (feat.east) -- (grp.west);
@@ -38,28 +49,41 @@ Data wrangling prepares the evidence needed for analysis. Common operations are 
 A readable wrangling pipeline is a sequence of simple verbs: \emph{select}, \emph{filter}, \emph{mutate}, \emph{group}, \emph{summarise}, \emph{join}, and \emph{reshape}. Keeping transformations small makes intermediate row counts and assumptions easier to audit.
 
 \begin{utpfig}[Table transformations as contracts]{Each transformation should preserve a clear contract: what one row represents, which variables are retained, and which new values were derived.}{fig:wrangle-contract}
-\begin{tikzpicture}[node distance=0.24cm,
-  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.68\linewidth,minimum height=0.90cm,
-    inner xsep=3mm,inner ysep=1.5mm,align=center,
+\begin{tikzpicture}[node distance=0.14cm,
+  stage/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.70\linewidth,
+    minimum width=0.76\linewidth,minimum height=0.84cm,
+    inner xsep=5mm,inner ysep=1.3mm,align=left,
     font=\scriptsize\color{UTPNavy}},
   endpoint/.style={stage,draw=UTPTeal!80,fill=UTPPaleTeal},
-  flow/.style={-{Stealth[length=1.6mm,width=1.3mm]},
-    line width=0.8pt,draw=UTPTeal}]
-\node[endpoint] (a) {\textbf{Input contract}\\[2pt]
-  One row = one wine sample; 15 variables};
-\node[stage,below=of a] (b) {\textbf{Select}\\[2pt]
-  Keep cultivar, alcohol, colour intensity, and proline};
-\node[stage,below=of b] (c) {\textbf{Filter}\\[2pt]
-  Retain records meeting a stated inclusion rule};
-\node[stage,below=of c] (d) {\textbf{Create features}\\[2pt]
-  Add interpretable derived columns};
-\node[endpoint,below=of d] (e) {\textbf{Output contract}\\[2pt]
-  One row still = one wine sample; analysis-ready variables};
-\draw[flow] (a.south) -- (b.north);
-\draw[flow] (b.south) -- (c.north);
-\draw[flow] (c.south) -- (d.north);
-\draw[flow] (d.south) -- (e.north);
+  flow/.style={-{Stealth[length=1.8mm,width=1.4mm]},
+    line width=0.9pt,draw=UTPTeal},
+  stagejoin/.style={line width=0.75pt,draw=UTPTeal}]
+\node[endpoint] (a)
+  {\textcolor{UTPTeal}{\textbf{01  INPUT CONTRACT}}\\[3pt]
+   One row = one wine sample; 15 variables};
+\node[stage,below=of a] (b)
+  {\textcolor{UTPBlue}{\textbf{02  SELECT}}\\[3pt]
+   Keep cultivar, alcohol, colour intensity, and proline};
+\node[stage,below=of b] (c)
+  {\textcolor{UTPBlue}{\textbf{03  FILTER}}\\[3pt]
+   Retain records meeting a stated inclusion rule};
+\node[stage,below=of c] (d)
+  {\textcolor{UTPBlue}{\textbf{04  CREATE FEATURES}}\\[3pt]
+   Add interpretable derived columns};
+\node[endpoint,below=of d] (e)
+  {\textcolor{UTPTeal}{\textbf{05  OUTPUT CONTRACT}}\\[3pt]
+   One row still = one wine sample; analysis-ready variables};
+\coordinate (r1) at ([xshift=-7mm]a.west);
+\coordinate (r2) at ([xshift=-7mm]b.west);
+\coordinate (r3) at ([xshift=-7mm]c.west);
+\coordinate (r4) at ([xshift=-7mm]d.west);
+\coordinate (r5) at ([xshift=-7mm]e.west);
+\draw[flow] ([yshift=3mm]r1) -- ([yshift=-3mm]r5);
+\foreach \rail/\card in {r1/a,r2/b,r3/c,r4/d,r5/e}{
+  \draw[stagejoin] (\rail) -- (\card.west);
+  \fill[UTPTeal] (\rail) circle (1.15pt);
+}
 \end{tikzpicture}
 \end{utpfig}
 
@@ -112,53 +136,74 @@ The same information can be represented in different table shapes. \term{Wide} d
 
 \begin{utpfig}[Wide and long are representations of the same information]{Reshaping should change layout, not invent or discard measurements. The key columns must be sufficient to reconstruct the original representation.}{fig:wide-long}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  tablecard/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.38\linewidth,minimum height=3.9cm,
+  tablecard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.36\linewidth,
+    minimum width=0.42\linewidth,minimum height=4.05cm,
     inner sep=3mm,align=center,font=\scriptsize\color{UTPNavy}},
-  reshape/.style={arrows={Stealth[length=2mm,width=1.5mm]-Stealth[length=2mm,width=1.5mm]},
-    line width=0.8pt,draw=UTPTeal}]
-% Keep the shared table defaults from enlarging these compact diagram tables.
-\AtBeginEnvironment{tabular}{\scriptsize\setlength{\extrarowheight}{0pt}\rowcolors{2}{}{}}
-\node[tablecard] (wide) at (0,0) {%
-  \begin{minipage}[t][3.3cm][t]{\linewidth}
+  reshapebadge/.style={draw=UTPTeal!80,fill=UTPPaleTeal,
+    rounded corners=4mm,line width=0.75pt,text width=0.075\linewidth,
+    minimum height=0.78cm,inner xsep=2mm,inner ysep=1.5mm,
+    align=center,font=\scriptsize\bfseries\color{UTPTeal}},
+  reshape/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.85pt,draw=UTPTeal}]
+\node[tablecard] (wide) at (0.22,0) {%
+  \begin{minipage}[t][3.35cm][t]{\linewidth}
   \setlength{\parskip}{0pt}
   \centering
-  \textbf{Wide format}\\[3pt]
-  One row per ID\par\medskip
-  \renewcommand{\arraystretch}{1.2}
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}lrr@{}}
-  \toprule
-  \textbf{ID} & \textbf{temp\_morning} & \textbf{temp\_evening} \\
-  \midrule
+  \textcolor{UTPBlue}{\textbf{01  WIDE FORMAT}}\\[3pt]
+  \textbf{One row per ID}\\[1pt]
+  Repeated measures occupy columns\par\vspace{4pt}
+  \fontsize{7.4}{8.8}\selectfont
+  \renewcommand{\arraystretch}{1.02}
+  \setlength{\tabcolsep}{5pt}
+  \setlength{\extrarowheight}{0pt}
+  \arrayrulecolor{UTPBlue!45}
+  \begin{tabular}{@{}crr@{}}
+  \rowcolor{UTPBlue!85}
+  \textcolor{white}{\textbf{ID}} &
+  \textcolor{white}{\textbf{Morning}} &
+  \textcolor{white}{\textbf{Evening}} \\
+  \rowcolor{white}
   01 & 21.4 & 26.1 \\
+  \rowcolor{UTPBlue!5}
   02 & 20.9 & 25.6 \\
   \bottomrule
   \end{tabular}
   \end{minipage}};
-\node[tablecard,draw=UTPTeal!80,fill=UTPPaleTeal] (long) at (0.55,0) {%
-  \begin{minipage}[t][3.3cm][t]{\linewidth}
+\node[tablecard,draw=UTPTeal!80,fill=UTPPaleTeal] (long) at (0.78,0) {%
+  \begin{minipage}[t][3.35cm][t]{\linewidth}
   \setlength{\parskip}{0pt}
   \centering
-  \textbf{Long format}\\[3pt]
-  One row per ID and time\par\medskip
-  \renewcommand{\arraystretch}{1.2}
-  \setlength{\tabcolsep}{4pt}
-  \begin{tabular}{@{}llr@{}}
-  \toprule
-  \textbf{ID} & \textbf{time} & \textbf{temperature} \\
-  \midrule
+  \textcolor{UTPTeal}{\textbf{02  LONG FORMAT}}\\[3pt]
+  \textbf{One row per ID and time}\\[1pt]
+  Repeated measures occupy rows\par\vspace{4pt}
+  \fontsize{7.4}{8.8}\selectfont
+  \renewcommand{\arraystretch}{1.02}
+  \setlength{\tabcolsep}{5pt}
+  \setlength{\extrarowheight}{0pt}
+  \arrayrulecolor{UTPTeal!45}
+  \begin{tabular}{@{}clr@{}}
+  \rowcolor{UTPTeal!85}
+  \textcolor{white}{\textbf{ID}} &
+  \textcolor{white}{\textbf{Time}} &
+  \textcolor{white}{\textbf{Value}} \\
+  \rowcolor{white}
   01 & morning & 21.4 \\
+  \rowcolor{UTPTeal!5}
   01 & evening & 26.1 \\
+  \rowcolor{white}
   02 & morning & 20.9 \\
+  \rowcolor{UTPTeal!5}
   02 & evening & 25.6 \\
   \bottomrule
   \end{tabular}
   \end{minipage}};
-\draw[reshape] (wide.east) --
-  node[above=3pt,font=\scriptsize\color{UTPNavy}]{reshape}
-  node[below=3pt,font=\scriptsize\color{UTPMuted}]{same values}
-  (long.west);
+\node[reshapebadge] (change) at (0.50,0)
+  {RESHAPE};
+\draw[reshape] (wide.east) -- (change.west);
+\draw[reshape] (change.east) -- (long.west);
+\node[font=\scriptsize\color{UTPMuted},align=center] at (0.50,-2.30)
+  {same measurements \textbullet\ different layout};
 \end{tikzpicture}
 \end{utpfig}
 
@@ -166,10 +211,10 @@ The same information can be represented in different table shapes. \term{Wide} d
 A \term{feature} is an input variable used in analysis or modelling. New features can simplify relationships, encode domain knowledge, or make scales easier to compare.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.1cm}p{4.4cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.1cm}D{4.4cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Feature operation & Example & Reason \\
+\textbf{Feature operation} & \textbf{Example} & \textbf{Reason} \\
 \midrule
 Binning & alcohol to lower/middle/higher & communicate broad ranges \\
 Transformation & \(\log(1+x)\) & compress strongly right-skewed values \\
@@ -190,27 +235,29 @@ A join combines rows according to key matches. The expected relationship between
 
 \begin{utpfig}[Join cardinality]{Knowing the expected key relationship lets row-count changes become a diagnostic rather than a surprise.}{fig:join-cardinality}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  relationship/.style={draw=UTPBlue!70,fill=UTPPaleBlue,
-    rounded corners=1.5mm,line width=0.6pt,text width=0.26\linewidth,
-    minimum height=2.15cm,inner xsep=2.5mm,inner ysep=2mm,
-    align=center,font=\scriptsize\color{UTPNavy}},
-  outcome/.style={font=\scriptsize\color{UTPMuted},align=center,
-    text width=0.26\linewidth,inner sep=0pt}]
-\node[relationship] (oneone) at (0,0) {\textbf{One-to-one}\\[2pt]
-  \textbf{1 : 1}\\[5pt]
-  One profile per ID\\One outcome per ID};
-\node[relationship,draw=UTPTeal!80,fill=UTPPaleTeal] (onemany) at (0.335,0)
-  {\textbf{One-to-many}\\[2pt]
-   \textbf{1 : many}\\[5pt]
-   One customer\\Many transactions};
-\node[relationship,draw=UTPRed!80,fill=UTPPaleRed] (manymany) at (0.670,0)
-  {\textbf{Many-to-many}\\[2pt]
-   \textbf{many : many}\\[5pt]
-   Repeated keys on both sides\\Rows can multiply};
-\node[outcome,below=3mm of oneone] {Usually preserves rows};
-\node[outcome,below=3mm of onemany] {Expected expansion};
-\node[outcome,below=3mm of manymany,text=UTPRed!85!black]
-  {\textbf{Verify carefully}};
+  relationship/.style={draw=UTPBlue!65,fill=UTPPaleBlue,
+    rounded corners=1.8mm,line width=0.7pt,text width=0.235\linewidth,
+    minimum width=0.29\linewidth,minimum height=2.70cm,
+    inner xsep=4mm,inner ysep=3mm,
+    align=center,font=\scriptsize\color{UTPNavy}}]
+\node[relationship] (oneone) at (0.17,0)
+  {\textcolor{UTPBlue}{\textbf{01  ONE-TO-ONE}}\\[5pt]
+   {\fontsize{13}{15}\selectfont\bfseries 1 : 1}\\[6pt]
+   One profile per ID\\One outcome per ID\\[6pt]
+   \textcolor{UTPMuted}{\textbf{ROW COUNT}}\\[-1pt]
+   Usually preserved};
+\node[relationship,draw=UTPTeal!80,fill=UTPPaleTeal] (onemany) at (0.50,0)
+  {\textcolor{UTPTeal}{\textbf{02  ONE-TO-MANY}}\\[5pt]
+   {\fontsize{13}{15}\selectfont\bfseries 1 : many}\\[6pt]
+   One customer\\Many transactions\\[6pt]
+   \textcolor{UTPMuted}{\textbf{ROW COUNT}}\\[-1pt]
+   Expected expansion};
+\node[relationship,draw=UTPRed!80,fill=UTPPaleRed] (manymany) at (0.83,0)
+  {\textcolor{UTPRed!85!black}{\textbf{03  MANY-TO-MANY}}\\[5pt]
+   {\fontsize{13}{15}\selectfont\bfseries many : many}\\[6pt]
+   Repeated keys\\on both sides\\[6pt]
+   \textcolor{UTPRed!85!black}{\textbf{ROW COUNT}}\\[-1pt]
+   Can multiply unexpectedly};
 \end{tikzpicture}
 \end{utpfig}
 
@@ -247,12 +294,3 @@ This representation preserves neighbourhood around midnight and gives models two
 \begin{keyidea}
 Every aggregation changes the unit of analysis. Before and after a \rcode{group}/\rcode{summarise} operation, state what one row represents. Many subtle data errors are actually grain errors.
 \end{keyidea}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Wrangling transforms tables so the evidence matches the question.
-  \item Selection and filtering define the scope of analysis.
-  \item Grouped summaries expose heterogeneity hidden by overall statistics.
-  \item Feature engineering should be interpretable and documented.
-\end{itemize}
-\end{chapterrecap}

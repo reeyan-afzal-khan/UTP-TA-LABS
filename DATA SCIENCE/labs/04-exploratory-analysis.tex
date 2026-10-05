@@ -1,20 +1,28 @@
 \labsection{4}{Explore distributions, subgroups, and relationships}{sec:lab04}
 
-\begin{labproject}{Lab 4 exploratory analysis}
+\begin{labproject}{Lab 4 exploratory analysis: develop a defensible EDA narrative}
 \textbf{Dataset.} \texttt{medical\_cost\_personal\_dataset.csv}.\\
-\textbf{Goal.} Build an EDA narrative that separates distribution shape, subgroup differences, and relationships.
+\textbf{Scenario.} An insurer wants to understand the structure of medical charges before any predictive model is considered. Your task is to discover patterns, identify plausible interactions, and separate observations that are unusual from observations that are invalid.
 
-\textbf{Procedure.}
+\textbf{Learning outcomes.} You should be able to combine robust summaries and graphics, investigate subgroup structure, detect when aggregate relationships are misleading, and translate exploration into testable modelling questions.
+
+\textbf{Core workflow.}
 \begin{enumerate}
-  \item Inspect the distribution of insurance charges using mean, median, quartiles, IQR, and a histogram.
-  \item Use the IQR rule as an \emph{outlier flag}, not an automatic deletion rule.
-  \item Compare charges for smokers and non-smokers using robust and non-robust summaries.
-  \item Compare median charges across regions and decide whether the observed differences appear substantial relative to within-group spread.
-  \item Examine the relationship between BMI and charges overall and within smoking groups.
-  \item Write an EDA conclusion that identifies at least one pattern worth modelling and at least one possible confounder or interaction.
+  \item \textbf{Profile the target.} Describe \texttt{charges} using mean, median, quartiles, IQR, standard deviation, and a histogram. Explain what the gap between mean and median says about shape.
+  \item \textbf{Flag, do not delete, extremes.} Use the $1.5\times\mathrm{IQR}$ rule to identify high-charge observations. Inspect their characteristics and explain why statistical extremeness alone is not a data-quality failure.
+  \item \textbf{Compare an important subgroup.} Contrast smokers and non-smokers using group size, mean, median, spread, and a distribution plot. Decide whether the difference is large relative to within-group variability.
+  \item \textbf{Check a weaker grouping variable.} Compare median charges across regions. Avoid ranking regions without considering sample size and overlap in the distributions.
+  \item \textbf{Investigate a numeric relationship.} Examine BMI versus charges overall, then separately by smoking status. Compare the correlations and visible slopes.
+  \item \textbf{Look for interaction.} Decide whether smoking status appears to modify the BMI--charge relationship. Express the finding as a modelling hypothesis rather than a causal claim.
+  \item \textbf{Prioritise next steps.} Identify one pattern worth modelling, one variable requiring transformation or nonlinear treatment, and one plausible confounder or interaction.
 \end{enumerate}
 
-\textbf{Interpretation checkpoint.} When groups have very different distributions, an overall correlation can hide or exaggerate within-group relationships.
+\textbf{Required evidence.} Submit an EDA brief containing three graphics and no more than six evidence statements. Each statement must include the comparison or relationship, its direction/magnitude, and an appropriate limitation.
 
+\textbf{Professional standard.} Exploration is used to generate and refine hypotheses. Do not present a pattern discovered in the same data as if it were independently confirmed evidence.
+
+\textbf{Extension.} Compare charges across age bands within smoking groups. Determine whether a pattern seen in the overall sample persists after conditioning on smoking status.
+
+\tcbbreak
 \lstinputlisting[style=dsr]{all_experiments/lab04_eda.R}
 \end{labproject}

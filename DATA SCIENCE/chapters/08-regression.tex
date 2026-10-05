@@ -29,36 +29,59 @@ A flexible model can fit patterns specific to the observed sample. To evaluate g
 
 \begin{utpfig}[Train/test workflow]{Model parameters are learned from the training set. The test set is touched only after the model and preprocessing choices are fixed.}{fig:train-test-regression}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  card/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.18\linewidth,minimum height=1.5cm,
-    inner xsep=2.5mm,inner ysep=2mm,align=center,
+  card/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.27\linewidth,
+    minimum width=0.34\linewidth,minimum height=1.18cm,
+    inner xsep=4mm,inner ysep=2mm,align=center,
     font=\scriptsize\color{UTPNavy}},
-  connector/.style={line width=0.8pt,draw=UTPTeal,rounded corners=1.5mm},
-  flow/.style={connector,-{Stealth[length=2mm,width=1.5mm]}}]
-\node[card] (all) at (0,0) {\textbf{Available data}\\[4pt]
-  Features and target\\Before splitting};
-\node[card] (tr) at (0.245,1.05) {\textbf{Training data}\\[4pt]
-  Learn parameters\\Fit the model};
-\node[card,draw=UTPOrange!80,fill=UTPPaleOrange] (te) at (0.245,-1.05)
-  {\textbf{Test data}\\[4pt]
-   Hold back\\Unseen observations};
-\node[card] (pred) at (0.490,0) {\textbf{Test predictions}\\[4pt]
-  Apply the fixed model\\to unseen test rows};
-\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (met) at (0.735,0)
-  {\textbf{Evaluate}\\[4pt]
-   MAE, RMSE\\and other metrics};
-\coordinate (split) at (0.1225,0);
-\coordinate (merge) at (0.3675,0);
-\draw[connector] (all.east) -- (split);
-\draw[flow] (split) |- (tr.west);
-\draw[flow] (split) |- (te.west);
-\draw[connector] (tr.east) -| (merge);
-\draw[connector] (te.east) -| (merge);
-\draw[flow] (merge) -- (pred.west);
-\draw[flow] (pred.east) -- (met.west);
-\node[font=\scriptsize\color{UTPOrange!85!black},align=center,
-  text width=0.25\linewidth,below=3mm of te]
-  {Never used for fitting};
+  flow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.9pt,draw=UTPTeal},
+  testflow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.9pt,draw=UTPOrange!85!black},
+  targetflow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.8pt,draw=UTPOrange!85!black,dashed},
+  flowlabel/.style={fill=white,rounded corners=1mm,
+    inner xsep=2.5mm,inner ysep=1mm,
+    font=\tiny\bfseries}]
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (all) at (0.50,4.20)
+  {\textcolor{UTPTeal}{\textbf{01  AVAILABLE DATA}}\\[4pt]
+   Features and target\\before splitting};
+\node[card] (train) at (0.28,0.85)
+  {\textcolor{UTPBlue}{\textbf{02A  TRAINING PARTITION}}\\[4pt]
+   Used to learn\\model parameters};
+\node[card,draw=UTPOrange!80,fill=UTPPaleOrange] (test) at (0.72,0.85)
+  {\textcolor{UTPOrange!85!black}{\textbf{02B  TEST PARTITION}}\\[4pt]
+   Held out from\\model fitting};
+\node[card] (model) at (0.28,-1.15)
+  {\textcolor{UTPBlue}{\textbf{03A  FIT + FREEZE}}\\[4pt]
+   Model and preprocessing\\are now fixed};
+\node[card,draw=UTPOrange!80,fill=UTPPaleOrange] (features) at (0.72,-1.15)
+  {\textcolor{UTPOrange!85!black}{\textbf{03B  TEST FEATURES}}\\[4pt]
+   Apply frozen\\preprocessing only};
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (pred) at (0.50,-3.15)
+  {\textcolor{UTPTeal}{\textbf{04  TEST PREDICTIONS}}\\[4pt]
+   Fixed model applied\\to test features};
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (eval) at (0.50,-5.05)
+  {\textcolor{UTPTeal}{\textbf{05  EVALUATE}}\\[4pt]
+   MAE, RMSE, and\\residual diagnostics};
+\coordinate (branch) at (0.50,2.45);
+\draw[draw=UTPTeal,line width=0.9pt] (all.south) -- (branch);
+\fill[UTPTeal] (branch) circle (1.2pt);
+\node[flowlabel,text=UTPTeal] at (0.50,2.95)
+  {TRAIN / TEST SPLIT};
+\draw[flow] (branch) -| (train.north);
+\draw[testflow] (branch) -| (test.north);
+\draw[flow] (train.south) -- (model.north);
+\draw[testflow] (test.south) -- (features.north);
+\coordinate (merge) at (0.50,-2.15);
+\draw[draw=UTPTeal,line width=0.9pt] (model.south) |- (merge);
+\draw[draw=UTPOrange!85!black,line width=0.9pt] (features.south) |- (merge);
+\fill[UTPTeal] (merge) circle (1.15pt);
+\draw[flow] (merge) -- (pred.north);
+\draw[flow] (pred.south) -- (eval.north);
+\draw[targetflow] (test.east) -- ++(0.09\linewidth,0) |- (eval.east);
+\node[flowlabel,text=UTPOrange!85!black] at (0.82,-4.78)
+  {HELD-OUT TARGETS};
 \end{tikzpicture}
 \end{utpfig}
 
@@ -79,10 +102,10 @@ RMSE=\sqrt{\frac{1}{n}\sum e_i^2}.
 MAE is an average absolute miss in target units. RMSE penalises large misses more strongly. \(R^2\) compares squared error with a mean-only baseline but should not replace error in meaningful units.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{2.3cm}p{4.0cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{1.8cm}YD{5.8cm}@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Metric & Useful interpretation & Limitation \\
+\textbf{Metric} & \textbf{Useful interpretation} & \textbf{Limitation} \\
 \midrule
 MAE & typical absolute error & treats all misses linearly \\
 RMSE & emphasises large errors & sensitive to extreme errors \\
@@ -170,12 +193,3 @@ A regression model cannot consume neighbourhood names as unordered text. Common 
 Encoding a category using the target mean calculated from the full dataset is leakage. If target encoding is used, the encoding itself must be learned inside the training fold and applied to the corresponding validation fold without using its outcomes.
 \end{pitfall}
 
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Regression predicts numeric outcomes.
-  \item Hold out data that do not influence model fitting or preprocessing.
-  \item Interpret MAE/RMSE in target units and inspect residuals.
-  \item Coefficients describe model associations unless causal assumptions are justified.
-\end{itemize}
-\end{chapterrecap}

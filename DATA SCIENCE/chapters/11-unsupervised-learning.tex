@@ -80,10 +80,10 @@ After centering the features---and often scaling them when units differ---PCA fi
 \term{PCA} creates orthogonal linear combinations of the original numeric variables. The first component captures the greatest possible variance; later components capture remaining orthogonal variance.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.0cm}p{4.2cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.2cm}YD{4.1cm}@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-PCA object & Meaning & Use \\
+\textbf{PCA object} & \textbf{Meaning} & \textbf{Use} \\
 \midrule
 Scores & coordinates of observations on components & plotting or modelling \\
 Loadings & contribution of original features to components & interpretation \\
@@ -136,12 +136,3 @@ The Mall Customers file has only 200 rows, but it is pedagogically useful becaus
 \end{utpfig}
 
 PCA is particularly appropriate here because the numeric variables are measured on different scales and many describe related chemical properties. Standardisation prevents variables with large raw units, such as proline or magnesium, from dominating simply because of their measurement scale.
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Unsupervised learning searches for structure without a target label.
-  \item K-means is distance-based and sensitive to feature scale and initialisation.
-  \item PCA represents correlated numeric features with orthogonal components.
-  \item Cluster and PCA interpretations must be validated against stability and domain meaning.
-\end{itemize}
-\end{chapterrecap}

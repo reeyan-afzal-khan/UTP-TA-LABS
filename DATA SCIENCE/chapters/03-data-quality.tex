@@ -8,10 +8,10 @@
 R reports storage classes such as numeric or character, but analysis also depends on measurement meaning.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{2.7cm}p{4.1cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{2.7cm}D{4.1cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Analytical type & Example & Appropriate operations \\
+\textbf{Analytical type} & \textbf{Example} & \textbf{Appropriate operations} \\
 \midrule
 Identifier & sample ID & matching, uniqueness checks; not averages \\
 Nominal category & species, diagnosis & counts, proportions, group comparisons \\
@@ -31,24 +31,77 @@ A number is not automatically quantitative. Student ID 1042 plus Student ID 1043
 There is no dataset that is simply ``clean'' in the abstract. Quality means that the data are sufficiently accurate, complete, consistent, timely, and appropriately sampled for a particular question. A missing measurement may be harmless for one summary and fatal for another model. A duplicated transaction may be legitimate if the unit of analysis is a transaction, but a serious error if the table is supposed to contain one row per customer.
 
 \begin{utpfig}[Data quality is question-dependent]{The same table can be adequate for one task and inadequate for another because different questions depend on different fields and assumptions.}{fig:quality-purpose}
-\begin{tikzpicture}[node distance=1.2cm and 1.2cm]
-\node[fcbox,text width=3.0cm] (data) {Dataset};
-\node[fcbox,text width=3.3cm,right=of data,yshift=1.0cm] (q1) {Question A\\needs complete target};
-\node[fcbox,text width=3.3cm,right=of data,yshift=-1.0cm] (q2) {Question B\\needs reliable dates};
-\node[fcbox,text width=3.1cm,right=of q1] (a1) {Adequate?\\check target quality};
-\node[fcbox,text width=3.1cm,right=of q2] (a2) {Adequate?\\check date quality};
-\draw[fcedge] (data)--(q1); \draw[fcedge] (data)--(q2); \draw[fcedge] (q1)--(a1); \draw[fcedge] (q2)--(a2);
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  sourcecard/.style={draw=UTPBlue!75,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.75pt,text width=0.15\linewidth,
+    minimum width=0.19\linewidth,minimum height=1.15cm,
+    inner xsep=3mm,inner ysep=2.5mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  taskcard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.21\linewidth,
+    minimum width=0.255\linewidth,minimum height=1.05cm,
+    inner xsep=3.5mm,inner ysep=2mm,align=left,
+    font=\scriptsize\color{UTPNavy}},
+  qualityflow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.85pt,draw=UTPTeal}]
+\node[sourcecard] (data) at (0.12,0)
+  {\textcolor{UTPBlue}{\textbf{SHARED INPUT}}\\[3pt]
+   The same dataset};
+\node[taskcard] (q1) at (0.43,0.80)
+  {\textcolor{UTPBlue}{\textbf{QUESTION A}}\\[3pt]
+   Requires a complete target.};
+\node[taskcard] (q2) at (0.43,-0.80)
+  {\textcolor{UTPBlue}{\textbf{QUESTION B}}\\[3pt]
+   Requires reliable dates.};
+\node[taskcard,draw=UTPTeal!80,fill=UTPPaleTeal] (a1) at (0.78,0.80)
+  {\textcolor{UTPTeal}{\textbf{QUALITY CHECK}}\\[3pt]
+   Is the target complete and reliable?};
+\node[taskcard,draw=UTPTeal!80,fill=UTPPaleTeal] (a2) at (0.78,-0.80)
+  {\textcolor{UTPTeal}{\textbf{QUALITY CHECK}}\\[3pt]
+   Are the dates complete and valid?};
+\coordinate (split) at (0.275,0);
+\draw[draw=UTPTeal,line width=0.85pt] (data.east) -- (split);
+\draw[qualityflow] (split) |- (q1.west);
+\draw[qualityflow] (split) |- (q2.west);
+\draw[qualityflow] (q1.east) -- (a1.west);
+\draw[qualityflow] (q2.east) -- (a2.west);
+\fill[UTPTeal] (split) circle (1.3pt);
 \end{tikzpicture}
 \end{utpfig}
 
 \section{Four dimensions of a practical data audit}
 \begin{utpfig}[Quality audit]{A quality audit asks whether the data are complete enough, internally valid, consistently represented, and uniquely recorded for the intended analysis.}{fig:quality-audit}
-\begin{tikzpicture}[x=1cm,y=1cm]
-\node[fcbox,text width=2.7cm] (c) at (-4.5,0) {Completeness\\missing values};
-\node[fcbox,text width=2.7cm] (v) at (-1.5,0) {Validity\\possible ranges};
-\node[fcbox,text width=2.7cm] (s) at (1.5,0) {Consistency\\labels and units};
-\node[fcbox,text width=2.7cm] (u) at (4.5,0) {Uniqueness\\duplicates};
-\draw[fcedge] (c)--(v); \draw[fcedge] (v)--(s); \draw[fcedge] (s)--(u);
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  auditroot/.style={draw=UTPTeal!80,fill=UTPPaleTeal,rounded corners=5mm,
+    line width=0.75pt,text width=0.17\linewidth,minimum height=0.90cm,
+    inner xsep=3mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  auditcard/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.235\linewidth,
+    minimum width=0.29\linewidth,minimum height=1.15cm,
+    inner xsep=4mm,inner ysep=2.5mm,align=left,
+    font=\footnotesize\color{UTPNavy}},
+  auditflow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[auditroot] (audit) at (0.50,0)
+  {\textbf{QUALITY AUDIT}\\[3pt]
+   \color{UTPMuted}fit for purpose};
+\node[auditcard] (c) at (0.20,1.00)
+  {\textcolor{UTPBlue}{\textbf{01  COMPLETENESS}}\\[4pt]
+   Missing values};
+\node[auditcard] (v) at (0.80,1.00)
+  {\textcolor{UTPBlue}{\textbf{02  VALIDITY}}\\[4pt]
+   Plausible ranges};
+\node[auditcard] (s) at (0.20,-1.00)
+  {\textcolor{UTPBlue}{\textbf{03  CONSISTENCY}}\\[4pt]
+   Labels and units};
+\node[auditcard] (u) at (0.80,-1.00)
+  {\textcolor{UTPBlue}{\textbf{04  UNIQUENESS}}\\[4pt]
+   Duplicate records};
+\draw[auditflow] (audit.west) to[out=160,in=0] (c.east);
+\draw[auditflow] (audit.east) to[out=20,in=180] (v.west);
+\draw[auditflow] (audit.west) to[out=200,in=0] (s.east);
+\draw[auditflow] (audit.east) to[out=-20,in=180] (u.west);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -112,9 +165,10 @@ Exact duplicates can inflate counts and train/test performance. Inconsistent lab
 \begin{workedexample}
 A defensible cleaning log records the rule and the evidence:
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.2cm}p{4.5cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.2cm}D{4.5cm}Y@{}}
 \toprule
-Issue & Rule & Evidence retained \\
+\rowcolor{DSPaleBlue!92}
+\textbf{Issue} & \textbf{Rule} & \textbf{Evidence retained} \\
 \midrule
 Duplicate row & keep first exact record & duplicate count before/after \\
 Negative length & mark impossible value missing & row identifier and rule \\
@@ -202,12 +256,3 @@ The Red Wine Quality file illustrates a different issue. It contains exact dupli
 Never write \rcode{distinct()} or \rcode{duplicated()} as a cleaning ritual. First state the expected key and the intended unit of observation, then explain why repeated rows are impossible, possible, or informative under that definition.
 \end{keyidea}
 
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Analytical type determines valid operations.
-  \item Audit completeness, validity, consistency, and uniqueness before modelling.
-  \item Missing-data treatment must be justified rather than automatic.
-  \item Leakage is a data-quality failure that contaminates evaluation.
-\end{itemize}
-\end{chapterrecap}

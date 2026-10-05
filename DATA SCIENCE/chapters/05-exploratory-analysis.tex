@@ -9,22 +9,28 @@
 
 \begin{utpfig}[EDA lenses]{Move from one variable to pairs and then to conditional or multivariate structure.}{fig:eda-lenses}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  lens/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.26\linewidth,minimum height=1.8cm,
-    inner xsep=2.5mm,inner ysep=2mm,align=center,
+  lens/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.235\linewidth,
+    minimum width=0.29\linewidth,minimum height=2.20cm,
+    inner xsep=4mm,inner ysep=3mm,align=center,
     font=\scriptsize\color{UTPNavy}},
   flow/.style={-{Stealth[length=2mm,width=1.5mm]},
-    line width=0.8pt,draw=UTPTeal}]
-\node[lens] (u) at (0,0) {\textbf{Univariate}\\[3pt]
-  \textbf{One variable}\\[5pt]
-  Shape, centre, and spread};
-\node[lens] (b) at (0.335,0) {\textbf{Bivariate}\\[3pt]
-  \textbf{Two variables}\\[5pt]
-  Group differences or relationships};
-\node[lens,draw=UTPTeal!80,fill=UTPPaleTeal] (m) at (0.670,0)
-  {\textbf{Multivariate}\\[3pt]
+    line width=0.9pt,draw=UTPTeal}]
+\node[lens] (u) at (0.17,0)
+  {\textcolor{UTPBlue}{\textbf{01  DESCRIBE}}\\[5pt]
+   {\footnotesize\textbf{UNIVARIATE}}\\[4pt]
+   \textbf{One variable}\\[5pt]
+   Shape, centre, and spread};
+\node[lens] (b) at (0.50,0)
+  {\textcolor{UTPBlue}{\textbf{02  RELATE}}\\[5pt]
+   {\footnotesize\textbf{BIVARIATE}}\\[4pt]
+   \textbf{Two variables}\\[5pt]
+   Differences and relationships};
+\node[lens,draw=UTPTeal!80,fill=UTPPaleTeal] (m) at (0.83,0)
+  {\textcolor{UTPTeal}{\textbf{03  CONDITION}}\\[5pt]
+   {\footnotesize\textbf{MULTIVARIATE}}\\[4pt]
    \textbf{Multiple variables}\\[5pt]
-   Conditional patterns and structure};
+   Patterns within groups\\and joint structure};
 \draw[flow] (u.east) -- (b.west);
 \draw[flow] (b.east) -- (m.west);
 \end{tikzpicture}
@@ -44,10 +50,10 @@ A useful first pass records the minimum, lower quartile, median, upper quartile,
 The mean is sensitive to extreme values; the median is more robust. Standard deviation describes typical distance from the mean; the interquartile range (IQR) describes the middle half of the data.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{2.7cm}p{3.8cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{4.0cm}Y>{\centering\arraybackslash}m{3.0cm}@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Statistic & What it describes & Robust to extreme values? \\
+\textbf{Statistic} & \textbf{What it describes} & \shortstack{\textbf{Robust to}\\\textbf{extreme values?}} \\
 \midrule
 Mean & arithmetic center & no \\
 Median & middle ordered value & yes \\
@@ -146,12 +152,3 @@ In the bundled file, mean charges are roughly \$8,434 for non-smokers and \$32,0
 \begin{pitfall}
 A large group difference discovered during EDA should not be promoted directly to a causal story. Smoking status, age, BMI, and other measured or unmeasured factors are not randomly assigned in this observational dataset.
 \end{pitfall}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item EDA searches for structure, anomalies, and candidate relationships.
-  \item Pair center with spread and numerical summaries with plots.
-  \item Investigate unusual values before changing the data.
-  \item Exploration generates questions; validation tests whether patterns generalise.
-\end{itemize}
-\end{chapterrecap}

@@ -28,10 +28,10 @@ so each coefficient changes the \term{log-odds} of the positive class conditiona
 
 \section{The confusion matrix is the evaluation foundation}
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.3cm}p{3.8cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{2.8cm}YD{5.5cm}@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Outcome & Meaning & Example in a medical screening context \\
+\textbf{Outcome} & \textbf{Meaning} & \textbf{Example in a medical screening context} \\
 \midrule
 True positive & predicted positive, actually positive & malignant case flagged \\
 False positive & predicted positive, actually negative & benign case flagged \\
@@ -75,22 +75,29 @@ There is no universally correct threshold of 0.5. Lowering the threshold usually
 
 \begin{utpfig}[Threshold trade-off]{The probability model and the decision rule are separate. Changing the threshold can change false-negative and false-positive rates without refitting the model.}{fig:threshold-tradeoff}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
-  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.6pt,text width=0.19\linewidth,minimum height=1.55cm,
-    inner xsep=2mm,inner ysep=2mm,align=center,
+  stage/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.14\linewidth,
+    minimum width=0.19\linewidth,minimum height=1.70cm,
+    inner xsep=3mm,inner ysep=2.5mm,align=center,
     font=\scriptsize\color{UTPNavy}},
-  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
-    line width=0.8pt,draw=UTPTeal}]
-\node[stage] (p) at (0,0) {\textbf{Model outputs}\\[4pt]
-  Scores or\\probabilities};
-\node[stage,draw=UTPOrange!80,fill=UTPPaleOrange] (t) at (0.25,0)
-  {\textbf{Choose threshold}\\[4pt]
-   Set the\\decision rule};
-\node[stage] (d) at (0.50,0) {\textbf{Class decisions}\\[4pt]
-  Positive or\\negative};
-\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (c) at (0.75,0)
-  {\textbf{Evaluate}\\[4pt]
-   Confusion matrix\\and error costs};
+  flow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.9pt,draw=UTPTeal}]
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (p) at (0.11,0)
+  {\textcolor{UTPTeal}{\textbf{01  SCORE}}\\[5pt]
+   \textbf{Model outputs}\\[4pt]
+   Scores or probabilities};
+\node[stage,draw=UTPOrange!80,fill=UTPPaleOrange] (t) at (0.37,0)
+  {\textcolor{UTPOrange!85!black}{\textbf{02  THRESHOLD}}\\[5pt]
+   \textbf{Choose cutoff}\\[4pt]
+   Set the decision rule};
+\node[stage] (d) at (0.63,0)
+  {\textcolor{UTPBlue}{\textbf{03  DECIDE}}\\[5pt]
+   \textbf{Class decisions}\\[4pt]
+   Positive or negative};
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (c) at (0.89,0)
+  {\textcolor{UTPTeal}{\textbf{04  EVALUATE}}\\[5pt]
+   \textbf{Measure errors}\\[4pt]
+   Confusion matrix and costs};
 \draw[flow] (p.east) -- (t.west);
 \draw[flow] (t.east) -- (d.west);
 \draw[flow] (d.east) -- (c.west);
@@ -163,12 +170,3 @@ Multiclass performance should be reported at more than one level. Overall accura
 \begin{keyidea}
 High dimensionality is not only ``many columns.'' It changes distance, visualisation, model complexity, and validation. The digits data provide a bridge from classification to PCA and representation learning while also showing why the data-generating split matters.
 \end{keyidea}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Classification converts model scores into category decisions.
-  \item Confusion-matrix counts support task-relevant metrics.
-  \item Threshold choice expresses a trade-off between error types.
-  \item Evaluation must reflect the real cost and context of decisions.
-\end{itemize}
-\end{chapterrecap}

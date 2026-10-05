@@ -9,16 +9,16 @@
 
 The course uses \textbf{R} as the statistical computing engine and \textbf{RStudio} as the main integrated development environment (IDE). These are related but separate pieces of software. R performs the computation; RStudio provides an editor, console, data viewer, plotting pane, help system, project management, and an integrated terminal.
 
-\begin{utpfig}[The course software stack]{R is the computation engine. RStudio is the working environment around it. The course files remain ordinary folders, scripts, and datasets that can be inspected independently of the IDE.}{fig:r-stack}
-\begin{tikzpicture}[node distance=0.30cm,
+\begin{utpfig}[The course software stack]{R computes, RStudio provides the working environment, and the operating system supports both. Git records changes to course code; pushing shares committed changes with the GitHub repository.}{fig:r-stack}
+\begin{tikzpicture}[node distance=0.35cm,
   layer/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
-    line width=0.7pt,text width=0.82\linewidth,minimum height=1.05cm,
-    inner xsep=3mm,inner ysep=2mm,align=left,
-    font=\footnotesize\color{UTPNavy}},
+    line width=0.7pt,text width=0.90\linewidth,minimum height=1.40cm,
+    inner xsep=3.5mm,inner ysep=3mm,align=left,
+    font=\normalsize\color{UTPNavy}},
   flow/.style={-{Stealth[length=2mm,width=1.5mm]},
     line width=0.8pt,draw=UTPTeal}]
 \node[layer] (project) {\textbf{Course project --- files and evidence}\\[3pt]
-  Chapters, labs, \texttt{all\_datasets/}, and \texttt{all\_experiments/}};
+ \texttt{all\_datasets/}, and \texttt{all\_experiments/}};
 \node[layer,below=of project,draw=UTPTeal!80,fill=UTPPaleTeal] (studio)
   {\textbf{RStudio Desktop --- working environment}\\[3pt]
    Edit scripts; use the console, plots, help, and project tools};
@@ -28,9 +28,13 @@ The course uses \textbf{R} as the statistical computing engine and \textbf{RStud
 \node[layer,below=of r,draw=UTPMuted!70,fill=UTPPaleGray] (os)
   {\textbf{Operating system --- platform}\\[3pt]
    Windows, macOS, or Linux};
+\node[layer,below=of os,draw=UTPOrange!80,fill=UTPPaleOrange] (git)
+  {\textbf{Git and GitHub --- version and share code}\\[3pt]
+   Commit reviewed changes, then push to the remote repository.};
 \draw[flow] (project.south) -- (studio.north);
 \draw[flow] (studio.south) -- (r.north);
 \draw[flow] (r.south) -- (os.north);
+\draw[flow,dashed] (os.south) -- (git.north);
 \end{tikzpicture}
 \end{utpfig}
 
@@ -39,7 +43,6 @@ Install \textbf{R first}, then install \textbf{RStudio}. RStudio does not replac
 \end{keyidea}
 
 \section{Course project layout}
-
 Use \texttt{UTP-DATA-SCIENCE/} as the project root, with these folders:
 
 \noindent
@@ -63,15 +66,16 @@ all_datasets/
 \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}[style=mlterminal]
 all_experiments/
-  lab01_features_worked.ipynb
-  lab02_supervised_workflow_worked.ipynb
-  lab03_supervised_models_worked.ipynb
-  lab04_clustering_pca_worked.ipynb
-  lab05_anomaly_limited_labels_worked.ipynb
-  lab06_reinforcement_worked.ipynb
-  lab07_deep_learning_cnn_worked.ipynb
-  lab08_deep_learning_lstm_worked.ipynb
-  predict_passenger.py
+  lab01_workflow.R
+  lab02_data_quality.R
+  lab03_wrangling.R
+  lab04_eda.R
+  lab05_visualization.R
+  lab06_inference.R
+  lab07_regression.R
+  lab08_classification.R
+  lab09_validation.R
+  lab10_unsupervised.R
 \end{lstlisting}
 \end{minipage}
 
@@ -174,41 +178,6 @@ getwd()
 
 The first two lines identify the R installation. The working directory should eventually be the supplied \texttt{DATA SCIENCE/} folder once the course project is opened.
 
-\section{Create an RStudio Project for the course}
-
-An RStudio Project gives the course a stable root folder. This makes relative paths predictable and reduces dependence on machine-specific absolute paths.
-
-\begin{mlsteps}
-  \item In RStudio choose \textbf{File $>$ New Project $>$ Existing Directory}.
-  \item Select the supplied \texttt{DATA SCIENCE/} directory.
-  \item RStudio creates a small \texttt{.Rproj} file in that directory. This file stores IDE-level project settings; it does not modify the datasets.
-  \item Reopen the course later by double-clicking the \texttt{.Rproj} file or using \textbf{File $>$ Open Project}.
-\end{mlsteps}
-
-Verify the expected directories:
-
-\begin{lstlisting}[style=dsr]
-list.files()
-list.files("all_datasets")
-list.files("all_experiments")
-\end{lstlisting}
-
-A correctly opened project should show both \texttt{all\_datasets} and \texttt{all\_experiments} without any call to \rcode{setwd()}.
-
-\begin{keyidea}
-Prefer an RStudio Project and relative paths over repeated calls to \rcode{setwd()}. A script containing a path such as \texttt{C:/Users/Alice/Desktop/...} is unlikely to run unchanged on another student's computer.
-\end{keyidea}
-
-\section{Run the first R script}
-
-Open \texttt{all\_experiments/lab01\_workflow.R} in the Source editor. Execute the whole file with the \textbf{Source} button, or run it from the Console:
-
-\begin{lstlisting}[style=dsr]
-source("all_experiments/lab01_workflow.R")
-\end{lstlisting}
-
-The script should read a bundled dataset, print its dimensions and structure, compute a grouped summary, and report session information. This is a more useful installation test than simply opening RStudio because it verifies \textbf{R + project paths + data access + script execution} together.
-
 \section{Installing R packages}
 
 The core lab scripts are deliberately written so that they can run with base R on a standard installation. Additional packages are valuable for larger projects, publication graphics, reshaping, and reporting.
@@ -289,8 +258,11 @@ Use the command for your operating system, then reopen the terminal:
 # Windows PowerShell
 winget install --id Git.Git -e --source winget
 
-# macOS: install Apple's command-line tools
+# macOS (Option A): install using Homebrew
 brew install git
+
+# macOS (Option B): install Apple's command-line tools
+xcode-select --install
 
 # Linux
 sudo apt update
@@ -395,18 +367,20 @@ Do not copy another person's email address, key, username, or repository name fr
 
 \subsection{Prepare the course repository}
 
-Do not upload the virtual environment, passwords, tokens, or API keys. In the project root, create a file named \texttt{.gitignore} containing:
+Do not upload RStudio's local project state, saved R sessions, passwords, tokens, or API keys. In the project root, create a file named \texttt{.gitignore} containing:
 
 \begin{lstlisting}[style=mlterminal]
-.venv/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
 .env
 \end{lstlisting}
 
+
 Create a new repository on GitHub. Use a name such as
-\texttt{utp-machine-learning}, select the visibility required by the
+\texttt{UTP-DATA-SCIENCE}, select the visibility required by the
 instructor, and leave \textbf{README}, \textbf{.gitignore}, and
 \textbf{license} unchecked because the local project already exists.
 
@@ -417,7 +391,7 @@ GitHub repository. Replace \texttt{USERNAME} and \texttt{REPOSITORY}:
 git init -b main
 git add .
 git status
-git commit -m "Add machine-learning course work"
+git commit -m "Add Data Science content"
 
 git remote add origin git@github.com:USERNAME/REPOSITORY.git
 git remote -v
@@ -443,32 +417,3 @@ git push
 \end{lstlisting}
 
 Submit the GitHub repository address requested by the instructor and confirm that the latest commit and required notebooks are visible on GitHub.
-
-\begin{quickcheck}
-\begin{enumerate}
-  \item What is the difference between R and RStudio?
-  \item Why should R be installed before RStudio?
-  \item Why is native R + RStudio the recommended route for this course even though an Anaconda route is documented?
-  \item What does \rcode{R.home()} tell you when troubleshooting multiple R installations?
-  \item Why are relative paths and an RStudio Project preferable to machine-specific absolute paths?
-  \item What is the difference between Git, GitHub, and SSH?
-  \item Which SSH key file may be uploaded to GitHub, and which file must remain private?
-  \item What command verifies GitHub SSH authentication before the first push?
-  \item Why should \texttt{.Renviron} be excluded from version control while \texttt{renv.lock} is normally committed?
-  \item Name two bundled datasets that represent fundamentally different analytical structures.
-\end{enumerate}
-\end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item R is the statistical engine; RStudio is the IDE used to organise and execute the work.
-  \item The recommended setup installs R from CRAN, then RStudio Desktop from Posit.
-  \item Anaconda/Miniconda can manage R, but current R packages should come from conda-forge because Anaconda no longer maintains its R channel.
-  \item RStudio Projects and relative paths make course scripts portable across computers.
-  \item Git is required for version history; GitHub provides the remote repository; SSH authenticates push and pull operations without storing account passwords in the project.
-  \item The private SSH key stays on the local machine, while only its \texttt{.pub} counterpart is added to GitHub.
-  \item A safe submission workflow uses \texttt{git status}, reviewed diffs, focused commits, and a successful push before the repository link is submitted.
-  \item The bundled datasets deliberately vary in size, grain, missingness, target structure, and analytical purpose.
-  \item A clean-session rerun is the minimum reproducibility check before lab submission.
-\end{itemize}
-\end{chapterrecap}

@@ -37,10 +37,10 @@ Analytical code is essential for reproducibility, but stakeholders rarely make d
 A technical peer, an executive sponsor, and an operations team may need different views of the same analysis. The underlying evidence should remain consistent, but the level of detail and the action requested differ.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{2.8cm}p{3.8cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{2.8cm}D{3.8cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Audience & Primary need & Useful content \\
+\textbf{Audience} & \textbf{Primary need} & \textbf{Useful content} \\
 \midrule
 Technical reviewer & verify method & assumptions, code path, diagnostics, sensitivity checks \\
 Decision maker & choose an action & main result, effect size, uncertainty, trade-offs, recommendation options \\
@@ -145,10 +145,10 @@ A title should state the question or conclusion the chart supports. Labels shoul
 A \term{notebook} is excellent for exploratory work and literate computation, but can become difficult to audit if execution order matters. A \term{report} is a stable narrative artifact for a defined question. A \term{dashboard} is useful when users need to inspect changing metrics repeatedly. None is universally superior.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{2.4cm}p{3.2cm}p{3.0cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{2.4cm}D{3.2cm}D{3.0cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Format & Best for & Strength & Main risk \\
+\textbf{Format} & \textbf{Best for} & \textbf{Strength} & \textbf{Main risk} \\
 \midrule
 Notebook & exploration and teaching & code + output together & hidden state, long narratives \\
 Report & decision or study summary & stable argument & becomes stale if not regenerated \\
@@ -300,10 +300,10 @@ Communication is not decoration added after analysis. Choosing what to show, wha
 The same reporting template should not flatten every problem into identical language. A regression model for Ames Housing, a rare-event fraud classifier, and a PCA of wine chemistry require different evidence in the main result.
 
 \begin{dstable}
-\begin{tabularx}{\linewidth}{@{}p{3.2cm}p{4.4cm}X@{}}
+\begin{tabularx}{\linewidth}{@{}D{3.2cm}D{4.4cm}Y@{}}
 \toprule
 \rowcolor{DSPaleBlue!92}
-Analysis & Lead with & Do not hide \\
+\textbf{Analysis} & \textbf{Lead with} & \textbf{Do not hide} \\
 \midrule
 Ames regression & holdout MAE/RMSE plus residual behaviour & expensive-home errors, missing predictors, nonlinearity \\
 Fraud classification & prevalence, recall/precision, threshold, validation design & trivial accuracy baseline and false-positive cost \\
@@ -315,13 +315,3 @@ Wine PCA & explained variance and loadings & standardisation choices and loss of
 \end{dstable}
 
 This is the difference between a software report and an analytical report. The former lists functions that were run; the latter organises evidence around the decision, uncertainty, diagnostics, and limitations that a reader needs.
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Analytical communication should start from the decision and preserve the evidence chain.
-  \item Uncertainty and limitations belong in the main narrative, not only in technical appendices.
-  \item Reports, notebooks, dashboards, and model services solve different communication and operational problems.
-  \item Data products require reproducible feature pipelines, versioning, monitoring, and ownership after deployment.
-  \item A strong capstone is a professional handoff that another analyst can inspect and reproduce.
-\end{itemize}
-\end{chapterrecap}

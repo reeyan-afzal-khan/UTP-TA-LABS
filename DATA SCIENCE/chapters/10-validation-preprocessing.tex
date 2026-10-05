@@ -187,12 +187,3 @@ A classifier can rank cases well while producing probabilities that are systemat
 
 Calibration should be estimated on data that did not fit the model. If a separate calibration method is learned, it needs its own validation discipline as well. A well-calibrated probability is still not a causal probability, and good calibration in one population does not guarantee calibration after deployment conditions change.
 
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Cross-validation measures performance across multiple held-out partitions.
-  \item Preprocessing must be estimated on training data only.
-  \item Scaling matters most for scale-sensitive algorithms.
-  \item Responsible reports expose uncertainty, limitations, subgroup behaviour, and error trade-offs.
-\end{itemize}
-\end{chapterrecap}

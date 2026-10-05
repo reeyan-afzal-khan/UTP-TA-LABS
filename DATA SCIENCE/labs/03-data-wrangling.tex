@@ -1,20 +1,28 @@
 \labsection{3}{Reshape time-aware data and engineer defensible features}{sec:lab03}
 
-\begin{labproject}{Lab 3 wrangling and feature engineering}
+\begin{labproject}{Lab 3 wrangling and feature engineering: build an analysis-ready table}
 \textbf{Dataset.} \texttt{bike\_sharing\_dataset\_hour.csv}.\\
-\textbf{Goal.} Transform a large hourly table into features and summaries that answer a specific demand question.
+\textbf{Scenario.} Hourly bike records are too granular for a manager who wants to understand commuting demand. Your task is to transform the source table into a compact, traceable analytical dataset without losing the meaning of the original measurements.
 
-\textbf{Procedure.}
+\textbf{Learning outcomes.} You should be able to preserve observational grain, construct derived variables, aggregate intentionally, validate engineered features, and explain what information is lost when data are summarised.
+
+\textbf{Core workflow.}
 \begin{enumerate}
-  \item Parse the date field and document the row grain: one row represents one observed hour.
-  \item Create readable day-type and hour labels without destroying the original coded variables.
-  \item Engineer peak-period categories and cyclical sine/cosine encodings for hour-of-day.
-  \item Aggregate mean demand by hour and working-day status, reducing more than 17,000 rows to an interpretable profile.
-  \item Compare casual and registered demand across time periods and explain why aggregating these columns separately matters.
-  \item Check the engineered cyclical features mathematically and visually.
+  \item \textbf{State the grain.} Confirm that one row represents one observed hour on one date. Verify the date and hour ranges before any transformation.
+  \item \textbf{Preserve raw variables.} Create readable day-type and hour labels as new fields rather than replacing coded source columns.
+  \item \textbf{Engineer an operational feature.} Define peak-period categories with explicit hour boundaries. Explain why the chosen boundaries are analytical assumptions rather than facts stored in the data.
+  \item \textbf{Represent cyclical time.} Create sine/cosine encodings for hour-of-day so that 23:00 is close to 00:00 in feature space. Verify the unit-circle identity numerically.
+  \item \textbf{Aggregate for a question.} Produce mean rental profiles by hour and working-day status. State how the observational unit changes after aggregation.
+  \item \textbf{Separate demand components.} Summarise \texttt{casual} and \texttt{registered} rentals by peak period and day type. Identify where the two user groups show materially different patterns.
+  \item \textbf{Validate the transformation.} Check that group counts sum to the source row count, engineered categories contain no unexpected missing values, and total rentals remain consistent with their components.
 \end{enumerate}
 
-\textbf{Interpretation checkpoint.} Feature engineering changes the representation, not the underlying evidence. Every engineered variable should have a clear definition that another analyst can reproduce.
+\textbf{Required evidence.} Submit the final analysis-ready column definitions, one grouped demand profile, and three validation checks. For every engineered variable, include a one-sentence definition precise enough for another analyst to reproduce it independently.
 
+\textbf{Decision checkpoint.} Recommend one feature that should enter a future demand model and one feature that should \emph{not} be used without additional care. Justify both choices from the variable meaning and the risk of leakage or redundancy.
+
+\textbf{Extension.} Change one peak-period boundary and quantify how much the resulting group summaries change. Use the result to explain why feature engineering should be treated as a modelling decision that may require sensitivity analysis.
+
+\tcbbreak
 \lstinputlisting[style=dsr]{all_experiments/lab03_wrangling.R}
 \end{labproject}
