@@ -18,21 +18,20 @@ Synchronization is not about forcing the whole program to run one step at a time
 \section{Mutexes and semaphores in plain language}
 A \term{mutex} is commonly used to give one thread at a time exclusive access to a critical section. A \term{semaphore} maintains a count that can represent available units of a resource or coordinate producer-consumer conditions.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.22\linewidth}
-  >{\raggedright\arraybackslash}p{0.32\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}
+  >{\raggedright\arraybackslash}m{0.32\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Mechanism} & \textbf{Think of it as} & \textbf{Typical use} \\
+\utpth{Mechanism} & \utpth{Think of it as} & \utpth{Typical use} \\
 \midrule
 Mutex & one key to a protected region & protect a shared counter or data structure \\
 Counting semaphore & a controlled count of available units & free slots, queued items, limited resources \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Producer-consumer and the bounded buffer}
 A bounded buffer with capacity $N$ can be reasoned about using two counts:
@@ -48,15 +47,14 @@ For capacity 3, the initial state may be \texttt{empty=3, full=0}. After one suc
 \section{Communication and synchronization are different questions}
 Processes have separate address spaces, so they need an interprocess communication (IPC) mechanism to exchange data. Common models include:
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.19\linewidth}
-  >{\raggedright\arraybackslash}p{0.35\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}
+  >{\raggedright\arraybackslash}m{0.35\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{IPC model} & \textbf{Main idea} & \textbf{Introductory trade-off} \\
+\utpth{IPC model} & \utpth{Main idea} & \utpth{Introductory trade-off} \\
 \midrule
 Pipe & ordered byte stream between endpoints & simple flow, usually directional \\
 Message queue & discrete messages managed by the kernel & message boundaries are preserved \\
@@ -64,7 +62,7 @@ Shared memory & multiple processes map the same memory region & fast sharing, bu
 Socket & endpoint-based communication & works locally or across networks \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{A pipe moves data; shared memory exposes common data}
 With a pipe, one process writes bytes and another reads them. Data conceptually travels through a kernel-managed channel.

@@ -1,10 +1,8 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Artificial Intelligence}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
-\def\utpdocumentsubtitle{Teaching Assistant Guide}
 \def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and evolutionary optimization.}
 
 % ---------- boxes this book renames ----------
@@ -18,76 +16,50 @@
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
-% ---------- boxes used only in this book ----------
-\utpnewcallout[boxrule=0.65pt,left=2.5mm,right=2.5mm,top=1.6mm,bottom=1.6mm,colbacktitle=UTPMuted]{checkanswers}{UTPPaleGray!72}{UTPMuted!62}{Quick-check answers}
+% ---------- book-specific settings ----------
+% The house style every book shares with Algorithms & Data Structures:
+% solid callout titles, frames that may break across pages, and a navy
+% lab box.
+\utpheavycallouts
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+% A short Learning Path, so stages and chapters are spaced generously.
+\utpcontentspage{\normalsize}{\large}{1.75em}{0.72em}{0.82em}
 
-% Expand the one-page Learning Path so its shorter contents list uses the
-% available height while preserving the stage, chapter, and lab hierarchy.
-\newcommand{\aifullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforepartskip}{1.75em}%
-  \setlength{\cftbeforechapskip}{0.72em}%
-  \setlength{\cftbeforelabskip}{0.82em}%
-  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\aifullpagetoc}{}{}
-
-
-% ---------- AI laboratory shorthand ----------
-% Every lab sheet is a sequence of Question / Answer pairs. The question
-% box states the task exactly as the student meets it in the notebook; the
-% answer box holds the worked code (pasted verbatim from the notebook cell),
-% the output to expect, and the interpretation.
-\lstdefinestyle{aipython}{style=utpcode,language=Python}
-\lstdefinestyle{aiterminal}{style=utpterminal}
-\newtcolorbox{labquestion}[2]{enhanced,breakable,colback=UTPPaleOrange!55,colframe=UTPOrange,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPOrange,title={Question #1 --- #2}}
-\newtcolorbox{labanswer}{enhanced,breakable,colback=white,colframe=UTPTeal,
-  boxrule=0.8pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title=Worked answer}
-\newcommand{\expectedoutput}{\par\smallskip\noindent\textbf{\color{UTPNavy}Reference output.}\nopagebreak\par\nopagebreak}
-\newcommand{\requiredoutput}[1]{%
-  \par\smallskip\noindent\textbf{Required output:} #1\par
-}
-\newcommand{\labruninstruction}{%
-  From the course folder, run \texttt{cd all\_experiments}, start Jupyter, open the named
-  notebook, and choose \textbf{Restart Kernel and Run All Cells}. Generated evidence belongs
-  in the matching \texttt{results/labXX/} folder; do not edit those files by hand.\space}
-
-% ---------- other settings used only in this book ----------
-\utpfigalias{aifig}
-\utpdiagramstyles{ai}{1.0cm}{0.8cm}
+% Every lab sheet is a sequence of labquestion / labanswer pairs (shared
+% lab toolkit, section 12 of utpnotes). The question states the task as
+% the student meets it in the notebook; the answer holds the worked code,
+% pasted verbatim from the notebook cell, the output to expect, and what
+% that output means.
 
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter
 
-% Begin with the environment guide as Chapter 1.
-\input{chapters/01-your-python-toolkit.tex}
+% Letter the setup chapters, then start the course content at Chapter 1.
+\renewcommand{\thechapter}{1A}
+\renewcommand{\theHchapter}{setup.1A}
+\input{chapters/00-toolkit}
+
+\renewcommand{\thechapter}{1B}
+\renewcommand{\theHchapter}{setup.1B}
+\input{../.shared/git-submission}
+
+\setcounter{chapter}{1}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Search and Problem Solving}
-\input{chapters/02-uninformed-search}
-\input{chapters/03-informed-search}
-\input{chapters/04-search-implementation-patterns}
+\input{chapters/01-uninformed-search}
+\input{chapters/02-informed-search}
+\input{chapters/03-search-implementation-patterns}
 
 \part{Approximate Reasoning and Intelligent Control}
-\input{chapters/05-fuzzy-logic-and-anfis}
-\input{chapters/06-robotics-scenarios}
+\input{chapters/04-fuzzy-logic-and-anfis}
+\input{chapters/05-robotics-scenarios}
 
 \part{Language Intelligence}
-\input{chapters/07-nlp-foundations}
+\input{chapters/06-nlp-foundations}
 \input{chapters/08-nlp-methods}
 
 \part{Evolutionary Optimization}

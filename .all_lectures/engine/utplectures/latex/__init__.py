@@ -1,0 +1,1 @@
+"""Reading the course LaTeX."""

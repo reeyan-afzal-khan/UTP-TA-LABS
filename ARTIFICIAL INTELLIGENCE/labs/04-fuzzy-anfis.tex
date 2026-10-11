@@ -1,14 +1,15 @@
 \labsection{4}{Fuzzy Logic and ANFIS with Air-Quality Data}{sec:lab04-fuzzy}
 
 \begin{labproject}{Combine expert rules with data-driven prediction}
+\textbf{Coverage.} Chapter~\ref{ch:fuzzy}.\\
+\textbf{Goal.} Build a Mamdani controller and a compact Sugeno ANFIS, then compare ANFIS with linear regression on held-out data.\\
 \textbf{Scenario.} An environmental monitor needs an interpretable ventilation policy and a nonlinear predictor for carbon-monoxide concentration.\\
-\textbf{Objective.} Build a Mamdani controller and a compact Sugeno ANFIS, then compare ANFIS with linear regression on held-out data.\\
 \textbf{Data.} \texttt{all\_datasets/lab04-AirQuality.csv} (UCI Air Quality, hourly sensor readings).\\
-\textbf{Notebook.} \texttt{all\_experiments/lab04\_fuzzy\_anfis\_worked.ipynb}; inference and ANFIS training are implemented with NumPy, SciPy, and scikit-learn.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab04\_fuzzy\_anfis\_worked.ipynb}; inference and ANFIS training are implemented with NumPy, SciPy, and scikit-learn.
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 from itertools import product
 from pathlib import Path
 
@@ -33,7 +34,7 @@ The UCI Air Quality file is semicolon-separated with a decimal comma, marks miss
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 df = pd.read_csv(DATA / "lab04-AirQuality.csv", sep=";", decimal=",")
 df = df.dropna(axis="columns", how="all").dropna(how="all")   # empty unnamed columns, empty tail rows
 df = df.replace(-200, np.nan)
@@ -47,7 +48,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "temperature_humidity.png", dpi=160)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Rows: 9357
                usable rows
 T                     8991
@@ -64,7 +65,7 @@ Inputs: temperature and relative humidity. Output: ventilation demand, 0--100\,\
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def trimf(x, a, b, c):
     """Triangle with feet a and c and peak b. a == b or b == c makes a shoulder."""
     x = np.asarray(x, dtype=float)
@@ -118,7 +119,7 @@ Evaluate five fixed operating points that have an expected qualitative answer, t
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 fixed = pd.DataFrame({"T_C": [10, 20, 35, 25, 40], "RH_pct": [30, 50, 50, 80, 80],
                       "expected": ["low", "medium", "high", "high", "high"]})
 fixed["ventilation_pct"] = [ventilation(t, h) for t, h in zip(fixed.T_C, fixed.RH_pct)]
@@ -136,7 +137,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "fuzzy_control_surface.png", dpi=160)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    T_C  RH_pct expected  ventilation_pct
 0   10      30      low             18.9
 1   20      50   medium             50.0
@@ -152,7 +153,7 @@ Predict the reference CO concentration \texttt{CO(GT)} from the two metal-oxide 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 task = df[["CO(GT)", "PT08.S1(CO)", "PT08.S2(NMHC)"]].dropna()
 X = task[["PT08.S1(CO)", "PT08.S2(NMHC)"]].to_numpy()
 y = task["CO(GT)"].to_numpy()
@@ -168,7 +169,7 @@ Xs = scaler.transform(X)
 print({"usable_rows": len(task), "train": len(train), "validation": len(val), "test": len(test)})
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 {'usable_rows': 7344, 'train': 5140, 'validation': 1102, 'test': 1102}
 \end{lstlisting}
 7,344 complete rows give 5,140 training, 1,102 validation and 1,102 test rows. The scaler sees only the training rows, so nothing from validation or test leaks into the model.
@@ -179,7 +180,7 @@ Train linear regression as the baseline. Implement a first-order Sugeno ANFIS wi
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 class SugenoANFIS:
     """First-order Sugeno ANFIS: Gaussian memberships, linear rule outputs."""
 
@@ -246,7 +247,7 @@ anfis = candidates[best_n]
 print(f"Selected by validation RMSE: ANFIS-{best_n}MF")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                model  validation_rmse  validation_mae  test_rmse  test_mae
 0  Linear regression           0.5103          0.3722     0.5365    0.3821
 1          ANFIS-2MF           0.4550          0.3195     0.4715    0.3264
@@ -261,7 +262,7 @@ Report test RMSE and MAE for the baseline and the selected ANFIS, save the predi
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 fig, axes = plt.subplots(1, 2, figsize=(9, 4), sharex=True, sharey=True)
 for ax, (name, model) in zip(axes, [("Linear baseline", linear), (f"ANFIS-{best_n}MF", anfis)]):
     prediction = model.predict(Xs[test])
@@ -276,22 +277,32 @@ print(f"Test RMSE improvement over linear regression: {improvement:.1%}")
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Test RMSE improvement over linear regression: 12.9%
 Saved: ['fuzzy_control_surface.png', 'fuzzy_fixed_points.csv', 'fuzzy_memberships.png', 'metrics.csv', 'predicted_vs_actual.png', 'split.csv', 'temperature_humidity.png']
 \end{lstlisting}
 The selected ANFIS lowers test RMSE by about 13\,\% relative to linear regression, and the scatter plot shows why: the sensor response is nonlinear at high CO levels, where the linear model under-predicts. The extra complexity is justified here. Two caveats: a random split ignores sensor drift and time order, and the controller and the regressor solve different problems --- one encodes expert policy, the other learns a response surface from data.
 \end{labanswer}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}XXX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.28\linewidth}XXX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Model & Validation RMSE & Test RMSE & Test MAE \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Model} & \utpth{Validation RMSE} & \utpth{Test RMSE} & \utpth{Test MAE} \\
 \midrule
 Linear baseline & 0.5103 & 0.5365 & 0.3821 \\
 ANFIS-2MF & 0.4550 & 0.4715 & 0.3264 \\
 ANFIS-3MF (selected) & 0.4489 & 0.4672 & 0.3246 \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
+
+\begin{verification}
+\begin{itemize}
+  \item \texttt{-200} values are treated as missing, and 9,357 hourly rows remain after cleaning.
+  \item The five fixed operating points land in their expected bands, and the control surface rises smoothly towards the hot-and-humid corner.
+  \item The split has 5,140, 1,102 and 1,102 rows, and the scaler is fitted on the training rows only.
+  \item The ANFIS candidate is chosen by validation RMSE before the test set is used.
+  \item The selected ANFIS lowers test RMSE relative to linear regression (0.4672 against 0.5365).
+\end{itemize}
+\end{verification}

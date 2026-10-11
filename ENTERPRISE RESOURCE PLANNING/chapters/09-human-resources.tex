@@ -32,27 +32,27 @@ The ABC Company scenario in Tutorial 8 can be expressed as a sequence of busines
   \item HR issues the offer with salary, benefits, and start date.
 \end{enumerate}
 
-\begin{erpfig}[The ABC recruitment swimlane]{The eleven events of the ABC Company scenario, each drawn in the lane of whoever performs it. The value of the lane form is in the crossings: every arrow that changes column is a handover, and every handover is a place where a paper process loses a form, stalls a decision, or leaves the candidate without news.}{fig:hr-swimlane}
+\begin{utpfig}[The ABC recruitment swimlane]{The eleven events of the ABC Company scenario, each drawn in the lane of whoever performs it. The value of the lane form is in the crossings: every arrow that changes column is a handover, and every handover is a place where a paper process loses a form, stalls a decision, or leaves the candidate without news.}{fig:hr-swimlane}
 \begin{tikzpicture}[
   x=1cm, y=1cm,
   lane/.style={font=\small\bfseries\color{white},align=center},
-  act/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=1.5mm,text width=3.1cm,
-              minimum height=0.82cm,align=center,font=\scriptsize\color{ERPNavy},
+  act/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,text width=3.1cm,
+              minimum height=0.82cm,align=center,font=\scriptsize\color{UTPNavy},
               inner sep=2pt},
-  hr/.style={act,fill=ERPPaleTeal,draw=ERPTeal},
-  cd/.style={act,fill=ERPPaleOrange,draw=ERPOrange},
-  pn/.style={act,fill=white,draw=ERPNavy},
-  hand/.style={-{Stealth[length=2mm]},semithick,draw=ERPMuted},
-  num/.style={font=\tiny\bfseries\color{ERPMuted}}]
+  hr/.style={act,fill=UTPPaleTeal,draw=UTPTeal},
+  cd/.style={act,fill=UTPPaleOrange,draw=UTPOrange},
+  pn/.style={act,fill=white,draw=UTPNavy},
+  hand/.style={-{Stealth[length=2mm]},semithick,draw=UTPMuted},
+  num/.style={font=\tiny\bfseries\color{UTPMuted}}]
 
 % lane headers and dividers
 \foreach \t/\x in {{Department / manager}/0, {Human Resources}/4.0,
                    {Candidate}/8.0, {Selection panel}/12.0} {
-  \fill[ERPNavy,rounded corners=1.2mm] (\x-1.65,0.42) rectangle (\x+1.65,1.12);
+  \fill[UTPNavy,rounded corners=1.2mm] (\x-1.65,0.42) rectangle (\x+1.65,1.12);
   \node[lane,text width=3.1cm] at (\x,0.77) {\t};
 }
 \foreach \x in {2.0, 6.0, 10.0}
-  \draw[ERPMuted!35,dashed] (\x,0.30) -- (\x,-10.15);
+  \draw[UTPMuted!35,dashed] (\x,0.30) -- (\x,-10.15);
 
 \node[act] (s1)  at (0,-0.35)     {identify a staffing need};
 \node[act] (s2)  at (0,-1.32)     {raise a hiring request with requirements};
@@ -73,7 +73,7 @@ The ABC Company scenario in Tutorial 8 can be expressed as a sequence of busines
   \node[num,anchor=east] at ($(\s.west)+(-0.10,0)$) {\n};
 
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 The textbook's Fitter Snacker example shows how a paper-based version of this process can fail: forms may be inconsistent or lost, applications can be misfiled, reviews happen sequentially because paper copies must circulate, interview scheduling is slow, and promising candidates can accept another offer while the company is still coordinating internally.
 
@@ -81,11 +81,11 @@ The textbook's Fitter Snacker example shows how a paper-based version of this pr
 
 Tutorial 8 asks which problems could create a negative candidate impression. Useful categories include:
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.24\linewidth}p{0.31\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}m{0.31\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Problem & What the candidate experiences & Information-system response \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Problem} & \utpth{What the candidate experiences} & \utpth{Information-system response} \\
 \midrule
 Slow scheduling & Long silence between stages & Shared calendars, workflow tasks, status tracking, reminders \\
 Lost or duplicated documents & Candidate asked to resend information & Central applicant record and document control \\
@@ -95,7 +95,7 @@ Poor communication & Candidate does not know whether the application is active &
 Incorrect offer details & Salary, role, or start date conflicts & Approved master data and controlled offer workflow \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \begin{keyidea}
 A candidate experiences the organisation as one process. They do not care that scheduling belongs to HR, technical evaluation belongs to the hiring manager, and approval belongs to senior management. ERP/process integration should hide that internal fragmentation from the candidate.
@@ -156,11 +156,11 @@ An employee record describes a person in the organisation. A user account gives 
 
 The guide therefore creates user accounts for selected operational roles and links them back to the corresponding employee records.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.24\linewidth}p{0.26\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}m{0.26\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Role & Operational ownership & Example in the Odoo guide \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Role} & \utpth{Operational ownership} & \utpth{Example in the Odoo guide} \\
 \midrule
 Sales Manager & Salesperson / team leadership & CRM opportunity, quotation, Sales Order \\
 Purchasing Officer & Buyer & RFQ and Purchase Order \\
@@ -168,7 +168,7 @@ Production Planner & Responsible & Manufacturing Order \\
 Accountant & Finance activity & Customer payment and invoice follow-up \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section{HR data and access control}
 

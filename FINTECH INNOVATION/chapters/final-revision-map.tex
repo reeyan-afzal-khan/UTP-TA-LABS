@@ -6,12 +6,12 @@ Use this section after completing all eight chapters. It compresses the course i
 
 \section*{The complete course in one chain}
 
-\begin{mlfigure}
+\begin{utpfig}[The course in one chain]{The complete course in one chain. Customer friction and digital technology drive unbundling and new platforms, and each branch of the course follows from one link in that chain.}{fig:revision-chain}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  g/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  o/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  g/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  o/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,text width=2.45cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-5.2,1.2) {Traditional\\intermediation};
 \node[b] (b) at (-2.6,1.2) {Customer\\friction};
@@ -25,15 +25,15 @@ Use this section after completing all eight chapters. It compresses the course i
 \draw[arr](a)--(b); \draw[arr](b)--(c); \draw[arr](c)--(d); \draw[arr](d)--(e);
 \draw[arr](b) to[bend right=24] (f); \draw[arr](c) to[bend right=14] (g); \draw[arr](c) to[bend left=10] (h); \draw[arr](d) to[bend left=24] (i);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section*{Eight concepts you must distinguish}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.27\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Concept & Distinction to remember \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Concept} & \utpth{Distinction to remember} \\
 \midrule
 Disintermediation vs unbundling & Disintermediation changes the intermediary; unbundling separates a one-stop provider into specialist services. \\
 Unbanked vs underbanked & Unbanked means no formal account; underbanked means partial or insufficient use of mainstream services. \\
@@ -45,7 +45,7 @@ Centralized database vs blockchain & Single authoritative state versus replicate
 FinTech vs TechFin & Finance-led technology innovation versus technology-platform-led expansion into financial services. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Recurring FinTech value proposition}
 
@@ -63,11 +63,11 @@ Whenever you make one of these claims in an answer, pair it with a limitation: s
 
 \section*{Recurring technology stack}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Technology & Role in the course \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Technology} & \utpth{Role in the course} \\
 \midrule
 Mobile & Continuous financial access, notifications, biometrics, camera/OCR, contactless interaction \\
 Cloud & Scalable modern infrastructure and faster deployment for digital banks and incumbents \\
@@ -78,7 +78,7 @@ Blockchain & Shared, cryptographically linked transaction history without one au
 Cryptography & Key ownership, transaction authorization, hashing, signatures, and proof-of-work mechanisms \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Recurring business-model tension}
 
@@ -92,11 +92,11 @@ A good exam answer should explain both sides. Technology can lower one cost whil
 
 \section*{Fast comparison: who owns the customer relationship?}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}XXX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}XXX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Model & Primary interface & Strategic asset & Main vulnerability \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Model} & \utpth{Primary interface} & \utpth{Strategic asset} & \utpth{Main vulnerability} \\
 \midrule
 Traditional bank & Branch + bank-owned digital channels & Trust, license, balance sheet, customer history & Legacy cost and slower change \\
 P2P platform & Marketplace & Matching, scoring, low-cost distribution & Credit risk and weak guarantees \\
@@ -105,13 +105,13 @@ Big Tech / TechFin & Existing super-platform & User base, engagement, data, ecos
 Cryptocurrency network & Wallet + protocol & Decentralized transfer and user-controlled keys & Volatility, custody, governance, scalability, regulation \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Exam-answer structure}
 
 For an ``analyze'' or ``evaluate'' question, use this order:
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Define the model precisely.}
   \item \term{Identify the traditional friction or market failure.}
   \item \term{Explain the enabling technology and business-model change.}
@@ -119,7 +119,7 @@ For an ``analyze'' or ``evaluate'' question, use this order:
   \item \term{State the risk or limitation to each stakeholder.}
   \item \term{Explain the incumbent or regulatory response.}
   \item \term{Conclude with the condition under which the innovation creates sustainable value.}
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{quickcheck}
 Without looking back, answer these eight prompts in one or two sentences each:

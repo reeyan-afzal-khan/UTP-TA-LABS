@@ -12,7 +12,7 @@ Work through the parts in order. Each one adds a single property, and the final 
 
 \medskip\noindent\textbf{Part A --- Hashing, and what makes it useful.}\par
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import hashlib
 
 def sha256(data: str) -> str:
@@ -24,11 +24,11 @@ print(sha256("Alice pays Bob 11"))   # one character different
 
 Run it. The two outputs share no visible structure despite differing by one character. Four properties matter, and the rest of the lab depends on each:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Property & Why the blockchain needs it \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Property} & \utpth{Why the blockchain needs it} \\
 \midrule
 Deterministic & The same input always hashes identically, so any node can verify any block. \\
 Fixed length & A megabyte of transactions and one character both produce 64 hex characters. \\
@@ -36,12 +36,12 @@ Avalanche & One changed bit changes roughly half the output bits, so tampering i
 One-way & Given a hash you cannot compute the input, so mining must proceed by trial. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \medskip\noindent\textbf{Part B --- The Merkle root.}\par
 A block commits to every transaction it contains through one 64-character value, built by hashing transactions in pairs until one remains:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def merkle_root(transactions: list[str]) -> str:
     if not transactions:
         return sha256("")
@@ -66,7 +66,7 @@ It also enables a proof that scales logarithmically: to convince someone a trans
 \medskip\noindent\textbf{Part C --- Chaining blocks.}\par
 Each block header contains the hash of the block before it. That single field is what makes the structure a chain rather than a list:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 from dataclasses import dataclass, field
 import time
 
@@ -89,7 +89,7 @@ class Block:
 \medskip\noindent\textbf{Part D --- Proof of work.}\par
 Mining searches for a nonce that makes the block's hash start with a required number of zeros. There is no shortcut: because the hash is one-way, the only method is to try values.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def mine(block: Block, difficulty: int) -> Block:
     target = "0" * difficulty
     while not block.hash().startswith(target):
@@ -100,7 +100,7 @@ def mine(block: Block, difficulty: int) -> Block:
 \begin{tryit}
 Time mining at difficulty 1 through 6 and record the attempts:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 for d in range(1, 7):
     b = Block(index=1, transactions=["a pays b 1"], previous_hash="0" * 64)
     start = time.time()
@@ -118,7 +118,7 @@ Now connect it to Chapter~\ref{ch:blockchain}: Bitcoin targets one block every t
 \medskip\noindent\textbf{Part E --- Break it.}\par
 This is the part that makes immutability concrete. Build a valid five-block chain, then alter a transaction in block 2:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def validate(chain: list[Block], difficulty: int) -> list[str]:
     """Collect every problem, rather than returning at the first one."""
     problems = []
@@ -139,7 +139,7 @@ for problem in validate(chain, difficulty=4):
 
 Collecting \emph{all} failures rather than returning at the first one is what makes the cascade visible. One edit produces two distinct errors:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 block 2: proof of work invalid
 block 3: previous_hash does not match block 2
 \end{lstlisting}

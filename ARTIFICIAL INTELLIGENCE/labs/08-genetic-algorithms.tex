@@ -1,14 +1,15 @@
 \labsection{8}{Genetic Algorithms: Regression and Reproducibility}{sec:lab08-ga}
 
 \begin{labproject}{Fit a medical-cost regression model with a Genetic Algorithm}
+\textbf{Coverage.} Chapter~\ref{ch:ga}.\\
+\textbf{Goal.} Verify a NumPy GA, evaluate it across ten seeds, and compare it with exact least squares.\\
 \textbf{Scenario.} Test whether a real-valued GA can recover useful linear-regression coefficients, and compare its stochastic behaviour with an exact baseline.\\
-\textbf{Objective.} Verify a NumPy GA, evaluate it across ten seeds, and compare it with exact least squares.\\
 \textbf{Data.} \texttt{all\_datasets/lab08-insurance.csv} (1,338 policies).\\
-\textbf{Notebook.} \texttt{all\_experiments/lab08\_genetic\_algorithm\_regression\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab08\_genetic\_algorithm\_regression\_worked.ipynb}.
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 import time
 from pathlib import Path
 
@@ -32,7 +33,7 @@ Before touching real data, minimise $f(x)=(x-3)^2$ with a small real-valued GA -
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def ga_scalar(seed=42, pop_size=40, generations=80, n_elite=2):
     rng = np.random.default_rng(seed)
     population = rng.uniform(-10, 10, pop_size)
@@ -56,7 +57,7 @@ x_best, f_best = ga_scalar()
 print(f"Best x = {x_best:.6f}   f(x) = {f_best:.8f}")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Best x = 2.999989   f(x) = 0.00000000
 \end{lstlisting}
 The best individual lands within about $10^{-5}$ of $x=3$ after 80 generations. The loop --- evaluate, keep elites, select by tournament, blend, mutate, replace --- is the same loop the regression GA uses below, so a bug would show up here first.
@@ -67,7 +68,7 @@ Predict \texttt{charges} from age, BMI, number of children and smoker status (0/
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 insurance = pd.read_csv(DATA / "lab08-insurance.csv")
 X = insurance[["age", "bmi", "children"]].assign(smoker=(insurance.smoker == "yes").astype(float))
 y = insurance.charges.to_numpy()
@@ -81,7 +82,7 @@ y_train, y_test = y[train], y[test]
 print({"rows": len(insurance), "train": len(train), "test": len(test), "predictors": list(X.columns)})
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 {'rows': 1338, 'train': 1070, 'test': 268, 'predictors': ['age', 'bmi', 'children', 'smoker']}
 \end{lstlisting}
 1,070 training and 268 test rows. Standardising the inputs puts all four coefficients on a comparable scale, which matters for a GA because one mutation step size is used for every coefficient gene.
@@ -92,7 +93,7 @@ A chromosome has five real-valued genes: the intercept and four coefficients. Fi
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def run_ga(seed, pop_size=100, generations=160, mutation_rate=0.15, mutation_scale=0.25, n_elite=4):
     rng = np.random.default_rng(seed)
     n_genes = X_train.shape[1] + 1
@@ -132,7 +133,7 @@ print(f"seed 1: train RMSE {trial['train_rmse']:.1f} | test RMSE {trial['test_rm
 print("Best chromosome [intercept, age, bmi, children, smoker]:", trial["coefficients"].round(1))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 seed 1: train RMSE 6113.1 | test RMSE 5829.4 | 0.04 s
 Best chromosome [intercept, age, bmi, children, smoker]: [13346.1  3616.3  1978.4   519.2  9559.3]
 \end{lstlisting}
@@ -144,7 +145,7 @@ Repeat the GA for seeds 1--10, save train RMSE, test RMSE and runtime per seed t
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def run_table(runs):
     return pd.DataFrame(runs)[["seed", "train_rmse", "test_rmse", "runtime_s"]]
 
@@ -156,7 +157,7 @@ display(results.round(3))
 print(f"Median test RMSE {results.test_rmse.median():.2f} | SD across seeds {results.test_rmse.std():.4f}")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    seed  train_rmse  test_rmse  runtime_s
 0     1    6113.068   5829.378      0.038
 1     2    6113.068   5829.379      0.038
@@ -173,7 +174,7 @@ Fit ordinary least squares on the identical split and preprocessing, compare its
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 ols = LinearRegression().fit(X_train, y_train)
 ols_test_rmse = mean_squared_error(y_test, ols.predict(X_test)) ** 0.5
 ols_train_rmse = mean_squared_error(y_train, ols.predict(X_train)) ** 0.5
@@ -191,7 +192,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "convergence.png", dpi=160)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 OLS test RMSE: 5829.38
 OLS coefficients:    [3616.3 1978.4  519.2 9559.3]
 Median GA coefficients: [3616.3 1978.4  519.2 9559.3]
@@ -204,7 +205,7 @@ Reduce the population from 100 to 40, repeat the ten seeds, and compare median t
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 small = run_table(run_ga(seed, pop_size=40) for seed in range(1, 11))
 small.to_csv(RESULTS / "ga_sensitivity_pop40.csv", index=False)
 
@@ -218,7 +219,7 @@ display(summary.round(4))
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
        method  median_test_rmse  sd_test_rmse  median_runtime_s
 0  GA pop=100         5829.3787        0.0019            0.0376
 1   GA pop=40         5829.3819        0.0255            0.0165
@@ -227,15 +228,25 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 Cutting the population to 40 more than halves the runtime and leaves the median RMSE essentially unchanged, but the spread across seeds grows: a smaller population has less diversity and depends more on its starting point. A GA is justified when the objective is non-differentiable, discrete or awkwardly constrained; here it mainly shows that a stochastic optimiser must be judged over repeated seeds, never from one run.
 \end{labanswer}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}XXX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.28\linewidth}XXX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Method & Median test RMSE & Median runtime & Interpretation \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Method} & \utpth{Median test RMSE} & \utpth{Median runtime} & \utpth{Interpretation} \\
 \midrule
 GA --- pop 100, 10 runs & 5829.38 & 0.04 s & reaches the OLS optimum on every seed \\
 GA --- pop 40, 10 runs & 5829.38 & 0.02 s & same median, ten times the spread \\
 Least squares & 5829.38 & --- & exact, closed form \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
+
+\begin{verification}
+\begin{itemize}
+  \item The test GA finds $x\approx3$ for $f(x)=(x-3)^2$ before it is used on real data.
+  \item The predictors are standardised with training statistics only (1,070 training and 268 test rows).
+  \item Ten seeds are run, and \texttt{ga\_10\_runs.csv} records train RMSE, test RMSE and runtime for each.
+  \item The GA's median test RMSE equals the least-squares test RMSE, and you can explain why it cannot beat it.
+  \item The population-40 sensitivity run is saved and its larger spread across seeds is explained.
+\end{itemize}
+\end{verification}

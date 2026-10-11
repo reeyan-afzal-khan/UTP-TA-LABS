@@ -23,12 +23,12 @@ At the simplest level, the lecture frames retail banking around three core funct
 
 The traditional model therefore places the bank between two groups. Savers receive interest; borrowers obtain capital; the bank earns a spread and fees for performing intermediation, risk management, compliance, liquidity management, and payment services.
 
-\begin{mlfigure}
+\begin{utpfig}[The bank as intermediary]{The traditional bank sits between savers and borrowers. It takes deposits, makes loans, and earns a spread and fees for intermediation, risk management, and payment services.}{fig:bank-intermediary}
 \begin{tikzpicture}[
   node distance=1.0cm and 1.1cm,
-  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=3.2cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{MLNavy}},
-  bank/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,minimum width=3.5cm,minimum height=1.55cm,align=center,font=\small\bfseries},
-  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+  p/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=3.2cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  bank/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,minimum width=3.5cm,minimum height=1.55cm,align=center,font=\small\bfseries},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal}
 ]
 \node[p] (s) {Savers\\deposits};
 \node[bank,right=of s] (b) {Traditional bank\\intermediary};
@@ -38,7 +38,7 @@ The traditional model therefore places the bank between two groups. Savers recei
 \draw[arr] (r) to[bend left=24] node[below,font=\scriptsize]{interest + repayment} (b);
 \draw[arr] (b) to[bend left=24] node[below,font=\scriptsize]{interest} (s);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 This integrated model historically enjoyed strong barriers to entry. Large incumbents possessed established brands, branch and payment networks, compliance capability, capital, customer relationships, and institutional knowledge. The lecture's central argument is that digital technology weakens some of these barriers and makes it possible to compete with only one slice of the old bank value chain.
 
@@ -46,11 +46,11 @@ This integrated model historically enjoyed strong barriers to entry. Large incum
 
 The lecture materials describe FinTech companies as firms that combine financial services with modern technology to change the way people pay, transfer money, borrow, lend, invest, insure, and manage wealth. The emphasis is repeatedly placed on five qualities:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Quality & What it means in the course \\ 
+\rowcolor{UTPPaleBlue!92}
+\utpth{Quality} & \utpth{What it means in the course} \\
 \midrule
 User-friendly & The product is built around the customer's task rather than the bank's internal process. \\
 Efficient & Digital workflows reduce manual steps, paperwork, and avoidable operating cost. \\
@@ -59,7 +59,7 @@ Automated & Software performs tasks that previously required repeated human proc
 Accessible & Internet and mobile distribution can reach users outside the physical branch network. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The lecture uses definitions associated with the IMF/World Bank and the People's Bank of China to reinforce that FinTech is not one product category. It can appear in deposits, lending and capital raising, insurance, investment management, payments, clearing, and settlement.
 
@@ -91,13 +91,13 @@ The lecture cites a TransferWise survey in which respondents identified perceive
 
 \term{Disintermediation} means reducing or removing a traditional intermediary from a transaction. In finance, a digital marketplace can connect users directly while the platform performs matching, information, identity, or risk-assessment functions.
 
-\begin{mlfigure}
+\begin{utpfig}[Disintermediation]{Disintermediation. In the traditional model the bank's balance sheet stands between saver and borrower; a digital marketplace connects them directly while still performing matching, information, and risk-assessment functions.}{fig:disintermediation}
 \begin{tikzpicture}[
   node distance=0.75cm and 0.8cm,
-  person/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
-  old/.style={draw=MLMuted,fill=MLPaleGray,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
-  new/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.1mm]},thick,draw=MLTeal}
+  person/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  old/.style={draw=UTPMuted,fill=UTPPaleGray,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  new/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,minimum width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2.1mm]},thick,draw=UTPTeal}
 ]
 \node[person] (a) at (-5,1.0) {Saver / investor};
 \node[old] (b) at (0,1.0) {Bank balance sheet};
@@ -107,9 +107,9 @@ The lecture cites a TransferWise survey in which respondents identified perceive
 \node[new] (e) at (0,-1.3) {Digital marketplace};
 \node[person] (f) at (5,-1.3) {Borrower};
 \draw[arr] (d)--(e); \draw[arr] (e)--(f);
-\node[font=\scriptsize\color{MLMuted},align=center] at (0,-2.2) {The platform may match, score and service the transaction\\without funding it like a traditional bank.};
+\node[font=\scriptsize\color{UTPMuted},align=center] at (0,-2.2) {The platform may match, score and service the transaction\\without funding it like a traditional bank.};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The slides emphasize why this can be disruptive:
 
@@ -128,11 +128,11 @@ Disintermediation does \emph{not} mean ``no intermediary of any kind.'' A P2P or
 
 \term{Unbundling} is the course's other central disruption concept. A traditional bank offers many products under one institution. A FinTech firm can focus intensely on a narrow service and attempt to become the ``best of breed'' in that niche.
 
-\begin{mlfigure}
+\begin{utpfig}[Unbundling the bank]{Unbundling. A traditional bank offers payments, lending, wealth, insurance, and settlement under one roof; a single-purpose FinTech attacks one slice of that value chain and tries to be the best in that niche.}{fig:unbundling}
 \begin{tikzpicture}[
-  service/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  attack/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLOrange}
+  service/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  attack/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1.5mm,minimum width=2.25cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPOrange}
 ]
 \node[service] (p) at (-5,0) {Payments};
 \node[service] (l) at (-2.5,0) {Lending};
@@ -141,9 +141,9 @@ Disintermediation does \emph{not} mean ``no intermediary of any kind.'' A P2P or
 \node[service] (s) at (5,0) {Settlement};
 \node[attack] (x) at (-2.5,-1.6) {Single-purpose\\FinTech};
 \draw[arr] (x) -- (l);
-\node[font=\scriptsize\color{MLMuted},align=center] at (0,-2.55) {A focused entrant does not need to rebuild the whole bank;\\it needs to make one high-friction, valuable activity significantly better.};
+\node[font=\scriptsize\color{UTPMuted},align=center] at (0,-2.55) {A focused entrant does not need to rebuild the whole bank;\\it needs to make one high-friction, valuable activity significantly better.};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The supplied lecture lists examples across the financial system:
 
@@ -180,11 +180,11 @@ Digital players can combine platform models, data-intensive decision-making, and
 
 The Week 1 deck groups the drivers into customer, technology, economic, and access forces. The following table consolidates them.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.23\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Driver & Course explanation \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Driver} & \utpth{Course explanation} \\
 \midrule
 Customer expectations & Users expect 24/7 access, intuitive design, personalization, transparency, and fast service. \\
 Mobile culture & Smartphones reduce dependence on branches and make financial services continuously reachable. \\
@@ -196,7 +196,7 @@ Unbanked and underbanked demand & Large populations remain poorly served by conv
 Lower barriers to entry & Internet and mobile distribution allow new firms to reach users without first building a branch network. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The course also highlights \term{data} as a distinctive advantage. Digital firms can gather, process, and interpret formal and social information to learn about customers and businesses. The strategic value is not simply collecting more data; it is turning data into faster and more relevant decisions.
 
@@ -235,11 +235,11 @@ These opportunities create the bridge to Chapter~\ref{ch:financial-inclusion}, w
 
 The Week 1 slides identify the main competitive threats as erosion of brand equity, market share, margins, information-security confidence, and customer retention. They also group incumbent challenges into a memorable set of ``six Cs.'' The source slides explicitly name culture, customers, competition, computers, compliance, and costs.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-The C & Pressure on the incumbent \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{The C} & \utpth{Pressure on the incumbent} \\
 \midrule
 Culture & Become customer-centric, lean, automated, and agile while balancing institutional constraints. \\
 Customers & Deal with empowered, demanding, sometimes confused, and occasionally malicious users. \\
@@ -249,7 +249,7 @@ Compliance & Handle fraud, cybersecurity, regulation, governance, risk, and comp
 Costs & Improve returns and efficiency while reducing expensive infrastructure and process overhead. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Challenges faced by FinTech firms themselves}
 
@@ -285,11 +285,11 @@ The course uses dated investment and company examples to show that FinTech is a 
 
 Singapore is presented as an ASEAN FinTech hub because of its regulatory environment, policy support, ease of doing business, technology ecosystem, and concentration of FinTech firms. The slides then use Southeast Asian technology companies to illustrate how FinTech can become embedded inside larger digital ecosystems.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Lecture example & Why it matters to the course argument \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Lecture example} & \utpth{Why it matters to the course argument} \\
 \midrule
 Grab & Shows the convergence of transport, delivery, digital financial services, and digital banking ambitions. \\
 GoTo & Demonstrates a super-app ecosystem combining on-demand services, commerce, and financial products. \\
@@ -298,18 +298,18 @@ OVO & Shows an e-wallet expanding into P2P lending, investment, and insurance th
 Bitkub & Connects the FinTech ecosystem to the cryptocurrency exchange sector. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The valuations, ownership percentages, user counts, and listing details in these examples are best read as historical lecture snapshots. Their educational purpose is to show \emph{ecosystem expansion}: a technology firm can use an existing user base and digital engagement to add financial services.
 
 \section{A single mental model for Week 1}
 
-\begin{mlfigure}
+\begin{utpfig}[One mental model for FinTech]{A single mental model for the course. A customer or institutional friction invites a technology, the technology enables a new business model, and the new model brings competition, access, and new risks.}{fig:fintech-mental-model}
 \begin{tikzpicture}[
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  box2/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  box3/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  box2/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  box3/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,text width=3.0cm,minimum height=1.35cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[box] (f) at (-4.8,0) {FRICTION\\cost, delay, poor CX, exclusion};
 \node[box2] (t) at (-1.6,0) {TECHNOLOGY\\mobile, data, AI, cloud};
@@ -317,7 +317,7 @@ The valuations, ownership percentages, user counts, and listing details in these
 \node[box3] (o) at (4.8,0) {OUTCOME\\competition, access, new risks};
 \draw[arr] (f)--(t); \draw[arr] (t)--(m); \draw[arr] (m)--(o);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 When you encounter a new FinTech case, ask four questions:
 

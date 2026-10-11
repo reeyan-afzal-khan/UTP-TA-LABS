@@ -1,5 +1,5 @@
 \chapter{Capstone: An End-to-End Data-Science Analysis}
-\label{chap:capstone}
+\label{ch:capstone}
 \chapterguide
   {You should have completed the ten labs and be able to audit, explore, model, validate, and communicate tabular data.}
   {produce a compact, reproducible analysis in which every technical choice is connected to a question and every conclusion is connected to evidence.}
@@ -67,7 +67,7 @@ A capstone becomes easier to follow when every section answers one question. The
 \end{utpfig}
 
 \section{Required components}
-\begin{mlsteps}
+\begin{utpsteps}
   \item \textbf{Problem framing.} State the analytical question, target population, unit of observation, and why the answer would matter.
   \item \textbf{Data understanding.} Provide a data dictionary for variables used, source/provenance, shape, missingness, and quality constraints.
   \item \textbf{Preparation.} Show filters, cleaning rules, transformations, and feature engineering with counts of affected records.
@@ -75,7 +75,7 @@ A capstone becomes easier to follow when every section answers one question. The
   \item \textbf{Method.} Use an appropriate inferential, supervised, or unsupervised method and justify why it matches the question.
   \item \textbf{Validation.} Use held-out data, cross-validation, uncertainty intervals, or stability checks appropriate to the method.
   \item \textbf{Communication.} State the main result, practical meaning, limitations, and a next step without overclaiming causality.
-\end{mlsteps}
+\end{utpsteps}
 
 
 \section{Minimum visual standard}
@@ -85,18 +85,18 @@ Every figure should have a title or caption that answers: \emph{what should the 
 
 
 \section{Suggested capstone directions}
-\begin{dstable}
-\begin{tabularx}{\linewidth}{@{}D{3.2cm}YD{5.0cm}@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{3.2cm}YD{5.0cm}@{}}
 \toprule
-\rowcolor{DSPaleBlue!92}
-\textbf{Dataset} & \textbf{Possible question} & \textbf{Suitable methods} \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dataset} & \utpth{Possible question} & \utpth{Suitable methods} \\
 \midrule
 Iris & Which measurements separate species and how does unsupervised structure compare? & EDA, PCA, k-means, classification extension \\
 Wine recognition & Which chemical measurements are most associated with cultivar or alcohol? & EDA, inference, regression, multiclass extension \\
 Breast cancer diagnostic & How do selected measurements separate diagnostic labels? & EDA, logistic classification, cross-validation \\
 \bottomrule
 \end{tabularx}
-\end{dstable}
+\end{utptable}
 
 \begin{pitfall}
 Do not choose a model first and then invent a question that fits it. The capstone is assessed on coherence of the evidence chain, not algorithm complexity.
@@ -104,7 +104,7 @@ Do not choose a model first and then invent a question that fits it. The capston
 
 
 \section{Recommended checks before submission}
-\begin{mlsteps}
+\begin{utpsteps}
   \item Restart R and run the analysis script from top to bottom using relative paths.
   \item Confirm that raw data files are not modified by the script.
   \item Compare row counts before and after every major filter or join.
@@ -112,7 +112,7 @@ Do not choose a model first and then invent a question that fits it. The capston
   \item Check that every reported number and figure can be reproduced from code.
   \item Read every claim and ask whether it is descriptive, predictive, or causal; revise wording that exceeds the design.
   \item State at least two limitations that could materially change the conclusion.
-\end{mlsteps}
+\end{utpsteps}
 
 
 \section{Submission structure}

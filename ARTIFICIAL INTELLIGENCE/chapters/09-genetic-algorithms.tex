@@ -9,11 +9,11 @@ A \term{genetic algorithm} (GA) improves a population of solutions through selec
 
 \section{Vocabulary}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.17\linewidth}p{0.40\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.17\linewidth}m{0.40\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Term & Meaning & In Lab~8 \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Term} & \utpth{Meaning} & \utpth{In Lab~8} \\
 \midrule
 Chromosome & One candidate solution, as a vector of genes & Five real numbers: intercept plus four coefficients \\
 Gene & One component of a chromosome & One coefficient \\
@@ -26,33 +26,33 @@ Elitism & Copying the best chromosomes unchanged into the next generation & The 
 Generation & One pass of evaluate, select, cross, mutate, replace & 160 passes per run \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{One generation}
 
 \figref{fig:ga-loop} combines selection pressure, recombination, mutation and preservation of the best candidates.
 
-\begin{aifig}[The genetic algorithm loop]{Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.}{fig:ga-loop}
+\begin{utpfig}[The genetic algorithm loop]{Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.}{fig:ga-loop}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=0.9cm,align=center,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (p) {Population};
 \node[b,right=0.35cm of p] (fit) {Evaluate\\fitness};
 \node[b,right=0.35cm of fit] (sel) {Select\\parents};
 \node[b,right=0.35cm of sel] (cross) {Crossover};
 \node[b,right=0.35cm of cross] (mut) {Mutation};
-\node[b,below=1.0cm of sel,fill=MLPaleTeal,draw=MLGreen] (rep) {New generation\\= elites + children};
+\node[b,below=1.0cm of sel,fill=UTPPaleTeal,draw=UTPGreen] (rep) {New generation\\= elites + children};
 \draw[arr] (p)--(fit); \draw[arr] (fit)--(sel); \draw[arr] (sel)--(cross); \draw[arr] (cross)--(mut);
 \draw[arr] (mut.south) |- (rep.east);
 \draw[arr] (rep.west) -| (p.south);
-\draw[arr,draw=MLGreen,dashed] (fit.south) -- ++(0,-0.55) -| (rep.north) node[pos=0.25,below,xshift=-1cm,ailabel,color=MLGreen] {best few copied unchanged (elitism)};
+\draw[arr,draw=UTPGreen,dashed] (fit.south) -- ++(0,-0.55) -| (rep.north) node[pos=0.25,below,xshift=-1cm,utplabel,color=UTPGreen] {best few copied unchanged (elitism)};
 \end{tikzpicture}
-\end{aifig}
+\end{utpfig}
 
 The lab uses the same loop for a scalar $x$ and a five-gene vector. The scalar version is:
 
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 for _ in range(generations):
     fitness = (population - 3) ** 2                                  # lower is better
     elite = population[np.argsort(fitness)[:n_elite]]
@@ -86,7 +86,7 @@ The chromosome \emph{is} the candidate answer, read by the fitness function. Ope
 
 Fitness is training mean squared error. The lab evaluates it for the whole population in one matrix product:
 
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def training_mse(individuals):
     predictions = individuals[:, [0]] + individuals[:, 1:] @ X_train.T
     return ((predictions - y_train) ** 2).mean(axis=1)
@@ -98,70 +98,70 @@ Evaluating 100 five-gene chromosomes on 1,070 training rows produces a $100\time
 
 \term{Tournament selection} samples $k$ chromosomes and keeps the fittest; Lab~8 uses $k=3$. Unlike \term{roulette-wheel} selection (\figref{fig:roulette}), it does not depend on fitness scale or require a minimisation-to-selection-weight conversion.
 
-\begin{aifig}[Roulette-wheel selection]{Arc widths are proportional to fitness: B is selected four times as often as D. Tournament selection favours fitter candidates without depending on fitness scale.}{fig:roulette}
+\begin{utpfig}[Roulette-wheel selection]{Arc widths are proportional to fitness: B is selected four times as often as D. Tournament selection favours fitter candidates without depending on fitness scale.}{fig:roulette}
 \begin{tikzpicture}[font=\small]
-\node[ailabel,font=\small\bfseries\color{MLNavy}] at (0,2.1) {Selection probabilities};
+\node[utplabel,font=\small\bfseries\color{UTPNavy}] at (0,2.1) {Selection probabilities};
 \def\rad{1.75}
-\foreach \a/\b/\lbl/\col in {0/144/B/MLBlue, 144/252/A/MLTeal, 252/324/C/MLOrange, 324/360/D/MLRed}{
+\foreach \a/\b/\lbl/\col in {0/144/B/UTPBlue, 144/252/A/UTPTeal, 252/324/C/UTPOrange, 324/360/D/UTPRed}{
   \fill[\col!28,draw=\col,thick] (0,0) -- (\a:\rad) arc[start angle=\a,end angle=\b,radius=\rad] -- cycle;
   \pgfmathsetmacro{\mid}{(\a+\b)/2}
-  \node[font=\small\bfseries\color{MLNavy}] at (\mid:0.65*\rad) {\lbl};
+  \node[font=\small\bfseries\color{UTPNavy}] at (\mid:0.65*\rad) {\lbl};
 }
-\node[ailabel,anchor=north,align=center] at (0,-2.0)
+\node[utplabel,anchor=north,align=center] at (0,-2.0)
   {Fitness $(B,A,C,D)=(4,3,2,1)$};
 \begin{scope}[xshift=4.0cm,yshift=-0.4cm]
 \def\L{7.2}
-\node[ailabel,font=\small\bfseries\color{MLNavy}] at (0.5*\L,2.5)
+\node[utplabel,font=\small\bfseries\color{UTPNavy}] at (0.5*\L,2.5)
   {Cumulative probability};
-\foreach \s/\e/\lbl/\col in {0/0.40/B/MLBlue, 0.40/0.70/A/MLTeal, 0.70/0.90/C/MLOrange, 0.90/1.0/D/MLRed}{
+\foreach \s/\e/\lbl/\col in {0/0.40/B/UTPBlue, 0.40/0.70/A/UTPTeal, 0.70/0.90/C/UTPOrange, 0.90/1.0/D/UTPRed}{
   \pgfmathsetmacro{\x}{\s*\L}
   \pgfmathsetmacro{\w}{(\e-\s)*\L}
   \fill[\col!28,draw=\col,thick] (\x,0) rectangle ++(\w,0.85);
-  \node[font=\small\bfseries\color{MLNavy}] at (\x+\w/2,0.42) {\lbl};
+  \node[font=\small\bfseries\color{UTPNavy}] at (\x+\w/2,0.42) {\lbl};
 }
 \foreach \v/\x in {0/0, 0.40/0.40, 0.70/0.70, 0.90/0.90, 1.0/1.0}{
   \pgfmathsetmacro{\xx}{\x*\L}
-  \node[ailabel] at (\xx,-0.28) {\v};
+  \node[utplabel] at (\xx,-0.28) {\v};
 }
-\draw[-{Stealth[length=2.4mm]},line width=1.2pt,draw=MLNavy] (0.54*\L,1.5) -- (0.54*\L,0.95);
-\node[ailabel,anchor=south,color=MLNavy] at (0.54*\L,1.55) {\texttt{rand} $=0.54\ \Rightarrow$ pick A};
-\node[ailabel,anchor=north,align=center,text width=6.8cm] at (0.5*\L,-0.75)
+\draw[-{Stealth[length=2.4mm]},line width=1.2pt,draw=UTPNavy] (0.54*\L,1.5) -- (0.54*\L,0.95);
+\node[utplabel,anchor=south,color=UTPNavy] at (0.54*\L,1.55) {\texttt{rand} $=0.54\ \Rightarrow$ pick A};
+\node[utplabel,anchor=north,align=center,text width=6.8cm] at (0.5*\L,-0.75)
   {The draw $0.54$ falls in A\textquotesingle s interval, $0.40$ to $0.70$.};
 \end{scope}
 \end{tikzpicture}
-\end{aifig}
+\end{utpfig}
 
 \subsection{Crossover and mutation}
 
 \term{Blend crossover} forms $\alpha\,a+(1-\alpha)\,b$ from two parents. With $\alpha\in[0,1]$, children lie between them; the regression GA uses $\alpha\in[-0.1,1.1]$ to allow extrapolation (\figref{fig:crossover}). \term{Gaussian mutation} adds noise to a random 15\,\% of genes using per-gene step sizes.
 
-\begin{aifig}[Crossover and mutation for real-valued genes]{Left: blend crossover places children between parents or slightly beyond them. Right: Gaussian mutation perturbs a child by a random step.}{fig:crossover}
+\begin{utpfig}[Crossover and mutation for real-valued genes]{Left: blend crossover places children between parents or slightly beyond them. Right: Gaussian mutation perturbs a child by a random step.}{fig:crossover}
 \begin{tikzpicture}[font=\small]
 \begin{scope}
-\node[font=\bfseries\color{MLNavy}] at (2.0,2.65) {Blend crossover};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
-\node[circle,fill=MLBlue,inner sep=2.2pt,label={[ailabel,color=MLBlue]above:parent $a$}] (P1) at (0.7,1.35) {};
-\node[circle,fill=MLTeal,inner sep=2.2pt,label={[ailabel,color=MLTeal]below:parent $b$}] (P2) at (3.6,0.45) {};
-\draw[draw=MLMuted!60,dashed] (P1)--(P2);
-\node[circle,fill=MLOrange,inner sep=2.2pt] (Ch) at (1.86,1.0) {};
-\node[ailabel,anchor=west,color=MLOrange] at (2.0,1.28) {child, $\alpha=0.6$};
-\node[ailabel,anchor=north,align=center,text width=4.8cm] at (2.0,-1.15)
+\node[font=\bfseries\color{UTPNavy}] at (2.0,2.65) {Blend crossover};
+\draw[-{Stealth[length=2mm]},draw=UTPMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
+\draw[-{Stealth[length=2mm]},draw=UTPMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
+\node[circle,fill=UTPBlue,inner sep=2.2pt,label={[utplabel,color=UTPBlue]above:parent $a$}] (P1) at (0.7,1.35) {};
+\node[circle,fill=UTPTeal,inner sep=2.2pt,label={[utplabel,color=UTPTeal]below:parent $b$}] (P2) at (3.6,0.45) {};
+\draw[draw=UTPMuted!60,dashed] (P1)--(P2);
+\node[circle,fill=UTPOrange,inner sep=2.2pt] (Ch) at (1.86,1.0) {};
+\node[utplabel,anchor=west,color=UTPOrange] at (2.0,1.28) {child, $\alpha=0.6$};
+\node[utplabel,anchor=north,align=center,text width=4.8cm] at (2.0,-1.15)
   {$\alpha\in[-0.1,1.1]$ lets a child land just beyond a parent};
 \end{scope}
 \begin{scope}[xshift=6.6cm]
-\node[font=\bfseries\color{MLNavy}] at (2.2,2.65) {Gaussian mutation};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
-\draw[-{Stealth[length=2mm]},draw=MLMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
-\node[circle,fill=MLOrange,inner sep=2.2pt,label={[ailabel,color=MLOrange]below:child}] (C) at (1.9,0.9) {};
-\draw[draw=MLOrange!35,fill=MLOrange!10] (1.9,0.9) circle (0.75);
-\node[circle,fill=MLRed,inner sep=2.2pt,label={[ailabel,color=MLRed]above right:mutated child}] (M) at (2.45,1.3) {};
-\draw[aiptr,draw=MLRed] (C)--(M);
-\node[ailabel,anchor=north,align=center,text width=5.2cm] at (2.2,-1.15)
+\node[font=\bfseries\color{UTPNavy}] at (2.2,2.65) {Gaussian mutation};
+\draw[-{Stealth[length=2mm]},draw=UTPMuted] (-0.2,0)--(4.4,0) node[right,font=\scriptsize] {$p_1$};
+\draw[-{Stealth[length=2mm]},draw=UTPMuted] (0,-0.2)--(0,1.85) node[above,font=\scriptsize] {$p_2$};
+\node[circle,fill=UTPOrange,inner sep=2.2pt,label={[utplabel,color=UTPOrange]below:child}] (C) at (1.9,0.9) {};
+\draw[draw=UTPOrange!35,fill=UTPOrange!10] (1.9,0.9) circle (0.75);
+\node[circle,fill=UTPRed,inner sep=2.2pt,label={[utplabel,color=UTPRed]above right:mutated child}] (M) at (2.45,1.3) {};
+\draw[utpptr,draw=UTPRed] (C)--(M);
+\node[utplabel,anchor=north,align=center,text width=5.2cm] at (2.2,-1.15)
   {each gene moves by $\mathcal N(0,\sigma)$ with probability $0.15$; $\sigma$ is set per gene};
 \end{scope}
 \end{tikzpicture}
-\end{aifig}
+\end{utpfig}
 
 \subsection{Elitism}
 
@@ -179,18 +179,18 @@ Wrong fitness signs or mutation scales may not raise errors. Lab~8 first minimis
 
 One seed shows one outcome. Lab~8 reports results over ten seeds and compares them with an exact method.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.28\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.28\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Method & Median test RMSE & SD across seeds & Median runtime \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Method} & \utpth{Median test RMSE} & \utpth{SD across seeds} & \utpth{Median runtime} \\
 \midrule
 GA, population 100 & 5829.38 & 0.002 & 0.04 s \\
 GA, population 40 & 5829.38 & 0.026 & 0.02 s \\
 Ordinary least squares & 5829.38 & --- & $<$ 0.001 s \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 Three lessons follow:
 

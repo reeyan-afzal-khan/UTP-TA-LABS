@@ -22,15 +22,15 @@ payment, and sometimes returns.
 Each step is owned by a different function and each produces information the
 next step depends on.
 
-\begin{erpfig}[Order-to-cash by owner]{The sales order process with the owner of
+\begin{utpfig}[Order-to-cash by owner]{The sales order process with the owner of
 each step and the record it creates. Reading down the third row shows why no
 single department can be held responsible for the customer's
 experience.}{fig:order-to-cash-lanes}
 \begin{tikzpicture}[x=1cm,y=1cm,
   tight/.style={-{Stealth[length=1.6mm]},semithick,draw=UTPTeal}]
-\node[erpcap,anchor=east,align=right] at (1.05,2.15) {\bfseries Step};
-\node[erpcap,anchor=east,align=right] at (1.05,1.12) {\bfseries Owner};
-\node[erpcap,anchor=east,align=right] at (1.05,0.12) {\bfseries Creates};
+\node[proccap,anchor=east,align=right] at (1.05,2.15) {\bfseries Step};
+\node[proccap,anchor=east,align=right] at (1.05,1.12) {\bfseries Owner};
+\node[proccap,anchor=east,align=right] at (1.05,0.12) {\bfseries Creates};
 \foreach \i/\s/\o/\r/\c in {%
   0/Quotation/{Sales}/{offer, price}/UTPBlue,
   1/{Sales order}/{Sales}/{commitment}/UTPBlue,
@@ -39,18 +39,18 @@ experience.}{fig:order-to-cash-lanes}
   4/Invoice/{Finance}/{receivable}/UTPGreen,
   5/Payment/{Finance}/{settlement}/UTPGreen}{
   \pgfmathsetmacro{\x}{2.2+\i*2.35}
-  \node[erpstep,minimum width=2.0cm,minimum height=0.86cm,draw=\c,
+  \node[procstep,minimum width=2.0cm,minimum height=0.86cm,draw=\c,
         fill=\c!12,text width=1.75cm] (s\i) at (\x,2.15) {\s};
-  \node[erpdoc,minimum width=2.0cm,minimum height=0.66cm,draw=\c!60,text width=1.75cm] (o\i) at (\x,1.12) {\o};
-  \node[erpchip,text width=1.6cm,align=center] (r\i) at (\x,0.12) {\r};
-  \draw[erplink] (\x,1.72) -- (\x,1.45);
-  \draw[erplink] (\x,0.79) -- (\x,0.42);
+  \node[procdoc,minimum width=2.0cm,minimum height=0.66cm,draw=\c!60,text width=1.75cm] (o\i) at (\x,1.12) {\o};
+  \node[procchip,text width=1.6cm,align=center] (r\i) at (\x,0.12) {\r};
+  \draw[proclink] (\x,1.72) -- (\x,1.45);
+  \draw[proclink] (\x,0.79) -- (\x,0.42);
 }
 \foreach \i in {0,...,4}{\pgfmathtruncatemacro{\j}{\i+1}\draw[tight] (s\i)--(s\j);}
-\draw[erpback] (s5.north) to[out=105,in=75]
-  node[midway,above,erpnote]{payment status returns to Sales} (s0.north);
+\draw[procback] (s5.north) to[out=105,in=75]
+  node[midway,above,procnote]{payment status returns to Sales} (s0.north);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{Fitter Snacker: what goes wrong without integration}
 
@@ -59,42 +59,42 @@ crosses between them by fax, paper report, and periodic file transfer. Every
 recurring problem traces back to one structural fact: \textbf{each department
 holds its own copy of the order, and the copies drift apart.}
 
-\begin{erpfig}[Copies versus one record]{The same three departments, two ways.
+\begin{utpfig}[Copies versus one record]{The same three departments, two ways.
 On the left, each holds a copy and the copies disagree between transfers; on the
 right, one record serves all three.}{fig:fitter-snacker-silos}
 \begin{tikzpicture}[x=1cm,y=1cm]
 % ---- left: siloed ----
-\node[erphead,color=UTPRed] at (2.6,3.3) {Separate systems};
-\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s1) at (2.6,2.2)
+\node[prochead,color=UTPRed] at (2.6,3.3) {Separate systems};
+\node[procbad,minimum width=2.6cm,minimum height=0.95cm] (s1) at (2.6,2.2)
   {Sales\\\tiny\mdseries own order copy};
-\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s2) at (2.6,0.75)
+\node[procbad,minimum width=2.6cm,minimum height=0.95cm] (s2) at (2.6,0.75)
   {Warehouse\\\tiny\mdseries own stock copy};
-\node[erpbad,minimum width=2.6cm,minimum height=0.95cm] (s3) at (2.6,-0.7)
+\node[procbad,minimum width=2.6cm,minimum height=0.95cm] (s3) at (2.6,-0.7)
   {Accounting\\\tiny\mdseries own invoice copy};
-\draw[erpslow] (s1) -- node[erpnote,right=1mm,text width=2.5cm,align=left]
+\draw[procslow] (s1) -- node[procnote,right=1mm,text width=2.5cm,align=left]
   {fax, batch transfer\\ \emph{hours or days}} (s2);
-\draw[erpslow] (s2) -- node[erpnote,right=1mm,text width=2.5cm,align=left]
+\draw[procslow] (s2) -- node[procnote,right=1mm,text width=2.5cm,align=left]
   {re-keyed by hand\\ \emph{may not match}} (s3);
 % ---- right: integrated ----
-\node[erphead,color=UTPGreen] at (11.6,3.3) {One shared record};
-\node[erpstore,draw=UTPBlue,minimum width=2.6cm,minimum height=1.35cm] (h) at (11.6,0.75)
+\node[prochead,color=UTPGreen] at (11.6,3.3) {One shared record};
+\node[procstore,draw=UTPBlue,minimum width=2.6cm,minimum height=1.35cm] (h) at (11.6,0.75)
   {Shared\\\scriptsize\bfseries transaction\\\scriptsize\bfseries data};
-\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g1) at (8.4,2.2) {Sales};
-\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g2) at (8.4,-0.7) {Warehouse};
-\node[erpgood,minimum width=2.3cm,minimum height=0.75cm] (g3) at (14.7,0.75) {Accounting};
-\draw[erpflow] (g1) -- (h); \draw[erpflow] (g2) -- (h); \draw[erpflow] (h) -- (g3);
-\node[erpnote,text width=4.6cm] at (11.6,-1.35)
+\node[procgood,minimum width=2.3cm,minimum height=0.75cm] (g1) at (8.4,2.2) {Sales};
+\node[procgood,minimum width=2.3cm,minimum height=0.75cm] (g2) at (8.4,-0.7) {Warehouse};
+\node[procgood,minimum width=2.3cm,minimum height=0.75cm] (g3) at (14.7,0.75) {Accounting};
+\draw[procflow] (g1) -- (h); \draw[procflow] (g2) -- (h); \draw[procflow] (h) -- (g3);
+\node[procnote,text width=4.6cm] at (11.6,-1.35)
   {every function reads and writes the \emph{same} order};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Read the five textbook symptoms as one cause seen from five desks.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.20\linewidth}X>{\itshape}p{0.26\linewidth}@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}X>{\itshape}m{0.26\linewidth}@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Symptom & What actually happens & The stale copy \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Symptom} & \utpth{What actually happens} & \utpth{The stale copy} \\
 \midrule
 Quotation and pricing & Arithmetic slips, discounts combined wrongly, terms the office has not seen; faxes misread into duplicate orders. & price \\
 Availability and dates & The clerk asks the warehouse for a ship date built on stock figures that are already out of date. & stock \\
@@ -103,12 +103,12 @@ Order filling & Paper picking lists travel in batches; stock moves nobody writes
 Invoicing & Order data transfers to accounting on a schedule, so fulfilment changes after the transfer are billed wrongly. & shipped quantity \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 The cost shows up as elapsed time. Most of an unintegrated order's life is spent
 waiting for a transfer, not being worked on.
 
-\begin{erpfig}[Where the days go]{The same order under both processes. The
+\begin{utpfig}[Where the days go]{The same order under both processes. The
 shaded blocks are work; the gaps are waiting for a batch, a fax, or a report.
 Integration removes the gaps rather than making anyone type
 faster.}{fig:fitter-timeline}
@@ -117,25 +117,25 @@ faster.}{fig:fitter-timeline}
 \foreach \d in {0,1,...,7}{
   \pgfmathsetmacro{\x}{\d*1.82}
   \draw[draw=UTPMuted!45] (\x,-1.62)--(\x,-1.48);
-  \node[erpnote,below=1mm] at (\x,-1.55) {day \d};}
+  \node[procnote,below=1mm] at (\x,-1.55) {day \d};}
 % old process
-\node[erpcap,anchor=west,color=UTPRed] at (0,1.15) {\bfseries Fitter Snacker (unintegrated)};
+\node[proccap,anchor=west,color=UTPRed] at (0,1.15) {\bfseries Fitter Snacker (unintegrated)};
 \foreach \a/\b/\t in {0/1.1/Quote, 3.3/4.4/{Order entered}, 6.6/8.1/{Credit checked},
                       9.6/11.0/{Picked}, 12.4/14.2/{Invoiced}}{
   \draw[draw=UTPRed,fill=UTPPaleRed,rounded corners=1mm] (\a,0.05) rectangle (\b,0.75);
-  \node[erpnote,anchor=center] at ({(\a+\b)/2},0.4) {\t};}
+  \node[procnote,anchor=center] at ({(\a+\b)/2},0.4) {\t};}
 \foreach \a/\b in {1.1/3.3, 4.4/6.6, 8.1/9.6, 11.0/12.4}{
   \draw[draw=UTPRed!55,dashed] (\a,0.4)--(\b,0.4);
-  \node[erpnote,color=UTPRed,above=0.5mm] at ({(\a+\b)/2},0.4) {wait};}
+  \node[procnote,color=UTPRed,above=0.5mm] at ({(\a+\b)/2},0.4) {wait};}
 % integrated
-\node[erpcap,anchor=west,color=UTPGreen] at (0,-0.05) {\bfseries Integrated (one shared record)};
+\node[proccap,anchor=west,color=UTPGreen] at (0,-0.05) {\bfseries Integrated (one shared record)};
 \foreach \a/\b/\t in {0/1.1/Quote, 1.1/2.1/{Order}, 2.1/3.3/{Credit},
                       3.3/4.5/{Picked}, 4.5/5.7/{Invoiced}}{
   \draw[draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1mm] (\a,-1.15) rectangle (\b,-0.45);
-  \node[erpnote,anchor=center] at ({(\a+\b)/2},-0.8) {\t};}
-\node[erpchip,anchor=west] at (6.1,-0.8) {same work, no transfers to wait for};
+  \node[procnote,anchor=center] at ({(\a+\b)/2},-0.8) {\t};}
+\node[procchip,anchor=west] at (6.1,-0.8) {same work, no transfers to wait for};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{pitfall}
 None of this is careless staff; it is process design. A process that requires
@@ -149,28 +149,28 @@ An integrated system replaces separate copies with a linked document flow. The
 value is not that the documents exist --- Fitter Snacker had documents too ---
 but that each one inherits its data from the one before it.
 
-\begin{erpfig}[Document lineage]{What each document carries forward. Nothing in
+\begin{utpfig}[Document lineage]{What each document carries forward. Nothing in
 the lower row is re-typed; it is inherited. The return arrow is the answer Sales
 can give a customer without telephoning another department.}{fig:document-lineage}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \foreach \i/\d/\c in {0/Quotation/UTPBlue, 1/{Sales Order}/UTPBlue,
                       2/Delivery/UTPTeal, 3/Invoice/UTPGreen, 4/Payment/UTPGreen}{
   \pgfmathsetmacro{\x}{\i*3.15}
-  \node[erpstep,minimum width=2.75cm,minimum height=0.8cm,draw=\c,fill=\c!12] (d\i) at (\x,1.5) {\d};}
-\foreach \i in {0,...,3}{\pgfmathtruncatemacro{\j}{\i+1}\draw[erpflow] (d\i)--(d\j);}
+  \node[procstep,minimum width=2.75cm,minimum height=0.8cm,draw=\c,fill=\c!12] (d\i) at (\x,1.5) {\d};}
+\foreach \i in {0,...,3}{\pgfmathtruncatemacro{\j}{\i+1}\draw[procflow] (d\i)--(d\j);}
 \foreach \i/\t in {0/{customer\\ product\\ quantity\\ unit price},
                    1/{$+$ confirmed\\ commitment\\ $+$ salesperson},
                    2/{$+$ what actually\\ left the\\ warehouse},
                    3/{$+$ amount due\\ $+$ terms\\ $+$ tax},
                    4/{$+$ cash received\\ $+$ settlement\\ date}}{
   \pgfmathsetmacro{\x}{\i*3.15}
-  \node[erpdoc,minimum width=2.75cm,text width=2.4cm,align=center,minimum height=1.5cm] (c\i) at (\x,-0.35) {\t};
-  \draw[erplink] (\x,1.1) -- (\x,0.42);}
-\node[erpcap,color=UTPGreen] at (6.3,-1.55) {\bfseries what each document carries forward};
-\draw[erpback] (d4.north) to[out=120,in=60] node[midway,above,erpnote]
+  \node[procdoc,minimum width=2.75cm,text width=2.4cm,align=center,minimum height=1.5cm] (c\i) at (\x,-0.35) {\t};
+  \draw[proclink] (\x,1.1) -- (\x,0.42);}
+\node[proccap,color=UTPGreen] at (6.3,-1.55) {\bfseries what each document carries forward};
+\draw[procback] (d4.north) to[out=120,in=60] node[midway,above,procnote]
   {``has the customer paid?'' answered without leaving Sales} (d1.north);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 A strong sales-order system therefore validates master data at entry, applies
 configured pricing, checks availability and credit, creates fulfilment documents
@@ -183,11 +183,11 @@ Sales can answer customer questions.
 order is confirmed. The business has not achieved what it wanted until the
 product is fulfilled and the money is collected.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.19\linewidth}p{0.24\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}m{0.24\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Stage & Primary owner & Information created or consumed \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Primary owner} & \utpth{Information created or consumed} \\
 \midrule
 Opportunity / quotation & Sales / Marketing & Customer need, product, quantity, expected price, proposed terms. \\
 Sales order & Sales & Confirmed demand and commercial commitment. \\
@@ -196,7 +196,7 @@ Invoice & Finance & Amount due, tax and payment terms, receivable record. \\
 Payment & Finance & Cash received and settlement status, visible back to Sales. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section{Integration of Sales and Accounting}
 
@@ -220,7 +220,7 @@ posted record is a commitment; a done or paid state records completion of the
 real-world event. Knowing which state a record is in explains almost every
 ``the button is missing'' problem in the labs.
 
-\begin{erpfig}[Document states]{The three lifecycles used throughout the
+\begin{utpfig}[Document states]{The three lifecycles used throughout the
 practicals. An action is available only when the record is in the state that
 permits it, which is why troubleshooting runs
 backwards.}{fig:document-states}
@@ -230,18 +230,18 @@ backwards.}{fig:document-states}
   1/Delivery/Draft/{Ready --- reserved}/Done/{Check availability}/{Validate},
   2/{Customer invoice}/Draft/Posted/{Paid / In Payment}/{Post}/{Pay}}{
   \pgfmathsetmacro{\y}{-\i*1.62}
-  \node[erpcap,anchor=west,align=left,text width=2.2cm] at (-0.1,\y) {\bfseries \lbl};
-  \node[erpquiet,minimum width=3.0cm,minimum height=0.8cm] (a\i) at (3.7,\y) {\a};
-  \node[erpstep,minimum width=3.2cm,minimum height=0.8cm]  (b\i) at (8.5,\y) {\b};
-  \node[erpgood,minimum width=3.2cm,minimum height=0.8cm]  (c\i) at (13.1,\y) {\c};
-  \draw[erpflow] (a\i)--node[erpnote,above,fill=white,inner sep=1pt]{\ta}(b\i);
-  \draw[erpflow] (b\i)--node[erpnote,above,fill=white,inner sep=1pt]{\tb}(c\i);
+  \node[proccap,anchor=west,align=left,text width=2.2cm] at (-0.1,\y) {\bfseries \lbl};
+  \node[procquiet,minimum width=3.0cm,minimum height=0.8cm] (a\i) at (3.7,\y) {\a};
+  \node[procstep,minimum width=3.2cm,minimum height=0.8cm]  (b\i) at (8.5,\y) {\b};
+  \node[procgood,minimum width=3.2cm,minimum height=0.8cm]  (c\i) at (13.1,\y) {\c};
+  \draw[procflow] (a\i)--node[procnote,above,fill=white,inner sep=1pt]{\ta}(b\i);
+  \draw[procflow] (b\i)--node[procnote,above,fill=white,inner sep=1pt]{\tb}(c\i);
 }
-\node[erpcap,anchor=west,color=UTPMuted] at (2.6,1.05) {\bfseries editable};
-\node[erpcap,anchor=west,color=UTPBlue]  at (7.4,1.05) {\bfseries committed};
-\node[erpcap,anchor=west,color=UTPGreen] at (12.1,1.05) {\bfseries complete};
+\node[proccap,anchor=west,color=UTPMuted] at (2.6,1.05) {\bfseries editable};
+\node[proccap,anchor=west,color=UTPBlue]  at (7.4,1.05) {\bfseries committed};
+\node[proccap,anchor=west,color=UTPGreen] at (12.1,1.05) {\bfseries complete};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 If a button is missing, the first diagnostic question is: \emph{is the preceding
 business event complete?}
@@ -255,24 +255,24 @@ reconciling customer identities and product names, standardising terms, removing
 duplicates, and combining the results --- and divisions may be reluctant to
 share performance data at all.
 
-\begin{erpfig}[One customer, three identities]{Why fragmented data resists
+\begin{utpfig}[One customer, three identities]{Why fragmented data resists
 consolidation. The three divisions each hold a valid record; only controlled
 master data makes them the same customer.}{fig:customer-identity}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erphead,color=UTPRed] at (3.5,2.6) {Divisional records};
-\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x1) at (3.5,1.65) {``Delicious Foods''};
-\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x2) at (3.5,0.7)  {``Delicious Foods Co.''};
-\node[erpbad,minimum width=3.6cm,minimum height=0.72cm] (x3) at (3.5,-0.25) {``DELICIOUS FOODS CO''};
-\node[erpwarn,minimum width=3.3cm,minimum height=1.05cm] (agg) at (8.4,0.7)
+\node[prochead,color=UTPRed] at (3.5,2.6) {Divisional records};
+\node[procbad,minimum width=3.6cm,minimum height=0.72cm] (x1) at (3.5,1.65) {``Delicious Foods''};
+\node[procbad,minimum width=3.6cm,minimum height=0.72cm] (x2) at (3.5,0.7)  {``Delicious Foods Co.''};
+\node[procbad,minimum width=3.6cm,minimum height=0.72cm] (x3) at (3.5,-0.25) {``DELICIOUS FOODS CO''};
+\node[procwarn,minimum width=3.3cm,minimum height=1.05cm] (agg) at (8.4,0.7)
   {Manual roll-up\\\tiny\mdseries counts three customers};
-\foreach \n in {x1,x2,x3}{\draw[erpslow] (\n)--(agg);}
-\node[erpstore,minimum width=3.7cm,minimum height=1.05cm,draw=UTPGreen,fill=UTPPaleTeal]
+\foreach \n in {x1,x2,x3}{\draw[procslow] (\n)--(agg);}
+\node[procstore,minimum width=3.7cm,minimum height=1.05cm,draw=UTPGreen,fill=UTPPaleTeal]
   (gov) at (13.3,0.7) {One controlled\\\scriptsize\bfseries customer identity};
-\draw[erpflow] (agg)--node[erpnote,above,text width=1.9cm]{master-data governance}(gov);
-\node[erpnote,text width=4.0cm] at (13.3,-0.7)
+\draw[procflow] (agg)--node[procnote,above,text width=1.9cm]{master-data governance}(gov);
+\node[procnote,text width=4.0cm] at (13.3,-0.7)
   {transactions reference the identity, so the roll-up is automatic};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 ERP reduces the technical burden by storing comparable data centrally. It does
 not remove organisational reluctance, but it makes a unified view possible where

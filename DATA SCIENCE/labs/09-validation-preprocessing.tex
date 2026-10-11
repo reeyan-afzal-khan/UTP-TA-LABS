@@ -1,10 +1,10 @@
 \labsection{9}{Validate an imbalanced classifier without leakage}{sec:lab09}
 
-\begin{labproject}{Lab 9 validation and preprocessing: evaluate the process, not one lucky split}
+\begin{labproject}{Validation and preprocessing: evaluate the process, not one lucky split}
+\textbf{Coverage.} Chapter~\ref{ch:validation}.\\
+\textbf{Goal.} You should be able to construct stratified folds, prevent preprocessing leakage, compare thresholds across folds, quantify metric variability, and distinguish discrimination from calibration.\\
 \textbf{Datasets.} \texttt{credit\_card\_fraud\_dataset.csv}; Heart Failure is used for a calibration extension.\\
 \textbf{Scenario.} Fraud is rare, so a superficially high accuracy can be operationally useless. You must evaluate a complete modelling process with stratified cross-validation, fold-local preprocessing, and threshold-sensitive metrics.
-
-\textbf{Learning outcomes.} You should be able to construct stratified folds, prevent preprocessing leakage, compare thresholds across folds, quantify metric variability, and distinguish discrimination from calibration.
 
 \textbf{Core workflow.}
 \begin{enumerate}
@@ -19,10 +19,11 @@
 
 \textbf{Calibration extension.} Reuse the Heart Failure modelling workflow, bin held-out predicted probabilities, and compare mean predicted probability with observed event rate. Explain why a model can rank cases well yet still produce poorly calibrated probabilities.
 
+\tcbbreak
+\lstinputlisting[style=utpr]{all_experiments/lab09_validation.R}
+\begin{verification}
 \textbf{Required evidence.} Submit the majority-class baseline, five-fold metric summary, one variability result, and a threshold recommendation tied to an explicit error-cost assumption. Include one sentence identifying where leakage would occur if global scaling were applied before cross-validation.
 
 \textbf{Professional standard.} Validation must reproduce the full future prediction process. Any transformation learned from all records before validation contaminates the estimate of generalisation performance.
-
-\tcbbreak
-\lstinputlisting[style=dsr]{all_experiments/lab09_validation.R}
+\end{verification}
 \end{labproject}

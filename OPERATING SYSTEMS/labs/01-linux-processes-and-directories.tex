@@ -1,23 +1,24 @@
 \labsection{1}{Processes and the Linux namespace}{sec:lab01}
 \begin{labproject}{From one executable to observable processes and directory names}
 
-\oslabflow{Chapter 1: PID/PPID, \texttt{fork()}, directory names.}{Run the exact supplied source and inspect live OS state.}{Explain how one executable becomes two processes and how directory names change.}
+\textbf{Coverage.} Chapter~\ref{ch:processes}: PID/PPID, \texttt{fork()}, directory names.\\
+\textbf{Goal.} Run the exact supplied source and inspect live OS state.\\
+\textbf{Explain.} Explain how one executable becomes two processes and how directory names change.
 
 \section*{Source code: read before you run}
-\ossourcecard{\texttt{directory\_list.c}}{Open a directory stream and print every entry returned by Linux.}{The acquire/use/release sequence: \texttt{opendir} $\rightarrow$ \texttt{readdir} loop $\rightarrow$ \texttt{closedir}.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab01/directory_list.c}
+\labsourcecard{\texttt{directory\_list.c}}{Open a directory stream and print every entry returned by Linux.}{The acquire/use/release sequence: \texttt{opendir} $\rightarrow$ \texttt{readdir} loop $\rightarrow$ \texttt{closedir}.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab01/directory_list.c}
 
-\ossourcecard{\texttt{fork\_demo.c}}{Create a child process, print process identity, optionally keep the child alive, then wait for it.}{The return value from \texttt{fork()}, the child's PPID, and the parent's \texttt{waitpid}.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab01/fork_demo.c}
+\labsourcecard{\texttt{fork\_demo.c}}{Create a child process, print process identity, optionally keep the child alive, then wait for it.}{The return value from \texttt{fork()}, the child's PPID, and the parent's \texttt{waitpid}.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab01/fork_demo.c}
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.34\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.34\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Code region} & \textbf{What it means} \\
+\utpth{Code region} & \utpth{What it means} \\
 \midrule
 \texttt{opendir} / \texttt{readdir} / \texttt{closedir} & Linux exposes directory entries through a stream-like API. \\
 \texttt{child\_pid = fork()} & One running process becomes parent + child. \\
@@ -25,10 +26,10 @@
 \texttt{waitpid(...)} & The parent waits and collects the child's exit status. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Task 1 --- Build a clean baseline}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 cd all_experiments/Lab01
 gcc -Wall -Wextra -std=c11 directory_list.c -o directory_list
 gcc -Wall -Wextra -std=c11 fork_demo.c -o fork_demo
@@ -39,7 +40,7 @@ Do not change the source yet. Record the parent PID, child PID, and child PPID f
 
 \section*{Task 2 --- Observe the namespace changing}
 Run \texttt{./directory\_list .} after each command:
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 touch observation.txt
 mv observation.txt renamed.txt
 rm renamed.txt
@@ -47,7 +48,7 @@ rm renamed.txt
 Create a four-row table: initial state, after \texttt{touch}, after \texttt{mv}, after \texttt{rm}. Record only the name that changed.
 
 \section*{Task 3 --- Observe the parent and child while alive}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 ./fork_demo 10 &
 ps -C fork_demo -o pid,ppid,state,comm
 wait
@@ -61,11 +62,20 @@ Before running, answer: \emph{Will the parent print the new child message too?} 
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item Why does 	exttt{fork()} produce two different return-value cases from one call?
+  \item Why does \texttt{fork()} produce two different return-value cases from one call?
   \item How can a child process identify its parent?
   \item Why can creating or renaming a file change a directory listing without changing the directory program itself?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item Both programs compile with \texttt{-Wall -Wextra} and run from the unchanged source first.
+  \item The child's PPID matches the parent's PID in the \texttt{ps} output.
+  \item The namespace table records exactly one changed name after each of \texttt{touch}, \texttt{mv} and \texttt{rm}.
+  \item Your prediction for the Vim edit is written down before you run it, and the result is explained with two processes.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit: (1) your namespace-change table, (2) one \texttt{ps} table with parent/child identification, (3) terminal output after the Vim edit, and (4) a 4--6 sentence explanation connecting \texttt{fork()} return values to the two branches.

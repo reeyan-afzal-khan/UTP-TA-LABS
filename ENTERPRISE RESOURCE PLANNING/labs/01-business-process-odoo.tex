@@ -1,4 +1,5 @@
 \labsection{1}{Business Process and Odoo Environment Setup}{sec:lab01}
+\labcovers{1,2}
 
 \begin{labproject}{West End Bicycles: map the organisation, then build the ERP foundation}
 \textbf{Coverage.} Tutorial 1 + Chapters 1--2.\\
@@ -33,11 +34,11 @@ For a local Community installation, use the Database Manager route described in 
 
 Install or confirm these eight apps:
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-App & Role in the course \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{App} & \utpth{Role in the course} \\
 \midrule
 Contacts & Shared customer and vendor records. \\
 CRM & Opportunities and pipeline. \\
@@ -49,7 +50,7 @@ Purchase & RFQs, Purchase Orders, and vendor receipts. \\
 Sales & Quotations and Sales Orders. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \medskip\noindent\textbf{Part D --- Create the company and organisation.}
 
@@ -90,6 +91,16 @@ For Question 3, do not write only ``Sales sends order data to Finance.'' Include
   \item user list showing the operational logins.
 \end{itemize}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The database runs Odoo 19 Community with the company set to West End Bicycles, Ipoh, Malaysia.
+  \item All eight course apps are installed.
+  \item The four departments exist with their heads, and the sample employees are assigned to them.
+  \item The operational roles have linked login users, so they can appear as Salesperson, Buyer, and Responsible.
+  \item Your process diagram shows the flow back to Sales as well as the flow from Sales to Finance.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the Tutorial 1 answers plus screenshots proving the Odoo foundation is ready. Your process diagram should show at least the request, supplier/order step, receipt, inventory update, and financial/payment consequence rather than a single departmental box.

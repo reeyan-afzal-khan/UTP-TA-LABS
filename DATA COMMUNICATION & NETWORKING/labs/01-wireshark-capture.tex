@@ -32,21 +32,21 @@ Capture broadly and filter afterwards. A capture filter that was too narrow cann
 
 \medskip\noindent\textbf{Part B --- A disciplined capture.}\par
 
-\begin{netsteps}
+\begin{utpsteps}
   \item Choose the interface carrying the traffic. If unsure, watch the sparklines in the Wireshark start screen.
   \item Start the capture, then generate the traffic --- not the other way round.
   \item Perform exactly one transaction. One page load, one ping sequence, one login.
   \item Stop the capture immediately. Ten seconds of relevant traffic beats ten minutes of noise.
   \item Save the raw \cmd{.pcapng} before filtering. That file is your evidence.
-\end{netsteps}
+\end{utpsteps}
 
 \medskip\noindent\textbf{Part C --- Filters that earn their keep.}\par
 
-\begin{commandmap}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.38\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\footnotesize\ttfamily}l>{\footnotesize\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Display filter} & \bfseries Shows \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Display filter} & \utpth{Shows} \\
 \midrule
 ip.addr == 192.168.1.10 & Everything to or from one host \\
 tcp.port == 80 || tcp.port == 443 & Web traffic in both directions \\
@@ -57,7 +57,7 @@ icmp & Ping and unreachable messages \\
 http.request.method == "GET" & Page requests \\
 \bottomrule
 \end{tabularx}
-\end{commandmap}
+\end{utptable}
 
 \begin{pitfall}
 \cmd{ip.addr != 192.168.1.10} does not mean what it appears to. A packet has both a source and a destination address, so the expression is true whenever \emph{either} differs --- which is nearly always.
@@ -68,7 +68,7 @@ Write \cmd{!(ip.addr == 192.168.1.10)} instead. The same trap applies to every a
 \medskip\noindent\textbf{Part D --- Read one TCP handshake end to end.}\par
 Filter to a single conversation (right-click a packet, then \emph{Follow $\rightarrow$ TCP Stream}) and identify the three-way handshake:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 No.  Source        Destination   Proto  Info
 1    192.168.1.10  93.184.216.34 TCP    49152 > 80 [SYN] Seq=0 Win=64240
 2    93.184.216.34 192.168.1.10  TCP    80 > 49152 [SYN, ACK] Seq=0 Ack=1

@@ -20,11 +20,11 @@ Terminology varies across markets and publications, but this is the classificati
 
 Many digital entrants do not initially try to replace a high-street bank for every need. They target specific customer problems that are not served well and can begin with a limited product, such as a current account, prepaid card, or fixed-term savings product.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.23\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}XX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Dimension & Digital-only proposition & Traditional incumbent \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dimension} & \utpth{Digital-only proposition} & \utpth{Traditional incumbent} \\
 \midrule
 Physical presence & Little or no branch network & Established branch and office footprint \\
 Technology & Modern, modular, cloud-oriented architecture & Often mixed with older core and product systems \\
@@ -34,7 +34,7 @@ Customer interface & Mobile-first and data-driven & Omnichannel, including branc
 Economics & Lower servicing cost but often low early revenue & Higher fixed cost but mature revenue base \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Why customers are attracted to digital-only banking}
 
@@ -58,11 +58,11 @@ The lecture lists Revolut, Monzo, Starling, Tandem, N26/Number26, Nubank, and An
 
 The Week 5 deck identifies three general strengths: modern platforms and apps, scalable models, and strong online communities. These are best understood as a chain.
 
-\begin{mlfigure}
+\begin{utpfig}[The structural strengths of a neobank]{The structural strengths of digital-only banks as a chain. Modern modular technology lowers servicing cost and speeds product iteration, which together build scale and customer engagement.}{fig:neobank-strengths}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.65cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  g/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=2.65cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.65cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  g/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=2.65cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-4.5,0) {Modern modular\\technology};
 \node[b] (b) at (-1.5,0) {Lower servicing\\cost};
@@ -70,7 +70,7 @@ The Week 5 deck identifies three general strengths: modern platforms and apps, s
 \node[g] (d) at (4.5,0) {Scale + customer\\engagement};
 \draw[arr](a)--(b); \draw[arr](b)--(c); \draw[arr](c)--(d);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 Modern infrastructure matters because a bank is not a single application. It is a collection of onboarding, payment, savings, lending, risk, data, compliance, reporting, and support capabilities. Modular architecture makes it easier to change one component or connect a partner without rebuilding everything else.
 
@@ -128,16 +128,16 @@ Week 5 explicitly warns against confusing a polished interface with a complete c
 
 These operational questions often matter more than visual design when something goes wrong.
 
-\begin{mlfigure}
+\begin{utpfig}[What customer experience includes]{Customer experience is more than the interface. It also covers how quickly money moves, how stable the service is, the friction of risk and compliance controls, access to live support, and the security of data and money.}{fig:cx-beyond-ux}
 \begin{tikzpicture}[
   x=1cm, y=1cm,
-  outer/.style={draw=MLNavy,line width=1pt,rounded corners=3mm},
-  item/.style={draw=MLBlue!55,fill=white,rounded corners=1.5mm,text width=3.2cm,
-               minimum height=1.05cm,align=center,font=\scriptsize\color{MLNavy},
+  outer/.style={draw=UTPNavy,line width=1pt,rounded corners=3mm},
+  item/.style={draw=UTPBlue!55,fill=white,rounded corners=1.5mm,text width=3.2cm,
+               minimum height=1.05cm,align=center,font=\scriptsize\color{UTPNavy},
                inner sep=3pt},
-  ux/.style={item,fill=MLPaleOrange,draw=MLOrange,line width=0.9pt},
-  hd/.style={font=\small\bfseries\color{MLNavy}},
-  nb/.style={font=\scriptsize\color{MLMuted},align=center}]
+  ux/.style={item,fill=UTPPaleOrange,draw=UTPOrange,line width=0.9pt},
+  hd/.style={font=\small\bfseries\color{UTPNavy}},
+  nb/.style={font=\scriptsize\color{UTPMuted},align=center}]
 
 \draw[outer] (-2.20,-2.55) rectangle (12.20,1.35);
 \node[hd,anchor=north west] at (-2.05,1.20) {Customer experience (CX)};
@@ -157,7 +157,7 @@ These operational questions often matter more than visual design when something 
    why CX, not UX, is the thing being competed over.};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{Digital-only banking and financial inclusion}
 
@@ -221,11 +221,11 @@ By analyzing income and spending, a digital bank can warn a customer before an o
 
 The Week 5 slides identify ecosystem conditions that make digital banking more viable.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.26\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.26\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Prerequisite & Why it matters \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Prerequisite} & \utpth{Why it matters} \\
 \midrule
 Unmet customer need & A challenger needs a real problem that incumbents do not solve consistently. \\
 Smartphone and internet penetration & Creates a sufficiently large addressable digital market. \\
@@ -236,7 +236,7 @@ National digital identity & Can simplify verification and KYC, increasing onboar
 Supportive regulation & Determines licensing, product scope, capital, data, consumer protection, and innovation freedom. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Strategic priority 1: attract customers and build trust}
 
@@ -269,26 +269,26 @@ Why?
 
 The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate the industry's shift from ``growth at all costs'' toward profitability.
 
-\begin{mlfigure}
+\begin{utpfig}[Why scale alone does not fix unit economics]{Unit economics. When the cost to serve one active customer exceeds the revenue that customer brings, a million customers have the same shape of loss; only lowering the cost to serve or raising revenue per customer changes it.}{fig:unit-economics}
 \begin{tikzpicture}[
   x=1cm, y=1cm,
-  rev/.style={draw=MLTeal,fill=MLPaleTeal,line width=0.8pt},
-  cst/.style={draw=MLRed,fill=MLPaleRed,line width=0.8pt},
-  bl/.style={font=\tiny\color{MLMuted},align=center},
-  hd/.style={font=\small\bfseries\color{MLNavy}},
-  gap/.style={font=\tiny\bfseries\color{MLRed},align=center},
-  lev/.style={draw=MLGreen,fill=white,rounded corners=1.5mm,text width=3.5cm,
-              minimum height=0.9cm,align=center,font=\scriptsize\color{MLNavy}},
-  go/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}]
+  rev/.style={draw=UTPTeal,fill=UTPPaleTeal,line width=0.8pt},
+  cst/.style={draw=UTPRed,fill=UTPPaleRed,line width=0.8pt},
+  bl/.style={font=\tiny\color{UTPMuted},align=center},
+  hd/.style={font=\small\bfseries\color{UTPNavy}},
+  gap/.style={font=\tiny\bfseries\color{UTPRed},align=center},
+  lev/.style={draw=UTPGreen,fill=white,rounded corners=1.5mm,text width=3.5cm,
+              minimum height=0.9cm,align=center,font=\scriptsize\color{UTPNavy}},
+  go/.style={-{Stealth[length=2mm]},thick,draw=UTPMuted}]
 
 % ---------- one customer ----------
 \node[hd] at (1.35,2.55) {One active customer};
 \filldraw[rev] (0.55,0) rectangle (1.15,0.95);
 \filldraw[cst] (1.55,0) rectangle (2.15,1.75);
-\draw[MLMuted!60] (0.35,0) -- (2.45,0);
+\draw[UTPMuted!60] (0.35,0) -- (2.45,0);
 \node[bl] at (0.85,-0.30) {revenue};
 \node[bl] at (1.85,-0.30) {cost to serve};
-\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=MLRed]
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=UTPRed]
   (2.35,0.95) -- (2.35,1.75);
 \node[gap,anchor=west] at (2.45,1.35) {loss};
 
@@ -296,10 +296,10 @@ The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate t
 \node[hd] at (6.55,2.55) {One million active customers};
 \filldraw[rev] (5.75,0) rectangle (6.35,0.95);
 \filldraw[cst] (6.75,0) rectangle (7.35,1.75);
-\draw[MLMuted!60] (5.55,0) -- (7.65,0);
+\draw[UTPMuted!60] (5.55,0) -- (7.65,0);
 \node[bl] at (6.05,-0.30) {revenue};
 \node[bl] at (7.05,-0.30) {cost to serve};
-\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=MLRed]
+\draw[{Stealth[length=1.6mm]}-{Stealth[length=1.6mm]},draw=UTPRed]
   (7.55,0.95) -- (7.55,1.75);
 \node[gap,anchor=west] at (7.65,1.35) {loss $\times\,10^{6}$};
 
@@ -310,16 +310,16 @@ The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate t
 \node[lev] at (1.75,-1.60)  {lower the cost to serve};
 \node[lev] at (5.75,-1.60)  {raise revenue per customer};
 \node[lev] at (9.75,-1.60)  {shift into lending, paid tiers, and other margin};
-\node[font=\scriptsize\bfseries\color{MLGreen},anchor=east] at (-0.15,-1.60) {levers};
+\node[font=\scriptsize\bfseries\color{UTPGreen},anchor=east] at (-0.15,-1.60) {levers};
 
-\node[font=\scriptsize\color{MLInk},align=center,text width=12.6cm] at (5.30,-2.85)
+\node[font=\scriptsize\color{UTPInk},align=center,text width=12.6cm] at (5.30,-2.85)
   {Adding customers repeats the left-hand picture; it does not redraw it. Only
    the three levers change the relative height of the two bars, which is why
    Week~5 treats user growth as evidence of demand rather than evidence of a
    viable bank.};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \subsection{Paths toward better economics}
 
@@ -421,17 +421,17 @@ The lecture argues that the clean-slate approach gives the parent institution a 
 
 The incumbent provides licenses, core systems, KYC, trust, or distribution while a technology partner supplies digital product capabilities. The VPBank/Timo example is used to illustrate this collaborative model.
 
-\begin{mlfigure}
+\begin{utpfig}[Three incumbent responses]{Three ways an incumbent can respond to digital-only banks: acquire or invest to buy capabilities, build a parallel brand to learn, or partner to combine strengths.}{fig:incumbent-strategies}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.15cm,minimum height=1.2cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=3.15cm,minimum height=1.2cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-4.2,0) {Acquire / invest\\buy capabilities};
 \node[b] (b) at (0,0) {Parallel brand\\build + learn};
 \node[b] (c) at (4.2,0) {Partner\\combine strengths};
-\node[font=\scriptsize\color{MLMuted},align=center] at (0,-1.35) {Incumbents do not have one response. Each option trades speed, control,\\cultural integration, technology freedom, and regulatory leverage differently.};
+\node[font=\scriptsize\color{UTPMuted},align=center] at (0,-1.35) {Incumbents do not have one response. Each option trades speed, control,\\cultural integration, technology freedom, and regulatory leverage differently.};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{Regulation and suitability of digital banks}
 
@@ -444,11 +444,11 @@ The lecture presents two regulatory motivations:
 
 It then lists criteria regulators may use when assessing applicants.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.25\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Criterion & Regulatory question \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Criterion} & \utpth{Regulatory question} \\
 \midrule
 Path to profitability & Is there a credible route to a financially sustainable bank rather than growth funded indefinitely by investors? \\
 Key differentiation & Does the proposition solve a meaningful need, especially for underserved users? \\
@@ -457,7 +457,7 @@ Consumer protection & Are cybersecurity, data protection, product conduct, and c
 Ability to serve underserved users & Will the new license expand useful access rather than simply duplicate services for already well-served customers? \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Rebundling through open banking}
 
@@ -507,7 +507,7 @@ The desired experience is summarized by the lecture's phrase: support should be 
 
 \section{A digital-bank business-model test}
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Target segment.} Who is the bank built to serve, and what unmet need exists?
   \item \term{License model.} Is it a licensed challenger bank or a neobank relying on a partner in the lecture's terminology?
   \item \term{Cost advantage.} Which branches, manual steps, and legacy systems are avoided?
@@ -516,7 +516,7 @@ The desired experience is summarized by the lecture's phrase: support should be 
   \item \term{Unit economics.} Does revenue per customer eventually exceed acquisition, servicing, fraud, compliance, and funding costs?
   \item \term{Risk and regulation.} How are security, data protection, consumer protection, and prudential requirements addressed?
   \item \term{Support model.} What happens when the automated journey fails?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 Design a digital-only bank for Malaysian university students or micro-businesses. Define the target need, onboarding model, three core features, one partner integration, one revenue source, and the most serious risk. Then explain why the proposition is more than ``a traditional bank with a new app.''

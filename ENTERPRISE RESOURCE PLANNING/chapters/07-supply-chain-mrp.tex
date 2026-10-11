@@ -20,32 +20,32 @@ that move materials, information, and products from suppliers through production
 and distribution to the customer. Three different things flow along the same
 chain, and they do not all flow the same way.
 
-\begin{erpfig}[Three flows, three directions]{Materials move downstream, money
+\begin{utpfig}[Three flows, three directions]{Materials move downstream, money
 moves upstream, and information must move both ways. A chain that passes only
 goods and invoices --- with no demand signal --- forces every party to guess and
 hold its own buffer.}{fig:three-flows}
 \begin{tikzpicture}[x=1cm,y=1cm]
 % --- information, above ---
-\draw[erpback,line width=1.1pt] (13.4,1.5) -- (0.2,1.5);
-\node[erpcap,anchor=south,color=UTPOrange] at (6.8,1.66)
+\draw[procback,line width=1.1pt] (13.4,1.5) -- (0.2,1.5);
+\node[proccap,anchor=south,color=UTPOrange] at (6.8,1.66)
   {\bfseries information --- forecasts, orders, and status, both ways};
-\draw[erplink] (0.2,1.5) -- (0.2,0.5); \draw[erplink] (13.4,1.5) -- (13.4,0.5);
+\draw[proclink] (0.2,1.5) -- (0.2,0.5); \draw[proclink] (13.4,1.5) -- (13.4,0.5);
 % --- materials, the chain itself ---
 \foreach \i/\n in {0/Supplier, 1/Purchase, 2/{Receive, store},
                    3/Manufacture, 4/Deliver, 5/Customer}{
   \pgfmathsetmacro{\x}{0.2+\i*2.64}
-  \node[erpstep,minimum width=2.35cm,minimum height=0.85cm,text width=2.1cm] (n\i) at (\x,0) {\n};}
+  \node[procstep,minimum width=2.35cm,minimum height=0.85cm,text width=2.1cm] (n\i) at (\x,0) {\n};}
 \foreach \i in {0,...,4}{\pgfmathtruncatemacro{\j}{\i+1}
   \draw[-{Stealth[length=1.8mm]},semithick,draw=UTPTeal] (n\i)--(n\j);}
-\node[erpcap,anchor=north,color=UTPTeal] at (6.8,-0.6)
+\node[proccap,anchor=north,color=UTPTeal] at (6.8,-0.6)
   {\bfseries materials --- physical goods, one direction only};
 % --- money, below ---
 \draw[-{Stealth[length=2.2mm]},thick,draw=UTPGreen,line width=1.1pt] (13.4,-1.6) -- (0.2,-1.6);
-\node[erpcap,anchor=north,color=UTPGreen] at (6.8,-1.76)
+\node[proccap,anchor=north,color=UTPGreen] at (6.8,-1.76)
   {\bfseries money --- payment, back up the chain};
-\draw[erplink] (0.2,-0.5) -- (0.2,-1.6); \draw[erplink] (13.4,-0.5) -- (13.4,-1.6);
+\draw[proclink] (0.2,-0.5) -- (0.2,-1.6); \draw[proclink] (13.4,-0.5) -- (13.4,-1.6);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 A traditional view treats each company as an isolated optimiser: the buyer
 pressures the supplier, the supplier withholds information, and everyone carries
@@ -72,30 +72,30 @@ is already available.
 timing of supply. It takes the gross requirement and reduces it by what already
 exists or is already coming, then adjusts what remains to a purchasable quantity.
 
-\begin{erpfig}[From gross requirement to purchase order]{The three adjustments
+\begin{utpfig}[From gross requirement to purchase order]{The three adjustments
 between what production needs and what Purchasing actually orders. Skipping any
 of them produces either a stockout or excess stock, and the order quantity
 usually matches the net requirement only by
 coincidence.}{fig:gross-to-net}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpstep,minimum width=2.9cm,minimum height=1.0cm] (g) at (1.5,0)
+\node[procstep,minimum width=2.9cm,minimum height=1.0cm] (g) at (1.5,0)
   {Gross requirement\\\tiny\mdseries 40 tyres};
-\node[erpquiet,minimum width=2.9cm,minimum height=1.0cm] (a) at (5.3,0)
+\node[procquiet,minimum width=2.9cm,minimum height=1.0cm] (a) at (5.3,0)
   {$-$ on hand\\\tiny\mdseries 12 in stock};
-\node[erpquiet,minimum width=2.9cm,minimum height=1.0cm] (b) at (9.1,0)
+\node[procquiet,minimum width=2.9cm,minimum height=1.0cm] (b) at (9.1,0)
   {$-$ scheduled receipts\\\tiny\mdseries 0 on order};
-\node[erpwarn,minimum width=2.9cm,minimum height=1.0cm] (c) at (12.9,0)
+\node[procwarn,minimum width=2.9cm,minimum height=1.0cm] (c) at (12.9,0)
   {$=$ net requirement\\\tiny\mdseries 28 tyres};
-\draw[erpflow] (g)--(a); \draw[erpflow] (a)--(b); \draw[erpflow] (b)--(c);
-\node[erpgood,minimum width=4.2cm,minimum height=1.0cm] (d) at (12.9,-2.15)
+\draw[procflow] (g)--(a); \draw[procflow] (a)--(b); \draw[procflow] (b)--(c);
+\node[procgood,minimum width=4.2cm,minimum height=1.0cm] (d) at (12.9,-2.15)
   {Planned order\\\tiny\mdseries 30 tyres --- 3 boxes of 10};
-\draw[erpflow] (c)--node[erpnote,right,text width=2.4cm]{round up to the supplier's lot size}(d);
-\node[erpnote,anchor=west,text width=8.4cm,align=left] at (0.0,-2.15)
+\draw[procflow] (c)--node[procnote,right,text width=2.4cm]{round up to the supplier's lot size}(d);
+\node[procnote,anchor=west,text width=8.4cm,align=left] at (0.0,-2.15)
   {\emph{Safety stock} is added to the requirement before netting; \emph{lead
    time} then decides how many weeks earlier the order must be released. Neither
    changes what production needs --- only what Purchasing does about it.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \[
 \text{Net Requirement}
@@ -107,7 +107,7 @@ coincidence.}{fig:gross-to-net}
 Availability in one week cannot satisfy a requirement in an earlier week. MRP is
 therefore a grid: rows for each quantity, columns for each period.
 
-\begin{erpfig}[A time-phased MRP record]{The standard MRP record for Rubber
+\begin{utpfig}[A time-phased MRP record]{The standard MRP record for Rubber
 Tires: 12 on hand, a scheduled receipt of 10 in Week 2, requirements of 20 in
 Weeks 3 and 5, a two-week purchasing lead time, and boxes of 10. Note the two
 diagonals --- the net requirement of 18 is rounded up to a receipt of 20, and
@@ -115,7 +115,7 @@ that receipt must be released two weeks earlier.}{fig:mrp-record}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \foreach \k/\w in {0/1,1/2,2/3,3/4,4/5,5/6}{
   \pgfmathsetmacro{\x}{5.1+\k*1.72}
-  \node[erpcap,color=UTPNavy] at (\x,0.62) {\bfseries Week \w};}
+  \node[proccap,color=UTPNavy] at (\x,0.62) {\bfseries Week \w};}
 \foreach \r/\lbl/\va/\vb/\vc/\vd/\ve/\vf/\clr in {%
   0/{Gross requirement}/{--}/{--}/{20}/{--}/{20}/{--}/UTPBlue,
   1/{Scheduled receipts}/{--}/{10}/{--}/{--}/{--}/{--}/UTPMuted,
@@ -124,18 +124,18 @@ that receipt must be released two weeks earlier.}{fig:mrp-record}
   4/{Planned receipt}/{--}/{--}/{--}/{--}/{20}/{--}/UTPGreen,
   5/{Planned order release}/{--}/{--}/{20}/{--}/{--}/{--}/UTPGreen}{
   \pgfmathsetmacro{\y}{-\r*0.68}
-  \node[erpcap,anchor=west,align=left,text width=4.2cm] at (0.0,\y) {\bfseries \lbl};
+  \node[proccap,anchor=west,align=left,text width=4.2cm] at (0.0,\y) {\bfseries \lbl};
   \foreach \k/\v in {0/\va,1/\vb,2/\vc,3/\vd,4/\ve,5/\vf}{
     \pgfmathsetmacro{\x}{5.1+\k*1.72}
     \node[draw=\clr!55,fill=\clr!8,rounded corners=1mm,minimum width=1.55cm,
           minimum height=0.54cm,font=\scriptsize\color{UTPNavy}] at (\x,\y) {\v};}}
-\draw[erpback,line width=1pt,-{Stealth[length=2mm]}]
+\draw[procback,line width=1pt,-{Stealth[length=2mm]}]
   (9.4,-3.4) to[out=-25,in=-155] (11.9,-2.98);
-\node[erpnote,anchor=north,text width=13.6cm] at (7.0,-3.95)
+\node[procnote,anchor=north,text width=13.6cm] at (7.0,-3.95)
   {Week 5 is short by 18, but tyres come in boxes of 10, so the planned receipt
    is 20. The two-week lead time then places the order release in Week 3.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \term{Lead time} is the elapsed time between initiating supply and having the
 material usable. If a component is needed in Week 5 with a two-week lead time,
@@ -165,27 +165,27 @@ A purchase order records a commitment to buy. A receipt records what physically
 arrived. They can differ in date and in quantity, and only one of them creates
 usable stock.
 
-\begin{erpfig}[Order is not receipt]{The two events and what each proves. The
+\begin{utpfig}[Order is not receipt]{The two events and what each proves. The
 gap between them is where supplier performance is measured --- and where a
 planner who treats an open order as available inventory releases production that
 cannot start.}{fig:po-vs-receipt}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpstep,minimum width=3.6cm,minimum height=1.05cm] (po) at (2.4,1.5)
+\node[procstep,minimum width=3.6cm,minimum height=1.05cm] (po) at (2.4,1.5)
   {Purchase Order\\\tiny\mdseries confirmed 1 March};
-\node[erpgood,minimum width=3.6cm,minimum height=1.05cm] (rc) at (11.4,1.5)
+\node[procgood,minimum width=3.6cm,minimum height=1.05cm] (rc) at (11.4,1.5)
   {Receipt validated\\\tiny\mdseries 14 March, 28 of 30 accepted};
-\draw[erpflow] (po)--node[midway,above,erpnote]{supplier lead time}(rc);
-\node[erpdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm] at (2.4,-0.15)
+\draw[procflow] (po)--node[midway,above,procnote]{supplier lead time}(rc);
+\node[procdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm] at (2.4,-0.15)
   {proves: what we asked for, at what price, by when};
-\node[erpdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm,draw=UTPGreen] at (11.4,-0.15)
+\node[procdoc,minimum width=3.9cm,text width=3.5cm,minimum height=1.15cm,draw=UTPGreen] at (11.4,-0.15)
   {proves: what we can actually use, and when};
-\draw[erplink] (2.4,0.95)--(2.4,0.45); \draw[erplink] (11.4,0.95)--(11.4,0.45);
-\node[erpchipwarn,anchor=north] at (6.9,0.9) {13 days: on-time performance};
-\node[erpchipwarn,anchor=north] at (6.9,0.2) {28 of 30: initial fill rate};
-\node[erpchipbad,anchor=north,text width=4.8cm,align=center] at (6.9,-0.7)
+\draw[proclink] (2.4,0.95)--(2.4,0.45); \draw[proclink] (11.4,0.95)--(11.4,0.45);
+\node[procchipwarn,anchor=north] at (6.9,0.9) {13 days: on-time performance};
+\node[procchipwarn,anchor=north] at (6.9,0.2) {28 of 30: initial fill rate};
+\node[procchipbad,anchor=north,text width=4.8cm,align=center] at (6.9,-0.7)
   {stock rises \emph{here}, not at the order --- manufacturing cannot start before this};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{Supplier integration}
 
@@ -196,11 +196,11 @@ designing controlled exchange so both sides plan around the same signals.
 
 \section{SCM measures of success}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.24\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Metric & Meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Metric} & \utpth{Meaning} \\
 \midrule
 Cash-to-cash cycle time & Time between paying for inputs and collecting cash from the customer. Shorter cycles tie up less working capital. \\
 Total SCM cost & Cost of buying and handling inventory, processing orders, and supporting the supply chain's information systems. \\
@@ -209,12 +209,12 @@ Initial order lead time & Time the supplier needs to fill the order. \\
 On-time performance & How often the supplier meets the agreed delivery date. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 The cash-to-cash cycle is the one worth drawing, because it is the metric that
 connects supply-chain decisions to the finance chapter.
 
-\begin{erpfig}[The cash-to-cash cycle]{Cash leaves when the supplier is paid and
+\begin{utpfig}[The cash-to-cash cycle]{Cash leaves when the supplier is paid and
 returns when the customer pays. The gap is financed by the company. Shortening
 inventory days or collection days shrinks it; paying suppliers later shrinks it
 too, but at the cost of the supplier relationship.}{fig:cash-to-cash}
@@ -223,28 +223,28 @@ too, but at the cost of the supplier relationship.}{fig:cash-to-cash}
 \foreach \x/\lbl in {0.6/{materials\\received}, 3.6/{supplier\\paid},
                      8.4/{bikes\\delivered}, 13.2/{customer\\pays}}{
   \draw[draw=UTPMuted!55] (\x,-0.16)--(\x,0.16);
-  \node[erpnote,anchor=north,text width=1.9cm] at (\x,-0.28) {\lbl};}
+  \node[procnote,anchor=north,text width=1.9cm] at (\x,-0.28) {\lbl};}
 \draw[draw=UTPRed,line width=6pt,opacity=0.28] (3.6,1.15) -- (13.2,1.15);
-\node[erpchipbad] at (8.4,1.15) {cash-to-cash cycle --- financed by the company};
+\node[procchipbad] at (8.4,1.15) {cash-to-cash cycle --- financed by the company};
 \draw[draw=UTPBlue,line width=5pt,opacity=0.30] (0.6,2.15) -- (8.4,2.15);
-\node[erpchip,draw=UTPBlue,fill=UTPPaleBlue] at (4.5,2.15) {inventory days};
+\node[procchip,draw=UTPBlue,fill=UTPPaleBlue] at (4.5,2.15) {inventory days};
 \draw[draw=UTPGreen,line width=5pt,opacity=0.30] (8.4,2.85) -- (13.2,2.85);
-\node[erpchip] at (10.8,2.85) {collection days};
+\node[procchip] at (10.8,2.85) {collection days};
 \draw[draw=UTPOrange,line width=5pt,opacity=0.30] (0.6,3.55) -- (3.6,3.55);
-\node[erpchipwarn] at (2.1,3.55) {payment days};
+\node[procchipwarn] at (2.1,3.55) {payment days};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Metrics must be read together. A supplier can post high on-time performance and a
 poor fill rate by delivering punctually but short every time.
 
 \section{CRM versus SCM}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.18\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}XX@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Aspect & CRM & SCM \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Aspect} & \utpth{CRM} & \utpth{SCM} \\
 \midrule
 Primary relationship & Prospects and customers & Suppliers, production, logistics partners \\
 Primary signal & Customer interest and demand & Material requirements and fulfilment \\
@@ -253,29 +253,29 @@ Shared objective & \multicolumn{2}{p{0.58\linewidth}}{Deliver customer value eff
 Where they meet & \multicolumn{2}{p{0.58\linewidth}}{Demand captured by CRM/Sales becomes a planning requirement for SCM; SCM status returns to Sales so customers receive accurate promises.} \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
-\begin{erpfig}[Where CRM and SCM meet]{The two halves of the enterprise face
+\begin{utpfig}[Where CRM and SCM meet]{The two halves of the enterprise face
 opposite directions and touch at exactly two points: the demand signal going
 upstream, and the availability answer coming back. Those two arrows are what
 integration buys.}{fig:crm-vs-scm}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \draw[draw=UTPTeal!45,fill=UTPPaleTeal!45,rounded corners=2.5mm] (0,-1.35) rectangle (6.4,2.35);
-\node[erpcap,color=UTPTeal] at (3.2,2.05) {\bfseries SCM --- upstream};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,1.35) {Suppliers and lead times};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,0.6)  {Purchase orders and receipts};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,-0.15) {Inventory and production};
-\node[erpnote] at (3.2,-0.95) {optimises \emph{supply}};
+\node[proccap,color=UTPTeal] at (3.2,2.05) {\bfseries SCM --- upstream};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,1.35) {Suppliers and lead times};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,0.6)  {Purchase orders and receipts};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm,draw=UTPTeal] at (3.2,-0.15) {Inventory and production};
+\node[procnote] at (3.2,-0.95) {optimises \emph{supply}};
 \draw[draw=UTPBlue!45,fill=UTPPaleBlue!45,rounded corners=2.5mm] (8.2,-1.35) rectangle (14.6,2.35);
-\node[erpcap,color=UTPBlue] at (11.4,2.05) {\bfseries CRM --- downstream};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,1.35) {Leads and opportunities};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,0.6)  {Quotations and orders};
-\node[erpstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,-0.15) {Service history};
-\node[erpnote] at (11.4,-0.95) {optimises \emph{demand}};
-\draw[erpback] (8.1,1.0) -- node[midway,above,erpnote,text width=1.6cm]{demand signal} (6.5,1.0);
-\draw[erpflow] (6.5,0.2) -- node[midway,below,erpnote,text width=1.6cm]{availability answer} (8.1,0.2);
+\node[proccap,color=UTPBlue] at (11.4,2.05) {\bfseries CRM --- downstream};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,1.35) {Leads and opportunities};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,0.6)  {Quotations and orders};
+\node[procstep,minimum width=5.4cm,minimum height=0.62cm] at (11.4,-0.15) {Service history};
+\node[procnote] at (11.4,-0.95) {optimises \emph{demand}};
+\draw[procback] (8.1,1.0) -- node[midway,above,procnote,text width=1.6cm]{demand signal} (6.5,1.0);
+\draw[procflow] (6.5,0.2) -- node[midway,below,procnote,text width=1.6cm]{availability answer} (8.1,0.2);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{SCM in Odoo 19 Community}
 

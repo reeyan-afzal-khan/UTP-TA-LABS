@@ -19,7 +19,7 @@ time. The planner works down a hierarchy in which each level fixes a decision
 the level below must respect, and each level covers a shorter horizon in
 finer detail.
 
-\begin{erpfig}[The planning hierarchy]{The planning hierarchy read as a pyramid.
+\begin{utpfig}[The planning hierarchy]{The planning hierarchy read as a pyramid.
 Moving down, the horizon shortens and the detail sharpens: a yearly forecast for
 a product family becomes a daily instruction for one
 product.}{fig:planning-hierarchy}
@@ -32,19 +32,19 @@ product.}{fig:planning-hierarchy}
   \pgfmathsetmacro{\y}{-\i*1.12}
   \pgfmathsetmacro{\w}{10.6-\i*0.9}
   \pgfmathsetmacro{\tw}{\w-0.55}
-  \node[erpstep,minimum width=\w cm,minimum height=0.9cm,text width=\tw cm] (p\i) at (6.0,\y)
+  \node[procstep,minimum width=\w cm,minimum height=0.9cm,text width=\tw cm] (p\i) at (6.0,\y)
     {\lvl\ --- \emph{\q}};
-  \node[erpchip,anchor=west] at (11.6,\y) {\h};
-  \node[erpnote,anchor=west,text width=2.3cm] at (13.5,\y) {\d};}
-\foreach \i in {0,...,2}{\pgfmathtruncatemacro{\j}{\i+1}\draw[erpflow] (p\i)--(p\j);}
-\node[erpgood,minimum width=3.3cm,minimum height=0.8cm] (prod) at (3.5,-4.6) {Production};
-\node[erpgood,minimum width=3.3cm,minimum height=0.8cm] (mrp)  at (8.5,-4.6) {MRP $\rightarrow$ Purchasing};
-\draw[erpflow] (p3.south) -- ++(0,-0.28) -| (prod.north);
-\draw[erpflow] (p3.south) -- ++(0,-0.28) -| (mrp.north);
-\node[erpcap,anchor=west] at (11.6,0.78) {\bfseries horizon};
-\node[erpcap,anchor=west] at (13.5,0.78) {\bfseries detail};
+  \node[procchip,anchor=west] at (11.6,\y) {\h};
+  \node[procnote,anchor=west,text width=2.3cm] at (13.5,\y) {\d};}
+\foreach \i in {0,...,2}{\pgfmathtruncatemacro{\j}{\i+1}\draw[procflow] (p\i)--(p\j);}
+\node[procgood,minimum width=3.3cm,minimum height=0.8cm] (prod) at (3.5,-4.6) {Production};
+\node[procgood,minimum width=3.3cm,minimum height=0.8cm] (mrp)  at (8.5,-4.6) {MRP $\rightarrow$ Purchasing};
+\draw[procflow] (p3.south) -- ++(0,-0.28) -| (prod.north);
+\draw[procflow] (p3.south) -- ++(0,-0.28) -| (mrp.north);
+\node[proccap,anchor=west] at (11.6,0.78) {\bfseries horizon};
+\node[proccap,anchor=west] at (13.5,0.78) {\bfseries detail};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{Production approaches}
 
@@ -53,45 +53,45 @@ customer order. The point where the customer's order first touches the process
 is called the decoupling point: everything upstream of it is driven by forecast,
 everything downstream by a real order.
 
-\begin{erpfig}[Where the customer order enters]{The same four activities, three
+\begin{utpfig}[Where the customer order enters]{The same four activities, three
 strategies. The orange marker is the decoupling point: work to its left is driven
 by forecast, work to its right by a real order. Moving it left cuts inventory
 risk and lengthens the customer's wait.}{fig:decoupling-point}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \foreach \x/\t in {2.0/Design, 5.0/{Buy parts}, 8.0/Manufacture, 11.0/{Ship to customer}}{
-  \node[erpcap] at (\x,3.05) {\bfseries \t};}
+  \node[proccap] at (\x,3.05) {\bfseries \t};}
 \foreach \i/\nm/\k in {0/{Make-to-stock}/4, 1/{Make-to-order}/3, 2/{Engineer-to-order}/1}{
   \pgfmathsetmacro{\y}{2.2-\i*1.55}
-  \node[erpcap,anchor=east,align=right,text width=1.95cm] at (0.35,\y) {\bfseries \nm};
+  \node[proccap,anchor=east,align=right,text width=1.95cm] at (0.35,\y) {\bfseries \nm};
   \foreach \s in {1,2,3,4}{
     \pgfmathsetmacro{\x}{-1.0+\s*3.0}
     \ifnum\s<\k
-      \node[erpquiet,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {forecast};
+      \node[procquiet,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {forecast};
     \else
-      \node[erpgood,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {customer order};
+      \node[procgood,minimum width=2.6cm,minimum height=0.72cm] at (\x,\y) {customer order};
     \fi}
   \pgfmathsetmacro{\dx}{-1.0+\k*3.0-1.5}
   \draw[draw=UTPOrange,line width=1.3pt] (\dx,\y-0.52) -- (\dx,\y+0.52);
-  \node[erpchipwarn,anchor=north] at (\dx,\y-0.6) {order enters here};}
-\node[erpnote,anchor=west,text width=12.6cm,align=left] at (-0.3,-2.55)
+  \node[procchipwarn,anchor=north] at (\dx,\y-0.6) {order enters here};}
+\node[procnote,anchor=west,text width=12.6cm,align=left] at (-0.3,-2.55)
   {\emph{Left} of the marker the company is guessing and carrying inventory risk.
    \emph{Right} of it the customer is waiting. West End Bicycles uses
    make-to-stock: Road Bikes are built before the customer order is delivered.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.21\linewidth}p{0.31\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.21\linewidth}m{0.31\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Approach & Core idea & Typical trade-off \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Approach} & \utpth{Core idea} & \utpth{Typical trade-off} \\
 \midrule
 Make-to-stock & Produce finished goods before a specific customer order, based on expected demand. & Fast fulfilment, but inventory risk if demand is wrong. \\
 Make-to-order & Begin production after a customer order is received. & Lower finished-goods inventory, but longer customer lead time. \\
 Engineer/configure-to-order & Design or configure significant product details after the order. & High customisation, but greater planning complexity and longer lead time. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section{Sales forecasting}
 
@@ -102,7 +102,7 @@ The textbook's approach starts from last year's demand, removes the unusual
 effect of last year's promotion, applies expected underlying growth, then adds
 this year's planned promotion.
 
-\begin{erpfig}[Building one month's forecast]{The four-step adjustment for a
+\begin{utpfig}[Building one month's forecast]{The four-step adjustment for a
 single month. Skipping the first step would treat a one-off promotion as
 permanent base demand and inflate every later
 number.}{fig:forecast-build}
@@ -116,17 +116,17 @@ number.}{fig:forecast-build}
   5/{$+$ this year's promotion}/{$+$ 0}/UTPGreen,
   6/{$=$ forecast}/{5,459}/UTPGreen}{
   \pgfmathsetmacro{\y}{-\i*0.78}
-  \node[erpdoc,anchor=west,minimum width=7.4cm,text width=7.0cm,align=left,
+  \node[procdoc,anchor=west,minimum width=7.4cm,text width=7.0cm,align=left,
         minimum height=0.66cm,draw=\c!65] (b\i) at (1.6,\y) {\lbl};
-  \node[erpchip,anchor=west,text width=1.5cm,align=center] at (9.3,\y) {\val};}
-\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-0.4) {\bfseries remove\\ the one-off};
-\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-2.75) {\bfseries grow the\\ base};
-\node[erpcap,anchor=west,text width=1.5cm,align=left] at (0,-4.5) {\bfseries add the\\ new plan};
-\node[erpnote,anchor=west,text width=4.0cm] at (11.2,-2.35)
+  \node[procchip,anchor=west,text width=1.5cm,align=center] at (9.3,\y) {\val};}
+\node[proccap,anchor=west,text width=1.5cm,align=left] at (0,-0.4) {\bfseries remove\\ the one-off};
+\node[proccap,anchor=west,text width=1.5cm,align=left] at (0,-2.75) {\bfseries grow the\\ base};
+\node[proccap,anchor=west,text width=1.5cm,align=left] at (0,-4.5) {\bfseries add the\\ new plan};
+\node[procnote,anchor=west,text width=4.0cm] at (11.2,-2.35)
   {June for Footloose Sport Shoes: no promotion is planned this June, so the
    forecast equals the grown base.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 For month $t$, with expected growth rate $g$:
 
@@ -148,30 +148,30 @@ year.
 aggregate production plan. Inventory is the buffer that lets production differ
 from demand in any single month.
 
-\begin{erpfig}[The inventory balance]{S\&OP as a tank. Production fills it,
+\begin{utpfig}[The inventory balance]{S\&OP as a tank. Production fills it,
 demand drains it, and the level at the end of the month is the level at the
 start of the next. Capacity limits how fast the inlet can
 run.}{fig:sop-balance}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \draw[draw=UTPBlue,fill=UTPPaleBlue!55,rounded corners=1.5mm] (5.0,-0.2) rectangle (9.6,2.4);
 \draw[draw=UTPBlue!35,fill=UTPPaleBlue] (5.05,-0.15) rectangle (9.55,1.15);
-\node[erphead] at (7.3,0.5) {Inventory};
-\node[erpnote] at (7.3,1.75) {level at month end};
-\node[erpstep,minimum width=3.0cm,minimum height=0.9cm] (prod) at (1.4,2.4)
+\node[prochead] at (7.3,0.5) {Inventory};
+\node[procnote] at (7.3,1.75) {level at month end};
+\node[procstep,minimum width=3.0cm,minimum height=0.9cm] (prod) at (1.4,2.4)
   {Production $P_t$\\\tiny\mdseries what we choose to make};
-\node[erpgood,minimum width=3.0cm,minimum height=0.9cm] (dem) at (13.2,2.4)
+\node[procgood,minimum width=3.0cm,minimum height=0.9cm] (dem) at (13.2,2.4)
   {Demand $F_t$\\\tiny\mdseries what customers take};
-\draw[erpflow] (prod.east) -- (5.0,2.4) -- (5.0,1.6);
-\draw[erpflow] (9.6,1.6) -- (9.6,2.4) -- (dem.west);
-\node[erpwarn,minimum width=3.0cm,minimum height=0.8cm] (cap) at (1.4,0.6)
+\draw[procflow] (prod.east) -- (5.0,2.4) -- (5.0,1.6);
+\draw[procflow] (9.6,1.6) -- (9.6,2.4) -- (dem.west);
+\node[procwarn,minimum width=3.0cm,minimum height=0.8cm] (cap) at (1.4,0.6)
   {Capacity $C_t$\\\tiny\mdseries the ceiling on $P_t$};
-\draw[erpslow] (cap.north) -- (prod.south);
-\node[erpstore,minimum width=6.6cm,minimum height=0.85cm,draw=UTPNavy,fill=UTPNavy!7]
+\draw[procslow] (cap.north) -- (prod.south);
+\node[procstore,minimum width=6.6cm,minimum height=0.85cm,draw=UTPNavy,fill=UTPNavy!7]
   at (7.3,-1.35) {$I_t = I_{t-1} + P_t - F_t$};
-\node[erpnote,anchor=west,text width=3.6cm] at (10.6,0.5)
+\node[procnote,anchor=west,text width=3.6cm] at (10.6,0.5)
   {a positive balance is the buffer carried into next month};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 A feasible plan must respect capacity:
 
@@ -203,38 +203,38 @@ A \term{bill of materials (BOM)} is the product recipe: the components and
 quantities needed to make one finished unit. It is what converts a production
 quantity into a purchasing requirement.
 
-\begin{erpfig}[The Road Bike bill of materials]{The supplied BOM, drawn as the
+\begin{utpfig}[The Road Bike bill of materials]{The supplied BOM, drawn as the
 tree it actually is. The right-hand column shows the same structure multiplied
 out for the manufacturing order of 5 bikes used throughout the
 practicals.}{fig:road-bike-bom}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpstep,minimum width=3.4cm,minimum height=0.95cm,draw=UTPGreen,fill=UTPPaleTeal]
+\node[procstep,minimum width=3.4cm,minimum height=0.95cm,draw=UTPGreen,fill=UTPPaleTeal]
   (top) at (3.2,2.6) {Road Bike\\\tiny\mdseries 1 finished unit};
 \foreach \i/\c/\q in {0/{Aluminium Frame}/1, 1/{Rubber Tires}/2, 2/{Brake Set}/1,
                       3/{Gear Set}/1, 4/{Bicycle Chain}/1}{
   \pgfmathsetmacro{\y}{1.0-\i*0.82}
-  \node[erpdoc,anchor=west,minimum width=3.4cm,text width=3.0cm,align=left,
+  \node[procdoc,anchor=west,minimum width=3.4cm,text width=3.0cm,align=left,
         minimum height=0.68cm] (c\i) at (2.6,\y) {\c};
-  \node[erpchip,anchor=west] at (6.2,\y) {$\times\,\q$};
-  \draw[erplink] (1.5,2.15) |- (c\i.west);}
-\draw[erplink] (1.5,2.15) -- (1.5,-2.28);
-\node[erpcap,anchor=west,color=UTPMuted] at (0.2,-0.1) {\bfseries per unit};
+  \node[procchip,anchor=west] at (6.2,\y) {$\times\,\q$};
+  \draw[proclink] (1.5,2.15) |- (c\i.west);}
+\draw[proclink] (1.5,2.15) -- (1.5,-2.28);
+\node[proccap,anchor=west,color=UTPMuted] at (0.2,-0.1) {\bfseries per unit};
 % multiplied out
 \draw[draw=UTPBlue!35,fill=UTPPaleBlue!40,rounded corners=2.5mm] (8.4,-2.72) rectangle (14.6,3.25);
-\node[erpcap,color=UTPBlue] at (11.5,2.95) {\bfseries for a Manufacturing Order of 5};
-\node[erpstep,minimum width=4.2cm,minimum height=0.8cm,draw=UTPGreen,fill=UTPPaleTeal]
+\node[proccap,color=UTPBlue] at (11.5,2.95) {\bfseries for a Manufacturing Order of 5};
+\node[procstep,minimum width=4.2cm,minimum height=0.8cm,draw=UTPGreen,fill=UTPPaleTeal]
   at (11.5,2.2) {5 Road Bikes produced};
 \foreach \i/\c/\q in {0/{Aluminium Frame}/5, 1/{Rubber Tires}/10, 2/{Brake Set}/5,
                       3/{Gear Set}/5, 4/{Bicycle Chain}/5}{
   \pgfmathsetmacro{\y}{1.0-\i*0.82}
-  \node[erpdoc,anchor=west,minimum width=3.2cm,text width=2.8cm,align=left,
+  \node[procdoc,anchor=west,minimum width=3.2cm,text width=2.8cm,align=left,
         minimum height=0.68cm] at (8.8,\y) {\c};
-  \node[erpchipwarn,anchor=west] at (12.2,\y) {$-\,\q$ from stock};}
-\node[erpnote,anchor=north,text width=12.4cm] at (7.4,-3.05)
+  \node[procchipwarn,anchor=west] at (12.2,\y) {$-\,\q$ from stock};}
+\node[procnote,anchor=north,text width=12.4cm] at (7.4,-3.05)
   {Completing the Manufacturing Order consumes the components on the left and
    creates the finished bikes on the right --- one event, two stock effects.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 MRP later extends this multiplication by considering inventory, scheduled
 receipts, lot sizes, and lead times.
@@ -245,7 +245,7 @@ A plan says what should happen. A \term{manufacturing order (MO)} is the
 instruction to produce a specific quantity. In an integrated system, completing
 the MO is a stock event, not just a status change.
 
-\begin{erpfig}[What completing an MO does to stock]{Before and after the
+\begin{utpfig}[What completing an MO does to stock]{Before and after the
 Manufacturing Order for 5 Road Bikes. This before/after pair is the evidence the
 labs ask you to capture, and the quickest way to prove the manufacturing event
 reached the shared inventory data.}{fig:mo-stock-change}
@@ -269,7 +269,7 @@ reached the shared inventory data.}{fig:mo-stock-change}
 \legend{before the MO, after the MO is marked Done}
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{odoobox}
 In the West End Bicycles guide: create a Road Bike BOM for one unit; create a
@@ -285,7 +285,7 @@ when demand or supply is uncertain. More safety stock buys service protection
 and costs holding expense and tied-up cash --- and the exchange rate between the
 two is not linear.
 
-\begin{erpfig}[Diminishing returns on safety stock]{Service level against safety
+\begin{utpfig}[Diminishing returns on safety stock]{Service level against safety
 stock for a representative demand distribution. The first units of buffer are
 cheap protection; the last few percent of service are very expensive, which is
 why 100\% service is almost never the target.}{fig:safety-stock-curve}
@@ -303,11 +303,11 @@ why 100\% service is almost never the target.}{fig:safety-stock-curve}
 \addplot[draw=UTPOrange,dashed,domain=0:100,samples=2] {95};
 \addlegendentry{95\% target}
 \draw[draw=UTPGreen,line width=1pt,dashed] (axis cs:78,45) -- (axis cs:78,95);
-\node[erpchip,anchor=west,font=\tiny] at (axis cs:16,72) {cheap protection};
-\node[erpchipwarn,anchor=east,font=\tiny] at (axis cs:76,62) {expensive last few \%};
+\node[procchip,anchor=west,font=\tiny] at (axis cs:16,72) {cheap protection};
+\node[procchipwarn,anchor=east,font=\tiny] at (axis cs:76,62) {expensive last few \%};
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Forecast accuracy matters because a worse forecast needs a bigger buffer for the
 same service level. ERP does not remove uncertainty; it improves the information

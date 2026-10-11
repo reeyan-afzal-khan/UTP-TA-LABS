@@ -21,6 +21,13 @@ Temporary Items
 .apdisk
 
 # =========================
+# Windows and Office
+# =========================
+desktop.ini
+Thumbs.db
+~$*
+
+# =========================
 # Python
 # =========================
 __pycache__/
@@ -52,8 +59,16 @@ env/
 *.tmp
 *.temp
 
-# LaTeX build products (keep source files only)
-.latex-build/
+# Programs compiled from the lab sources (keep the .c/.cpp, not the binaries)
+*.exe
+*.o
+*.obj
+
+# LaTeX build products (keep source files only).
+# .shared/build.py compiles outside the repository and writes only to
+# .all_pdfs/, which IS committed. These cover a book built by hand with
+# pdflatex inside its course folder; a main.pdf there is such a stray build.
+main.pdf
 *.aux
 *.bbl
 *.bcf

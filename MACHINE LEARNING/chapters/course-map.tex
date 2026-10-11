@@ -1,54 +1,53 @@
-\chapter*{Course Map: Foundations to Practice}
-\addcontentsline{toc}{chapter}{Course Map: Foundations to Practice}
-\markboth{Course Map}{ }
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
+\markboth{Course Map}{}
 
-Start with the foundations, then learn each workflow before exploring its models. The two branches show different learning goals; you can study both. Follow the chapters in order and use the labs to put the ideas into practice.
-
-\begin{mlfigure}
+\begin{utpfig}[How the stages connect]{How the stages connect. After the shared foundations, labelled data leads to the supervised branch and unlabelled data to the unsupervised branch; both feed the advanced concepts and the capstone. Each stage names its chapters, its labs, and the checkpoint to reach before moving on.}{fig:course-stages}
 \begin{tikzpicture}[
   y=1.17cm,
   every node/.append style={execute at begin node={\hyphenpenalty=10000\relax}},
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.75cm,minimum height=1.38cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
-  gate/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=6.8cm,minimum height=0.78cm,align=center,font=\small\bfseries},
-  branch/.style={rounded corners=2mm,text width=5.90cm,minimum height=2.35cm,align=left,inner xsep=3.4mm,inner ysep=2.5mm,font=\scriptsize\color{MLNavy}},
-  sup/.style={branch,draw=MLBlue,fill=MLPaleBlue},
-  unsup/.style={branch,draw=MLTeal,fill=MLPaleTeal},
-  other/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=12.75cm,minimum height=2.35cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
-  finish/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=12.75cm,minimum height=1.65cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{MLNavy}},
-  branchlabel/.style={fill=white,inner xsep=2pt,inner ysep=1pt,font=\scriptsize\bfseries\color{MLMuted}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal},
-  flow/.style={thick,draw=MLTeal,line cap=round,line join=round},
-  junction/.style={circle,fill=MLTeal,inner sep=1.2pt}
+  stage/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=12.75cm,minimum height=1.38cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{UTPNavy}},
+  gate/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,text width=6.8cm,minimum height=0.78cm,align=center,font=\small\bfseries},
+  branch/.style={rounded corners=2mm,text width=5.90cm,minimum height=2.35cm,align=left,inner xsep=3.4mm,inner ysep=2.5mm,font=\scriptsize\color{UTPNavy}},
+  sup/.style={branch,draw=UTPBlue,fill=UTPPaleBlue},
+  unsup/.style={branch,draw=UTPTeal,fill=UTPPaleTeal},
+  other/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,text width=12.75cm,minimum height=2.35cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{UTPNavy}},
+  finish/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=12.75cm,minimum height=1.65cm,align=left,inner xsep=4mm,inner ysep=2.4mm,font=\scriptsize\color{UTPNavy}},
+  branchlabel/.style={fill=white,inner xsep=2pt,inner ysep=1pt,font=\scriptsize\bfseries\color{UTPMuted}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal},
+  flow/.style={thick,draw=UTPTeal,line cap=round,line join=round},
+  junction/.style={circle,fill=UTPTeal,inner sep=1.2pt}
 ]
-\node[stage] (a) at (0,8.65) {{\normalsize\bfseries\color{MLBlue}Stage 1: Orientation and tools}\hfill{\footnotesize\bfseries Chapters \ref{ch:orientation}--\ref{ch:python}}\par
+\node[stage] (a) at (0,8.65) {{\normalsize\bfseries\color{UTPBlue}Stage 1: Orientation and tools}\hfill{\footnotesize\bfseries Chapters \ref{ch:orientation}--\ref{ch:toolkit}}\par
   \smallskip Define the problem, follow the ML workflow, and use Python libraries.\par
   \textbf{Checkpoint:} run the environment and organize a reproducible project.};
-\node[stage] (b) at (0,6.75) {{\normalsize\bfseries\color{MLBlue}Stage 2: Shared foundations}\hfill{\footnotesize\bfseries Chapters \ref{ch:data}--\ref{ch:foundations}}\par
+\node[stage] (b) at (0,6.75) {{\normalsize\bfseries\color{UTPBlue}Stage 2: Shared foundations}\hfill{\footnotesize\bfseries Chapters \ref{ch:data}--\ref{ch:foundations}}\par
   \smallskip Data quality, safe splits, preprocessing; learning signals, statistics, probability, and geometry.\par
   \textbf{Lab 1:} feature engineering and selection. \textbf{Checkpoint:} separate fixed rules from training-fitted choices.};
 \node[gate] (g) at (0,5.05) {What should the model learn?};
 
-\node[sup] (s1) at (-3.45,2.75) {{\centering\bfseries\color{MLBlue}Stage 3A: Supervised workflow\par}{\centering\bfseries Chapters \ref{ch:supervised}--\ref{ch:training}\par}\smallskip
+\node[sup] (s1) at (-3.45,2.75) {{\centering\bfseries\color{UTPBlue}Stage 3A: Supervised workflow\par}{\centering\bfseries Chapters \ref{ch:supervised}--\ref{ch:training}\par}\smallskip
   Losses and baselines; metrics, validation, regularization, and tuning.\par
   \textbf{Checkpoint:} choose models without using the final test set.};
-\node[sup] (s2) at (-3.45,0) {{\centering\bfseries\color{MLBlue}Stage 3B: Supervised models\par}{\centering\bfseries Chapters \ref{ch:regression}--\ref{ch:svm}\par}\smallskip
+\node[sup] (s2) at (-3.45,0) {{\centering\bfseries\color{UTPBlue}Stage 3B: Supervised models\par}{\centering\bfseries Chapters \ref{ch:regression}--\ref{ch:svm}\par}\smallskip
   Linear/logistic models, KNN, naive Bayes, trees, ensembles, and SVMs.\par
   \textbf{Labs 2--3:} apply the workflow, compare families, and save a fitted model.};
 
-\node[unsup] (u1) at (3.45,2.75) {{\centering\bfseries\color{MLTeal}Stage 4A: Unsupervised workflow\par}{\centering\bfseries Chapter \ref{ch:unsupervised}\par}\smallskip
+\node[unsup] (u1) at (3.45,2.75) {{\centering\bfseries\color{UTPTeal}Stage 4A: Unsupervised workflow\par}{\centering\bfseries Chapter \ref{ch:unsupervised}\par}\smallskip
   Define structure and assess stability, geometry, reconstruction, and domain evidence.\par
   \textbf{Checkpoint:} evaluate without assuming a single correct answer.};
-\path let \p1 = ($(s1.south)-(s2.north)$) in node[unsup,below=\y1 of u1] (u2) {{\centering\bfseries\color{MLTeal}Stage 4B: Unsupervised models\par}{\centering\bfseries Chapters \ref{ch:clustering}--\ref{ch:anomaly}\par}\smallskip
+\path let \p1 = ($(s1.south)-(s2.north)$) in node[unsup,below=\y1 of u1] (u2) {{\centering\bfseries\color{UTPTeal}Stage 4B: Unsupervised models\par}{\centering\bfseries Chapters \ref{ch:clustering}--\ref{ch:anomaly}\par}\smallskip
   Clustering, dimensionality reduction, and anomaly detection.\par
   \textbf{Lab 4:} clustering and PCA.\par
   \textbf{Lab 5 bridge:} anomalies and limited labels.};
 
-\node[other] (c) at (0,-3.0) {{\normalsize\bfseries\color{MLOrange}Stage 5: Advanced concepts}\hfill{\footnotesize\bfseries Chapters \ref{ch:semi-supervised}--\ref{ch:deep}}\par
+\node[other] (c) at (0,-3.0) {{\normalsize\bfseries\color{UTPOrange}Stage 5: Advanced concepts}\hfill{\footnotesize\bfseries Chapters \ref{ch:semi-supervised}--\ref{ch:deep}}\par
   \smallskip\textbf{Ch.~\ref{ch:semi-supervised}} semi-supervised and active learning --- use or request scarce labels.\par
   \textbf{Ch.~\ref{ch:rl} / Lab 6:} reinforcement learning --- learn policies from actions and rewards.\par
   \textbf{Ch.~\ref{ch:deep} / Labs 7--8:} dense networks and CNNs for images; RNNs and LSTMs for sequences.\par
   \smallskip\textbf{Distinction:} limited labels and rewards change the feedback; neural networks change the model.};
-\node[finish] (d) at (0,-5.5) {{\normalsize\bfseries\color{MLGreen}Capstone: integrate and defend}\par
+\node[finish] (d) at (0,-5.5) {{\normalsize\bfseries\color{UTPGreen}Capstone: integrate and defend}\par
   \smallskip\textbf{Capstone:} compare at least three model families, add one extension, evaluate fairly, and save the model with its card.\par
   \textbf{Checkpoint:} explain the model choice, reproduce the results, and state the limitations.};
 
@@ -68,8 +67,4 @@ Start with the foundations, then learn each workflow before exploring its models
 \draw[arr,shorten >=1.5pt] (merge) -- (c.north);
 \draw[arr] (c.south) -- (d.north);
 \end{tikzpicture}
-\end{mlfigure}
-
-\begin{keyidea}
-Learn the workflow before adding complexity. Across all eight labs, justify the evidence, preserve reproducibility, and state the limits.
-\end{keyidea}
+\end{utpfig}

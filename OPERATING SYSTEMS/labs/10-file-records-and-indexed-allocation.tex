@@ -1,20 +1,22 @@
 \labsection{10}{File records and indexed block allocation}{sec:lab10}
 \begin{labproject}{Separate application record format from file-system block placement}
 
-\oslabflow{Chapter 10: record encoding vs. file-system allocation.}{Create text and binary record files, then simulate an index block that points to data blocks.}{Explain which decisions belong to the application and which belong to the file system.}
+\textbf{Coverage.} Chapter~\ref{ch:filesystems}: record encoding vs. file-system allocation.\\
+\textbf{Goal.} Create text and binary record files, then simulate an index block that points to data blocks.\\
+\textbf{Explain.} Explain which decisions belong to the application and which belong to the file system.
 
 \section*{Source code}
-\ossourcecard{\texttt{text\_records.c}}{Write readable employee records, reopen the file, and search by ID.}{\texttt{fprintf}/\texttt{fscanf} define an application-level text format.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab10/text_records.c}
+\labsourcecard{\texttt{text\_records.c}}{Write readable employee records, reopen the file, and search by ID.}{\texttt{fprintf}/\texttt{fscanf} define an application-level text format.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab10/text_records.c}
 
-\ossourcecard{\texttt{binary\_records.c}}{Write fixed C structs as binary data and search them after reopening the file.}{The exercise is compact but the raw struct layout is compiler/platform dependent.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab10/binary_records.c}
+\labsourcecard{\texttt{binary\_records.c}}{Write fixed C structs as binary data and search them after reopening the file.}{The exercise is compact but the raw struct layout is compiler/platform dependent.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab10/binary_records.c}
 
-\ossourcecard{\texttt{indexed\_allocation.c}}{Represent a small disk-block map and validate an index block plus data blocks before committing allocation.}{The program checks the whole request first, so a rejected file does not partially modify the map.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab10/indexed_allocation.c}
+\labsourcecard{\texttt{indexed\_allocation.c}}{Represent a small disk-block map and validate an index block plus data blocks before committing allocation.}{The program checks the whole request first, so a rejected file does not partially modify the map.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab10/indexed_allocation.c}
 
 \section*{Task 1 --- Create text and binary record files}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 cd all_experiments/Lab10
 gcc -Wall -Wextra -std=c11 text_records.c -o text_records
 gcc -Wall -Wextra -std=c11 binary_records.c -o binary_records
@@ -30,7 +32,7 @@ Compare readability, file size, and portability in a short table.
 For each statement, label it \textbf{application} or \textbf{file system}: ``ID is stored before name'', ``file offset maps to a disk block'', ``salary is printed with two decimals'', ``an index block points to data blocks''.
 
 \section*{Task 3 --- Indexed allocation}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 gcc -Wall -Wextra -std=c11 indexed_allocation.c -o indexed_allocation
 ./indexed_allocation
 \end{lstlisting}
@@ -39,22 +41,21 @@ Explain why File B is rejected and why the block map should remain unchanged aft
 \section*{Task 4 --- Controlled edit}
 Open \texttt{indexed\_allocation.c} in Vim. Change File B so its data-block list no longer overlaps block 8. Predict whether it will now allocate and whether that affects File C. Recompile and verify.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.42\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.42\linewidth}
   >{\raggedright\arraybackslash}X
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Question} & \textbf{Text records} & \textbf{Binary records} \\
+\utpth{Question} & \utpth{Text records} & \utpth{Binary records} \\
 \midrule
 Human-readable directly? & & \\
 Easy to inspect with normal text tools? & & \\
 Raw representation portable across systems? & & \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -63,6 +64,15 @@ Raw representation portable across systems? & & \\
   \item What role does an index block play in indexed allocation?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item The text and binary record files are compared on readability, size and portability.
+  \item Each of the four items is assigned to the layer responsible for it.
+  \item File B is rejected and the block map is unchanged after the rejection.
+  \item The before/after block map from your File B edit is explained.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the text/binary comparison, the four layer labels, the original indexed-allocation output, and the before/after block-map result from your File B edit.

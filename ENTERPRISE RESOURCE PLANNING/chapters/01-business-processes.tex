@@ -24,7 +24,7 @@ area --- ``taking a sales order.'' A \term{business process} is broader: a
 connected set of activities that turns an input into an output someone values.
 The three are often confused because they sit at different levels.
 
-\begin{erpfig}[Area, function, process]{The three levels. Functional areas are
+\begin{utpfig}[Area, function, process]{The three levels. Functional areas are
 vertical containers of responsibility; business functions are the individual
 activities inside them; a business process runs horizontally across the
 containers. The mismatch between the vertical structure and the horizontal flow
@@ -42,30 +42,30 @@ is the problem ERP exists to solve.}{fig:area-function-process}
                          3.9/Purchasing/Production/Delivery,
                          7.8/Invoicing/Receivables/Reporting,
                          11.7/Recruiting/Training/Payroll admin.}{
-  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,3.42) {\a};
-  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.72) {\b};
-  \node[erpdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.02) {\c};
+  \node[procdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,3.42) {\a};
+  \node[procdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.72) {\b};
+  \node[procdoc,minimum width=2.9cm,minimum height=0.55cm] at (\x+1.72,2.02) {\c};
 }
-\node[erpcap,anchor=west,text width=2.6cm] at (-0.05,-0.75)
+\node[proccap,anchor=west,text width=2.6cm] at (-0.05,-0.75)
   {\bfseries functional\\areas};
-\node[erpcap,anchor=west] at (2.9,-0.75) {each holds many \emph{business functions}};
+\node[proccap,anchor=west] at (2.9,-0.75) {each holds many \emph{business functions}};
 % --- horizontal process band ---
 \draw[draw=UTPNavy,fill=UTPNavy!8,rounded corners=2mm] (-0.35,0.35) rectangle (15.5,1.4);
 \node[font=\scriptsize\bfseries\color{UTPNavy},anchor=west] at (-0.15,1.12)
   {Business process: \emph{order-to-cash}};
 \foreach \x/\t in {1.2/Capture, 4.3/Reserve, 7.3/Ship, 10.3/Invoice, 13.3/Collect}{
-  \node[erpchip] (c\t) at (\x,0.68) {\t};
+  \node[procchip] (c\t) at (\x,0.68) {\t};
 }
-\draw[erpflow] (cCapture) -- (cReserve); \draw[erpflow] (cReserve) -- (cShip);
-\draw[erpflow] (cShip) -- (cInvoice);   \draw[erpflow] (cInvoice) -- (cCollect);
+\draw[procflow] (cCapture) -- (cReserve); \draw[procflow] (cReserve) -- (cShip);
+\draw[procflow] (cShip) -- (cInvoice);   \draw[procflow] (cInvoice) -- (cCollect);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.23\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Functional area & Typical business functions \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Functional area} & \utpth{Typical business functions} \\
 \midrule
 Marketing and Sales & Product promotion, pricing, quotations, sales orders, customer support, CRM, and sales forecasting. \\
 Supply Chain Management & Purchasing, receiving, inventory, production planning, manufacturing, logistics, and delivery. \\
@@ -73,7 +73,7 @@ Accounting and Finance & Recording transactions, receivables and payables, budge
 Human Resources & Recruiting, hiring, training, payroll-related administration, benefits, employee records, and compliance. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \begin{intuition}
 A department is an organisational box. A process is a journey. The customer sees
@@ -86,12 +86,12 @@ Suppose West End Bicycles receives an order for 1,000 bicycles. A sales employee
 can capture the request, but Sales alone cannot complete it. Six questions must
 be answered, and each belongs to a different desk.
 
-\begin{erpfig}[Order questions by owner]{One customer order, six questions, four
+\begin{utpfig}[Order questions by owner]{One customer order, six questions, four
 owners. No single functional area can answer all of them, which is what makes
 this a cross-functional process rather than a departmental
 task.}{fig:cross-functional-order}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erphead,anchor=west] at (-0.2,0.75) {Order for 1{,}000 bicycles --- who answers what?};
+\node[prochead,anchor=west] at (-0.2,0.75) {Order for 1{,}000 bicycles --- who answers what?};
 \foreach \i/\q/\own/\c in {%
    0/{Is the order captured with the right product, quantity, and price?}/{Marketing \& Sales}/UTPBlue,
    1/{Is the customer allowed to buy on the requested credit terms?}/{Accounting \& Finance}/UTPGreen,
@@ -100,24 +100,24 @@ task.}{fig:cross-functional-order}
    4/{When can the order be delivered?}/{Supply Chain}/UTPTeal,
    5/{What is invoiced, and has the customer paid?}/{Accounting \& Finance}/UTPGreen}{
   \pgfmathsetmacro{\y}{-\i*0.92}
-  \node[erpdoc,anchor=west,text width=8.5cm,minimum width=9.0cm,minimum height=0.74cm,
+  \node[procdoc,anchor=west,text width=8.5cm,minimum width=9.0cm,minimum height=0.74cm,
         align=left,draw=\c!60] (q\i) at (0,\y) {\q};
-  \node[erpstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
+  \node[procstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
         draw=\c,fill=\c!10] at (9.6,\y) {\own};
-  \draw[erplink] (9.05,\y) -- (9.6,\y);
+  \draw[proclink] (9.05,\y) -- (9.6,\y);
 }
 \foreach \i in {0,...,4}{
   \pgfmathsetmacro{\y}{-\i*0.92-0.37}
-  \draw[erpflow] (0.55,\y) -- (0.55,\y-0.18);
+  \draw[procflow] (0.55,\y) -- (0.55,\y-0.18);
 }
 \draw[draw=UTPMuted!35] (0,-5.05) -- (13.3,-5.05);
-\node[erpstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
+\node[procstep,anchor=west,minimum width=3.7cm,minimum height=0.74cm,
       draw=UTPOrange,fill=UTPPaleOrange] (hr) at (9.6,-5.55) {Human Resources};
-\node[erpcap,anchor=west,text width=8.5cm,align=left] at (0,-5.55)
+\node[proccap,anchor=west,text width=8.5cm,align=left] at (0,-5.55)
   {\itshape staffs every step above, owns none of them};
-\draw[erplink] (9.05,-5.55) -- (hr);
+\draw[proclink] (9.05,-5.55) -- (hr);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 HR may not touch an individual order, yet it supports the process by ensuring
 the company has trained salespeople, buyers, planners, accountants, and
@@ -129,39 +129,39 @@ A process fails when information moves slowly or inconsistently, even if every
 department works hard. Each area is simultaneously a producer and a consumer of
 the others' data.
 
-\begin{erpfig}[Information exchange]{What each functional area produces, and
+\begin{utpfig}[Information exchange]{What each functional area produces, and
 what it must receive from the others. Every labelled arrow is a dependency that
 a silo turns into a delay.}{fig:info-exchange}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpstep,minimum width=3.6cm,minimum height=1.15cm] (ms)  at (0,3.1)
+\node[procstep,minimum width=3.6cm,minimum height=1.15cm] (ms)  at (0,3.1)
   {Marketing \& Sales\\[-0.2em]{\tiny\mdseries produces orders, prices, demand}};
-\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPTeal,fill=UTPPaleTeal] (scm) at (9.6,3.1)
+\node[procstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPTeal,fill=UTPPaleTeal] (scm) at (9.6,3.1)
   {Supply Chain\\[-0.2em]{\tiny\mdseries produces stock, output, shipments}};
-\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPGreen,fill=UTPPaleTeal] (af) at (9.6,0)
+\node[procstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPGreen,fill=UTPPaleTeal] (af) at (9.6,0)
   {Accounting \& Finance\\[-0.2em]{\tiny\mdseries produces invoices, statements}};
-\node[erpstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPOrange,fill=UTPPaleOrange] (hr) at (0,0)
+\node[procstep,minimum width=3.6cm,minimum height=1.15cm,draw=UTPOrange,fill=UTPPaleOrange] (hr) at (0,0)
   {Human Resources\\[-0.2em]{\tiny\mdseries produces staff, records, skills}};
 % top: sales -> scm and back
-\draw[erpflow] ([yshift=3mm]ms.east) -- ([yshift=3mm]scm.west)
-  node[midway,above,erpnote]{forecasts, confirmed orders};
-\draw[erpback] ([yshift=-3mm]scm.west) -- ([yshift=-3mm]ms.east)
-  node[midway,below,erpnote]{availability, promised dates};
+\draw[procflow] ([yshift=3mm]ms.east) -- ([yshift=3mm]scm.west)
+  node[midway,above,procnote]{forecasts, confirmed orders};
+\draw[procback] ([yshift=-3mm]scm.west) -- ([yshift=-3mm]ms.east)
+  node[midway,below,procnote]{availability, promised dates};
 % right: scm -> finance
-\draw[erpflow] (scm.south) -- (af.north)
-  node[midway,right,erpnote,text width=2.7cm]{receipts, production, shipments};
+\draw[procflow] (scm.south) -- (af.north)
+  node[midway,right,procnote,text width=2.7cm]{receipts, production, shipments};
 % bottom: finance -> sales
-\draw[erpback] ([yshift=3mm]af.west) -- ([yshift=3mm]hr.east)
-  node[midway,above,erpnote]{payroll and expense data};
-\draw[erpflow] (af.north west) to[out=150,in=-30]
-  node[midway,fill=white,inner sep=1pt,erpnote,text width=2.4cm,align=center]
+\draw[procback] ([yshift=3mm]af.west) -- ([yshift=3mm]hr.east)
+  node[midway,above,procnote]{payroll and expense data};
+\draw[procflow] (af.north west) to[out=150,in=-30]
+  node[midway,fill=white,inner sep=1pt,procnote,text width=2.4cm,align=center]
   {credit status, payments} (ms.south east);
 % left: hr -> sales
-\draw[erpflow] (hr.north) -- (ms.south)
-  node[midway,left,erpnote,text width=2.2cm]{trained staff, skills};
-\draw[erpback] ([yshift=-3mm]hr.east) -- ([yshift=-3mm]af.west)
-  node[midway,below,erpnote]{headcount, staffing needs};
+\draw[procflow] (hr.north) -- (ms.south)
+  node[midway,left,procnote,text width=2.2cm]{trained staff, skills};
+\draw[procback] ([yshift=-3mm]hr.east) -- ([yshift=-3mm]af.west)
+  node[midway,below,procnote]{headcount, staffing needs};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{keyidea}
 The quality of a decision is limited by the quality, timeliness, and consistency
@@ -177,61 +177,61 @@ automatically stay synchronised with the others. Silos are not inherently bad.
 The problem appears when a cross-functional process depends on a fact that now
 exists in several different versions.
 
-\begin{erpfig}[Silos versus shared data]{The same three departments, twice. On
+\begin{utpfig}[Silos versus shared data]{The same three departments, twice. On
 the left each holds its own copy and the copies drift apart between transfers;
 on the right one record serves all three, so there is nothing to
 reconcile.}{fig:silo-vs-erp}
 \resizebox{0.99\linewidth}{!}{%
 \begin{tikzpicture}[x=1cm,y=1cm]
 % ---- left: silos ----
-\node[erphead,color=UTPRed] at (3.6,3.55) {Disconnected silos};
-\node[erpbad,minimum width=2.6cm] (s1) at (0.0,2.3) {Sales DB};
-\node[erpbad,minimum width=2.6cm] (s2) at (3.6,2.3) {Warehouse DB};
-\node[erpbad,minimum width=2.6cm] (s3) at (7.2,2.3) {Finance DB};
-\draw[erpslow] (s1) -- node[erpnote,above]{fax / batch} (s2);
-\draw[erpslow] (s2) -- node[erpnote,above]{re-keyed} (s3);
-\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c1) at (0.0,0.85) {qty $=$ 40};
-\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c2) at (3.6,0.85) {qty $=$ 38};
-\node[erpdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c3) at (7.2,0.85) {qty $=$ 40};
-\foreach \a/\b in {s1/c1,s2/c2,s3/c3}{\draw[erplink] (\a)--(\b);}
-\node[erpchipbad] at (3.6,0.05) {three answers to one question};
+\node[prochead,color=UTPRed] at (3.6,3.55) {Disconnected silos};
+\node[procbad,minimum width=2.6cm] (s1) at (0.0,2.3) {Sales DB};
+\node[procbad,minimum width=2.6cm] (s2) at (3.6,2.3) {Warehouse DB};
+\node[procbad,minimum width=2.6cm] (s3) at (7.2,2.3) {Finance DB};
+\draw[procslow] (s1) -- node[procnote,above]{fax / batch} (s2);
+\draw[procslow] (s2) -- node[procnote,above]{re-keyed} (s3);
+\node[procdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c1) at (0.0,0.85) {qty $=$ 40};
+\node[procdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c2) at (3.6,0.85) {qty $=$ 38};
+\node[procdoc,minimum width=2.4cm,minimum height=0.6cm,draw=UTPRed] (c3) at (7.2,0.85) {qty $=$ 40};
+\foreach \a/\b in {s1/c1,s2/c2,s3/c3}{\draw[proclink] (\a)--(\b);}
+\node[procchipbad] at (3.6,0.05) {three answers to one question};
 % ---- right: integrated ----
 \begin{scope}[xshift=10.6cm]
-\node[erphead,color=UTPTeal] at (3.1,3.55) {Integrated ERP};
-\node[erpgood,minimum width=2.6cm] (i1) at (0.0,2.3) {Sales};
-\node[erpgood,minimum width=2.6cm] (i2) at (3.1,2.3) {Inventory};
-\node[erpgood,minimum width=2.6cm] (i3) at (6.2,2.3) {Finance};
-\node[erpdb,minimum width=3.0cm,minimum height=1.2cm] (db) at (3.1,0.7) {Shared record\\qty $=$ 40};
-\foreach \n in {i1,i2,i3}{\draw[erpflow] (\n) -- (db);}
-\node[erpchip] at (3.1,-0.42) {one answer, read three ways};
+\node[prochead,color=UTPTeal] at (3.1,3.55) {Integrated ERP};
+\node[procgood,minimum width=2.6cm] (i1) at (0.0,2.3) {Sales};
+\node[procgood,minimum width=2.6cm] (i2) at (3.1,2.3) {Inventory};
+\node[procgood,minimum width=2.6cm] (i3) at (6.2,2.3) {Finance};
+\node[procdb,minimum width=3.0cm,minimum height=1.2cm] (db) at (3.1,0.7) {Shared record\\qty $=$ 40};
+\foreach \n in {i1,i2,i3}{\draw[procflow] (\n) -- (db);}
+\node[procchip] at (3.1,-0.42) {one answer, read three ways};
 \end{scope}
 \end{tikzpicture}}
-\end{erpfig}
+\end{utpfig}
 
 The structural cost of silos is easiest to see at the keyboard: the same fact
 gets typed once per system, and each retype is an opportunity to disagree.
 
-\begin{erpfig}[Cost of re-entry]{Where errors enter. Every manual hand-off is a
+\begin{utpfig}[Cost of re-entry]{Where errors enter. Every manual hand-off is a
 chance for the copies to diverge; the integrated path has one entry point and
 no reconciliation step.}{fig:duplicate-entry}
 \resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpcap,anchor=east,text width=1.9cm] at (-0.15,1.5) {\bfseries Siloed};
-\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a1) at (1.2,1.5) {type};
-\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a2) at (4.3,1.5) {re-type};
-\node[erpbad,minimum width=2.1cm,minimum height=0.72cm] (a3) at (7.4,1.5) {re-type};
-\node[erpwarn,minimum width=2.4cm,minimum height=0.72cm] (a4) at (10.7,1.5) {reconcile};
-\draw[erpslow] (a1)--(a2); \draw[erpslow] (a2)--(a3); \draw[erpslow] (a3)--(a4);
-\node[erpchipbad,anchor=west] at (12.15,1.5) {3 entries, 3 error points};
-\node[erpcap,anchor=east,text width=1.9cm] at (-0.15,0.0) {\bfseries Integrated};
-\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b1) at (1.2,0.0) {type once};
-\node[erpdb,minimum width=2.4cm,minimum height=0.9cm] (b2) at (4.6,0.0) {shared};
-\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b3) at (7.9,0.0) {read};
-\node[erpgood,minimum width=2.1cm,minimum height=0.72cm] (b4) at (10.7,0.0) {read};
-\draw[erpflow] (b1)--(b2); \draw[erpflow] (b2)--(b3); \draw[erpflow] (b3)--(b4);
-\node[erpchip,anchor=west] at (12.2,0.0) {1 entry, 0 error points};
+\node[proccap,anchor=east,text width=1.9cm] at (-0.15,1.5) {\bfseries Siloed};
+\node[procbad,minimum width=2.1cm,minimum height=0.72cm] (a1) at (1.2,1.5) {type};
+\node[procbad,minimum width=2.1cm,minimum height=0.72cm] (a2) at (4.3,1.5) {re-type};
+\node[procbad,minimum width=2.1cm,minimum height=0.72cm] (a3) at (7.4,1.5) {re-type};
+\node[procwarn,minimum width=2.4cm,minimum height=0.72cm] (a4) at (10.7,1.5) {reconcile};
+\draw[procslow] (a1)--(a2); \draw[procslow] (a2)--(a3); \draw[procslow] (a3)--(a4);
+\node[procchipbad,anchor=west] at (12.15,1.5) {3 entries, 3 error points};
+\node[proccap,anchor=east,text width=1.9cm] at (-0.15,0.0) {\bfseries Integrated};
+\node[procgood,minimum width=2.1cm,minimum height=0.72cm] (b1) at (1.2,0.0) {type once};
+\node[procdb,minimum width=2.4cm,minimum height=0.9cm] (b2) at (4.6,0.0) {shared};
+\node[procgood,minimum width=2.1cm,minimum height=0.72cm] (b3) at (7.9,0.0) {read};
+\node[procgood,minimum width=2.1cm,minimum height=0.72cm] (b4) at (10.7,0.0) {read};
+\draw[procflow] (b1)--(b2); \draw[procflow] (b2)--(b3); \draw[procflow] (b3)--(b4);
+\node[procchip,anchor=west] at (12.2,0.0) {1 entry, 0 error points};
 \end{tikzpicture}}
-\end{erpfig}
+\end{utpfig}
 
 With a shared database one business event updates several views at once. When a
 delivery is validated, Inventory sees stock leave, Sales sees fulfilment
@@ -243,36 +243,36 @@ The tutorial scenario describes West End Bicycles as a manufacturer of road,
 mountain, and city bicycles plus accessories. It is useful precisely because it
 requires all four functional areas at once.
 
-\begin{erpfig}[Two connected cycles]{The whole course in one picture. The buying
+\begin{utpfig}[Two connected cycles]{The whole course in one picture. The buying
 cycle fills the warehouse, the selling cycle empties it, and manufacturing is
 the hinge between them. Every later chapter deepens one segment of this
 loop.}{fig:two-cycles}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \node[draw=UTPBlue!35,fill=UTPPaleBlue!45,rounded corners=2.5mm,
       minimum width=9.6cm,minimum height=1.8cm] at (4.2,2.35) {};
-\node[erpcap,anchor=west,color=UTPBlue] at (-0.55,3.05) {\bfseries Procure-to-pay};
-\node[erpstep,minimum width=2.05cm] (n1) at (0.75,2.25) {Need};
-\node[erpstep,minimum width=2.05cm] (n2) at (3.05,2.25) {Purchase order};
-\node[erpstep,minimum width=2.05cm] (n3) at (5.35,2.25) {Receipt};
-\node[erpstep,minimum width=2.05cm] (n4) at (7.85,2.25) {Pay vendor};
-\draw[erpflow] (n1)--(n2); \draw[erpflow] (n2)--(n3); \draw[erpflow] (n3)--(n4);
+\node[proccap,anchor=west,color=UTPBlue] at (-0.55,3.05) {\bfseries Procure-to-pay};
+\node[procstep,minimum width=2.05cm] (n1) at (0.75,2.25) {Need};
+\node[procstep,minimum width=2.05cm] (n2) at (3.05,2.25) {Purchase order};
+\node[procstep,minimum width=2.05cm] (n3) at (5.35,2.25) {Receipt};
+\node[procstep,minimum width=2.05cm] (n4) at (7.85,2.25) {Pay vendor};
+\draw[procflow] (n1)--(n2); \draw[procflow] (n2)--(n3); \draw[procflow] (n3)--(n4);
 
-\node[erpwarn,minimum width=3.4cm,minimum height=1.05cm] (mfg) at (12.1,1.05)
+\node[procwarn,minimum width=3.4cm,minimum height=1.05cm] (mfg) at (12.1,1.05)
   {Manufacturing\\[-0.15em]{\tiny\mdseries components $\rightarrow$ Road Bikes}};
 
 \node[draw=UTPGreen!35,fill=UTPPaleTeal!55,rounded corners=2.5mm,
       minimum width=9.6cm,minimum height=1.8cm] at (4.2,-0.25) {};
-\node[erpcap,anchor=west,color=UTPGreen] at (-0.55,-1.15) {\bfseries Order-to-cash};
-\node[erpgood,minimum width=2.05cm] (m1) at (0.75,-0.35) {Opportunity};
-\node[erpgood,minimum width=2.05cm] (m2) at (3.05,-0.35) {Sales order};
-\node[erpgood,minimum width=2.05cm] (m3) at (5.35,-0.35) {Delivery};
-\node[erpgood,minimum width=2.05cm] (m4) at (7.85,-0.35) {Invoice / payment};
-\draw[erpflow] (m1)--(m2); \draw[erpflow] (m2)--(m3); \draw[erpflow] (m3)--(m4);
+\node[proccap,anchor=west,color=UTPGreen] at (-0.55,-1.15) {\bfseries Order-to-cash};
+\node[procgood,minimum width=2.05cm] (m1) at (0.75,-0.35) {Opportunity};
+\node[procgood,minimum width=2.05cm] (m2) at (3.05,-0.35) {Sales order};
+\node[procgood,minimum width=2.05cm] (m3) at (5.35,-0.35) {Delivery};
+\node[procgood,minimum width=2.05cm] (m4) at (7.85,-0.35) {Invoice / payment};
+\draw[procflow] (m1)--(m2); \draw[procflow] (m2)--(m3); \draw[procflow] (m3)--(m4);
 
-\draw[erpflow] (n4) to[bend left=16] node[erpnote,above right=0pt and 1pt]{materials in} (mfg.north west);
-\draw[erpflow] (mfg.south west) to[bend left=16] node[erpnote,below right=0pt and 1pt]{bikes out} (m4.north east);
+\draw[procflow] (n4) to[bend left=16] node[procnote,above right=0pt and 1pt]{materials in} (mfg.north west);
+\draw[procflow] (mfg.south west) to[bend left=16] node[procnote,below right=0pt and 1pt]{bikes out} (m4.north east);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{What Odoo adds to this picture}
 
@@ -280,7 +280,7 @@ The supplied Odoo 19 Community guide implements the same concepts with eight
 applications. Reading the app grid as an architecture rather than a menu is the
 fastest way to see where each chapter lands.
 
-\begin{erpfig}[Odoo apps by functional area]{The eight course applications
+\begin{utpfig}[Odoo apps by functional area]{The eight course applications
 grouped by the functional area each serves. Contacts sits underneath all of
 them because customer and vendor identity is shared master
 data.}{fig:odoo-app-map}
@@ -292,20 +292,20 @@ data.}{fig:odoo-app-map}
 }
 \draw[draw=UTPOrange!55,fill=UTPOrange!7,rounded corners=2mm] (10.0,-2.4) rectangle (14.5,-0.5);
 \node[font=\scriptsize\bfseries\color{UTPOrange!75!black}] at (12.25,-0.85) {Human Resources};
-\node[erpstep,minimum width=1.85cm] at (1.15,1.65) {CRM};
-\node[erpstep,minimum width=1.85cm] at (3.35,1.65) {Sales};
-\node[erpstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (6.15,1.65) {Purchase};
-\node[erpstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (8.35,1.65) {Inventory};
-\node[erpstep,minimum width=4.0cm,draw=UTPTeal,fill=UTPPaleTeal] at (7.25,0.72) {Manufacturing};
-\node[erpstep,minimum width=3.9cm,draw=UTPGreen,fill=UTPPaleTeal] at (12.25,1.65) {Invoicing};
-\node[erpcap,text width=3.9cm] at (12.25,0.75) {invoices and payments in the Community workflow};
-\node[erpstep,minimum width=3.9cm,draw=UTPOrange,fill=UTPPaleOrange] at (12.25,-1.55) {Employees};
-\node[erpstore,minimum width=8.4cm,minimum height=0.95cm] (ct) at (4.6,-1.55)
+\node[procstep,minimum width=1.85cm] at (1.15,1.65) {CRM};
+\node[procstep,minimum width=1.85cm] at (3.35,1.65) {Sales};
+\node[procstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (6.15,1.65) {Purchase};
+\node[procstep,minimum width=1.85cm,draw=UTPTeal,fill=UTPPaleTeal] at (8.35,1.65) {Inventory};
+\node[procstep,minimum width=4.0cm,draw=UTPTeal,fill=UTPPaleTeal] at (7.25,0.72) {Manufacturing};
+\node[procstep,minimum width=3.9cm,draw=UTPGreen,fill=UTPPaleTeal] at (12.25,1.65) {Invoicing};
+\node[proccap,text width=3.9cm] at (12.25,0.75) {invoices and payments in the Community workflow};
+\node[procstep,minimum width=3.9cm,draw=UTPOrange,fill=UTPPaleOrange] at (12.25,-1.55) {Employees};
+\node[procstore,minimum width=8.4cm,minimum height=0.95cm] (ct) at (4.6,-1.55)
   {Contacts --- shared customer and vendor identity};
-\draw[erplink] (ct) -- (1.15,0.15); \draw[erplink] (ct) -- (7.25,0.15);
-\draw[erplink] (ct) -- (10.6,0.15);
+\draw[proclink] (ct) -- (1.15,0.15); \draw[proclink] (ct) -- (7.25,0.15);
+\draw[proclink] (ct) -- (10.6,0.15);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{odoobox}
 Three ideas recur throughout the practicals:

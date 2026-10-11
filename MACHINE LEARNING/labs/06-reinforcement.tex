@@ -1,10 +1,11 @@
 \labsection{6}{Reinforcement learning}{sec:lab06-reinforcement}
 
 \begin{labproject}{Learn a policy by interacting, then save it}
+\textbf{Coverage.} Chapter~\ref{ch:rl}.\\
 \textbf{Goal.} Train tabular Q-learning, evaluate the greedy policy, visualize values/actions, and save the Q-table.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ MODELS.mkdir(exist_ok=True)
 
 Use a $4\times4$ grid: start top-left, goal bottom-right, and a trap. Ordinary moves cost $-0.04$, the goal pays $+1$, and the trap pays $-1$ and terminates. Walls leave position unchanged. \texttt{step} returns state, reward, and termination.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 rng = np.random.default_rng(42)
 
 ROWS, COLS = 4, 4
@@ -42,7 +43,7 @@ def step(state, action):
 
 Initialize state--action Q-values to zero. Update toward reward plus discounted best next-state value, with step size $\alpha$ and discount $\gamma$. Decay exploration from $\varepsilon=1$.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 Q = np.zeros((ROWS, COLS, len(ACTIONS)))
 alpha, gamma = 0.15, 0.95
 epsilon, min_epsilon = 1.0, 0.05
@@ -70,7 +71,7 @@ for episode in range(5000):
 
 Plot returns smoothed over 100 episodes as exploration decays.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 window = 100
 moving = np.convolve(training_returns, np.ones(window) / window, mode="valid")
 plt.figure(figsize=(6, 3.6))
@@ -86,7 +87,7 @@ plt.show()
 
 Evaluate separately with exploration off, choosing the largest Q-value in each cell.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 successes, returns = 0, []
 for _ in range(200):
     state, total = START, 0.0
@@ -109,7 +110,7 @@ print("learned action at start:", ACTION_NAMES[choose_action(START, explore=Fals
 
 Save the Q-table; deployment chooses each state’s highest-valued action without retraining.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 q_path = MODELS / "gridworld_q_table.npy"
 np.save(q_path, Q)
 
@@ -124,7 +125,7 @@ print(policy)
 
 Plot greedy actions as arrows over maximum Q-values.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def plot_policy(Q_table, title):
     values = Q_table.max(axis=2)
     plt.figure(figsize=(4.4, 4.2))
@@ -154,3 +155,12 @@ plot_policy(Q_loaded, "Greedy policy and state values")
 Change the step cost, trap, exploration schedule, or discount. Predict the policy change, retrain, and check with \texttt{plot\_policy}.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The greedy policy reaches the goal in six moves, for a return of $0.80$.
+  \item The evaluated success rate is reported over episodes run without exploration.
+  \item \texttt{models/gridworld\_q\_table.npy} is saved, and the policy is read from the reloaded table.
+  \item The printed policy routes towards the goal and around the trap.
+\end{itemize}
+\end{verification}

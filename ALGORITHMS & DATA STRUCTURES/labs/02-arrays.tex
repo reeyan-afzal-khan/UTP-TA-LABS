@@ -9,23 +9,25 @@
 \end{sourcealignment}
 
 \begin{labproject}{Process and multiply matrices}
-\textbf{Coverage.} Chapter 2.\\
+\textbf{Coverage.} Chapter~\ref{ch:arrays}.\\
 \textbf{Goal.} Multiply two matrices and explain what each of the three nested loops controls.
 
-\begin{lstlisting}
-#include <iostream>
-using namespace std;
+The lab example multiplies $A=\begin{psmallmatrix}1&2&3\\4&5&6\end{psmallmatrix}$ ($2\times3$) by $B=\begin{psmallmatrix}7&8\\9&10\\11&12\end{psmallmatrix}$ ($3\times2$). The multiplication refuses incompatible shapes before it starts:
 
-int main() {
-    const int R = 2, K = 3, C = 2;
-    int A[R][K] = {{1,2,3}, {4,5,6}};
-    int B[K][C] = {{7,8}, {9,10}, {11,12}};
-    int P[R][C] = {};
+\begin{lstlisting}
+bool multiply(const int A[][MAXN], int aRows, int aCols,
+              const int B[][MAXN], int bRows, int bCols,
+              int P[][MAXN]) {
+    if (aCols != bRows) return false;
+    const int R = aRows, K = aCols, C = bCols;
 
     for (int i = 0; i < R; ++i)
-        for (int j = 0; j < C; ++j)
+        for (int j = 0; j < C; ++j) {
+            P[i][j] = 0;
             for (int t = 0; t < K; ++t)
                 P[i][j] += A[i][t] * B[t][j];
+        }
+    return true;
 }
 \end{lstlisting}
 
@@ -47,6 +49,3 @@ For matrix multiplication, the result size is $R\times C$. Each output cell $P[i
 \end{itemize}
 \end{verification}
 
-\begin{labdeliverable}
-Submit source code, output, and one hand-worked multiplication cell showing the same arithmetic performed by the innermost loop.
-\end{labdeliverable}

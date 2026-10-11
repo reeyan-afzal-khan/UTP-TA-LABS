@@ -10,17 +10,17 @@ the remainder is the offset. The page table replaces the page number with a
 frame number, while the offset stays unchanged. In compact form:
 \texttt{physical address = frame $\times$ page size + offset}.
 
-\begin{mlfigure}
+\begin{utpfig}[Address translation]{Translating virtual address 9000 with 4096-byte pages: page 2, offset 808. The page table maps page 2 to frame 5, so the physical address is $5\times4096+808=21\,288$.}{fig:address-translation}
 \centering
 \begin{tikzpicture}[
-  cell/.style={draw=MLBlue,fill=MLPaleBlue,minimum width=1.6cm,minimum height=0.7cm,
-               font=\small\color{MLNavy},align=center},
-  off/.style={draw=MLOrange,fill=MLPaleOrange,minimum width=1.6cm,minimum height=0.7cm,
-              font=\small\color{MLNavy},align=center},
-  pte/.style={draw=MLTeal,fill=MLPaleTeal,minimum width=1.2cm,minimum height=0.58cm,
-              font=\scriptsize\color{MLNavy}},
-  lab/.style={font=\scriptsize\color{MLMuted},align=center},
-  ar/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+  cell/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=1.6cm,minimum height=0.7cm,
+               font=\small\color{UTPNavy},align=center},
+  off/.style={draw=UTPOrange,fill=UTPPaleOrange,minimum width=1.6cm,minimum height=0.7cm,
+              font=\small\color{UTPNavy},align=center},
+  pte/.style={draw=UTPTeal,fill=UTPPaleTeal,minimum width=1.2cm,minimum height=0.58cm,
+              font=\scriptsize\color{UTPNavy}},
+  lab/.style={font=\scriptsize\color{UTPMuted},align=center},
+  ar/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal}
 ]
 % The two address fields are STACKED, not side by side, so the page-number
 % path and the offset path never cross each other or the page table.
@@ -33,7 +33,7 @@ frame number, while the offset stays unchanged. In compact form:
 % ---- page table, positioned so entry 2 lines up with the page row ----
 \node[pte] (p0) at (4.9,3.2) {0 $\to$ 7};
 \node[pte] (p1) at (4.9,2.6) {1 $\to$ 3};
-\node[pte,draw=MLRed,fill=MLPaleRed,very thick] (p2) at (4.9,2.0) {2 $\to$ 5};
+\node[pte,draw=UTPRed,fill=UTPPaleRed,very thick] (p2) at (4.9,2.0) {2 $\to$ 5};
 \node[pte] (p3) at (4.9,1.4) {3 $\to$ 1};
 
 % ---- page row (y = 2.0) and offset row (y = 0.5) ----
@@ -51,7 +51,7 @@ frame number, while the offset stays unchanged. In compact form:
 \draw[ar] (p2.east) -- node[lab,above]{gives frame} (pf.west);
 
 % ---- untranslated: the offset passes straight under the table ----
-\draw[ar,draw=MLOrange] (vo.east) --
+\draw[ar,draw=UTPOrange] (vo.east) --
       node[lab,above]{copied unchanged --- it never enters the page table} (po.west);
 \end{tikzpicture}
 
@@ -59,7 +59,7 @@ frame number, while the offset stays unchanged. In compact form:
 {\scriptsize Only the \emph{page number} is translated. The offset passes through
 untouched, which is why the page size fixes how many bits each part uses --- and
 why page size is always a power of two.}
-\end{mlfigure}
+\end{utpfig}
 
 \begin{keyidea}
 Translation replaces the page number and copies the offset. If a virtual address is contiguous inside one page, its physical address is contiguous too; across a page boundary it need not be, because the next page may live in any frame.
@@ -71,22 +71,21 @@ A \term{page fault} occurs when a referenced virtual page is not currently resid
 \section{Replacement policies}
 When no free frame exists, the OS needs a victim page.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.12\linewidth}
-  >{\raggedright\arraybackslash}p{0.44\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.12\linewidth}
+  >{\raggedright\arraybackslash}m{0.44\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Policy} & \textbf{Victim rule} & \textbf{State required} \\
+\utpth{Policy} & \utpth{Victim rule} & \utpth{State required} \\
 \midrule
 FIFO & Page resident for the longest time & Arrival/load order \\
 LRU & Page whose most recent use is farthest in the past & Recency information \\
 LFU & Page with the smallest reference count & Frequency counts plus a tie-breaker \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{FIFO}
 FIFO treats loaded pages like a queue. It is easy to implement but does not use actual access behavior. FIFO can exhibit \term{Belady's anomaly}: for some reference strings, adding more frames can increase the number of faults.

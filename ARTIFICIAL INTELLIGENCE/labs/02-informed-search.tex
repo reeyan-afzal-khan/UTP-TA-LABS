@@ -1,14 +1,15 @@
 \labsection{2}{Heuristic Search on the Airline Network}{sec:lab02-informed}
 
 \begin{labproject}{Compare UCS, Greedy Best-First Search, and A$^\star$}
+\textbf{Coverage.} Chapter~\ref{ch:informed}.\\
+\textbf{Goal.} Run GBFS and A$^\star$ with a Haversine heuristic, check admissibility, and measure quality against search effort.\\
 \textbf{Scenario.} Improve the Lab~1 planner by adding geographic knowledge while keeping a clear quality baseline.\\
-\textbf{Objective.} Run GBFS and A$^\star$ with a Haversine heuristic, check admissibility, and measure quality against search effort.\\
 \textbf{Data.} The Lab~1 OpenFlights files.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab02\_informed\_search\_worked.ipynb} and the shared \texttt{all\_experiments/utils/}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab02\_informed\_search\_worked.ipynb} and the shared \texttt{all\_experiments/utils/}.
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 from heapq import heappop, heappush
 from pathlib import Path
 
@@ -34,7 +35,7 @@ Run UCS for the three standard queries. UCS is exact for non-negative costs, so 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def report(name, query, result):
     print(f"{query.query_id} {name:<5} {result.path_cost_km:>9,.1f} km  {result.expanded:>5} expanded   {' -> '.join(result.path)}")
 
@@ -45,7 +46,7 @@ for query in queries.itertuples():
     report("UCS", query, baseline[query.query_id])
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Q1 UCS    11,461.3 km   1851 expanded   KUL -> HKT -> LED -> HEL -> KEF
 Q2 UCS    17,817.4 km   3002 expanded   SIN -> JNB -> GRU -> EZE
 Q3 UCS    14,813.3 km   3042 expanded   NRT -> HKG -> MRU -> CPT
@@ -58,7 +59,7 @@ Use the great-circle distance from the current airport to the goal as $h(n)$. GB
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def heuristic_to(goal, weight=1.0):
     """h(airport) = weight x great-circle distance from the airport to the goal."""
     def h(airport):
@@ -76,7 +77,7 @@ for query in queries.itertuples():
     report("A*", query, informed[query.query_id, "A*"])
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Q1 GBFS   12,500.5 km      2 expanded   KUL -> LHR -> KEF
 Q1 A*     11,461.3 km     69 expanded   KUL -> HKT -> LED -> HEL -> KEF
 Q2 GBFS   17,817.4 km      3 expanded   SIN -> JNB -> GRU -> EZE
@@ -92,7 +93,7 @@ An admissible heuristic never overestimates the true remaining cost. Run Dijkstr
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def reverse(graph):
     reversed_graph = {airport: [] for airport in graph}
     for airport, neighbours in graph.items():
@@ -134,7 +135,7 @@ print("Admissibility violations:", int((~check.admissible).sum()), "of", len(che
 display(check.head(10).round(1))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Admissibility violations: 0 of 30
   query_id airport goal  haversine_km  shortest_route_km  slack_km  admissible
 0       Q1     GLA  KEF        1347.5             1347.5       0.0        True
@@ -152,7 +153,7 @@ Put cost, hops, expanded nodes, maximum frontier and runtime for UCS, GBFS and A
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 rows = []
 for query in queries.itertuples():
     results = {"UCS": baseline[query.query_id], "GBFS": informed[query.query_id, "GBFS"], "A*": informed[query.query_id, "A*"]}
@@ -169,7 +170,7 @@ print("A* matches UCS on every query:", np.allclose(ucs_rows.cost_km.values, ast
 print("Mean A* expansion reduction vs UCS: {:.1%}".format(1 - astar_rows.expanded.mean() / ucs_rows.expanded.mean()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
   query_id algorithm  hops   cost_km  expanded  max_frontier  runtime_ms  gap_pct
 0       Q1       UCS     4  11461.35      1851           616        7.18     0.00
 1       Q1      GBFS     2  12500.50         2           246        3.36     9.07
@@ -191,7 +192,7 @@ Repeat the queries with the inflated heuristic $1.5\,h$ (weighted A$^\star$). Ex
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 weighted = []
 for query in queries.itertuples():
     result = astar(graph, query.start, query.goal, heuristic_to(query.goal, weight=1.5))
@@ -205,7 +206,7 @@ metrics.to_csv(RESULTS / "metrics.csv", index=False)
 display(metrics[metrics.algorithm != "GBFS"][["query_id", "algorithm", "cost_km", "gap_pct", "expanded"]].round(2))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    query_id           algorithm   cost_km  gap_pct  expanded
 0        Q1                 UCS  11461.35     0.00      1851
 2        Q1                  A*  11461.35     0.00        69
@@ -222,7 +223,7 @@ Save an expanded-nodes figure for UCS, GBFS and A$^\star$. The two tables were s
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 effort = metrics[metrics.algorithm.isin(["UCS", "A*", "GBFS"])].pivot(index="query_id", columns="algorithm", values="expanded")
 ax = effort[["UCS", "A*", "GBFS"]].plot.bar(figsize=(8, 4), logy=True)
 ax.set(ylabel="Expanded states (log scale)", title="Search effort on the three standard queries")
@@ -232,8 +233,18 @@ plt.savefig(RESULTS / "expanded_nodes.png", dpi=160)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Saved: ['expanded_nodes.png', 'heuristic_check.csv', 'metrics.csv']
 \end{lstlisting}
 Expanded-state counts are the primary effort measure; wall-clock times depend on the machine and should not be compared across computers.
 \end{labanswer}
+
+\begin{verification}
+\begin{itemize}
+  \item UCS reproduces the Lab~1 costs for the three standard queries.
+  \item A$^\star$ returns the UCS cost on every query (gap 0\,\%) while expanding far fewer states; GBFS returns at least one longer route.
+  \item The admissibility check finds no negative slack: the Haversine heuristic never overestimates.
+  \item With the inflated heuristic $1.5\,h$ you can say which queries change cost, and why.
+  \item \texttt{results/lab02/} holds \texttt{metrics.csv}, \texttt{heuristic\_check.csv} and \texttt{expanded\_nodes.png}.
+\end{itemize}
+\end{verification}

@@ -1,10 +1,11 @@
 \labsection{7}{Deep learning I: a first neural network and a CNN for images}{sec:lab07-cnn}
 
 \begin{labproject}{Train a dense network and a convolutional network on the handwritten digits}
+\textbf{Coverage.} Chapter~\ref{ch:deep}.\\
 \textbf{Goal.} Build tensors, train dense/CNN models, compare Lab~4's baseline, inspect errors and filters, and save weights with a card.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import json
 import os
 import site
@@ -55,7 +56,7 @@ print("PyTorch", torch.__version__, "| device:", DEVICE,
 
 Reshape 64-pixel digits to $1\times8\times8$ and divide brightnesses by 16. CNN tensors use (batch, channels, height, width). Reserve one-quarter of training rows for validation and the official test file for final evaluation.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 columns = [f"pixel_{i}" for i in range(64)] + ["label"]
 with zipfile.ZipFile(DATA / "optical_recognition_handwritten_digits.zip") as archive:
     members = {Path(name).name: name for name in archive.namelist()}
@@ -89,7 +90,7 @@ plt.show()
 
 The dense model maps 64 pixels through 128 ReLU units to ten scores. Logistic regression is the no-hidden-layer baseline.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def make_mlp():
     return nn.Sequential(
         nn.Flatten(),                 # 1 x 8 x 8  ->  64
@@ -104,7 +105,7 @@ print("trainable weights:", sum(p.numel() for p in mlp.parameters()))
 
 Each epoch shuffles rows into batches of 32. Compute scores, cross-entropy, gradients via \texttt{backward()}, and optimizer updates; record training/validation accuracy.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def accuracy(model, X, y):
     model.eval()
     with torch.no_grad():
@@ -132,7 +133,7 @@ mlp_history = train_classifier(mlp, X_fit, y_fit, X_val, y_val)
 print("dense network: validation accuracy =", round(mlp_history["validation"][-1], 4))
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def plot_history(history, title):
     plt.figure(figsize=(5.5, 3.4))
     plt.plot(range(1, len(history["train"]) + 1), history["train"], marker="o", label="training")
@@ -154,7 +155,7 @@ plot_history(mlp_history, "Dense network: accuracy per epoch")
 
 The CNN applies 16 then 32 filters, pooling after each stage, followed by flattening and dense classification. Print intermediate shapes.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def make_cnn():
     return nn.Sequential(
         nn.Conv2d(1, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),   # 16 x 4 x 4
@@ -175,7 +176,7 @@ for layer in cnn:
 
 The same loop trains it; nothing else changes.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 torch.manual_seed(42)
 cnn_history = train_classifier(cnn, X_fit, y_fit, X_val, y_val)
 print("CNN: validation accuracy =", round(cnn_history["validation"][-1], 4))
@@ -184,7 +185,7 @@ plot_history(cnn_history, "CNN: accuracy per epoch")
 
 Now the official test file, opened once for each model. The third number is the PCA-plus-logistic result from Lab~4 on the same file.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 test_scores = {
     "logistic on PCA (Lab 4)": 0.9477,
     "dense network": accuracy(mlp, X_test, y_test),
@@ -206,7 +207,7 @@ plt.show()
 
 Inspect the test confusion matrix and misclassified images.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 cnn.eval()
 with torch.no_grad():
     test_pred = cnn(X_test).argmax(dim=1)
@@ -230,7 +231,7 @@ plt.show()
 
 Visualize the sixteen first-layer $3\times3$ filters.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 filters = cnn[0].weight.detach().cpu()[:, 0]
 fig, axes = plt.subplots(2, 8, figsize=(8, 2.4))
 for ax, kernel in zip(axes.flat, filters):
@@ -246,7 +247,7 @@ plt.show()
 
 \texttt{torch.save} writes the learned weights (the \emph{state dict}) to a file. Loading them requires building the same architecture first, which is why \texttt{make\_cnn} and the model card belong beside the file. The reloaded model is checked against the in-memory one before the file is trusted.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 weights_path = MODELS / "digits_cnn.pt"
 torch.save(cnn.state_dict(), weights_path)
 
@@ -274,3 +275,13 @@ print(f"saved {weights_path.name} ({size_kb:.0f} KB); reload reproduces predicti
 Compare 5 versus 40 epochs using validation curves. Remove the second convolution/ReLU/pooling block, adjust flattening to $16\times4\times4$, and assess its contribution.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The device in use (CPU, CUDA or MPS) is printed with the PyTorch version.
+  \item The training and validation curves are both plotted, and the reported epoch is a validated one.
+  \item The dense network and the CNN are compared with Lab~4's baseline on the same test digits.
+  \item The most frequent confusions are inspected as images.
+  \item \texttt{models/digits\_cnn.pt} and its card are saved, and the reloaded model matches the one in memory.
+\end{itemize}
+\end{verification}

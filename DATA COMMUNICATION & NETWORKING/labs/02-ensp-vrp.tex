@@ -13,7 +13,7 @@ Do it until it is boring. Then do the troubleshooting section, which is where th
 \medskip\noindent\textbf{Part A --- The view hierarchy.}\par
 VRP puts you in one of several \term{views}, and a command only exists in the view it belongs to. ``Command not found'' almost always means ``right command, wrong view''.
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <Huawei>                        user view      -- look, do not change
 <Huawei> system-view
 [Huawei]                        system view    -- global configuration
@@ -36,7 +36,7 @@ If a command is rejected, read the prompt before re-reading the command.
 \medskip\noindent\textbf{Part B --- Build the direct link.}\par
 Place two routers, connect \cmd{GE0/0/0} to \cmd{GE0/0/0}, and start both devices. Wait for the interface indicators to turn green before configuring --- eNSP will accept configuration on a booting device and then discard it.
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 system-view
 sysname R1
 interface GigabitEthernet 0/0/0
@@ -47,7 +47,7 @@ quit
 
 Repeat on R2 with \cmd{192.168.1.2 24}. Then, from R1:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> ping 192.168.1.2
 \end{lstlisting}
 
@@ -60,11 +60,11 @@ Pick one and use it everywhere. This course uses prefix length.
 \medskip\noindent\textbf{Part C --- Verify, never assume.}\par
 Configuration entered without error is not configuration that works.
 
-\begin{commandmap}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.42\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}m{0.42\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Command} & \bfseries Answers \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Command} & \utpth{Answers} \\
 \midrule
 display ip interface brief & Which interfaces are up, with what addresses \\
 display current-configuration & What is running right now \\
@@ -73,11 +73,11 @@ display version & VRP version and uptime \\
 display interface GigabitEthernet 0/0/0 & Errors, duplex, and packet counters \\
 \bottomrule
 \end{tabularx}
-\end{commandmap}
+\end{utptable}
 
 The first of these is the one you will use hundreds of times:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ip interface brief
 Interface              IP Address/Mask      Physical  Protocol
 GigabitEthernet0/0/0   192.168.1.1/24       up        up
@@ -95,7 +95,7 @@ Reading these two columns correctly will diagnose most of the faults you meet th
 \end{keyidea}
 
 \medskip\noindent\textbf{Part D --- Save your work.}\par
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> save
 The current configuration will be written to the device. Continue? [Y/N] y
 \end{lstlisting}

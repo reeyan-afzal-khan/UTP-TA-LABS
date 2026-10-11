@@ -1,14 +1,15 @@
 \labsection{1}{Search Foundations on an Airline Network}{sec:lab01-search}
 
 \begin{labproject}{Build and compare BFS, DFS, and Uniform-Cost Search}
+\textbf{Coverage.} Chapter~\ref{ch:uninformed}.\\
+\textbf{Goal.} Run BFS, DFS and UCS on one cleaned graph, verify every path, and explain why the algorithms disagree.\\
 \textbf{Scenario.} Build a route planner over real airline connections and compare route quality with search effort.\\
-\textbf{Objective.} Run BFS, DFS and UCS on one cleaned graph, verify every path, and explain why the algorithms disagree.\\
 \textbf{Data.} \texttt{all\_datasets/lab01-03\_airports.csv} and \texttt{lab01-03\_routes.csv}.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}; Labs 1--3 share \texttt{all\_experiments/utils/}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab01\_search\_foundations\_worked.ipynb}; Labs 1--3 share \texttt{all\_experiments/utils/}.
 \end{labproject}
 
 \noindent\textbf{Setup cell.} Imports, the search functions from \texttt{utils}, and the three folders every lab uses.
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import numpy as np
@@ -28,7 +29,7 @@ Load the airport and route files, keep only airports with a valid IATA code and 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 airports, routes, coords, graph, stats = load_openflights(DATA / "lab01-03_airports.csv", DATA / "lab01-03_routes.csv")
 queries = pd.read_csv("utils/search_queries.csv").head(3)
 
@@ -36,7 +37,7 @@ display(pd.Series(stats, name="count").to_frame())
 display(queries)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                      count
 airport_rows         10668
 valid_airports        6464
@@ -57,7 +58,7 @@ BFS and DFS count every route as one step. UCS needs a number: the great-circle 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 sample = pd.DataFrame(graph["KUL"][:5], columns=["destination", "distance_km"])
 display(sample.round(1))
 
@@ -67,7 +68,7 @@ print(f"KUL has {len(graph['KUL'])} outgoing routes")
 print(f"Great-circle distance KUL -> KEF: {direct_km:,.0f} km (no direct route exists)")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
   destination  distance_km
 0         ADL       5681.8
 1         AKL       8703.4
@@ -85,7 +86,7 @@ Record path, hops, distance, expanded nodes, maximum frontier and runtime for ev
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 rows = []
 for query in queries.itertuples():
     for name, algorithm in [("BFS", bfs), ("DFS", dfs), ("UCS", ucs)]:
@@ -98,7 +99,7 @@ metrics.to_csv(RESULTS / "metrics.csv", index=False)
 display(metrics.drop(columns=["start", "goal", "path"]).round(2))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
   query_id algorithm  hops  path_cost_km  expanded  max_frontier  runtime_ms
 0       Q1       BFS     2      12274.32       284          1679        5.73
 1       Q1       DFS    23      41767.82      2112           859        3.97
@@ -118,7 +119,7 @@ A reported path is only evidence if it can be checked. Confirm that every consec
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 edge_km = {airport: dict(neighbours) for airport, neighbours in graph.items()}
 
 for row in metrics.itertuples():
@@ -130,7 +131,7 @@ for row in metrics.itertuples():
 print(f"Verified {len(metrics)} paths: every leg exists and every cost matches its edge sum")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Verified 9 paths: every leg exists and every cost matches its edge sum
 \end{lstlisting}
 All nine paths use real routes and their costs equal the sum of their edge distances, so the metrics table can be trusted. An \texttt{assert} that fails stops the notebook with the name of the offending algorithm and query --- deliberately loud.
@@ -141,7 +142,7 @@ Show hops and distance side by side for the three algorithms. Then run DFS again
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 display(metrics.pivot(index="query_id", columns="algorithm", values=["hops", "path_cost_km"]).round(0))
 
 reversed_graph = {airport: neighbours[::-1] for airport, neighbours in graph.items()}
@@ -151,7 +152,7 @@ for query in queries.itertuples():
     print(f"{query.query_id} DFS: {original} hops with the original order, {reordered} with the reversed order")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
           hops            path_cost_km
 algorithm  BFS   DFS  UCS          BFS      DFS      UCS
 query_id
@@ -170,7 +171,7 @@ Plot the three KUL$\to$KEF routes and save the figure next to \texttt{metrics.cs
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 q1 = metrics[metrics.query_id == "Q1"]
 paths = {row.algorithm: row.path.split(" -> ") for row in q1.itertuples()}
 figure, _ = plot_route_paths(paths, coords, title="Route comparison: KUL to KEF")
@@ -178,8 +179,18 @@ figure.savefig(RESULTS / "route_comparison.png", dpi=160, bbox_inches="tight")
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Saved: ['metrics.csv', 'route_comparison.png']
 \end{lstlisting}
 The figure is a longitude/latitude sketch, not a map projection, but it makes the difference visible: BFS jumps through one hub, UCS follows the geographically short chain, and DFS wanders.
 \end{labanswer}
+
+\begin{verification}
+\begin{itemize}
+  \item The cleaned graph has 6,464 usable airports and 37,337 unique directed routes.
+  \item Every BFS, DFS and UCS path uses real routes, and each reported cost equals the sum of its edge distances.
+  \item BFS returns the fewest hops and UCS the shortest distance on every query; UCS finds the 11,461~km KUL$\to$KEF route.
+  \item Reversing the neighbour order changes the DFS route, and you can explain why.
+  \item \texttt{results/lab01/} holds \texttt{metrics.csv} and \texttt{route\_comparison.png}.
+\end{itemize}
+\end{verification}

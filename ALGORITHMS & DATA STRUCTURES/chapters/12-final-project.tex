@@ -14,11 +14,11 @@ Choose two related algorithms or operations, explain how both work, and compare 
 
 The project guideline explicitly requires algorithms from the same category. It gives the following examples.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.24\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Category & Example pair & Course connection \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Category} & \utpth{Example pair} & \utpth{Course connection} \\
 \midrule
 Sorting & Bubble Sort vs Merge Sort & Chapter~\ref{ch:search-sort} \\
 Searching & Linear Search vs Binary Search & Chapter~\ref{ch:search-sort} \\
@@ -27,7 +27,7 @@ Graph traversal & BFS vs DFS & Chapter~\ref{ch:graphs} \\
 Recursion vs iteration & Factorial or Fibonacci implemented both ways & General algorithm-design comparison \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The guideline also permits other pairs, provided the two choices are genuinely related. A comparison such as Bubble Sort vs Binary Search is invalid because the algorithms solve different problems.
 
@@ -39,11 +39,11 @@ A strong pair has one shared task and one clear independent variable: the algori
 
 For each algorithm, the report is expected to cover how it works, a step-by-step example, best/average/worst time complexity, space complexity, and pros/cons. The comparison itself should also discuss step counts, use cases, and practicality.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.23\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Dimension & What to collect \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dimension} & \utpth{What to collect} \\
 \midrule
 Working principle & A concise description of the rule each algorithm follows. \\
 Correctness evidence & Identical expected output for the same valid input, or an explanation of why outputs differ. \\
@@ -55,7 +55,7 @@ Practicality & Input constraints, setup cost, ease of implementation, and when o
 Use cases & One or two scenarios where the trade-off matters. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Counting operations in C++}
 
@@ -116,31 +116,31 @@ The app must allow sample-data input, execute both algorithms, display results, 
 
 A practical screen flow is:
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item Choose the algorithm pair or open the fixed project pair.
   \item Enter or generate the input dataset.
   \item Validate the input and show any precondition, such as ``binary search requires sorted data.''
   \item Run Algorithm 1 and Algorithm 2 on equivalent copies of the input.
   \item Display result, operation count, elapsed time, and a compact visual trace.
   \item Show a comparison table and one plain-language interpretation.
-\end{mlsteps}
+\end{utpsteps}
 
-\begin{adsfig}[Comparison application screen flow]{Screen flow for the comparison application. The two algorithms must receive
+\begin{utpfig}[Comparison application screen flow]{Screen flow for the comparison application. The two algorithms must receive
 equivalent copies of the same input, or the measured difference reflects the data rather
 than the algorithms.}{fig:app-flow}
 \begin{tikzpicture}[font=\small,
-  stage/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,
+  stage/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
                 minimum width=3.0cm,minimum height=1.0cm,align=center,
-                font=\small\bfseries\color{ADSNavy},inner sep=1.8mm},
-  result/.style={draw=ADSGreen,fill=ADSPaleTeal,rounded corners=2mm,
+                font=\small\bfseries\color{UTPNavy},inner sep=1.8mm},
+  result/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,
                  minimum width=7.7cm,minimum height=1.2cm,align=center,
-                 font=\small\bfseries\color{ADSNavy},inner sep=1.8mm},
-  flow/.style={-{Stealth[length=2.3mm]},line width=0.95pt,draw=ADSTeal,
+                 font=\small\bfseries\color{UTPNavy},inner sep=1.8mm},
+  flow/.style={-{Stealth[length=2.3mm]},line width=0.95pt,draw=UTPTeal,
                rounded corners=1.5mm}]
 % Collect and validate one master input before making the two test copies.
 \node[stage] (input) at (1.75,2.25)
   {\textbf{1. Input / generate}\\[-0.12em]{\scriptsize dataset}};
-\node[stage,draw=ADSOrange,fill=ADSPaleOrange,minimum width=3.35cm] (validate)
+\node[stage,draw=UTPOrange,fill=UTPPaleOrange,minimum width=3.35cm] (validate)
   at (5.75,2.25)
   {\textbf{2. Validate input}\\[-0.12em]
    {\scriptsize e.g. sorted-data requirement}};
@@ -149,8 +149,8 @@ than the algorithms.}{fig:app-flow}
 % Fork the validated input into two equivalent copies.
 \coordinate (fork) at ([yshift=-5.5mm]validate.south);
 \draw[flow,-] (validate.south) -- (fork);
-\fill[ADSTeal] (fork) circle (1.3pt);
-\node[adslabel,anchor=south,color=ADSTeal,fill=white,inner sep=0.8pt]
+\fill[UTPTeal] (fork) circle (1.3pt);
+\node[utplabel,anchor=south,color=UTPTeal,fill=white,inner sep=0.8pt]
   at ([yshift=1.2mm]fork) {equivalent input copies};
 
 \node[stage] (a1) at (3.65,0.35) {\textbf{3A. Run Algorithm 1}};
@@ -162,26 +162,33 @@ than the algorithms.}{fig:app-flow}
 \node[result] (out) at (5.75,-1.55)
   {\textbf{4. Side-by-side comparison}\\[-0.12em]
    {\scriptsize result \textbullet{} operations \textbullet{} time \textbullet{} visual trace}\\[-0.12em]
-   {\scriptsize\color{ADSGreen!45!black}same input $\rightarrow$ the measured difference belongs to the algorithm}};
+   {\scriptsize\color{UTPGreen!45!black}same input $\rightarrow$ the measured difference belongs to the algorithm}};
 \draw[flow] (a1.south) -- ++(0,-0.38) -|
   ([xshift=-1.65cm]out.north);
 \draw[flow] (a2.south) -- ++(0,-0.38) -|
   ([xshift=1.65cm]out.north);
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \section{Report structure required by the guideline}
 
 The written report is organized into six main parts.
 
-\begin{description}[leftmargin=1.25in,style=nextline]
-  \item[A. Introduction] Identify the algorithms and explain why the comparison is useful or interesting.
-  \item[B. Algorithm Explanation] Explain each method, give a step-by-step example, state best/average/worst time and space complexity, and discuss pros/cons.
-  \item[C. Comparison Table] Compare working principle, time, space, number of steps, and best use cases side by side.
-  \item[D. Use Case Comparison] Give one or two real-world scenarios and explain why one algorithm is more suitable in each.
-  \item[E. Visual Aid (optional)] Add flowcharts, diagrams, operation-count graphs, or screenshots from the application.
-  \item[F. Conclusion] Summarize where each algorithm is more efficient or practical and state the group's takeaways.
-\end{description}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Report section} & \utpth{Required content} \\
+\midrule
+Introduction & Identify the algorithms and explain why the comparison is useful or interesting. \\
+Algorithm Explanation & Explain each method, give a step-by-step example, state best/average/worst time and space complexity, and discuss pros/cons. \\
+Comparison Table & Compare working principle, time, space, number of steps, and best use cases side by side. \\
+Use Case Comparison & Give one or two real-world scenarios and explain why one algorithm is more suitable in each. \\
+Visual Aid (optional) & Add flowcharts, diagrams, operation-count graphs, or screenshots from the application. \\
+Conclusion & Summarize where each algorithm is more efficient or practical and state the group's takeaways. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
 
 \section{Team and repository requirements}
 
@@ -197,11 +204,11 @@ Use a simple repository structure such as \texttt{/app}, \texttt{/algorithm-core
 
 The following pairs stay within the same problem category and have useful trade-offs to visualize.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.30\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.30\linewidth}X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Pair & Useful evidence to visualize \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Pair} & \utpth{Useful evidence to visualize} \\
 \midrule
 Linear vs binary search & Comparisons as $n$ grows; binary-search precondition; target position. \\
 Bubble vs insertion sort & Comparisons and swaps for random, sorted, and nearly sorted input. \\
@@ -212,7 +219,7 @@ Linear vs quadratic probing & Probe sequences and clustering after the same coll
 Min-heap vs max-heap operations & Heap restoration path and which extreme is available at the root. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Submission checklist}
 
@@ -231,23 +238,3 @@ Before submission, verify that the package contains:
   \item optional diagrams, graphs, and application screenshots where they improve interpretation.
 \end{itemize}
 \end{verification}
-
-\begin{quickcheck}
-If one algorithm appears faster for a single input of size 20, is that enough to conclude it has better asymptotic time complexity? What additional evidence would make the comparison more convincing?
-\end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item The project compares two related algorithms or operations from the same category.
-  \item The comparison must include time, space, operation counts, practicality, and use cases.
-  \item A web or mobile application is a required deliverable and must execute both choices interactively.
-  \item Fair experiments keep inputs and measurement conditions comparable.
-  \item The report structure and GitHub workflow are explicitly specified in the project guideline.
-\end{itemize}
-\end{chapterrecap}
-
-\section*{Course finish line}
-
-\begin{recommendedworkflow}
-By the end of the course, aim to be able to do five things with any structure or algorithm you have studied: draw its state, trace one operation by hand, implement the core operation, state the relevant time/space cost with assumptions, and design a test that exposes an edge case. The final project combines all five skills in one comparison.
-\end{recommendedworkflow}

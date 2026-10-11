@@ -1,10 +1,11 @@
 # Adding a course
 
-A course book is a folder at the repository root holding chapters, labs, and
-one `main.tex` that binds them together. Everything the eight existing books
-have in common lives here in `.shared/`, so a new course is mostly a matter of
-filling in a template: now that the shared preamble owns the cover, the front
-matter and the boxes, a `main.tex` is configuration plus a list of chapters.
+A course is a folder at the repository root holding a book (`main.tex`, its
+chapters and its lab sheets) and the material the labs run on. Everything the
+books have in common lives here in `.shared/`, so a new course is mostly a
+matter of filling in a template: `main.tex` is configuration plus a list of
+chapters, and the chapters use the shared boxes, figures and listing styles by
+name.
 
 Work down this list. Each step says what to do and how to check it.
 
@@ -19,21 +20,26 @@ outline:
 mkdir -p "NEW COURSE/chapters" "NEW COURSE/labs"
 ```
 
-Two folders are required, and every existing course has them:
+Every course uses the same layout. Only `main.tex`, `chapters/` and `labs/`
+are required; add the others when the course needs them, under these names:
 
-| Folder      | Holds                                                    |
-| ----------- | -------------------------------------------------------- |
-| `chapters/` | one `.tex` per chapter, named `01-topic-name.tex`         |
-| `labs/`     | runnable code, one folder per lab: `Lab01/`, `Lab02/`, …   |
+| Path               | Holds                                                              |
+| ------------------ | ------------------------------------------------------------------ |
+| `README.md`        | the course guide: labs, what to read first, how to run the code    |
+| `main.tex`         | the book: configuration and the chapter list                       |
+| `chapters/`        | one `.tex` per chapter, `01-topic-name.tex`, plus `course-map.tex` |
+| `labs/`            | one `.tex` per lab sheet, `01-topic-name.tex`                      |
+| `appendices/`      | reference material printed after the labs                          |
+| `figures/`         | images the book includes; found without a path                     |
+| `all_datasets/`    | data the labs read; treat it as read-only                          |
+| `all_experiments/` | runnable lab code: notebooks, scripts, C sources, one per lab      |
+| `results/`         | evidence the lab code writes, one `labNN/` folder per lab          |
+| `models/`          | trained models the labs save                                       |
+| `requirements.txt` | Python packages the lab code needs                                 |
+| `0.from_lecturer/` | the lecturer's slides, manuals and tutorials the book is built on  |
 
-Add more only when the book needs them. Two courses do: Data Communication
-keeps screenshots in `assets/`, and Enterprise Resource Planning keeps
-reference material in `appendices/`. If you add an image folder, name it
-in `\utpextragraphicspath`; the shared folder is already on the path.
-
-Pick a short code for the course — `ads`, `ai`, `dcn`, `ds`, `erp`, `fi`,
-`ml`, `os` are taken. It prefixes any course-specific macro, box or listing
-style, which is what keeps two books from claiming the same name.
+Build products never go in the course folder: `build.py` writes them to
+`.latex-build/` at the repository root.
 
 ## 2. Copy the template
 
@@ -42,36 +48,34 @@ cp .shared/TEMPLATE-main.tex "NEW COURSE/main.tex"
 ```
 
 The template is commented top to bottom, and every decision point is marked
-`REQUIRED` or `OPTIONAL`. Do not edit the template itself — it is the
-starting point for the next course too.
+`REQUIRED` or `OPTIONAL`. Do not edit the template itself; it is the starting
+point for the next course too.
 
 ## 3. Fill in the REQUIRED blocks
 
 In order, as they appear in the file:
 
-1. **Course configuration** — `\utprunninghead` and `\utplabtotal`, then the
-   cover text: `\utpcoursetitle` and `\utpcourseoutline`. The title page layout
-   itself is in `.shared/cover.tex` and should not be copied.
-2. **Chapters** — one `\input` per chapter, in reading order, after the
+1. **Course configuration**: `\utprunninghead` and `\utplabtotal`, then the
+   cover text, `\utpcoursetitle` and `\utpcourseoutline`. The title page
+   layout itself is `.shared/cover.tex` and is never copied.
+2. **Contents page**: one `\utpcontentspage` line. Adjust its three spaces
+   until the Learning Path fills exactly one page.
+3. **Chapters**: one `\input` per chapter, in reading order, after the
    `\utpfrontmatter` line that prints the cover, contents and course map.
 
-Then the optional blocks you actually need. Listing styles are one line each
-and build on the shared bases, so the frame and colours match the other books
-for free:
-
-```latex
-\lstdefinestyle{abccode}{style=utpcode,language=Python}
-\lstdefinestyle{abcterminal}{style=utpterminal}
-```
-
-Delete the `OPTIONAL` blocks you do not use. A short `main.tex` is the goal;
-`MACHINE LEARNING/main.tex` is the one to imitate — it is configuration and a
-chapter list, nothing else.
+Then the optional one-liners you actually need: a diagram library
+(`\utpusediagrams{network}`), pseudocode (`\utpusealgorithms`), a default
+listing language (`\lstset{style=utppython}`). Delete the `OPTIONAL` blocks you
+do not use. `MACHINE LEARNING/main.tex` is the one to imitate: configuration
+and a chapter list, nothing else.
 
 ## 4. Write the first chapter
 
-Start from a chapter of an existing book rather than from nothing — the
+Start from a chapter of an existing book rather than from nothing; the
 structure is the point, and it is easier to see than to describe.
+Algorithms & Data Structures is the reference book, and
+[`STYLE-GUIDE.md`](STYLE-GUIDE.md) spells out its rules for tables, figures,
+the course map, chapters and lab sheets.
 
 A chapter opens with a guide box and closes with a recap:
 
@@ -91,75 +95,102 @@ A chapter opens with a guide box and closes with a recap:
   \item The three or four things a reader should carry forward.
 \end{itemize}
 \end{chapterrecap}
+
+\input{labs/01-processes}
 ```
 
-The boxes available to you are listed in section 8 of `utpnotes.tex`, and a
-book declares one of its own with `\utpnewcallout` or `\utpnewquietbox` rather
-than by writing out the geometry. The common ones:
+Use the shared names only. Every box, frame, list, listing style and colour is
+listed in [`README.md`](README.md); the ones a chapter reaches for most:
 
-| Box              | Use it for                                          |
-| ---------------- | --------------------------------------------------- |
-| `keyidea`        | the single sentence the section is built around     |
-| `intuition`      | the plain-language version, before the formal one   |
-| `workedexample`  | a worked calculation or trace                       |
-| `pitfall`        | the mistake this topic reliably produces            |
-| `tryit`          | a short exercise the reader does now                |
-| `quickcheck`     | a question with the answer nearby                   |
-| `chapterrecap`   | the closing summary                                 |
-| `mlfigure`       | a centred frame around a TikZ diagram               |
-| `mltable`        | a frame around a table                              |
-| `utpfig`         | the same frame, with a numbered, referable caption  |
-| `verification`   | the evidence that a lab step actually worked        |
-| `troubleshoot`   | what to do when it did not                          |
+| Name                         | Use it for                                          |
+| ---------------------------- | --------------------------------------------------- |
+| `keyidea`                    | the single sentence the section is built around     |
+| `intuition`                  | the plain-language version, before the formal one   |
+| `workedexample`              | a worked calculation or trace                       |
+| `pitfall`                    | the mistake this topic reliably produces            |
+| `tryit`, `quickcheck`        | a short exercise; a question with the answer nearby |
+| `chapterrecap`               | the closing summary                                 |
+| `utpfigure`                  | a centred frame around a drawing, optional title    |
+| `utptable`                   | a frame around a table                              |
+| `utpfig`                     | a frame with a numbered caption `\figref` can cite  |
+| `utpsteps`                   | a numbered Step 1 / Step 2 list                     |
+| `sourcebasis`, `\sourceimage`| what lecturer material a page is built on           |
+| `UTPNavy`, `UTPBlue`, ...    | the palette; never a course-prefixed colour         |
 
 Prefer a diagram to a paragraph wherever the idea is spatial, sequential, or
-comparative. The existing chapters use TikZ directly; the libraries are already
-loaded in section 2 of the shared preamble, and one line in `main.tex`
-— `\utpdiagramstyles{abc}{1.0cm}{0.8cm}` — gives the book the
-node styles the other diagrams are drawn with (`abccell`, `abcnode`,
-`abcarrow`, and the rest, listed in section 10 of `utpnotes.tex`).
+comparative. The TikZ styles `utpcell`, `utpnode`, `utparrow` and the rest are
+always available; the larger vocabularies in `.shared/diagrams/` (networks,
+business processes, data objects) load with one line.
 
 ## 5. Write the labs
 
-Each lab is a folder under `labs/` holding code that runs, plus whatever data
-it needs. Two rules the existing courses follow:
-
-- The code in the book and the code in `labs/` are the same code. Paste from
-  the file, do not retype it.
-- Every lab runs end to end from a clean checkout with one command, and that
-  command is stated in the lab sheet.
-
-A lab sheet in the book opens with the shared banner:
+A lab sheet is a `.tex` file in `labs/`, input straight after the chapter it
+practises, either at the end of that chapter or in `main.tex`. It opens with
+the shared banner, and its body is one `labproject` box:
 
 ```latex
-\labsection{3}{Scheduling Policies}{lab:scheduling}
+\labsection{3}{Scheduling Policies}{sec:lab03}
+
+\begin{labproject}{Compare four policies on one workload}
+\labflow{Chapter 4: scheduling metrics.}{Run four policies on the same bursts.}
+        {Explain why the order changes a metric.}
+
+\labsourcecard{\texttt{fcfs.c}}{Run processes in arrival order.}{How waiting time accumulates.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab03/fcfs.c}
+
+\begin{labquestion}{1}{Compile and run}
+...
+\end{labquestion}
+\begin{labanswer}
+...
+\expectedoutput
+...
+\end{labanswer}
+
+\begin{verification} ... \end{verification}
+\begin{labdeliverable} ... \end{labdeliverable}
+\end{labproject}
 ```
 
 The `N` in "Lab 3 of N" comes from `\utplabtotal`, which you set once in
-step 3.
+step 3. Two rules the finished courses follow:
+
+- **The code in the book is the code that runs.** Keep each lab's code in
+  `all_experiments/` and pull it in with `\lstinputlisting`, or paste it
+  verbatim from the notebook cell. Never retype it.
+- **Every lab runs end to end from a clean checkout** with one command, and
+  the lab sheet states that command.
 
 ## 6. Build it
 
-From inside the course folder, three passes — once to typeset, once to place
-the contents entries, once to settle the page numbers:
+From the repository root:
 
 ```bash
-cd "NEW COURSE" && pdflatex main.tex && pdflatex main.tex && pdflatex main.tex
+python .shared/build.py "NEW COURSE"
 ```
 
-Paths in the course file are relative, so building from the repository root
-will not find `.shared/`.
+The script runs `pdflatex` from inside the course folder until the
+cross-references settle, writes everything to `.latex-build/new-course/`, and
+reports the page count, or the first errors if the build failed. A clean
+build reports no warnings; if it does, the log it names lists them.
 
-Check the log for the things a first build usually gets wrong:
+When the book is ready to hand out, publish it:
 
 ```bash
-grep -n "Undefined control sequence\|LaTeX Warning: Reference\|not found" main.log
+python .shared/build.py "NEW COURSE" --publish
 ```
+
+This copies the book to `.all_pdfs/new-course/` and splits it into one folder
+per lab, holding the chapters read since the previous lab and the lab sheet
+(`Lab-01/Chapter-01.pdf`, `Lab-01/Lab-Activity.pdf`, ...), plus
+`Capstone-Project.pdf` for a chapter titled *Capstone*.
 
 ## 7. Register the course
 
-Add a row to the table in the repository `README.md`, linking to
-`NEW COURSE/main.tex` with a one-line description of what the notes cover.
+1. Write `NEW COURSE/README.md`, following an existing course README: what
+   the course covers, the lab table, how to run the labs, and the folder map.
+2. Add a row to the course table in the repository `README.md`, linking the
+   course README and, once published, the book PDF.
 
 ---
 
@@ -169,28 +200,30 @@ If two courses need the same thing, it belongs in `.shared/`, not in both
 books. Before adding to `utpnotes.tex`, check whether the hook you want
 already exists:
 
-| You want to                       | Do this                                            |
-| --------------------------------- | -------------------------------------------------- |
-| rename a box                       | `\def\utptitlepitfall{...}` before the `\input`    |
-| restyle a box in one book          | `\renewtcolorbox{pitfall}{...}` after the `\input` |
-| break figure frames over a page    | `\utpbreakableframes` after the `\input`           |
-| put titles in a solid bar          | `\utpheavycallouts` after the `\input`             |
-| recolour the lab banner            | `\utplabprojectcolour{UTPNavy}` after the `\input` |
-| call a shared box by a local name  | `\utpaliasenv{abctable}{mltable}`                  |
-| add a box only one book needs      | `\utpnewcallout` or `\utpnewquietbox` in that book |
-| draw diagrams in the house style   | `\utpdiagramstyles{abc}{1.0cm}{0.8cm}`             |
-| colour pseudocode                  | `\utpalgorithmstyle` after loading algorithm2e     |
-| add a package only one book needs  | `\usepackage` in that book                         |
-| change something for every book    | edit the matching section of `utpnotes.tex`        |
+| You want to                         | Do this                                             |
+| ----------------------------------- | --------------------------------------------------- |
+| rename a box                        | `\def\utptitlepitfall{...}` before the `\input`     |
+| tune the contents page              | `\utpcontentspage{...}` after the `\input`          |
+| put titles in a solid bar           | `\utpheavycallouts` after the `\input`              |
+| let figure and table frames split   | `\utpbreakableframes` after the `\input`            |
+| recolour the lab box                | `\utplabprojectcolour{UTPNavy}` after the `\input`  |
+| set dense tables compactly          | `\utpcompacttables` after the `\input`              |
+| enlarge the diagram cells           | `\utpdiagramsize{1.05cm}{0.85cm}` after the `\input`|
+| draw networks, processes, data      | `\utpusediagrams{network}` after the `\input`       |
+| set pseudocode                      | `\utpusealgorithms` after the `\input`              |
+| add a box only one book needs       | `\utpnewcallout` or `\utpnewquietbox` in that book  |
+| change something for every book     | edit the matching section of `utpnotes.tex`         |
 
 A rule of thumb: when a second book wants what the first one wrote, move it
-into `utpnotes.tex` and leave both books calling it by name. That is how
-`verification`, `troubleshoot`, `utpfig` and the running-text shorthand
-(`\figref`, `\lib`, `\given`, `\coretag`) came to be shared.
+into `.shared/` and leave both books calling it by its shared name. That is
+how the figure frames, the lab toolkit, the source-material boxes and the
+diagram libraries came to be shared.
 
-Editing `utpnotes.tex` changes all eight books at once, so rebuild them and
-compare before and after. Text comparison catches what a page count misses:
+Editing `.shared/` changes every book at once, so rebuild them all and compare
+before and after. Text comparison catches what a page count misses:
 
 ```bash
-pdftotext -layout main.pdf - > after.txt && diff before.txt after.txt
+python .shared/build.py
+pdftotext -layout .latex-build/machine-learning/main.pdf after.txt
+diff before.txt after.txt
 ```

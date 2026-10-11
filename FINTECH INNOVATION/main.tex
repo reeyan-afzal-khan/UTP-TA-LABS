@@ -5,40 +5,39 @@
 \def\utplabtotal{8}
 \def\utpcoursetitle{FinTech Innovation}
 \def\utpcourseoutline{%
-  A structured guide for TFB3323 FinTech Innovation, covering financial
-  inclusion, digital banking, crowdfunding, blockchain, and cryptocurrency.
-  Dated examples and regulatory snapshots are retained as presented in the
-  supplied lecture materials.%
+  Explores FinTech through financial inclusion, digital banking, crowdfunding, blockchain, and cryptocurrency.
 }
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
-% Expand the one-page Learning Path while keeping every laboratory entry
-% visually paired with the FinTech chapter immediately above it.
-\newcommand{\fintechfullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforepartskip}{2.00em}%
-  \setlength{\cftbeforechapskip}{1.50em}%
-  \setlength{\cftbeforelabskip}{0.50em}%
-  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\fintechfullpagetoc}{}{}
+% ---------- book-specific settings ----------
+% The house style every book shares with Algorithms & Data Structures:
+% solid callout titles, frames that may break across pages, and a navy
+% lab box.
+\utpheavycallouts
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+% Eight chapters, each followed by its lab; the lab spacing is the
+% smallest so every lab entry stays paired with its chapter.
+\utpcontentspage{\normalsize}{\large}{1.50em}{1.10em}{0.40em}
 
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter
+
+% Letter the setup chapters, then start the course content at Chapter 1.
+\renewcommand{\thechapter}{1A}
+\renewcommand{\theHchapter}{setup.1A}
+\input{chapters/00-toolkit}
+
+\renewcommand{\thechapter}{1B}
+\renewcommand{\theHchapter}{setup.1B}
+\input{../.shared/git-submission}
+
+\setcounter{chapter}{1}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{FinTech Foundations and Access}
 \input{chapters/01-introduction-to-fintech}

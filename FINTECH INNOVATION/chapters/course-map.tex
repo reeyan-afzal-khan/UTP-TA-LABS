@@ -1,35 +1,49 @@
-\chapter*{Course Map: Follow the Transformation of Finance}
-\addcontentsline{toc}{chapter}{Course Map: Follow the Transformation of Finance}
-\markboth{Course Map}{ }
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
+\markboth{Course Map}{}
 
-This course is easiest to understand as one connected story: technology changes how financial services are delivered, which expands access, creates new intermediaries, reshapes banks, and finally enables new infrastructure and platform competitors.
+This course is easiest to understand as one connected story: technology changes how financial services are delivered, which expands access, creates new intermediaries, reshapes banks, and finally enables new infrastructure and platform competitors. Three stages tell that story; the final revision map compresses it.
 
-\begin{mlfigure}
+\begin{utpfigure}
+\newcommand{\coursemapcard}[3]{%
+  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
+    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
+    \vspace{0.02em}%
+    {\bfseries\strut #2}\par
+    \vspace{0.08em}%
+    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
+  }%
+}
 \begin{tikzpicture}[
-  stage/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
-  stage2/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
-  stage3/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=12.6cm,minimum height=1.18cm,align=left,inner xsep=4mm,inner ysep=2.2mm,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal}
+  node distance=0.58cm and 0.66cm,
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+    minimum width=3.99cm,minimum height=1.88cm,align=left,
+    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
+  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
+  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
+    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
 ]
-\node[stage] (a) at (0,5.7) {{\large\bfseries\color{MLBlue}1. Why FinTech emerged}\hfill\textbf{Week 1 / Chapter 1}\par
-Traditional intermediation, disintermediation, unbundling, customer friction, technology drivers, and incumbent challenges.};
-\node[stage] (b) at (0,3.9) {{\large\bfseries\color{MLBlue}2. Who finance still fails to serve}\hfill\textbf{Week 2 / Chapter 2}\par
-Unbanked and underbanked customers, financial inclusion, digital financial services, alternative data, and access constraints.};
-\node[stage2] (c) at (0,2.1) {{\large\bfseries\color{MLTeal}3. How intermediation is redesigned}\hfill\textbf{Weeks 3--5 / Chapters 3--5}\par
-P2P lending and crowdfunding, mobile banking, platform banking, neobanks, challenger banks, customer experience, profitability, and regulation.};
-\node[stage3] (d) at (0,0.3) {{\large\bfseries\color{MLOrange}4. How the financial infrastructure changes}\hfill\textbf{Weeks 6--7 / Chapter 6}\par
-Distributed ledgers, cryptography, blocks, Merkle trees, nodes, miners, immutability, and smart contracts.};
-\node[stage3] (e) at (0,-1.5) {{\large\bfseries\color{MLOrange}5. Who controls the customer interface}\hfill\textbf{Week 8 / Chapter 7}\par
-Big Tech, TechFin, GAFA/BAT, super apps, data advantages, incumbent bank assets, and platform competition.};
-\node[stage3] (f) at (0,-3.3) {{\large\bfseries\color{MLOrange}6. What happens when money itself becomes digital}\hfill\textbf{Week 9 / Chapter 8}\par
-Cryptocurrencies, Bitcoin wallets and mining, forks, currency functions, benefits, risks, scalability, and cryptoization.};
-\draw[arr] (a.south) -- (b.north);
-\draw[arr] (b.south) -- (c.north);
-\draw[arr] (c.south) -- (d.north);
-\draw[arr] (d.south) -- (e.north);
-\draw[arr] (e.south) -- (f.north);
+\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Why FinTech emerged, and who it can reach}};
+\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Alternative finance}{P2P lending, mobile and digital banks}};
+\node[finalcard,right=of b] (c) {\coursemapcard{STAGE 03}{Infrastructure}{Blockchain, Big Tech, and crypto}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfigure}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Focus} & \utpth{Key question} \\
+\midrule
+1 & FinTech foundations and financial inclusion & Why did FinTech emerge, and whom does finance still fail to serve? \\
+2 & Alternative finance and digital banking & How are lending and banking redesigned around digital channels? \\
+3 & Distributed infrastructure and platforms & Who controls the ledger, the customer interface, and money itself? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
 
 \begin{keyidea}
 The recurring pattern across the course is \emph{friction $\rightarrow$ technology-enabled redesign $\rightarrow$ new value proposition $\rightarrow$ new risks and regulation}. Use that pattern to connect apparently different topics such as P2P lending, neobanks, blockchain, Big Tech, and cryptocurrency.
@@ -38,3 +52,22 @@ The recurring pattern across the course is \emph{friction $\rightarrow$ technolo
 \begin{libnote}
 \textbf{About dated facts.} The lecture decks contain market statistics, company valuations, product examples, and regulatory statements from several different years. In these notes such figures are labeled as lecture snapshots. They are useful for understanding the argument being taught, but they should not be interpreted as current market data unless separately verified.
 \end{libnote}
+
+\clearpage
+\section*{The story the course tells}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}>{\centering\arraybackslash}m{0.15\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Step} & \utpth{Where} & \utpth{Topics} \\
+\midrule
+1. Why FinTech emerged & Week 1, Chapter 1 & Traditional intermediation, disintermediation, unbundling, customer friction, technology drivers, and incumbent challenges. \\
+2. Who finance still fails to serve & Week 2, Chapter 2 & Unbanked and underbanked customers, financial inclusion, digital financial services, alternative data, and access constraints. \\
+3. How intermediation is redesigned & Weeks 3--5, Chapters 3--5 & P2P lending and crowdfunding, mobile banking, platform banking, neobanks, challenger banks, customer experience, profitability, and regulation. \\
+4. How the financial infrastructure changes & Weeks 6--7, Chapter 6 & Distributed ledgers, cryptography, blocks, Merkle trees, nodes, miners, immutability, and smart contracts. \\
+5. Who controls the customer interface & Week 8, Chapter 7 & Big Tech, TechFin, GAFA/BAT, super apps, data advantages, incumbent bank assets, and platform competition. \\
+6. What happens when money becomes digital & Week 9, Chapter 8 & Cryptocurrencies, Bitcoin wallets and mining, forks, currency functions, benefits, risks, scalability, and cryptoization. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}

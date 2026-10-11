@@ -1,58 +1,97 @@
-\cleardoublepage
-
-\chapter*{Course Map: Follow the Flow of Information}
-\addcontentsline{toc}{chapter}{Course Map: Follow the Flow of Information}
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
 \markboth{Course Map}{}
 
 ERP becomes much easier once you stop treating each module as an isolated
 topic. The course follows the same logic as a real business: understand the
 organisation, capture demand, plan and obtain resources, fulfil the order,
-record the financial consequences, and improve the process.
-
-\begin{erpfig}[Course structure]{The five stages of the course. Each stage
+record the financial consequences, and improve the process. Each stage
 consumes what the previous one produced, which is also the order in which
-information moves through a real company.}{fig:course-stages}
+information moves through a real company.
+
+\begin{utpfigure}
+\newcommand{\coursemapcard}[3]{%
+  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
+    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
+    \vspace{0.02em}%
+    {\bfseries\strut #2}\par
+    \vspace{0.08em}%
+    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
+  }%
+}
 \begin{tikzpicture}[
-  stage/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=11.9cm,
-                minimum height=1.20cm,align=left,inner xsep=4mm,inner ysep=2.3mm,
-                font=\scriptsize\color{UTPNavy}},
-  node distance=0.52cm
+  node distance=0.58cm and 0.66cm,
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+    minimum width=3.99cm,minimum height=1.88cm,align=left,
+    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
+  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
+  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
+    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
 ]
-\node[stage] (a) {{\normalsize\bfseries\color{UTPBlue}Stage 1: ERP foundations}\hfill{\footnotesize Chapters 1--2}\par
-\smallskip Functional areas, processes, silos, shared databases, ERP evolution, benefits, challenges.};
-\node[stage,below=of a] (b) {{\normalsize\bfseries\color{UTPBlue}Stage 2: Customer and sales}\hfill{\footnotesize Chapters 3--4}\par
-\smallskip CRM, quotations, sales orders, availability, delivery, invoicing, payment.};
-\node[stage,below=of b] (c) {{\normalsize\bfseries\color{UTPBlue}Stage 3: Plan and supply}\hfill{\footnotesize Chapters 5--7}\par
-\smallskip Production approaches, forecasting, S\&OP, demand management, BOMs, MRP, purchasing, inventory.};
-\node[stage,below=of c] (d) {{\normalsize\bfseries\color{UTPBlue}Stage 4: Finance, people, improvement}\hfill{\footnotesize Chapters 8--10}\par
-\smallskip Accounting integration, HR processes, flowcharts, swimlanes, change management, go-live.};
-\node[stage,below=of d,draw=UTPGreen,fill=UTPPaleTeal] (e) {{\normalsize\bfseries\color{UTPGreen}Stage 5: Odoo practical integration}\hfill{\footnotesize Labs 1--8 + Capstone}\par
-\smallskip Build West End Bicycles in Odoo 19 Community and trace one story from setup through purchasing, manufacturing, CRM, sales, delivery, invoicing, and reporting.};
-\draw[erpflow] (a) -- (b); \draw[erpflow] (b) -- (c);
-\draw[erpflow] (c) -- (d); \draw[erpflow] (d) -- (e);
-\node[erpcap,rotate=90,anchor=south] at (-6.55,-3.2) {information moves this way};
+\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Business processes and ERP systems}};
+\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Customer and sales}{CRM and the sales order process}};
+\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Plan and supply}{Production, S\&OP, and MRP}};
+\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Finance and people}{Accounting, HR, and process change}};
+\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Odoo practicals}{West End Bicycles, built end to end}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
+\draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfigure}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Focus} & \utpth{Key question} \\
+\midrule
+1 & Business processes and ERP systems & Why does a company need one shared record? \\
+2 & CRM and the sales order process & How does a customer's order become revenue? \\
+3 & Production, forecasting, and MRP & How does demand become a plan, and the plan become purchases? \\
+4 & Accounting, HR, and process modelling & How are financial and people consequences recorded and improved? \\
+5 & Integrated Odoo practicals & Can one business story be traced through every module? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section*{What each stage covers}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}>{\centering\arraybackslash}m{0.16\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Where} & \utpth{Topics} \\
+\midrule
+1 & Chapters 1--2 & Functional areas, processes, silos, shared databases, ERP evolution, benefits, and challenges. \\
+2 & Chapters 3--4 & CRM, quotations, sales orders, availability, delivery, invoicing, and payment. \\
+3 & Chapters 5--7 & Production approaches, forecasting, S\&OP, demand management, BOMs, MRP, purchasing, and inventory. \\
+4 & Chapters 8--10 & Accounting integration, HR processes, flowcharts, swimlanes, change management, and go-live. \\
+5 & Labs 1--8 and the capstone & Build West End Bicycles in Odoo 19 Community and trace one story from setup through purchasing, manufacturing, CRM, sales, delivery, invoicing, and reporting. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
 
 \section*{The question behind every chapter}
 
 One business event --- a customer confirming an order --- has to reach four
 different desks, each of which needs a different part of it.
 
-\begin{erpfig}[One event, four readings]{The recurring pattern of the course. A
+\begin{utpfig}[One event, four readings]{The recurring pattern of the course. A
 single business event is written once and read four ways. Chapters 1--10 work
 through the areas clockwise; the labs rebuild the whole loop in
 Odoo.}{fig:one-event-four-readings}
 \begin{tikzpicture}[scale=0.98,transform shape]
-\node[erpdb,minimum width=3.1cm,minimum height=1.5cm] (db) at (0,0) {Shared\\record};
-\node[erpstep,minimum width=3.0cm] (ms) at (-3.9,1.55) {Marketing \& Sales\\[-0.2em]{\tiny\mdseries can we promise it?}};
-\node[erpstep,minimum width=3.0cm] (scm) at (3.9,1.55) {Supply Chain\\[-0.2em]{\tiny\mdseries can we make it?}};
-\node[erpstep,minimum width=3.0cm] (af) at (3.9,-1.55) {Accounting \& Finance\\[-0.2em]{\tiny\mdseries what is owed?}};
-\node[erpstep,minimum width=3.0cm] (hr) at (-3.9,-1.55) {Human Resources\\[-0.2em]{\tiny\mdseries who does the work?}};
-\draw[erpflow] (ms) -- (db); \draw[erpflow] (scm) -- (db);
-\draw[erpflow] (db) -- (af); \draw[erpflow] (hr) -- (db);
-\node[erpchip] at (0,2.05) {Ch.\,1--4};
-\node[erpchip] at (0,-2.05) {Ch.\,8--9};
+\node[procdb,minimum width=3.1cm,minimum height=1.5cm] (db) at (0,0) {Shared\\record};
+\node[procstep,minimum width=3.0cm] (ms) at (-3.9,1.55) {Marketing \& Sales\\[-0.2em]{\tiny\mdseries can we promise it?}};
+\node[procstep,minimum width=3.0cm] (scm) at (3.9,1.55) {Supply Chain\\[-0.2em]{\tiny\mdseries can we make it?}};
+\node[procstep,minimum width=3.0cm] (af) at (3.9,-1.55) {Accounting \& Finance\\[-0.2em]{\tiny\mdseries what is owed?}};
+\node[procstep,minimum width=3.0cm] (hr) at (-3.9,-1.55) {Human Resources\\[-0.2em]{\tiny\mdseries who does the work?}};
+\draw[procflow] (ms) -- (db); \draw[procflow] (scm) -- (db);
+\draw[procflow] (db) -- (af); \draw[procflow] (hr) -- (db);
+\node[procchip] at (0,2.05) {Ch.\,1--4};
+\node[procchip] at (0,-2.05) {Ch.\,8--9};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 

@@ -13,18 +13,18 @@ That is the point. VLAN separation is enforced at layer 2, below IP, so it canno
 
 \medskip\noindent\textbf{Part B --- Three port types.}\par
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries}p{0.13\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.13\linewidth}X X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Port type & Incoming untagged frame & Outgoing frame \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Port type} & \utpth{Incoming untagged frame} & \utpth{Outgoing frame} \\
 \midrule
 Access & Tagged with the port's PVID & Tag removed \\
 Trunk & Tagged with PVID & Tagged, unless the VLAN is the native VLAN \\
 Hybrid & Tagged with PVID & Tagged \emph{or} untagged, configured per VLAN \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{keyidea}
 Every port has a \term{PVID} --- the VLAN assigned to arriving untagged frames. For an access port the PVID is simply its VLAN.
@@ -34,7 +34,7 @@ The distinction that matters: access and trunk ports decide tagging by \emph{rol
 
 \medskip\noindent\textbf{Part C --- Create VLANs and assign access ports.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 system-view
 vlan batch 10 20 30
 
@@ -52,7 +52,7 @@ quit
 \medskip\noindent\textbf{Part D --- Carry VLANs between switches.}\par
 An access port carries one VLAN. Connecting two switches that share three VLANs would need three cables --- unless the link is a trunk.
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Eth-Trunk 1
  port link-type trunk
  port trunk allow-pass vlan 10 20 30
@@ -75,7 +75,7 @@ If the two ends of a trunk disagree about the native VLAN, traffic leaks silentl
 Set the native VLAN explicitly and identically on both ends, and never use a VLAN that carries user data.
 \end{keyidea}
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Eth-Trunk 1
  port trunk pvid vlan 999
  port trunk allow-pass vlan 10 20 30
@@ -84,7 +84,7 @@ quit
 
 \medskip\noindent\textbf{Part F --- Hybrid ports.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface GigabitEthernet 0/0/5
  port link-type hybrid
  port hybrid pvid vlan 10
@@ -97,11 +97,11 @@ A PC sending untagged frames lands in VLAN 10 and receives VLAN 10 untagged. A d
 
 \medskip\noindent\textbf{Part G --- Verify.}\par
 
-\begin{commandmap}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.40\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}m{0.40\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Command} & \bfseries Shows \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Command} & \utpth{Shows} \\
 \midrule
 display vlan & Every VLAN and its member ports \\
 display port vlan & Each port's type, PVID, and allowed VLANs \\
@@ -109,7 +109,7 @@ display vlan 10 verbose & Which ports carry VLAN 10, tagged or untagged \\
 display mac-address vlan 10 & Which hosts have been learned in that VLAN \\
 \bottomrule
 \end{tabularx}
-\end{commandmap}
+\end{utptable}
 
 Then test: hosts in VLAN 10 must ping each other across both switches, and must fail to reach VLAN 20 even in the same subnet.
 

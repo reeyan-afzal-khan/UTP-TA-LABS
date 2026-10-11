@@ -1,20 +1,22 @@
 \labsection{8}{Virtual memory and page replacement}{sec:lab08}
 \begin{labproject}{Trace FIFO, LRU, and LFU using the same reference string}
 
-\oslabflow{Chapter 8: page hits, page faults, replacement state.}{Run three policies on one reference string so the victim rule is the only major change.}{Justify at least one replacement decision from each policy's stored state.}
+\textbf{Coverage.} Chapter~\ref{ch:vm}: page hits, page faults, replacement state.\\
+\textbf{Goal.} Run three policies on one reference string so the victim rule is the only major change.\\
+\textbf{Explain.} Justify at least one replacement decision from each policy's stored state.
 
 \section*{Source code}
-\ossourcecard{\texttt{fifo.c}}{Replace the page that has been resident the longest.}{\texttt{next} rotates through frame positions; page-use history is ignored.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab08/fifo.c}
+\labsourcecard{\texttt{fifo.c}}{Replace the page that has been resident the longest.}{\texttt{next} rotates through frame positions; page-use history is ignored.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/fifo.c}
 
-\ossourcecard{\texttt{lru.c}}{Replace the least recently used resident page.}{\texttt{last\_used[]} stores the most recent reference step for each frame.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab08/lru.c}
+\labsourcecard{\texttt{lru.c}}{Replace the least recently used resident page.}{\texttt{last\_used[]} stores the most recent reference step for each frame.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/lru.c}
 
-\ossourcecard{\texttt{lfu.c}}{Replace the least frequently used resident page; use recency to break ties.}{Two pieces of policy state are tracked: \texttt{frequency[]} and \texttt{last\_used[]}.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab08/lfu.c}
+\labsourcecard{\texttt{lfu.c}}{Replace the least frequently used resident page; use recency to break ties.}{Two pieces of policy state are tracked: \texttt{frequency[]} and \texttt{last\_used[]}.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/lfu.c}
 
 \section*{Task 1 --- Compile and collect traces}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 cd all_experiments/Lab08
 for f in fifo lru lfu; do
   gcc -Wall -Wextra -std=c11 "$f.c" -o "$f"
@@ -24,21 +26,20 @@ for f in fifo lru lfu; do
 \end{lstlisting}
 Fill in the final hit/fault totals.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.20\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}
   *{2}{>{\raggedright\arraybackslash}X}@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Policy} & \textbf{Hits} & \textbf{Faults} \\
+\utpth{Policy} & \utpth{Hits} & \utpth{Faults} \\
 \midrule
 FIFO & & \\
 LRU & & \\
 LFU & & \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Task 2 --- Explain one victim from each policy}
 Choose a step where all three frames are full and a fault occurs. For FIFO identify the oldest frame position; for LRU compare last-use steps; for LFU compare frequencies and then the tie-break rule if needed.
@@ -56,6 +57,15 @@ Choose one policy. In Vim change the final reference in its array from 2 to 7. P
   \item Why can two replacement policies choose different victims for the same reference?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item The final hit and fault totals are recorded for all three policies on the same reference string.
+  \item One victim decision per policy is justified from that policy's rule.
+  \item The first six references are traced by hand and agree with the program.
+  \item The prediction for the final-reference edit is written down before the rerun.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the three totals, one justified victim decision per policy, your six-reference hand trace, and the prediction/result for the final-reference edit.

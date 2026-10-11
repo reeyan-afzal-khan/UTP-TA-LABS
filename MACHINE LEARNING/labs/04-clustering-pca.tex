@@ -1,10 +1,11 @@
 \labsection{4}{Unsupervised learning I: clustering and PCA}{sec:lab04-clustering-pca}
 
 \begin{labproject}{Find structure without an answer key}
+\textbf{Coverage.} Chapters~\ref{ch:unsupervised}--\ref{ch:dimred}.\\
 \textbf{Goal.} Choose $K$ from evidence, compare DBSCAN, and evaluate PCA through reconstruction and downstream accuracy.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import zipfile
 from pathlib import Path
 
@@ -30,7 +31,7 @@ MODELS.mkdir(exist_ok=True)
 
 Standardize age, income, and spending score for 200 mall customers; investigate useful segments without labels.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 customers = pd.read_csv(DATA / "mall_customers_dataset.csv")
 print(customers.head())
 
@@ -40,7 +41,7 @@ X = StandardScaler().fit_transform(customers[features])
 
 Try $K=2$--8. Inertia measures within-cluster squared distances and falls with $K$; silhouette measures cohesion versus separation.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 ks, inertias, silhouettes = [], [], []
 for k in range(2, 9):
     kmeans = KMeans(n_clusters=k, n_init=20, random_state=42)
@@ -69,7 +70,7 @@ plt.show()
 
 $K$-means assigns every customer. DBSCAN uses radius and neighbor count, leaving noise labeled $-1$.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 kmeans = KMeans(n_clusters=5, n_init=30, random_state=42)
 k_labels = kmeans.fit_predict(X)
 print("K-means silhouette:", round(silhouette_score(X, k_labels), 3))
@@ -86,7 +87,7 @@ if n_clusters >= 2:
 
 Describe clusters using means of the original features.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 segments = customers.copy()
 segments["kmeans_cluster"] = k_labels
 segments["dbscan_cluster"] = d_labels
@@ -95,7 +96,7 @@ profile["customers"] = segments["kmeans_cluster"].value_counts().sort_index()
 print(profile)
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 fig, axes = plt.subplots(1, 2, figsize=(10, 3.9))
 panels = [(axes[0], k_labels, "K-means, k = 5"),
           (axes[1], d_labels, "DBSCAN, eps = 0.75 (noise = -1)")]
@@ -116,7 +117,7 @@ plt.show()
 
 Each digit has $8\times8=64$ pixels. Use the official training split; reserve test evaluation until the final comparison.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 archive_path = DATA / "optical_recognition_handwritten_digits.zip"
 columns = [f"pixel_{i}" for i in range(64)] + ["label"]
 with zipfile.ZipFile(archive_path) as archive:
@@ -141,7 +142,7 @@ plt.show()
 
 Validate PCA budgets retaining 90\%, 95\%, or 99\% variance through classifier accuracy on training-file holdouts.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 X_fit, X_valid, y_fit, y_valid = train_test_split(
     X_dev, y_dev, test_size=0.25, random_state=42, stratify=y_dev
 )
@@ -163,7 +164,7 @@ for retained_variance in [0.90, 0.95, 0.99]:
 
 Lock 95\%, refit both PCA and full-pixel pipelines on all training rows, then compare once on the official test file.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 final_model = Pipeline([
     ("pca", PCA(n_components=0.95, svd_solver="full")),
     ("model", LogisticRegression(max_iter=2000)),
@@ -181,7 +182,7 @@ print("PCA -> logistic accuracy:", round(accuracy_score(y_test, final_model.pred
 
 Reconstruct test digits from component scores and inspect cumulative explained variance.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 reconstructed = pca.inverse_transform(pca.transform(X_test.head(8)))
 
 fig, axes = plt.subplots(2, 8, figsize=(9, 2.6))
@@ -210,7 +211,7 @@ plt.show()
 
 Save PCA and classifier together to accept new 64-pixel images.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 model_path = MODELS / "digits_pca_logistic.joblib"
 joblib.dump(final_model, model_path)
 
@@ -224,3 +225,13 @@ print("actual:   ", y_test.iloc[:5].tolist())
 Set DBSCAN \texttt{eps=0.5}; count clusters/noise and justify which result better serves marketing.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Features are standardized before clustering, and the elbow and silhouette are both reported.
+  \item The chosen number of clusters is justified with domain usefulness, not a single score.
+  \item The $K$-means and DBSCAN results are compared, and the DBSCAN radius is stated.
+  \item PCA is fitted on training digits only, and its components are judged by downstream test accuracy.
+  \item \texttt{models/digits\_pca\_logistic.joblib} reloads and predicts the first test digits.
+\end{itemize}
+\end{verification}

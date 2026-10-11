@@ -1,7 +1,7 @@
 \documentclass[11pt,oneside,a4paper]{report}
+\usepackage{pdflscape}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Algorithms \& Data Structures}
 \def\utplabtotal{11}
 \def\utpcoursetitle{Algorithms \& Data Structures}
 \def\utpcourseoutline{%
@@ -9,62 +9,44 @@
   data-structure choices with correctness and performance.%
 }
 
-% ---------- boxes this book renames ----------
-\def\utptitleintuition{Intuition}
-\def\utptitlelabmode{How to use this lab}
-
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
+\utpnewquietbox{clarification}{UTPBlue!42}{UTPBlue}{Clarification}
+\newtcolorbox{sourcealignment}[1]{enhanced,breakable,colback=white,colframe=UTPMuted!55,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPMuted},title={#1}}
+\utpnewcallout{projectrequirement}{UTPPaleBlue}{UTPBlue}{Project requirement}
+\utpnewcallout{recommendedworkflow}{UTPPaleTeal}{UTPTeal}{Recommended workflow}
 
-% ---------- packages only this book needs ----------
-\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
-\utpalgorithmstyle
-
-% ---------- boxes this book styles differently ----------
+% ---------- book-specific settings ----------
+% Pseudocode, solid callout titles, frames that may break across pages,
+% a navy lab box, diagrams on a slightly larger grid, and C++ as the
+% default listing language.
+\utpusealgorithms
 \utpheavycallouts
 \utpbreakableframes
 \utplabprojectcolour{UTPNavy}
-
-% ---------- boxes used only in this book ----------
-\utpnewcallout[left=2.5mm,right=2.5mm]{clarification}{UTPPaleOrange!65}{UTPOrange}{Clarification beyond the slide wording}
-\utpnewcallout{recommendedworkflow}{UTPPaleOrange}{UTPOrange}{Recommended workflow (added guidance)}
-\utpnewcallout[boxrule=0.9pt,left=2.7mm,right=2.7mm,top=1.9mm,bottom=1.9mm]{projectrequirement}{UTPPaleBlue}{UTPNavy}{Final-project requirement}
-\newtcolorbox{sourcealignment}[1]{enhanced,breakable,colback=UTPPaleGray!72,colframe=UTPMuted!75,
-  boxrule=0.75pt,arc=2mm,left=2.6mm,right=2.6mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPMuted!88!UTPNavy,title={Source alignment --- #1}}
+\utpdiagramsize{1.05cm}{0.85cm}
+\lstset{style=utpcpp}
+\utpcontentspage{\normalsize}{\large}{0.98em}{0.32em}{0.38em}
 
 % ---------- commands used only in this book ----------
 \newcommand{\ptrnull}{{\scriptsize\color{UTPMuted}NULL}}
 
-% Expand the one-page Learning Path so its hierarchy fills the page cleanly.
-\newcommand{\adsfullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforepartskip}{0.98em}%
-  \setlength{\cftbeforechapskip}{0.32em}%
-  \setlength{\cftbeforelabskip}{0.38em}%
-  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\adsfullpagetoc}{}{}
-
-% ---------- other settings used only in this book ----------
-\utpfigalias{adsfig}
-\utpdiagramstyles{ads}{1.05cm}{0.85cm}
-\lstset{style=adscpp}
-
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter
+
+% Letter the setup chapters, then start the course content at Chapter 1.
+\renewcommand{\thechapter}{1A}
+\renewcommand{\theHchapter}{setup.1A}
+\input{chapters/00-toolkit}
+
+\renewcommand{\thechapter}{1B}
+\renewcommand{\theHchapter}{setup.1B}
+\input{../.shared/git-submission}
+
+\setcounter{chapter}{1}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Foundations}
 \input{chapters/01-introduction}
@@ -89,8 +71,5 @@
 
 \part{Course Project and Synthesis}
 \input{chapters/12-final-project}
-
-\appendix
-\renewcommand{\cftchappresnum}{Appendix~}
 
 \end{document}

@@ -4,59 +4,26 @@
 \def\utprunninghead{Operating Systems Notes}
 \def\utplabtotal{10}
 \def\utpcoursetitle{Operating Systems}
-\def\utpdocumentsubtitle{Teaching Assistant Guide}
 \def\utpcourseoutline{%
   A step-by-step path from the Linux command line and process model through CPU scheduling, concurrency, memory management, and file systems, with one practical lab paired to each core chapter.%
 }
 
-% ---------- shared UTP teaching-note framework ----------
-% The files in ../.shared are supplied separately and are intentionally
-% not modified by this course.
+% ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
-% Use the full Learning Path page without pushing entries onto another page.
-\newcommand{\osfullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforepartskip}{1.15em}%
-  \setlength{\cftbeforechapskip}{0.38em}%
-  \setlength{\cftbeforelabskip}{0.30em}%
-  \renewcommand{\cftpartfont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftpartpagefont}{\large\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\osfullpagetoc}{}{}
+% ---------- book-specific settings ----------
+% The house style every book shares with Algorithms & Data Structures:
+% solid callout titles, frames that may break across pages, and a navy
+% lab box.
+\utpheavycallouts
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+% Each lab sheet prints its complete C and shell sources from
+% all_experiments/ with the numbered listing styles (utpcnumbered,
+% utpbashnumbered) and introduces each file with \labsourcecard.
+\utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}
 
-% ---------- course-only settings ----------
-% The shared file already defines osc and osbash. These variants simply
-% add line numbers when the guide prints complete experiment source files.
-\lstdefinestyle{oslabc}{style=osc,numbers=left,numberstyle=\tiny\color{UTPMuted},
-  numbersep=7pt,xleftmargin=1.7em,framexleftmargin=1.4em}
-\lstdefinestyle{oslabsh}{style=osbash,numbers=left,numberstyle=\tiny\color{UTPMuted},
-  numbersep=7pt,xleftmargin=1.7em,framexleftmargin=1.4em}
-\utpdiagramstyles{os}{1.05cm}{0.80cm}
-
-% Short lab helpers kept deliberately lightweight so the practical pages
-% follow the same visual rhythm as the Machine Learning guide.
-\newcommand{\ossourceintro}[3]{%
-  \par\medskip\noindent\textbf{#1 --- #2}\par
-  \textbf{Inspect.} #3\par\smallskip}
-
-\newcommand{\ossourcecard}[3]{\ossourceintro{#1}{#2}{#3}}
-\newcommand{\oslabflow}[3]{%
-  \par\smallskip\noindent
-  \textbf{Chapter connection.} #1\par
-  \textbf{Goal.} #2\par
-  \textbf{Explain.} #3\par\medskip}
-
+% ---------- the book ----------
 \begin{document}
 \utpfrontmatter
 

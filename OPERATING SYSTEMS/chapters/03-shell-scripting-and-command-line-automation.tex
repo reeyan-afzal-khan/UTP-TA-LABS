@@ -24,7 +24,7 @@ You do not need to implement these steps in Bash, but recognising them helps con
 \section{Variables, arguments, and quoting}
 A shell variable stores text. Script arguments are available as \texttt{\$1}, \texttt{\$2}, and so on. Quoting matters because the shell processes text before the final command runs.
 
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 file=${1:-report.txt}
 echo "Writing report to: $file"
 df -h . > "$file"
@@ -45,15 +45,14 @@ Most command-line programs begin with three standard streams:
 \end{itemize}
 The shell can redirect these streams without changing the program.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.10\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.10\linewidth}
   >{\raggedright\arraybackslash}X
-  >{\raggedright\arraybackslash}p{0.38\linewidth}@{}}
+  >{\raggedright\arraybackslash}m{0.38\linewidth}@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Syntax} & \textbf{Meaning} & \textbf{Example} \\
+\utpth{Syntax} & \utpth{Meaning} & \utpth{Example} \\
 \midrule
 \texttt{>} & replace a file with standard output & \texttt{ps > processes.txt} \\
 \texttt{>>} & append standard output & \texttt{date >> history.txt} \\
@@ -62,11 +61,11 @@ The shell can redirect these streams without changing the program.
 \texttt{|} & connect one program's output to another's input & \texttt{ps | grep bash} \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Pipelines are process composition}
 Consider:
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 ps -eo pid,ppid,stat,comm | grep bash
 \end{lstlisting}
 The first process produces text. The shell connects that output to a pipe. The second process reads from the pipe and keeps selected lines. The programs do not need to know each other's implementation.
@@ -78,7 +77,7 @@ A pipeline is like an assembly line for bytes. Each program performs one small j
 \section{Exit status is part of the interface}
 Every command returns an integer status. By convention, 0 means success and a non-zero value means failure or a false result. The shell stores the most recent status in \texttt{\$?}.
 
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 grep kernel notes.txt
 echo $?
 \end{lstlisting}
@@ -90,7 +89,7 @@ A search tool can use status 0 for ``match found'', 1 for ``no match'', and 2 fo
 
 \section{Conditions and loops for repeatable observations}
 Shell conditions and loops are most useful here when they automate repeated OS observations. For example, a script can count several log levels using one loop:
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 for level in INFO WARN ERROR; do
     count=$(grep -c "^$level " events.log || true)
     echo "$level: $count"
@@ -100,7 +99,7 @@ The mathematics is simple; the important idea is repeatability. If the log chang
 
 \section{Background work and process observation}
 Adding \texttt{\&} runs a command in the background:
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 sleep 30 &
 ps -o pid,ppid,state,comm
 wait

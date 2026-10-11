@@ -1,119 +1,74 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-% Every chapter of this book is a lab, so the badge, the contents
-% entries and the box titles all say Lab rather than Chapter.
 \def\utprunninghead{Data Communication \& Networking Notes}
 \def\utplabtotal{9}
-\def\utpstyleparts{0}
-\def\utpchapterlabel{LAB}
-\def\utpchaptertocword{Lab~}
-\def\utpchaptertocindent{0em}
-\def\utpchaptertocnumwidth{5.3em}
-\def\utpextragraphicspath{{assets/}}
 \def\utpcoursetitle{Data Communication \& Networking}
 \def\utpcourseoutline{%
   Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP,\\
   routing, FTP, DHCP, LACP, VLANs, and WAN configuration.%
 }
+% Most of the pages are device transcripts, so the monospace face is
+% the one that tells 0 from O and 1 from l at a glance.
+\def\utpmonofont{inconsolata}
 
 % ---------- boxes this book renames ----------
-\def\utptitleglance{Lab at a glance}
-\def\utptitlerecap{Lab recap}
 \def\utptitleworked{Worked configuration}
 \def\utptitlelabmode{How to use this lab}
 \def\utptitletroubleshoot{When it does not work}
-
-% This book supplies its own monospace face (see below), so the shared
-% preamble must not also load one.
-\def\utpownmono{1}
+\def\utptitleverification{Verification evidence}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
-% ---------- a package only this book needs ----------
-% This book is mostly VRP transcripts, so the monospace face carries more
-% of the page than in the other courses. Inconsolata distinguishes 0/O and
-% 1/l/I, which matters when a reader is copying an interface name or an
-% address out of a listing. Guarded so the book still builds without it.
-\IfFileExists{inconsolata.sty}{\usepackage[varqu,varl,scaled=1.02]{inconsolata}}{}
-
-% Slightly tighter tables and a looser line-breaking allowance than the
-% shared default, which this book was originally typeset with.
-\renewcommand{\arraystretch}{1.32}
-\setlength{\tabcolsep}{6.2pt}
-\emergencystretch=1.8em
-\arrayrulecolor{black}
-\titlespacing*{\section}{0pt}{1.15em}{0.35em}
-\titlespacing*{\subsection}{0pt}{0.9em}{0.2em}
-
-% ---------- boxes this book styles differently ----------
+% ---------- book-specific settings ----------
+\utpheavycallouts
 \utpbreakableframes
 \utplabprojectcolour{UTPNavy}
-\renewtcolorbox{verification}{enhanced,breakable,colback=white,colframe=UTPGreen,
-  boxrule=0.8pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.8mm,bottom=1.8mm,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPGreen,title=Verification evidence}
+\utpusediagrams{network}
+\utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}
 
 % ---------- boxes used only in this book ----------
-\utpnewquietbox{sourcebasis}{UTPMuted!55}{UTPMuted}{Source basis}
 \utpnewquietbox[colback=UTPPaleBlue!45,boxrule=0.7pt,top=1.8mm,bottom=1.8mm]{conceptmap}{UTPBlue!55}{UTPNavy}{Concept map}
-\utpnewquietbox[colback=UTPPaleGray!55,boxrule=0.6pt,top=1.8mm,bottom=1.8mm]{commandmap}{UTPMuted!55}{UTPNavy}{Command map}
-% Two framed figures that take their title as an argument: a screenshot
-% lifted from the course slides, and a diagram drawn for these notes.
-\newtcolorbox{sourcevisual}[1]{enhanced,width=\linewidth,colback=white,colframe=UTPBlue!30,
-  boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
-  before skip=0.75em,after skip=0.9em,
-  fonttitle=\bfseries\color{UTPNavy},title={Source visual --- #1},
-  before upper={\centering},halign=center}
-\newtcolorbox{netfigure}[1]{enhanced,breakable,colback=white,colframe=UTPTeal!45,
-  boxrule=0.7pt,arc=2mm,left=2.2mm,right=2.2mm,top=1.8mm,bottom=1.8mm,
-  before skip=0.75em,after skip=0.9em,
-  fonttitle=\bfseries\color{white},colbacktitle=UTPTeal,title={#1},
-  before upper={\centering},halign=center}
-
-% ---------- commands used only in this book ----------
-\newcommand{\sourceimage}[3][0.9\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.56\textheight,keepaspectratio]{#3}\end{sourcevisual}}
-\newcommand{\compactsourceimage}[3][0.78\linewidth]{\begin{sourcevisual}{#2}\centering\includegraphics[width=#1,height=0.42\textheight,keepaspectratio]{#3}\end{sourcevisual}}
-\newcommand{\sourcelab}[1]{\begin{sourcebasis}This chapter is derived from the supplied course material: \textbf{#1}. Explanations keep the lab's terminology and configuration sequence; where the supplied slides are internally inconsistent, the note flags that rather than silently rewriting the source.\end{sourcebasis}}
-
-% Expand the one-page Learning Path while keeping every orange practical
-% milestone visually attached to the lab overview immediately above it.
-\newcommand{\dcnfullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforechapskip}{1.45em}%
-  \setlength{\cftbeforelabskip}{0.50em}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\dcnfullpagetoc}{}{}
-
-% ---------- drawing vocabulary used only in this book ----------
-% Device and link styles, protocol-field layouts, sequence-diagram and
-% state-machine helpers. See dcnfigures.tex for the full list.
-\input{dcnfigures}
 
 % ---------- the book ----------
 \begin{document}
 \utpfrontmatter
 
-\input{chapters/00-foundations}
-\input{chapters/01-wireshark}
-\input{chapters/02-ensp-vrp}
-\input{chapters/03-static-routing}
-\input{chapters/04-ospf}
-\input{chapters/05-ftp}
-\input{chapters/06-dhcp}
-\input{chapters/07-lacp}
-\input{chapters/08-vlan}
-\input{chapters/09-wan}
+% Install eNSP before beginning the simulator labs.
+% Letter the setup chapters, then start the course content at Chapter 1.
+\renewcommand{\thechapter}{1A}
+\renewcommand{\theHchapter}{setup.1A}
+\input{chapters/00-toolkit}
+
+\renewcommand{\thechapter}{1B}
+\renewcommand{\theHchapter}{setup.1B}
+\input{../.shared/git-submission}
+
+\setcounter{chapter}{1}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{\arabic{chapter}}
+
+\part{Observe and Configure}
+\input{chapters/01-foundation.tex}
+\input{chapters/02-wireshark}
+\input{chapters/03-ensp-vrp}
+
+\part{Make Networks Reachable}
+\input{chapters/04-static-routing}
+\input{chapters/05-ospf}
+
+\part{Add Network Services}
+\input{chapters/06-ftp}
+\input{chapters/07-dhcp}
+
+\part{Build the Switched LAN}
+\input{chapters/08-lacp}
+\input{chapters/09-vlan}
+
+\part{Connect Sites Across a WAN}
+\input{chapters/10-wan}
+
 \input{chapters/capstone-project}
 \input{chapters/command-reference}
 

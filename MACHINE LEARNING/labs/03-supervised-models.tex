@@ -1,10 +1,11 @@
 \labsection{3}{Supervised learning II: model families}{sec:lab03-supervised-models}
 
 \begin{labproject}{Neighbours, naive Bayes, trees, ensembles, and support vector machines on one workflow}
+\textbf{Coverage.} Chapters~\ref{ch:knn-nb}--\ref{ch:svm}.\\
 \textbf{Goal.} Compare model families under Lab~2's fixed validation workflow; inspect boundaries, tree depth, ensemble gains, and SVM tuning.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import joblib
@@ -37,7 +38,7 @@ MODELS.mkdir(exist_ok=True)
 
 KNN votes among standardized neighbors; Gaussian naive Bayes combines per-feature Gaussian likelihoods and class priors.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
 
 X_c = cancer.drop(columns=["id", "diagnosis", "Unnamed: 32"], errors="ignore")
@@ -50,7 +51,7 @@ Xc_train, Xc_valid, yc_train, yc_valid = train_test_split(
 
 $k$ is a hyperparameter, so it is chosen by cross-validation inside the training partition. Small $k$ follows every local quirk (low bias, high variance); large $k$ smooths everything (high bias, low variance).
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 k_values = [1, 3, 5, 7, 11, 21]
 cv_scores = {}
@@ -81,7 +82,7 @@ plt.show()
 
 With $k$ locked, both models are compared on the validation split.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 models = {
     "KNN": Pipeline([
         ("scale", StandardScaler()),
@@ -103,7 +104,7 @@ for name, model in models.items():
 
 Compare two-feature boundaries on tumor radius and texture, adding logistic regression as a reference.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 two = ["radius_mean", "texture_mean"]
 fig, axes = plt.subplots(1, 3, figsize=(12, 3.8))
 for ax, (name, estimator) in zip(axes, [
@@ -130,7 +131,7 @@ plt.show()
 
 Trees split on value order, so numerical preprocessing imputes missingness without scaling.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 titanic = pd.read_csv(DATA / "titanic_dataset.csv")
 
 features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
@@ -162,7 +163,7 @@ print("validation accuracy:", round(accuracy_score(yt_valid, tree.predict(Xt_val
 
 Print and plot the tree; inspect split questions, sample counts, and classes.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 feature_names = list(tree.named_steps["preprocess"].get_feature_names_out())
 print(export_text(tree.named_steps["tree"], feature_names=feature_names, max_depth=3))
 
@@ -178,7 +179,7 @@ plt.show()
 
 Fit each depth and compare training with validation accuracy.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 depths = list(range(1, 13))
 train_acc, valid_acc = [], []
 for depth in depths:
@@ -206,7 +207,7 @@ plt.show()
 
 Model $\log(1+\text{price})$ from Ames Housing's mixed-type features. Compare random forest and gradient boosting on identical three-fold splits.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 ames = pd.read_csv(DATA / "ames_housing_dataset.csv")
 X_a = ames.drop(columns=["SalePrice", "Order", "PID"], errors="ignore")   # identifiers out
 y_a = np.log1p(ames["SalePrice"])
@@ -251,7 +252,7 @@ plt.show()
 
 Repeat on eleven wine measurements. Permute validation columns to measure the fitted forest’s reliance on each.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 wine = pd.read_csv(DATA / "red_wine_quality_dataset.csv")
 X_w = wine.drop(columns="quality")
 y_w = wine["quality"]
@@ -294,7 +295,7 @@ plt.show()
 
 Fit SVM scaling within each training fold. $C$ controls violation penalties; the kernel controls boundary shape; RBF $\gamma$ controls locality.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 X_train, X_test, y_train, y_test = train_test_split(
     X_c, y_c, test_size=0.25, random_state=42, stratify=y_c
 )
@@ -323,7 +324,7 @@ print("test ROC AUC:", round(roc_auc_score(y_test, score), 3))
 
 Plot cross-validated AUC for each $(C,\gamma)$ pair and compare two-feature kernel boundaries.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 results = pd.DataFrame(search.cv_results_)
 rbf = results[results["param_model__kernel"] == "rbf"].copy()
 rbf["gamma"] = rbf["param_model__gamma"].astype(str)
@@ -360,7 +361,7 @@ plt.show()
 
 Save, reload, and compare predictions with the in-memory model before sharing the artifact.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 model_path = MODELS / "breast_cancer_svm.joblib"
 joblib.dump(search.best_estimator_, model_path)
 loaded = joblib.load(model_path)
@@ -373,3 +374,13 @@ print("reloaded model reproduces the test predictions:", same)
 Grow the Titanic tree with \texttt{max\_depth=None} and \texttt{min\_samples\_leaf=1}, and compare training and validation accuracy with the depth-4 tree. Then refit the SVM search with only the linear kernel and compare its test ROC AUC with the RBF result.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item All model families are compared under Lab~2's fixed validation workflow.
+  \item Validation accuracy, not training accuracy, chooses $k$ and the tree depth, and the overfitting point is identified.
+  \item The forest-versus-boosting gain is judged against the fold-to-fold variation.
+  \item The SVM's $C$, $\gamma$ and kernel are tuned on scaled inputs by cross-validation.
+  \item \texttt{models/breast\_cancer\_svm.joblib} reloads and reproduces the test predictions.
+\end{itemize}
+\end{verification}

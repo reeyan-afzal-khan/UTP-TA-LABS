@@ -1,10 +1,10 @@
 \labsection{7}{Build and diagnose a regression model}{sec:lab07}
 
-\begin{labproject}{Lab 7 regression: predict, benchmark, and diagnose}
+\begin{labproject}{Regression: predict, benchmark, and diagnose}
+\textbf{Coverage.} Chapter~\ref{ch:regression}.\\
+\textbf{Goal.} You should be able to construct a leakage-safe train/test workflow, compare a model with a baseline, interpret holdout metrics, inspect residual structure, and evaluate whether a categorical predictor adds useful generalisable information.\\
 \textbf{Dataset.} \texttt{ames\_housing\_dataset.csv}.\\
 \textbf{Scenario.} You are building a first house-price prediction model. The goal is not to maximise fit on the available data, but to establish a transparent baseline, estimate performance on unseen records, and identify where the model fails.
-
-\textbf{Learning outcomes.} You should be able to construct a leakage-safe train/test workflow, compare a model with a baseline, interpret holdout metrics, inspect residual structure, and evaluate whether a categorical predictor adds useful generalisable information.
 
 \textbf{Core workflow.}
 \begin{enumerate}
@@ -20,10 +20,11 @@
 
 \textbf{Model-development extension.} Examine neighbourhood sample sizes and median prices before adding \texttt{Neighborhood} as a categorical predictor. Refit using the same split and report whether holdout error improves. Explain why any target-derived encoding must be learned from training data only.
 
+\tcbbreak
+\lstinputlisting[style=utpr]{all_experiments/lab07_regression.R}
+\begin{verification}
 \textbf{Required evidence.} Submit baseline and model metrics, two diagnostic plots, one subgroup error summary, and a short model card stating intended use, strongest observed limitation, and one next improvement to test.
 
 \textbf{Professional standard.} A model is useful only relative to a baseline and an intended decision. Training $R^2$ alone is not evidence of predictive performance.
-
-\tcbbreak
-\lstinputlisting[style=dsr]{all_experiments/lab07_regression.R}
+\end{verification}
 \end{labproject}

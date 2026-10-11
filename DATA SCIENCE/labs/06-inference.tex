@@ -1,10 +1,10 @@
 \labsection{6}{Quantify uncertainty with bootstrap and permutation logic}{sec:lab06}
 
-\begin{labproject}{Lab 6 sampling and inference: estimate, quantify, challenge}
+\begin{labproject}{Sampling and inference: estimate, quantify, challenge}
+\textbf{Coverage.} Chapter~\ref{ch:inference}.\\
+\textbf{Goal.} You should be able to define an estimand, construct a bootstrap interval, build a permutation reference distribution, report effect size, and separate statistical evidence from study-design limitations.\\
 \textbf{Dataset.} \texttt{student\_performance\_dataset.csv}.\\
 \textbf{Scenario.} A school analyst observes a grade difference between students who report intending higher education and those who do not. Your task is to quantify the difference, assess sampling uncertainty, and prevent statistical significance from being mistaken for a causal conclusion.
-
-\textbf{Learning outcomes.} You should be able to define an estimand, construct a bootstrap interval, build a permutation reference distribution, report effect size, and separate statistical evidence from study-design limitations.
 
 \textbf{Core workflow.}
 \begin{enumerate}
@@ -17,12 +17,15 @@
   \item \textbf{Write a defensible conclusion.} Separate the statistical conclusion from the causal conclusion in two distinct sentences.
 \end{enumerate}
 
-\textbf{Required evidence.} Submit the observed effect, 95\% interval, permutation p-value, one bootstrap distribution graphic, and a four-sentence interpretation covering magnitude, uncertainty, null evidence, and design limitation.
-
+\begin{tryit}
 \textbf{Extension.} Repeat the comparison after stratifying or adjusting descriptively for one plausible confounder. Do not claim that this single adjustment removes confounding; use it as a sensitivity check on the original result.
-
-\textbf{Professional standard.} Report uncertainty and effect size together. A small p-value without a meaningful effect estimate is not a complete scientific result.
+\end{tryit}
 
 \tcbbreak
-\lstinputlisting[style=dsr]{all_experiments/lab06_inference.R}
+\lstinputlisting[style=utpr]{all_experiments/lab06_inference.R}
+\begin{verification}
+\textbf{Required evidence.} Submit the observed effect, 95\% interval, permutation p-value, one bootstrap distribution graphic, and a four-sentence interpretation covering magnitude, uncertainty, null evidence, and design limitation.
+
+\textbf{Professional standard.} Report uncertainty and effect size together. A small p-value without a meaningful effect estimate is not a complete scientific result.
+\end{verification}
 \end{labproject}

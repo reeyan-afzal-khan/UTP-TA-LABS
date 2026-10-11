@@ -7,7 +7,7 @@
 \begin{labmode}
 Use the same topology as Lab~\ref{sec:lab03-static}. Remove every static route first --- leaving them in place means you will not know which mechanism is carrying your traffic, and static routes have a better preference so they will win.
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 undo ip route-static 192.168.3.0 24 10.0.12.2
 \end{lstlisting}
 \end{labmode}
@@ -23,7 +23,7 @@ OSPF routers describe their own links to each other, and every router independen
 
 \medskip\noindent\textbf{Part B --- Router IDs.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 system-view
 ospf 1 router-id 1.1.1.1
  area 0
@@ -42,11 +42,11 @@ A router ID is a 32-bit identifier that merely looks like an IP address. It does
 \medskip\noindent\textbf{Part C --- The wildcard mask.}\par
 OSPF's \cmd{network} statement takes a wildcard mask, which is the bitwise inverse of a subnet mask. This trips up nearly everyone the first time.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.22\linewidth}>{\ttfamily}p{0.26\linewidth}>{\ttfamily}p{0.26\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}m{0.22\linewidth}>{\ttfamily}m{0.26\linewidth}>{\ttfamily}m{0.26\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Prefix} & \textrm{\bfseries Subnet mask} & \textrm{\bfseries Wildcard} & \textrm{\bfseries Matches} \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Prefix} & \utpth{Subnet mask} & \utpth{Wildcard} & \utpth{Matches} \\
 \midrule
 /24 & 255.255.255.0 & 0.0.0.255 & 256 addresses \\
 /30 & 255.255.255.252 & 0.0.0.3 & 4 addresses \\
@@ -54,7 +54,7 @@ OSPF's \cmd{network} statement takes a wildcard mask, which is the bitwise inver
 /16 & 255.255.0.0 & 0.0.255.255 & 65\,536 addresses \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The rule: subtract each octet of the subnet mask from 255. The supplied \cmd{wildcard\_calc.py} does this and shows the working, but do a few by hand first --- it appears in examinations.
 
@@ -66,7 +66,7 @@ The \cmd{network} statement does not advertise a network. It selects which \emph
 
 \medskip\noindent\textbf{Part D --- Watch the adjacency form.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ospf peer brief
  Area Id         Interface              Neighbor id     State
  0.0.0.0         GigabitEthernet0/0/0   2.2.2.2         Full
@@ -85,7 +85,7 @@ Neighbours also fail to form if hello and dead intervals differ, if area IDs dif
 
 \medskip\noindent\textbf{Part E --- Read the routing table again.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ip routing-table protocol ospf
 \end{lstlisting}
 

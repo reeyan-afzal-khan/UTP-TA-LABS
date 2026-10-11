@@ -1,17 +1,19 @@
 \labsection{9}{File-system namespace, paths, and links}{sec:lab09}
 \begin{labproject}{Build a real directory tree, inspect links, and walk it recursively}
 
-\oslabflow{Chapter 9: paths, directory entries, inodes, hard links, symbolic links.}{Create a small namespace containing both link types and inspect it with shell tools.}{Explain which names share an inode and which link stores another pathname.}
+\textbf{Coverage.} Chapter~\ref{ch:directories}: paths, directory entries, inodes, hard links, symbolic links.\\
+\textbf{Goal.} Create a small namespace containing both link types and inspect it with shell tools.\\
+\textbf{Explain.} Explain which names share an inode and which link stores another pathname.
 
 \section*{Source code}
-\ossourcecard{\texttt{make\_demo\_tree.sh}}{Create a controlled hierarchy with one hard link and one symbolic link.}{\texttt{ln} and \texttt{ln -s} create different relationships even when both look like extra names.}
-\lstinputlisting[style=oslabsh]{all_experiments/Lab09/make_demo_tree.sh}
+\labsourcecard{\texttt{make\_demo\_tree.sh}}{Create a controlled hierarchy with one hard link and one symbolic link.}{\texttt{ln} and \texttt{ln -s} create different relationships even when both look like extra names.}
+\lstinputlisting[style=utpbashnumbered]{all_experiments/Lab09/make_demo_tree.sh}
 
-\ossourcecard{\texttt{directory\_walk.c}}{Recursively traverse subdirectories without following symbolic links as directories.}{The walker skips \texttt{.} and \texttt{..}, builds a child path, then uses \texttt{lstat()} before recursing.}
-\lstinputlisting[style=oslabc]{all_experiments/Lab09/directory_walk.c}
+\labsourcecard{\texttt{directory\_walk.c}}{Recursively traverse subdirectories without following symbolic links as directories.}{The walker skips \texttt{.} and \texttt{..}, builds a child path, then uses \texttt{lstat()} before recursing.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab09/directory_walk.c}
 
 \section*{Task 1 --- Create and inspect the hierarchy}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 cd all_experiments/Lab09
 bash make_demo_tree.sh
 find demo_tree -maxdepth 5 -print
@@ -19,7 +21,7 @@ find demo_tree -maxdepth 5 -print
 Draw the result as a small tree. Use an arrow for the symbolic link.
 
 \section*{Task 2 --- Compare hard and symbolic links}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 ls -li demo_tree/home/student/notes.txt \
        demo_tree/home/student/notes-hardlink.txt \
        demo_tree/home/student/code-link.c
@@ -27,25 +29,24 @@ readlink demo_tree/home/student/code-link.c
 \end{lstlisting}
 Record name, inode number, and link count where visible.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.32\linewidth}
-  >{\raggedright\arraybackslash}p{0.25\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.32\linewidth}
+  >{\raggedright\arraybackslash}m{0.25\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Name} & \textbf{Inode relationship} & \textbf{Meaning} \\
+\utpth{Name} & \utpth{Inode relationship} & \utpth{Meaning} \\
 \midrule
 \texttt{notes.txt} & & original hard-linked object \\
 \texttt{notes-hardlink.txt} & & second name for same inode \\
 \texttt{code-link.c} & & symlink stores a pathname target \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Task 3 --- Compare shell traversal with C traversal}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 gcc -Wall -Wextra -std=c11 directory_walk.c -o directory_walk
 ./directory_walk demo_tree
 \end{lstlisting}
@@ -61,6 +62,15 @@ Create a new subdirectory and file under \texttt{demo\_tree/tmp}, rerun both \te
   \item Why can recursively following symbolic links create a traversal problem?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item The tree sketch matches what \texttt{find} reports.
+  \item The hard link shares the original's inode number and raises its link count; the symbolic link has its own inode.
+  \item The C walker's hierarchy agrees with \texttt{find}, and the use of \texttt{lstat()} is explained.
+  \item Path, directory entry, inode, hard link and symbolic link are each defined in your own words.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the tree sketch, inode/link table, recursive walker output, and a short explanation distinguishing a path, a directory entry, an inode, a hard link, and a symbolic link.

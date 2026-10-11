@@ -25,7 +25,7 @@ So a single large file transfer uses one link. Aggregation increases \emph{aggre
 
 \medskip\noindent\textbf{Part C --- Manual mode.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 system-view
 interface Eth-Trunk 1
  mode manual load-balance
@@ -41,7 +41,7 @@ quit
 
 Configure the matching bundle on the far switch, then verify:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <SW1> display eth-trunk 1
 \end{lstlisting}
 
@@ -56,7 +56,7 @@ That is a broadcast storm, and it takes the segment down. It is the single best 
 
 \medskip\noindent\textbf{Part E --- Static LACP mode.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Eth-Trunk 1
  undo mode manual load-balance
  mode lacp-static
@@ -68,7 +68,7 @@ Now each end sends LACP protocol frames announcing its system ID, port prioritie
 \medskip\noindent\textbf{Part F --- Priorities decide the active links.}\par
 LACP allows more member ports than active links. The rest wait as backups.
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 lacp priority 100                    # system priority; lower wins
 interface Eth-Trunk 1
  max active-linknumber 2
@@ -91,7 +91,7 @@ Setting port priorities on the switch that lost the system-priority election has
 
 Verify which end is deciding, and which ports are selected:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <SW1> display eth-trunk 1
 <SW1> display lacp statistics eth-trunk 1
 \end{lstlisting}

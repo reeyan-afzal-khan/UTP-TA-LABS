@@ -16,22 +16,22 @@ Textbooks often describe several directory organizations:
 \end{itemize}
 Modern general-purpose systems use hierarchical trees with linking mechanisms.
 
-\begin{mlfigure}
+\begin{utpfig}[A tree-structured directory]{A tree-structured directory: directories contain files and further directories below a single root.}{fig:directory-tree}
 \begin{tikzpicture}[
   grow=down,
   level distance=1.55cm,
   level 1/.style={sibling distance=4.2cm},
   level 2/.style={sibling distance=2.35cm},
-  dir/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.75cm,font=\small\bfseries\color{MLNavy}},
-  file/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1mm,minimum width=1.9cm,minimum height=0.65cm,font=\scriptsize\color{MLNavy}},
-  edge from parent/.style={draw=MLMuted,thick,-{Stealth[length=1.8mm]}}
+  dir/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.75cm,font=\small\bfseries\color{UTPNavy}},
+  file/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1mm,minimum width=1.9cm,minimum height=0.65cm,font=\scriptsize\color{UTPNavy}},
+  edge from parent/.style={draw=UTPMuted,thick,-{Stealth[length=1.8mm]}}
 ]
 \node[dir] {root}
  child {node[dir] {home} child {node[file] {notes.txt}} child {node[file] {code.c}}}
  child {node[dir] {etc} child {node[file] {config}}}
  child {node[dir] {tmp}};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{Absolute and relative paths}
 An \term{absolute path} begins at the root directory, for example \texttt{/home/student/notes.txt}. A \term{relative path} begins at the process's current working directory.
@@ -63,15 +63,14 @@ The inode's link count helps the file system track how many directory entries re
 \section{Symbolic links}
 A symbolic link is a separate small file-system object whose content is a pathname. Following the link causes another pathname lookup.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.28\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.28\linewidth}
   >{\raggedright\arraybackslash}X
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Feature} & \textbf{Hard link} & \textbf{Symbolic link} \\
+\utpth{Feature} & \utpth{Hard link} & \utpth{Symbolic link} \\
 \midrule
 Underlying inode & same inode as target & separate inode \\
 Stores a pathname & no & yes \\
@@ -79,7 +78,7 @@ Can become dangling & not in the same way & yes, if target path disappears \\
 Recursive traversal concern & ordinary name to same object & can create path-following cycles \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Recursive traversal}
 A directory walker opens a directory, reads each entry, and recursively repeats the operation for child directories. Two practical rules matter:

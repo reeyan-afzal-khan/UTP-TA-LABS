@@ -20,12 +20,12 @@ the promotional demand inside those figures, assumes 3\% underlying growth, and
 adds a different promotion plan for the forecast year. The calculation is four
 rows: strip last year's promotion, grow the base, add this year's promotion.
 
-\begin{erptable}
+\begin{utptable}
 \resizebox{\linewidth}{!}{%
-\begin{tabular}{lrrrrrrrrrrrr}
+\begin{tabular}{@{}lrrrrrrrrrrrr@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
- & Jan & Feb & Mar & Apr & May & Jun & Jul & Aug & Sep & Oct & Nov & Dec \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{} & \utpth{Jan} & \utpth{Feb} & \utpth{Mar} & \utpth{Apr} & \utpth{May} & \utpth{Jun} & \utpth{Jul} & \utpth{Aug} & \utpth{Sep} & \utpth{Oct} & \utpth{Nov} & \utpth{Dec} \\
 \midrule
 Previous year & 4000 & 4000 & 4500 & 5000 & 5000 & 5500 & 5500 & 5750 & 6000 & 6000 & 6200 & 6300 \\
 Previous promo & 0 & 0 & 0 & 0 & 0 & 200 & 0 & 0 & 0 & 0 & 400 & 400 \\
@@ -36,11 +36,11 @@ New promo & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 500 & 400 \\
 Forecast & 4120 & 4120 & 4635 & 5150 & 5150 & 5459 & 5665 & 5922.5 & 6180 & 6180 & 6474 & 6477 \\
 \bottomrule
 \end{tabular}}
-\end{erptable}
+\end{utptable}
 
 The three series are easier to judge as lines than as a grid of numbers.
 
-\begin{erpfig}[Footloose forecast]{The tutorial's three series. Note what happens
+\begin{utpfig}[Footloose forecast]{The tutorial's three series. Note what happens
 at June, November, and December: the previous-year line jumps, the base line
 does not, and the forecast line jumps again only where a \emph{new} promotion is
 planned. June is the instructive case --- last year's spike disappears and is not
@@ -68,14 +68,14 @@ replaced.}{fig:footloose-forecast}
   {(Jan,4120)(Feb,4120)(Mar,4635)(Apr,5150)(May,5150)(Jun,5459)(Jul,5665)
    (Aug,5922.5)(Sep,6180)(Oct,6180)(Nov,6474)(Dec,6477)};
 \addlegendentry{forecast}
-\draw[erplink] (axis cs:Mar,6500) -- (axis cs:Jun,5480);
-\node[erpchipwarn,anchor=west,font=\tiny] at (axis cs:Feb,6600)
+\draw[proclink] (axis cs:Mar,6500) -- (axis cs:Jun,5480);
+\node[procchipwarn,anchor=west,font=\tiny] at (axis cs:Feb,6600)
   {June: last year's spike removed, not replaced};
-\draw[erplink] (axis cs:Jul,6130) -- (axis cs:Nov,6430);
-\node[erpchip,anchor=west,font=\tiny] at (axis cs:Apr,6130) {new promotion added here};
+\draw[proclink] (axis cs:Jul,6130) -- (axis cs:Nov,6430);
+\node[procchip,anchor=west,font=\tiny] at (axis cs:Apr,6130) {new promotion added here};
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{workedexample}
 For June, previous-year sales were 5,500 pairs of which 200 were promotional. The
@@ -84,7 +84,7 @@ promotion is planned for June, so the forecast stays at 5,459 pairs --- below
 last year's actual sales, which is the correct answer.
 \end{workedexample}
 
-\begin{erpfig}[November and December decomposed]{The two promotion months broken
+\begin{utpfig}[November and December decomposed]{The two promotion months broken
 into their three components. The forecast is higher than last year in both
 months, but for different reasons: December's new promotion is smaller than last
 year's, so almost all its growth comes from the base. The axis starts at 5,400
@@ -112,7 +112,7 @@ so the increments are visible.}{fig:promo-decomposition}
 \addlegendentry{planned promotion}
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 If the organisation plans in whole pairs it must also choose and document a
 rounding rule. Do not round some months and not others.
@@ -139,7 +139,7 @@ intended unit with the tutor before finalising the table.
 This is not a pedantic point. The two readings give opposite answers about
 whether the year's plan is possible at all.
 
-\begin{erpfig}[The unit ambiguity decides feasibility]{Monthly utilisation if
+\begin{utpfig}[The unit ambiguity decides feasibility]{Monthly utilisation if
 production simply matches the forecast, under both readings of the production
 rate. At 40 pairs/hour the year fits comfortably under the ceiling; at 20
 pairs/hour every single month is infeasible, some by nearly double. No amount of
@@ -167,10 +167,10 @@ unit.}{fig:unit-ambiguity}
 \addplot[draw=UTPOrange,dashed,mark=none,domain=0:11,samples=2] coordinates
   {(Jan,99)(Dec,99)};
 \addlegendentry{99\% ceiling}
-\node[erpchipbad,anchor=north,font=\tiny] at (axis cs:Jul,142) {every month infeasible};
+\node[procchipbad,anchor=north,font=\tiny] at (axis cs:Jul,142) {every month infeasible};
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 With the rate confirmed as $r$ pairs/hour, monthly capacity and utilisation are
 
@@ -188,7 +188,7 @@ The tutorial expects higher demand in June and December and wants a safety
 buffer. The sensible response is to produce above forecast while capacity is
 slack early in the year and draw the buffer down through the peak.
 
-\begin{erpfig}[A build-ahead production plan]{A plan that deliberately departs
+\begin{utpfig}[A build-ahead production plan]{A plan that deliberately departs
 from the forecast. Production runs above demand from January to August, when
 capacity is under-used, and the accumulated stock absorbs the November and
 December peak without pushing utilisation to the ceiling. Working days assumed
@@ -219,9 +219,9 @@ per month.}{fig:sop-plan}
 \addlegendentry{forecast demand}
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
-\begin{erpfig}[Where the buffer goes]{The inventory consequence of the same plan,
+\begin{utpfig}[Where the buffer goes]{The inventory consequence of the same plan,
 from an opening balance of 100 pairs. Stock climbs while production exceeds
 demand, peaks in October, and is consumed through the two promotion months ---
 which is the whole purpose of planning production separately from
@@ -239,11 +239,11 @@ forecasting it.}{fig:inventory-profile}
          mark size=1.5pt] coordinates
   {(Jan,580)(Feb,1060)(Mar,1425)(Apr,1675)(May,1925)(Jun,2166)(Jul,2401)
    (Aug,2528)(Sep,2548)(Oct,2568)(Nov,2294)(Dec,2017)};
-\node[erpchip,anchor=south west,font=\tiny] at (axis cs:Feb,1200) {building the buffer};
-\node[erpchipwarn,anchor=south east,font=\tiny] at (axis cs:Dec,2350) {drawn down};
+\node[procchip,anchor=south west,font=\tiny] at (axis cs:Feb,1200) {building the buffer};
+\node[procchipwarn,anchor=south east,font=\tiny] at (axis cs:Dec,2350) {drawn down};
 \end{axis}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{A disciplined spreadsheet design}
 
@@ -252,13 +252,13 @@ The growth rate is entered once and referenced absolutely; promotion assumptions
 live in their own row; capacity is calculated from rate, hours, and working days
 rather than typed as a number.
 
-\begin{erpfig}[Spreadsheet anatomy]{Inputs on the left are the only cells anyone
+\begin{utpfig}[Spreadsheet anatomy]{Inputs on the left are the only cells anyone
 types into. Everything on the right is a formula. A tutor or manager should be
 able to change one input cell and watch the whole plan
 recalculate.}{fig:spreadsheet-anatomy}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \draw[draw=UTPOrange!45,fill=UTPPaleOrange!55,rounded corners=2.5mm] (0,-0.35) rectangle (5.4,4.35);
-\node[erpcap,color=UTPOrange] at (2.7,4.05) {\bfseries Inputs --- typed once};
+\node[proccap,color=UTPOrange] at (2.7,4.05) {\bfseries Inputs --- typed once};
 \foreach \i/\t in {0/{Previous-year sales by month},
                    1/{Previous promotion by month},
                    2/{Growth rate $g = 3\%$ \emph{(one cell)}},
@@ -266,9 +266,9 @@ recalculate.}{fig:spreadsheet-anatomy}
                    4/{Rate, hours/day, working days},
                    5/{Opening inventory, safety stock}}{
   \pgfmathsetmacro{\y}{3.45-\i*0.62}
-  \node[erpwarn,minimum width=4.8cm,text width=4.4cm,minimum height=0.5cm] at (2.7,\y) {\t};}
+  \node[procwarn,minimum width=4.8cm,text width=4.4cm,minimum height=0.5cm] at (2.7,\y) {\t};}
 \draw[draw=UTPGreen!45,fill=UTPPaleTeal!55,rounded corners=2.5mm] (7.2,-0.35) rectangle (14.6,4.35);
-\node[erpcap,color=UTPGreen] at (10.9,4.05) {\bfseries Calculated --- formulas only};
+\node[proccap,color=UTPGreen] at (10.9,4.05) {\bfseries Calculated --- formulas only};
 \foreach \i/\t in {0/{Base $=$ previous sales $-$ previous promo},
                    1/{Base projection $=$ base $\times(1+g)$},
                    2/{Forecast $=$ base projection $+$ new promo},
@@ -276,15 +276,15 @@ recalculate.}{fig:spreadsheet-anatomy}
                    4/{Utilisation $=$ production $\div$ capacity},
                    5/{Ending inventory $= I_{t-1} + P_t - F_t$}}{
   \pgfmathsetmacro{\y}{3.45-\i*0.62}
-  \node[erpgood,minimum width=6.8cm,text width=6.4cm,minimum height=0.5cm] at (10.9,\y) {\t};}
+  \node[procgood,minimum width=6.8cm,text width=6.4cm,minimum height=0.5cm] at (10.9,\y) {\t};}
 \foreach \i in {0,...,5}{
   \pgfmathsetmacro{\y}{3.45-\i*0.62}
-  \draw[erpflow] (5.5,\y) -- (7.1,\y);}
-\node[erpnote,anchor=north,text width=13.6cm] at (7.3,-0.55)
+  \draw[procflow] (5.5,\y) -- (7.1,\y);}
+\node[procnote,anchor=north,text width=13.6cm] at (7.3,-0.55)
   {If a number appears in the right-hand box as a typed constant, the model has a
    hidden assumption nobody can audit.};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{Product-mix planning}
 
@@ -292,26 +292,26 @@ The tutorial's S\&OP table also splits total production among product types. If
 the mix is 50\%, 30\%, and 20\%, then $P_{1,t}=0.50P_t$, $P_{2,t}=0.30P_t$, and
 $P_{3,t}=0.20P_t$. The percentages must sum to 100\%.
 
-\begin{erpfig}[Splitting the plan by product]{The aggregate plan allocated by
+\begin{utpfig}[Splitting the plan by product]{The aggregate plan allocated by
 mix, using September's figure. The split is an aggregate rule: real products may
 consume different amounts of the bottleneck resource, which a percentage
 allocation cannot express.}{fig:product-mix}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpstep,minimum width=4.4cm,minimum height=0.9cm] (tot) at (2.6,1.4)
+\node[procstep,minimum width=4.4cm,minimum height=0.9cm] (tot) at (2.6,1.4)
   {September plan\\\tiny\mdseries $P_t = 6{,}200$ pairs};
 \foreach \i/\nm/\pc/\q in {0/{Running shoe}/{50\%}/{3,100},
                            1/{Trail shoe}/{30\%}/{1,860},
                            2/{Court shoe}/{20\%}/{1,240}}{
   \pgfmathsetmacro{\y}{2.4-\i*1.15}
-  \node[erpgood,anchor=west,minimum width=3.4cm,minimum height=0.8cm] (p\i) at (7.4,\y) {\nm};
-  \node[erpchip,anchor=west] at (11.0,\y) {\pc};
-  \node[erpchip,anchor=west,draw=UTPBlue,fill=UTPPaleBlue] at (12.4,\y) {\q\ pairs};
-  \draw[erpflow] (5.0,1.4) -- (6.4,\y) -- (7.35,\y);}
-\node[erpnote,anchor=north,text width=6.0cm] at (2.6,0.5)
+  \node[procgood,anchor=west,minimum width=3.4cm,minimum height=0.8cm] (p\i) at (7.4,\y) {\nm};
+  \node[procchip,anchor=west] at (11.0,\y) {\pc};
+  \node[procchip,anchor=west,draw=UTPBlue,fill=UTPPaleBlue] at (12.4,\y) {\q\ pairs};
+  \draw[procflow] (5.0,1.4) -- (6.4,\y) -- (7.35,\y);}
+\node[procnote,anchor=north,text width=6.0cm] at (2.6,0.5)
   {the percentages must sum to 100\%, or the plan silently under- or
    over-commits capacity};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{Source inconsistencies to notice before modelling}
 

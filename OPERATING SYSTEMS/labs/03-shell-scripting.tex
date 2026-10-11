@@ -1,20 +1,22 @@
 \labsection{3}{Shell scripting for OS observation and automation}{sec:lab03}
 \begin{labproject}{Turn repeatable terminal observations into readable Bash scripts}
 
-\oslabflow{Chapter 3: quoting, pipelines, redirection, exit status.}{Read and run three scripts that inspect the actual Linux environment.}{Explain what data each command produces and where that data flows next.}
+\textbf{Coverage.} Chapter~\ref{ch:shell}: quoting, pipelines, redirection, exit status.\\
+\textbf{Goal.} Read and run three scripts that inspect the actual Linux environment.\\
+\textbf{Explain.} Explain what data each command produces and where that data flows next.
 
 \section*{Source code}
-\ossourcecard{\texttt{system\_report.sh}}{Collect a compact system report and optionally redirect it to a named file.}{The function produces normal output; the final \texttt{if} decides whether it goes to the terminal or a file.}
-\lstinputlisting[style=oslabsh]{all_experiments/Lab03/system_report.sh}
+\labsourcecard{\texttt{system\_report.sh}}{Collect a compact system report and optionally redirect it to a named file.}{The function produces normal output; the final \texttt{if} decides whether it goes to the terminal or a file.}
+\lstinputlisting[style=utpbashnumbered]{all_experiments/Lab03/system_report.sh}
 
-\ossourcecard{\texttt{process\_summary.sh}}{Filter the process table by command name.}{\texttt{ps} produces rows; \texttt{awk} filters; \texttt{wc} counts; exit status 1 means no match.}
-\lstinputlisting[style=oslabsh]{all_experiments/Lab03/process_summary.sh}
+\labsourcecard{\texttt{process\_summary.sh}}{Filter the process table by command name.}{\texttt{ps} produces rows; \texttt{awk} filters; \texttt{wc} counts; exit status 1 means no match.}
+\lstinputlisting[style=utpbashnumbered]{all_experiments/Lab03/process_summary.sh}
 
-\ossourcecard{\texttt{log\_summary.sh}}{Count log levels and print error lines.}{Quoted filenames, a loop over log levels, and \texttt{grep -c} make the script reusable.}
-\lstinputlisting[style=oslabsh]{all_experiments/Lab03/log_summary.sh}
+\labsourcecard{\texttt{log\_summary.sh}}{Count log levels and print error lines.}{Quoted filenames, a loop over log levels, and \texttt{grep -c} make the script reusable.}
+\lstinputlisting[style=utpbashnumbered]{all_experiments/Lab03/log_summary.sh}
 
 \section*{Task 1 --- Syntax check before execution}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 cd all_experiments/Lab03
 bash -n system_report.sh
 bash -n process_summary.sh
@@ -23,7 +25,7 @@ bash -n log_summary.sh
 No output means Bash found no syntax error.
 
 \section*{Task 2 --- System report and redirection}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 bash system_report.sh
 bash system_report.sh my-system.txt
 cat my-system.txt
@@ -31,7 +33,7 @@ cat my-system.txt
 Mark three facts that came from commands rather than hard-coded text.
 
 \section*{Task 3 --- Process observation}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 bash process_summary.sh bash
 echo "status=$?"
 bash process_summary.sh definitely_not_running
@@ -40,19 +42,18 @@ echo "status=$?"
 Explain why the second call can be a valid execution even though its status is non-zero.
 
 \section*{Task 4 --- Log pipeline}
-\begin{lstlisting}[style=osbash]
+\begin{lstlisting}[style=utpbash]
 bash log_summary.sh events.log
 \end{lstlisting}
 Open \texttt{events.log} in Vim, add one new line beginning with \texttt{ERROR }, save, and run the script again. The ERROR count should increase by exactly one.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.30\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.30\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Shell feature} & \textbf{Where you saw it} \\
+\utpth{Shell feature} & \utpth{Where you saw it} \\
 \midrule
 Quoting & \texttt{"\$log"}, \texttt{"\$output"} \\
 Pipeline & \texttt{ps | awk}, then text passed onward \\
@@ -61,7 +62,7 @@ Redirection & \texttt{make\_report > "\$output"} \\
 Exit status & success, no-match, and error cases differ \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -70,6 +71,15 @@ Exit status & success, no-match, and error cases differ \\
   \item What does a non-zero exit status tell the script that called a command?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item \texttt{bash -n} reports no syntax error before any script is run.
+  \item At least three facts in \texttt{my-system.txt} come from commands rather than hard-coded text.
+  \item Both process queries are recorded with their exit statuses, and the non-zero one is explained.
+  \item The ERROR count rises by exactly one after the log line is added.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit \texttt{my-system.txt}, the two process-query results with statuses, and before/after log summaries. Add 4--6 sentences describing one pipeline as \emph{producer $\rightarrow$ pipe $\rightarrow$ consumer}.

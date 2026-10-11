@@ -22,28 +22,28 @@ Nearly every design decision in this course comes from those two jobs pulling in
 \section*{The layers involved}
 Your program sits at the top. The hardware sits at the bottom. Everything between is the OS's responsibility.
 
-\begin{mlfigure}
+\begin{utpfig}[The layers of a running system]{The layers of a running system, from applications through the system interface and the kernel down to the hardware. Every downward step goes through the interface directly beneath it.}{fig:os-layers}
 \begin{tikzpicture}[
-  layer/.style={draw=MLBlue,rounded corners=2mm,text width=12.0cm,
+  layer/.style={draw=UTPBlue,rounded corners=2mm,text width=12.0cm,
                 minimum height=0.85cm,inner xsep=4mm,inner ysep=1mm,
-                align=center,font=\footnotesize\color{MLNavy}},
-  flow/.style={-{Stealth[length=1.6mm,width=1.3mm]},semithick,draw=MLMuted},
+                align=center,font=\footnotesize\color{UTPNavy}},
+  flow/.style={-{Stealth[length=1.6mm,width=1.3mm]},semithick,draw=UTPMuted},
   node distance=0.25cm
 ]
-\node[layer,fill=MLPaleBlue] (apps) {\textbf{Applications}\\[1pt]
+\node[layer,fill=UTPPaleBlue] (apps) {\textbf{Applications}\\[1pt]
   shell, editor, browser, compiler, and user programs};
-\node[layer,fill=MLPaleTeal,below=of apps] (sys) {\textbf{System interface}\\[1pt]
+\node[layer,fill=UTPPaleTeal,below=of apps] (sys) {\textbf{System interface}\\[1pt]
   standard libraries and the system-call interface};
-\node[layer,fill=MLPaleOrange,below=of sys] (kernel) {\textbf{Kernel}\\[1pt]
+\node[layer,fill=UTPPaleOrange,below=of sys] (kernel) {\textbf{Kernel}\\[1pt]
   process scheduling, memory, file systems, and device drivers};
-\node[layer,fill=MLPaleGray,below=of kernel] (hw) {\textbf{Hardware}\\[1pt]
+\node[layer,fill=UTPPaleGray,below=of kernel] (hw) {\textbf{Hardware}\\[1pt]
   CPU, RAM, storage, timers, network, and I/O devices};
 
 \draw[flow] (apps.south) -- (sys.north);
 \draw[flow] (sys.south) -- (kernel.north);
 \draw[flow] (kernel.south) -- (hw.north);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 Read the diagram as a rule about \emph{reach}. An application cannot skip a layer. It cannot address the disk controller, and it cannot read another process's memory. Every downward step goes through the interface directly beneath it.
 
@@ -69,11 +69,11 @@ This is why an infinite loop in your code does not freeze the whole computer. Th
 \section*{System calls are the operating-system API}
 A \term{system call} is a request for a service that needs kernel authority. They group into a handful of families:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X p{0.26\linewidth}@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X m{0.26\linewidth}@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Family & What it does & Seen in this course \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Family} & \utpth{What it does} & \utpth{Seen in this course} \\
 \midrule
 Process control & Create, terminate, wait for, or replace a running program & \texttt{fork()}, \texttt{waitpid()} in Lab 1 \\
 File management & Open, read, write, seek, close, inspect metadata & \texttt{fopen()}, \texttt{fgetc()} in Lab 2 \\
@@ -83,7 +83,7 @@ Communication & Pipes, shared memory, message queues, sockets, signals & Lab 5 \
 Protection & Permissions, identities, access checks & Chapter 2 \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{pitfall}
 \texttt{printf()} is not a system call. It is a C library function that formats your text and then calls \texttt{write()}, which is the system call.
@@ -111,31 +111,31 @@ A program is a recipe. A process is one cook actually working from it, with thei
 Two cooks working from the same recipe do not share a bench --- that is two processes. Two pairs of hands belonging to one cook share everything on that bench --- that is two threads, and it is exactly why threads need locks and processes usually do not.
 \end{analogy}
 
-\begin{mltable}
+\begin{utptable}
 \begin{tabularx}{\linewidth}{@{}
-  >{\bfseries\color{MLNavy}}l
+  >{\bfseries\color{UTPNavy}}l
   >{\raggedright\arraybackslash}X
   >{\raggedright\arraybackslash}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Concept & Owns / represents & Typical question \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Concept} & \utpth{Owns / represents} & \utpth{Typical question} \\
 \midrule
 Program & Executable instructions and static data & What code could run? \\
 Process & Resource container plus execution state & Which running instance is this? \\
 Thread & Schedulable execution flow & Which sequence of instructions runs now? \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 Running the same program twice gives two processes. They have different process IDs, separate memory, and no ability to see each other's variables. You will observe this directly in Lab 1: after \texttt{fork()}, parent and child both continue from the same line with the same variables --- and changing a variable in one has no effect on the other.
 
 \section*{The process-state model}
 A process is not always running. Most of the time it is waiting for something. The standard five-state model captures that:
 
-\begin{mlfigure}
+\begin{utpfig}[The five-state process model]{The five-state process model. Running to Ready is preemption; Running to Waiting is blocking.}{fig:process-states}
 \begin{tikzpicture}[
-  st/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,minimum width=2.1cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},draw=MLTeal,thick}
+  st/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.1cm,minimum height=0.8cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=UTPTeal,thick}
 ]
 \node[st] (new) at (0,0) {New};
 \node[st] (ready) at (3.6,0) {Ready};
@@ -154,7 +154,7 @@ A process is not always running. Most of the time it is waiting for something. T
 \draw[arr] (wait.west) -- node[below,font=\scriptsize]{event done}
   (eventturn) -- (ready.south);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 Two arrows deserve attention, because students routinely confuse them.
 

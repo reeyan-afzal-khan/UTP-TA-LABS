@@ -36,11 +36,11 @@ The Week 8 deck emphasizes several advantages.
   \item \term{Platform infrastructure.} Cloud, identity, payments, devices, advertising, and commerce capabilities can be reused.
 \end{itemize}
 
-\begin{mlfigure}
+\begin{utpfig}[Big Tech's starting advantages]{The assets a Big Tech platform brings into financial services: existing users, behavioral data, technology and talent, capital, daily engagement, and ecosystem distribution.}{fig:bigtech-assets}
 \begin{tikzpicture}[
-  core/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=3.1cm,minimum height=1.2cm,align=center,font=\small\bfseries},
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.5cm,minimum height=0.95cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=1.9mm]},thick,draw=MLTeal}
+  core/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,text width=3.1cm,minimum height=1.2cm,align=center,font=\small\bfseries},
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.5cm,minimum height=0.95cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=UTPTeal}
 ]
 \node[core] (p) at (0,0) {Big Tech\\platform};
 \node[b] (u) at (-4,1.8) {Existing users};
@@ -51,7 +51,7 @@ The Week 8 deck emphasizes several advantages.
 \node[b] (e) at (4,-1.8) {Ecosystem distribution};
 \foreach \n in {u,d,t,c,x,e}{\draw[arr](\n)--(p);}
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 A technology company can therefore enter financial services with a stronger starting distribution position than a typical neobank.
 
@@ -93,11 +93,11 @@ The deck identifies WeChat as an aspirational model: one app in which users comm
 
 Apple is presented as expanding financial services to make the iPhone ecosystem more useful. The lecture references Apple Pay, credit-card offerings, point-of-sale functions, and buy-now-pay-later plans as examples of financial capabilities integrated with the device experience.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}>{\raggedright\arraybackslash}p{0.27\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}>{\raggedright\arraybackslash}m{0.27\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Big Tech & Core motive emphasized by lecture & Finance as strategic tool \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Big Tech} & \utpth{Core motive emphasized by lecture} & \utpth{Finance as strategic tool} \\
 \midrule
 Google & Improve information and advertising relevance & Adds a new source of high-value customer data \\
 Amazon & Sell more products and deepen commerce & Payments, merchant finance, accounts, and point-of-sale credit reduce purchase friction \\
@@ -105,7 +105,7 @@ Meta / Facebook & Increase engagement and advertising value & Payments and finan
 Apple & Increase utility and stickiness of devices/services & Wallet, payments, and credit become integrated device features \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Big Tech's ``four assets and one liability''}
 
@@ -134,11 +134,11 @@ Alipay began as an online-payment solution supporting Alibaba's e-commerce activ
 
 WeChat began as a messaging platform and evolved toward payments and a broad lifestyle ecosystem. The lecture emphasizes the power of beginning with a very large, highly engaged user base and then converting part of that engagement into financial activity.
 
-\begin{mlfigure}
+\begin{utpfig}[The super-app model]{The super-app model. Messaging, payments, lending, wealth, and commerce share one app, and the data and identity they generate feed back into every service.}{fig:super-app}
 \begin{tikzpicture}[
-  core/.style={draw=MLNavy,fill=MLNavy,text=white,circle,minimum size=2.1cm,align=center,font=\small\bfseries},
-  b/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=2.35cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+  core/.style={draw=UTPNavy,fill=UTPNavy,text=white,circle,minimum size=2.1cm,align=center,font=\small\bfseries},
+  b/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=2.35cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=UTPTeal}
 ]
 \node[core] (s) at (0,0) {SUPER\\APP};
 \node[b] (m) at (0,2.6) {Messaging};
@@ -149,7 +149,7 @@ WeChat began as a messaging platform and evolved toward payments and a broad lif
 \node[b] (d) at (-4.0,1.4) {Data + identity};
 \foreach \n in {m,p,l,w,c,d}{\draw[arr](s)--(\n);}
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The strategic power comes from the feedback loop: more services create more reasons to stay in the app; more activity creates more data; more data improves targeting and product design; better products create more activity.
 
@@ -196,11 +196,11 @@ The Week 8 deck cites surveys in which consumers placed higher trust in traditio
 
 Banks employ people with financial, mathematical, statistical, risk, and regulatory expertise. The lecture argues that this workforce can be trained to compete more effectively in data science and algorithmic service design.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.23\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}XX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Competitive asset & Big Tech advantage & Incumbent-bank advantage \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Competitive asset} & \utpth{Big Tech advantage} & \utpth{Incumbent-bank advantage} \\
 \midrule
 User scale & Huge cross-industry platforms & Large established banking customer bases \\
 Engagement & Daily search, shopping, messaging, or device use & Frequent payment and transaction relationships \\
@@ -210,7 +210,7 @@ Trust & Strong technology-brand affinity for some users & Stronger association w
 Expertise & Software, AI, product, cloud, consumer technology & Risk, regulation, finance, quantitative analysis \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Why banks and FinTechs may collaborate against Big Tech}
 
@@ -228,7 +228,7 @@ This shared threat can encourage collaboration:
 
 When analyzing a Big Tech move into finance, ask:
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Core ecosystem.} What non-financial activity already brings users to the platform?
   \item \term{Financial entry point.} Payments, wallet, credit, account, insurance, or investment?
   \item \term{Strategic motive.} Direct fee income, more commerce, better ads, more device utility, more engagement, or richer data?
@@ -236,7 +236,7 @@ When analyzing a Big Tech move into finance, ask:
   \item \term{Distribution advantage.} How cheaply can the platform place the feature in front of existing users?
   \item \term{Regulatory perimeter.} Which financial activities require licenses, partners, or consumer safeguards?
   \item \term{Incumbent response.} Can banks answer with trust, data, physical service, partnerships, or specialist expertise?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 Choose a large e-commerce, messaging, search, or device platform. Design one financial feature it could add. Explain why that feature strengthens the platform's core business, what financial data it would generate, what a bank could do better, and what new regulatory risk would appear.

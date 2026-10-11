@@ -13,21 +13,20 @@ This gives us two layers to keep separate:
 \section{Text and binary records}
 Text formats convert values into readable characters. Binary formats can store compact machine-oriented representations.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.19\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}
   >{\raggedright\arraybackslash}X
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Format} & \textbf{Strength} & \textbf{Caution} \\
+\utpth{Format} & \utpth{Strength} & \utpth{Caution} \\
 \midrule
 Text & readable with ordinary tools, easy to exchange & parsing and formatting add overhead \\
 Raw C struct & compact and easy for a controlled exercise & padding, endianness, and type sizes can reduce portability \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{pitfall}
 ``Binary'' does not automatically mean ``better.'' A durable binary format normally defines its byte layout explicitly instead of simply dumping a compiler-dependent in-memory structure.
@@ -50,11 +49,11 @@ Each allocated block identifies the next block in the file. Files can grow witho
 \section{Indexed allocation}
 A separate index block stores references to the file's data blocks. Logical block 0 can be found through the first index entry, logical block 1 through the second, and so on. The data blocks themselves do not need to be adjacent.
 
-\begin{mlfigure}
+\begin{utpfig}[Indexed allocation]{Indexed allocation. Index block 7 lists the file's data blocks in logical order, so the blocks themselves need not be adjacent.}{fig:indexed-allocation}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1mm,minimum width=2.2cm,minimum height=0.7cm,font=\small\bfseries\color{MLNavy}},
-  d/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1mm,minimum width=1.7cm,minimum height=0.65cm,font=\scriptsize\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},draw=MLMuted,thick}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1mm,minimum width=2.2cm,minimum height=0.7cm,font=\small\bfseries\color{UTPNavy}},
+  d/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1mm,minimum width=1.7cm,minimum height=0.65cm,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},draw=UTPMuted,thick}
 ]
 \node[b] (idx) {Index block 7};
 \node[d,right=2.2cm of idx,yshift=1.0cm] (d1) {block 12};
@@ -62,24 +61,23 @@ A separate index block stores references to the file's data blocks. Logical bloc
 \node[d,right=2.2cm of idx,yshift=-1.0cm] (d3) {block 31};
 \draw[arr] (idx)--(d1); \draw[arr] (idx)--(d2); \draw[arr] (idx)--(d3);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.18\linewidth}
-  >{\raggedright\arraybackslash}p{0.40\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}
+  >{\raggedright\arraybackslash}m{0.40\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Method} & \textbf{Main advantage} & \textbf{Main limitation} \\
+\utpth{Method} & \utpth{Main advantage} & \utpth{Main limitation} \\
 \midrule
 Contiguous & simple, efficient direct access & growth and external fragmentation \\
 Linked & easy growth without contiguous space & poor direct access \\
 Indexed & direct access without contiguous data blocks & index-space overhead \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Free-space management}
 A file system also needs to know which storage blocks are free. A bitmap is one common idea: each bit records whether one block is free or allocated. Other structures can use lists or grouped free blocks.

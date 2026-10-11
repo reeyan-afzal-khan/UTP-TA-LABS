@@ -42,11 +42,11 @@ The lecture also notes that Bitcoin's open-source nature enabled many alternativ
 
 The Week 9 deck lists a broad set of desirable characteristics.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Feature & Course meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Feature} & \utpth{Course meaning} \\
 \midrule
 Open source & A trusted developer community can inspect, verify, and improve the code. \\
 Decentralized & No single person or organization should exercise unilateral control over the system. \\
@@ -61,7 +61,7 @@ Scalable & The network must support a large population and transaction load. \\
 Integrable & It should be able to connect digital finance, legal agreements, and smart-contract ecosystems. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The lecture uses these as a design checklist rather than claiming Bitcoin perfectly satisfies every item.
 
@@ -73,12 +73,12 @@ This is the \term{double-spending problem}: how can a digital payment system ens
 
 Traditional payment systems solve the problem with a central ledger. A bank records Alice's balance and refuses a second payment after the first has consumed the funds. Bitcoin attempts to solve the problem without that central bank by using a shared transaction history, digital signatures, and network consensus.
 
-\begin{mlfigure}
+\begin{utpfig}[The double-spending problem]{The double-spending problem. Alice cannot spend the same coin with both Bob and Charlie, because the shared network validates each payment against the accepted spend history.}{fig:double-spending}
 \begin{tikzpicture}[
-  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.5cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  net/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=3.1cm,minimum height=1.3cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal},
-  bad/.style={-{Stealth[length=2mm]},thick,dashed,draw=MLRed}
+  p/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.5cm,minimum height=1.0cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  net/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=3.1cm,minimum height=1.3cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal},
+  bad/.style={-{Stealth[length=2mm]},thick,dashed,draw=UTPRed}
 ]
 \node[p] (a) at (-4.5,0) {Alice};
 \node[net] (n) at (0,0) {Shared network\\validates spend history};
@@ -87,7 +87,7 @@ Traditional payment systems solve the problem with a central ledger. A bank reco
 \draw[bad](a) to[bend right=18] node[below,font=\scriptsize]{conflicting second spend?}(n);
 \draw[bad](n)--(c);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The key is that the network does not treat each file copy as independent money. It evaluates transactions against the accepted ledger state.
 
@@ -129,14 +129,14 @@ The Week 9 deck gives historical examples of legacy address formats and a 256-bi
 
 The lecture's transaction flow can be summarized in six steps.
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item The receiver shares a wallet address or QR representation.
   \item The sender enters the destination, amount, and transaction-fee parameters in wallet software.
   \item The wallet uses the sender's private key to authorize the transaction.
   \item The transaction is broadcast to the peer-to-peer network.
   \item Nodes and miners validate the transaction against network rules and the current ledger state.
   \item Once included in a block, later blocks provide additional confirmations.
-\end{mlsteps}
+\end{utpsteps}
 
 The lecture distinguishes between an \term{unconfirmed} transaction that has been observed by the network and a transaction with one or more block confirmations.
 
@@ -156,11 +156,11 @@ The Week 9 slides connect mining to three functions:
 
 A miner constructs a candidate block and repeatedly changes a value such as the \term{nonce}. Each attempt produces a different block hash. The goal is to find a hash below the difficulty target.
 
-\begin{mlfigure}
+\begin{utpfig}[The proof-of-work loop]{The proof-of-work loop. A miner changes the nonce and recomputes the block hash until the hash meets the difficulty target, then broadcasts the valid block.}{fig:proof-of-work}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.7cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  g/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=2.7cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.7cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  g/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=2.7cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-4.5,0) {Candidate block\\+ nonce};
 \node[b] (h) at (-1.5,0) {Compute\\hash};
@@ -169,7 +169,7 @@ A miner constructs a candidate block and repeatedly changes a value such as the 
 \draw[arr](a)--(h); \draw[arr](h)--(t); \draw[arr](t)--node[above,font=\scriptsize]{yes}(v);
 \draw[arr] (t.south) to[out=-90,in=-90] node[below,font=\scriptsize]{no: change nonce and try again} (a.south);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The difficulty is adjusted so blocks are found at an approximate target rate in the Bitcoin model used by the lecture. The deck repeatedly uses roughly ten minutes per block as the key intuition.
 
@@ -213,18 +213,18 @@ A \term{fork} changes protocol rules.
 
 The Week 9 deck uses the 2017 Bitcoin Cash split as a hard-fork case. It identifies block-size policy as a central difference and explains that balances before the split are represented on both post-fork chains because both histories share the same pre-fork ledger.
 
-\begin{mlfigure}
+\begin{utpfig}[A hard fork]{A hard fork. Both chains share the history up to the fork, then follow incompatible rule sets, which is why balances before the split appear on both chains.}{fig:hard-fork}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,minimum width=1.8cm,minimum height=0.7cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  b2/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=1.5mm,minimum width=2.2cm,minimum height=0.7cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=1.8mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,minimum width=1.8cm,minimum height=0.7cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  b2/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1.5mm,minimum width=2.2cm,minimum height=0.7cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-4.2,0) {Block n-1}; \node[b] (b) at (-2.0,0) {Block n};
 \node[b2] (c1) at (1.0,1.0) {Rules A}; \node[b2] (c2) at (1.0,-1.0) {Rules B};
 \node[b2] (d1) at (4.0,1.0) {Chain A}; \node[b2] (d2) at (4.0,-1.0) {Chain B};
 \draw[arr](a)--(b); \draw[arr](b)--(c1); \draw[arr](b)--(c2); \draw[arr](c1)--(d1); \draw[arr](c2)--(d2);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 A hard fork can split mining power, users, applications, and liquidity across two networks, which is why the lecture describes it as potentially undesirable unless there is sufficient coordination.
 
@@ -251,18 +251,18 @@ A unit of account should make prices easy to quote and compare. The lecture argu
 
 A store of value should allow wealth to be held securely and predictably. The deck highlights wallet security, dependence on key management, provider risk for custodial wallets, and the use of cold storage as a security response that may reduce convenience.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Money function & Bitcoin challenge emphasized by the lecture \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Money function} & \utpth{Bitcoin challenge emphasized by the lecture} \\
 \midrule
 Medium of exchange & Acceptance, acquisition friction, liquidity/custody risk, and confirmation delay \\
 Unit of account & Price volatility and inconvenient decimal pricing \\
 Store of value & Wallet/private-key security and uncertainty over value \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Benefits of cryptocurrency discussed in the lecture}
 
@@ -370,7 +370,7 @@ The final point creates an interesting paradox: a decentralized asset can still 
 
 \section{A balanced cryptocurrency analysis framework}
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Monetary function.} Is the asset actually useful as exchange medium, unit of account, or store of value?
   \item \term{Technical mechanism.} How are transactions authorized, validated, ordered, and finalized?
   \item \term{Custody.} Who controls the private keys, and what happens if access is lost or stolen?
@@ -379,7 +379,7 @@ The final point creates an interesting paradox: a decentralized asset can still 
   \item \term{Governance.} How are protocol changes made, and what happens when the community disagrees?
   \item \term{Regulation and protection.} What AML/CFT, consumer, tax, and market rules apply?
   \item \term{Systemic effect.} What happens if adoption becomes large enough to affect banks, payments, monetary policy, or capital flows?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 Evaluate Bitcoin using the eight-step framework. Your answer should include at least one genuine benefit, one user-level risk, one protocol-level challenge, and one macroeconomic concern. Avoid answering only with price movements.

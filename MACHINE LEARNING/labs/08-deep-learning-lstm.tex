@@ -1,10 +1,11 @@
 \labsection{8}{Deep learning II: an LSTM for time series}{sec:lab08-lstm}
 
 \begin{labproject}{Forecast the next hour of bike demand from the previous twenty-four}
+\textbf{Coverage.} Chapter~\ref{ch:deep}.\\
 \textbf{Goal.} Build chronological windows, compare two naive forecasts with an LSTM, inspect errors, and save weights/scaling.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import json
 import os
 import site
@@ -53,7 +54,7 @@ print("PyTorch", torch.__version__, "| device:", DEVICE,
 
 Use the 17,379 hourly bike-rental rows. Divide counts by the training-period maximum; future values can exceed the training range.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 hourly = pd.read_csv(DATA / "bike_sharing_dataset_hour.csv")
 hourly["dteday"] = pd.to_datetime(hourly["dteday"])
 hourly = hourly.sort_values(["dteday", "hr"]).reset_index(drop=True)
@@ -75,7 +76,7 @@ plt.show()
 
 Predict hour $t$ from its preceding 24 values. Split overlapping windows chronologically: first 80\% for training, remainder for validation.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 LOOKBACK = 24
 windows = np.stack([scaled[i:i + LOOKBACK] for i in range(len(scaled) - LOOKBACK)])
 targets = scaled[LOOKBACK:]
@@ -95,7 +96,7 @@ print("next hour (the label):", int(targets[0] * scale))
 
 Compare persistence (last value) and same-hour-yesterday (24 hours earlier). Gains over these baselines must justify the network.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 actual = targets[cut:] * scale
 persistence = windows[cut:, -1] * scale
 yesterday = windows[cut:, 0] * scale
@@ -112,7 +113,7 @@ for name, mae in baselines.items():
 
 An LSTM carries 32 hidden values through each 24-step window; a linear layer predicts demand. Reuse Lab~7's loop with squared loss and validation MAE in rentals.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 class LSTMForecaster(nn.Module):
     def __init__(self, hidden_size=32):
         super().__init__()
@@ -149,7 +150,7 @@ print("trainable weights:", sum(p.numel() for p in model.parameters()))
 history = train_forecaster(model)
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 plt.figure(figsize=(5.5, 3.4))
 plt.plot(range(1, len(history) + 1), history, marker="o", label="LSTM")
 for name, mae in baselines.items():
@@ -166,7 +167,7 @@ plt.show()
 
 Plot forecasts against observations for the first validation week.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 model.eval()
 with torch.no_grad():
     forecast = model(X_valid).cpu().numpy() * scale
@@ -195,7 +196,7 @@ plt.show()
 
 Save the training maximum and architecture beside the weights. Reload and verify predictions.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 weights_path = MODELS / "bike_lstm.pt"
 torch.save(model.state_dict(), weights_path)
 card = {
@@ -225,3 +226,13 @@ print(f"forecast for the hour after the series ends: {next_hour:.0f} rentals")
 Compare \texttt{LOOKBACK=6} and 48 after eight epochs. Double \texttt{hidden\_size} to 64; compare validation MAE and runtime.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The windows are built and split in date order, so no future hour leaks into training.
+  \item Both naive forecasts are computed and reported before the LSTM.
+  \item The LSTM's validation error falls below both baselines.
+  \item Forecast errors are inspected at rush hours, at night, and at high demand.
+  \item \texttt{models/bike\_lstm.pt} and its card, with the scaling statistics, are saved.
+\end{itemize}
+\end{verification}

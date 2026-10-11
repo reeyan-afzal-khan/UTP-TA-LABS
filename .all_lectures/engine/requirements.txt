@@ -1,0 +1,10 @@
+# UTP lecture engine (Python 3.12, conda env "utp_lectures")
+manim==0.21.0        # Manim Community
+edge-tts>=7.2        # neural TTS voice with word timings
+pyyaml>=6.0
+mutagen>=1.47
+psutil>=5.9
+potracer>=0.0.4      # the UTP logo, traced once into vector layers
+scipy>=1.11          # ... its symmetry and centre lines
+fonttools>=4.40      # ... its wordmark, set in a real serif
+# also needed on PATH: MiKTeX (pdflatex, pdftocairo, pdfinfo) and ffmpeg / ffprobe

@@ -12,7 +12,7 @@ If you can obtain real daily closes from a public source, rerun the identical sc
 
 \medskip\noindent\textbf{Part A --- Measure volatility properly.}\par
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import numpy as np
 import pandas as pd
 
@@ -29,7 +29,7 @@ print((annualised * 100).round(1))
 
 On the supplied series:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 crypto_usd      69.8%
 equity_index    18.6%
 fiat_eurusd      8.9%
@@ -40,7 +40,7 @@ The crypto series is roughly eight times as volatile as the currency pair, and n
 \medskip\noindent\textbf{Part B --- Maximum drawdown.}\par
 Volatility treats gains and losses alike. A holder does not. Drawdown measures the worst peak-to-trough fall --- the loss someone who bought at the wrong moment actually experienced:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def max_drawdown(series: pd.Series) -> float:
     running_peak = series.cummax()
     drawdown = series / running_peak - 1
@@ -50,7 +50,7 @@ for col in px.columns:
     print(f"{col:10s} max drawdown {max_drawdown(px[col]):.1%}")
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 asset             max drawdown   gain to recover
 crypto_usd              -65.8%            192.0%
 fiat_eurusd             -21.1%             26.8%
@@ -68,20 +68,20 @@ Compare the fiat row: a 21.1\% fall needs only 26.8\% to recover. The relationsh
 \medskip\noindent\textbf{Part C --- The three-function test.}\par
 Chapter~\ref{ch:cryptocurrencies} sets out the standard economic test. Judge each function against a measurement, not an intuition:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Function & Evidence that satisfies it & Measure it with \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Function} & \utpth{Evidence that satisfies it} & \utpth{Measure it with} \\
 \midrule
 Medium of exchange & Accepted widely; settles quickly; fees small relative to typical purchase & Confirmation time; fee as \% of a \$20 purchase \\
 Store of value & Purchasing power roughly preserved over the holding period & Annualised volatility; max drawdown \\
 Unit of account & Prices are quoted in it natively & Count real goods priced in the currency rather than pegged to fiat \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 # Medium of exchange: is the fee proportionate to everyday spending?
 purchase = 20.00
 for fee in [0.15, 1.20, 8.50]:      # low, typical, congested network

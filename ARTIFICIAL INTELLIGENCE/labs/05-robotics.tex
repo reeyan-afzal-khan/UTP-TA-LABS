@@ -1,14 +1,15 @@
 \labsection{5}{Robotics: Sensor-to-Action Control}{sec:lab05-robotics}
 
 \begin{labproject}{Build and evaluate an interpretable wall-following controller}
+\textbf{Coverage.} Chapter~\ref{ch:robotics}.\\
+\textbf{Goal.} Derive a four-sensor threshold policy, compare it with an all-sensor reference model, and test sensitivity to sensor noise.\\
 \textbf{Scenario.} A SCITOS G5 robot must convert 24 ultrasonic readings into one of four movement commands while following a wall.\\
-\textbf{Objective.} Derive a four-sensor threshold policy, compare it with an all-sensor reference model, and test sensitivity to sensor noise.\\
 \textbf{Data.} \texttt{all\_datasets/lab05-sensor\_readings\_24.csv} (5,456 readings, no header: 24 distances in metres, then the action).\\
-\textbf{Notebook.} \texttt{all\_experiments/lab05\_robotics\_sensor\_control\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab05\_robotics\_sensor\_control\_worked.ipynb}.
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import numpy as np
@@ -32,7 +33,7 @@ The CSV has no header: 24 ultrasonic distances (metres) followed by the action l
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 sensors = [f"US{i:02d}" for i in range(24)]
 df = pd.read_csv(DATA / "lab05-sensor_readings_24.csv", header=None, names=sensors + ["action"])
 X = df[sensors]
@@ -49,7 +50,7 @@ split.rename_axis("row_id").to_csv(RESULTS / "split.csv")
 print({"train": len(train_idx), "test": len(test_idx)})
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Shape: (5456, 25)
                    count  share
 action
@@ -71,7 +72,7 @@ Rank the 24 sensors by mutual information with the action, computed on the train
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 mi = mutual_info_classif(X.loc[train_idx], y[train_idx], random_state=42)
 feature_table = pd.DataFrame({"sensor": sensors, "mutual_information": mi}).sort_values("mutual_information", ascending=False)
 feature_table.to_csv(RESULTS / "feature_scores.csv", index=False)
@@ -80,7 +81,7 @@ print("Selected sensors:", selected)
 display(feature_table.head(8).round(3))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Selected sensors: ['US14', 'US17', 'US18', 'US13']
    sensor  mutual_information
 14   US14               0.596
@@ -100,7 +101,7 @@ A shallow decision tree is a fixed set of threshold rules. Carve an internal val
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 subtrain_idx, val_idx = train_test_split(train_idx, test_size=0.20, random_state=42, stratify=y[train_idx])
 
 depth_results = []
@@ -122,7 +123,7 @@ print("Selected depth:", best_depth, "| leaves:", rule_model.get_n_leaves())
 print(rules)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    max_depth  validation_macro_f1
 0          2                0.463
 1          3                0.826
@@ -147,14 +148,14 @@ Train a random forest on all 24 sensors with the same training rows. It is not i
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 reference = RandomForestClassifier(
     n_estimators=200, min_samples_leaf=2, class_weight="balanced_subsample", random_state=42, n_jobs=-1
 ).fit(X.loc[train_idx], y[train_idx])
 print("Random forest trained on", reference.n_features_in_, "sensors with", reference.n_estimators, "trees")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Random forest trained on 24 sensors with 200 trees
 \end{lstlisting}
 The forest uses every sensor and 200 trees, so it can exploit interactions the shallow tree cannot. It is the reference ceiling, not a candidate controller.
@@ -165,7 +166,7 @@ Report accuracy, macro precision, macro recall and macro F1 for both models on t
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 y_test = y[test_idx]
 predictions = {"Interpretable rule tree": rule_model.predict(X.loc[test_idx, selected]),
                "Random-forest reference": reference.predict(X.loc[test_idx])}
@@ -194,7 +195,7 @@ display(per_class.round(3))
 print("Hardest action for the rule controller (lowest recall):", per_class.recall.idxmin())
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                      model  accuracy  macro_precision  macro_recall  macro_f1
 0  Interpretable rule tree     0.923            0.879         0.921     0.895
 1  Random-forest reference     0.995            0.993         0.992     0.992
@@ -213,7 +214,7 @@ Add zero-mean Gaussian noise to the test readings at 2\,\%, 5\,\% and 10\,\% of 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 rng = np.random.default_rng(42)
 train_sd = X.loc[train_idx, selected].std().to_numpy()
 clean = X.loc[test_idx, selected].to_numpy(float)
@@ -234,7 +235,7 @@ plt.savefig(RESULTS / "noise_robustness.png", dpi=160)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    noise_fraction_of_train_sd  macro_f1
 0                        0.00     0.895
 1                        0.02     0.858
@@ -243,3 +244,13 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 Macro F1 falls from 0.90 with clean readings to about 0.71 at 10\,\% noise. Hard thresholds are brittle: a reading that sits near a split boundary flips class as soon as noise pushes it across. Offline classification accuracy is not the same as safe control --- deployment adds sequential feedback, actuator delay and sensor failure --- so the tree is a perception-policy prototype, not deployment-ready autonomy.
 \end{labanswer}
+
+\begin{verification}
+\begin{itemize}
+  \item The 5,456 readings are split 70/30 with stratification, and the split is saved.
+  \item The four sensors are selected by mutual information on the training rows only.
+  \item The tree depth is chosen by validation macro F1, and the final tree is exported as readable if--then rules.
+  \item On the test rows the rule controller reaches about 92\,\% accuracy and 0.90 macro F1, and its hardest action is identified.
+  \item Macro F1 is reported at every noise level, and you can explain why it falls.
+\end{itemize}
+\end{verification}

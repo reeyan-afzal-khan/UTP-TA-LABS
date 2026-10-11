@@ -8,40 +8,40 @@ A circular linked list changes one crucial link: the last node points back to th
 
 \section{The circular structure}
 
-\begin{adsfig}[A circular linked list]{A circular linked list drawn as the ring it actually is. The single change
+\begin{utpfig}[A circular linked list]{A circular linked list drawn as the ring it actually is. The single change
 from \figref{fig:sll-anatomy} is the last node's \texttt{next} field: instead of
 \texttt{NULL} it stores the address of the head, so there is no end to stop
 at.}{fig:cll-ring}
 \begin{tikzpicture}[font=\small]
 % ring of four nodes
 \foreach \v/\ang [count=\i from 0] in {10/90, 20/0, 30/270, 40/180}{
-  \node[adsnode,minimum size=9.5mm] (r\i) at (\ang:1.75) {\v};
+  \node[utpnode,minimum size=9.5mm] (r\i) at (\ang:1.75) {\v};
 }
-\draw[adsarrow] (r0) to[bend left=22] (r1);
-\draw[adsarrow] (r1) to[bend left=22] (r2);
-\draw[adsarrow] (r2) to[bend left=22] (r3);
-\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSOrange] (r3) to[bend left=22] (r0);
-\node[adstag,anchor=south] at (90:2.45) {HEAD};
-\node[adslabel,anchor=east,color=ADSOrange,align=right] at (180:2.5)
+\draw[utparrow] (r0) to[bend left=22] (r1);
+\draw[utparrow] (r1) to[bend left=22] (r2);
+\draw[utparrow] (r2) to[bend left=22] (r3);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=UTPOrange] (r3) to[bend left=22] (r0);
+\node[utptag,anchor=south] at (90:2.45) {HEAD};
+\node[utplabel,anchor=east,color=UTPOrange,align=right] at (180:2.5)
   {LAST\\\texttt{last->next}\\$=$ head};
-\node[adslabel,align=center] at (0,0) {no \texttt{NULL}\\anywhere};
+\node[utplabel,align=center] at (0,0) {no \texttt{NULL}\\anywhere};
 
-% linear redrawing for comparison
-\begin{scope}[xshift=6.9cm]
+% Linear redrawing with enough spacing for clear pointer arrows.
+\begin{scope}[xshift=6.6cm]
 \foreach \v [count=\i from 0] in {10,20,30,40}{
-  \node[adscell,minimum width=0.95cm,minimum height=0.8cm] (s\i) at (1.05*\i,0.55) {\v};
+  \node[utpcell,minimum width=0.95cm,minimum height=0.8cm] (s\i) at (1.35*\i,0.55) {\v};
 }
 \foreach \i in {0,1,2}{
   \pgfmathtruncatemacro{\j}{\i+1}
-  \draw[adsptr] (s\i)--(s\j);
+  \draw[utpptr] (s\i)--(s\j);
 }
-\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSOrange]
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=UTPOrange]
   (s3.south) -- ++(0,-0.62) -| (s0.south);
-\node[adslabel,anchor=north,align=center] at (1.57,-0.85)
+\node[utplabel,anchor=north,align=center] at (2.03,-0.85)
   {the same list drawn flat:\\the wrap link is what makes it circular};
 \end{scope}
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 The Week IV slides emphasize four consequences:
 
@@ -80,43 +80,45 @@ A plain \texttt{while} loop would therefore print nothing at all. The \texttt{do
 form checks the condition only after the body has run once, which is exactly what a ring
 needs (\figref{fig:cll-traverse}).
 
-\begin{adsfig}[Why circular traversal uses do--while]{Why circular traversal uses \texttt{do}\,--\,\texttt{while}. The pointer
+\begin{utpfig}[Why circular traversal uses do--while]{Why circular traversal uses \texttt{do}\,--\,\texttt{while}. The pointer
 starts on the head and returns to it, so the stopping condition is true at both the
 beginning and the end of the walk; only the second occurrence should end the
 loop.}{fig:cll-traverse}
 \begin{tikzpicture}[font=\small]
 \foreach \v/\ang [count=\i from 0] in {10/90, 20/0, 30/270, 40/180}{
-  \node[adsnode,minimum size=9mm] (t\i) at (\ang:1.6) {\v};
+  \node[utpnode,minimum size=9mm] (t\i) at (\ang:1.6) {\v};
 }
-\draw[adsarrow] (t0) to[bend left=22] (t1);
-\draw[adsarrow] (t1) to[bend left=22] (t2);
-\draw[adsarrow] (t2) to[bend left=22] (t3);
-\draw[adsarrow] (t3) to[bend left=22] (t0);
-\node[adstag,anchor=south] at (90:2.3) {start \& stop here};
-\node[adslabel,align=center,color=ADSMuted] at (0,0) {visit order\\10, 20, 30, 40};
+\draw[utparrow] (t0) to[bend left=22] (t1);
+\draw[utparrow] (t1) to[bend left=22] (t2);
+\draw[utparrow] (t2) to[bend left=22] (t3);
+\draw[utparrow] (t3) to[bend left=22] (t0);
+\node[utptag,anchor=south] at (90:2.3) {start \& stop here};
+\node[utplabel,align=center,color=UTPMuted] at (0,0) {visit order\\10, 20, 30, 40};
 
-\begin{scope}[xshift=5.6cm,yshift=0.35cm]
-\node[adsstep,fill=ADSPaleRed,draw=ADSRed,text width=5.3cm,align=left,anchor=north west]
+\begin{scope}[xshift=5.3cm,yshift=0.35cm]
+\node[utpstep,fill=UTPPaleRed,draw=UTPRed,text width=5.8cm,
+  inner xsep=3mm,inner ysep=2.3mm,align=left,anchor=north west]
   (bad) at (0,0.9)
-  {\textcolor{ADSRed}{\bfseries Wrong}\\[1pt]
+  {\textcolor{UTPRed}{\bfseries Wrong}\\[1pt]
    \texttt{while (current != head) \{...\}}\\
    condition false immediately $\rightarrow$ prints nothing};
-\node[adsstep,fill=ADSPaleTeal,draw=ADSGreen,text width=5.3cm,align=left,anchor=north west]
+\node[utpstep,fill=UTPPaleTeal,draw=UTPGreen,text width=5.8cm,
+  inner xsep=3mm,inner ysep=2.3mm,align=left,anchor=north west]
   (good) at (0,-0.75)
-  {\textcolor{ADSGreen}{\bfseries Right}\\[1pt]
+  {\textcolor{UTPGreen}{\bfseries Right}\\[1pt]
    \texttt{do \{...\} while (current != head);}\\
    body runs first, then the test ends the lap};
 \end{scope}
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \section{Singly vs doubly vs circular}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.19\linewidth}X X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}X X X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Feature & Singly & Doubly & Circular \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Feature} & \utpth{Singly} & \utpth{Doubly} & \utpth{Circular} \\
 \midrule
 Last node points to & \texttt{NULL} & \texttt{NULL} & head \\
 Direction & Forward & Forward and backward & Usually forward circular in this course \\
@@ -125,18 +127,18 @@ Traversal stop & \texttt{NULL} & \texttt{NULL} & back at head \\
 Main use in slides & Simple dynamic list & Two-way navigation & Repeated/cyclic processing \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Insertion at the beginning}
 
 Assume \texttt{last} points to the final node. Then \texttt{last->next} is the head. This representation makes both the tail and head easy to identify.
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item Allocate the new node.
   \item If the list is empty, point the node to itself and make it \texttt{last}.
   \item Otherwise, point the new node to the current head.
   \item Set \texttt{last->next} to the new node, making it the new head.
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{lstlisting}
 void insertBeginning(Node*& last, int value) {
@@ -259,15 +261,5 @@ The easiest circular-list bug is an infinite traversal. Every loop over the list
 \begin{quickcheck}
 Why does \texttt{while (current != nullptr)} fail as a normal stopping condition in a circular list? What special pointer updates are needed when the list contains only one node?
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A circular linked list connects the last node back to the head.
-  \item The list does not terminate with \texttt{NULL}.
-  \item Traversal must stop when the pointer returns to the start.
-  \item Insertions and deletions require careful maintenance of the closing link.
-  \item Circular linked lists are useful for repeated or cyclic processing.
-\end{itemize}
-\end{chapterrecap}
 
 \input{labs/04-circular-list}

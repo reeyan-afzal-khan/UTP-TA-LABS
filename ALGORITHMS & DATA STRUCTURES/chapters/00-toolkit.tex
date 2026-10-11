@@ -1,0 +1,117 @@
+\chapter{Your Toolkit and Environment Setup}
+\label{ch:python}
+
+\chapterguide%
+  {Create folders and run basic \textbf{terminal commands}.}
+  {organize data and notebooks, configure an environment, install dependencies, and run labs reproducibly.}
+
+\section{The course project layout}
+
+Use \texttt{UTP-"COURSE-NAME"/} as the project root, with these folders:
+
+\begin{lstlisting}[style=utpterminal]
+Lab01/
+  student_records.cpp
+  union_review.cpp
+Lab02/
+  matrix_multiply.cpp
+  matrix_operations.cpp
+Lab03/
+  doubly_linked_list.cpp
+  singly_linked_list.cpp
+Lab04/
+  circular_linked_list.cpp
+  list_comparison.cpp
+Lab05/
+  array_stack.cpp
+  infix_to_postfix.cpp
+  linked_stack.cpp
+Lab06/
+  circular_queue.cpp
+  linear_queue.cpp
+  linked_queue.cpp
+  priority_queue.cpp
+Lab07/
+  binary_tree.cpp
+Lab08/
+  bst.cpp
+  heap.cpp
+Lab09/
+  graph_traversal.cpp
+  minimum_spanning_tree.cpp
+Lab10/
+  binary_search.cpp
+  heap_sort.cpp
+  merge_three_arrays.cpp
+  quick_sort_descending.cpp
+Lab11/
+  hashing_collisions.cpp
+README.md
+.gitignore
+\end{lstlisting}
+\clearpage
+\section{C++ compiler setup}
+
+Install the compiler for your operating system. The course examples use C++17; an editor or IDE is optional.
+
+\medskip
+\noindent\textbf{Windows}\par
+\noindent Install \href{https://www.msys2.org/}{\textbf{MSYS2}}, open its
+\textbf{UCRT64} terminal, then install and check GCC:
+
+\begin{lstlisting}[style=utpterminal]
+pacman -S mingw-w64-ucrt-x86_64-gcc
+g++ --version
+\end{lstlisting}
+
+\noindent To run \texttt{g++} from PowerShell, Command Prompt, or an IDE
+terminal, add the UCRT64 compiler folder to your Windows user \texttt{Path}:
+
+\begin{enumerate}[leftmargin=1.7em]
+  \item Open the Start menu, search for \textbf{Edit environment variables for your account}, and open it.
+  \item Under \textbf{User variables}, select \textbf{Path}, choose \textbf{Edit}, then choose \textbf{New}. Do not replace or delete the existing entries.
+  \item Add \texttt{C:\textbackslash msys64\textbackslash ucrt64\textbackslash bin}. If MSYS2 was installed in a different folder, use that installation folder followed by \texttt{\textbackslash ucrt64\textbackslash bin}.
+  \item Confirm each dialog with \textbf{OK}, then close and reopen PowerShell, Command Prompt, or the IDE so it reads the updated path.
+\end{enumerate}
+
+\noindent Verify that Windows finds the compiler:
+
+\begin{lstlisting}[style=utpterminal]
+where.exe g++
+g++ --version
+\end{lstlisting}
+
+\noindent The first command should print a location under
+\texttt{ucrt64\textbackslash bin}. If it prints nothing, check that the folder
+exists and that the new \texttt{Path} entry points to its \texttt{bin}
+subfolder. For why UCRT64 uses this compiler directory, see the
+\href{https://www.msys2.org/docs/environments/}{\textbf{MSYS2 environment guide}}.
+
+\noindent If your course requires Microsoft's compiler, install Visual Studio
+or Build Tools with the
+\href{https://learn.microsoft.com/en-us/cpp/build/vscpp-step-0-installation}{\textbf{Desktop development with C++ workload}} and use its Developer Command Prompt.
+
+\medskip
+\noindent\textcolor{UTPBlue!45}{\rule{\linewidth}{0.5pt}}\par
+\medskip
+\noindent\textbf{Linux}\par
+\noindent On Ubuntu or Debian, install and check GNU C++. Other distributions
+provide GCC/G++ through their package manager:
+
+\begin{lstlisting}[style=utpterminal]
+sudo apt update
+sudo apt install g++
+g++ --version
+\end{lstlisting}
+
+\medskip
+\noindent\textcolor{UTPBlue!45}{\rule{\linewidth}{0.5pt}}\par
+\medskip
+\noindent\textbf{macOS}\par
+\noindent Install Apple's Command Line Tools (the full Xcode application is
+not required), then check that Clang is available:
+
+\begin{lstlisting}[style=utpterminal]
+xcode-select --install
+clang++ --version
+\end{lstlisting}

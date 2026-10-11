@@ -1,10 +1,11 @@
 \labsection{5}{Unsupervised learning II: anomaly detection and limited labels}{sec:lab05-anomaly-labels}
 
 \begin{labproject}{Learn when labels are absent, rare, or expensive}
+\textbf{Coverage.} Chapter~\ref{ch:anomaly}; self-training and active learning are previewed from Chapter~\ref{ch:semi-supervised}.\\
 \textbf{Goal.} Evaluate anomaly rankings with held-back labels; compare self-training and active learning under limited labels.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -26,7 +27,7 @@ DATA = PROJECT_ROOT / "all_datasets"
 
 Fit Isolation Forest without \texttt{is\_fraud} on 10,000 transactions with about 1.5\% fraud. Short isolation paths score as unusual; held-back labels evaluate the ranking.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 fraud = pd.read_csv(DATA / "credit_card_fraud_dataset.csv")
 print(fraud.head())
 
@@ -48,7 +49,7 @@ anomaly_score = -forest.decision_function(X_test)     # higher = more unusual
 
 Report ROC AUC, average precision, and operational precision among the top 100 alerts.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 prevalence = y_test.mean()
 ap = average_precision_score(y_test, anomaly_score)
 print("fraud prevalence:", round(prevalence, 4))
@@ -67,7 +68,7 @@ print(ranked[["fraud_label", "anomaly_score", "amount"]].head(10))
 
 Plot score overlap and precision versus review budget.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 hits = ranked["fraud_label"].to_numpy()
 k_values = np.arange(10, 1001, 10)
 precision_at_k = [hits[:k].mean() for k in k_values]
@@ -95,7 +96,7 @@ plt.show()
 
 Split breast-cancer rows into a query pool, validation set, and sealed test set.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 rng = np.random.default_rng(42)
 
 cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
@@ -121,7 +122,7 @@ def make_model():
 
 Hide 70\% of pool labels as $-1$. Self-training adds predictions above confidence 0.90 and refits; erroneous pseudo-labels can reinforce mistakes.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 y_partial = y_pool.copy()
 y_partial[rng.random(len(y_partial)) < 0.70] = -1
 print("labels kept:", int((y_partial != -1).sum()), "of", len(y_partial))
@@ -137,7 +138,7 @@ print("self-training validation accuracy:",
 
 Start both policies with 40 labels and add 15 per round. Compare queries nearest probability 0.5 with equal-budget random queries.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 class0 = np.where(y_pool == 0)[0]
 class1 = np.where(y_pool == 1)[0]
 initial = np.concatenate([rng.choice(class0, 20, replace=False),
@@ -170,7 +171,7 @@ for round_no in range(rounds):
     random_labeled.update(rng_random.choice(unlabeled, query_batch, replace=False).tolist())
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 plt.figure(figsize=(6, 3.6))
 plt.plot(label_counts, active_scores, marker="o", label="uncertainty sampling")
 plt.plot(label_counts, random_scores, marker="o", label="random querying")
@@ -186,7 +187,7 @@ plt.show()
 
 Both policies are finished, so the test set is opened once for each.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 active_idx, random_idx = sorted(active_labeled), sorted(random_labeled)
 active_final = make_model().fit(X_pool.iloc[active_idx], y_pool[active_idx])
 random_final = make_model().fit(X_pool.iloc[random_idx], y_pool[random_idx])
@@ -200,3 +201,12 @@ print("final test accuracy, random querying:    ",
 Compare fraud precision for review budgets 50 and 300. Then start with ten labels per class and reassess uncertainty sampling.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The fraud labels are held back while the Isolation Forest is fitted, and used only to evaluate it.
+  \item Precision at the actual review budget is reported alongside ROC AUC.
+  \item Self-training and active learning are compared on the same fixed validation and test sets.
+  \item Uncertainty sampling is compared with random queries at equal label budgets.
+\end{itemize}
+\end{verification}

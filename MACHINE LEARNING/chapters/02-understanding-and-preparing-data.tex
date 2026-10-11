@@ -1,0 +1,455 @@
+\chapter{Understanding and Preparing Data}
+\label{ch:data}
+
+\chapterguide%
+  {\chapsref{ch:orientation}{ch:python}: the workflow, computational vocabulary, and the distinction between features and labels.}
+  {clean data, choose valid splits, handle missingness and categories, engineer features, and prevent leakage.}
+
+Reliable learning starts with trustworthy data: clear labels, valid measurements, and a split that reflects future use.
+
+Ask: \emph{What does the data mean? What is wrong? What must be learned?}
+
+\section{Start with a data quality assessment}
+
+\begin{utpsteps}
+  \item \term{What does one row represent?} A person, transaction, image, day, machine, or something else?
+  \item \term{What does each column mean?} Record its type, unit, valid range, and source.
+  \item \term{When is prediction made?} Features must exist then. Lab~1's G1 and G2 grades are available at year-end, not enrolment.
+  \item \term{Which rows are related?} Repeated measurements from one person or device must usually stay in the same split.
+  \item \term{Who or what is missing?} The dataset may not represent the full population where the model will be used.
+\end{utpsteps}
+
+\section{A safe order of operations}
+
+\begin{utpfig}[A safe order of operations]{A safe order of operations: define what the data mean, apply fixed rules, split honestly, and only then learn any preparation from the training rows.}{fig:safe-order}
+\begin{tikzpicture}[
+  node distance=0.45cm,
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.75cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[box] (meaning) {1. Define meaning\\rows, keys, units, timing};
+\node[box,right=of meaning] (rules) {2. Apply fixed rules\\parse, standardize, validate};
+\node[box,right=of rules] (split) {3. Split honestly\\groups, time, population};
+\node[box,right=of split] (learn) {4. Learn preparation\\from training data only};
+\draw[arr] (meaning)--(rules);
+\draw[arr] (rules)--(split);
+\draw[arr] (split)--(learn);
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}m{0.35\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Examples} & \utpth{Why it belongs there} \\
+\midrule
+Before the split & Validate columns, keys, and values; parse dates; standardize units and whitespace. & These are fixed rules. They do not use the label or any statistic estimated from the data. \\
+After the split & Learn imputation, scaling, category mappings, outlier thresholds, feature selection, and resampling rules. & Fit data-dependent choices on training rows only. \\
+After modeling & Evaluate test performance once, document limits, and monitor data quality and drift. & Keep the test set for final evaluation, not design decisions. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{keyidea}
+Fixed rules, such as unit conversions, may precede splitting. Estimate medians, scales, category mappings, and cutoffs from training rows only.
+\end{keyidea}
+
+\section{Feature and label types}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}>{\raggedright\arraybackslash}m{0.27\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Type} & \utpth{Example} & \utpth{Typical treatment} \\
+\midrule
+Numerical & age, temperature, income & keep numeric; scale or transform when needed \cr
+Nominal category & country, product type & one-hot encode or use a model that handles categories \cr
+Ordinal category & low, medium, high & encode in the true order, but do not assume equal gaps without reason \cr
+Date or time & purchase date, hour & extract useful parts such as elapsed time, weekday, or season \cr
+Text & review, message & convert to numerical counts or other classical text features \cr
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Labels usually fall into two basic groups:
+
+\begin{itemize}
+  \item A \term{continuous number} suggests regression, such as price or temperature.
+  \item A \term{category} suggests classification, such as fraud/not fraud or animal species.
+\end{itemize}
+
+\section{Clean structural problems before modeling}
+
+Make stored values match their documented meaning using reproducible cleaning code.
+
+\subsection{Confirm row identity and handle duplicates}
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{5pt}
+\begin{tabularx}{\linewidth}{@{}>{\footnotesize\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}>{\footnotesize}m{0.35\linewidth}>{\footnotesize}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Pattern} & \utpth{What it may mean} & \utpth{Safe response} \\
+\midrule
+Exact repeated row & Duplicate import or distinct events lacking identifiers & Remove only if repetition is meaningless; log the count. \\
+Repeated key & Key conflict, multiple versions, or valid one-to-many data & Investigate: keep the latest, aggregate, repair the key, or redefine rows. \\
+Same person, different visits & Valid repeated measurements & Keep rows; group splits by person to prevent overlap. \\
+Near duplicate & Spelling, rounding, or record-linkage differences & Define matching rules and review uncertain matches. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\subsection{Repair types, labels, dates, and units}
+
+\begin{utpsteps}
+  \item \term{Preserve the raw value.} Keep the source file unchanged and create a cleaned copy or scripted transformation.
+  \item \term{Parse explicitly.} Convert numbers and dates with known rules, and count values that fail to parse.
+  \item \term{Normalize representation.} Trim accidental whitespace, standardize case where case has no meaning, and map documented synonyms to one label.
+  \item \term{Normalize units.} Convert to one stated unit using a known conversion; never mix unit conversion with statistical scaling.
+  \item \term{Validate the result.} Check allowed categories, ranges, key uniqueness, and date order with assertions.
+\end{utpsteps}
+
+\subsection{Distinguish impossible values from unusual values}
+
+\term{Impossible values}, such as negative ages, violate domain rules. \term{Rare values}, such as large purchases, may be valid.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.15\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Action} & \utpth{When to use it} \\
+\midrule
+Correct & Only when an authoritative source or deterministic rule reveals the true value. \\
+Set missing & When the stored value is known to be invalid but the true value is unknown. Impute later inside the training pipeline if appropriate. \\
+Drop & When the row cannot answer the project question and a documented inclusion rule justifies removal. Report the count and check whether exclusions are concentrated in a group. \\
+Flag & When a suspicious value may still be real. A binary quality flag lets the model or analyst retain that information. \\
+Keep & When a value is valid, even if it is inconvenient. Rare cases may be exactly where a useful model is most needed. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{pitfall}
+Do not remove difficult cases merely to improve scores; they may occur after deployment.
+\end{pitfall}
+
+\subsection{Keep a cleaning log}
+
+Log each rule's reason, columns, affected row count, and action: correction, missingness, exclusion, or flagging. Retain identifiers for tracing changes, not as model features.
+
+\section{Training, validation, and test sets}
+\label{sec:data-splits}
+
+\begin{utpfig}[Training, validation, and test sets]{The three splits and their jobs: the training set learns parameters, the validation set chooses settings, and the test set gives the final check.}{fig:three-splits}
+\begin{tikzpicture}[x=0.093\linewidth,font=\small]
+  \draw[fill=UTPBlue!28,draw=UTPBlue] (0,0) rectangle (6.5,0.85);
+  \draw[fill=UTPTeal!22,draw=UTPTeal] (6.5,0) rectangle (8.3,0.85);
+  \draw[fill=UTPOrange!22,draw=UTPOrange] (8.3,0) rectangle (10,0.85);
+  \node[align=center] at (3.25,0.425) {Training\\learn parameters};
+  \node[align=center,font=\footnotesize] at (7.4,0.425) {Validation\\choose settings};
+  \node[align=center,font=\footnotesize] at (9.15,0.425) {Test\\final check};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Training set] Used to fit model parameters and data-dependent preprocessing steps.
+  \item[Validation set] Used to compare models, thresholds, and hyperparameters.
+  \item[Test set] Used only for the final estimate after all choices are complete.
+\end{description}
+
+Training often uses 60--80\% of rows. Choose proportions for dataset size while preserving separate validation and test roles.
+
+\section{Choose a split that imitates the future}
+
+A random split is useful only when future rows are independent and drawn in the same way.
+
+\begin{description}[leftmargin=1.35in,style=nextline]
+  \item[Stratified split] Keeps class proportions similar across subsets.
+  \item[Group split] Keeps all rows from one person, device, school, or customer in one subset.
+  \item[Time split] Trains on the past and evaluates on later periods.
+  \item[Spatial split] Separates locations when nearby observations are strongly related.
+\end{description}
+
+\begin{workedexample}
+With five visits per patient, a random row split may let the model recognize patients seen in training. Group by patient when evaluating predictions for new patients.
+\end{workedexample}
+
+\begin{pitfall}
+An unrealistic split gives an unrealistic performance estimate.
+\end{pitfall}
+
+\section{Data leakage}
+\label{sec:data-leakage}
+
+\term{Data leakage} happens when information the model would not have at prediction time, or information from the held-out rows, finds its way into the features, the preprocessing, the choice of model, or the split.
+
+Examples include:
+
+\begin{itemize}
+  \item predicting hospital readmission using a field recorded after discharge;
+  \item calculating the mean for standardization using the entire dataset;
+  \item selecting features using test-set performance;
+  \item placing near-duplicate rows in both training and test data;
+  \item using future values to predict an earlier point in time;
+  \item including an identifier or proxy that effectively reveals the label, such as a claim-resolution code when predicting whether a claim will be approved.
+\end{itemize}
+
+The safe rule is simple: fit every data-dependent choice on training data only, then apply the learned transformation unchanged to validation and test data.
+
+The diagram contrasts fitting the preprocessing before and after the split. Only the training rows should decide what a fitted transformation does.
+
+\begin{utpfig}[Preprocessing before and after the split]{Leakage through preprocessing. Fitting the preparation on all the data lets the test rows influence the scaler; splitting first and fitting on the training rows only keeps the test honest.}{fig:prep-leakage}
+\begin{tikzpicture}[
+  node distance=0.35cm and 0.5cm,
+  ok/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1.5mm,minimum width=2.85cm,minimum height=0.78cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  bad/.style={draw=UTPRed,fill=UTPPaleRed,rounded corners=1.5mm,minimum width=2.85cm,minimum height=0.78cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=UTPTeal},
+  barr/.style={-{Stealth[length=1.9mm]},thick,draw=UTPRed},
+  tag/.style={font=\scriptsize\bfseries,align=left}
+]
+\node[tag,color=UTPRed] (t1) {WRONG};
+\node[bad,right=0.35cm of t1] (w1) {Load all data};
+\node[bad,right=of w1] (w2) {Fit prep on all data};
+\node[bad,right=of w2] (w3) {Split};
+\node[bad,right=of w3] (w4) {Train, test, celebrate};
+\draw[barr] (w1)--(w2); \draw[barr] (w2)--(w3); \draw[barr] (w3)--(w4);
+\node[font=\scriptsize\itshape\color{UTPRed},below=0.12cm of w2] {test rows influenced the scaler};
+
+\node[tag,color=UTPGreen,below=1.35cm of t1] (t2) {RIGHT};
+\node[ok,right=0.35cm of t2] (r1) {Load all data};
+\node[ok,right=of r1] (r2) {Split first};
+\node[ok,right=of r2] (r3) {Fit prep on training only};
+\node[ok,right=of r3] (r4) {Transform test, then evaluate};
+\draw[arr] (r1)--(r2); \draw[arr] (r2)--(r3); \draw[arr] (r3)--(r4);
+\end{tikzpicture}
+\end{utpfig}
+
+\section{Missing values: meaning and strategy}
+
+Missingness may mean unmeasured, inapplicable, costly to collect, or related to the outcome.
+
+\begin{utpsteps}
+  \item Measure how much is missing in each feature and group.
+  \item Investigate why it is missing and whether the pattern carries information.
+  \item Choose a treatment and fit it on training rows only (\secref{sec:data-leakage}).
+  \item Add a missing-value indicator when the fact that a value is missing may matter.
+  \item Check whether the treatment changes important distributions.
+\end{utpsteps}
+
+Use numerical medians, a categorical missing value, or model-based imputation when justified.
+
+\term{MCAR}: missing independently of values. \term{MAR}: missingness explained by observed values. \term{MNAR}: missingness depends on unobserved values. The table alone cannot identify the mechanism; investigate causes and compare treatments.
+
+\section{Encoding categorical features}
+
+Most algorithms need numerical inputs. The encoding must preserve the meaning of the category.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.35\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Encoding method} & \utpth{How it works} \\
+\midrule
+One-hot encoding & Creates one binary column per category. It is a safe default for nominal features with a manageable number of values. \\
+Ordinal encoding & Uses ordered numbers only when the categories truly have an order. \\
+Frequency encoding & Replaces a category with how often it appears in training data. \\
+Label-informed mean encoding & Uses label statistics; apply the leakage rule from \secref{sec:data-leakage}. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Define how the pipeline handles unseen categories, such as an unknown-category value.
+
+\section{Scaling and transforming numerical features}
+\label{sec:scaling}
+
+Scaling changes a feature's measuring stick. Distances, margins, penalties, and gradient steps otherwise let large numerical units dominate smaller ones.
+
+The three course scalers answer three different questions:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}m{0.29\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Method} & \utpth{Transformation} & \utpth{Best first use} \\
+\midrule
+Standard scaling & $z=(x-\mu)/\sigma$ & General default for SVM, $k$-NN, clustering, and regularized linear models when mean and standard deviation are meaningful. \\
+Min--max scaling & $x'=(x-x_{\min})/(x_{\max}-x_{\min})$ & Put a feature into $[0,1]$ when a bounded range is convenient and extreme values are not dominating the observed range. \\
+Robust scaling & $x'=(x-\operatorname{median}(x))/\operatorname{IQR}(x)$ & Data with strong outliers, because the median and interquartile range are less affected by extreme observations. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Fit every scaler on training rows only (\secref{sec:data-leakage}).
+
+\begin{workedexample}
+For $[2400,36,23075,70,1,905]$, min--max scaling maps 1 and 23,075 to 0 and 1. Robust scaling uses the median and IQR, reducing sensitivity to the extreme value.
+\end{workedexample}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}m{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Model family} & \utpth{Scale-sensitive?} & \utpth{Why} \\
+\midrule
+$k$-NN, $K$-means, DBSCAN & Usually yes & Their neighborhoods or clusters are defined by distance. \\
+SVM / SVR & Usually yes & Margin and kernel distances depend directly on feature magnitude. \\
+Ridge, lasso, elastic net, logistic regression & Usually yes & The penalty compares coefficient sizes across features; unequal units distort that comparison. \\
+Decision trees and tree ensembles & Usually no & Splits depend on ordering and thresholds, which monotonic rescaling preserves. \\
+Naive Bayes & Depends on variant & Gaussian naive Bayes does not need it; other variants expect counts or binary inputs, so match the preprocessing to the variant. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+A $\log(1+x)$ or power transform changes distribution shape; scaling mainly changes units and location.
+
+\begin{intuition}
+Income values of 20,000--300,000 can dominate ages of 10--80 in Euclidean distance. Scaling makes their numerical ranges comparable; it does not establish their relevance.
+\end{intuition}
+
+% === VISUAL ADDITION: scaling-geometry ===
+\subsection{Scaling changes the geometry, drawn}
+
+Scaling changes the numerical gaps used by distance-based models.
+
+\begin{utpfig}[Scaling changes the geometry]{Scaling changes the geometry. Before scaling, raw Euclidean distance is almost entirely the income column; after standardization both features contribute on comparable measuring sticks.}{fig:scaling-geometry}
+\begin{tikzpicture}[font=\scriptsize]
+\begin{scope}
+  \fill[UTPPaleRed!30,rounded corners=1mm] (0,0) rectangle (6.25,3.45);
+  \draw[rounded corners=1mm,draw=UTPRed!45] (0,0) rectangle (6.25,3.45);
+  \node[font=\small\bfseries\color{UTPNavy}] at (3.125,3.05) {Before scaling};
+
+  \node[anchor=west,text=UTPMuted] at (0.35,2.30) {age gap};
+  \draw[UTPBlue,line width=5pt] (2.05,2.30) -- (2.85,2.30);
+  \node[anchor=west,text=UTPBlue] at (3.07,2.30) {$10$ years};
+
+  \node[anchor=west,text=UTPMuted] at (0.35,1.48) {income gap};
+  \draw[UTPOrange,line width=5pt] (2.05,1.48) -- (5.50,1.48);
+  \node[anchor=east,text=UTPOrange] at (5.75,1.80) {$40{,}000$ dollars};
+
+  \node[align=center,text width=5.35cm,text=UTPRed] at (3.125,0.55)
+    {Raw Euclidean distance is almost entirely the income column.};
+\end{scope}
+
+\begin{scope}[xshift=6.75cm]
+  \fill[UTPPaleTeal!45,rounded corners=1mm] (0,0) rectangle (6.25,3.45);
+  \draw[rounded corners=1mm,draw=UTPTeal!55] (0,0) rectangle (6.25,3.45);
+  \node[font=\small\bfseries\color{UTPNavy}] at (3.125,3.05) {After standardization};
+
+  \node[anchor=west,text=UTPMuted] at (0.35,2.30) {age gap};
+  \draw[UTPBlue,line width=5pt] (2.05,2.30) -- (4.50,2.30);
+  \node[anchor=west,text=UTPBlue] at (4.72,2.30) {$0.50$ SD};
+
+  \node[anchor=west,text=UTPMuted] at (0.35,1.48) {income gap};
+  \draw[UTPTeal,line width=5pt] (2.05,1.48) -- (4.01,1.48);
+  \node[anchor=west,text=UTPTeal] at (4.23,1.48) {$0.40$ SD};
+
+  \node[align=center,text width=5.35cm,text=UTPGreen] at (3.125,0.55)
+    {Both features now contribute on comparable measuring sticks.};
+\end{scope}
+
+\node[align=center,text width=12.5cm,font=\scriptsize\bfseries\color{UTPNavy}] at (6.50,-0.48)
+  {Same observations; different geometry. Scaling changes distance, not the ordering within a feature.};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+Changing units can change neighbors, margins, and clusters without changing observations or labels.
+\end{keyidea}
+% === END VISUAL ADDITION ===
+
+\section{Outliers, imbalance, and rare cases}
+
+Outliers may be valid rare events or evidence of mixed populations. Investigate before deleting them; learn percentile or IQR cutoffs from training rows only.
+
+Record class counts and retain rare cases. Stratify when random splitting is appropriate.
+
+\begin{keyidea}
+Choose evaluation metrics before an imbalance intervention (\chapref{ch:evaluation}). \chapref{ch:training} covers weights, thresholds, and resampling, including SMOTE; \chapref{ch:knn-nb} explains its neighbor geometry.
+\end{keyidea}
+
+\section{Feature engineering}
+
+\term{Feature engineering} creates useful inputs from raw data. Examples include:
+
+\begin{itemize}
+  \item price per unit, body-mass index, or another meaningful ratio;
+  \item elapsed time between two dates;
+  \item weekday, month, or cyclical time features;
+  \item interactions such as area multiplied by location score;
+  \item counts or averages from past behavior, calculated without using the future.
+\end{itemize}
+
+\subsection*{Feature engineering by data type}
+Choose transformations that preserve meaning and use only prediction-time information.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Data type} & \utpth{Common transformation ideas} & \utpth{Main safety question} \\
+\midrule
+Categorical & One-hot or ordinal encoding; rare-category grouping & Does encoding respect category order and use training-only mappings? \\
+Numeric & Logs, powers, ratios, interactions, polynomials, scaling & Are units and meaning respected, with parameters fitted on training data only? \\
+Temporal & Lags, elapsed time, rolling summaries, seasonality & Were all inputs available at prediction time? \\
+Text or images & Counts, embeddings, handcrafted or learned features & Is task-relevant structure retained without label or future leakage? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\subsection{A safety test for engineered features}
+For each derived feature, ask what information it uses and when that information becomes available.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.26\linewidth}m{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Feature type} & \utpth{Example} & \utpth{Safe treatment} \\
+\midrule
+Deterministic & BMI from height and weight; hour from timestamp & Compute reproducibly from legitimately available inputs. \\
+Distribution-fitted & Power transforms, frequency encoding, clipping, category grouping & Fit on training rows only, usually in a pipeline. \\
+Label-aware & Mean encoding, supervised selection, label-based category merging & Fit within training folds, never on all labels before validation (\chapref{ch:training}). \\
+Temporal aggregate & Lags, rolling means, prior-week counts & Use only data available at prediction time; never fill past gaps with future values. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{Use a preprocessing pipeline}
+\label{sec:preprocessing-pipeline}
+
+A pipeline fits transformations on training rows and reuses them on new data. Keep feature selection and resampling within training folds too (\chapref{ch:training}).
+
+\begin{utpfig}[A preprocessing pipeline]{A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.}{fig:prep-pipeline}
+\begin{tikzpicture}[
+  node distance=0.35cm,
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum height=0.76cm,inner xsep=5pt,align=center,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[box,minimum width=1.8cm] (raw) {Raw data};
+\node[box,right=of raw,minimum width=3.5cm] (check) {Fixed schema and quality rules};
+\node[box,right=of check,minimum width=2.1cm] (split) {Honest split};
+\node[box,right=of split,minimum width=3.4cm] (prep) {Train-fitted preprocessing};
+\node[box,right=of prep,minimum width=1.8cm] (model) {Fit model};
+\draw[arr] (raw)--(check); \draw[arr] (check)--(split); \draw[arr] (split)--(prep); \draw[arr] (prep)--(model);
+\end{tikzpicture}
+\end{utpfig}
+
+Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias, and privacy limits.
+
+\begin{keyidea}
+Validate the whole pipeline, refitting it inside each cross-validation training fold (\chapref{ch:evaluation}).
+\end{keyidea}
+
+\begin{debugtask}
+A teammate computes median values, standardization statistics, and a label-informed mean encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
+\end{debugtask}
+
+\input{labs/01-features}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why must train/test splitting happen before any preprocessing step that learns from the data?
+  \item What is the difference between an identifier, a feature, and a label?
+  \item Why do you need to know the moment of prediction before you can say whether a feature is leakage?
+\end{enumerate}
+\end{quickcheck}

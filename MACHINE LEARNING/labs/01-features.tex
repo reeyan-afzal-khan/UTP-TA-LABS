@@ -1,10 +1,11 @@
 \labsection{1}{Feature engineering and feature selection}{sec:lab01-features}
 
 \begin{labproject}{Check the tools, understand the data, build features, and choose among them}
+\textbf{Coverage.} Chapter~\ref{ch:data}.\\
 \textbf{Goal.} Check the environment, engineer features, compare scaling, and select features without leakage.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 from pathlib import Path
 
 import matplotlib
@@ -30,7 +31,7 @@ DATA = PROJECT_ROOT / "all_datasets"
 
 Record package versions for reproducibility.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 print("NumPy:", np.__version__)
 print("pandas:", pd.__version__)
 print("Matplotlib:", matplotlib.__version__)
@@ -39,7 +40,7 @@ print("scikit-learn:", sklearn.__version__)
 
 Titanic has one row per passenger; \texttt{Survived}=1 denotes survival. Inspect shape, types, missingness, and class balance.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 df = pd.read_csv(DATA / "titanic_dataset.csv")
 
 print("shape:", df.shape)
@@ -50,7 +51,7 @@ print("\nSurvival rate:\n", df["Survived"].value_counts(normalize=True))
 
 Plot missing-value percentages by column.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 missing = df.isna().mean().sort_values(ascending=False)
 missing = missing[missing > 0]
 
@@ -66,7 +67,7 @@ plt.show()
 
 Derive family size, isolation, title, and log fare from prediction-time information. Each feature must exist before the outcome.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 df["FamilySize"] = df["SibSp"] + df["Parch"] + 1
 df["IsAlone"] = (df["FamilySize"] == 1).astype(int)
 df["Title"] = df["Name"].str.extract(r",\s*([^\.]+)\.")[0].str.strip()
@@ -79,7 +80,7 @@ print("\nTitle counts:\n", df["Title"].value_counts())
 
 Compare survival rates across engineered features.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.4))
 df.groupby("Title")["Survived"].mean().sort_values().plot.barh(ax=axes[0])
 axes[0].set_xlabel("Survival rate")
@@ -95,7 +96,7 @@ plt.show()
 
 Compare original and engineered features using the same model and split. Fit imputation, scaling, and encoding inside the training pipeline.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def make_preprocess(num_cols, cat_cols):
     return ColumnTransformer([
         ("num", Pipeline([
@@ -134,7 +135,7 @@ for name, (num_cols, cat_cols) in feature_sets.items():
 
 Breast-cancer measurements have unequal scales: area reaches thousands while smoothness is below one. Compare their effect on distances.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
 feature_cols = [c for c in cancer.columns if c not in {"id", "diagnosis", "Unnamed: 32"}]
 X_cancer = cancer[feature_cols]
@@ -145,7 +146,7 @@ print(X_cancer[three].describe().loc[["mean", "std"]].round(3))
 
 Compare raw and standardized distances among the first five tumors; darker heatmap cells indicate closer pairs.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 raw = pairwise_distances(X_cancer.iloc[:5], metric="euclidean")
 X_scaled = StandardScaler().fit_transform(X_cancer)
 scaled = pairwise_distances(X_scaled[:5], metric="euclidean")
@@ -171,7 +172,7 @@ plt.show()
 
 Predict \texttt{G3} for 649 students at enrolment. Exclude later grades \texttt{G1} and \texttt{G2}, leaving 30 candidate columns.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 students = pd.read_csv(DATA / "student_performance_dataset.csv")
 print("shape:", students.shape, " missing:", students.isna().sum().sum(),
       " duplicates:", students.duplicated().sum())
@@ -189,7 +190,7 @@ Xs_train, Xs_valid, ys_train, ys_valid = train_test_split(X_s, y_s, test_size=0.
 
 Compare ridge using all features or ten \texttt{SelectKBest} features, and lasso's sparse fit. Keep selection inside training pipelines. A fourth run deliberately adds \texttt{G2} to expose leakage.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def evaluate(pipeline, X_tr, X_va, label):
     pipeline.fit(X_tr, ys_train)
     mae = mean_absolute_error(ys_valid, pipeline.predict(X_va))
@@ -222,7 +223,7 @@ results["all 30 + G2 (leakage)"] = evaluate(Pipeline([
     Xs_valid.assign(G2=students.loc[Xs_valid.index, "G2"]), "all 30 + G2 (leakage)")
 \end{lstlisting}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 coefs = pd.Series(lasso.named_steps["model"].coef_,
                   index=lasso.named_steps["preprocess"].get_feature_names_out())
 kept = coefs[coefs != 0].sort_values()
@@ -245,3 +246,13 @@ plt.show()
 Add cabin initial or fare per family member; compare Part~B validation AUC. Rerun Part~D with \texttt{k=5} and \texttt{k=20}; compare errors.
 \end{tryit}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Package versions are printed, so the run can be reproduced.
+  \item Every engineered feature (family size, isolation, title, log fare) exists before the outcome is known.
+  \item Imputation, scaling and encoding are fitted inside the training pipeline, and both feature sets are compared on the same split.
+  \item You can state which pair of tumours is closest before and after scaling, and why it changes.
+  \item Feature selection stays inside the pipeline, and the \texttt{G2} run is identified as leakage rather than a better model.
+\end{itemize}
+\end{verification}

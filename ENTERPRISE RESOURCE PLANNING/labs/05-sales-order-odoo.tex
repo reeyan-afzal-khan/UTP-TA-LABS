@@ -1,4 +1,5 @@
 \labsection{5}{Sales Order Process: Order-to-Cash in Odoo}{sec:lab05}
+\labcovers{3,8}
 
 \begin{labproject}{Complete the Road Bike order from quotation to payment}
 \textbf{Coverage.} Tutorial 5 + Chapters 3 and 8.\\
@@ -32,11 +33,11 @@ From the posted invoice, choose Register Payment. Use Bank or Cash, Manual metho
 \medskip\noindent\textbf{Part E --- Compare old process versus ERP process.}
 
 Use Tutorial 5 Question 1 to compare the salesperson experience:
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.27\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}XX@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Issue & Old Fitter Snacker process & Integrated Odoo process \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Issue} & \utpth{Old Fitter Snacker process} & \utpth{Integrated Odoo process} \\
 \midrule
 Price and terms & Handwritten/faxed quotation, possible arithmetic or discount errors & Product/order lines preserve the commercial terms in the linked document flow \\
 Availability & Warehouse estimate based on incomplete visibility & Delivery reservation uses current stock state \\
@@ -45,12 +46,21 @@ Invoice data & Periodic transfer / re-entry to accounting & Invoice created from
 Payment status & Delayed visibility & Payment status shown on linked invoice \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \medskip\noindent\textbf{Part F --- Answer Tutorial 5 Questions 3 and 5.}
 
 For the company-wide Delicious Foods analysis, describe the data consolidation and governance problems created by divisional systems. For the CIO memo activity, focus on the information-flow problem and explain how integrated order, fulfilment, invoice, and payment records change management visibility.
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The quotation is confirmed and its status is Sales Order.
+  \item The delivery is Done and Road Bike on-hand stock fell by 5.
+  \item The invoice was created from the Sales Order and is Posted, with customer, product, quantity and price carried forward.
+  \item The invoice is Paid or In Payment after the payment is registered.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the Tutorial 5 work plus screenshots of the confirmed Sales Order, Done Delivery, Posted invoice, and Paid/In Payment invoice. Be able to narrate which department owns each step and which information is reused rather than retyped.

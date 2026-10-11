@@ -74,10 +74,10 @@ Personalization uses customer data and interaction history to adapt the experien
 
 The progression can be understood as:
 
-\begin{mlfigure}
+\begin{utpfig}[From reactive to assistive banking]{The progression of personalization, from a reactive app that shows a balance to an assistive one that helps the customer act.}{fig:personalization}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.6cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.6cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-4.5,0) {Reactive\\``show my balance''};
 \node[b] (b) at (-1.5,0) {Contextual\\``show my spending''};
@@ -85,7 +85,7 @@ The progression can be understood as:
 \node[b] (d) at (4.5,0) {Assistive\\``help me act''};
 \draw[arr](a)--(b); \draw[arr](b)--(c); \draw[arr](c)--(d);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The later digital-bank chapter develops this further through budgeting tools, proactive overdraft warnings, and data-driven financial guidance.
 
@@ -142,17 +142,17 @@ Digital agility may involve:
 
 The deck gives a striking historical comparison: approximately \textdollar4.25 for a branch visit versus \textdollar0.10 for mobile access. These figures are lecture snapshots, not universal current unit costs. The structural lesson is that a self-service digital interaction can have a dramatically lower marginal cost than a staffed physical interaction.
 
-\begin{mlfigure}
+\begin{utpfig}[Physical service against digital self-service]{Why mobile banking is cheaper to provide. A staffed physical interaction costs staff, premises, and time on every visit; a digital self-service interaction runs on software and shared infrastructure.}{fig:service-cost}
 \begin{tikzpicture}[
-  b/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=3.4cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{MLNavy}},
-  low/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=3.4cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=3.4cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  low/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=3.4cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (a) at (-3.1,0) {Physical service\\staff + premises + time};
 \node[low] (b) at (3.1,0) {Digital self-service\\software + shared infrastructure};
 \draw[arr] (a)--node[above,font=\scriptsize]{channel shift}(b);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \subsection{Convenience for customers}
 
@@ -176,11 +176,11 @@ Security is visible to customers; integration is often invisible, but it can be 
 
 A new app running on modern infrastructure does not automatically modernize the systems behind it. The Week 4 lecture therefore describes integration as a technical problem that mirrors the organizational problem: legacy systems are connected to legacy processes and departmental boundaries.
 
-\begin{mlfigure}
+\begin{utpfig}[The integration challenge]{The integration challenge. A mobile app is only the front end; behind it sit core banking, payments, risk and fraud, reporting and compliance, customer data, and product systems, each of which it must connect to.}{fig:app-integration}
 \begin{tikzpicture}[
-  front/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{MLNavy}},
-  core/.style={draw=MLMuted,fill=MLPaleGray,rounded corners=2mm,text width=2.5cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLBlue}
+  front/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.1cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  core/.style={draw=UTPMuted,fill=UTPPaleGray,rounded corners=2mm,text width=2.5cm,minimum height=0.85cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPBlue}
 ]
 \node[front] (m) at (-4.2,0) {Mobile app};
 \node[core] (c1) at (0,1.8) {Core banking};
@@ -191,7 +191,7 @@ A new app running on modern infrastructure does not automatically modernize the 
 \node[core] (c6) at (4.0,-1.1) {Product systems};
 \foreach \x in {c1,c2,c3,c4,c5,c6}{\draw[arr] (m.east) -- (\x.west);}
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 This is why an incumbent can build a modern-looking interface yet still struggle to match the speed and flexibility of a digital-native provider.
 
@@ -252,7 +252,7 @@ The challenge is organizational and architectural: a fast follower must connect 
 
 \section{A mobile-banking evaluation checklist}
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Task clarity.} Can the user find and complete the main transaction quickly?
   \item \term{Functional coverage.} Can the app replace enough branch or desktop activity to be genuinely useful?
   \item \term{Trust.} Are authentication, encryption, alerts, and error handling designed to create confidence?
@@ -260,7 +260,7 @@ The challenge is organizational and architectural: a fast follower must connect 
   \item \term{Integration.} Can the app access core banking, payments, risk, and compliance systems reliably?
   \item \term{Economics.} Does channel migration actually reduce cost or increase engagement?
   \item \term{Platform readiness.} Can APIs and partners extend the service without tightly coupling every new feature to the legacy core?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 Audit a mobile banking app using the seven steps above. For each step, identify one strong design choice and one potential failure point. Separate UX problems from broader CX problems.

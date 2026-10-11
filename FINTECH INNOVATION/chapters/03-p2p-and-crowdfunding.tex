@@ -46,16 +46,16 @@ Traditional intermediaries pool savings and loans. The Week 3 slides highlight t
 
 However, lenders have little flexibility to choose their own desired risk/return profile, and a bank that focuses on low-risk lending may exclude higher-risk borrowers.
 
-\begin{mlfigure}
+\begin{utpfig}[Where a default is absorbed]{Traditional intermediation compared with marketplace funding. In a bank a default is absorbed on the bank's own balance sheet, behind reserves and deposit insurance; on a marketplace platform it falls on the individual lender.}{fig:p2p-default-risk}
 \begin{tikzpicture}[
-  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.6cm,
-            minimum height=1.15cm,align=center,font=\small\bfseries\color{MLNavy}},
-  mid/.style={draw=MLNavy,fill=white,rounded corners=2mm,text width=3.4cm,
-              minimum height=1.4cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.1mm]},thick,draw=MLTeal},
-  head/.style={font=\small\bfseries\color{MLNavy}},
-  risk/.style={font=\scriptsize\color{MLRed},align=center,text width=4.4cm},
-  ring/.style={draw=MLRed,dashed,rounded corners=2.5mm,line width=0.8pt}]
+  p/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.6cm,
+            minimum height=1.15cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  mid/.style={draw=UTPNavy,fill=white,rounded corners=2mm,text width=3.4cm,
+              minimum height=1.4cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2.1mm]},thick,draw=UTPTeal},
+  head/.style={font=\small\bfseries\color{UTPNavy}},
+  risk/.style={font=\scriptsize\color{UTPRed},align=center,text width=4.4cm},
+  ring/.style={draw=UTPRed,dashed,rounded corners=2.5mm,line width=0.8pt}]
 
 % ---- traditional intermediation ---------------------------------
 \node[head] at (0,1.55) {Traditional intermediation};
@@ -78,7 +78,7 @@ However, lenders have little flexibility to choose their own desired risk/return
 \node[risk] at (-4.6,-5.25) {a default is absorbed here, by the individual lender};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \subsection{Alternative lending platforms}
 
@@ -90,11 +90,11 @@ Alternative platforms seek to reduce transaction costs and give underserved borr
   \item guarantees are limited compared with protected bank deposits.
 \end{itemize}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}XX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Dimension & Traditional bank lending & Alternative / P2P platform \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dimension} & \utpth{Traditional bank lending} & \utpth{Alternative / P2P platform} \\
 \midrule
 Funding model & Bank intermediates pooled deposits and loans & Investors fund loans through an online marketplace \\
 Protection & Reserves and deposit insurance may protect depositors & Investment protection and guarantees are more limited \\
@@ -104,18 +104,18 @@ Processing & Often layered and tied to legacy systems & Leaner, partly automated
 Cost base & Branches, staff, legacy IT, regulatory capital & Lower physical overhead and more flexible digital distribution \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{What P2P lending is}
 
 \term{Peer-to-peer (P2P) lending} is a lending arrangement in which private investors provide funds to borrowers through an online platform rather than through a traditional bank balance sheet. The platform still performs important functions: it onboards participants, assesses eligibility, presents loan opportunities, handles contracts and payments, and attempts to mitigate risk.
 
-\begin{mlfigure}
+\begin{utpfig}[The P2P lending marketplace]{Peer-to-peer lending. Investors fund borrowers through an online platform that matches, scores, and services the loans rather than lending from its own balance sheet.}{fig:p2p-marketplace}
 \begin{tikzpicture}[
   node distance=0.75cm and 0.9cm,
-  p/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.8cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{MLNavy}},
-  plat/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=2mm,text width=3.5cm,minimum height=1.55cm,align=center,font=\small\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2.1mm]},thick,draw=MLTeal}
+  p/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.8cm,minimum height=1.25cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  plat/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=3.5cm,minimum height=1.55cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2.1mm]},thick,draw=UTPTeal}
 ]
 \node[p] (l) at (-4.5,0) {Lenders /\\investors};
 \node[plat] (m) at (0,0) {P2P platform\\match + score + service};
@@ -125,7 +125,7 @@ Cost base & Branches, staff, legacy IT, regulatory capital & Lower physical over
 \draw[arr] (b) to[bend left=22] node[below,font=\scriptsize]{repayment + interest} (m);
 \draw[arr] (m) to[bend left=22] node[below,font=\scriptsize]{principal + return} (l);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 The critical difference is that the platform can operate as a marketplace. It can match money without necessarily taking deposits and funding loans in the same way as a traditional depository institution.
 
@@ -166,14 +166,14 @@ The central P2P advantage is not simply ``the internet.'' It is the combination 
 
 The lecture distinguishes four models by what the contributor expects in return.
 
-\begin{mlfigure}
+\begin{utpfig}[The four crowdfunding models]{The four crowdfunding models, ordered by what the contributor expects in return. Donation and reward crowdfunding offer a non-financial return; P2P lending and equity crowdfunding offer a debt or ownership claim.}{fig:crowdfunding-models}
 \begin{tikzpicture}[
-  m/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.9cm,
-            minimum height=0.95cm,align=center,font=\small\bfseries\color{MLNavy}},
-  fin/.style={m,fill=MLPaleTeal,draw=MLTeal},
-  got/.style={font=\scriptsize\color{MLInk},align=center,text width=3.1cm,anchor=north},
-  grp/.style={font=\scriptsize\bfseries\color{MLMuted}},
-  br/.style={decorate,decoration={brace,amplitude=4pt},draw=MLMuted,semithick}]
+  m/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.9cm,
+            minimum height=0.95cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  fin/.style={m,fill=UTPPaleTeal,draw=UTPTeal},
+  got/.style={font=\scriptsize\color{UTPInk},align=center,text width=3.1cm,anchor=north},
+  grp/.style={font=\scriptsize\bfseries\color{UTPMuted}},
+  br/.style={decorate,decoration={brace,amplitude=4pt},draw=UTPMuted,semithick}]
 
 \node[m]   (don) at (0,0)    {Donation};
 \node[m]   (rew) at (3.6,0)  {Reward};
@@ -191,18 +191,18 @@ The lecture distinguishes four models by what the contributor expects in return.
 \draw[br] (5.70,0.62) -- (12.30,0.62);
 \node[grp] at (9.00,1.02) {financial return};
 
-\node[font=\scriptsize\color{MLRed},align=center,text width=6.4cm] at (7.20,-1.95)
+\node[font=\scriptsize\color{UTPRed},align=center,text width=6.4cm] at (7.20,-1.95)
   {a reward can be valuable, but it is never a financial claim --- that is the
    line between reward and equity};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.19\linewidth}>{\raggedright\arraybackslash}p{0.24\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}>{\raggedright\arraybackslash}m{0.24\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Model & Contributor receives & Typical purpose in the lecture \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Model} & \utpth{Contributor receives} & \utpth{Typical purpose in the lecture} \\
 \midrule
 Donation & No financial or material return & Charities, disaster relief, community or campaign causes \\
 Reward & Tangible non-financial gift, product, or benefit & Pre-selling products and community fundraising \\
@@ -210,7 +210,7 @@ P2P lending & Repayment of principal plus interest & Personal or business loans 
 Equity & Ownership stake, potentially dividends and capital gains & Seed or risk capital for startups and existing firms \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \subsection{Donation crowdfunding}
 
@@ -356,7 +356,7 @@ Banks, however, retain important advantages: market knowledge, compliance experi
 
 When asked to compare a bank loan with P2P lending, do not stop at ``P2P is cheaper.'' Analyze the entire trade-off.
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Funding source.} Is the money funded by a bank balance sheet or directly by marketplace investors?
   \item \term{Protection.} What deposit insurance, reserve, guarantee, or recovery mechanism exists?
   \item \term{Underwriting.} What data and scoring method determine eligibility and price?
@@ -365,7 +365,7 @@ When asked to compare a bank loan with P2P lending, do not stop at ``P2P is chea
   \item \term{Risk allocation.} Who ultimately bears borrower default risk?
   \item \term{Access.} Does the model reach borrowers excluded by conventional criteria?
   \item \term{Sustainability.} Can the platform maintain risk controls and economics as it scales?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 A micro-business needs RM20,000 but has limited collateral and a short operating history. Compare how a traditional bank and a P2P platform might assess the application. Identify one advantage and one risk for the borrower, the fund provider, and the intermediary in each model.

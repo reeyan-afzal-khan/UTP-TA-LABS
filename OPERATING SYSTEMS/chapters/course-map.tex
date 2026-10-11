@@ -1,55 +1,80 @@
-\chapter*{Course Map: Foundations to Practice}
-\addcontentsline{toc}{chapter}{Course Map: Foundations to Practice}
-\markboth{Course Map}{Course Map}
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
+\markboth{Course Map}{}
 
 Start with the command-line environment, then follow the operating system from
 \textbf{processes} to \textbf{CPU time}, \textbf{shared resources}, \textbf{memory},
 and finally \textbf{persistent storage}. Each numbered chapter is followed by the
-lab that puts that chapter's ideas into practice.
+lab that puts that chapter's ideas into practice, and the capstone brings the five
+stages together.
 
-\vfill
-
-\begin{mlfigure}
+\begin{utpfigure}
+\newcommand{\coursemapcard}[3]{%
+  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
+    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
+    \vspace{0.02em}%
+    {\bfseries\strut #2}\par
+    \vspace{0.08em}%
+    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
+  }%
+}
 \begin{tikzpicture}[
-  stage/.style={draw=UTPBlue,fill=white,rounded corners=2mm,text width=13.4cm,
-                minimum height=2.10cm,align=left,font=\small\color{UTPNavy},inner sep=4.5mm},
-  stage2/.style={stage,draw=UTPTeal},
-  stage3/.style={stage,draw=UTPOrange},
-  arrow/.style={-{Stealth[length=2.1mm]},thick,draw=UTPMuted!75},
-  tag/.style={font=\scriptsize\bfseries\color{UTPNavy}}
+  node distance=0.58cm and 0.66cm,
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+    minimum width=3.99cm,minimum height=1.88cm,align=left,
+    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
+  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
+  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
+    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
 ]
-\node[stage] (s1) at (0,6.6) {\textbf{Stage 1: Orientation and tools}\hfill \textbf{Setup + Primer}\\
-Linux/WSL, the terminal, Vim, GCC, Git/SSH, and the role of an operating system.\\
-\textbf{Checkpoint:} open, edit, compile, run, and explain where the OS sits between a program and hardware.};
-
-\node[stage2] (s2) at (0,3.3) {\textbf{Stage 2: Processes and the command line}\hfill \textbf{Chapters 1--3 / Labs 1--3}\\
-Processes and PID/PPID; files and metadata; shell pipelines and automation.\\
-\textbf{Checkpoint:} inspect live OS state and build small tools that report it reliably.};
-
-\node[stage3] (s3) at (0,0) {\textbf{Stage 3: CPU, concurrency, and resources}\hfill \textbf{Chapters 4--6 / Labs 4--6}\\
-Scheduling policies, IPC, shared state, threads, mutexes, and safe resource allocation.\\
-\textbf{Checkpoint:} trace state changes and explain why a policy or lock changes the outcome.};
-
-\node[stage2] (s4) at (0,-3.3) {\textbf{Stage 4: Memory management}\hfill \textbf{Chapters 7--8 / Labs 7--8}\\
-Contiguous placement, fragmentation, paging, page faults, and replacement policies.\\
-\textbf{Checkpoint:} compare policies on the same workload and justify every placement or victim choice.};
-
-\node[stage] (s5) at (0,-6.6) {\textbf{Stage 5: File systems and storage}\hfill \textbf{Chapters 9--10 / Labs 9--10}\\
-Paths, inodes, links, recursive traversal, record formats, and indexed block allocation.\\
-\textbf{Checkpoint:} separate names and records seen by applications from the storage structures managed below them.};
-
-\draw[arrow] (s1.south) -- (s2.north);
-\draw[arrow] (s2.south) -- (s3.north);
-\draw[arrow] (s3.south) -- (s4.north);
-\draw[arrow] (s4.south) -- (s5.north);
+\node[card] (a) {\coursemapcard{STAGE 01}{Orientation}{Linux, the terminal, and the OS}};
+\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Processes}{Processes, files, and the shell}};
+\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{CPU and concurrency}{Scheduling, IPC, and deadlock}};
+\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Memory}{Allocation, paging, and replacement}};
+\node[card,left=of d] (e) {\coursemapcard{STAGE 05}{Storage}{Directories, records, and blocks}};
+\node[finalcard,left=of e] (f) {\coursemapcard{CAPSTONE}{Exam map}{Trace state across the course}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
+\draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
+\draw[arr] (e) -- (f);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfigure}
 
-\vfill
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Focus} & \utpth{Key question} \\
+\midrule
+1 & Linux, the toolchain, and the OS's role & Where does the OS sit between a program and the hardware? \\
+2 & Processes, files, and shell automation & How is live OS state inspected and reported reliably? \\
+3 & Scheduling, IPC, threads, and deadlock & Why does a policy or a lock change the outcome? \\
+4 & Contiguous allocation, paging, and replacement & Which placement or victim choice does each policy make, and why? \\
+5 & Directories, records, and block allocation & How do the names an application sees map to storage below? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
 
 \begin{keyidea}
 Learn the idea first, then test it. In every lab, keep three questions visible:
 \textbf{What state exists? What event changes it? What rule decides the next state?}
 \end{keyidea}
 
-\vfill
+\section*{Chapters, labs, and checkpoints}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}>{\centering\arraybackslash}m{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Where} & \utpth{Checkpoint} \\
+\midrule
+1 & Setup and the OS primer & Open, edit, compile, run, and explain where the OS sits between a program and hardware. \\
+2 & Chapters 1--3, Labs 1--3 & Inspect live OS state and build small tools that report it reliably. \\
+3 & Chapters 4--6, Labs 4--6 & Trace state changes and explain why a policy or lock changes the outcome. \\
+4 & Chapters 7--8, Labs 7--8 & Compare policies on the same workload and justify every placement or victim choice. \\
+5 & Chapters 9--10, Labs 9--10 & Separate the names and records seen by applications from the storage structures managed below them. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}

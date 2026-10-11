@@ -4,39 +4,38 @@
 \section{Two views of a file}
 A regular file has \textbf{contents} and \textbf{metadata}. The contents are bytes. Metadata describes the object: size, permissions, timestamps, inode number, and link count.
 
-\begin{mlfigure}
+\begin{utpfig}[Contents and metadata]{Two views of a file: its contents are the bytes read with \texttt{read()} or \texttt{fread()}; its metadata, such as size, mode, inode, and link count, is read with \texttt{stat()}.}{fig:contents-metadata}
 \begin{tikzpicture}[
   card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=5.0cm,minimum height=2.0cm,align=center,font=\small\color{UTPNavy}},
   meta/.style={card,draw=UTPOrange,fill=UTPPaleOrange}]
 \node[card] at (-3.0,0) {\textbf{CONTENTS}\\bytes read with \texttt{read()} or \texttt{fread()}\\e.g. text, source code, records};
 \node[meta] at (3.0,0) {\textbf{METADATA}\\size, mode, inode, links\\read with \texttt{stat()}};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{The file-I/O ladder}
 The C standard library adds buffering and formatting; POSIX uses integer file descriptors closer to the OS interface.
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.22\linewidth}
-  >{\raggedright\arraybackslash}p{0.34\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}
+  >{\raggedright\arraybackslash}m{0.34\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Layer} & \textbf{Typical functions} & \textbf{Use in this chapter} \\
+\utpth{Layer} & \utpth{Typical functions} & \utpth{Use in this chapter} \\
 \midrule
 C streams & \texttt{fopen}, \texttt{fgets}, \texttt{fclose} & line-oriented text search \\
 POSIX file descriptors & \texttt{open}, \texttt{read}, \texttt{write}, \texttt{close} & explicit file copy loop \\
 Metadata & \texttt{stat} & inspect size, inode, links, permissions \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{The acquire-use-release pattern}
 Reliable systems code repeatedly follows the same shape:
 
-\begin{mlfigure}
+\begin{utpfig}[Acquire, use, release]{The acquire-use-release pattern. A resource is opened, used, and then closed, and each step has its own failure to check.}{fig:acquire-use-release}
 \begin{tikzpicture}[
   s/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=0.85cm,align=center,font=\small\color{UTPNavy}},
   ar/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}]
@@ -45,7 +44,7 @@ Reliable systems code repeatedly follows the same shape:
 \node[s] (c) at (4,0) {Release\\\texttt{close}/\texttt{fclose}};
 \draw[ar] (a) -- (b); \draw[ar] (b) -- (c);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 Every acquire step can fail, every loop needs a clear stopping rule, and every successfully acquired resource should eventually be released.
 
@@ -65,21 +64,20 @@ A command-line utility should communicate to both humans and other programs. The
 The supplied \texttt{mini\_grep.c} uses 0 for a match, 1 for no match, and 2 for incorrect use or a file error. This is why a shell script can make decisions without parsing sentences.
 
 \section{Chapter-to-lab bridge}
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.24\linewidth}
-  >{\raggedright\arraybackslash}p{0.22\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}
+  >{\raggedright\arraybackslash}m{0.22\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Concept} & \textbf{Source file} & \textbf{What you will explain} \\
+\utpth{Concept} & \utpth{Source file} & \utpth{What you will explain} \\
 \midrule
 Metadata & \texttt{file\_info.c} & content is different from inode/permissions/links \\
 Low-level file I/O & \texttt{file\_copy.c} & why loops check \texttt{read()} and \texttt{write()} \\
 CLI contract & \texttt{mini\_grep.c} & output + exit status make a reliable tool \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \input{labs/02-file-and-directory-utilities}

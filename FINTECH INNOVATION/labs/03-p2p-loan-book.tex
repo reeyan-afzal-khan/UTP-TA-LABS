@@ -13,20 +13,20 @@ The loan book is synthetic and seeded. Default behaviour is generated from publi
 \medskip\noindent\textbf{Part A --- Advertised yield is not investor return.}\par
 A platform advertising ``up to 12\%'' is quoting a coupon, not a return. Three things sit between the two:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Deduction & What it is \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Deduction} & \utpth{What it is} \\
 \midrule
 Expected loss & Probability of default $\times$ loss given default. Some borrowers do not repay. \\
 Platform fee & Servicing charge, typically 1\% of outstanding principal per year. \\
 Cash drag & Repaid capital sits uninvested until it is redeployed. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import pandas as pd
 
 loans = pd.read_csv("loans.csv")
@@ -66,7 +66,7 @@ The supplied script filters to \texttt{defaulted == 1} before taking that mean. 
 \medskip\noindent\textbf{Part B --- Where the risk-adjusted optimum sits.}\par
 Run the script and read the \texttt{net\_yield} column across all five grades:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 grade     n  coupon  default_rate  recovery  expected_loss  net_yield
 A      1733  0.0551        0.0144    0.2932         0.0102     0.0349
 B      2209  0.0791        0.0385    0.2841         0.0275     0.0416
@@ -86,7 +86,7 @@ Note also that recovery falls as grade worsens, from 29\% on A to 15\% on E. Ris
 \medskip\noindent\textbf{Part C --- Diversification, demonstrated.}\par
 Simulate an investor deploying a fixed \pounds5{,}000 across $n$ loans, for increasing $n$:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import numpy as np
 
 rng = np.random.default_rng(42)
@@ -112,7 +112,7 @@ for n in [1, 5, 20, 100, 500]:
 
 The supplied \texttt{loan\_book.py} produces:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 n_loans    mean   std_dev      p05      p95   prob_loss
       1  0.0347    0.2402  -0.7403   0.1939      0.0767
       5  0.0315    0.1104  -0.2039   0.1303      0.3358

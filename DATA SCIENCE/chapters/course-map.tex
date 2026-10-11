@@ -1,9 +1,58 @@
-\chapter*{Course Map: From Question to Defensible Evidence}
-\addcontentsline{toc}{chapter}{Course Map: From Question to Defensible Evidence}
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
 \markboth{Course Map}{}
 
-Data science turns questions and data into evidence that others can inspect, reproduce, and challenge. This course emphasises analytical workflow, with R as a tool.
-Chapter~\ref{ch:rsetup} introduces R, RStudio, optional conda management, and the required Git/GitHub SSH workflow. Later chapters use varied datasets to build transferable skills rather than familiarity with a single dataset.
+Data science turns questions and data into evidence that others can inspect, reproduce, and challenge. This course emphasises analytical workflow, with R as a tool. Four stages build on Chapter~\ref{ch:toolkit}, which introduces R, RStudio, optional conda management, and the required Git/GitHub SSH workflow; the capstone integrates them. The chapters use varied datasets to build transferable skills rather than familiarity with a single dataset.
+
+\begin{utpfigure}
+\newcommand{\coursemapcard}[3]{%
+  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
+    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
+    \vspace{0.02em}%
+    {\bfseries\strut #2}\par
+    \vspace{0.08em}%
+    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
+  }%
+}
+\begin{tikzpicture}[
+  node distance=0.58cm and 0.66cm,
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+    minimum width=3.99cm,minimum height=1.88cm,align=left,
+    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
+  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
+  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
+    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
+]
+\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Questions, data quality, and reproducibility}};
+\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Working with data}{Wrangling, EDA, and visualization}};
+\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Prediction}{Inference, regression, and classification}};
+\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Structure}{Clustering and PCA}};
+\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Capstone}{An end-to-end analysis}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
+\draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
+\end{tikzpicture}
+\end{utpfigure}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Focus} & \utpth{Key question} \\
+\midrule
+1 & Workflow and data quality & Is the question answerable, and are the data fit for it? \\
+2 & Wrangling, EDA, and visualization & What patterns do the data show, and how are they communicated? \\
+3 & Inference, prediction, and validation & How certain is an estimate, and how well does a model generalise? \\
+4 & Clustering and PCA & What structure exists when there is no label to predict? \\
+5 & Capstone project & Can the whole workflow be defended end to end? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section*{The workflow and the labs}
+Every lab follows the same workflow, revisited at increasing depth, and works on a different dataset.
 
 \begin{utpfig}[Course workflow]{The course revisits the same workflow at increasing depth. Each lab sits immediately after the chapter that supplies its concepts.}{fig:course-workflow}
 \begin{tikzpicture}[x=\linewidth,y=1cm,
@@ -36,15 +85,14 @@ Chapter~\ref{ch:rsetup} introduces R, RStudio, optional conda management, and th
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{dstable}
-\begin{tabularx}{\linewidth}{@{}
-  D{0.045\linewidth}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.045\linewidth}
   D{0.23\linewidth}
   D{0.235\linewidth}
   Y@{}}
 \toprule
-\rowcolor{DSPaleBlue!92}
-\textbf{Lab} & \textbf{Analytical focus} & \textbf{Dataset(s)} & \textbf{Key outputs} \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Lab} & \utpth{Analytical focus} & \utpth{Dataset(s)} & \utpth{Key outputs} \\
 \midrule
 1 & Workflow and reproducibility & Bike Sharing (daily) & Data profile, analytical question, and time-aware summaries \\
 2 & Data quality & Iris and Titanic & Missingness audit, category checks, and cleaning decisions \\
@@ -58,7 +106,7 @@ Chapter~\ref{ch:rsetup} introduces R, RStudio, optional conda management, and th
 10 & Unsupervised learning & Mall Customers and Wine Recognition & Standardised k-means segments and PCA representation \\
 \bottomrule
 \end{tabularx}
-\end{dstable}
+\end{utptable}
 
 \begin{keyidea}
 Every practical submission should answer four questions: \emph{What was the question? What data were used? What evidence was produced? What are the limitations?}

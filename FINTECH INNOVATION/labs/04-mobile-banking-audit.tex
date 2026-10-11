@@ -13,11 +13,11 @@ Where you cannot complete a journey without funding an account, stop and record 
 \medskip\noindent\textbf{Part A --- Build the instrument.}\par
 Chapter~\ref{ch:mobile-banking} gives five usability principles. On their own they are too vague to score, so each needs observable criteria:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Principle & Observable criteria (score each 1--5) \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Principle} & \utpth{Observable criteria (score each 1--5)} \\
 \midrule
 Intuitive design & Taps to reach balance; taps to send a payment; is the primary action visible without scrolling? \\
 Rich but simple & Number of features on the home screen; is advanced functionality progressively disclosed or all surfaced at once? \\
@@ -26,7 +26,7 @@ Alerts & Are notifications configurable? Do they arrive within seconds? Can a fr
 Personalisation & Does the app adapt to observed behaviour, or is ``personalisation'' only the user's name in a greeting? \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{pitfall}
 A heuristic audit is not a preference survey. ``I like the blue one'' is not a finding.
@@ -48,7 +48,7 @@ An app can score highly on all five usability principles and still deliver poor 
 \medskip\noindent\textbf{Part C --- Where the funnel leaks.}\par
 The supplied event log contains a synthetic onboarding journey for 50{,}000 users. Compute step-to-step conversion:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import pandas as pd
 
 events = pd.read_csv("onboarding_events.csv")
@@ -74,7 +74,7 @@ The step with the lowest step-to-step conversion is where the product is broken.
 
 The supplied data gives:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 step              users  overall  step_conversion  dropped
 app_open          50000   1.0000              NaN        0
 signup_start      35932   0.7186           0.7186    14068
@@ -96,7 +96,7 @@ Absolute drops and conversion rates answer different questions. Use both.
 \medskip\noindent\textbf{Segment before you build.}\par
 Splitting the failing step by device is what turns a symptom into a diagnosis:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 device_type   conversion  users_at_previous_step
 old_android       0.2302                    5860
 ios               0.6060                   13954

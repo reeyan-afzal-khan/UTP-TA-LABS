@@ -13,7 +13,7 @@ If you have network access, download the real Findex microdata and rerun the sam
 \medskip\noindent\textbf{Part A --- Account ownership is not one number.}\par
 The supplied population has a national account-ownership rate of 73.3\%. Quoted alone, that is the number a ministry puts in a press release. It conceals everything you actually need:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 national account ownership: 73.3%
 
 --- by gender (gap: 11.8%) ---        --- by education (gap: 44.3%) ---
@@ -27,7 +27,7 @@ national account ownership: 73.3%
 
 A 44-point spread by education and a 34-point spread by income are the inclusion problem. The 73.3\% is what lets you avoid looking at them.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import pandas as pd
 
 df = pd.read_csv("findex_sample.csv")
@@ -50,7 +50,7 @@ Always report the gap alongside the mean. A country at 85\% with a 4-point gende
 \medskip\noindent\textbf{Part B --- Separate access from usage.}\par
 Chapter~\ref{ch:financial-inclusion} distinguishes the \emph{unbanked} from the \emph{underbanked}, and the distinction has teeth. An account that is opened to receive one government payment and then never touched is a dormant account. It counts in the ownership statistic and delivers none of the benefits inclusion is supposed to produce.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 # Three progressively stricter definitions of "included".
 df["access"]    = df["has_account"]
 df["active"]    = df["has_account"] & (df["transactions_90d"] >= 3)
@@ -62,7 +62,7 @@ for level in ["access", "active", "meaningful"]:
 
 On the supplied data the fall is severe:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 access         73.3%
 active         38.9%  (-34.5%)
 meaningful     19.4%  (-19.4%)
@@ -73,7 +73,7 @@ Three quarters of the population hold an account. Fewer than one in five use it 
 \medskip\noindent\textbf{Part C --- Why people are excluded.}\par
 The chapter lists the standard barriers: cost, distance, documentation, trust, and lack of credit history. These call for completely different interventions, so ranking them for a specific population is the whole job.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 barriers = ["cost", "distance", "documentation", "trust", "no_credit_history"]
 unbanked = df[~df["has_account"]]
 
@@ -90,7 +90,7 @@ Treat the ranking as a hypothesis and triangulate it. If ``distance'' ranks firs
 \medskip\noindent\textbf{Part D --- Alternative data and who it excludes.}\par
 The chapter presents alternative data --- phone top-up patterns, utility payments, e-commerce history --- as the mechanism that extends credit to people with no credit file. Test the claim rather than repeating it:
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 # Who gains a credit signal from alternative data, and who still has none?
 thin_file = df[~df["uses_credit"]]
 reachable = thin_file["has_mobile_money"] | thin_file["has_utility_account"]

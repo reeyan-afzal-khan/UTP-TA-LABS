@@ -13,11 +13,11 @@ Choose one incumbent retail bank you can research in English. Maybank, CIMB, DBS
 \medskip\noindent\textbf{Part A --- Decompose the value chain.}\par
 A universal bank is not one business. It is roughly seven, bundled together and sold behind one brand:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.22\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Value-chain segment & What the bank actually provides & Typical challenger \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Value-chain segment} & \utpth{What the bank actually provides} & \utpth{Typical challenger} \\
 \midrule
 Payments & Moving money between parties & Wise, Stripe, GrabPay \\
 Deposits & Safekeeping and interest & Neobanks, money-market apps \\
@@ -28,7 +28,7 @@ SME services & Accounts, credit, cash management & Tide, Aspire \\
 Trust and compliance & Regulatory licence, KYC, deposit guarantee & Rarely attacked directly \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 For your chosen bank, populate \texttt{value\_chain.csv} with a revenue estimate per segment from the annual report. Where the report does not break the number out, say so explicitly rather than inventing a figure --- an honest gap is worth more than a fabricated precision.
 
@@ -37,7 +37,7 @@ Chapter~\ref{ch:intro-fintech} argues that disruption concentrates where four co
 
 Score each segment 1--5 on all four, where \textbf{5 always means more favourable to the challenger}. Moat and capital are therefore inverted relative to the bank's strength --- a strong regulatory moat scores 1, not 5. Getting that direction wrong inverts your entire analysis, so state the convention in your write-up.
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 $ py unbundling_scorecard.py value_chain.csv
 
 segment           fric  moat   cap  data   score     revenue     at risk

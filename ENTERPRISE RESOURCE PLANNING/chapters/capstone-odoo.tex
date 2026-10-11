@@ -10,12 +10,12 @@ This capstone follows the 21-step West End Bicycles Odoo 19 Community build guid
 
 \section*{The two connected business cycles}
 
-\begin{erpfigure}
+\begin{utpfig}[The two connected business cycles]{The two connected business cycles of the capstone. The buying cycle fills the warehouse and the selling cycle empties it; manufacturing turns received materials into the finished bikes that are delivered and invoiced.}{fig:capstone-two-cycles}
 \begin{tikzpicture}[
-  b/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  g/.style={draw=ERPGreen,fill=ERPPaleTeal,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  m/.style={draw=ERPOrange,fill=ERPPaleOrange,rounded corners=2mm,minimum width=3.0cm,minimum height=0.88cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal}
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  g/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,minimum width=2.3cm,minimum height=0.75cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  m/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,minimum width=3.0cm,minimum height=0.88cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[b] (need) at (0,2.4) {Need materials};
 \node[b] (po) at (3.0,2.4) {Purchase Order};
@@ -27,19 +27,19 @@ This capstone follows the 21-step West End Bicycles Odoo 19 Community build guid
 \node[g] (pay) at (9.2,0) {Invoice / Payment};
 \draw[arr] (need)--(po); \draw[arr] (po)--(rec); \draw[arr] (rec)--(make);
 \draw[arr] (opp)--(quote); \draw[arr] (quote)--(del); \draw[arr] (del)--(pay);
-\draw[arr] (make.south) -- node[right,font=\tiny\color{ERPMuted}] {finished bikes available} (pay.north west);
+\draw[arr] (make.south) -- node[right,font=\tiny\color{UTPMuted}] {finished bikes available} (pay.north west);
 \end{tikzpicture}
-\end{erpfigure}
+\end{utpfig}
 
 The buying cycle fills the warehouse; the selling cycle empties it. Manufacturing connects raw materials to finished goods. Finance closes the loop when money is received.
 
 \section*{Capstone data set}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.24\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Master data & Values used in the guide \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Master data} & \utpth{Values used in the guide} \\
 \midrule
 Company & West End Bicycles, Ipoh, Perak, Malaysia \\
 Finished product & Road Bike, Goods, Track Inventory, selling price RM 1,000 \\
@@ -49,7 +49,7 @@ Customer order & 5 Road Bikes, total expected/order value RM 5,000 \\
 Key operational roles & Sales Manager, Purchasing Officer, Production Planner, Accountant \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section*{The 21-step build roadmap}
 
@@ -81,28 +81,28 @@ Key operational roles & Sales Manager, Purchasing Officer, Production Planner, A
 
 The physical logic is simple enough to use as a diagnostic tool.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.28\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.28\linewidth}XX@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Event & Raw-material stock & Road Bike stock \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Event} & \utpth{Raw-material stock} & \utpth{Road Bike stock} \\
 \midrule
 Validate vendor receipts & Increases & No change \\
 Complete MO for 5 bikes & Decreases according to BOM & Increases by 5 \\
 Validate customer delivery & No change & Decreases by 5 \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 If the stock movement does not follow this pattern, trace the document states upstream. A Purchase Order that was never received cannot supply Manufacturing; an MO that is not Done cannot create finished stock; a Sales Order cannot deliver bikes that do not exist on hand.
 
 \section*{Who owns what}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.23\linewidth}p{0.27\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.23\linewidth}m{0.27\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Role & Odoo ownership field & Business meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Role} & \utpth{Odoo ownership field} & \utpth{Business meaning} \\
 \midrule
 Sales Manager & Salesperson / Team Leader & Owns customer opportunity and commercial order \\
 Purchasing Officer & Buyer & Owns vendor sourcing and purchase documents \\
@@ -110,7 +110,7 @@ Production Planner & Responsible & Owns the Manufacturing Order \\
 Accountant & Finance/payment activity & Owns or supports invoicing and payment recording \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section*{The information-flow narrative}
 

@@ -11,11 +11,11 @@ Choose one Big Tech platform with financial ambitions --- Grab, Apple, Alipay, A
 \medskip\noindent\textbf{Part A --- FinTech or TechFin?}\par
 Chapter~\ref{ch:bigtech} draws a distinction that determines everything downstream:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.16\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.16\linewidth}X X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
- & FinTech & TechFin \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{} & \utpth{FinTech} & \utpth{TechFin} \\
 \midrule
 Starts from & A financial product & An existing user base \\
 Wants & To win in finance & To strengthen the core platform \\
@@ -23,7 +23,7 @@ Finance is & The business & A retention feature \\
 Can afford & Losses funded by investors & Losses funded by another division \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{keyidea}
 A TechFin competitor can price a financial product at zero margin indefinitely, because the product's job is to keep users inside an ecosystem that earns elsewhere.
@@ -34,22 +34,22 @@ An incumbent bank cannot match that, and neither can a FinTech. This is the sing
 \medskip\noindent\textbf{Part B --- Score the four assets and the liability.}\par
 Score your chosen platform 1--5 on each asset, and separately assess the liability:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Asset & Evidence to look for \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Asset} & \utpth{Evidence to look for} \\
 \midrule
 Customer access & Monthly active users; daily open rate; is the app already a habit? \\
 Data & Behavioural signals a bank cannot see --- location, purchases, messages, search \\
 Brand and trust & Would users hand this company their salary? Survey data where available \\
 Capital and talent & Cash reserves; ability to absorb losses; engineering headcount \\
 \midrule
-\rowcolor{MLPaleOrange!70}
+\rowcolor{UTPPaleOrange!70}
 \textbf{The liability} & \textbf{Regulatory exposure.} Banking licences, capital requirements, consumer-protection rules, antitrust attention, data-localisation law \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{pitfall}
 The liability is not a tiebreaker to note at the end. It is frequently decisive.
@@ -62,7 +62,7 @@ Super apps do not enter finance through the front door. They start with a paymen
 
 Map your platform's services and mark the sequence in which financial products were added. Then answer: what was the wedge, and what did the wedge make possible next?
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 $ python platform_scorecard.py --platform grab --incumbent maybank
 
 asset             platform  incumbent  advantage

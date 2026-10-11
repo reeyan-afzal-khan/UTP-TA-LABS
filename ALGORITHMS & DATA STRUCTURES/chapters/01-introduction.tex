@@ -1,10 +1,8 @@
 \chapter{Introduction to Data Structures}\label{ch:introduction}
 
 \chapterguide%
-  {Basic C++ variables and control flow are useful, but the chapter starts from the course definition of data and data structures.}
-  {classify primitive and non-primitive structures, distinguish linear and non-linear organization, name the common operations, explain correctness/time/space concerns, and use a C++ \texttt{struct} to represent a record.}
-
-A data structure is not just a container. It is a decision about how data will be organized, related, stored, and accessed in memory. That decision affects both the structural and functional design of a program.
+  {Basic C++ variables and control flow.}
+  {classify data structures, explain core operations and efficiency, and model records with a C++ \texttt{struct}.}
 
 \begin{keyidea}
 The course summarizes the relationship as
@@ -16,112 +14,61 @@ An algorithm describes the steps. A data structure determines how the data used 
 
 \section{From data to a data structure}
 
-The Week I slides separate two ideas:
-
 \begin{description}[leftmargin=1.4in,style=nextline]
   \item[Data] A collection of raw facts and figures.
   \item[Data structure] A way to organize, store, and relate data in memory.
 \end{description}
 
-\begin{intuition}
-Five student ages are data. Storing them as an array is a structural choice. Storing each student's ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.
-\end{intuition}
-
-\figref{fig:same-data} makes the point concrete. The five values never change, but each layout
-answers a different question cheaply and a different question expensively. Choosing the
-structure \emph{is} choosing which operations will be fast.
-
-\begin{adsfig}[The same data organised three ways]{The same five values under three organisations. Nothing about the data
-changed --- only the relationships that were stored alongside it --- yet the cost of a
-lookup, an insertion, and an ordered scan changes completely.}{fig:same-data}
-\begin{tikzpicture}[font=\small]
-
-% ---------------- ARRAY ----------------
-\node[font=\bfseries\color{ADSNavy}] at (-0.15,0.95) {ARRAY};
-\foreach \v [count=\i from 0] in {12,25,18,30,22}{
-  \node[adscell,minimum width=0.9cm,minimum height=0.75cm] (a\i) at (0.9*\i,0) {\v};
-  \node[adslabel] at (0.9*\i,-0.62) {\i};
-}
-\node[adslabel,align=left,anchor=west] at (5.9,0) {%
-  reach item 4 \cxg{O(1)}\\
-  insert in middle \cxr{O(n)}};
-
-% ---------------- LINKED LIST ----------------
-\begin{scope}[yshift=-2.35cm]
-\node[font=\bfseries\color{ADSNavy}] at (-0.15,0.95) {LINKED LIST};
-\foreach \v [count=\i from 0] in {12,25,18,30,22}{
-  \node[adscell,minimum width=0.72cm,minimum height=0.75cm] (l\i) at (1.06*\i,0) {\v};
-}
-\foreach \i in {0,1,2,3}{
-  \pgfmathtruncatemacro{\j}{\i+1}
-  \draw[adsptr] (l\i) -- (l\j);
-}
-\node[adslabel,anchor=west] at ([xshift=2mm]l4.east) {\ptrnull};
-\node[adslabel,align=left,anchor=west] at (5.9,0) {%
-  reach item 4 \cxr{O(n)}\\
-  insert once located \cxg{O(1)}};
-\end{scope}
-
-% ---------------- SEARCH TREE ----------------
-\begin{scope}[yshift=-5.4cm,xshift=0.6cm]
-\node[font=\bfseries\color{ADSNavy}] at (-0.75,1.3) {SEARCH TREE};
-\node[adsnode,minimum size=7mm] (t18) at (1.1,0.75) {18};
-\node[adsnode,minimum size=7mm] (t12) at (0.0,-0.25) {12};
-\node[adsnode,minimum size=7mm] (t25) at (2.2,-0.25) {25};
-\node[adsnode,minimum size=7mm] (t22) at (1.5,-1.3) {22};
-\node[adsnode,minimum size=7mm] (t30) at (2.9,-1.3) {30};
-\draw[adsedge] (t18)--(t12); \draw[adsedge] (t18)--(t25);
-\draw[adsedge] (t25)--(t22); \draw[adsedge] (t25)--(t30);
-\node[adslabel,align=left,anchor=west] at (5.3,-0.25) {%
-  search by value \cxg{O(\log n)}\\
-  ordered scan \cxg{O(n)}, sorted};
-\end{scope}
-\end{tikzpicture}
-\end{adsfig}
-
 \section{Classification of data structures}
 
 The slides divide data structures into two broad categories: \term{primitive} and \term{non-primitive}.
 
-\begin{adsfig}[Classification of data structures]{The course classification of data structures. Primitive types hold single
+\begin{utpfig}[Classification of data structures]{The course classification of data structures. Primitive types hold single
 values; non-primitive structures organise collections, and split further by whether the
 elements form a single sequence or a branching relationship.}{fig:ds-classification}
 \begin{tikzpicture}[
-  root/.style={draw=ADSNavy,fill=ADSNavy,text=white,rounded corners=2mm,minimum width=4.0cm,minimum height=0.9cm,align=center,font=\bfseries},
-  category/.style={draw=ADSBlue,fill=ADSPaleBlue,rounded corners=2mm,text width=4.25cm,minimum height=1.25cm,align=center,inner sep=2.5mm,font=\small\color{ADSNavy}},
-  branch/.style={draw=ADSTeal,fill=ADSPaleTeal,rounded corners=2mm,text width=3.8cm,minimum height=1.45cm,align=center,inner sep=2.5mm,font=\small\color{ADSNavy}},
-  link/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+  root/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,minimum width=4.2cm,minimum height=1.0cm,align=center,inner sep=3mm,font=\bfseries},
+  category/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=4.4cm,minimum height=1.65cm,align=center,inner xsep=3.5mm,inner ysep=3mm,font=\small\color{UTPNavy}},
+  branch/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=2mm,text width=4.0cm,minimum height=1.75cm,align=center,inner xsep=3.5mm,inner ysep=3mm,font=\small\color{UTPNavy}},
+  trunk/.style={line width=0.85pt,draw=UTPTeal,line cap=round,line join=round},
+  link/.style={trunk,-{Stealth[length=2.3mm,width=1.7mm]},shorten >=0.6pt}
 ]
 \node[root] (ds) at (0,0) {Data Structures};
 
-\node[category] (p) at (-3.8,-1.85) {
-  \textbf{\color{ADSBlue}Primitive}\\[-0.1em]
-  {\scriptsize Basic values handled directly\\
-  integer, floating-point, character,\\string constant, pointer}
+\node[category] (p) at (-3.75,-2.20) {
+  \textbf{\color{UTPBlue}Primitive}\\[4pt]
+  {\scriptsize Basic values handled directly\\[2pt]
+  \textbf{Examples:} integer, floating-point,\\character, string constant, pointer}
 };
-\node[category] (np) at (3.0,-1.85) {
-  \textbf{\color{ADSBlue}Non-Primitive}\\[-0.1em]
-  {\scriptsize Structures built from primitive values\\
-  to store collections or relationships}
-};
-
-\node[branch] (lin) at (0.65,-4.05) {
-  \textbf{\color{ADSTeal}Linear}\\[-0.1em]
-  {\scriptsize Elements form a sequence\\
-  array, linked list, stack, queue}
-};
-\node[branch] (nonlin) at (5.35,-4.05) {
-  \textbf{\color{ADSTeal}Non-Linear}\\[-0.1em]
-  {\scriptsize Elements form hierarchical or\\network relationships\\
-  tree, graph}
+\node[category] (np) at (3.75,-2.20) {
+  \textbf{\color{UTPBlue}Non-Primitive}\\[4pt]
+  {\scriptsize Structures built from primitive values\\[2pt]
+  Store collections or relationships}
 };
 
-\draw[link] (ds) -- (p);
-\draw[link] (ds) -- (np);
-\draw[link] (np) -- (lin);
-\draw[link] (np) -- (nonlin);
+\node[branch] (lin) at (1.25,-5.25) {
+  \textbf{\color{UTPTeal}Linear}\\[4pt]
+  {\scriptsize Elements form a single sequence\\[2pt]
+  \textbf{Examples:} array, linked list,\\stack, queue}
+};
+\node[branch] (nonlin) at (6.25,-5.25) {
+  \textbf{\color{UTPTeal}Non-Linear}\\[4pt]
+  {\scriptsize Elements form hierarchical or\\network relationships\\[2pt]
+  \textbf{Examples:} tree, graph}
+};
+
+\coordinate (topfork) at (0,-0.78);
+\draw[trunk] (ds.south) -- (topfork);
+\draw[link] (topfork) -| (p.north);
+\draw[link] (topfork) -| (np.north);
+\fill[UTPTeal] (topfork) circle (1.0pt);
+\coordinate (lowerfork) at (3.75,-3.65);
+\draw[trunk] (np.south) -- (lowerfork);
+\draw[link] (lowerfork) -| (lin.north);
+\draw[link] (lowerfork) -| (nonlin.north);
+\fill[UTPTeal] (lowerfork) circle (1.0pt);
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \subsection{Primitive data structures}
 
@@ -148,64 +95,122 @@ Non-primitive structures are described as structures derived from primitive data
 
 In a linear structure, elements form a sequence or linear series. The slides give stacks, queues, and linked lists as common examples. Arrays, introduced in the next chapter, are another central linear structure in the course.
 
-\begin{adsfig}[The shape of a linear structure]{In a linear structure every element has at most one predecessor and one
+\begin{utpfig}[The shape of a linear structure]{In a linear structure every element has at most one predecessor and one
 successor, so there is exactly one path through the data.}{fig:linear-shape}
 \begin{tikzpicture}[node distance=0.5cm]
 \foreach \v [count=\i from 0] in {A,B,C,D}{
-  \node[adscell,minimum width=1.3cm] (c\i) at (1.85*\i,0) {\v};
+  \node[utpcell,minimum width=1.3cm] (c\i) at (1.85*\i,0) {\v};
 }
 \foreach \i in {0,1,2}{
   \pgfmathtruncatemacro{\j}{\i+1}
-  \draw[adsarrow] (c\i) -- (c\j);
+  \draw[utparrow] (c\i) -- (c\j);
 }
-\node[adslabel,below=0.5cm of c1,xshift=0.9cm] {one predecessor, one successor: a single chain};
+\node[utplabel,below=0.5cm of c1,xshift=0.9cm] {one predecessor, one successor: a single chain};
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \subsection{Non-linear data structures}
 
 A non-linear structure allows one item to connect to several other items. The slides emphasize hierarchical or parent-child relationships and give \term{trees} and \term{graphs} as the main examples.
 
-\begin{adsfig}[Tree and graph compared]{Two non-linear shapes. A tree imposes a strict hierarchy with one path
+\begin{utpfig}[Tree and graph compared]{Two non-linear shapes. A tree imposes a strict hierarchy with one path
 between any two nodes; a graph allows cycles and several competing paths, which is why
 graph traversal must remember what it has already visited.}{fig:nonlinear-shape}
-\begin{tikzpicture}
+\begin{tikzpicture}[
+  figuretitle/.style={font=\small\bfseries,align=center,text=UTPNavy}
+]
 % --- tree ---
 \begin{scope}
-\node[adsnode] (a) at (0,0) {A};
-\node[adsnode] (b) at (-1.1,-1.15) {B};
-\node[adsnode] (c) at (1.1,-1.15) {C};
-\node[adsnode] (d) at (-1.75,-2.3) {D};
-\node[adsnode] (e) at (-0.45,-2.3) {E};
-\draw[adsedge] (a)--(b); \draw[adsedge] (a)--(c);
-\draw[adsedge] (b)--(d); \draw[adsedge] (b)--(e);
-\node[font=\small\bfseries\color{ADSNavy}] at (0,0.85) {TREE};
-\node[adslabel,align=center] at (0,-3.05) {hierarchy\\exactly one path A$\to$E};
+\node[utpnode] (a) at (0,0) {A};
+\node[utpnode] (b) at (-1.1,-1.15) {B};
+\node[utpnode] (c) at (1.1,-1.15) {C};
+\node[utpnode] (d) at (-1.75,-2.3) {D};
+\node[utpnode] (e) at (-0.45,-2.3) {E};
+\draw[utpedge] (a)--(b); \draw[utpedge] (a)--(c);
+\draw[utpedge] (b)--(d); \draw[utpedge] (b)--(e);
+\node[figuretitle] at (0,0.92) {Rooted tree};
+\node[utplabel,align=center] at (0,-3.55) {\textbf{Hierarchical structure}\\[1pt]
+  Unique path: $A\to B\to E$};
 \end{scope}
 % --- graph ---
 \begin{scope}[xshift=6.1cm]
-\node[adsnode] (p) at (0,0) {P};
-\node[adsnode] (q) at (-1.15,-1.3) {Q};
-\node[adsnode] (r) at (1.15,-1.3) {R};
-\node[adsnode] (s) at (0,-2.45) {S};
-\draw[adsedge] (p)--(q); \draw[adsedge] (p)--(r);
-\draw[adsedge] (q)--(s); \draw[adsedge] (r)--(s);
-\draw[adsedge] (q)--(r);
-\node[font=\small\bfseries\color{ADSNavy}] at (0,0.85) {GRAPH};
-\node[adslabel,align=center] at (0,-3.05) {network\\P$\to$Q$\to$S \emph{and} P$\to$R$\to$S};
+\node[utpnode] (p) at (0,0) {P};
+\node[utpnode] (q) at (-1.15,-1.3) {Q};
+\node[utpnode] (r) at (1.15,-1.3) {R};
+\node[utpnode] (s) at (0,-2.45) {S};
+\draw[utpedge] (p)--(q); \draw[utpedge] (p)--(r);
+\draw[utpedge] (q)--(s); \draw[utpedge] (r)--(s);
+\draw[utpedge] (q)--(r);
+\node[figuretitle] at (0,0.92) {Undirected graph};
+\node[utplabel,align=center] at (0,-3.55) {\textbf{Network structure}\\[1pt]
+  Alternative paths: $P\to Q\to S$ or $P\to R\to S$};
 \end{scope}
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
+
+\begin{intuition}
+Five student ages are data. Storing them as an array is a structural choice. Storing each student's ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.
+\end{intuition}
+
+Figures~\ref{fig:same-data-array}--\ref{fig:same-data-tree} make the point concrete. The five values never change, but each layout
+answers a different question cheaply and a different question expensively. Choosing the
+structure \emph{is} choosing which operations will be fast.
+
+\begin{utpfig}[Array: direct indexed access]{The values occupy indexed positions. Reaching a known index is constant time, while inserting in the middle requires shifting later values.}{fig:same-data-array}
+\begin{tikzpicture}[font=\small]
+\node[font=\bfseries\color{UTPNavy}] at (-0.15,0.95) {ARRAY};
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[utpcell,minimum width=0.9cm,minimum height=0.75cm] (a\i) at (0.9*\i,0) {\v};
+  \node[utplabel] at (0.9*\i,-0.62) {\i};
+}
+\node[utplabel,align=left,anchor=west] at (5.9,0) {%
+  reach item 4 \cxg{O(1)}\\
+  insert in middle \cxr{O(n)}};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{utpfig}[Linked list: sequential access]{The values are connected by links rather than indices. Reaching item 4 requires traversal, but insertion is constant time once the location is known.}{fig:same-data-list}
+\begin{tikzpicture}[font=\small]
+\node[font=\bfseries\color{UTPNavy}] at (-0.15,0.95) {LINKED LIST};
+\foreach \v [count=\i from 0] in {12,25,18,30,22}{
+  \node[utpcell,minimum width=0.72cm,minimum height=0.75cm] (l\i) at (1.06*\i,0) {\v};
+}
+\foreach \i in {0,1,2,3}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[utpptr] (l\i) -- (l\j);
+}
+\node[utplabel,anchor=west] at ([xshift=2mm]l4.east) {\ptrnull};
+\node[utplabel,align=left,anchor=west] at (5.9,0) {%
+  reach item 4 \cxr{O(n)}\\
+  insert once located \cxg{O(1)}};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{utpfig}[Search tree: ordered relationships]{The same values form an ordered hierarchy. A balanced tree supports logarithmic search while an ordered traversal still visits every value.}{fig:same-data-tree}
+\begin{tikzpicture}[font=\small]
+\node[font=\bfseries\color{UTPNavy}] at (-0.75,1.3) {SEARCH TREE};
+\node[utpnode,minimum size=7mm] (t18) at (1.1,0.75) {18};
+\node[utpnode,minimum size=7mm] (t12) at (0.0,-0.25) {12};
+\node[utpnode,minimum size=7mm] (t25) at (2.2,-0.25) {25};
+\node[utpnode,minimum size=7mm] (t22) at (1.5,-1.3) {22};
+\node[utpnode,minimum size=7mm] (t30) at (2.9,-1.3) {30};
+\draw[utpedge] (t18)--(t12); \draw[utpedge] (t18)--(t25);
+\draw[utpedge] (t25)--(t22); \draw[utpedge] (t25)--(t30);
+\node[utplabel,align=left,anchor=west] at (5.3,-0.25) {%
+  search by value \cxg{O(\log n)}\\
+  ordered scan \cxg{O(n)}, sorted};
+\end{tikzpicture}
+\end{utpfig}
 
 \section{Common operations}
 
 For non-primitive structures, the Week I slides list the following common operations:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.19\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Operation & Meaning in the course context \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Operation} & \utpth{Meaning in the course context} \\
 \midrule
 Traversal & Visit elements systematically. \\
 Insertion & Add a new element. \\
@@ -216,17 +221,17 @@ Merging & Combine structures or collections. \\
 Destroy/Delete & Remove elements or release the structure. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 These operation names recur throughout the course. The important change from chapter to chapter is not the operation itself, but how the structure makes the operation easier or harder.
 
 \section{Primitive vs non-primitive structures}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.18\linewidth}p{0.31\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}m{0.31\linewidth}X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Feature & Primitive & Non-primitive \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Feature} & \utpth{Primitive} & \utpth{Non-primitive} \\
 \midrule
 Meaning & Basic built-in or basic-value type in the course classification & Built using primitive types \\
 Examples & \texttt{int}, \texttt{float}, \texttt{char}, pointer & array, linked list, tree, graph \\
@@ -235,7 +240,7 @@ Memory use & Usually fixed/simple & Can be static or dynamic \\
 Use case & Single value & Grouped or connected data \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Three characteristics of a good data-structure implementation}
 
@@ -311,16 +316,5 @@ for (int i = 0; i < N; ++i) {
 \begin{quickcheck}
 Classify each as primitive or non-primitive using the course framing: an integer, a pointer, an array of integers, a linked list, a graph. Then name one operation whose efficiency could depend strongly on the chosen structure.
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A data structure organizes, stores, and relates data in memory.
-  \item The course divides structures into primitive and non-primitive categories.
-  \item Non-primitive structures can be linear or non-linear.
-  \item Core operations include traversal, insertion, selection, searching, sorting, merging, and deletion.
-  \item Correctness, time complexity, and space complexity are central implementation concerns.
-  \item C++ \texttt{struct} groups different fields into one record and can be combined with arrays for record-based applications.
-\end{itemize}
-\end{chapterrecap}
 
 \input{labs/01-foundations}

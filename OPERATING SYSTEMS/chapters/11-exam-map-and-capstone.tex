@@ -12,15 +12,14 @@ Most Operating Systems questions become manageable if you use a repeatable metho
   \item \textbf{Compute metrics last.} Waiting time, turnaround, page faults, fragmentation, or safe sequence should follow from the completed trace.
 \end{enumerate}
 
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.24\linewidth}
-  >{\raggedright\arraybackslash}p{0.30\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}
+  >{\raggedright\arraybackslash}m{0.30\linewidth}
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Question type} & \textbf{State to draw} & \textbf{Final evidence} \\
+\utpth{Question type} & \utpth{State to draw} & \utpth{Final evidence} \\
 \midrule
 CPU scheduling & Ready queue + Gantt chart & Completion, turnaround, waiting, response \\
 Banker's algorithm & Allocation, Max, Need, Work, Finish & Safe sequence or reason none exists \\
@@ -29,7 +28,7 @@ Page replacement & Frame table after every reference & Hit/fault count and victi
 File allocation & Free/used block map & Valid block mapping with conflicts rejected \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section*{Capstone practical}
 Build one command-line simulator that lets a user choose between CPU scheduling, memory allocation, or page replacement. Separate \emph{policy} from \emph{state}: for example, one common frame-state representation can be reused with FIFO, LRU, and LFU victim-selection functions.

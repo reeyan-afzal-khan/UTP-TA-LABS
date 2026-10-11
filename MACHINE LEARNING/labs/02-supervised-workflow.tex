@@ -1,10 +1,11 @@
 \labsection{2}{Supervised learning I: regression, classification, and the workflow}{sec:lab02-supervised-workflow}
 
 \begin{labproject}{Two regression examples, two classification examples, and a saved model at the end}
+\textbf{Coverage.} Chapters~\ref{ch:supervised}--\ref{ch:classification}.\\
 \textbf{Goal.} Fit regression/classification pipelines, validate chronologically where needed, tune thresholds and hyperparameters, test once, and save models.
 
 \medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 import json
 from pathlib import Path
 
@@ -44,7 +45,7 @@ MODELS.mkdir(exist_ok=True)
 
 Use one helper for numerical imputation/scaling and categorical imputation/one-hot encoding.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 def make_preprocess(num_cols, cat_cols):
     return ColumnTransformer([
         ("num", Pipeline([
@@ -62,7 +63,7 @@ def make_preprocess(num_cols, cat_cols):
 
 Predict insurance \texttt{charges}. Compare OLS and ridge on the same features and split.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 insurance = pd.read_csv(DATA / "medical_cost_personal_dataset.csv")
 print(insurance.head())
 
@@ -78,7 +79,7 @@ X_train, X_valid, y_train, y_valid = train_test_split(
 
 MAE gives average dollar error; RMSE emphasizes extremes; $R^2$ compares squared error with the mean-label reference.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 fitted = {}
 predictions = {}
 
@@ -99,7 +100,7 @@ for name, estimator in {
 
 Coefficients give conditional prediction changes. Standardized numerical coefficients represent one-standard-deviation changes.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 linear = fitted["linear regression"]
 names = linear.named_steps["preprocess"].get_feature_names_out()
 coefs = pd.Series(linear.named_steps["model"].coef_, index=names).sort_values()
@@ -117,7 +118,7 @@ plt.show()
 
 Plot ridge residuals; structure suggests missed patterns.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 ridge_pred = predictions["ridge"]
 residual = y_valid.to_numpy() - ridge_pred
 is_smoker = (X_valid["smoker"] == "yes").to_numpy()
@@ -145,7 +146,7 @@ plt.show()
 
 Sort two years of daily rentals by date; reserve the last 20\% for validation to avoid training on future days.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 bikes = pd.read_csv(DATA / "bike_sharing_dataset_day.csv")
 bikes["dteday"] = pd.to_datetime(bikes["dteday"])
 bikes = bikes.sort_values("dteday").reset_index(drop=True)
@@ -163,7 +164,7 @@ print("valid:", bikes["dteday"].iloc[cut].date(), "to", bikes["dteday"].iloc[-1]
 
 One-hot encode calendar categories; pass numerical weather features directly to the unscaled tree model.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 Xb_train, Xb_valid = X_b.iloc[:cut], X_b.iloc[cut:]
 yb_train, yb_valid = y_b.iloc[:cut], y_b.iloc[cut:]
 dates_valid = bikes["dteday"].iloc[cut:]
@@ -197,7 +198,7 @@ plt.show()
 
 Repeat chronologically on 17,379 hourly rows, adding \texttt{hr}; plot one validation week.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 hourly = pd.read_csv(DATA / "bike_sharing_dataset_hour.csv")
 hourly["dteday"] = pd.to_datetime(hourly["dteday"])
 hourly = hourly.sort_values(["dteday", "hr"]).reset_index(drop=True)
@@ -239,7 +240,7 @@ plt.show()
 
 Compare logistic regression and a forest using seven passenger features, no identifiers, and stratified splits. Accuracy evaluates thresholded decisions; AUC evaluates ranking.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 titanic = pd.read_csv(DATA / "titanic_dataset.csv")
 
 features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
@@ -287,7 +288,7 @@ plt.show()
 
 For 30 tumor measurements, predict \texttt{M} versus \texttt{B}. Plot probabilities by true class; a threshold marks malignant decisions.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
 
 X_c = cancer.drop(columns=["id", "diagnosis", "Unnamed: 32"], errors="ignore")
@@ -319,7 +320,7 @@ plt.show()
 
 Confusion-matrix rows are truth; columns are decisions. Precision measures correct malignant alerts; recall measures detected malignancies. Lowering the threshold increases alerts and cannot reduce recall.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 for threshold in [0.50, 0.30]:
     pred = (prob >= threshold).astype(int)
     print(f"\nthreshold = {threshold:.2f}")
@@ -348,7 +349,7 @@ plt.show()
 
 ROC AUC measures ranking across classes; average precision summarizes precision--recall, emphasizing positive retrieval.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 print("ROC AUC:", round(roc_auc_score(yc_valid, prob), 3))
 print("PR AUC:", round(average_precision_score(yc_valid, prob), 3))
 
@@ -365,7 +366,7 @@ plt.show()
 
 Reserve Titanic test rows. Within training data, use five-fold CV to tune \texttt{C} and \texttt{class\_weight}; refit the winner on all training rows.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 X_train, X_test, y_train, y_test = train_test_split(
     X_t, y_t, test_size=0.25, random_state=42, stratify=y_t
 )
@@ -401,7 +402,7 @@ plt.show()
 
 Only now is the test set touched, once.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 test_prob = search.predict_proba(X_test)[:, 1]
 test_auc = roc_auc_score(y_test, test_prob)
 
@@ -414,7 +415,7 @@ print("final test ROC AUC:", round(test_auc, 3))
 
 Save preprocessing and estimator together with \texttt{joblib.dump}; add a card documenting inputs and evaluation.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 final_model = search.best_estimator_
 model_path = MODELS / "titanic_survival.joblib"
 joblib.dump(final_model, model_path)
@@ -436,7 +437,7 @@ print(f"saved: {model_path.name} ({size_kb:.1f} KB) and titanic_survival_card.js
 
 Load the pipeline and predict new rows with matching columns, without retraining. Repeat for insurance customers differing in one feature.
 
-\begin{lstlisting}[style=mlpython]
+\begin{lstlisting}[style=utppython]
 loaded = joblib.load(model_path)
 new_passengers = pd.DataFrame([
     {"Pclass": 1, "Sex": "female", "Age": 29, "SibSp": 0, "Parch": 0, "Fare": 80.0, "Embarked": "C"},
@@ -457,7 +458,7 @@ print(new_customer)
 
 Run the saved passenger model from the terminal:
 
-\begin{lstlisting}[style=mlterminal]
+\begin{lstlisting}[style=utpterminal]
 python predict_passenger.py --pclass 2 --sex female --age 30 --fare 20
 \end{lstlisting}
 
@@ -469,3 +470,13 @@ Run the Part~C classification workflow on \texttt{heart\_failure\_dataset.csv} (
 Choose a threshold when missed positives cost more than false alarms. Explain confusion-matrix changes and justify the choice using Part C validation evidence.
 \end{decisionmemo}
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item Every model beats its baseline, and the comparison uses validation data, not the test set.
+  \item The bike-demand split is in date order, and you can explain why the forest underpredicts the peaks.
+  \item The classification threshold is chosen from validation evidence, before the test set is used once.
+  \item Cross-validation fold spread is reported alongside the differences between settings.
+  \item \texttt{models/} holds \texttt{titanic\_survival.joblib} with its card, and \texttt{insurance\_charges.joblib}, and both reload and predict.
+\end{itemize}
+\end{verification}

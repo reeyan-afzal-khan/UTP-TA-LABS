@@ -1,15 +1,16 @@
 \labsection{6}{NLP Foundations: Handwriting OCR Evaluation}{sec:lab06-nlp-a}
 
 \begin{labproject}{Evaluate OCR on real handwritten medicine names}
+\textbf{Coverage.} Chapter~\ref{ch:nlp-foundations}.\\
+\textbf{Goal.} Benchmark OCR on 89 labelled images, test one controlled preprocessing pipeline, and classify the failures.\\
 \textbf{Scenario.} A clinic wants to digitise handwritten medicine names before storage or search.\\
-\textbf{Objective.} Benchmark OCR on 89 labelled images, test one controlled preprocessing pipeline, and classify the failures.\\
 \textbf{Data.} \texttt{all\_datasets/lab06-ocr-handwritten-prescription.zip} --- one label CSV and 89 images. The notebook extracts it next to the archive.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab06\_handwriting\_ocr\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab06\_handwriting\_ocr\_worked.ipynb}.
 \end{labproject}
 
 \begin{labmode}
 Live OCR needs the Tesseract \emph{engine}; \texttt{pytesseract} is only a wrapper. Install it with one of the commands below and restart the kernel. Without it the notebook reports \emph{cached} mode and reuses the validated predictions supplied with the course package; it never presents cached text as a live run. A live run takes about a minute.
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 winget install --id UB-Mannheim.TesseractOCR    # Windows
 sudo apt-get install tesseract-ocr              # Ubuntu / Debian
 brew install tesseract                          # macOS
@@ -17,7 +18,7 @@ brew install tesseract                          # macOS
 \end{labmode}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 import re
 import shutil
 import zipfile
@@ -55,7 +56,7 @@ Extract the archive next to itself, load the label file, check that all 89 label
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 IMAGES = DATA / "lab06-ocr-handwritten-prescription"
 if not IMAGES.exists():
     zipfile.ZipFile(DATA / "lab06-ocr-handwritten-prescription.zip").extractall(IMAGES)
@@ -81,7 +82,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "sample_grid.png", dpi=150)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Labelled images: 89 | unique labels: 61
 \end{lstlisting}
 One label file and 89 photographs, each present exactly once; the 89 labels hold 61 distinct medicine names, so some names appear several times in different handwriting. The grid shows what the engine faces: cursive, varied stroke width, uneven lighting and lined paper.
@@ -92,7 +93,7 @@ Use one fixed Tesseract configuration for every raw image (LSTM engine, page-seg
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 OCR_CONFIG = "--oem 1 --psm 7"
 
 
@@ -132,7 +133,7 @@ display(baseline[["truth", "prediction", "prediction_norm", "ocr_status"]].head(
 print("OCR engine errors:", int((baseline.ocr_status == "engine_error").sum()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
           truth      prediction prediction_norm
 0  cefiget 40mg
 1    tab azimax             Ago             ago
@@ -149,7 +150,7 @@ Implement Levenshtein edit distance and report, for the baseline: exact-match ac
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def levenshtein(a, b):
     """Minimum number of single-character edits that turn a into b."""
     previous = list(range(len(b) + 1))
@@ -182,7 +183,7 @@ baseline = add_distances(baseline)
 display(pd.DataFrame([summarise(baseline)]).round(4))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
    pipeline  exact_match_accuracy  mean_normalised_edit_distance  character_error_rate  blank_predictions
 0  baseline                   0.0                         0.8559                0.8753                 39
 \end{lstlisting}
@@ -194,7 +195,7 @@ Convert each image to grayscale, add a 20-pixel white border, cap the width at 1
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def preprocess(path, output):
     image = ImageOps.exif_transpose(load_image(path)).convert("L")
     image = ImageOps.expand(image, border=20, fill=255)
@@ -211,7 +212,7 @@ example = Image.open(preprocessed_paths[0])
 print("Prepared images:", len(preprocessed_paths), "| example size:", example.size, "mode:", example.mode)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Prepared images: 89 | example size: (1800, 638) mode: L
 \end{lstlisting}
 Each step targets a known weakness of Tesseract on photographs: grayscale removes colour noise, the border stops text touching the edge (which breaks line segmentation), the width cap bounds runtime, and the enlargement brings stroke height into the range the engine was trained on. Only the image changes; the engine settings do not.
@@ -222,7 +223,7 @@ Run OCR on the preprocessed images with the identical configuration, keep exactl
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 preprocessed = add_distances(run_ocr(preprocessed_paths, "grayscale_border_resize"))
 pd.concat([baseline, preprocessed]).to_csv(RESULTS / "predictions.csv", index=False)
 
@@ -232,7 +233,7 @@ display(metrics.round(4))
 display((metrics.loc["grayscale_border_resize"] - metrics.loc["baseline"]).rename("change").round(3).to_frame())
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                          exact_match_accuracy  mean_normalised_edit_distance  character_error_rate  blank_predictions
 pipeline
 baseline                               0.0000                         0.8559                0.8753                 39
@@ -251,7 +252,7 @@ Take the worst preprocessed predictions by normalised edit distance and tag each
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 errors = preprocessed[~preprocessed.exact].sort_values(["normalised_edit_distance", "filename"], ascending=[False, True]).head(8)
 errors = errors.assign(failure_type=np.select(
     [errors.ocr_status == "engine_error", errors.prediction_norm == ""],
@@ -271,7 +272,7 @@ plt.savefig(RESULTS / "ocr_failures.png", dpi=150)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir() if p.is_file()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                truth prediction      failure_type
 60            azitma             no text detected
 61          tonoflox             no text detected
@@ -286,3 +287,13 @@ cursive recognition, which is why exact-match accuracy stays low.
 
 This is a benchmark of model--domain fit, not evidence that generic OCR suits clinical transcription. A medical system would need a handwriting-specific recogniser, representative data, external validation, privacy controls and mandatory human verification, and must never decide medication or dosage from uncertain text.
 \end{labanswer}
+
+\begin{verification}
+\begin{itemize}
+  \item All 89 labelled images are present exactly once.
+  \item Both pipelines are scored on the same 89 images with the identical OCR configuration, and engine failures are counted, not dropped.
+  \item Exact match, normalised edit distance, character error rate and blank predictions are reported for both pipelines.
+  \item Preprocessing reduces the blank predictions (from 39 to 15) and you can explain why exact match barely moves.
+  \item \texttt{results/lab06/} holds \texttt{predictions.csv}, \texttt{metrics.csv}, \texttt{error\_analysis.csv}, \texttt{sample\_grid.png} and \texttt{ocr\_failures.png}.
+\end{itemize}
+\end{verification}

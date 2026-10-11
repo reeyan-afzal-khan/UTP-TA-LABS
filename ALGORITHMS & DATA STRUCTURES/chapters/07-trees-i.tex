@@ -10,10 +10,10 @@ A \term{tree} is a non-linear data structure in which data is stored hierarchica
 
 The slide example uses root $A$ with the following structure.
 
-\begin{mlfigure}
+\begin{utpfigure}
 \begin{tikzpicture}[
- node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=7.5mm,font=\scriptsize\bfseries\color{ADSNavy}},
- edge/.style={thick,draw=ADSTeal}, level distance=9mm, sibling distance=14mm
+ node/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=7.5mm,font=\scriptsize\bfseries\color{UTPNavy}},
+ edge/.style={thick,draw=UTPTeal}, level distance=9mm, sibling distance=14mm
 ]
 \node[node] (A) at (0,0) {A};
 \node[node] (B) at (-3,-1.1) {B};
@@ -29,9 +29,9 @@ The slide example uses root $A$ with the following structure.
 \node[node] (L) at (-3.4,-3.3) {L};
 \node[node] (M) at (2,-3.3) {M};
 \foreach \u/\v in {A/B,A/C,A/D,B/E,B/F,C/G,D/H,D/I,D/J,E/K,E/L,H/M}{\draw[edge] (\u)--(\v);}
-\node[right=0.25cm of A,font=\scriptsize\bfseries\color{ADSOrange}] {root};
+\node[right=0.25cm of A,font=\scriptsize\bfseries\color{UTPOrange}] {root};
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfigure}
 
 The Trees I slide explicitly identifies the subtree rooted at $B$ as one subtree of $A$, and similarly identifies the $C$ and $D$ branches as other subtrees.
 
@@ -68,18 +68,18 @@ Using the recreated slide tree: $A$ is at level 0, $D$ is at level 1, $H$ is at 
 
 Traversal means visiting every node exactly once. The Trees I deck teaches three depth-first traversal orders.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Traversal & Rule \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Traversal} & \utpth{Rule} \\
 \midrule
 Inorder & Left subtree $\rightarrow$ root $\rightarrow$ right subtree \\
 Preorder & Root $\rightarrow$ left subtree $\rightarrow$ right subtree \\
 Postorder & Left subtree $\rightarrow$ right subtree $\rightarrow$ root \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 These traversal rules are most naturally applied to binary trees, because each node has a clear left and right subtree.
 
@@ -87,7 +87,7 @@ The three orders differ in one respect only: \emph{when the root is visited} rel
 subtrees. \figref{fig:traversals} applies all three to the same tree, numbering each node
 with its position in the output sequence.
 
-\begin{adsfig}[Inorder, preorder and postorder compared]{The same binary tree under all three depth-first traversals. The shape of the
+\begin{utpfig}[Inorder, preorder and postorder compared]{The same binary tree under all three depth-first traversals. The shape of the
 walk is identical in every case --- down the left, down the right, back up --- and only the
 moment at which a node is \emph{recorded} moves. Inorder on a search tree yields sorted
 output, which is why it is the one used most often.}{fig:traversals}
@@ -95,27 +95,27 @@ output, which is why it is the one used most often.}{fig:traversals}
 \newcommand{\ttree}[5]{%
  % #1 xshift, #2 title, #3..#5 = orders for A..G given as csv
  \begin{scope}[xshift=#1 cm]
-  \node[font=\bfseries\color{ADSNavy}] at (0,1.35) {#2};
-  \node[adsnode,minimum size=7.5mm] (n1) at (0,0.55) {A};
-  \node[adsnode,minimum size=7.5mm] (n2) at (-0.95,-0.45) {B};
-  \node[adsnode,minimum size=7.5mm] (n3) at (0.95,-0.45) {C};
-  \node[adsnode,minimum size=7.5mm] (n4) at (-1.5,-1.45) {D};
-  \node[adsnode,minimum size=7.5mm] (n5) at (-0.4,-1.45) {E};
-  \draw[adsedge] (n1)--(n2); \draw[adsedge] (n1)--(n3);
-  \draw[adsedge] (n2)--(n4); \draw[adsedge] (n2)--(n5);
+  \node[font=\bfseries\color{UTPNavy}] at (0,1.35) {#2};
+  \node[utpnode,minimum size=7.5mm] (n1) at (0,0.55) {A};
+  \node[utpnode,minimum size=7.5mm] (n2) at (-0.95,-0.45) {B};
+  \node[utpnode,minimum size=7.5mm] (n3) at (0.95,-0.45) {C};
+  \node[utpnode,minimum size=7.5mm] (n4) at (-1.5,-1.45) {D};
+  \node[utpnode,minimum size=7.5mm] (n5) at (-0.4,-1.45) {E};
+  \draw[utpedge] (n1)--(n2); \draw[utpedge] (n1)--(n3);
+  \draw[utpedge] (n2)--(n4); \draw[utpedge] (n2)--(n5);
   \foreach \nd/\ord in {#3}{
-    \node[circle,fill=ADSOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+    \node[circle,fill=UTPOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
       at ($(\nd.north east)+(0.055,0.055)$) {\ord};
   }
-  \node[adslabel,anchor=north,align=center,color=ADSMuted] at (0,-2.05) {#4};
-  \node[adslabel,anchor=north,align=center] at (0,-2.42) {#5};
+  \node[utplabel,anchor=north,align=center,color=UTPMuted] at (0,-2.05) {#4};
+  \node[utplabel,anchor=north,align=center] at (0,-2.42) {#5};
  \end{scope}}
 
 \ttree{0}{Inorder}{n4/1,n2/2,n5/3,n1/4,n3/5}{left, \textbf{root}, right}{D B E A C}
 \ttree{5.6}{Preorder}{n1/1,n2/2,n4/3,n5/4,n3/5}{\textbf{root}, left, right}{A B D E C}
 \ttree{11.2}{Postorder}{n4/1,n5/2,n2/3,n3/4,n1/5}{left, right, \textbf{root}}{D E B C A}
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \section{Binary trees}
 
@@ -174,48 +174,53 @@ Using zero-based indexing, node at index 2 has left child at $2(2)+1=5$ and righ
 right, and writing the values into consecutive array slots is all the representation does ---
 the parent-child links are then recoverable by arithmetic, with no pointers stored at all.
 
-\begin{adsfig}[A binary tree stored in an array]{A complete binary tree stored in an array, zero-based. Level-order position
+\textbf{\begin{utpfig}[A binary tree stored in an array]{A complete binary tree stored in an array, zero-based. Level-order position
 becomes array index, so the children of index $i$ sit at $2i+1$ and $2i+2$. This is the same
 layout the heap in \chapref{ch:trees-ii} relies on.}{fig:tree-array}
 \begin{tikzpicture}[font=\small]
 % tree
-\node[adsnode,minimum size=8mm] (v0) at (2.55,1.5) {8};
-\node[adsnode,minimum size=8mm] (v1) at (1.25,0.45) {4};
-\node[adsnode,minimum size=8mm] (v2) at (3.85,0.45) {12};
-\node[adsnode,minimum size=8mm] (v3) at (0.6,-0.6) {2};
-\node[adsnode,minimum size=8mm] (v4) at (1.9,-0.6) {6};
-\node[adsnode,minimum size=8mm] (v5) at (3.2,-0.6) {10};
-\draw[adsedge] (v0)--(v1); \draw[adsedge] (v0)--(v2);
-\draw[adsedge] (v1)--(v3); \draw[adsedge] (v1)--(v4);
-\draw[adsedge] (v2)--(v5);
+\node[utpnode,minimum size=8mm] (v0) at (2.55,1.5) {8};
+\node[utpnode,minimum size=8mm] (v1) at (1.25,0.45) {4};
+\node[utpnode,minimum size=8mm] (v2) at (3.85,0.45) {12};
+\node[utpnode,minimum size=8mm] (v3) at (0.6,-0.6) {2};
+\node[utpnode,minimum size=8mm] (v4) at (1.9,-0.6) {6};
+\node[utpnode,minimum size=8mm] (v5) at (3.2,-0.6) {10};
+\draw[utpedge] (v0)--(v1); \draw[utpedge] (v0)--(v2);
+\draw[utpedge] (v1)--(v3); \draw[utpedge] (v1)--(v4);
+\draw[utpedge] (v2)--(v5);
 \foreach \n/\idx in {v0/0,v1/1,v2/2,v3/3,v4/4,v5/5}{
-  \node[circle,fill=ADSBlue,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+  \node[circle,fill=UTPBlue,text=white,font=\tiny\bfseries,inner sep=1.1pt]
     at ($(\n.north east)+(0.06,0.06)$) {\idx};
 }
 % array
 \begin{scope}[yshift=-2.35cm]
 \foreach \v [count=\i from 0] in {8,4,12,2,6,10}{
-  \node[adscell,minimum width=1.0cm,minimum height=0.82cm] (g\i) at (1.05*\i,0) {\v};
-  \node[circle,fill=ADSBlue,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+  \node[utpcell,minimum width=1.0cm,minimum height=0.82cm] (g\i) at (1.05*\i,0) {\v};
+  \node[circle,fill=UTPBlue,text=white,font=\tiny\bfseries,inner sep=1.1pt] (arrayindex\i)
     at (1.05*\i,0.55) {\i};
 }
-\node[adslabel,anchor=east] at (-0.65,0) {array};
+\node[utplabel,anchor=east] at (-0.65,0) {array};
 \end{scope}
-% mapping arrows for one node
-\draw[adsptr,draw=ADSOrange,dashed] (v1.south west) to[bend right=12] (g1.north);
-\node[adstag,anchor=west,align=left] at (6.6,-0.1)
+% Route around the children, then enter the mapped cell through the gap.
+\draw[utpptr,draw=UTPOrange,dashed]
+  (v1.east)
+  .. controls (2.15,0.45) and (2.55,0.22) .. (2.55,-0.35)
+  .. controls (2.55,-0.95) and (2.55,-1.38) .. (2.55,-1.5)
+  .. controls (2.35,-1.62) and (1.9,-1.55) .. (1.575,-1.55)
+  -- (arrayindex1.center);
+\node[utptag,anchor=west,align=left] at (6.6,-0.1)
   {index 1 holds 4\\children: $2(1)+1=3$\\\phantom{children: }$2(1)+2=4$\\$\rightarrow$ 2 and 6\ \checkmark};
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}}
 
 \section{Linked representation of a binary tree}
 
 A linked representation stores data plus two pointers: one to the left child and one to the right child. A missing child is represented by a null pointer.
 
-\begin{mlfigure}
+\begin{utpfigure}
 \begin{tikzpicture}[
- node/.style={circle,draw=ADSBlue,fill=ADSPaleBlue,minimum size=8mm,font=\small\bfseries},
- edge/.style={-{Stealth[length=2mm]},thick,draw=ADSTeal}
+ node/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=8mm,font=\small\bfseries},
+ edge/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[node] (a) {8};
 \node[node,below left=0.9cm and 1.2cm of a] (b) {4};
@@ -224,20 +229,10 @@ A linked representation stores data plus two pointers: one to the left child and
 \node[node,below right=0.9cm and 0.5cm of b] (e) {6};
 \draw[edge] (a)--(b); \draw[edge] (a)--(c); \draw[edge] (b)--(d); \draw[edge] (b)--(e);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfigure}
 
 \begin{quickcheck}
 State the inorder, preorder, and postorder rules without looking back. What indexing assumption is required for the slide formula $2I$ and $2I+1$?
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item Trees store data hierarchically and have a designated root.
-  \item Parent, sibling, internal node, level, and height describe structural relationships.
-  \item Inorder, preorder, and postorder visit the root in different positions relative to its subtrees.
-  \item A binary tree has at most two children per node.
-  \item Binary trees can use array or linked representations.
-\end{itemize}
-\end{chapterrecap}
 
 \input{labs/07-trees-i}

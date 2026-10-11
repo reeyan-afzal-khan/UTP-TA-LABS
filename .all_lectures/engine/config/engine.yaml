@@ -1,0 +1,98 @@
+# UTP lecture engine: global settings.
+#
+# A course can override any of these in .all_lectures/<course-slug>/lectures.yaml,
+# using the same keys (for example a different voice for one course).
+
+video:
+  width: 1920
+  height: 1080
+  fps: 60
+  crf: 16                                # x264 quality of the frames (lower = sharper, larger file)
+  # --draft renders at this size and rate: quick to check, never published.
+  draft: {width: 960, height: 540, fps: 30}
+
+voice:
+  # auto      your recording for a cue when one exists, otherwise the TTS voice
+  # tts       always the TTS voice
+  # recorded  only your recordings; a cue without one is an error
+  mode: auto
+  tts:
+    engine: edge                         # Microsoft neural voices through edge-tts (needs internet)
+    voice: en-US-AndrewMultilingualNeural
+    rate: "-4%"                          # a touch slower than conversation, for a lecture
+    pitch: "+0Hz"
+    parallel: 3                          # cues synthesised at the same time
+  # Your recordings: .all_lectures/<course>/voice/<chapters|labs>/<lecture>/<cue-id>.wav
+  # (.wav, .mp3, .m4a or .flac). Leading and trailing silence is trimmed.
+  trim_silence_db: -45
+  loudness_lufs: -16                     # the final mix is normalised to this
+
+pacing:                                  # seconds
+  lead_in: 0.5                           # before the first word
+  after_cue: 0.30                        # between two cues of one scene
+  after_scene: 0.55                      # after the last cue of a scene
+  after_section: 0.40                    # extra hold on a section title
+  think_pause: 4.0                       # silent pause after "Check your understanding"
+  transition: 0.75                       # scene-to-scene transition
+  min_reveal: 0.5                        # shortest reveal animation
+  max_reveal: 1.6                        # longest reveal animation (figures may take 2x)
+  tail: 1.2                              # hold on the last frame
+
+script:
+  prose_words_per_card: 70               # longer paragraphs are split across cards
+  code_lines_per_card: 16                # longer listings are split at function boundaries
+  table_rows_per_card: 7                 # longer tables are split evenly (9 rows -> 5 + 4)
+  list_items_per_card: 6
+  speak_box_titles: true                 # say "Key idea." before a key-idea box, and so on
+  think_after: [quickcheck]              # boxes followed by a silent think pause
+  # The videos lean on code, not theory. Boxes about the book itself (how it lines up with the
+  # slides, where it goes beyond them, which mode a lab runs in) are left out of the videos.
+  skip_boxes: [clarification, sourcealignment, sourcebasis, labmode, optionaltopic, secondpass,
+               coursechoice, recommendedworkflow]
+  # Runnable code demos, written for the videos, are added after headings: see
+  # .all_lectures/<course>/demos.yaml.
+  demos: true
+
+# Pitch black, in the colours of the UTP logo: UTP blue (#004A8C) and UTP gold (#DD9A0B),
+# lifted a little so they read on black, plus a few signal colours for code and diagrams.
+theme:
+  background: "#000000"
+  ink: "#F2F5F9"                         # text
+  muted: "#8B97A8"                       # secondary text, labels
+  faint: "#2A3342"                       # rules, tracks, grid lines
+  panel: "#0A1220"                       # cards and memory boxes
+  utp_blue: "#004A8C"                    # UTP blue, as in the logo
+  blue: "#4C9BEA"                        # UTP blue, lightened for black
+  gold: "#F0A818"                        # UTP gold
+  navy: "#BFD4EC"                        # book navy, shown light on black
+  teal: "#3CC4B4"
+  green: "#6FD08C"
+  orange: "#FF9F43"
+  red: "#FF6B6B"
+  purple: "#B39DFF"
+  code_bg: "#05080E"
+  markup:                                # what the book's inline colours become on screen
+    navy: "#F0A818"                      # \term{...}: UTP gold
+    blue: "#4C9BEA"
+    teal: "#3CC4B4"
+    green: "#6FD08C"
+    orange: "#FF9F43"
+    red: "#FF6B6B"
+    muted: "#8B97A8"
+    ink: "#F2F5F9"
+  # Text face: the first one installed. Adobe Jenson Pro is a licensed Adobe font; once it is
+  # installed on this machine the videos use it, until then the classic Palatino serif.
+  font: ["Adobe Jenson Pro", "Palatino Linotype", "Source Sans 3"]
+  mono: "Source Code Pro"                # the book's own code face
+  sizes:                                 # Manim font sizes at 1080p
+    title: 64
+    section: 52
+    header: 24
+    kicker: 17
+    headline: 46                         # a sentence's key line
+    chip: 36                             # key words
+    body: 31
+    small: 25
+    code: 26
+    table: 26
+    caption: 24

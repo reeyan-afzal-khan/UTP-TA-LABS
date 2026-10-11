@@ -4,7 +4,7 @@
 \section{POSIX threads}
 The POSIX threads API creates multiple execution streams inside one process. \texttt{pthread\_create()} starts a thread, \texttt{pthread\_self()} identifies the calling thread, \texttt{pthread\_equal()} compares thread identifiers, and \texttt{pthread\_join()} waits for completion.
 
-\begin{lstlisting}[style=osc]
+\begin{lstlisting}[style=utpc]
 pthread_t t;
 int err = pthread_create(&t, NULL, worker, NULL);
 if (err != 0) {
@@ -20,18 +20,18 @@ Thread identifiers are opaque values. Portable code compares them with \texttt{p
 \section{Mutexes}
 A \term{mutex} protects a critical section so only one thread owns the lock at a time. The normal lifecycle is initialize, lock, access shared state, unlock, then destroy after all users are finished.
 
-\begin{mlfigure}
+\begin{utpfig}[What threads share]{What the threads of one process share. Code, globals, and the heap exist once and are seen by every thread; each thread has its own stack and registers, which need no synchronization.}{fig:thread-memory}
 \begin{tikzpicture}[
-  seg/.style={draw=MLBlue,fill=MLPaleBlue,minimum width=3.0cm,minimum height=0.8cm,
-              font=\scriptsize\color{MLNavy}},
-  shared/.style={seg,fill=MLPaleOrange,draw=MLOrange},
-  stk/.style={draw=MLTeal,fill=MLPaleTeal,minimum width=1.7cm,minimum height=0.8cm,
-              font=\scriptsize\color{MLNavy}},
-  lab/.style={font=\scriptsize\color{MLMuted},align=center},
-  warn/.style={font=\scriptsize\color{MLOrange},align=center}]
+  seg/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=3.0cm,minimum height=0.8cm,
+              font=\scriptsize\color{UTPNavy}},
+  shared/.style={seg,fill=UTPPaleOrange,draw=UTPOrange},
+  stk/.style={draw=UTPTeal,fill=UTPPaleTeal,minimum width=1.7cm,minimum height=0.8cm,
+              font=\scriptsize\color{UTPNavy}},
+  lab/.style={font=\scriptsize\color{UTPMuted},align=center},
+  warn/.style={font=\scriptsize\color{UTPOrange},align=center}]
 
-\draw[draw=MLNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.75) rectangle (8.7,1.75);
-\node[font=\small\bfseries\color{MLNavy},anchor=north west] at (-2.0,1.65) {one process};
+\draw[draw=UTPNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.75) rectangle (8.7,1.75);
+\node[font=\small\bfseries\color{UTPNavy},anchor=north west] at (-2.0,1.65) {one process};
 
 \node[seg]    at (-0.4,0.85) {code (text)};
 \node[shared] at (-0.4,-0.35) {globals};
@@ -51,7 +51,7 @@ A \term{mutex} protects a critical section so only one thread owns the lock at a
    which is why such a bug reproduces only sometimes.};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{What deadlock means}
 A \term{deadlock} is a state in which a set of processes or threads are permanently blocked because each waits for an event that only another member of the set can cause.
@@ -65,15 +65,15 @@ Four Coffman conditions must hold simultaneously for resource deadlock:
 \end{enumerate}
 Breaking any one condition prevents this class of deadlock.
 
-\begin{mlfigure}
+\begin{utpfig}[A circular wait]{A circular wait. P1 holds R1 and requests R2, while P2 holds R2 and requests R1, so neither can proceed.}{fig:circular-wait}
 \begin{tikzpicture}[
-  proc/.style={circle,draw=MLBlue,fill=MLPaleBlue,minimum size=1.05cm,
-               font=\small\bfseries\color{MLNavy}},
-  res/.style={draw=MLNavy,fill=white,minimum width=1.05cm,minimum height=0.9cm,
-              font=\small\bfseries\color{MLNavy}},
-  cyc/.style={-{Stealth[length=2.3mm]},line width=1pt,draw=MLRed},
-  lab/.style={font=\scriptsize\color{MLMuted}},
-  note/.style={font=\scriptsize\color{MLInk},align=center}]
+  proc/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=1.05cm,
+               font=\small\bfseries\color{UTPNavy}},
+  res/.style={draw=UTPNavy,fill=white,minimum width=1.05cm,minimum height=0.9cm,
+              font=\small\bfseries\color{UTPNavy}},
+  cyc/.style={-{Stealth[length=2.3mm]},line width=1pt,draw=UTPRed},
+  lab/.style={font=\scriptsize\color{UTPMuted}},
+  note/.style={font=\scriptsize\color{UTPInk},align=center}]
 
 \node[proc] (p1) at (0,2.5)   {P1};
 \node[res]  (r2) at (5.0,2.5) {R2};
@@ -89,31 +89,30 @@ Breaking any one condition prevents this class of deadlock.
   {the cycle \emph{is} the circular wait --- neither process can move, and
    nothing outside the cycle will move them};
 
-\node[note,text width=11cm,text=MLMuted] at (2.5,-1.15)
+\node[note,text width=11cm,text=UTPMuted] at (2.5,-1.15)
   {Each resource has one instance, so this cycle is a deadlock. Remove any one
    arrow --- by preemption, by releasing before requesting, or by ordering the
    resources --- and the cycle opens.};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{Prevention, avoidance, and detection}
-\begin{mltable}
+\begin{utptable}
 \renewcommand{\arraystretch}{1.18}
-\begin{tabularx}{\linewidth}{@{}
-  >{\raggedright\arraybackslash}p{0.22\linewidth}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}
   >{\raggedright\arraybackslash}X
   >{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\textbf{Strategy} & \textbf{Core idea} & \textbf{Trade-off} \\
+\utpth{Strategy} & \utpth{Core idea} & \utpth{Trade-off} \\
 \midrule
 Prevention & Design the protocol so a Coffman condition cannot hold & Can reduce utilization or flexibility \\
 Avoidance & Grant a request only if the resulting state remains safe & Requires future maximum-demand information \\
 Detection/recovery & Allow deadlock, detect it later, then recover & Detection and recovery can be expensive \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \section{Banker's algorithm}
 Banker's algorithm avoids unsafe allocations. First calculate
@@ -126,15 +125,15 @@ allocation to Work. If every process can finish in some order, the state is
 Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while P2 has Need $(2,1)$ and Allocation $(1,0)$. P1 can finish first because $(1,0)\le(1,1)$. Work becomes $(2,2)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.
 \end{workedexample}
 
-\begin{mlfigure}
+\begin{utpfig}[The Banker's safety check]{The Banker's safety check for the worked example. P1's need fits within Work, so it can finish and release its allocation; the larger Work then lets P2 finish, so P1, P2 is a safe sequence.}{fig:bankers}
 \begin{tikzpicture}[
-  wk/.style={draw=MLTeal,fill=MLPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,
-             minimum height=0.75cm,font=\small\bfseries\color{MLNavy}},
-  test/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=1.5mm,text width=3.0cm,
-               minimum height=1.15cm,align=center,font=\scriptsize\color{MLNavy}},
-  go/.style={-{Stealth[length=2.2mm]},thick,draw=MLTeal},
-  wcap/.style={font=\scriptsize\bfseries\color{MLMuted}},
-  rel/.style={font=\scriptsize\color{MLGreen},align=center}]
+  wk/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,
+             minimum height=0.75cm,font=\small\bfseries\color{UTPNavy}},
+  test/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,text width=3.0cm,
+               minimum height=1.15cm,align=center,font=\scriptsize\color{UTPNavy}},
+  go/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal},
+  wcap/.style={font=\scriptsize\bfseries\color{UTPMuted}},
+  rel/.style={font=\scriptsize\color{UTPGreen},align=center}]
 
 \node[wcap] at (0,1.15) {Work = Available};
 \node[wk] (w0) at (0,0.35) {(1,\,1)};
@@ -151,14 +150,14 @@ Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while 
 \draw[go] (w1) -- (t2);
 \draw[go] (t2) -- (w2);
 
-\node[font=\scriptsize\color{MLInk},align=center,text width=13cm] at (7.0,-1.55)
+\node[font=\scriptsize\color{UTPInk},align=center,text width=13cm] at (7.0,-1.55)
   {Every process fits into the order, so the state is \textbf{safe} and the
    safe sequence is P1, P2. Had P1 failed its test as well, no order would
    exist and the request would be refused --- not because deadlock had
    happened, but because it could no longer be ruled out.};
 
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \begin{pitfall}
 An \term{unsafe state} is not identical to an already existing deadlock. Unsafe means the OS can no longer guarantee that every future maximum claim can be satisfied in some order. Deadlock is an actual circular waiting condition.

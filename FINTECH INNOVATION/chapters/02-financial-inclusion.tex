@@ -13,11 +13,11 @@ A \term{FinTech ecosystem} is a collection of organizations and resources that t
 
 Five ecosystem components recur throughout the Week 2 material:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.18\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Component & Role \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Component} & \utpth{Role} \\
 \midrule
 Demand & Need for new solutions among consumers, businesses, and financial institutions. \\
 Talent & Availability of technology, financial-services, and entrepreneurial skills. \\
@@ -26,7 +26,7 @@ Policy & Regulation, taxation, licensing, and government support for innovation.
 Solutions & New technologies, products, services, and processes that address market needs. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{intuition}
 A good FinTech idea is not enough. If customers do not need it, skilled people cannot build it, capital cannot finance it, or regulation does not permit it, the ecosystem cannot turn the idea into a sustainable financial service.
@@ -68,12 +68,12 @@ The lecture presents multiple causes. Some come from the customer side; others c
   \item \term{Limited competition and innovation.} When barriers to entry are high, incumbents may face less pressure to redesign products for underserved segments.
 \end{itemize}
 
-\begin{mlfigure}
+\begin{utpfig}[The two sides of financial exclusion]{Financial exclusion has two sides. Demand-side circumstances such as small or volatile income and missing documents meet supply-side constraints such as branch cost, legacy IT, and standardized products.}{fig:exclusion-two-sides}
 \begin{tikzpicture}[
-  side/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=5.4cm,minimum height=3.0cm,align=left,inner sep=3mm,font=\scriptsize\color{MLNavy}},
-  side2/.style={draw=MLOrange,fill=MLPaleOrange,rounded corners=2mm,text width=5.4cm,minimum height=3.0cm,align=left,inner sep=3mm,font=\scriptsize\color{MLNavy}},
-  center/.style={draw=MLNavy,fill=MLNavy,text=white,rounded corners=2mm,text width=2.4cm,minimum height=1.2cm,align=center,font=\small\bfseries},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLMuted}
+  side/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=5.4cm,minimum height=3.0cm,align=left,inner sep=3mm,font=\scriptsize\color{UTPNavy}},
+  side2/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,text width=5.4cm,minimum height=3.0cm,align=left,inner sep=3mm,font=\scriptsize\color{UTPNavy}},
+  center/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,text width=2.4cm,minimum height=1.2cm,align=center,font=\small\bfseries},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPMuted}
 ]
 \node[side] (d) at (-4.0,0) {\textbf{Demand side}\par\smallskip
 small/volatile income\par distance\par missing documents\par low literacy\par distrust\par negative history};
@@ -82,7 +82,7 @@ small/volatile income\par distance\par missing documents\par low literacy\par di
 high branch cost\par legacy IT\par manual processes\par standardized products\par weak competition\par limited innovation};
 \draw[arr] (d.east)--(x.west); \draw[arr] (s.west)--(x.east);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \begin{keyidea}
 Financial exclusion is not explained only by a customer's income. It can be produced by a mismatch between the customer's circumstances and the cost structure, documentation requirements, product design, and risk methods of the provider.
@@ -113,11 +113,11 @@ The course defines \term{financial inclusion} as efforts and policies that make 
 
 The lecture breaks the concept into five qualities.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.20\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Quality & Practical meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Quality} & \utpth{Practical meaning} \\
 \midrule
 Accessibility & Services are reachable, including in remote and underserved areas. \\
 Affordability & Fees and minimum balances do not make the service unusable for low-income customers. \\
@@ -126,7 +126,7 @@ Usefulness and usability & Customers can understand and operate the product well
 Quality of service & Support and education help users access and use the service effectively. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{pitfall}
 Opening an account is not the same as achieving meaningful inclusion. A product can be technically available yet fail if it is too expensive, irrelevant to the user's cash flow, difficult to understand, or poorly supported.
@@ -156,11 +156,11 @@ Digital records can make transactions easier to track than cash, improve the man
 
 Apps can provide visibility, reminders, budgeting tools, and other resources that help users understand and manage their money.
 
-\begin{mlfigure}
+\begin{utpfig}[How digital finance widens inclusion]{How digital finance can widen inclusion. Lower digital cost, remote reach, data-driven decisions, and smaller tailored products together make it economic to serve customers that branch-based models could not.}{fig:inclusion-mechanisms}
 \begin{tikzpicture}[
-  box/.style={draw=MLBlue,fill=MLPaleBlue,rounded corners=2mm,text width=2.6cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  outcome/.style={draw=MLGreen,fill=MLPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{MLNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=MLTeal}
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.6cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  outcome/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=2mm,text width=3.0cm,minimum height=1.25cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
 ]
 \node[box] (c) at (-5,1.2) {Lower digital\\cost};
 \node[box] (r) at (-1.8,1.2) {Remote\\reach};
@@ -169,7 +169,7 @@ Apps can provide visibility, reminders, budgeting tools, and other resources tha
 \node[outcome] (o) at (0,-1.2) {Greater practical\\financial inclusion};
 \draw[arr] (c)--(o); \draw[arr] (r)--(o); \draw[arr] (d)--(o); \draw[arr] (p)--(o);
 \end{tikzpicture}
-\end{mlfigure}
+\end{utpfig}
 
 \section{Information innovation and communication innovation}
 
@@ -190,11 +190,11 @@ A branch-era bank may know a customer mainly through account records and formal 
 
 The Week 2 deck provides a country comparison of unbanked, underbanked, and banked populations. These figures should be read as a historical lecture snapshot rather than current statistics.
 
-\begin{mltable}
+\begin{utptable}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Country & Unbanked & Underbanked & Banked \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Country} & \utpth{Unbanked} & \utpth{Underbanked} & \utpth{Banked} \\
 \midrule
 Singapore & 2\% & 38\% & 60\% \\
 Malaysia & 15\% & 40\% & 45\% \\
@@ -204,7 +204,7 @@ Philippines & 65\% & 13\% & 22\% \\
 Vietnam & 69\% & 10\% & 21\% \\
 \bottomrule
 \end{tabular}
-\end{mltable}
+\end{utptable}
 
 The educational point is the heterogeneity within ASEAN. A single regional strategy cannot assume the same level of formal banking access, digital infrastructure, or customer need in every market.
 
@@ -232,11 +232,11 @@ The materials also argue that Chinese technology firms succeeded because they ar
 
 The course presents strong potential benefits, but the same mechanisms can introduce new problems.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.24\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}XX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Mechanism & Inclusion benefit & New concern \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Mechanism} & \utpth{Inclusion benefit} & \utpth{New concern} \\
 \midrule
 Alternative data & Makes thin-file customers more assessable & Privacy, data quality, and opaque scoring \\
 Mobile distribution & Reaches remote users cheaply & Device, connectivity, fraud, and digital-literacy barriers \\
@@ -245,7 +245,7 @@ Low-cost digital accounts & Makes small balances more viable & Sustainability if
 Platform ecosystems & One interface for many services & Concentration of data and platform dependence \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{keyidea}
 Digital finance can remove old barriers without automatically removing exclusion. It may replace geographic and paper barriers with new barriers involving devices, digital literacy, data rights, cybersecurity, or algorithmic decisions.
@@ -255,14 +255,14 @@ Digital finance can remove old barriers without automatically removing exclusion
 
 When evaluating a financial-inclusion initiative, use the following sequence.
 
-\begin{mlsteps}
+\begin{utpsteps}
   \item \term{Identify the excluded user.} Is the user unbanked, underbanked, thin-file, rural, low-income, or operating informally?
   \item \term{Name the barrier.} Cost, distance, documentation, literacy, trust, product design, or lack of competition?
   \item \term{Identify the digital mechanism.} Mobile delivery, lower automation cost, alternative data, digital ID, platform distribution, or new product design?
   \item \term{Test usability and affordability.} Can the intended user realistically understand, access, and pay for the service?
   \item \term{Test sustainability.} Can the provider serve the segment without permanently subsidizing each customer?
   \item \term{Identify the new risk.} Privacy, cyber fraud, consumer protection, bias, exclusion by data, or regulatory uncertainty?
-\end{mlsteps}
+\end{utpsteps}
 
 \begin{tryit}
 Use the framework above for a mobile microloan targeted at a rural worker with irregular income and no conventional credit history. Explain which old barriers the product removes and which new risks it creates.

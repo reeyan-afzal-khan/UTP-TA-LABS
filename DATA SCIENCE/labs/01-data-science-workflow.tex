@@ -1,10 +1,10 @@
 \labsection{1}{Frame a question and build a reproducible data profile}{sec:lab01}
 
-\begin{labproject}{Lab 1 guided workflow: from question to evidence}
+\begin{labproject}{Guided workflow: from question to evidence}
+\textbf{Coverage.} Chapter~\ref{ch:workflow}.\\
+\textbf{Goal.} By the end of the lab, you should be able to frame an estimable question, distinguish analytical roles of variables, construct a compact data profile, and document the computational environment that produced the result.\\
 \textbf{Dataset.} \texttt{bike\_sharing\_dataset\_day.csv}.\\
 \textbf{Scenario.} A bike-sharing operator wants a concise first assessment of daily demand. Before modelling anything, the analyst must define what one row means, identify the variables that can support the question, and produce an analysis another person can reproduce.
-
-\textbf{Learning outcomes.} By the end of the lab, you should be able to frame an estimable question, distinguish analytical roles of variables, construct a compact data profile, and document the computational environment that produced the result.
 
 \textbf{Core workflow.}
 \begin{enumerate}
@@ -15,14 +15,15 @@
   \item \textbf{Compare groups.} Contrast working and non-working days using both mean and median demand. Report group sizes so the comparison is interpretable.
   \item \textbf{Examine a relationship.} Quantify the association between normalised temperature and total rentals, then identify at least two variables that could partly explain that association.
   \item \textbf{Inspect time structure.} Plot demand over time and add a simple moving average. Identify trend, seasonal structure, abrupt changes, or periods that deserve further investigation.
-  \item \textbf{Record reproducibility evidence.} Save the input path, analysis script, random seed if used, and \rcode{sessionInfo()} output. The result should be reproducible from a clean R session.
+  \item \textbf{Record reproducibility evidence.} Save the input path, analysis script, random seed if used, and \cmd{sessionInfo()} output. The result should be reproducible from a clean R session.
 \end{enumerate}
-
-\textbf{Required evidence.} Submit a one-page analysis note containing: the observational unit; the three questions; a compact data-profile summary; one time-series figure; two numerical findings; and one limitation. Every finding must be written as a complete evidence statement, not as raw console output.
-
-\textbf{Decision checkpoint.} End with one recommendation for the \emph{next analysis step}. Examples include modelling seasonality, separating casual from registered users, or investigating weather effects. State what additional evidence would be needed before making an operational decision.
 
 \tcbbreak
 \textbf{Executable experiment.} Run the file below from a clean R session, then modify it so your submitted questions and evidence are your own.
-\lstinputlisting[style=dsr]{all_experiments/lab01_workflow.R}
+\lstinputlisting[style=utpr]{all_experiments/lab01_workflow.R}
+\begin{verification}
+\textbf{Required evidence.} Submit a one-page analysis note containing: the observational unit; the three questions; a compact data-profile summary; one time-series figure; two numerical findings; and one limitation. Every finding must be written as a complete evidence statement, not as raw console output.
+
+\textbf{Decision checkpoint.} End with one recommendation for the \emph{next analysis step}. Examples include modelling seasonality, separating casual from registered users, or investigating weather effects. State what additional evidence would be needed before making an operational decision.
+\end{verification}
 \end{labproject}

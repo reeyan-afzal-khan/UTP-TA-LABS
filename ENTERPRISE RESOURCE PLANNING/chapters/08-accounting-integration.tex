@@ -25,11 +25,11 @@ Operational data and financial data are two views of the same business event. ``
 
 \term{Managerial accounting} focuses on internal decision-making: product cost, profitability, budgets, performance, and resource use.
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.25\linewidth}XX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.25\linewidth}XX@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Dimension & Financial accounting & Managerial accounting \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dimension} & \utpth{Financial accounting} & \utpth{Managerial accounting} \\
 \midrule
 Primary users & Owners, creditors, regulators, external stakeholders, management & Internal managers and process owners \\
 Main questions & What is the company's financial position and performance? & Which product, customer, activity, or process is profitable and why? \\
@@ -37,7 +37,7 @@ Typical outputs & Balance sheet, income statement, cash-related reports & Cost r
 Data need & Accurate and controlled transaction records & Detailed operational and financial data with useful dimensions \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 An ERP system helps because the same central transaction data can support both views.
 
@@ -65,10 +65,10 @@ If the selling price is RM 1,000, RM 530 is \emph{not} automatically profit beca
 
 A useful ERP principle is \term{document flow}: users should be able to trace a transaction through related records rather than search several disconnected systems.
 
-\begin{erpfigure}
+\begin{utpfig}[The accounting document flow]{The accounting document flow. Each document is created from the one before it, and the invoice and the payment both feed financial and management reporting, so a transaction can be traced end to end.}{fig:accounting-document-flow}
 \begin{tikzpicture}[
-  box/.style={draw=ERPBlue,fill=ERPPaleBlue,rounded corners=2mm,minimum width=2.5cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{ERPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=ERPTeal},node distance=0.38cm
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.5cm,minimum height=0.84cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal},node distance=0.38cm
 ]
 \node[box] (so) {Sales Order};
 \node[box,right=of so] (del) {Delivery};
@@ -78,7 +78,7 @@ A useful ERP principle is \term{document flow}: users should be able to trace a 
 \node[box,below=0.8cm of inv] (rep) {Financial / management reporting};
 \draw[arr] (inv)--(rep); \draw[arr] (pay)--(rep);
 \end{tikzpicture}
-\end{erpfigure}
+\end{utpfig}
 
 This lineage supports customer service. A salesperson can answer ``Has the customer paid?'' without asking Finance to search a separate system, assuming the user has appropriate access rights.
 

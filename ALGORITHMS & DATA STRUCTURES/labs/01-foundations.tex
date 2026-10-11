@@ -9,7 +9,7 @@
 \end{sourcealignment}
 
 \begin{labproject}{Build a small record-based application}
-\textbf{Coverage.} Chapter 1.\\
+\textbf{Coverage.} Chapter~\ref{ch:introduction}.\\
 \textbf{Goal.} Store, display, search, and update at least five student records using a structure, an array, and a pointer.
 
 The lecture task asks for at least five student records containing ID, name, age, and course, followed by display, search-by-ID, and update operations. This also satisfies the lab manual's database-style direction.
@@ -46,11 +46,6 @@ int findById(const Student students[], int n, int id) {
 Add \texttt{updateStudent()} and use a pointer to the selected record once the matching index is known. Then add one small 1D-array statistic such as the average student age.
 \end{tryit}
 
-\begin{labmode}
-The manual names \emph{union} as prerequisite review but does not provide detailed union theory in the supplied text. Treat union exercises as revision work directed by your instructor rather than as a new data-structures topic.
-\end{labmode}
-\end{labproject}
-
 \begin{verification}
 \begin{itemize}
   \item At least five records are stored and displayed correctly.
@@ -61,6 +56,4 @@ The manual names \emph{union} as prerequisite review but does not provide detail
 \end{itemize}
 \end{verification}
 
-\begin{labdeliverable}
-Submit the C++ program, sample output for successful/unsuccessful search, and a short note identifying the data structure used for the collection and the structure used for each record.
-\end{labdeliverable}
+\end{labproject}

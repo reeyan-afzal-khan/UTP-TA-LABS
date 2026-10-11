@@ -15,7 +15,7 @@ R1 has no entry for R3's LAN, so it drops the packet and reports \emph{Destinati
 
 Confirm before configuring:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ip routing-table
 \end{lstlisting}
 
@@ -23,7 +23,7 @@ Count the entries. Every one should be \cmd{Direct}. Record that output --- it i
 
 \medskip\noindent\textbf{Part B --- Static route syntax.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 ip route-static <destination> <mask> <next-hop>
 \end{lstlisting}
 
@@ -54,7 +54,7 @@ Prove it with \cmd{tracert} from R1: the trace advances further than before, the
 \medskip\noindent\textbf{Part D --- Backup routes and preference.}\par
 Add a second route to the same destination through a different neighbour, with a worse preference:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 ip route-static 192.168.3.0 24 10.0.12.2              # primary, preference 60
 ip route-static 192.168.3.0 24 10.0.13.3 preference 100  # backup
 \end{lstlisting}
@@ -69,14 +69,14 @@ This is failover, not load sharing. Traffic does not split across the two paths 
 
 \medskip\noindent\textbf{Part E --- Prove the failover.}\par
 
-\begin{netsteps}
+\begin{utpsteps}
   \item \cmd{display ip routing-table} --- confirm only the primary is present, with preference 60.
   \item Start a long ping from R1's LAN so you can watch the interruption.
   \item Shut down the primary link: \cmd{interface GigabitEthernet 0/0/0} then \cmd{shutdown}.
   \item \cmd{display ip routing-table} again --- the backup should now be installed.
   \item Count how many pings were lost during the transition.
   \item \cmd{undo shutdown} and confirm the primary returns.
-\end{netsteps}
+\end{utpsteps}
 
 That lost-ping count is the real result of this lab. Static failover is not instant: the router must first decide the next hop is unreachable.
 

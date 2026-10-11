@@ -19,20 +19,20 @@ Ping first. Always. It costs five seconds and eliminates three layers of possibl
 
 \medskip\noindent\textbf{Step 2 --- Enable the server and set its directory.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 system-view
 ftp server enable
 \end{lstlisting}
 
 Confirm the file system has something to serve:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> dir flash:
 \end{lstlisting}
 
 \medskip\noindent\textbf{Step 3 --- Authorise a user.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 aaa
  local-user ftpuser password cipher Huawei@123
  local-user ftpuser privilege level 15
@@ -54,13 +54,13 @@ If login behaves oddly, re-read this block before suspecting the network.
 
 \medskip\noindent\textbf{Step 4 --- Verify the server is listening.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ftp-server
 \end{lstlisting}
 
 \medskip\noindent\textbf{Step 5 --- Connect from the client.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R2> ftp 192.168.1.1
 Trying 192.168.1.1 ...
 Press CTRL+K to abort
@@ -75,11 +75,11 @@ Enter password:
 
 The numeric codes are the protocol telling you where you are. Learn the four that matter:
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily\bfseries}p{0.10\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily\bfseries}m{0.10\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Code} & \bfseries Meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Code} & \utpth{Meaning} \\
 \midrule
 220 & Server ready --- TCP reached the FTP service \\
 331 & Username accepted, password required \\
@@ -88,7 +88,7 @@ The numeric codes are the protocol telling you where you are. Learn the four tha
 550 & Action not taken --- permissions or missing file \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{keyidea}
 Reaching \cmd{220} means IP, TCP, and the FTP service are all working. A failure after 220 is authentication or file permissions --- never routing.
@@ -98,7 +98,7 @@ That single observation splits your troubleshooting in half.
 
 \medskip\noindent\textbf{Step 6 --- Transfer in both directions.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 [R2-ftp] dir
 [R2-ftp] binary
 [R2-ftp] get vrpcfg.zip

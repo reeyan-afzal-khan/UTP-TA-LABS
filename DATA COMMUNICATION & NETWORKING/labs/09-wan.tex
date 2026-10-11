@@ -14,14 +14,14 @@ On a serial link, one end is \term{DCE} and provides the clock; the other is \te
 
 Find it before troubleshooting anything else:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display interface Serial 0/0/0
 \end{lstlisting}
 
 No clock rate on the DCE end means the line stays down no matter how correct the IP configuration is.
 \end{keyidea}
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  ip address 10.0.0.1 30
  clock rate 64000            # DCE end only
@@ -31,7 +31,7 @@ quit
 
 \medskip\noindent\textbf{Part B --- HDLC.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  link-protocol hdlc
 quit
@@ -46,7 +46,7 @@ Note also that HDLC is vendor-specific in practice. Huawei's and Cisco's impleme
 \medskip\noindent\textbf{Part C --- Run OSPF across the WAN.}\par
 Bring up OSPF over the serial links using Lab~\ref{sec:lab04-ospf}'s configuration, and then look at the cost:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 <R1> display ip routing-table protocol ospf
 \end{lstlisting}
 
@@ -54,7 +54,7 @@ The serial path carries a far higher cost than any Ethernet path, because Huawei
 
 \medskip\noindent\textbf{Part D --- Switch to PPP.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  link-protocol ppp
 quit
@@ -74,7 +74,7 @@ Authentication sits between them. So a link that completes LCP and never reaches
 \medskip\noindent\textbf{Part E --- PAP.}\par
 On the authenticating side:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 aaa
  local-user branch password cipher Branch@123
  local-user branch service-type ppp
@@ -87,7 +87,7 @@ quit
 
 On the side being authenticated:
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  ppp pap local-user branch password cipher Branch@123
 quit
@@ -95,7 +95,7 @@ quit
 
 \medskip\noindent\textbf{Part F --- CHAP, and why it is better.}\par
 
-\begin{lstlisting}[style=dcnterminal]
+\begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  ppp authentication-mode chap
 quit
@@ -118,11 +118,11 @@ CHAP also re-challenges periodically during the session, so a link cannot be hij
 \medskip\noindent\textbf{Part G --- Prove the difference.}\par
 Capture both. With PAP the password is readable in the capture; with CHAP you see only a challenge and a hash.
 
-\begin{commandmap}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}p{0.40\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}m{0.40\linewidth}X@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-\textrm{\bfseries Command} & \bfseries Shows \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Command} & \utpth{Shows} \\
 \midrule
 display interface Serial 0/0/0 & Encapsulation, clock, LCP state, DCE/DTE \\
 display ppp all & PPP state per interface \\
@@ -130,7 +130,7 @@ debugging ppp all & Live negotiation --- use sparingly \\
 display ip interface brief & Whether the link came up at all \\
 \bottomrule
 \end{tabularx}
-\end{commandmap}
+\end{utptable}
 
 \begin{troubleshoot}
 \textbf{Physical down.} Cable not connected in eNSP, or the device is not started.

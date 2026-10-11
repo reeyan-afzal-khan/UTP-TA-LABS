@@ -1,4 +1,5 @@
 \labsection{3}{Production Planning and Manufacturing in Odoo}{sec:lab03}
+\labcovers{5}
 
 \begin{labproject}{Turn a production plan into products, a BOM, and a completed Manufacturing Order}
 \textbf{Coverage.} Tutorial 3 + Chapter 5.\\
@@ -60,6 +61,16 @@ This is the ERP evidence that the manufacturing event changed the shared invento
 
 Prepare the sales forecast and S\&OP table required by the tutorial, including the selected product mix and the 90--95\% utilisation requirement specified in that tutorial. Keep the planning units consistent.
 \end{labproject}
+
+\begin{verification}
+\begin{itemize}
+  \item The Road Bike and its raw materials exist as Goods with Track Inventory enabled.
+  \item The Road Bike BOM lists every component with its quantity.
+  \item Components were received into stock before the Manufacturing Order was confirmed.
+  \item The Manufacturing Order for 5 Road Bikes is Done.
+  \item On-hand stock changed as expected: frames down 5, tyres down 10, other components down 5, Road Bikes up 5.
+\end{itemize}
+\end{verification}
 
 \begin{labdeliverable}
 Submit the Tutorial 3 presentation content plus screenshots of the Road Bike product, BOM, completed Manufacturing Order, and the before/after stock evidence. Your explanation must connect the BOM and MO to the production plan rather than treating them as unrelated Odoo forms.

@@ -6,11 +6,11 @@ This appendix condenses the terminology and troubleshooting rules in the supplie
 
 \section*{Navigation and record behaviour}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Term & Meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Term} & \utpth{Meaning} \\
 \midrule
 App grid & Main launcher for Sales, Purchase, Inventory, Manufacturing, CRM, Employees, and other installed apps. \\
 Breadcrumb & Clickable trail showing the current app/record path; use it to return to earlier records. \\
@@ -20,7 +20,7 @@ Cloud/save indicator & Appears when changes are unsaved; navigating away also au
 Graph / Pivot & Reporting views that summarise transaction data for analysis. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section*{Important Odoo 19 product rule}
 
@@ -32,13 +32,14 @@ The supplied guide states that older ``Storable Product'' terminology should be 
 
 If Track Inventory is not enabled, Odoo will not maintain the stock count expected by the course workflow.
 
+\Needspace{24\baselineskip}
 \section*{Core transaction vocabulary}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.22\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Term & Course meaning \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Term} & \utpth{Course meaning} \\
 \midrule
 RFQ & Draft purchasing document before supplier commitment. \\
 Purchase Order & Confirmed order to a vendor; creates/links a Receipt. \\
@@ -54,15 +55,15 @@ On Hand & Quantity physically recorded in stock at the current moment. \\
 Validate & Complete an inventory transfer and update stock. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section*{Troubleshooting by process state}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPRed}}p{0.29\linewidth}p{0.31\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.29\linewidth}m{0.31\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleRed!70}
-Problem & Likely cause & What to check \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Problem} & \utpth{Likely cause} & \utpth{What to check} \\
 \midrule
 No Track Inventory option / stock not moving & Product setup or Inventory app issue & Confirm Inventory is installed, Product Type is Goods, and Track Inventory is enabled. \\
 No New Quotation from CRM & Opportunity/customer/app state incomplete & Save opportunity, set customer, confirm Sales is installed; otherwise create quotation from Sales. \\
@@ -74,7 +75,7 @@ Cannot register payment & Invoice still Draft & Post/confirm the invoice before 
 Expected button missing & Record is in the wrong lifecycle state & Check whether the prior business event is Draft, Confirmed/Posted, or Done. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \begin{keyidea}
 When troubleshooting, follow the process backwards. A downstream action is usually unavailable because an upstream business event has not been confirmed or completed.

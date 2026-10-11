@@ -1,78 +1,70 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
 % ---------- course configuration ----------
-\def\utprunninghead{Introduction to Data Science}
 \def\utplabtotal{10}
-\def\utpstyleparts{0}
 \def\utpcoursetitle{Introduction to Data Science}
 \def\utpcourseoutline{%
   Practical data science in R: from framing questions and preparing data to
   analysis, modelling, validation, and responsible communication.%
 }
+
+% ---------- boxes this book renames ----------
 \def\utptitlepitfall{Analytical pitfall}
 \def\utptitlelabmode{Lab guidance}
-\def\utpcoursemap{chapters/course-map}
 
-% ---------- shared course style (do not modify) ----------
+% ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
 
-% ---------- course-local support ----------
+% ---------- book-specific settings ----------
+% The house style every book shares with Algorithms & Data Structures:
+% solid callout titles, frames that may break across pages, and a navy
+% lab box. R objects and control flow are drawn with the data-objects
+% vocabulary.
+\utpheavycallouts
+\utpbreakableframes
+\utplabprojectcolour{UTPNavy}
+\utpusediagrams{data-objects}
+\utpcontentspage{\normalsize}{\large}{1.40em}{0.46em}{0.54em}
+
+% ---------- boxes used only in this book ----------
 \utpnewquietbox{referencebox}{UTPMuted!58}{UTPMuted}{Reference note}
-\input{dsfigures}
 
-% Keep the complete learning path on one page while preserving hierarchy.
-\newcommand{\dsfullpagetoc}{%
-  \begingroup
-  \normalsize
-  \setlength{\parskip}{0pt}%
-  \setlength{\cftbeforepartskip}{0.80em}%
-  \setlength{\cftbeforechapskip}{0.25em}%
-  \setlength{\cftbeforelabskip}{0.22em}%
-  \renewcommand{\cftpartfont}{\normalsize\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftpartpagefont}{\normalsize\bfseries\color{UTPNavy}}%
-  \renewcommand{\cftchapfont}{\normalsize}%
-  \renewcommand{\cftchappagefont}{\normalsize}%
-  \renewcommand{\cftlabfont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \renewcommand{\cftlabpagefont}{\normalsize\bfseries\color{UTPOrange!90!black}}%
-  \tableofcontents
-  \endgroup
-}
-\patchcmd{\utpfrontmatter}
-  {\begingroup\small\setlength{\parskip}{0pt}\tableofcontents\endgroup}
-  {\dsfullpagetoc}{}{}
-
+% ---------- the book ----------
 \begin{document}
 \utpfrontmatter
 
+% Letter the setup chapters, then start the course content at Chapter 1.
+\renewcommand{\thechapter}{1A}
+\renewcommand{\theHchapter}{setup.1A}
+\input{chapters/00-toolkit}
+
+\renewcommand{\thechapter}{1B}
+\renewcommand{\theHchapter}{setup.1B}
+\input{../.shared/git-submission}
+
+\setcounter{chapter}{1}
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{\arabic{chapter}}
+
 \part{Foundations: Questions, Data, and Reproducibility}
-\input{chapters/01-r-toolkit-environment.tex}
-\input{chapters/02-data-science-workflow}
-\input{labs/01-data-science-workflow}
-\input{chapters/03-data-quality}
-\input{labs/02-data-quality}
+\input{chapters/01-data-science-workflow}
+\input{chapters/02-data-quality}
 
 \part{Working with Data and Finding Patterns}
-\input{chapters/04-data-wrangling}
-\input{labs/03-data-wrangling}
-\input{chapters/05-exploratory-analysis}
-\input{labs/04-exploratory-analysis}
-\input{chapters/06-visualization}
-\input{labs/05-visualization}
+\input{chapters/03-data-wrangling}
+\input{chapters/04-exploratory-analysis}
+\input{chapters/05-visualization}
 
 \part{Uncertainty and Predictive Modelling}
-\input{chapters/07-inference}
-\input{labs/06-inference}
-\input{chapters/08-regression}
-\input{labs/07-regression}
-\input{chapters/09-classification}
-\input{labs/08-classification}
-\input{chapters/10-validation-preprocessing}
-\input{labs/09-validation-preprocessing}
+\input{chapters/06-inference}
+\input{chapters/07-regression}
+\input{chapters/08-classification}
+\input{chapters/09-validation-preprocessing}
 
 \part{Unsupervised Learning and Integration}
-\input{chapters/11-unsupervised-learning}
-\input{labs/10-unsupervised-learning}
+\input{chapters/10-unsupervised-learning}
 
+\part{Capstone}
 \input{chapters/capstone-project}
 
 \end{document}

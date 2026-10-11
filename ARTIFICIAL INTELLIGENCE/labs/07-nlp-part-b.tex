@@ -1,14 +1,15 @@
 \labsection{7}{NLP Evaluation: Airline Tweet Sentiment Classification}{sec:lab07-nlp-b}
 
 \begin{labproject}{Build and evaluate a three-class sentiment classifier}
+\textbf{Coverage.} Chapter~\ref{ch:nlp-methods}.\\
+\textbf{Goal.} Compare a majority baseline with validation-tuned Multinomial Naive Bayes under a leakage-safe protocol.\\
 \textbf{Scenario.} An airline support team wants to classify customer tweets as negative, neutral or positive.\\
-\textbf{Objective.} Compare a majority baseline with validation-tuned Multinomial Naive Bayes under a leakage-safe protocol.\\
 \textbf{Data.} \texttt{all\_datasets/lab07-Tweets.csv} (14,640 tweets about six US airlines).\\
-\textbf{Notebook.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.
 \end{labproject}
 
 \noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 import re
 from pathlib import Path
 
@@ -33,7 +34,7 @@ Keep tweet id, text, sentiment and airline. Report the class balance and the num
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 tweets = pd.read_csv(DATA / "lab07-Tweets.csv", dtype={"tweet_id": str})[["tweet_id", "text", "airline_sentiment", "airline"]]
 
 
@@ -51,7 +52,7 @@ print("Tweets kept:", len(tweets))
 display(tweets.airline_sentiment.value_counts(normalize=True).rename("share").round(3).to_frame())
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Raw tweets: 14640 | exact duplicate texts: 213
 Duplicates after normalisation: 355
 Tweets kept: 14285
@@ -69,7 +70,7 @@ Split 70/15/15 with seed~42, stratified by sentiment, and save tweet ids with th
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 train, rest = train_test_split(tweets.index, test_size=0.30, random_state=42, stratify=tweets.airline_sentiment)
 val, test = train_test_split(rest, test_size=0.50, random_state=42, stratify=tweets.airline_sentiment[rest])
 
@@ -80,7 +81,7 @@ tweets[["tweet_id", "airline_sentiment", "split"]].to_csv(RESULTS / "split.csv",
 display(pd.crosstab(tweets.split, tweets.airline_sentiment, margins=True))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 airline_sentiment  negative  neutral  positive    All
 split
 test                   1361      447       335   2143
@@ -96,7 +97,7 @@ Build a bag-of-words with \texttt{CountVectorizer} (English stop words removed, 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 def vectorizer(ngram_range):
     return CountVectorizer(stop_words="english", min_df=2, max_features=20_000, ngram_range=ngram_range)
 
@@ -106,7 +107,7 @@ for ngram_range in [(1, 1), (1, 2)]:
     print(f"ngram_range={ngram_range}: {len(vocabulary):,} features")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 ngram_range=(1, 1): 4,671 features
 ngram_range=(1, 2): 11,850 features
 \end{lstlisting}
@@ -118,14 +119,14 @@ Predict the most frequent training class for every validation tweet and record i
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 majority = tweets.airline_sentiment[train].mode()[0]
 y_val = tweets.airline_sentiment[val]
 majority_f1 = f1_score(y_val, [majority] * len(val), average="macro")
 print(f"Majority class: {majority} | validation accuracy {(y_val == majority).mean():.3f} | validation macro F1 {majority_f1:.3f}")
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
 Majority class: negative | validation accuracy 0.635 | validation macro F1 0.259
 \end{lstlisting}
 The majority baseline reaches 63\,\% accuracy but only 0.26 macro F1, because its recall on \emph{neutral} and \emph{positive} is zero. This is the number that shows why accuracy alone is misleading on imbalanced classes.
@@ -136,7 +137,7 @@ Grid-search the n-gram range $\{(1,1),(1,2)\}$ and the smoothing parameter $\alp
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 rows = [{"ngram_range": "majority baseline", "alpha": np.nan, "validation_macro_f1": majority_f1}]
 for ngram_range in [(1, 1), (1, 2)]:
     features = vectorizer(ngram_range).fit(tweets.model_text[train])
@@ -155,7 +156,7 @@ best_ngram = (1, 2) if best.ngram_range == "(1, 2)" else (1, 1)
 print("Selected:", best.ngram_range, "alpha =", best.alpha)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
          ngram_range  alpha  validation_macro_f1
 5             (1, 2)    0.3               0.6973
 6             (1, 2)    0.5               0.6903
@@ -173,7 +174,7 @@ Refit the vectoriser and the selected model on the training tweets, predict the 
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 features = vectorizer(best_ngram).fit(tweets.model_text[train])
 model = MultinomialNB(alpha=best.alpha).fit(features.transform(tweets.model_text[train]), tweets.airline_sentiment[train])
 
@@ -200,7 +201,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "confusion_matrix.png", dpi=160)
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
                model  accuracy  macro_precision  macro_recall  macro_f1
 0  Majority baseline    0.6351           0.2117        0.3333    0.2589
 1     Multinomial NB    0.7699           0.7036        0.6933    0.6978
@@ -208,24 +209,24 @@ plt.savefig(RESULTS / "confusion_matrix.png", dpi=160)
 On the untouched test set Naive Bayes reaches about 77\,\% accuracy and 0.70 macro F1 against 63\,\% and 0.26 for the baseline. The confusion matrix shows the typical pattern: negative tweets are recognised well, while \emph{neutral} tweets are pulled towards \emph{negative}, because complaint vocabulary dominates the corpus.
 \end{labanswer}
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{MLNavy}}p{0.25\linewidth}XXXX@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.25\linewidth}XXXX@{}}
 \toprule
-\rowcolor{MLPaleBlue!92}
-Method & Accuracy & Macro Precision & Macro Recall & Macro F1 \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Method} & \utpth{Accuracy} & \utpth{Macro Precision} & \utpth{Macro Recall} & \utpth{Macro F1} \\
 \midrule
 Majority baseline & 0.635 & 0.212 & 0.333 & 0.259 \\
 Multinomial NB & 0.770 & 0.704 & 0.693 & 0.698 \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 \begin{labquestion}{7}{Inspect subgroup performance and review errors}
 Report per-class precision, recall and F1, then macro F1 per airline (\texttt{per\_airline\_f1.csv}). Finally take the four most confident mistakes for each true class --- twelve deterministic errors --- tag each with a simple category, and save \texttt{error\_analysis.csv}.
 \end{labquestion}
 
 \begin{labanswer}
-\begin{lstlisting}[style=aipython]
+\begin{lstlisting}[style=utppython]
 precision, recall, f1, support = precision_recall_fscore_support(y_test, test_set.prediction, labels=CLASSES)
 per_class = pd.DataFrame({"precision": precision, "recall": recall, "f1": f1, "support": support}, index=CLASSES)
 per_class.to_csv(RESULTS / "per_class_metrics.csv")
@@ -259,7 +260,7 @@ display(errors[["airline_sentiment", "prediction", "confidence", "text", "catego
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 \end{lstlisting}
 \expectedoutput
-\begin{lstlisting}[style=aiterminal]
+\begin{lstlisting}[style=utpterminal]
           precision  recall     f1  support
 negative      0.843   0.871  0.857     1361
 neutral       0.598   0.535  0.564      447
@@ -276,3 +277,13 @@ Virgin America      63     0.778     0.782
 \end{lstlisting}
 \emph{Neutral} is the weakest class (F1 about 0.56): it has the fewest distinctive words and sits between the other two. Airline-level macro F1 ranges from about 0.66 to 0.78, but these are diagnostic subgroup results, not airline ratings --- Virgin America has only 63 test tweets, and airlines differ in class mix and topics. The twelve reviewed errors are dominated by negations the bag-of-words model cannot see, questions and requests that carry little sentiment vocabulary, and retweets of one joke that different annotators labelled differently. The categories are reproducible heuristics, not replacement labels; ambiguous cases still need a human reader.
 \end{labanswer}
+
+\begin{verification}
+\begin{itemize}
+  \item Duplicates are removed before the split, leaving 14,285 tweets.
+  \item The 70/15/15 split is stratified, fixed with seed~42, and saved to \texttt{split.csv}.
+  \item The vectoriser is fitted on training tweets only, and the settings are chosen by validation macro F1.
+  \item The test set is used once: Naive Bayes reaches about 0.70 macro F1 against 0.26 for the majority baseline.
+  \item Per-class and per-airline results and the twelve reviewed errors are saved.
+\end{itemize}
+\end{verification}

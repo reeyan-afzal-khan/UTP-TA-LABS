@@ -8,28 +8,28 @@ A \term{queue} is a linear data structure that follows \term{FIFO}: First In, Fi
 
 \section{Front and rear}
 
-\begin{adsfig}[The two ends of a queue]{A queue has two active ends. Items join at the rear and leave from the
+\begin{utpfig}[The two ends of a queue]{A queue has two active ends. Items join at the rear and leave from the
 front, so the order of departure matches the order of arrival --- the opposite discipline
 to a stack.}{fig:queue-fifo}
 \begin{tikzpicture}[
-  queueout/.style={draw=ADSTeal,fill=ADSPaleTeal,rounded corners=1mm,
-    align=center,font=\scriptsize\color{ADSNavy},inner xsep=2mm,inner ysep=1.2mm},
-  queuein/.style={draw=ADSOrange,fill=ADSPaleOrange,rounded corners=1mm,
-    align=center,font=\scriptsize\color{ADSNavy},inner xsep=2mm,inner ysep=1.2mm}
+  queueout/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1mm,
+    align=center,font=\scriptsize\color{UTPNavy},inner xsep=2mm,inner ysep=1.2mm},
+  queuein/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+    align=center,font=\scriptsize\color{UTPNavy},inner xsep=2mm,inner ysep=1.2mm}
 ]
 \foreach \v [count=\i from 0] in {A,B,C,D}{
-  \node[adscell,minimum width=1.5cm,minimum height=0.82cm] (c\i) at (1.5*\i,0) {\v};
+  \node[utpcell,minimum width=1.5cm,minimum height=0.82cm] (c\i) at (1.5*\i,0) {\v};
 }
-\node[adstag,anchor=north] at (0,-0.6) {FRONT};
-\node[adstag,anchor=north] at (4.5,-0.6) {REAR};
+\node[utptag,anchor=north] at (0,-0.6) {FRONT};
+\node[utptag,anchor=north] at (4.5,-0.6) {REAR};
 \node[queueout,anchor=east] (deq) at (-1.2,0)
   {\textbf{dequeue}\\[-0.15em]{\tiny oldest leaves}};
-\draw[adsarrow] (c0.west) -- (deq.east);
+\draw[utparrow] (c0.west) -- (deq.east);
 \node[queuein,anchor=west] (enq) at (5.7,0)
   {\textbf{enqueue}\\[-0.15em]{\tiny newest joins}};
-\draw[adsarrow] (enq.west) -- (c3.east);
+\draw[utparrow] (enq.west) -- (c3.east);
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 The Week VI slides use the terms \term{Create Q}, \term{Enqueue(Q,item)}, and \term{Dequeue(Q)}. The enqueue operation is stated as $O(1)$ in the slide implementation model.
 
@@ -81,7 +81,7 @@ ever move right, so the queue drifts up the array and eventually reports itself 
 sitting on empty slots. Shifting everything back down would fix it, but that costs
 \cxr{O(n)} on every dequeue and throws away the whole point of the structure.
 
-\begin{adsfig}[The ``false full'' problem]{The ``false full'' problem in a linear array queue. After three enqueues and
+\begin{utpfig}[The ``false full'' problem]{The ``false full'' problem in a linear array queue. After three enqueues and
 two dequeues, \texttt{rear} has reached the last index and further enqueues are rejected ---
 even though indices 0 and 1 are free. The array is not full; the queue has merely walked off
 the end of it.}{fig:queue-falsefull}
@@ -89,70 +89,76 @@ the end of it.}{fig:queue-falsefull}
 % state after 5 enqueues, 2 dequeues (capacity 5)
 \foreach \v [count=\i from 0] in {{},{},C,D,E}{
   \ifx\v\empty
-    \node[adsdim,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {};
+    \node[utpdim,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {};
   \else
-    \node[adscell,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {\v};
+    \node[utpcell,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {\v};
   \fi
-  \node[adslabel] at (1.2*\i,-0.68) {\i};
+  \node[utplabel] at (1.2*\i,-0.68) {\i};
 }
-\node[adstag,anchor=south] at (2.4,0.55) {front};
-\draw[adsptr,draw=ADSOrange] (2.4,0.52) -- (z2.north);
-\node[adstag,anchor=south] at (4.8,0.55) {rear};
-\draw[adsptr,draw=ADSOrange] (4.8,0.52) -- (z4.north);
-\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=3pt},draw=ADSGreen,semithick]
+\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+  font=\scriptsize\bfseries\color{UTPOrange!70!black},
+  inner xsep=2.2mm,inner ysep=1mm] (fronttag) at (2.4,1.15) {FRONT};
+\draw[-{Stealth[length=2.1mm,width=1.45mm]},line width=0.9pt,draw=UTPOrange]
+  (fronttag.south) -- ([yshift=0.7mm]z2.north);
+\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+  font=\scriptsize\bfseries\color{UTPOrange!70!black},
+  inner xsep=2.2mm,inner ysep=1mm] (reartag) at (4.8,1.15) {REAR};
+\draw[-{Stealth[length=2.1mm,width=1.45mm]},line width=0.9pt,draw=UTPOrange]
+  (reartag.south) -- ([yshift=0.7mm]z4.north);
+\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=3pt},draw=UTPGreen,semithick]
   (-0.62,-0.9) -- (0.62,-0.9);
-\node[adslabel,anchor=north,color=ADSGreen,align=center] at (0,-1.3) {free, but\\unreachable};
-\node[adslabel,anchor=west,color=ADSRed,align=left] at (5.7,0)
+\node[utplabel,anchor=north,color=UTPGreen,align=center] at (0,-1.3) {free, but\\unreachable};
+\node[utplabel,anchor=west,color=UTPRed,align=left] at (5.7,0)
   {\texttt{enqueue(F)} fails:\\\texttt{rear} is at the last index};
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 \section{Circular queue: reusing array space}
 
 The circular queue addresses that limitation by connecting the logical last position back to the first. The slides call this a \term{ring buffer} and state that modular arithmetic is used for enqueue and dequeue.
 
-\begin{adsfig}[Circular queue wraparound]{The same five slots viewed as a ring. Advancing with $(\text{index}+1)\bmod N$
+\begin{utpfig}[Circular queue wraparound]{The same five slots viewed as a ring. Advancing with $(\text{index}+1)\bmod N$
 sends \texttt{rear} from index 4 back to index 0, so the free space at the front of the array
 is reclaimed instead of stranded.}{fig:queue-circular}
 \begin{tikzpicture}[font=\small]
 % ring
 \foreach \idx/\ang in {0/90, 1/18, 2/-54, 3/-126, 4/162}{
   \ifnum\idx<2
-    \node[adsdim,circle,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
+    \node[utpdim,circle,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
   \else
-    \node[adsnode,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
+    \node[utpnode,minimum size=9.5mm] (k\idx) at (\ang:1.7) {\idx};
   \fi
 }
-\draw[adsarrow] (k0) to[bend left=20] (k1);
-\draw[adsarrow] (k1) to[bend left=20] (k2);
-\draw[adsarrow] (k2) to[bend left=20] (k3);
-\draw[adsarrow] (k3) to[bend left=20] (k4);
-\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=ADSOrange] (k4) to[bend left=20] (k0);
-\node[adslabel,align=center,color=ADSOrange] at (0,0) {$(4+1)\bmod5$\\$=0$};
-\node[adstag,anchor=east] at (162:2.5) {rear};
-\node[adstag,anchor=north west] at (-54:2.35) {front};
+\draw[utparrow] (k0) to[bend left=20] (k1);
+\draw[utparrow] (k1) to[bend left=20] (k2);
+\draw[utparrow] (k2) to[bend left=20] (k3);
+\draw[utparrow] (k3) to[bend left=20] (k4);
+\draw[-{Stealth[length=2.4mm]},line width=1pt,draw=UTPOrange] (k4) to[bend left=20] (k0);
+\node[utplabel,align=center,color=UTPOrange] at (0,0) {$(4+1)\bmod5$\\$=0$};
+\node[utptag,anchor=east] at (162:2.5) {rear};
+\node[utptag,anchor=north west] at (-54:2.35) {front};
 
 % flat equivalent
 \begin{scope}[xshift=6.4cm,yshift=0.15cm]
 \foreach \v [count=\i from 0] in {F,{},C,D,E}{
   \ifx\v\empty
-    \node[adsdim,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {};
+    \node[utpdim,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {};
   \else
     \ifnum\i=0
-      \node[adshot,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
+      \node[utphot,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
     \else
-      \node[adscell,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
+      \node[utpcell,minimum width=1.0cm,minimum height=0.8cm] (w\i) at (1.05*\i,0) {\v};
     \fi
   \fi
-  \node[adslabel] at (1.05*\i,-0.62) {\i};
+  \node[utplabel] at (1.05*\i,-0.62) {\i};
 }
-\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=ADSOrange]
+\draw[-{Stealth[length=2.2mm]},line width=1pt,draw=UTPOrange]
   (w4.east) -- (4.98,0) -- (4.98,-1.3) -- (-0.98,-1.3) -- (-0.98,0) -- (w0.west);
-\node[adslabel,anchor=north,align=center] at (2.1,-1.42)
+\node[utplabel,anchor=north,align=center] at (2.1,-1.42)
   {\texttt{enqueue(F)} now succeeds: \texttt{rear} wraps to index 0};
 \end{scope}
 \end{tikzpicture}
-\end{adsfig}
+\end{utpfig}
 
 For capacity $N$, moving to the next slot uses
 \[
@@ -246,18 +252,18 @@ public:
 
 The lecture deck asks students to differentiate these queue types, and the official lab manual adds the processing rules for a \term{priority queue}.
 
-\begin{mltable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ADSNavy}}p{0.19\linewidth}X X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}X X@{}}
 \toprule
-\rowcolor{ADSPaleBlue!92}
-Queue type & Ordering rule & Course role \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Queue type} & \utpth{Ordering rule} & \utpth{Course role} \\
 \midrule
 Linear queue & FIFO & Front removes oldest; rear inserts newest. \\
 Circular queue & FIFO with wrap-around array positions & Reuses vacant positions with modulo arithmetic. \\
 Priority queue & Higher priority is processed before lower priority; equal-priority items follow arrival order & Models work where urgency matters more than pure arrival time. \\
 \bottomrule
 \end{tabularx}
-\end{mltable}
+\end{utptable}
 
 The lab manual states two priority rules:
 \begin{enumerate}
@@ -273,15 +279,5 @@ The manual supplies the priority-ordering rules and the array/linked-list implem
 \begin{quickcheck}
 Why can a simple linear array queue appear full even when unused slots exist near index 0? How does modulo arithmetic fix that issue in a circular queue?
 \end{quickcheck}
-
-\begin{chapterrecap}
-\begin{itemize}
-  \item A queue follows FIFO.
-  \item Enqueue inserts at the rear; dequeue removes at the front.
-  \item Queues can be implemented with arrays or linked lists.
-  \item A circular queue connects the logical last position to the first and uses modulo arithmetic to reuse space.
-  \item Priority queues use priority rather than pure arrival order.
-\end{itemize}
-\end{chapterrecap}
 
 \input{labs/06-queues}

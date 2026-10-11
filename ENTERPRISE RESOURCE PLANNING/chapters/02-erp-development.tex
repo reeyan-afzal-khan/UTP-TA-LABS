@@ -25,7 +25,7 @@ The manufacturing lineage matters most. \term{Material Requirements Planning
 capacity, then extended past the factory into sales, purchasing, finance, HR,
 and logistics.
 
-\begin{erpfig}[Evolution towards ERP]{Each generation kept the previous scope
+\begin{utpfig}[Evolution towards ERP]{Each generation kept the previous scope
 and added a question it could not previously answer. ERP is the point at which
 the question stops being about the factory and starts being about the
 company.}{fig:erp-evolution}
@@ -33,23 +33,23 @@ company.}{fig:erp-evolution}
 \draw[draw=UTPMuted!45,line width=0.7pt] (-0.2,0) -- (15.2,0);
 \foreach \x in {0.9,4.6,8.3,12.9}{\draw[draw=UTPMuted!45] (\x,-0.12)--(\x,0.12);}
 \foreach \x/\era in {0.9/1960s, 4.6/1970s, 8.3/1980s, 12.9/1990s onward}{
-  \node[erpnote,below=1.5mm] at (\x,0) {\era};}
-\node[erpquiet,minimum width=3.1cm,minimum height=1.35cm,align=center] (a) at (0.9,1.35)
+  \node[procnote,below=1.5mm] at (\x,0) {\era};}
+\node[procquiet,minimum width=3.1cm,minimum height=1.35cm,align=center] (a) at (0.9,1.35)
   {\bfseries Inventory control\\[-0.15em]\tiny What do we have\\\tiny in the store?};
-\node[erpstep,minimum width=3.1cm,minimum height=1.35cm] (b) at (4.6,1.35)
+\node[procstep,minimum width=3.1cm,minimum height=1.35cm] (b) at (4.6,1.35)
   {MRP\\[-0.15em]\tiny\mdseries Which materials,\\\tiny\mdseries and by when?};
-\node[erpstep,minimum width=3.1cm,minimum height=1.35cm,draw=UTPTeal,fill=UTPPaleTeal] (c) at (8.3,1.35)
+\node[procstep,minimum width=3.1cm,minimum height=1.35cm,draw=UTPTeal,fill=UTPPaleTeal] (c) at (8.3,1.35)
   {MRP II\\[-0.15em]\tiny\mdseries Materials \emph{and}\\\tiny\mdseries capacity, cost, labour};
-\node[erpstep,minimum width=4.1cm,minimum height=1.35cm,draw=UTPGreen,fill=UTPPaleTeal] (d) at (12.9,1.35)
+\node[procstep,minimum width=4.1cm,minimum height=1.35cm,draw=UTPGreen,fill=UTPPaleTeal] (d) at (12.9,1.35)
   {ERP\\[-0.15em]\tiny\mdseries Company-wide processes\\\tiny\mdseries on shared data};
-\draw[erpflow] (a)--(b); \draw[erpflow] (b)--(c); \draw[erpflow] (c)--(d);
-\node[erpcap,anchor=west,text width=7.0cm,align=left] at (-0.2,3.05)
+\draw[procflow] (a)--(b); \draw[procflow] (b)--(c); \draw[procflow] (c)--(d);
+\node[proccap,anchor=west,text width=7.0cm,align=left] at (-0.2,3.05)
   {\bfseries scope: one store room \quad$\longrightarrow$\quad one factory};
-\node[erpcap,anchor=east,text width=5.0cm,align=right] at (15.2,3.05)
+\node[proccap,anchor=east,text width=5.0cm,align=right] at (15.2,3.05)
   {\bfseries $\longrightarrow$\quad one enterprise};
 \draw[draw=UTPBlue!35,line width=2pt,-{Stealth[length=3mm]}] (-0.2,2.6) -- (15.2,2.6);
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{The core architectural idea: modules around shared data}
 
@@ -58,69 +58,69 @@ Sales needs quotations; manufacturing needs bills of materials; finance needs
 invoices and payments. Modularity lets specialised workflows exist while still
 drawing on the same underlying records.
 
-\begin{erpfig}[ERP layers]{The architecture in three layers. Users see
+\begin{utpfig}[ERP layers]{The architecture in three layers. Users see
 specialised modules, but every module reads and writes the same master and
 transaction data underneath. Integration lives in the bottom layer, not in the
 screens.}{fig:erp-layers}
 \begin{tikzpicture}[x=1cm,y=1cm]
 % --- layer 1: users ---
 \draw[draw=UTPBlue!35,fill=UTPPaleBlue!40,rounded corners=2.5mm] (0,5.05) rectangle (14.6,6.85);
-\node[erpcap,anchor=west,color=UTPBlue] at (0.25,6.52) {\bfseries Users and roles};
+\node[proccap,anchor=west,color=UTPBlue] at (0.25,6.52) {\bfseries Users and roles};
 \foreach \x/\r in {1.95/Sales Manager, 5.25/Purchasing Officer,
                    8.55/Production Planner, 11.85/Accountant}{
-  \node[erpdoc,minimum width=2.9cm,minimum height=0.72cm] at (\x,5.75) {\r};}
+  \node[procdoc,minimum width=2.9cm,minimum height=0.72cm] at (\x,5.75) {\r};}
 % --- layer 2: modules ---
 \draw[draw=UTPTeal!40,fill=UTPPaleTeal!45,rounded corners=2.5mm] (0,2.45) rectangle (14.6,4.45);
-\node[erpcap,anchor=west,color=UTPTeal] at (0.25,4.12) {\bfseries Modules --- specialised workflows};
+\node[proccap,anchor=west,color=UTPTeal] at (0.25,4.12) {\bfseries Modules --- specialised workflows};
 \foreach \x/\m in {1.35/CRM, 3.35/Sales, 5.35/Purchase, 7.35/Inventory,
                    11.55/Invoicing, 13.5/Employees}{
-  \node[erpstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white] at (\x,3.15) {\m};}
-\node[erpstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white]
+  \node[procstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white] at (\x,3.15) {\m};}
+\node[procstep,minimum width=1.85cm,minimum height=0.9cm,draw=UTPTeal,fill=white]
   at (9.45,3.15) {Manu-\\\scriptsize\bfseries facturing};
 % --- layer 3: data ---
 \draw[draw=UTPNavy!45,fill=UTPNavy!7,rounded corners=2.5mm] (0,-0.35) rectangle (14.6,1.55);
-\node[erpcap,anchor=west,color=UTPNavy] at (0.25,1.26) {\bfseries One database --- where the integration actually is};
-\node[erpstore,minimum width=6.5cm,minimum height=1.05cm] at (3.75,0.35)
+\node[proccap,anchor=west,color=UTPNavy] at (0.25,1.26) {\bfseries One database --- where the integration actually is};
+\node[procstore,minimum width=6.5cm,minimum height=1.05cm] at (3.75,0.35)
   {\textsc{master data}\\[-0.15em]\tiny\mdseries customers, vendors, products, employees, prices};
-\node[erpstore,draw=UTPGreen,fill=UTPPaleTeal,minimum width=6.5cm,minimum height=1.05cm] at (10.85,0.35)
+\node[procstore,draw=UTPGreen,fill=UTPPaleTeal,minimum width=6.5cm,minimum height=1.05cm] at (10.85,0.35)
   {\textsc{transaction data}\\[-0.15em]\tiny\mdseries orders, receipts, MOs, deliveries, invoices};
 \foreach \x in {1.35,3.35,5.35,7.35,9.45,11.55,13.5}{
-  \draw[erplink] (\x,2.45) -- (\x,1.55);
-  \draw[erplink] (\x,4.45) -- (\x,5.05);}
+  \draw[proclink] (\x,2.45) -- (\x,1.55);
+  \draw[proclink] (\x,4.45) -- (\x,5.05);}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Two kinds of data are worth separating, because they behave differently and fail
 differently.
 
-\begin{erpfig}[Master versus transaction data]{Master data is written rarely and
+\begin{utpfig}[Master versus transaction data]{Master data is written rarely and
 read constantly; transaction data is written constantly and refers back to the
 master records. One bad master record therefore contaminates every transaction
 that points at it.}{fig:master-vs-transaction}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erphead,anchor=west,color=UTPBlue] at (0,3.35) {Master data --- stable, reused};
+\node[prochead,anchor=west,color=UTPBlue] at (0,3.35) {Master data --- stable, reused};
 \foreach \i/\t in {0/Customer: Seri Iskandar Cycling Club,
                    1/Product: Road Bike (Goods{,} tracked),
                    2/Vendor: Ipoh Metal Supply,
                    3/Price: RM 1{,}000}{
   \pgfmathsetmacro{\y}{2.55-\i*0.78}
-  \node[erpdoc,anchor=west,minimum width=5.5cm,text width=5.1cm,align=left,
+  \node[procdoc,anchor=west,minimum width=5.5cm,text width=5.1cm,align=left,
         minimum height=0.62cm] (m\i) at (0,\y) {\t};}
-\node[erphead,anchor=west,color=UTPGreen] at (8.6,3.35) {Transaction data --- one per event};
+\node[prochead,anchor=west,color=UTPGreen] at (8.6,3.35) {Transaction data --- one per event};
 \foreach \i/\t in {0/{SO 001 --- 5 Road Bikes},
                    1/{Delivery WH/OUT/001 --- Done},
                    2/{Invoice INV/2024/001 --- Posted},
                    3/{Payment --- RM 5{,}000 received}}{
   \pgfmathsetmacro{\y}{2.55-\i*0.78}
-  \node[erpdoc,anchor=west,minimum width=6.0cm,text width=5.6cm,align=left,
+  \node[procdoc,anchor=west,minimum width=6.0cm,text width=5.6cm,align=left,
         minimum height=0.62cm,draw=UTPGreen] (t\i) at (8.6,\y) {\t};}
-\foreach \i in {0,...,3}{\draw[erplink,-{Stealth[length=1.8mm]}] (t\i.west) -- (m\i.east);}
-\node[erpnote,anchor=center,text width=3.1cm] at (7.3,3.35)
+\foreach \i in {0,...,3}{\draw[proclink,-{Stealth[length=1.8mm]}] (t\i.west) -- (m\i.east);}
+\node[procnote,anchor=center,text width=3.1cm] at (7.3,3.35)
   {each transaction \emph{points at} a master record};
-\node[erpchipwarn,anchor=west] at (0,-0.75) {change a price here $\ldots$};
-\node[erpchipwarn,anchor=west] at (8.6,-0.75) {$\ldots$ and every later document follows};
+\node[procchipwarn,anchor=west] at (0,-0.75) {change a price here $\ldots$};
+\node[procchipwarn,anchor=west] at (8.6,-0.75) {$\ldots$ and every later document follows};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \begin{keyidea}
 ERP integration is not achieved by putting every task on one giant screen. It is
@@ -143,25 +143,25 @@ separately maintained departmental copies.
 The benefits described in the source all run through one of four mechanisms.
 Naming the mechanism is what turns ``ERP improves efficiency'' into an argument.
 
-\begin{erpfig}[How benefits arise]{Benefits are consequences, not features. Each
+\begin{utpfig}[How benefits arise]{Benefits are consequences, not features. Each
 chain runs from a structural change, through a change in what people actually
 do, to something that can be measured.}{fig:benefit-chain}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpcap] at (2.15,3.05) {\bfseries Mechanism};
-\node[erpcap] at (7.3,3.05) {\bfseries What changes in the work};
-\node[erpcap] at (12.7,3.05) {\bfseries What you can measure};
+\node[proccap] at (2.15,3.05) {\bfseries Mechanism};
+\node[proccap] at (7.3,3.05) {\bfseries What changes in the work};
+\node[proccap] at (12.7,3.05) {\bfseries What you can measure};
 \foreach \i/\a/\b/\c in {%
   0/{Data integration}/{one record replaces departmental copies}/{\% invoices needing manual correction},
   1/{Process integration}/{one transaction triggers the next step}/{order-to-delivery cycle time},
   2/{Management visibility}/{reports are read, not assembled}/{days to close the books},
   3/{Standardisation}/{units share processes and structures}/{\% transactions on the standard flow}}{
   \pgfmathsetmacro{\y}{2.35-\i*0.9}
-  \node[erpstep,minimum width=4.3cm,minimum height=0.72cm] (a\i) at (2.15,\y) {\a};
-  \node[erpdoc,minimum width=5.5cm,text width=5.1cm,minimum height=0.72cm] (b\i) at (7.3,\y) {\b};
-  \node[erpgood,minimum width=4.8cm,text width=4.4cm,minimum height=0.72cm] (c\i) at (12.7,\y) {\c};
-  \draw[erpflow] (a\i)--(b\i); \draw[erpflow] (b\i)--(c\i);}
+  \node[procstep,minimum width=4.3cm,minimum height=0.72cm] (a\i) at (2.15,\y) {\a};
+  \node[procdoc,minimum width=5.5cm,text width=5.1cm,minimum height=0.72cm] (b\i) at (7.3,\y) {\b};
+  \node[procgood,minimum width=4.8cm,text width=4.4cm,minimum height=0.72cm] (c\i) at (12.7,\y) {\c};
+  \draw[procflow] (a\i)--(b\i); \draw[procflow] (b\i)--(c\i);}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Better customer service, lower inventory, shorter cycle times, and stronger
 control are downstream consequences of these four.
@@ -179,27 +179,27 @@ ERP affects many departments at once, so implementation is an organisational
 change project as much as a technology project. Licence and hardware costs are
 the visible part; the costs that sink projects are mostly below the surface.
 
-\begin{erpfig}[The cost of an implementation]{Software licences are the part
+\begin{utpfig}[The cost of an implementation]{Software licences are the part
 budgeted first and the part that matters least to whether the project succeeds.
 Everything below the line is process and people work.}{fig:cost-iceberg}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \draw[draw=UTPBlue!30,fill=UTPPaleBlue!35] (-0.4,1.5) rectangle (14.8,3.1);
-\node[erpcap,anchor=west,color=UTPBlue] at (-0.25,2.82) {\bfseries Budgeted first --- visible};
-\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (2.0,2.05) {Software licences};
-\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (5.9,2.05) {Hardware / hosting};
-\node[erpstep,minimum width=3.3cm,minimum height=0.8cm] at (9.8,2.05) {Consultants};
-\node[erpstep,minimum width=2.9cm,minimum height=0.8cm] at (13.2,2.05) {Implementation};
+\node[proccap,anchor=west,color=UTPBlue] at (-0.25,2.82) {\bfseries Budgeted first --- visible};
+\node[procstep,minimum width=3.3cm,minimum height=0.8cm] at (2.0,2.05) {Software licences};
+\node[procstep,minimum width=3.3cm,minimum height=0.8cm] at (5.9,2.05) {Hardware / hosting};
+\node[procstep,minimum width=3.3cm,minimum height=0.8cm] at (9.8,2.05) {Consultants};
+\node[procstep,minimum width=2.9cm,minimum height=0.8cm] at (13.2,2.05) {Implementation};
 \draw[draw=UTPMuted,line width=1pt,dashed] (-0.4,1.35) -- (14.8,1.35);
-\node[erpnote,anchor=east,fill=white,inner sep=1.5pt] at (14.7,1.35) {waterline};
+\node[procnote,anchor=east,fill=white,inner sep=1.5pt] at (14.7,1.35) {waterline};
 \draw[draw=UTPOrange!35,fill=UTPPaleOrange!45] (-0.4,-2.2) rectangle (14.8,1.2);
-\node[erpcap,anchor=west,color=UTPOrange] at (-0.25,0.92) {\bfseries Discovered later --- where projects fail};
+\node[proccap,anchor=west,color=UTPOrange] at (-0.25,0.92) {\bfseries Discovered later --- where projects fail};
 \foreach \x/\y/\t in {2.0/0.2/{Business process\\redesign}, 5.9/0.2/{Master-data cleaning\\and migration},
                       9.8/0.2/{Training and\\change management}, 13.2/0.2/{Testing and\\parallel running},
                       2.0/-1.35/{Lost productivity\\during transition}, 5.9/-1.35/{Process-owner\\time},
                       9.8/-1.35/{Customisation and\\future upgrade debt}, 13.2/-1.35/{Post-go-live\\support}}{
-  \node[erpwarn,minimum width=3.3cm,minimum height=0.95cm] at (\x,\y) {\t};}
+  \node[procwarn,minimum width=3.3cm,minimum height=0.95cm] at (\x,\y) {\t};}
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 Failed implementations are usually traced to process and people problems:
 assuming software will repair a bad process, thin planning before configuration,
@@ -220,25 +220,25 @@ ERP packages embody a particular way of doing business. Every gap between the
 package and the company forces a decision, and the cheapest answer is not always
 the right one.
 
-\begin{erpfig}[The customisation decision]{Work down the questions before
+\begin{utpfig}[The customisation decision]{Work down the questions before
 writing code. Custom features are not forbidden, but each one is paid for again
 at every future upgrade.}{fig:customisation-decision}
 \begin{tikzpicture}[x=1cm,y=1cm]
-\node[erpterm,minimum width=3.1cm] (start) at (1.6,0) {Process gap found};
-\node[erpdec,text width=2.4cm] (d1) at (5.5,0) {Does standard\\configuration cover it?};
-\node[erpdec,text width=2.5cm] (d2) at (10.2,0) {Is it a real competitive or\\legal need?};
-\node[erpgood,minimum width=3.0cm,minimum height=0.9cm] (o1) at (5.5,-2.35) {Configure\\\tiny\mdseries no code, upgrade-safe};
-\node[erpgood,minimum width=3.2cm,minimum height=0.9cm] (o2) at (10.2,2.15) {Adopt the standard\\\tiny\mdseries change the process};
-\node[erpwarn,minimum width=3.2cm,minimum height=0.9cm] (o3) at (14.0,0) {Customise\\\tiny\mdseries log the upgrade cost};
-\draw[erpflow] (start)--(d1);
-\draw[erpflow] (d1)--node[erpnote,above,fill=white,inner sep=1pt]{no}(d2);
-\draw[erpflow] (d1)--node[erpnote,right,fill=white,inner sep=1pt]{yes}(o1);
-\draw[erpflow] (d2)--node[erpnote,right,fill=white,inner sep=1pt]{no}(o2);
-\draw[erpflow] (d2)--node[erpnote,above,fill=white,inner sep=1pt]{yes}(o3);
-\node[erpnote,text width=4.4cm,anchor=north] at (10.2,-1.6)
+\node[procterm,minimum width=3.1cm] (start) at (1.6,0) {Process gap found};
+\node[procdec,text width=2.4cm] (d1) at (5.5,0) {Does standard\\configuration cover it?};
+\node[procdec,text width=2.5cm] (d2) at (10.2,0) {Is it a real competitive or\\legal need?};
+\node[procgood,minimum width=3.0cm,minimum height=0.9cm] (o1) at (5.5,-2.35) {Configure\\\tiny\mdseries no code, upgrade-safe};
+\node[procgood,minimum width=3.2cm,minimum height=0.9cm] (o2) at (10.2,2.15) {Adopt the standard\\\tiny\mdseries change the process};
+\node[procwarn,minimum width=3.2cm,minimum height=0.9cm] (o3) at (14.0,0) {Customise\\\tiny\mdseries log the upgrade cost};
+\draw[procflow] (start)--(d1);
+\draw[procflow] (d1)--node[procnote,above,fill=white,inner sep=1pt]{no}(d2);
+\draw[procflow] (d1)--node[procnote,right,fill=white,inner sep=1pt]{yes}(o1);
+\draw[procflow] (d2)--node[procnote,right,fill=white,inner sep=1pt]{no}(o2);
+\draw[procflow] (d2)--node[procnote,above,fill=white,inner sep=1pt]{yes}(o3);
+\node[procnote,text width=4.4cm,anchor=north] at (10.2,-1.6)
   {The useful test: does this process create advantage, or is it merely familiar?};
 \end{tikzpicture}
-\end{erpfig}
+\end{utpfig}
 
 \section{How to judge ERP success}
 
@@ -251,13 +251,14 @@ adoption, service levels, and realised cost or revenue change.
 Some benefits resist cash valuation. Better visibility, consistent data, and
 the capacity to support growth may still be strategically decisive.
 
+\Needspace{24\baselineskip}
 \section{Implementation success factors}
 
-\begin{erptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{ERPNavy}}p{0.25\linewidth}X@{}}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.25\linewidth}X@{}}
 \toprule
-\rowcolor{ERPPaleBlue!92}
-Success factor & Why it matters \\
+\rowcolor{UTPPaleBlue!92}
+\utpth{Success factor} & \utpth{Why it matters} \\
 \midrule
 Executive sponsorship & Gives the project authority, resources, and cross-functional priority. \\
 Clear scope and objectives & Prevents uncontrolled expansion and makes benefits measurable. \\
@@ -268,7 +269,7 @@ Data preparation & Poor master data undermines even correctly configured softwar
 Testing and staged readiness & Finds problems before live transactions depend on the system. \\
 \bottomrule
 \end{tabularx}
-\end{erptable}
+\end{utptable}
 
 \section{How Odoo illustrates ERP modularity}
 
