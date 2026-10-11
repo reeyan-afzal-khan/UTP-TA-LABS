@@ -8,7 +8,7 @@ lab sheet itself.
 <course>/
   <CODE>-Book.pdf          the whole book, every chapter and lab in teaching order
   Lab-01/                  one folder for every lab
-    Chapter-01.pdf           each chapter this lab practises
+    Chapter-01A.pdf          each chapter this lab practises, named by its printed number
     Chapter-02.pdf
     Lab-Activity.pdf         the lab sheet, the same pages as in the book
   Lab-02/ ...
@@ -22,9 +22,12 @@ How the folders are filled:
   another, such as Machine Learning's Labs 7 and 8, practises the same chapter, so each folder holds its own
   copy. A lab sheet that draws on other chapters names them with `\labcovers` (Enterprise Resource Planning's
   practicals, which follow the tutorial order).
-- **An unnumbered chapter before Chapter 1** is `Chapter-00.pdf`, or `Chapter-00A.pdf`, `Chapter-00B.pdf` when
-  there are several (Operating Systems' two orientation chapters).
+- **A chapter file is named after its printed number**: `Chapter-01A.pdf` and `Chapter-01B.pdf` are the setup
+  chapters (toolkit, then Git), which go with Lab 1. An unnumbered chapter before Chapter 1 is `Chapter-00.pdf`,
+  or `Chapter-00A.pdf`, `Chapter-00B.pdf` when there are several (Operating Systems' two orientation chapters).
 - **Part and stage divider pages** appear only in the book.
+- **Every file is compressed**: images printed at more than 200 dpi are resampled to 200 dpi, and fonts and
+  repeated objects are stored once. Text, drawings, bookmarks and links are unchanged.
 
 | Course | Book | What the folder holds |
 | --- | --- | --- |

@@ -84,21 +84,6 @@ Every course folder uses the same names, and holds only that course's content:
 <COURSE>/            one folder per course                        -> <COURSE>/README.md
 ```
 
-## Building the books
-
-The books need a LaTeX distribution (MiKTeX or TeX Live). From the repository root:
-
-```bash
-python .shared/build.py               # rebuild every book and its lab PDFs in .all_pdfs/
-python .shared/build.py ML OS         # only these, by code or folder name
-python .shared/build.py ML --check    # build only, to check a change; writes nothing
-```
-
-Course codes are the initials of the folder name: `ADS`, `AI`, `DCN`, `DS`, `ERP`, `FI`, `ML`, `OS`. Each book is
-compiled in a temporary folder outside the repository, so the only output is the course's folder in `.all_pdfs/`
-and the course folders never collect build files. A book also builds on its own from inside its folder
-(`pdflatex main.tex`, three times), which is what an online LaTeX editor does.
-
 ## Adding a course
 
 Copy [`.shared/TEMPLATE-main.tex`](.shared/TEMPLATE-main.tex), which marks every decision `REQUIRED` or

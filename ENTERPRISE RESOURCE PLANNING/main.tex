@@ -31,7 +31,15 @@
 \utpnewcallout[boxrule=0.9pt,top=1.9mm,bottom=1.9mm]{odoobox}{white}{UTPBlue}{Odoo 19 Community}
 \newcommand{\odooapp}[1]{\textbf{\color{UTPBlue}#1}}
 \newcommand{\pathmenu}[1]{\textbf{\color{UTPTeal}#1}}
-\newcommand{\labcovers}[1]{}
+% The practicals follow the tutorial order, not the chapters, so each one
+% names the chapters it practises right after its banner, by label:
+% \labcovers{ch:sales-order,ch:accounting}. Nothing is printed; the line goes
+% to the .aux file, where .shared/build.py reads it to fill that lab's folder
+% in .all_pdfs/ with the right chapters.
+\makeatletter
+\newcommand{\labcovers}[1]{\protected@write\@auxout{}{\string\utplabcovers{#1}}}
+\makeatother
+\newcommand{\utplabcovers}[1]{}
 
 % ---------- the book ----------
 \begin{document}

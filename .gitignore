@@ -83,6 +83,8 @@ main.pdf
 *.synctex.gz
 *.toc
 *.xdv
+# ...but this .log is lab input, not a build product: Operating Systems Lab 3 reads it.
+!OPERATING SYSTEMS/all_experiments/Lab03/events.log
 
 # Datasets that a notebook extracts from a committed archive
 ARTIFICIAL INTELLIGENCE/all_datasets/lab06-ocr-handwritten-prescription/

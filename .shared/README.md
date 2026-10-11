@@ -21,7 +21,7 @@ Change something here and every book changes with it. Back to the
 | [`diagrams/network.tex`](diagrams/network.tex)           | TikZ vocabulary for networks and protocols            |
 | [`diagrams/process.tex`](diagrams/process.tex)           | TikZ vocabulary for business processes                |
 | [`diagrams/data-objects.tex`](diagrams/data-objects.tex) | TikZ vocabulary for in-memory data and flowcharts     |
-| [`build.py`](build.py)                     | builds books into `.latex-build/` and publishes them to `.all_pdfs/` |
+| [`build.py`](build.py)                     | builds the books and publishes them, compressed, to `.all_pdfs/`   |
 | [`TEMPLATE-main.tex`](TEMPLATE-main.tex)   | the starting point for a new course's `main.tex`                   |
 | [`STYLE-GUIDE.md`](STYLE-GUIDE.md)         | the house style every book follows: tables, figures, chapters, labs |
 | [`ADDING-A-COURSE.md`](ADDING-A-COURSE.md) | the checklist for adding a course                                  |
@@ -29,16 +29,23 @@ Change something here and every book changes with it. Back to the
 ## Building
 
 ```bash
-python .shared/build.py                  # every book
-python .shared/build.py ML OS            # by course code or folder name
-python .shared/build.py DS --publish     # build, then refresh .all_pdfs/data-science/
+python .shared/build.py                  # build and publish every book
+python .shared/build.py ML OS            # only these, by course code or folder name
+python .shared/build.py DS --check       # build only, to check a change; writes nothing
 ```
 
 The course codes are the initials of the folder name: `ADS`, `AI`, `DCN`,
-`DS`, `ERP`, `FI`, `ML`, `OS`. Building needs `pdflatex` (MiKTeX or TeX Live);
-publishing also needs `pdfseparate` and `pdfunite`, which MiKTeX ships and
-which Linux provides in `poppler-utils`. Output goes to `.latex-build/<course>/`,
-which git ignores.
+`DS`, `ERP`, `FI`, `ML`, `OS`. Each book is compiled in a temporary folder
+outside the repository, so nothing is written to the course folders; the
+only output is `.all_pdfs/<course>/`, replaced as a whole: the book, one
+`Lab-NN/` folder per lab (its chapters and the lab sheet), and the capstone
+and appendices. Every published PDF is compressed: images printed at more
+than 200 dpi are resampled to 200 dpi, and fonts and duplicate objects are
+shared; text and drawings are unchanged.
+
+Building needs `pdflatex` (MiKTeX or TeX Live); publishing needs PyMuPDF
+(`pip install pymupdf`). Without it, `build.py` splits the book with poppler's
+`pdfseparate` and `pdfunite` (MiKTeX ships them) and does not compress.
 
 A book can still be built by hand from inside its folder,
 `pdflatex main.tex` three times, which is what an online editor does.

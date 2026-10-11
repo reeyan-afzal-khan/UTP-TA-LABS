@@ -38,8 +38,8 @@ are required; add the others when the course needs them, under these names:
 | `requirements.txt` | Python packages the lab code needs                                 |
 | `0.from_lecturer/` | the lecturer's slides, manuals and tutorials the book is built on  |
 
-Build products never go in the course folder: `build.py` writes them to
-`.latex-build/` at the repository root.
+Build products never go in the course folder: `build.py` compiles in a
+temporary folder outside the repository and writes only to `.all_pdfs/`.
 
 ## 2. Copy the template
 
@@ -166,24 +166,28 @@ step 3. Two rules the finished courses follow:
 From the repository root:
 
 ```bash
-python .shared/build.py "NEW COURSE"
+python .shared/build.py "NEW COURSE" --check
 ```
 
-The script runs `pdflatex` from inside the course folder until the
-cross-references settle, writes everything to `.latex-build/new-course/`, and
-reports the page count, or the first errors if the build failed. A clean
-build reports no warnings; if it does, the log it names lists them.
+The script runs `pdflatex` from inside the course folder, in a temporary
+output folder, until the cross-references and the contents settle, and
+reports the page count and any warnings, or the first errors and where the
+log is if the build failed. `--check` writes nothing. A clean build reports
+no warnings.
 
 When the book is ready to hand out, publish it:
 
 ```bash
-python .shared/build.py "NEW COURSE" --publish
+python .shared/build.py "NEW COURSE"
 ```
 
-This copies the book to `.all_pdfs/new-course/` and splits it into one folder
+This writes the book to `.all_pdfs/new-course/` and splits it into one folder
 per lab, holding the chapters read since the previous lab and the lab sheet
-(`Lab-01/Chapter-01.pdf`, `Lab-01/Lab-Activity.pdf`, ...), plus
-`Capstone-Project.pdf` for a chapter titled *Capstone*.
+(`Lab-01/Chapter-01A.pdf`, `Lab-01/Chapter-02.pdf`, `Lab-01/Lab-Activity.pdf`,
+...), then `Capstone-Project.pdf` and `Appendix-A.pdf`, ... for what follows
+the last lab. Every file is compressed (images resampled to 200 dpi, fonts
+shared). A lab sheet placed away from its chapters names them after its
+banner with `\labcovers{ch:label,...}`, as Enterprise Resource Planning does.
 
 ## 7. Register the course
 
@@ -223,7 +227,8 @@ Editing `.shared/` changes every book at once, so rebuild them all and compare
 before and after. Text comparison catches what a page count misses:
 
 ```bash
-python .shared/build.py
-pdftotext -layout .latex-build/machine-learning/main.pdf after.txt
+pdftotext -layout .all_pdfs/machine-learning/ML-Book.pdf before.txt
+python .shared/build.py ML
+pdftotext -layout .all_pdfs/machine-learning/ML-Book.pdf after.txt
 diff before.txt after.txt
 ```
