@@ -7,7 +7,7 @@
     3  the wordmark tracks in (letters glide together from wider spacing) while the gold rules
        grow from the centre outwards, and a soft light sweeps across the emblem
 
-Review it on its own in seconds:  python .all_lectures/engine/logo_intro.py
+The standalone intro video (on white, with its own copy of this file) is .engine/utp-logo-intro/logo_intro.py.
 Every timing is a constant below: fractions of a phase, and phase lengths in seconds.
 """
 
@@ -44,7 +44,7 @@ SHINE_SLICES = 16              # the band is drawn in slices, brightest in the m
 SHINE_ANGLE = 62               # degrees from horizontal
 HOLD_SECONDS = 0.7             # the finished logo, still, before the title arrives
 
-# the standalone intro (logo_intro.py) ends instead on the logo alone, then fades away
+# the standalone intro ends instead on the logo alone, then fades away
 OUTRO_HOLD = 1.0               # the finished logo, still
 OUTRO_FADE = 1.6               # ... then a slow fade to the background
 OUTRO_BLANK = 1.0              # ... and the empty background, held before the video ends

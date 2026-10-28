@@ -68,6 +68,7 @@ setup on screen:
 \end{description}
 \end{tcolorbox}
 
+\pagebreak
 \subsection{Create an SSH key for GitHub}
 
 SSH lets Git authenticate without asking for a GitHub password on every push.
@@ -84,25 +85,59 @@ Enter the email connected to GitHub and choose a passphrase when prompted:
 ssh-keygen -t ed25519 -C "you@example.com"
 \end{lstlisting}
 
-Press Enter to accept the default file location. Then load the \emph{private}
-key into the SSH agent:
+The command above will give:
+
+\begin{enumerate}[leftmargin=1.7em]
+  \item Generating public/private ed25519 key pair.
+  \item Enter file in which to save the key (\textasciitilde/.ssh/id\_ed25519): \textit{(Press Enter to accept the default)}
+  \item Enter passphrase (empty for no passphrase): \textit{(Press Enter for no passphrase)}
+  \item Enter same passphrase again: \textit{(Press Enter to confirm)}
+\end{enumerate}
 
 \begin{lstlisting}[style=utpterminal]
-# Windows Git Bash or Linux
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
+Your identification has been saved in C:\Users\USERNAME\.ssh\id_ed25519
+Your public key has been saved in C:\Users\USERNAME\.ssh\id_ed25519.pub
+The key's randomart fingerprint is:
++--[ED25519 256]--+
+|   ..oo+.        |
+|   o.+.= .       |
+|  . o o =        |
+|   . E o         |
+|    o . S        |
+|     o o         |
+|      o          |
++-----------------+
+\end{lstlisting}
 
-# macOS
+After that you can you can load the \emph{private} key into the SSH agent:
+
+# For Windows Powershell:
+
+\begin{lstlisting}[style=utpterminal]
+Set-Service -Name ssh-agent -StartupType Automatic
+Start-Service ssh-agent
+ssh-add $env:USERPROFILE\.ssh\id_ed25519
+git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
+\end{lstlisting}
+
+# For macOS:
+\begin{lstlisting}[style=utpterminal]
 eval "$(ssh-agent -s)"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
+\end{lstlisting}
+
+# For Linux:
+\begin{lstlisting}[style=utpterminal]
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
 \end{lstlisting}
 
 Copy the \emph{public} key. Never upload or share the file without
 \texttt{.pub}.
 
 \begin{lstlisting}[style=utpterminal]
-# Windows Git Bash
-clip < ~/.ssh/id_ed25519.pub
+# Windows Powershell
+Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub | Set-Clipboard
 
 # macOS
 pbcopy < ~/.ssh/id_ed25519.pub
@@ -114,11 +149,11 @@ cat ~/.ssh/id_ed25519.pub
 \noindent To authenticate Git operations securely without entering your password, copy your public SSH key and register it in your GitHub account:
 
 \begin{enumerate}[leftmargin=1.7em]
-  \item Copy your public key directly to your clipboard. If you generated an Ed25519 key, run the command below in PowerShell or terminal. Do not share or copy the private key (\texttt{id\_ed25519}).
+  \item Copy your public key directly to your clipboard. If you generated an ed25519 key, run the command below in PowerShell or terminal. Do not share or copy the private key (\texttt{id\_ed25519}).
   \item In the upper-right corner of GitHub, click your profile icon and select \textbf{Settings}.
   \item In the left sidebar under \textbf{Access}, select \textbf{SSH and GPG keys}.
   \item Click \textbf{New SSH key} (or \textbf{Add SSH key}).
-  \item In the \textbf{Title} field, enter a descriptive label such as \texttt{Course laptop}.
+  \item In the \textbf{Title} field, enter a descriptive label such as \texttt{personal laptop}.
   \item Ensure \textbf{Key type} is set to \textbf{Authentication Key}.
   \item Paste the public key string into the \textbf{Key} field.
   \item Click \textbf{Add SSH key}, then confirm your GitHub account password or two-factor prompt if requested.
@@ -130,6 +165,7 @@ cat ~/.ssh/id_ed25519.pub
 ssh -T git@github.com
 \end{lstlisting}
 
+
 \subsection{Prepare the course repository}
 
 Do not upload the virtual environment, passwords, tokens, or API keys. In the project root, create a file named \texttt{.gitignore}.
@@ -139,7 +175,6 @@ Create a new repository on GitHub. Use a name such as \texttt{UTP-"COURSE-NAME"/
 From the project root, create the first commit and connect it to the empty
 GitHub repository. Replace \texttt{USERNAME} and \texttt{REPOSITORY}:
 
-\clearpage
 \begin{lstlisting}[style=utpterminal]
 git init -b main
 git add .

@@ -198,15 +198,9 @@ blue fades in inside it; then the gold flows up through
 the engraved lines from their feet, each flow front carrying a small light (the flow stages are traced
 from the exact artwork once, by distance along the lines, in `brand.py`, so the lines always have their
 final width and both halves flow in step); the wordmark tracks in while the gold rules grow from the centre, and a soft light
-sweeps the emblem. It then settles beside the title, and its emblem sits in the corner. To review a change to it in seconds, render it alone:
-
-```bash
-python .all_lectures/engine/logo_intro.py
-```
-
-which writes `.all_lectures/utp-logo-intro.mp4` (about 7 s, standard H.264): the logo and its wordmark draw
-themselves, hold, then fade slowly to black (`ident.OUTRO_HOLD`, `OUTRO_FADE`, `OUTRO_BLANK`; `--title`
-adds a sample chapter title card after it). Everything is drawn with Cairo's best antialiasing
+sweeps the emblem. It then settles beside the title, and its emblem sits in the corner. The standalone
+intro video, on white, has its own folder with its own copy of this code: `utp-logo-intro/` (see its
+README). Everything is drawn with Cairo's best antialiasing
 (`player.best_antialias`). The text face is the first installed of
 `theme.font` (Adobe Jenson Pro, then
 Palatino Linotype, then Source Sans 3): Jenson is a licensed Adobe font, so install it on this PC and the
