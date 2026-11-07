@@ -1,287 +1,298 @@
 \labsection{7}{Deep learning I: a first neural network and a CNN for images}{sec:lab07-cnn}
 
 \begin{labproject}{Train a dense network and a convolutional network on the handwritten digits}
-\textbf{Coverage.} Chapter~\ref{ch:deep}.\\
-\textbf{Goal.} Build tensors, train dense/CNN models, compare Lab~4's baseline, inspect errors and filters, and save weights with a card.
-
-\medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=utppython]
-import json
-import os
-import site
-import subprocess
-import sys
-import zipfile
-from pathlib import Path
-
-# Anaconda's NumPy and pip's PyTorch each ship an OpenMP runtime on Windows; let them coexist.
-os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score
-
-# PyTorch: import it, or install the CPU build into this kernel's Python if it is missing.
-try:
-    import torch
-except ModuleNotFoundError:
-    print("PyTorch is not installed for", sys.executable, "- installing it once (a few hundred MB) ...")
-    pip = [sys.executable, "-m", "pip", "install", "torch"]
-    if subprocess.run(pip + ["--index-url", "https://download.pytorch.org/whl/cpu"]).returncode != 0:
-        subprocess.run(pip, check=True)      # PyTorch's own index unreachable: fall back to PyPI
-    site.addsitedir(site.getusersitepackages())   # pip may use the per-user folder, which some kernels skip
-    import torch
-from torch import nn
-
-# Use a GPU when PyTorch can see one (NVIDIA "cuda" or Apple "mps"); otherwise the CPU.
-# Both labs finish in under a minute on a CPU, so nothing here needs a GPU.
-if torch.cuda.is_available():
-    DEVICE = torch.device("cuda")
-elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
-    DEVICE = torch.device("mps")
-else:
-    DEVICE = torch.device("cpu")
-torch.manual_seed(42)
-PROJECT_ROOT = Path.cwd().parent
-DATA = PROJECT_ROOT / "all_datasets"
-MODELS = PROJECT_ROOT / "models"
-MODELS.mkdir(exist_ok=True)
-print("Python", sys.version.split()[0], "at", sys.executable)
-print("PyTorch", torch.__version__, "| device:", DEVICE,
-      f"({torch.cuda.get_device_name(0)})" if DEVICE.type == "cuda" else "")
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part A --- Images as tensors.}\par
-
-Reshape 64-pixel digits to $1\times8\times8$ and divide brightnesses by 16. CNN tensors use (batch, channels, height, width). Reserve one-quarter of training rows for validation and the official test file for final evaluation.
-
-\begin{lstlisting}[style=utppython]
-columns = [f"pixel_{i}" for i in range(64)] + ["label"]
-with zipfile.ZipFile(DATA / "optical_recognition_handwritten_digits.zip") as archive:
-    members = {Path(name).name: name for name in archive.namelist()}
-    train = pd.read_csv(archive.open(members["optdigits.tra"]), header=None, names=columns)
-    test = pd.read_csv(archive.open(members["optdigits.tes"]), header=None, names=columns)
-
-def to_tensors(frame):
-    X = torch.tensor(frame.drop(columns="label").to_numpy(), dtype=torch.float32)
-    X = X.reshape(-1, 1, 8, 8) / 16.0            # (rows, channels, height, width), values in [0, 1]
-    y = torch.tensor(frame["label"].to_numpy(), dtype=torch.long)
-    return X.to(DEVICE), y.to(DEVICE)         # tensors live on the chosen device
-
-X_dev, y_dev = to_tensors(train)
-X_test, y_test = to_tensors(test)
-perm = torch.randperm(len(X_dev), generator=torch.Generator().manual_seed(42))
-n_val = len(X_dev) // 4
-X_val, y_val = X_dev[perm[:n_val]], y_dev[perm[:n_val]]
-X_fit, y_fit = X_dev[perm[n_val:]], y_dev[perm[n_val:]]
-print("fit:", X_fit.shape, " validation:", X_val.shape, " test:", X_test.shape)
-
-fig, axes = plt.subplots(1, 10, figsize=(10, 1.4))
-for ax, image, label in zip(axes, X_fit[:10], y_fit[:10]):
-    ax.imshow(image[0].cpu(), cmap="gray_r")     # matplotlib wants a CPU tensor
-    ax.set_title(int(label), fontsize=9)
-    ax.axis("off")
-plt.suptitle("Ten training digits as the network sees them", y=1.05)
-plt.show()
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part B --- A first neural network and the training loop.}\par
-
-The dense model maps 64 pixels through 128 ReLU units to ten scores. Logistic regression is the no-hidden-layer baseline.
-
-\begin{lstlisting}[style=utppython]
-def make_mlp():
-    return nn.Sequential(
-        nn.Flatten(),                 # 1 x 8 x 8  ->  64
-        nn.Linear(64, 128), nn.ReLU(),
-        nn.Linear(128, 10),           # ten class scores
-    )
-
-mlp = make_mlp().to(DEVICE)
-print(mlp)
-print("trainable weights:", sum(p.numel() for p in mlp.parameters()))
-\end{lstlisting}
-
-Each epoch shuffles rows into batches of 32. Compute scores, cross-entropy, gradients via \texttt{backward()}, and optimizer updates; record training/validation accuracy.
-
-\begin{lstlisting}[style=utppython]
-def accuracy(model, X, y):
-    model.eval()
-    with torch.no_grad():
-        return (model(X).argmax(dim=1) == y).float().mean().item()
-
-def train_classifier(model, X, y, X_v, y_v, epochs=20, lr=3e-3, batch_size=32):
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    loss_fn = nn.CrossEntropyLoss()
-    history = {"train": [], "validation": []}
-    for epoch in range(epochs):
-        model.train()
-        order = torch.randperm(len(X))
-        for start in range(0, len(X), batch_size):
-            batch = order[start:start + batch_size]
-            optimizer.zero_grad()                    # forget the previous gradients
-            loss = loss_fn(model(X[batch]), y[batch])
-            loss.backward()                          # backpropagation: gradient for every weight
-            optimizer.step()                         # move every weight a small step
-        history["train"].append(accuracy(model, X, y))
-        history["validation"].append(accuracy(model, X_v, y_v))
-    return history
-
-torch.manual_seed(42)
-mlp_history = train_classifier(mlp, X_fit, y_fit, X_val, y_val)
-print("dense network: validation accuracy =", round(mlp_history["validation"][-1], 4))
-\end{lstlisting}
-
-\begin{lstlisting}[style=utppython]
-def plot_history(history, title):
-    plt.figure(figsize=(5.5, 3.4))
-    plt.plot(range(1, len(history["train"]) + 1), history["train"], marker="o", label="training")
-    plt.plot(range(1, len(history["validation"]) + 1), history["validation"],
-             marker="o", label="validation")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.title(title)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-plot_history(mlp_history, "Dense network: accuracy per epoch")
-\end{lstlisting}
-
-\textbf{Inspect.} Training accuracy rises while validation plateaus. If validation falls, retain an earlier validated epoch.
-
-\medskip\noindent\textbf{Part C --- A convolutional network.}\par
-
-The CNN applies 16 then 32 filters, pooling after each stage, followed by flattening and dense classification. Print intermediate shapes.
-
-\begin{lstlisting}[style=utppython]
-def make_cnn():
-    return nn.Sequential(
-        nn.Conv2d(1, 16, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),   # 16 x 4 x 4
-        nn.Conv2d(16, 32, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),  # 32 x 2 x 2
-        nn.Flatten(),                                                             # 128
-        nn.Linear(32 * 2 * 2, 64), nn.ReLU(), nn.Dropout(0.2),
-        nn.Linear(64, 10),
-    )
-
-cnn = make_cnn().to(DEVICE)
-print("trainable weights:", sum(p.numel() for p in cnn.parameters()))
-sample = X_fit[:1]
-for layer in cnn:
-    sample = layer(sample)
-    if isinstance(layer, (nn.Conv2d, nn.MaxPool2d, nn.Flatten, nn.Linear)):
-        print(f"{layer.__class__.__name__:10s} -> {tuple(sample.shape[1:])}")
-\end{lstlisting}
-
-The same loop trains it; nothing else changes.
-
-\begin{lstlisting}[style=utppython]
-torch.manual_seed(42)
-cnn_history = train_classifier(cnn, X_fit, y_fit, X_val, y_val)
-print("CNN: validation accuracy =", round(cnn_history["validation"][-1], 4))
-plot_history(cnn_history, "CNN: accuracy per epoch")
-\end{lstlisting}
-
-Now the official test file, opened once for each model. The third number is the PCA-plus-logistic result from Lab~4 on the same file.
-
-\begin{lstlisting}[style=utppython]
-test_scores = {
-    "logistic on PCA (Lab 4)": 0.9477,
-    "dense network": accuracy(mlp, X_test, y_test),
-    "CNN": accuracy(cnn, X_test, y_test),
-}
-for name, value in test_scores.items():
-    print(f"{name:26s} test accuracy = {value:.4f}")
-
-plt.figure(figsize=(5, 3.2))
-plt.bar(list(test_scores), list(test_scores.values()))
-plt.ylim(0.9, 1.0)
-plt.ylabel("Official test accuracy")
-plt.title("Three models, one test file")
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Compare gains across linear, dense, and convolutional models on 1,797 test digits. CNN filters reuse learned patterns across locations.
-
-Inspect the test confusion matrix and misclassified images.
-
-\begin{lstlisting}[style=utppython]
-cnn.eval()
-with torch.no_grad():
-    test_pred = cnn(X_test).argmax(dim=1)
-
-ConfusionMatrixDisplay.from_predictions(y_test.cpu().numpy(), test_pred.cpu().numpy(), colorbar=False)
-plt.title("CNN confusion matrix on the official test file")
-plt.tight_layout()
-plt.show()
-
-wrong = torch.nonzero(test_pred != y_test).flatten()[:10]
-fig, axes = plt.subplots(1, len(wrong), figsize=(10, 1.6))
-for ax, i in zip(axes, wrong):
-    ax.imshow(X_test[i, 0].cpu(), cmap="gray_r")
-    ax.set_title(f"{int(y_test[i])} read as {int(test_pred[i])}", fontsize=8)
-    ax.axis("off")
-plt.suptitle("Ten of the CNN's mistakes", y=1.1)
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Check 8/1, 9/5, and 3/8 confusions. Examine images before attributing errors to ambiguity or systematic bias.
-
-Visualize the sixteen first-layer $3\times3$ filters.
-
-\begin{lstlisting}[style=utppython]
-filters = cnn[0].weight.detach().cpu()[:, 0]
-fig, axes = plt.subplots(2, 8, figsize=(8, 2.4))
-for ax, kernel in zip(axes.flat, filters):
-    ax.imshow(kernel, cmap="coolwarm", vmin=-filters.abs().max(), vmax=filters.abs().max())
-    ax.axis("off")
-plt.suptitle("The sixteen 3x3 filters of the first convolutional layer", y=1.02)
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Bright/dark filter contrasts can detect oriented edges learned through loss minimization.
-
-\medskip\noindent\textbf{Part D --- Save the weights with a card.}\par
-
-\texttt{torch.save} writes the learned weights (the \emph{state dict}) to a file. Loading them requires building the same architecture first, which is why \texttt{make\_cnn} and the model card belong beside the file. The reloaded model is checked against the in-memory one before the file is trusted.
-
-\begin{lstlisting}[style=utppython]
-weights_path = MODELS / "digits_cnn.pt"
-torch.save(cnn.state_dict(), weights_path)
-
-card = {
-    "task": "classify 8x8 handwritten digits (0-9)",
-    "input": "tensor of shape (n, 1, 8, 8), pixel values divided by 16",
-    "architecture": "make_cnn() in Lab 7: conv16-pool-conv32-pool-dense64-dense10",
-    "training": {"epochs": 20, "learning_rate": 3e-3, "batch_size": 32, "seed": 42},
-    "official_test_accuracy": round(test_scores["CNN"], 4),
-    "torch_version": torch.__version__,
-    "trained_on": str(DEVICE),
-}
-(MODELS / "digits_cnn_card.json").write_text(json.dumps(card, indent=2))
-
-restored = make_cnn().to(DEVICE)
-restored.load_state_dict(torch.load(weights_path, map_location=DEVICE, weights_only=True))
-restored.eval()
-with torch.no_grad():
-    same = torch.equal(restored(X_test).argmax(dim=1), test_pred)
-size_kb = weights_path.stat().st_size / 1024
-print(f"saved {weights_path.name} ({size_kb:.0f} KB); reload reproduces predictions: {same}")
-\end{lstlisting}
-
-\begin{tryit}
-Compare 5 versus 40 epochs using validation curves. Remove the second convolution/ReLU/pooling block, adjust flattening to $16\times4\times4$, and assess its contribution.
-\end{tryit}
+\textbf{Read first.} Chapter~\ref{ch:deep}.\\
+\textbf{Goal.} Turn images into tensors, write one training loop and read its curves, compare a dense network and a CNN with Lab~4's classical baseline, look at what the CNN learned, and save the weights with a model card.\\
+\textbf{Scenario.} Lab~4 read digits with logistic regression at 94.8\% on the official test file. Is a neural network worth it? Each step up the ladder has to earn its place on the same 1,797 digits.\\
+\textbf{Data.} \texttt{all\_datasets/optical\_recognition\_handwritten\_digits.zip}, read in place.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab07\_deep\_learning\_cnn\_worked.ipynb}.\\
+\textbf{Hand in.} The executed notebook, \texttt{results/lab07/}, the weights with their card and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
+\begin{labmode}
+\begin{enumerate}
+  \item Activate your course environment. PyTorch comes with \texttt{requirements.txt}; if it is missing, the Setup cell installs the CPU build once.
+  \item Check the small worked numbers of Chapter~\ref{ch:deep}, which run on NumPy alone. The last line must read \texttt{Every number above matches the book.}
+  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It took 42 seconds on the CPU behind this sheet.
+  \item To reproduce the sheet's CNN numbers on a machine with a GPU, hide the GPU first, as Chapter~\ref{ch:toolkit} shows. A GPU run is just as valid, and its numbers differ a little.
+\end{enumerate}
+\begin{lstlisting}[style=utpterminal]
+python all_experiments/demo_advanced.py
+cd all_experiments
+jupyter lab
+\end{lstlisting}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab07\_deep\_learning\_cnn\_worked.py} runs the same code and writes the same evidence.
+\end{labmode}
+
+\input{labs/visuals/07-flow}
+
+\labroutine
+
+\begin{yourturn}
+\textbf{Warm-up on paper.} Do these before opening the notebook; Questions~3 and~6 will check you.
+\begin{enumerate}
+  \item How many weights has a dense network from 64 inputs through 128 hidden units to 10 outputs, counting one bias per unit? ($8{,}320+1{,}290=9{,}610$.)
+  \item An $8\times8$ image passes through a padded $3\times3$ convolution with 16 filters and a $2\times2$ max pool. Give the output shape, and the number of weights in the convolution. ($16\times4\times4$; $1\times16\times9+16=160$.)
+  \item After a second such block with 32 filters, how many numbers go into the first dense layer? ($32\times2\times2=128$.)
+\end{enumerate}
+\end{yourturn}
+
+\begin{labquestion}{1}{Setup}
+Run this first. The cell imports PyTorch, installing the CPU build if it is missing, and picks \texttt{DEVICE}: an NVIDIA GPU (\texttt{cuda}) or Apple GPU (\texttt{mps}) when PyTorch can see one, otherwise the CPU. The first line printed is the Python actually running the notebook. If it is not the environment you installed PyTorch into, change the kernel.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=8,lastline=43]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\noindent\textbf{Continue the same step.}
+\lstinputlisting[style=utppython,firstline=44,lastline=56]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+Python 3.13.9 at C:\ProgramData\anaconda3\python.exe
+PyTorch 2.11.0+cu128 | device: cpu
+course folder: MACHINE LEARNING
+\end{lstlisting}
+\end{refoutput}
+\end{labanswer}
+
+\labpart{Part A --- Images as tensors}
+
+\begin{labquestion}{2}{Turn images into tensors}
+The same digits as Lab~4: each is an $8\times8$ grid of brightness values from 0 to 16. PyTorch works on \emph{tensors}, which are arrays that remember how to compute gradients. A convolutional layer expects images as (batch, channels, height, width), so each row of 64 numbers is reshaped to $1\times8\times8$ and scaled to $[0,1]$. The official test file stays closed until the end; a validation quarter is carved from the training file.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/07-trace}
+\lstinputlisting[style=utppython,firstline=58,lastline=85]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/07-notebook-reference.png}
+\end{labvisual}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+fit: torch.Size([2868, 1, 8, 8])  validation: torch.Size([955, 1, 8, 8])  test: torch.Size([1797, 1, 8, 8])
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} 3,823 training digits become 2,868 for fitting and 955 for validation, and the 1,797 official test digits stay sealed. Each image is one channel of $8\times8$ values.
+\end{labanswer}
+
+\labpart{Part B --- A first neural network and the training loop}
+
+\begin{labquestion}{3}{Build a dense network}
+A dense network flattens the 64 pixels into a vector, computes 128 weighted sums, passes each through ReLU, and computes 10 class scores from those. Written in \texttt{nn.Sequential}, it is four lines.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=87,lastline=96]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+Sequential(
+  (0): Flatten(start_dim=1, end_dim=-1)
+  (1): Linear(in_features=64, out_features=128, bias=True)
+  (2): ReLU()
+  (3): Linear(in_features=128, out_features=10, bias=True)
+)
+trainable weights: 9610
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The count matches your warm-up, and the classical baseline from Lab~4 has no hidden layer at all.
+\end{labanswer}
+
+\begin{labquestion}{4}{Write the training loop and train}
+The training loop is the whole method. Each epoch shuffles the training rows and walks through them in batches of 32. For each batch: compute the class scores (forward pass), compute the cross-entropy loss, compute every gradient with \texttt{backward()}, and let the optimizer move every weight a small step. After each epoch, accuracy is recorded on the training and validation rows.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=98,lastline=122]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+dense network: validation accuracy = 0.9759
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} This is the recipe from Chapter~\ref{ch:orientation}, in eight lines: model, loss, optimizer.
+\end{labanswer}
+
+\begin{labquestion}{5}{Read the accuracy curves}
+Plot the two accuracy lists against the epoch, and read them as you read the tree-depth curve in Lab~3.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=124,lastline=137]{all_experiments/lab07_deep_learning_cnn_worked.py}
+
+\textbf{What it means.} Training accuracy heads towards 1.0, reaching about 0.997 by epoch 20, while validation flattens around 0.97 to 0.98 after about six epochs. That is the overfitting picture again, drawn against epochs instead of depth. If the validation curve started falling, you would stop early and keep the best epoch.
+\end{labanswer}
+
+\labpart{Part C --- A convolutional network}
+
+\begin{labquestion}{6}{Build a CNN and trace its shapes}
+A CNN keeps the image as a grid. The first layer slides sixteen $3\times3$ filters across it and produces sixteen feature maps; max pooling halves each map; a second layer does the same with thirty-two filters; the result is flattened and classified by a small dense layer. Printing the shape after each stage shows where the numbers go.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/07-worked-case.tex}
+\lstinputlisting[style=utppython,firstline=139,lastline=154]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+trainable weights: 13706
+Conv2d     -> (16, 8, 8)
+MaxPool2d  -> (16, 4, 4)
+Conv2d     -> (32, 4, 4)
+MaxPool2d  -> (32, 2, 2)
+Flatten    -> (128,)
+Linear     -> (64,)
+Linear     -> (10,)
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Padding keeps each convolution at the same spatial size, and each pool halves it. The 128 inputs of the first \texttt{Linear} layer must match the flattened tensor, and that mismatch is the commonest bug when changing an architecture.
+\end{labanswer}
+
+\begin{labquestion}{7}{Train the CNN}
+The same loop trains it; nothing else changes.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=156,lastline=159]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+CNN: validation accuracy = 0.9822
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Convolution needs a different architecture and no different training code. The stored notebook shows 0.9843, from a different PyTorch version, and a GPU run here also gave 0.9843. A gap this small between runs is normal.
+\end{labanswer}
+
+\textbf{Connect it to the chapter.} Every network in this lab is this picture with different layers.
+\input{labs/visuals/07-deep-learning-cnn-chapter.tex}
+
+\begin{labquestion}{8}{Open the test file once}
+Now the official test file, opened once for each model. The first number is the PCA-plus-logistic result from Lab~4 on the same file.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=161,lastline=176]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+logistic on PCA (Lab 4)    test accuracy = 0.9477
+dense network              test accuracy = 0.9583
+CNN                        test accuracy = 0.9705
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Each step up the ladder buys about a point, on 1,797 test digits. The CNN has more weights than the dense network, but it uses them better, because a filter that finds a stroke in one corner finds it in every corner. The CNN line moves with the setup: 0.9705 on this CPU, 0.9711 in the stored notebook, and 0.9722 on an NVIDIA GPU. The ranking holds in all three.
+\end{labanswer}
+
+\begin{labquestion}{9}{Inspect the CNN's mistakes}
+Which digits does the CNN still confuse? A confusion matrix on the test file, and the misclassified images themselves, answer that.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=178,lastline=196]{all_experiments/lab07_deep_learning_cnn_worked.py}
+
+\textbf{What it means.} This run makes 53 errors out of 1,797. The largest off-diagonal cells are 7 read as 9 (nine times) and 8 read as 9 (six times), followed by 7 as 5, 3 as 9, and 2 as 8 (four each). Your cells may differ, so read them from your own matrix. Then look at the images. Six of the ten shown in this run are 2s with the same looped stroke, which looks like one person's handwriting. A count cannot show you that, and one unusual writer is a different problem from a weakness across all writers.
+\end{labanswer}
+
+\begin{labquestion}{10}{Look at the learned filters}
+What did the first layer learn? Its sixteen filters are $3\times3$ grids of weights, and they can be drawn directly.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=198,lastline=205]{all_experiments/lab07_deep_learning_cnn_worked.py}
+
+\textbf{What it means.} Several filters have a bright side and a dark side: they respond to an edge in one orientation, like the filter you worked by hand in Chapter~\ref{ch:deep}. Nobody told the network to look for edges; they are what reduces the loss.
+\end{labanswer}
+
+\labpart{Part D --- Save the weights with a card}
+
+\begin{labquestion}{11}{Save the weights with a card}
+\texttt{torch.save} writes the learned weights (the \emph{state dict}) to a file. Loading them requires building the same architecture first, which is why \texttt{make\_cnn} and the model card belong beside the file. The reloaded model is checked against the in-memory one before the file is trusted.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=207,lastline=227]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+saved digits_cnn.pt (57 KB); reload reproduces predictions: True
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The card records the architecture name, the input format, the training settings and the test score. Without it, the 57 KB of weights are just numbers.
+\end{labanswer}
+
+\labpart{Evidence}
+
+\begin{labquestion}{12}{Save the evidence}
+Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=229,lastline=234]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+Saved: ['cnn_5_vs_40_epochs.png', 'cnn_accuracy_per_epoch.png',
+ 'cnn_confusion_matrix_on_the_official_test_file.png', 'dense_network_accuracy_per_epoch.png',
+ 'metrics.csv', 'ten_of_the_cnn_s_mistakes.png', 'ten_training_digits_as_the_network_sees_them.png',
+ 'the_sixteen_3x3_filters_of_the_first_convolutional_layer.png', 'three_models_one_test_file.png',
+ 'training_curves.csv']
+\end{lstlisting}
+\end{refoutput}
+\end{labanswer}
+
+\labpart{Try it yourself}
+
+\begin{labquestion}{13}{Try it yourself}
+Train the CNN for 5 epochs and for 40 epochs, and compare the two accuracy curves: where does the validation curve stop improving? Then build a CNN with only the first convolutional block (delete the second \texttt{Conv2d}, \texttt{ReLU} and \texttt{MaxPool2d}; the flattened size becomes $16\times4\times4$), and see whether the second block was earning its keep. Attempt it in this empty cell before reading the solution.
+\end{labquestion}
+
+\begin{labquestion}{14}{One solution}
+The CNN trained for 5 and for 40 epochs, then a one-block CNN.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=238,lastline=272]{all_experiments/lab07_deep_learning_cnn_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+ 5 epochs: validation accuracy = 0.9665, test accuracy = 0.9494
+40 epochs: validation accuracy = 0.9843, test accuracy = 0.9766
+one-block CNN: weights = 17258  test accuracy = 0.9777
+two-block CNN: weights = 13706  test accuracy = 0.9705
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Five epochs are not enough: validation is still rising when training stops. By forty, training accuracy is essentially 1.0, while validation has wobbled between about 0.97 and 0.985 since epoch 10, which is why early stopping keeps the \emph{best} epoch rather than the last. The one-block CNN has more weights, since its flattened vector is 256 rather than 128, and on this run it scores higher. On a GPU the same comparison came out the other way, 0.9705 against 0.9722. So the defensible conclusion is that a second block neither helps nor hurts at $8\times8$, where one pooling already leaves a $4\times4$ map, not that either architecture wins.
+\end{labanswer}
+
+\begin{yourturn}
+Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings. Each one trains for 20 epochs, so expect a few seconds to half a minute per run. Compare the size of each effect with the differences between runs you have already seen.
+\begin{enumerate}
+  \item \textbf{Take the ReLU away.} Rebuild the dense network without \texttt{nn.ReLU()}, keeping both linear layers. Predict the test accuracy, given what Chapter~\ref{ch:deep} says about stacked linear layers.
+  \item \textbf{Move the learning rate.} Train the CNN with learning rates 0.0003, 0.003, 0.03 and 0.3. Which fails, and how?
+  \item \textbf{Drop the dropout.} Rebuild the CNN with \texttt{nn.Dropout(0.0)}. Does dropout earn its place on this table?
+\end{enumerate}
+\end{yourturn}
+
+\begin{expectedfindings}
+\begin{enumerate}
+  \item Around 0.94 (0.9405 here), against about 0.957 with ReLU when trained the same way, and against Lab~4's 0.948 for logistic regression. Without an activation the two layers collapse into one linear map, so it is effectively logistic regression with extra steps.
+  \item Test accuracy is about 0.933, 0.969, 0.912 and 0.100. The smallest rate is simply slow after 20 epochs. The largest leaves the network at chance level, one digit in ten, which is the overshoot from the practice bowl of Chapter~\ref{ch:learning}.
+  \item About 0.975 without dropout, against 0.969 to 0.971 with it, so it does not help here, and a gap this small is within the wobble between runs. On a larger problem the answer may differ, which is why it is a hyperparameter.
+\end{enumerate}
+\end{expectedfindings}
+
+\begin{troubleshoot}
+\begin{description}
+  \item[\texttt{No module named 'torch'}] Compare the first line of the Setup output with the environment you installed into. Register the right environment as a kernel, and switch to it.
+  \item[\texttt{OMP: Error \#15} on Windows] Two OpenMP runtimes are loaded. The Setup cell sets \texttt{KMP\_DUPLICATE\_LIB\_OK} before importing NumPy; restart the kernel so it takes effect.
+  \item[\texttt{mat1 and mat2 shapes cannot be multiplied}] A \texttt{Linear} layer's input size does not match the flattened tensor. Print the shapes with the loop from Question~6.
+  \item[\texttt{Invalid device id}] You set \texttt{CUDA\_VISIBLE\_DEVICES} to an empty string. Use \texttt{-1}.
+  \item[Tensors on different devices] Use \texttt{.to(DEVICE)} for the model and data, and \texttt{.cpu()} before plotting.
+\end{description}
+\end{troubleshoot}
+
+\begin{labchecklists}
 \begin{verification}
 \begin{itemize}
-  \item The device in use (CPU, CUDA or MPS) is printed with the PyTorch version.
-  \item The training and validation curves are both plotted, and the reported epoch is a validated one.
-  \item The dense network and the CNN are compared with Lab~4's baseline on the same test digits.
-  \item The most frequent confusions are inspected as images.
+  \item The device in use is printed with the PyTorch version.
+  \item The training and validation curves are both plotted, and validation decides how you read them.
+  \item The dense network and the CNN are compared with Lab~4's baseline on the same test digits, and your CNN score is within about 0.005 of 0.97.
+  \item The largest confusions are read from your own matrix, and inspected as images.
   \item \texttt{models/digits\_cnn.pt} and its card are saved, and the reloaded model matches the one in memory.
 \end{itemize}
 \end{verification}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item Restart the kernel and run all cells without errors.
+  \item Submit the executed notebook, including your \emph{Your turn} cells, the generated \texttt{results/lab07/} folder, and the weights with their card.
+  \item Add a short conclusion: what each step up the ladder bought on the test file, one confusion you inspected, and how much of a score difference you would treat as noise.
+\end{itemize}
+\end{labdeliverable}
+\end{labchecklists}

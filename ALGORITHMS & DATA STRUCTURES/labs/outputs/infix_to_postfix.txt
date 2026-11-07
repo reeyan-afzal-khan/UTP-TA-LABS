@@ -1,0 +1,21 @@
+== Trace of A+B*C-D (the Chapter 5 figure) ==
+  read A   stack []   output A
+  read +   stack [+]   output A
+  read B   stack [+]   output AB
+  read *   stack [+*]   output AB
+  read C   stack [+*]   output ABC
+  read -   stack [-]   output ABC*+
+  read D   stack [-]   output ABC*+D
+result: ABC*+D-
+
+== Test expressions ==
+  [ok]   A+B*C  ->  ABC*+   (expected ABC*+)
+  [ok]   (A+B)*C  ->  AB+C*   (expected AB+C*)
+  [ok]   A+B*C-D  ->  ABC*+D-   (expected ABC*+D-)
+  [ok]   A*(B+C)/D  ->  ABC+*D/   (expected ABC+*D/)
+  [ok]   A-B-C  ->  AB-C-   (expected AB-C-)
+  [ok]   A^B^C  ->  ABC^^   (expected ABC^^)
+
+== Malformed input ==
+  [ok]   unbalanced "(A+B" is rejected
+  [ok]   unbalanced "A+B)" is rejected

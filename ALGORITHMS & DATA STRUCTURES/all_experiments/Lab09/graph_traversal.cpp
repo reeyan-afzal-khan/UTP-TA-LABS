@@ -81,7 +81,7 @@ vector<int> dfsStack(const vector<vector<int>>& adj, int start) {
 }
 
 // Backtracking search for a simple path from u to target with exactly
-// `remaining` more edges. `path` holds the vertices chosen so far.
+// remaining more edges. path holds the vertices chosen so far.
 bool pathOfLength(const vector<vector<int>>& adj, int u, int target, int remaining,
                   vector<bool>& onPath, vector<int>& path) {
     if (remaining == 0) return u == target;

@@ -1,0 +1,91 @@
+\textbf{Program 2: Binary search with guards and duplicates.}
+
+\textbf{File:} \texttt{binary\_search.cpp}.
+
+\textbf{Chapter connection:} Binary search.
+
+searchSorted refuses an unsorted input before binary search is attempted. tracedBinarySearch prints shrinking intervals. firstOccurrence continues left after a match so duplicate keys have a deterministic answer.
+
+\input{labs/visuals/program-binary_search}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{binary\_search.cpp} --- lines 11--20.
+
+\lstinputlisting[firstline=11,lastline=20]{all_experiments/Lab10/binary_search.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement tracedBinarySearch, firstOccurrence.}\end{utpsteps}
+
+\texttt{binary\_search.cpp} --- lines 21--57.
+
+\input{labs/visuals/complete-binary}
+
+\lstinputlisting[firstline=21,lastline=57]{all_experiments/Lab10/binary_search.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{binary\_search.cpp} --- lines 58--93.
+
+\textbf{Trace checkpoint for the supplied main.} Sort the supplied values to [10, 13, 14, 29, 37] before searching. For 29, mid first points to 14 at index 2, so low moves to 3; the next midpoint is index 3. For missing 15, the interval eventually becomes empty. The duplicate test requires firstOccurrence to continue searching left after a match rather than immediately returning it.
+
+\lstinputlisting[firstline=58,lastline=93]{all_experiments/Lab10/binary_search.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{binary\_search.cpp} --- lines 94--104. Continue in the same file; do not add another header or opening brace.
+
+\lstinputlisting[firstline=94,lastline=104]{all_experiments/Lab10/binary_search.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect binary\_search.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra binary_search.cpp -o binary_search.exe
+
+.\binary_search.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+common dataset: 29 10 14 37 13
+  [ok]   searching the unsorted dataset is refused
+sorted:         10 13 14 29 37   (indexes 0..4)
+
+== Search for 29 (present) ==
+    left=0 right=4 mid=2 a[mid]=14  target larger: discard the left half
+    left=3 right=4 mid=3 a[mid]=29  found
+  result: index 3
+  [ok]   29 is found at index 3
+
+== Search for 15 (missing) ==
+    left=0 right=4 mid=2 a[mid]=14  target larger: discard the left half
+    left=3 right=4 mid=3 a[mid]=29  target smaller: discard the right half
+    left > right: the range is empty, not found
+  result: -1
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/binary\_search.txt}.
+
+\begin{tryit}
+
+Test 29 at index 3, missing 15, and an array containing repeated 29s. Ordinary binary search may find any matching index; firstOccurrence must return the earliest.
+
+\end{tryit}

@@ -2,14 +2,16 @@
 \label{ch:data}
 
 \chapterguide%
-  {\chapsref{ch:toolkit}{ch:orientation}: the workflow, computational vocabulary, and the distinction between features and labels.}
-  {clean data, choose valid splits, handle missingness and categories, engineer features, and prevent leakage.}
+  {\chapsref{ch:toolkit}{ch:orientation}: the workflow, and the difference between features and a target.}
+  {assess a table before modeling, log every cleaning rule, choose a split that imitates the future, spot leakage, handle missing values and categories, scale numbers on purpose, engineer features, and keep all of it inside a pipeline.}
 
-Reliable learning starts with trustworthy data: clear labels, valid measurements, and a split that reflects future use.
+A good cook reads the recipe, checks the fridge and washes the vegetables before lighting the stove. Nobody praises that part, and it decides how dinner turns out. Data work is the same: most projects that fail do so before any model is fitted, because the table meant something other than the team assumed, or because the model was quietly shown the answers.
 
-Ask: \emph{What does the data mean? What is wrong? What must be learned?}
+This chapter asks three questions in order. \emph{What does the data mean? What is wrong with it? What is the model allowed to learn from it?}
 
 \section{Start with a data quality assessment}
+
+Before any model, answer five questions about the table itself. None of them needs code, and each one has sunk real projects.
 
 \begin{utpsteps}
   \item \term{What does one row represent?} A person, transaction, image, day, machine, or something else?
@@ -20,6 +22,8 @@ Ask: \emph{What does the data mean? What is wrong? What must be learned?}
 \end{utpsteps}
 
 \section{A safe order of operations}
+
+Some preparation is a fixed rule: a date format, a unit conversion, a typo in a label. It would be done the same way whatever the data said, so it can happen before the split. Other preparation learns something from the data: a median to fill gaps, a mean to scale by. Those steps look at numbers, and they may look only at training rows.
 
 \begin{utpfig}[A safe order of operations]{A safe order of operations: define what the data mean, apply fixed rules, split honestly, and only then learn any preparation from the training rows.}{fig:safe-order}
 \begin{tikzpicture}[
@@ -56,6 +60,8 @@ Fixed rules, such as unit conversions, may precede splitting. Estimate medians, 
 
 \section{Feature and label types}
 
+The type of a column decides how a model can use it. A number can go in almost as it is. A word has to be turned into numbers first, and the way you do that can invent an order that was never there.
+
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}>{\raggedright\arraybackslash}m{0.27\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -79,8 +85,26 @@ Labels usually fall into two basic groups:
 \end{itemize}
 
 \section{Clean structural problems before modeling}
+\label{sec:cleaning}
 
-Make stored values match their documented meaning using reproducible cleaning code.
+Make stored values match their documented meaning using reproducible code, so that anyone can rerun the cleaning and see what it changed. Here is a small messy extract of a student table. It has one duplicated student, an age of $-1$, study hours written as the word \texttt{five}, stray spaces, a programme spelled two ways, and one suspicious 30 hours.
+
+\lstinputlisting[style=utppython,firstline=39,lastline=61]{all_experiments/demo_foundations.py}
+
+Running it prints the cleaned table and, more importantly, the log:
+
+\begin{lstlisting}[style=utpterminal]
+ student_id  age  hours programme  mark  hours_suspicious
+        101 19.0    6.0        CS    58             False
+        102 20.0    8.0        CS    64             False
+        103  NaN   30.0        IT    71              True
+        104 22.0    4.0        IT    49             False
+        105  NaN    NaN        CS    66             False
+{'rows in': 6, 'duplicate rows dropped': 1, 'hours that would not parse': 1,
+ 'impossible ages set to missing': 1, 'unusual hours flagged': 1, 'rows out': 5}
+\end{lstlisting}
+
+Notice what the code did not do. It never used the mark to decide anything, and it did not delete the student who claimed 30 hours. That value is unusual, not impossible, so it gets a flag and stays.
 
 \subsection{Confirm row identity and handle duplicates}
 
@@ -112,7 +136,7 @@ Near duplicate & Spelling, rounding, or record-linkage differences & Define matc
 
 \subsection{Distinguish impossible values from unusual values}
 
-\term{Impossible values}, such as negative ages, violate domain rules. \term{Rare values}, such as large purchases, may be valid.
+An age of $-1$ breaks a rule of the world, so it is an \term{impossible value}. A very large purchase may be perfectly real, so it is only a \term{rare value}. They call for different responses.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.15\linewidth}>{\raggedright\arraybackslash}X@{}}
@@ -135,10 +159,14 @@ Do not remove difficult cases merely to improve scores; they may occur after dep
 
 \subsection{Keep a cleaning log}
 
-Log each rule's reason, columns, affected row count, and action: correction, missingness, exclusion, or flagging. Retain identifiers for tracing changes, not as model features.
+Log each rule's reason, columns, affected row count and action: correction, missingness, exclusion or flagging. Retain identifiers for tracing changes, not as model features.
 
 \section{Training, validation, and test sets}
 \label{sec:data-splits}
+
+\begin{analogy}
+Think of how a student prepares for a final. Worked past papers are for learning. A mock exam tells you which study method works best, and you may sit it more than once, which is why it slowly stops being a fair test. The final is sat once, and its score is the one that counts. Those are the training, validation and test sets.
+\end{analogy}
 
 \begin{utpfig}[Training, validation, and test sets]{The three splits and their jobs: the training set learns parameters, the validation set chooses settings, and the test set gives the final check.}{fig:three-splits}
 \begin{tikzpicture}[x=0.093\linewidth,font=\small]
@@ -159,9 +187,13 @@ Log each rule's reason, columns, affected row count, and action: correction, mis
 
 Training often uses 60--80\% of rows. Choose proportions for dataset size while preserving separate validation and test roles.
 
+\begin{pitfall}
+If you look at the test score and then change anything, the test set has become a second validation set, and its score is no longer a fair estimate. Decide what the test set is for, seal it, and open it once.
+\end{pitfall}
+
 \section{Choose a split that imitates the future}
 
-A random split is useful only when future rows are independent and drawn in the same way.
+A random split is honest only when future rows are independent of past rows and drawn the same way. Ask how the model will really be used, and make the split imitate that.
 
 \begin{description}[leftmargin=1.35in,style=nextline]
   \item[Stratified split] Keeps class proportions similar across subsets.
@@ -171,17 +203,21 @@ A random split is useful only when future rows are independent and drawn in the 
 \end{description}
 
 \begin{workedexample}
-With five visits per patient, a random row split may let the model recognize patients seen in training. Group by patient when evaluating predictions for new patients.
+\textbf{Patients.} With five visits per patient, a random row split lets the model meet the same patient in training and in validation. It may then recognize patients rather than learn medicine. Group by patient when the model is meant for new patients.
+
+\textbf{Bike rentals.} Lab~2's daily rental forest has a mean absolute error of 1,040 rentals when it trains on the first 80\% of days and predicts the last 20\%, which is how it would really be used. Shuffle the days first, and the same model on the same data scores 451. It looks more than twice as good only because it was allowed to peek at days on both sides of each day it predicts.
 \end{workedexample}
 
 \begin{pitfall}
-An unrealistic split gives an unrealistic performance estimate.
+An unrealistic split gives an unrealistic performance estimate, and nothing downstream can repair that.
 \end{pitfall}
 
 \section{Data leakage}
 \label{sec:data-leakage}
 
-\term{Data leakage} happens when information the model would not have at prediction time, or information from the held-out rows, finds its way into the features, the preprocessing, the choice of model, or the split.
+\begin{analogy}
+A class scores 95\% on an exam. It later turns out that the paper circulated the night before. The score was real, but it measured the wrong thing, and it predicts nothing about next year. \term{Data leakage} is the same accident: information the model would not have at prediction time, or information from the held-out rows, finds its way into the features, the preprocessing, the choice of model, or the split.
+\end{analogy}
 
 Examples include:
 
@@ -224,9 +260,19 @@ The diagram contrasts fitting the preprocessing before and after the split. Only
 \end{tikzpicture}
 \end{utpfig}
 
+\begin{workedexample}
+How much can leakage inflate a score? Build a table with no signal in it at all: 100 rows, 1,000 columns of random noise, and labels from coin flips. Honest accuracy has to be near 0.5. The listing below picks the 20 columns that look most related to the labels, then cross-validates. It runs the same experiment twice, and only the place where the columns are picked differs.
+
+\lstinputlisting[style=utppython,firstline=100,lastline=108]{all_experiments/demo_foundations.py}
+
+Picking on all the rows reports 0.80. Picking inside each fold reports 0.52. With a thousand noise columns, some match the coin flips by luck, and the first version tested the model on the very rows that made those columns look good. Nothing in that first run looks broken, which is what makes leakage dangerous.
+
+Lab~1 shows the other common kind, a column from the future. Predicting a final grade at enrolment has a mean absolute error of 2.18 grade points. Adding the second-term grade \texttt{G2} drops it to 0.76, a triumph that could never be delivered because \texttt{G2} does not exist at enrolment.
+\end{workedexample}
+
 \section{Missing values: meaning and strategy}
 
-Missingness may mean unmeasured, inapplicable, costly to collect, or related to the outcome.
+A blank cell is a fact about how the data was collected. It may mean the value was never measured, does not apply, cost too much to collect, or is related to the outcome itself.
 
 \begin{utpsteps}
   \item Measure how much is missing in each feature and group.
@@ -236,13 +282,17 @@ Missingness may mean unmeasured, inapplicable, costly to collect, or related to 
   \item Check whether the treatment changes important distributions.
 \end{utpsteps}
 
-Use numerical medians, a categorical missing value, or model-based imputation when justified.
+\begin{workedexample}
+Training ages are 19, 20, 22, 21, 58, 23 and two blanks. The mean is 27.2, a value no student near the center has, because one mature student pulls it up. The median is 21.5, so a median fill stays with the bulk of the group. The test rows are then filled with that same 21.5, even if their own median differs. If blanks turn out to be informative, add a yes/no column saying the age was missing.
+\end{workedexample}
+
+Use numerical medians, a separate missing category, or model-based imputation when justified.
 
 \term{MCAR}: missing independently of values. \term{MAR}: missingness explained by observed values. \term{MNAR}: missingness depends on unobserved values. The table alone cannot identify the mechanism; investigate causes and compare treatments.
 
 \section{Encoding categorical features}
 
-Most algorithms need numerical inputs. The encoding must preserve the meaning of the category.
+Most algorithms need numerical inputs, and the encoding must preserve what the category means. Suppose the programme column holds CS, IT and EE. Coding them 1, 2, 3 tells a linear model that EE is three times CS and that IT sits halfway between the other two. Nothing in the world says that. \term{One-hot encoding} gives each category its own yes/no column instead, so CS becomes $(1,0,0)$, IT becomes $(0,1,0)$ and EE becomes $(0,0,1)$.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.35\linewidth}X@{}}
@@ -258,12 +308,32 @@ Label-informed mean encoding & Uses label statistics; apply the leakage rule fro
 \end{tabularx}
 \end{utptable}
 
-Define how the pipeline handles unseen categories, such as an unknown-category value.
+Define how the pipeline handles unseen categories, because a new programme will eventually appear after deployment. All the labs use \texttt{OneHotEncoder(handle\_unknown="ignore")}, which gives an unseen category all zeros instead of crashing.
 
 \section{Scaling and transforming numerical features}
 \label{sec:scaling}
 
-Scaling changes a feature's measuring stick. Distances, margins, penalties, and gradient steps otherwise let large numerical units dominate smaller ones.
+\begin{analogy}
+Ask whether two customers are similar, and measure one column in years and another in dollars. A gap of ten years is 10 and a gap of 500 dollars is 500, so the second gap wins before any judgment has happened. Scaling hands every column the same ruler.
+\end{analogy}
+
+Distances, margins, penalties and gradient steps all let large numerical units dominate smaller ones. The change can alter the answer, not just the arithmetic.
+
+\begin{workedexample}
+Three customers, written as (age, income): $A=(30,\;50{,}000)$, $B=(40,\;90{,}000)$ and $C=(60,\;52{,}000)$. Who is nearest to $A$?
+\[
+  d(A,B)=\sqrt{10^2+40{,}000^2}=40{,}000.00,
+  \qquad
+  d(A,C)=\sqrt{30^2+2{,}000^2}=2{,}000.22.
+\]
+In raw units $C$ wins, and age barely counts. Now divide each column by its standard deviation, 20 years and 100,000 dollars:
+\[
+  d(A,B)=\sqrt{0.50^2+0.40^2}=0.64,
+  \qquad
+  d(A,C)=\sqrt{1.50^2+0.02^2}=1.50.
+\]
+Now $B$ is nearest. The customers did not change; the measuring stick did. \figref{fig:scaling-geometry} draws the $A$--$B$ gap.
+\end{workedexample}
 
 The three course scalers answer three different questions:
 
@@ -283,8 +353,14 @@ Robust scaling & $x'=(x-\operatorname{median}(x))/\operatorname{IQR}(x)$ & Data 
 Fit every scaler on training rows only (\secref{sec:data-leakage}).
 
 \begin{workedexample}
-For $[2400,36,23075,70,1,905]$, min--max scaling maps 1 and 23,075 to 0 and 1. Robust scaling uses the median and IQR, reducing sensitivity to the extreme value.
+Take the skewed column $[2400,\ 36,\ 23075,\ 70,\ 1,\ 905]$.
+
+\textbf{Min--max} maps 1 to 0 and 23,075 to 1, which leaves everything else crushed near zero: 905 becomes 0.039 and 2,400 becomes 0.104.
+
+\textbf{Robust scaling} uses the median, 487.5, and the IQR, 1,981.75. Now 2,400 becomes 0.97 and 905 becomes 0.21, so the ordinary values stay spread out, while the extreme one lands at 11.40 and can be seen for what it is.
 \end{workedexample}
+
+Not every model cares. Trees compare one column to a threshold, so stretching a column changes nothing about the order of its values.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}m{0.20\linewidth}X@{}}
@@ -301,16 +377,9 @@ Naive Bayes & Depends on variant & Gaussian naive Bayes does not need it; other 
 \end{tabularx}
 \end{utptable}
 
-A $\log(1+x)$ or power transform changes distribution shape; scaling mainly changes units and location.
+A $\log(1+x)$ or power transform changes the shape of a distribution, while scaling mainly changes units and location. Titanic fares show why that can matter: the median fare is 14.45 and the largest is 512.33, a skew of 4.79. After $\log(1+x)$ the skew is 0.39. Lab~1 builds this column as \texttt{LogFare}.
 
-\begin{intuition}
-Income values of 20,000--300,000 can dominate ages of 10--80 in Euclidean distance. Scaling makes their numerical ranges comparable; it does not establish their relevance.
-\end{intuition}
-
-% === VISUAL ADDITION: scaling-geometry ===
 \subsection{Scaling changes the geometry, drawn}
-
-Scaling changes the numerical gaps used by distance-based models.
 
 \begin{utpfig}[Scaling changes the geometry]{Scaling changes the geometry. Before scaling, raw Euclidean distance is almost entirely the income column; after standardization both features contribute on comparable measuring sticks.}{fig:scaling-geometry}
 \begin{tikzpicture}[font=\scriptsize]
@@ -356,7 +425,6 @@ Scaling changes the numerical gaps used by distance-based models.
 \begin{keyidea}
 Changing units can change neighbors, margins, and clusters without changing observations or labels.
 \end{keyidea}
-% === END VISUAL ADDITION ===
 
 \section{Outliers, imbalance, and rare cases}
 
@@ -370,7 +438,7 @@ Choose evaluation metrics before an imbalance intervention (\chapref{ch:evaluati
 
 \section{Feature engineering}
 
-\term{Feature engineering} creates useful inputs from raw data. Examples include:
+\term{Feature engineering} creates useful inputs from raw data, and it is often the cheapest improvement available. In Lab~1 the same logistic regression on the same split moves from a validation ROC AUC of 0.842 to 0.872 simply by being handed family size, whether the passenger traveled alone, a title pulled out of the name, and the log of the fare. No new model was needed. Typical ideas include:
 
 \begin{itemize}
   \item price per unit, body-mass index, or another meaningful ratio;
@@ -417,7 +485,9 @@ Temporal aggregate & Lags, rolling means, prior-week counts & Use only data avai
 \section{Use a preprocessing pipeline}
 \label{sec:preprocessing-pipeline}
 
-A pipeline fits transformations on training rows and reuses them on new data. Keep feature selection and resampling within training folds too (\chapref{ch:training}).
+A \term{pipeline} joins the preparation steps and the model into one object. When it is fitted, every step learns from the training rows alone. When it predicts, every step reapplies what it learned. It cannot accidentally peek at held-out rows, and it can be saved and reused as one file. Keep feature selection and resampling within training folds too (\chapref{ch:training}). All of Labs~1--3 use this one helper, which fills gaps, scales the numbers and one-hot encodes the categories:
+
+\lstinputlisting[style=utppython,firstline=75,lastline=85]{all_experiments/lab01_features_worked.py}
 
 \begin{utpfig}[A preprocessing pipeline]{A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.}{fig:prep-pipeline}
 \begin{tikzpicture}[
@@ -434,7 +504,7 @@ A pipeline fits transformations on training rows and reuses them on new data. Ke
 \end{tikzpicture}
 \end{utpfig}
 
-Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias, and privacy limits.
+Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias and privacy limits.
 
 \begin{keyidea}
 Validate the whole pipeline, refitting it inside each cross-validation training fold (\chapref{ch:evaluation}).
@@ -444,12 +514,36 @@ Validate the whole pipeline, refitting it inside each cross-validation training 
 A teammate computes median values, standardization statistics, and a label-informed mean encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
 \end{debugtask}
 
-\input{labs/01-features}
+\begin{chapterrecap}
+\begin{itemize}
+  \item Before modeling, know what one row is, what each column means, when each value becomes available, which rows are related, and who is missing.
+  \item Fixed rules may run before the split, and they get logged. Anything learned from data is fitted on training rows only.
+  \item Training is for learning, validation for choosing, and the test set for one final check. The split must imitate how the model will be used, which is why time series split by date.
+  \item Leakage inflates scores silently. Selecting columns on all the rows made pure noise look 80\% accurate.
+  \item Scale for distance-based and penalized models, one-hot encode categories without an order, and put every step in a pipeline.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item Why must train/test splitting happen before any preprocessing step that learns from the data?
   \item What is the difference between an identifier, a feature, and a label?
   \item Why do you need to know the moment of prediction before you can say whether a feature is leakage?
+  \item Lab~2's bike forest scores 1,040 on a date-order split and 451 on a shuffled split. Which number should you report, and why?
+  \item A column is coded 1 for red, 2 for green, 3 for blue and fed to a linear model. What false assumption has been added?
+  \item In the three-customer example, which step changed the nearest neighbor of $A$, and did it change any customer?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Otherwise the held-out rows influence a median, a scale or a category list, and the later test is no longer on unseen data.
+  \item An identifier names a row and should not be a model input. A feature is an input available at prediction time. A label is the answer the model is trained to predict.
+  \item The same column can be fair at one moment and impossible at another. \texttt{G2} is known at the end of term two, so it is fine for predicting in term three and leakage for predicting at enrolment.
+  \item 1,040. The model will be asked about future days from past days, and only the date-order split does that. The shuffled split lets it interpolate between neighboring days.
+  \item That the colors have an order and equal spacing, so that blue is ``more'' than red. One-hot encoding removes the assumption.
+  \item Dividing each column by its standard deviation. No customer changed; only the units in which their gaps are measured did.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/01-features}

@@ -1,0 +1,7 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+customer_access        5 3 +2 platform
+data                   4 3 +1 platform
+brand_trust            3 5 -2 bank
+capital_talent         4 4 +0 tie
+regulatory_position    2 5 -3 bank
+Ratings do not establish licensing rights, adoption, or future market share.

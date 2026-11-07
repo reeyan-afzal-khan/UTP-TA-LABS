@@ -4,6 +4,9 @@
 \textbf{Coverage.} Chapter~\ref{ch:intro-fintech}.\\
 \textbf{Goal.} Turn the week's mental model --- friction, then technology-enabled redesign, then new value proposition, then new risk --- into a defensible written assessment of one real institution.
 
+\input{labs/visuals/01-flow}
+
+
 \begin{labmode}
 This is an analysis lab, not a coding lab. The script exists to keep your scoring arithmetic honest and reproducible; the marks are in the argument you build around its output.
 
@@ -30,28 +33,45 @@ Trust and compliance & Regulatory licence, KYC, deposit guarantee & Rarely attac
 \end{tabularx}
 \end{utptable}
 
-For your chosen bank, populate \texttt{value\_chain.csv} with a revenue estimate per segment from the annual report. Where the report does not break the number out, say so explicitly rather than inventing a figure --- an honest gap is worth more than a fabricated precision.
+For your chosen bank, record segment revenue estimates in your assessment with the report, year and page. Mark undisclosed values as unknown. The generated \texttt{value\_chain.csv} contains the four scoring criteria; replace the example ratings in the script's \texttt{rows} list with evidence-based ratings and retain a copy of your original run.
 
 \medskip\noindent\textbf{Part B --- Score disruption likelihood.}\par
 Chapter~\ref{ch:intro-fintech} argues that disruption concentrates where four conditions hold together: high customer friction, weak regulatory moat, low capital intensity, and a data or network advantage available to the entrant.
 
 Score each segment 1--5 on all four, where \textbf{5 always means more favourable to the challenger}. Moat and capital are therefore inverted relative to the bank's strength --- a strong regulatory moat scores 1, not 5. Getting that direction wrong inverts your entire analysis, so state the convention in your write-up.
 
-\begin{lstlisting}[style=utpterminal]
-$ py unbundling_scorecard.py value_chain.csv
 
-segment           fric  moat   cap  data   score     revenue     at risk
-------------------------------------------------------------------------
-fx                   5     2     5     3    3.55         400         110  <-- investigate
-sme_services         4     3     3     4    3.50       1,100         275  <-- investigate
-wealth               4     3     4     3    3.45         900         203  <-- investigate
-payments             4     2     2     4    3.00       1,800           0
-lending              3     2     1     4    2.55       3,100           0
-deposits             2     1     3     2    1.80       2,400           0
-trust_compliance     1     1     2     2    1.35         200           0
+
+\textbf{Complete worked example.} This runnable fixture uses synthetic inputs. First reproduce it, then adapt the data or ratings with documented evidence. All code below belongs to one file.
+\begin{lstlisting}[style=utpterminal]
+python all_experiments/lab01_unbundling_scorecard.py
 \end{lstlisting}
 
-The script weights the four factors unequally --- moat at 0.35, friction 0.30, data 0.20, capital 0.15 --- because regulatory protection determines whether an entrant can operate at all, while capital intensity merely determines how expensive it is. Change those weights if you disagree, but justify the change.
+\noindent\textbf{Setup and output folder.}
+\lstinputlisting[style=utppython,firstline=1,lastline=10]{all_experiments/lab01_unbundling_scorecard.py}
+
+\noindent\textbf{Build an explicit scoring fixture.}
+\lstinputlisting[style=utppython,firstline=11,lastline=24]{all_experiments/lab01_unbundling_scorecard.py}
+
+\noindent\textbf{Load, validate, then rank.}
+\input{labs/visuals/01-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:intro-fintech]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Read the criterion order before changing weights. weak\_moat and low\_capital are already oriented so a larger value favours the challenger. The program regenerates its input fixture, so edit rows for a changed fixture rather than expecting a generated CSV edit to persist.
+\input{labs/visuals/01-worked-case.tex}
+
+\lstinputlisting[style=utppython,firstline=25,lastline=39]{all_experiments/lab01_unbundling_scorecard.py}
+
+\noindent\textbf{Save evidence separately from the numeric score.}
+\lstinputlisting[style=utppython,firstline=40,lastline=47]{all_experiments/lab01_unbundling_scorecard.py}
+\input{labs/visuals/01-result.tex}
+\textbf{Check the run.} The following output was captured from the supplied script; it describes the synthetic fixture only.
+\lstinputlisting[style=utpterminal]{labs/outputs/lab01.txt}
+
+
+The worked script gives each factor weight 0.25. This is an explicit classroom assumption, not an empirical estimate. Change one weight, rebalance the others so they sum to one, and explain how the ranking changes.
 
 \begin{tryit}
 Payments lands at exactly 3.00 here and is not flagged, yet payments is the most visibly disrupted segment in the real market. Something is wrong with the model.
@@ -82,7 +102,13 @@ Then answer the question that case raises: if challengers converge on the incumb
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:intro-fintech]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/01-unbundling-teardown-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Change one rating or one weight while keeping weights summing to one. Report any ranking reversal and identify which research evidence would resolve the sensitive assumption.
+
+
 \begin{itemize}
   \item Every revenue figure is sourced to a named report, page, and year.
   \item Segments where the bank does not disclose a breakdown are marked as estimates, not stated as fact.

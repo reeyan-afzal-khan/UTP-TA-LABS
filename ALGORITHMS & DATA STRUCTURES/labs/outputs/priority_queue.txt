@@ -1,0 +1,25 @@
+== Arrivals (value, priority) ==
+enqueue A (priority 2)
+  queue (front first): A/p2 
+enqueue B (priority 5)
+  queue (front first): B/p5 A/p2 
+enqueue C (priority 2)
+  queue (front first): B/p5 A/p2 C/p2 
+enqueue D (priority 5)
+  queue (front first): B/p5 D/p5 A/p2 C/p2 
+enqueue E (priority 1)
+  queue (front first): B/p5 D/p5 A/p2 C/p2 E/p1 
+enqueue F (priority 3)
+  queue (front first): B/p5 D/p5 F/p3 A/p2 C/p2 E/p1 
+
+== Processing order ==
+  process B (priority 5)
+  process D (priority 5)
+  process F (priority 3)
+  process A (priority 2)
+  process C (priority 2)
+  process E (priority 1)
+order: BDFACE
+  [ok]   rule 1: higher priorities first (B, D at 5 before F at 3 before A, C at 2 before E)
+  [ok]   rule 2: equal priorities keep arrival order (B before D, A before C)
+  [ok]   dequeue from an empty priority queue is refused

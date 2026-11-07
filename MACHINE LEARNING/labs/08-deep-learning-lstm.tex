@@ -1,238 +1,254 @@
 \labsection{8}{Deep learning II: an LSTM for time series}{sec:lab08-lstm}
 
 \begin{labproject}{Forecast the next hour of bike demand from the previous twenty-four}
-\textbf{Coverage.} Chapter~\ref{ch:deep}.\\
-\textbf{Goal.} Build chronological windows, compare two naive forecasts with an LSTM, inspect errors, and save weights/scaling.
-
-\medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=utppython]
-import json
-import os
-import site
-import subprocess
-import sys
-from pathlib import Path
-
-# Anaconda's NumPy and pip's PyTorch each ship an OpenMP runtime on Windows; let them coexist.
-os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-# PyTorch: import it, or install the CPU build into this kernel's Python if it is missing.
-try:
-    import torch
-except ModuleNotFoundError:
-    print("PyTorch is not installed for", sys.executable, "- installing it once (a few hundred MB) ...")
-    pip = [sys.executable, "-m", "pip", "install", "torch"]
-    if subprocess.run(pip + ["--index-url", "https://download.pytorch.org/whl/cpu"]).returncode != 0:
-        subprocess.run(pip, check=True)      # PyTorch's own index unreachable: fall back to PyPI
-    site.addsitedir(site.getusersitepackages())   # pip may use the per-user folder, which some kernels skip
-    import torch
-from torch import nn
-
-# Use a GPU when PyTorch can see one (NVIDIA "cuda" or Apple "mps"); otherwise the CPU.
-# Both labs finish in under a minute on a CPU, so nothing here needs a GPU.
-if torch.cuda.is_available():
-    DEVICE = torch.device("cuda")
-elif getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
-    DEVICE = torch.device("mps")
-else:
-    DEVICE = torch.device("cpu")
-torch.manual_seed(42)
-PROJECT_ROOT = Path.cwd().parent
-DATA = PROJECT_ROOT / "all_datasets"
-MODELS = PROJECT_ROOT / "models"
-MODELS.mkdir(exist_ok=True)
-print("Python", sys.version.split()[0], "at", sys.executable)
-print("PyTorch", torch.__version__, "| device:", DEVICE,
-      f"({torch.cuda.get_device_name(0)})" if DEVICE.type == "cuda" else "")
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part A --- From a series to windows.}\par
-
-Use the 17,379 hourly bike-rental rows. Divide counts by the training-period maximum; future values can exceed the training range.
-
-\begin{lstlisting}[style=utppython]
-hourly = pd.read_csv(DATA / "bike_sharing_dataset_hour.csv")
-hourly["dteday"] = pd.to_datetime(hourly["dteday"])
-hourly = hourly.sort_values(["dteday", "hr"]).reset_index(drop=True)
-series = hourly["cnt"].to_numpy(dtype=np.float32)
-
-n_train_hours = int(len(series) * 0.80)
-scale = float(series[:n_train_hours].max())   # a training-set statistic, saved with the model
-scaled = series / scale
-print("hours:", len(series), " scale factor:", scale)
-
-plt.figure(figsize=(9, 3))
-plt.plot(series[:24 * 14])
-plt.xlabel("Hour (first two weeks of the series)")
-plt.ylabel("Rentals")
-plt.title("A daily rhythm the model has to learn")
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-Predict hour $t$ from its preceding 24 values. Split overlapping windows chronologically: first 80\% for training, remainder for validation.
-
-\begin{lstlisting}[style=utppython]
-LOOKBACK = 24
-windows = np.stack([scaled[i:i + LOOKBACK] for i in range(len(scaled) - LOOKBACK)])
-targets = scaled[LOOKBACK:]
-print("windows:", windows.shape, " targets:", targets.shape)
-
-cut = int(len(windows) * 0.80)
-X_train = torch.tensor(windows[:cut]).unsqueeze(-1).to(DEVICE)    # (rows, 24 steps, 1 value per step)
-y_train = torch.tensor(targets[:cut]).to(DEVICE)
-X_valid = torch.tensor(windows[cut:]).unsqueeze(-1).to(DEVICE)
-y_valid = torch.tensor(targets[cut:]).to(DEVICE)
-print("train rows:", len(X_train), " validation rows:", len(X_valid))
-print("first window (rentals):", (windows[0] * scale).astype(int)[:8], "...")
-print("next hour (the label):", int(targets[0] * scale))
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part B --- Two forecasts that cost nothing.}\par
-
-Compare persistence (last value) and same-hour-yesterday (24 hours earlier). Gains over these baselines must justify the network.
-
-\begin{lstlisting}[style=utppython]
-actual = targets[cut:] * scale
-persistence = windows[cut:, -1] * scale
-yesterday = windows[cut:, 0] * scale
-
-baselines = {
-    "persistence (last hour)": np.abs(actual - persistence).mean(),
-    "same hour yesterday": np.abs(actual - yesterday).mean(),
-}
-for name, mae in baselines.items():
-    print(f"{name:26s} validation MAE = {mae:.1f} rentals")
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part C --- The LSTM.}\par
-
-An LSTM carries 32 hidden values through each 24-step window; a linear layer predicts demand. Reuse Lab~7's loop with squared loss and validation MAE in rentals.
-
-\begin{lstlisting}[style=utppython]
-class LSTMForecaster(nn.Module):
-    def __init__(self, hidden_size=32):
-        super().__init__()
-        self.lstm = nn.LSTM(input_size=1, hidden_size=hidden_size, batch_first=True)
-        self.head = nn.Linear(hidden_size, 1)
-
-    def forward(self, x):
-        states, _ = self.lstm(x)            # (rows, 24 steps, hidden_size)
-        return self.head(states[:, -1, :]).squeeze(-1)   # the final state predicts the next hour
-
-def train_forecaster(model, epochs=8, lr=3e-3, batch_size=64):
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    loss_fn = nn.MSELoss()
-    history = []
-    for epoch in range(epochs):
-        model.train()
-        order = torch.randperm(len(X_train))
-        for start in range(0, len(X_train), batch_size):
-            batch = order[start:start + batch_size]
-            optimizer.zero_grad()
-            loss = loss_fn(model(X_train[batch]), y_train[batch])
-            loss.backward()
-            optimizer.step()
-        model.eval()
-        with torch.no_grad():
-            mae = (model(X_valid) - y_valid).abs().mean().item() * scale
-        history.append(mae)
-        print(f"epoch {epoch + 1}: validation MAE = {mae:.1f} rentals")
-    return history
-
-torch.manual_seed(42)
-model = LSTMForecaster().to(DEVICE)
-print("trainable weights:", sum(p.numel() for p in model.parameters()))
-history = train_forecaster(model)
-\end{lstlisting}
-
-\begin{lstlisting}[style=utppython]
-plt.figure(figsize=(5.5, 3.4))
-plt.plot(range(1, len(history) + 1), history, marker="o", label="LSTM")
-for name, mae in baselines.items():
-    plt.axhline(mae, linestyle="--", label=name)
-plt.xlabel("Epoch")
-plt.ylabel("Validation MAE (rentals)")
-plt.title("The LSTM has to beat two free forecasts")
-plt.legend()
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Validation error falls below both baselines. Use the validation curve to assess whether further epochs help.
-
-Plot forecasts against observations for the first validation week.
-
-\begin{lstlisting}[style=utppython]
-model.eval()
-with torch.no_grad():
-    forecast = model(X_valid).cpu().numpy() * scale
-
-week = slice(0, 24 * 7)
-fig, axes = plt.subplots(1, 2, figsize=(11, 3.6), gridspec_kw={"width_ratios": [2, 1]})
-axes[0].plot(actual[week], label="actual")
-axes[0].plot(forecast[week], label="LSTM forecast")
-axes[0].plot(yesterday[week], label="same hour yesterday", alpha=0.5)
-axes[0].set_xlabel("Hour of the first validation week")
-axes[0].set_ylabel("Rentals")
-axes[0].set_title("One-hour-ahead forecasts")
-axes[0].legend()
-axes[1].scatter(actual, forecast, s=4, alpha=0.3)
-axes[1].plot([0, actual.max()], [0, actual.max()], linestyle="--", color="grey")
-axes[1].set_xlabel("Actual rentals")
-axes[1].set_ylabel("Forecast")
-axes[1].set_title("All validation hours")
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Compare rush-hour peaks, nights, and errors at high demand; the largest peaks remain difficult.
-
-\medskip\noindent\textbf{Part D --- Save the weights and the scaling with them.}\par
-
-Save the training maximum and architecture beside the weights. Reload and verify predictions.
-
-\begin{lstlisting}[style=utppython]
-weights_path = MODELS / "bike_lstm.pt"
-torch.save(model.state_dict(), weights_path)
-card = {
-    "task": "forecast next-hour bike rentals from the previous 24 hours",
-    "input": "tensor of shape (n, 24, 1): the last 24 hourly counts divided by scale",
-    "scale": float(scale),
-    "architecture": "LSTMForecaster(hidden_size=32) in Lab 8",
-    "training": {"epochs": 8, "learning_rate": 3e-3, "batch_size": 64, "seed": 42},
-    "validation_mae_rentals": round(history[-1], 1),
-    "baseline_mae_rentals": {k: round(float(v), 1) for k, v in baselines.items()},
-    "torch_version": torch.__version__,
-    "trained_on": str(DEVICE),
-}
-(MODELS / "bike_lstm_card.json").write_text(json.dumps(card, indent=2))
-
-restored = LSTMForecaster().to(DEVICE)
-restored.load_state_dict(torch.load(weights_path, map_location=DEVICE, weights_only=True))
-restored.eval()
-last_day = torch.tensor(scaled[-LOOKBACK:]).reshape(1, LOOKBACK, 1).to(DEVICE)
-with torch.no_grad():
-    next_hour = restored(last_day).item() * card["scale"]
-print(f"saved {weights_path.name}")
-print(f"forecast for the hour after the series ends: {next_hour:.0f} rentals")
-\end{lstlisting}
-
-\begin{tryit}
-Compare \texttt{LOOKBACK=6} and 48 after eight epochs. Double \texttt{hidden\_size} to 64; compare validation MAE and runtime.
-\end{tryit}
+\textbf{Read first.} Chapter~\ref{ch:deep}, and the time-split rule in Chapter~\ref{ch:data}.\\
+\textbf{Goal.} Turn a time series into supervised windows with a chronological split, set two naive baselines any forecast must beat, train an LSTM and read its curve, look at its forecasts hour by hour, and save the weights with the scaling they depend on.\\
+\textbf{Scenario.} The bike scheme from Lab~2 wants to know how many bikes will be out next hour, with no weather forecast, just the recent counts. A rule that costs nothing is already pretty good, so the network has to beat it by enough to be worth having.\\
+\textbf{Data.} \texttt{all\_datasets/bike\_sharing\_dataset\_hour.csv}.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab08\_deep\_learning\_lstm\_worked.ipynb}.\\
+\textbf{Hand in.} The executed notebook, \texttt{results/lab08/}, the weights with their card and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
+\begin{labmode}
+\begin{enumerate}
+  \item Activate your course environment and confirm the data file is in \texttt{all\_datasets/}.
+  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It took 76 seconds on the CPU behind this sheet, and 21 on a laptop GPU.
+  \item Lab~8's numbers came out the same on CPU and GPU here, apart from one digit in one epoch.
+\end{enumerate}
+\begin{lstlisting}[style=utpterminal]
+cd all_experiments
+jupyter lab
+\end{lstlisting}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab08\_deep\_learning\_lstm\_worked.py} runs the same code and writes the same evidence.
+\end{labmode}
+
+\input{labs/visuals/08-flow}
+
+\labroutine
+
+\begin{yourturn}
+\textbf{Warm-up on paper.} Take the series $16,40,32,13,1,1,2,3$ and a lookback of 3.
+\begin{enumerate}
+  \item How many windows do you get, and what are the first two with their targets? (Five: $[16,40,32]\to13$, and $[40,32,13]\to1$.)
+  \item Compute the MAE of \emph{persistence}, which predicts each target as the last value in its window. (Errors 19, 12, 0, 1, 1, so 6.6.)
+  \item Compute the MAE of the first value in each window as the forecast, the idea behind ``same hour yesterday''. (Errors 3, 39, 31, 11, 2, so 17.2.)
+\end{enumerate}
+\end{yourturn}
+
+\begin{labquestion}{1}{Setup}
+Run this first. As in Lab~7, the cell imports PyTorch and picks \texttt{DEVICE}.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=8,lastline=43]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\noindent\textbf{Continue the same step.}
+\lstinputlisting[style=utppython,firstline=44,lastline=53]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+Python 3.13.9 at C:\ProgramData\anaconda3\python.exe
+PyTorch 2.11.0+cu128 | device: cpu
+course folder: MACHINE LEARNING
+\end{lstlisting}
+\end{refoutput}
+\end{labanswer}
+
+\labpart{Part A --- From a series to windows}
+
+\begin{labquestion}{2}{Read and scale the series}
+The hourly bike file from Lab~2 is one long series: 17,379 hourly rental counts in date order. A sequence model does not take a table of features; it takes the last few values and predicts the next one. The series is first scaled by the largest value in the training period, so that the network sees numbers near $[0,1]$.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/08-trace}
+\lstinputlisting[style=utppython,firstline=55,lastline=72]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/08-notebook-reference.png}
+\end{labvisual}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+hours: 17379  scale factor: 957.0
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The scale is a training-set statistic, so it is computed before anything sees the validation period. The validation period does go higher, to 977, so a few validation inputs slightly exceed 1. That is correct, and a sign that no future value leaked into the scale. One caveat about the series itself: the two years contain 17,544 hours, so 165 have no row, mostly in the small hours. A window of 24 is really 24 rows. It spans exactly 24 hours in 90\% of all windows and 97\% of validation windows, and this lab, like most first forecasts, lets that go.
+\end{labanswer}
+
+\begin{labquestion}{3}{Build the windows and split by date}
+A \emph{window} turns the series into rows: the 24 values before hour $t$ are the input, and the value at hour $t$ is the label. Sliding the window one hour at a time gives one row per hour. Because neighboring rows overlap, the split has to be chronological: the first 80\% of windows train, and the rest validate.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/08-worked-case.tex}
+\lstinputlisting[style=utppython,firstline=74,lastline=86]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+windows: (17355, 24)  targets: (17355,)
+train rows: 13884  validation rows: 3471
+first window (rentals): [16 40 32 13  1  1  2  3] ...
+next hour (the label): 17
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} $N$ values give $N-24$ windows, matching your warm-up's rule. Read the slicing bounds literally: \texttt{scaled[i:i+24]} excludes position \texttt{i+24}, which is the target. Validation runs from 7 August to 31 December 2012, the same period as in Lab~2.
+\end{labanswer}
+
+\labpart{Part B --- Two forecasts that cost nothing}
+
+\begin{labquestion}{4}{Compute two free forecasts}
+Before any network is trained, two naive forecasts set the bar. \emph{Persistence} predicts that the next hour equals the last hour. \emph{Same hour yesterday} predicts the value 24 rows earlier, which is the first value in each window. A model that cannot beat both has learned nothing worth its cost.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=88,lastline=97]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+persistence (last hour)    validation MAE = 85.2 rentals
+same hour yesterday        validation MAE = 80.5 rentals
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Those are the numbers to beat. Lab~2's forest had an MAE of 56.5 on nearly the same rows, using the weather and the calendar, so history alone will have to work hard.
+\end{labanswer}
+
+\labpart{Part C --- The LSTM}
+
+\begin{labquestion}{5}{Build and train the LSTM}
+The model reads the 24 values one at a time, carrying a hidden state of 32 numbers from step to step, and a linear layer turns the final state into one prediction. The training loop is the one from Lab~7 with two changes: the loss is squared error, and the score recorded each epoch is the validation MAE in rentals.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=99,lastline=132]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+trainable weights: 4513
+epoch 1: validation MAE = 69.9 rentals
+epoch 2: validation MAE = 72.3 rentals
+epoch 3: validation MAE = 56.4 rentals
+epoch 4: validation MAE = 49.5 rentals
+epoch 5: validation MAE = 48.4 rentals
+epoch 6: validation MAE = 41.1 rentals
+epoch 7: validation MAE = 42.2 rentals
+epoch 8: validation MAE = 41.9 rentals
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The weight count is $4{,}480$ in the LSTM plus 33 in the output layer. One epoch is already better than both baselines, and eight epochs reach about half their error. They also beat Lab~2's forest (56.5), which knew the weather and the calendar but not the last hour's count.
+\end{labanswer}
+
+\textbf{Connect it to the chapter.} The same cell, with the same weights, is applied at every one of the 24 steps.
+\input{labs/visuals/08-deep-learning-lstm-chapter.tex}
+
+\begin{labquestion}{6}{Read the validation curve}
+Plot the validation error against the two baselines.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=134,lastline=144]{all_experiments/lab08_deep_learning_lstm_worked.py}
+
+\textbf{What it means.} The curve falls below both dashed lines at once, then flattens around 42 over the last three epochs. Validation error is not rising, so it is not overfitting yet, and Your-turn task~1 shows that more epochs do help.
+\end{labanswer}
+
+\begin{labquestion}{7}{Look at the forecasts}
+Scores are one number. The forecasts themselves, plotted against the truth for the first validation week, show \emph{how} the network is wrong.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=146,lastline=166]{all_experiments/lab08_deep_learning_lstm_worked.py}
+
+\textbf{What it means.} The forecast follows both rush-hour peaks and the quiet nights. ``Same hour yesterday'' is close on ordinary weekdays and badly wrong when the day changes character. At 8 a.m.\ on a wet Friday (hour 63 of the plot) 119 bikes went out: yesterday's value says 698 and the LSTM says 325. At 8 a.m.\ on Monday (hour 135) 673 went out: yesterday, a Sunday, says 119 and the LSTM says 520. The scatter hugs the diagonal and fans out at the top, so the biggest hours are the hardest to call.
+\end{labanswer}
+
+\labpart{Part D --- Save the weights and the scaling with them}
+
+\begin{labquestion}{8}{Save the weights and the scale}
+The network works only on numbers divided by the training-set maximum, so that number is part of the model. The card records it beside the architecture, and the restored model is used for one real forecast.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=168,lastline=190]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+saved bike_lstm.pt
+forecast for the hour after the series ends: 42 rentals
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Without the scale in the card, \texttt{bike\_lstm.pt} would be useless. The restored model forecasts the hour after the series ends, from the last 24 values.
+\end{labanswer}
+
+\labpart{Evidence}
+
+\begin{labquestion}{9}{Save the evidence}
+Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=192,lastline=199]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+Saved: ['a_daily_rhythm_the_model_has_to_learn.png', 'all_validation_hours.png',
+ 'first_validation_week.csv', 'metrics.csv', 'the_lstm_has_to_beat_two_free_forecasts.png',
+ 'validation_curve.csv']
+\end{lstlisting}
+\end{refoutput}
+\end{labanswer}
+
+\labpart{Try it yourself}
+
+\begin{labquestion}{10}{Try it yourself}
+Change \texttt{LOOKBACK} to 6 and to 48, and compare the validation MAE after eight epochs: does the network need a whole day of history? Then double \texttt{hidden\_size} to 64, and see whether the extra capacity helps or just takes longer. Attempt it in this empty cell before reading the solution.
+\end{labquestion}
+
+\begin{labquestion}{11}{One solution}
+Three lookback lengths, then a wider hidden state, each trained for the same eight epochs.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=203,lastline=232]{all_experiments/lab08_deep_learning_lstm_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+lookback =  6 hours, hidden = 32: validation MAE = 54.7 rentals
+lookback = 24 hours, hidden = 32: validation MAE = 41.9 rentals
+lookback = 48 hours, hidden = 32: validation MAE = 43.4 rentals
+lookback = 24 hours, hidden = 64: validation MAE = 36.4 rentals
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Six hours of history is clearly worse: the network cannot see yesterday's value for this hour, which is a very useful clue. Forty-eight hours is no better than twenty-four, because one day already contains the daily shape. Doubling the hidden state does help, 36 against 42 rentals, and it roughly quadruples the weights.
+\end{labanswer}
+
+\begin{yourturn}
+Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+\begin{enumerate}
+  \item \textbf{More epochs.} Train the 24-hour, 32-unit model for 16 epochs instead of 8. Does the error keep falling? Does it ever start to rise?
+  \item \textbf{One more clue.} Give the network a second input channel, the hour of the day divided by 23, using \texttt{input\_size=2}. Train for 8 epochs. How does that compare with doubling the hidden size?
+  \item \textbf{Where does it go wrong?} Group the absolute errors of the Question~7 forecast by hour of the day, and by whether the true count is above 500. Which hours are hardest, and on the busiest hours is the error balanced or one-sided?
+\end{enumerate}
+\end{yourturn}
+
+\begin{expectedfindings}
+\begin{enumerate}
+  \item It goes on falling, unevenly: 38.0 at epoch 12, 35.1 at epoch 14, 37.7 at epoch 16. Epoch-to-epoch wobble of about 2 rentals is noise, so a real run would keep the best epoch on validation.
+  \item MAE 35.1 after 8 epochs, better than the 36.4 from doubling the hidden size, and at almost no cost in weights. The network no longer has to infer the time of day from the shape of the last 24 hours. A good feature can beat more capacity, as in Lab~1.
+  \item The 8 a.m.\ hour is the hardest, with an MAE of about 109, followed by 10 a.m.\ (77) and the evening rush at 5 and 6 p.m.\ (69 and 66). Between 1 and 6 a.m.\ it is about 20. On hours above 500 rentals the MAE is about 81, and the forecast runs about 41 below the truth on average, so the network under-forecasts its peaks, as an averaging loss tends to.
+\end{enumerate}
+\end{expectedfindings}
+
+\begin{troubleshoot}
+\begin{description}
+  \item[Validation MAE in the hundreds] You are measuring in scaled units or forgot to multiply back by \texttt{scale}. Baselines and model must use the same units.
+  \item[A baseline looks suspiciously good] Check the alignment: \texttt{windows[cut:, -1]} is the hour before the target, and \texttt{windows[cut:, 0]} the same hour yesterday. An off-by-one error can compare a target with itself.
+  \item[\texttt{Expected 3D input}] An LSTM with \texttt{batch\_first=True} needs (rows, steps, values per step). \texttt{unsqueeze(-1)} adds the last dimension.
+  \item[Very slow on a CPU] Lower the number of epochs only for a quick test. The hidden size of 64 and the lookback of 48 are the slow runs.
+\end{description}
+\end{troubleshoot}
+
+\begin{labchecklists}
 \begin{verification}
 \begin{itemize}
-  \item The windows are built and split in date order, so no future hour leaks into training.
-  \item Both naive forecasts are computed and reported before the LSTM.
-  \item The LSTM's validation error falls below both baselines.
-  \item Forecast errors are inspected at rush hours, at night, and at high demand.
-  \item \texttt{models/bike\_lstm.pt} and its card, with the scaling statistics, are saved.
+  \item The windows are built and split in date order, and you can state which hour each row predicts, so no future hour leaks into training.
+  \item Both naive forecasts are computed and reported before the LSTM, on the same target hours.
+  \item The LSTM's validation error falls below both baselines, and you can state by how much.
+  \item Forecast errors are inspected at rush hours, at night and at high demand.
+  \item \texttt{models/bike\_lstm.pt} and its card, with the scale factor, are saved.
 \end{itemize}
 \end{verification}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item Restart the kernel and run all cells without errors.
+  \item Submit the executed notebook, including your \emph{Your turn} cells, the generated \texttt{results/lab08/} folder, and the weights with their card.
+  \item Add a short conclusion: what the LSTM buys over the two free forecasts and over Lab~2's forest, where it fails, and what you would try next.
+\end{itemize}
+\end{labdeliverable}
+\end{labchecklists}

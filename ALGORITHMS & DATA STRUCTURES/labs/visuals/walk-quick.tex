@@ -1,0 +1,53 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{adslabfigure}[Descending partition: trace the entire first call]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,0.00) {29};
+\node[utplabel] at (0.00,0.60) {0};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.92,0.00) {10};
+\node[utplabel] at (0.92,0.60) {1};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (1.84,0.00) {14};
+\node[utplabel] at (1.84,0.60) {2};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,0.00) {37};
+\node[utplabel] at (2.76,0.60) {3};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,0.00) {13};
+\node[utplabel] at (3.68,0.60) {4};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,0.00) {Middle index 2: pivot is 14};
+\draw[utparrow] (-.85,-0.35)--(-.85,-0.70);
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,-1.05) {29};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.92,-1.05) {10};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-1.05) {13};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-1.05) {37};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (3.68,-1.05) {14};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-1.05) {\texttt{swap(a[mid],a[high])}; set i=-1};
+\draw[utparrow] (-.85,-1.40)--(-.85,-1.75);
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (0.00,-2.10) {29};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.92,-2.10) {10};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-2.10) {13};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-2.10) {37};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-2.10) {14};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-2.10) {j=0: 29 $\ge$ 14; increment i to 0};
+\draw[utparrow] (-.85,-2.45)--(-.85,-2.80);
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,-3.15) {29};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (0.92,-3.15) {10};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (1.84,-3.15) {13};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-3.15) {37};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-3.15) {14};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-3.15) {j=1,2: 10 and 13 are smaller; skip both};
+\draw[utparrow] (-.85,-3.50)--(-.85,-3.85);
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,-4.20) {29};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (0.92,-4.20) {37};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-4.20) {13};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (2.76,-4.20) {10};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-4.20) {14};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-4.20) {j=3: 37 $\ge$ 14; increment i to 1\\Swap indexes 1 and 3};
+\draw[utparrow] (-.85,-4.55)--(-.85,-4.90);
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,-5.25) {29};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.92,-5.25) {37};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (1.84,-5.25) {14};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-5.25) {10};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-5.25) {13};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-5.25) {Swap pivot with a[i+1]; return p=2\\Recurse on indexes 0--1 and 3--4};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

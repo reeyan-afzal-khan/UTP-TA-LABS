@@ -1,0 +1,29 @@
+A (2 x 3)
+  row 0:    1    2    3
+  row 1:    4    5    6
+B (3 x 2)
+  row 0:    7    8
+  row 1:    9   10
+  row 2:   11   12
+P = A x B (2 x 2)
+  row 0:   58   64
+  row 1:  139  154
+
+== Trace of one output cell ==
+P[1][0] = A[1][0]*B[0][0] + A[1][1]*B[1][0] + A[1][2]*B[2][0]
+        = 4*7 + 5*9 + 6*11
+        = 28 + 45 + 66 = 139
+Program P[1][0] = 139  (matches the hand calculation)
+
+== Shape validation ==
+A (2 x 3) times A (2 x 3): refused, columns of A (3) != rows of A (2)
+
+What each loop controls:
+  i chooses the row of A and the row of P being filled;
+  j chooses the column of B and the column of P being filled;
+  t walks along row i of A and down column j of B, adding one product per step.
+
+== Verification ==
+  [ok]   incompatible shapes are refused before any multiplication
+  [ok]   the hand-traced cell P[1][0] matches the program
+  [ok]   the whole product matches the expected [[58, 64], [139, 154]]

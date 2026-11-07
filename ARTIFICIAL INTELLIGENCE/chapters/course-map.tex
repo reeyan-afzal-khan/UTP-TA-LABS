@@ -3,7 +3,7 @@
 \addcontentsline{toc}{chapter}{Course Map}
 \markboth{Course Map}{}
 
-The course progresses from searching a graph to learning from data. Four stages build on the toolkit in Chapter~1, and every lab follows the same five steps: define the task, validate the data, run a controlled experiment, interpret the results, and submit the executed notebook with its generated evidence.
+The course moves from searching a graph to learning from data and back to search in new forms. Chapters~\ref{ch:toolkit} and~\ref{ch:git-submission} set up your tools. After that, each chapter builds an idea and each lab sheet right after it puts that idea to work, following the same steps: define the task, validate the data, run a controlled experiment, interpret the results, and submit the executed notebook with its generated evidence.
 
 \begin{utpfigure}
 \newcommand{\coursemapcard}[3]{%
@@ -24,13 +24,15 @@ The course progresses from searching a graph to learning from data. Four stages 
   arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
     draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
 ]
-\node[card] (a) {\coursemapcard{STAGE 01}{Route search}{BFS, DFS, UCS, and A$^\star$ on airline data}};
+\node[card] (a) {\coursemapcard{STAGE 01}{Route search}{BFS, DFS, UCS, and A$^\star$ on a maze and airline data}};
 \node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Reasoning}{Fuzzy logic, ANFIS, and robot sensing}};
-\node[card,below=of b] (c) {\coursemapcard{STAGE 03}{Language}{Handwriting OCR and sentiment}};
-\node[finalcard,left=of c] (d) {\coursemapcard{STAGE 04}{Optimization}{Genetic-algorithm regression}};
+\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Language}{Handwriting OCR and sentiment}};
+\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Optimization}{Local search and genetic algorithms}};
+\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Games}{Minimax and Monte Carlo Tree Search}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
 \end{tikzpicture}
 \end{utpfigure}
 
@@ -43,13 +45,14 @@ The course progresses from searching a graph to learning from data. Four stages 
 1 & Uninformed and informed search & How is a good route found, and what does finding it cost? \\
 2 & Fuzzy systems and robot sensing & How can imprecise readings drive a sound decision? \\
 3 & OCR and text classification & How is text turned into evidence a model can use? \\
-4 & Evolutionary optimization & How can a population of candidates fit a model? \\
+4 & Local search and evolutionary optimization & What if only the final answer counts, and how can a population of candidates find it? \\
+5 & Adversarial search & What if someone fights back? \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
 \section*{Datasets and what each stage builds}
-Every stage works on one or two public Kaggle datasets, listed with download links in Chapter~1.
+Stages 1 to 4 work on public Kaggle datasets, listed with download links in Chapter~\ref{ch:toolkit}. Stage~5, and the local search of Stage~4, run on small puzzles that need no data.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}>{\centering\arraybackslash}m{0.09\linewidth}m{0.30\linewidth}X@{}}
@@ -61,6 +64,42 @@ Every stage works on one or two public Kaggle datasets, listed with download lin
 2 & 4--5 & UCI Air Quality; SCITOS wall-following sensor readings & Fuzzy and ANFIS models, and an interpretable sensor-to-action controller. \\
 3 & 6--7 & Doctor Handwriting Recognition; Twitter Airline Sentiment & A handwriting OCR evaluation and a three-class airline sentiment benchmark. \\
 4 & 8 & Medical Cost Personal Dataset & A repeated-run GA regression compared with least squares. \\
+5 & none & No data: noughts and crosses & A reading chapter with a runnable demo, closing the five questions of search. \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
+
+\section*{How to use this book}
+
+Every chapter builds one idea, starting from a small example you can check by hand and ending on the real data of the lab that follows it. A good route through one lab session looks like this:
+
+\begin{utpsteps}
+  \item \textbf{Read the chapter with a pen.} Work the worked examples yourself instead of only reading them, and try the practice boxes.
+  \item \textbf{Answer the check.} Write down your answers to \emph{Check your understanding} before you read the answers below it.
+  \item \textbf{Do the lab sheet.} Each question has the same number in the sheet and in its notebook. Predict, run, compare with the reference output, and explain.
+  \item \textbf{Finish with \emph{Your turn}.} These tasks go beyond the worked answers. Record your own numbers first, then read the expected findings.
+  \item \textbf{Hand in.} Work through the verification and submission checklists at the end of the sheet.
+\end{utpsteps}
+
+The coloured boxes each have one job:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.32\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Box} & \utpth{What it is for} \\
+\midrule
+Analogy, Conceptual intuition & The everyday picture, before the formal version. Every analogy breaks down somewhere, so use it to get started and then trust the definition. \\
+Key idea & The one sentence to carry away from a section. \\
+Worked example & A calculation or trace to follow with a pen. \\
+Common mistake & What reliably goes wrong here, and why. \\
+Practice, Your turn & Something for you to do. Predict first, then run it. \\
+Chapter recap & What a reader should carry forward from the chapter. \\
+Reference note & History or background you can read past without losing the thread. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{sourcebasis}
+The robot-and-maze storyline of the search chapters, and several analogies across the book (the ripple, the line at a shop, the pile of plates, the foggy hillside, the dimmer switch, breeding boards), are adapted from two video lectures: \href{https://www.youtube.com/watch?v=fCEvvkAbJOs}{an hour on search} and \href{https://www.youtube.com/watch?v=42IVf4m-5fk}{an hour on machine learning}. The maze, puzzles, game positions, code and all numbers in this book are our own, and every one can be reproduced by running the programs in \texttt{all\_experiments/}.
+\end{sourcebasis}

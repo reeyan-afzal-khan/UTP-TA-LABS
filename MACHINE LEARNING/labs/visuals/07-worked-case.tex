@@ -1,0 +1,1 @@
+\courselabtrace{Trace the supplied CNN: one image}{1. Input / state}{Input shape (1, 1, 8, 8). Conv2d with 16 filters, kernel 3 and padding 1 gives (1, 16, 8, 8).}{2. Operation}{Pool to (1, 16, 4, 4); second convolution gives (1, 32, 4, 4); pool to (1, 32, 2, 2).}{3. Check}{Flatten: 32 times 2 times 2 = 128. Linear layers produce 64 features, then 10 class scores.}

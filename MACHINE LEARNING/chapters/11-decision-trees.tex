@@ -3,14 +3,14 @@
 
 \chapterguide%
   {\chapref{ch:training} plus basic probability from \chapref{ch:statistics}; entropy is helpful but re-explained here.}
-  {choose tree splits, interpret paths, control growth, prune, and assess feature importance.}
+  {compute Gini impurity and information gain by hand; choose a split on real counts; read a fitted tree as rules; control depth and pruning; and treat feature importance with care.}
 
-A decision tree routes observations through questions such as ``age below 30?'' to a \term{leaf} prediction. Small trees are readable; forests and boosting combine trees into stronger models (\chapref{ch:ensembles}).
+In the game of Twenty Questions you never ask ``is it a giraffe?'' first. You ask a question that splits the possibilities well, such as ``is it alive?'', and then ask the next one depending on the answer. A decision tree plays that game with a table. It routes each row through questions such as ``age below 30?'' until it reaches a \term{leaf}, which holds the prediction. Small trees can be read aloud, and forests and boosting combine many of them into stronger models (\chapref{ch:ensembles}).
 
 \begin{utpfig}[A small decision tree]{A small decision tree. Each internal node asks one question about one feature, and each leaf makes a prediction.}{fig:tree-example}
 \begin{tikzpicture}[
   font=\small,
-  qnode/.style={draw, rounded corners=2pt, align=center, fill=gray!10, inner sep=4pt},
+  qnode/.style={draw, rounded corners=2pt, align=center, fill=UTPPaleBlue, inner sep=4pt},
   leaf/.style={draw, align=center, inner sep=4pt},
   level distance=1.35cm,
   level 1/.style={sibling distance=4.6cm},
@@ -44,6 +44,10 @@ Standard tree learning (the CART algorithm) is \term{greedy and recursive}:
 Greedy means the algorithm never looks ahead or reconsiders: it takes the best immediate split at every step. That keeps training fast and usually works well, though it does not guarantee the globally best tree.
 
 \section{Measuring impurity}
+
+\begin{analogy}
+Picture a bag of red and blue marbles. A bag of one color is pure, so you can name the color of the next marble with no doubt. A half-and-half bag is as mixed as it gets. A good question pours one mixed bag into two bags, each purer than the original.
+\end{analogy}
 
 To pick a split, the algorithm needs a number for ``how mixed is this node?'' With $p_k$ the fraction of class $k$ in a node, two standard measures are the \term{Gini impurity} and the \term{entropy}:
 \[
@@ -79,11 +83,31 @@ $G_{\text{parent}}=1-(0.6^2+0.4^2)=0.48$.
 \emph{Candidate split B} produces children $[3+,2-]$ and $[3+,2-]$. Each child has the same $60/40$ mix as the parent, so each has $G=0.48$, the weighted impurity is unchanged, and $\operatorname{Gain}_B=0$: split B tells us nothing, and split A wins. (Entropy agrees: split A's gain is $0.971-0.551\approx 0.42$ bits.)
 \end{workedexample}
 
-\section{Finding the best split}
+\section{Finding the best split, on real data}
 
-Evaluate candidate feature thresholds and choose the largest weighted impurity reduction.
+Evaluate every candidate question, and keep the one with the largest weighted drop in impurity. If a threshold separated two classes perfectly, both children would be pure and the gain would equal the parent's impurity.
 
-If a threshold perfectly separates two classes, child impurity is zero and gain equals parent impurity.
+\keepspace{16\baselineskip}
+\begin{workedexample}
+The Titanic table has 549 deaths and 342 survivors, so its Gini is $1-(0.616^2+0.384^2)=0.473$. Four candidate first questions:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Question} & \utpth{Yes: died, lived} & \utpth{Gini} & \utpth{No: died, lived} & \utpth{Gini} & \utpth{Gain} \\
+\midrule
+Sex is female? & 81, 233 & 0.383 & 468, 109 & 0.306 & \textbf{0.140} \\
+Class is third? & 372, 119 & 0.367 & 177, 223 & 0.493 & 0.049 \\
+Fare at most 15? & 344, 114 & 0.374 & 205, 228 & 0.499 & 0.039 \\
+Embarked at C? & 75, 93 & 0.494 & 474, 249 & 0.452 & 0.013 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Check the first row: 314 women and 577 men, so the weighted child impurity is $\frac{314}{891}(0.383)+\frac{577}{891}(0.306)=0.333$, and the gain is $0.473-0.333=0.140$. Sex wins by a wide margin, and it is the question Lab~3's tree asks first. Then the same search repeats inside each child. Lab~3's tree goes on to ask about age among men and about class among women.
+\end{workedexample}
 
 \begin{libnote}
 Observed-value and midpoint thresholds can partition training rows identically despite different printed values.
@@ -117,7 +141,11 @@ Regression trees choose splits that reduce within-node variance. Each leaf predi
 Labels $\{2,3,10,11\}$ have mean $6.5$ and variance $16.25$. Splitting into $\{2,3\}$ and $\{10,11\}$ reduces weighted variance to $0.25$; leaves predict $2.5$ and $10.5$.
 \end{workedexample}
 
-Leaf means stay within the training-label range: ordinary regression trees do not extrapolate beyond observed labels.
+\begin{workedexample}
+The best single question for the study log is ``hours at most 17?''. Its leaves predict 60.0 for the eight students below and 40.5 for the two above. Ask this tree about someone who studied 100 hours, and it still says 40.5.
+\end{workedexample}
+
+Leaf means stay within the range of the training labels, so ordinary regression trees do not extrapolate. Lab~2 runs into this: its bike-demand forest under-predicts a busy autumn.
 
 \section{Stopping and pruning}
 
@@ -139,29 +167,21 @@ Post-pruning & Grow a deliberately large tree first, then cut back branches whos
 
 \section{Depth: the dial between too simple and memorized}
 
-Tree depth controls the bias--variance trade-off from \secref{sec:bias-variance}.
+Tree depth controls the bias--variance trade-off from \secref{sec:bias-variance}. Lab~3 measures it on the Titanic (\figref{fig:tree-depth}).
 
-\begin{utpfig}[Depth and the bias--variance trade-off]{Tree depth versus error. Training error keeps falling as the tree deepens, while validation error is lowest at a moderate depth: stop there.}{fig:tree-depth}
+\begin{utpfig}[Depth and the bias--variance trade-off]{Accuracy of Titanic trees by depth, on the rows they trained on and on 223 validation rows. Training accuracy climbs with every level, while validation accuracy peaks at depth 3 (0.785) and then drifts down to 0.731.}{fig:tree-depth}
 \begin{tikzpicture}
-\begin{axis}[
-  width=0.68\linewidth, height=4.5cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPNavy}}, title={Tree depth versus error},
-  xlabel={max\_depth}, ylabel={Error},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  legend style={font=\scriptsize,draw=none,fill=none,at={(0.98,0.96)},anchor=north east},
-  xmin=0.5, xmax=16, ymin=0, ymax=0.45
-]
-\addplot[UTPBlue,very thick,mark=*,mark size=1.3pt] coordinates
-  {(1,0.34)(2,0.26)(3,0.20)(4,0.16)(6,0.10)(8,0.05)(10,0.02)(12,0.005)(15,0.0)};
-\addlegendentry{training error}
-\addplot[UTPRed,very thick,mark=square*,mark size=1.3pt] coordinates
-  {(1,0.36)(2,0.29)(3,0.24)(4,0.21)(6,0.20)(8,0.23)(10,0.27)(12,0.30)(15,0.33)};
-\addlegendentry{validation error}
-\draw[UTPGreen,thick,dashed] (axis cs:5,0) -- (axis cs:5,0.45);
-\node[font=\scriptsize\color{UTPGreen},anchor=west] at (axis cs:5.4,0.41) {stop here};
+\begin{axis}[logaxis, width=0.72\linewidth, height=5.0cm, xlabel={max\_depth}, ylabel={accuracy}, xmin=0.5, xmax=12.5, ymin=0.7, ymax=1.0,
+  xtick={1,2,...,12}, ytick={0.7,0.8,0.9,1.0}, legend style={at={(0.03,0.97)},anchor=north west}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(1,0.793)(2,0.808)(3,0.832)(4,0.852)(5,0.868)(6,0.882)(7,0.892)(8,0.913)(9,0.927)(10,0.939)(11,0.948)(12,0.954)};
+\addlegendentry{training}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(1,0.767)(2,0.758)(3,0.785)(4,0.776)(5,0.767)(6,0.771)(7,0.767)(8,0.74)(9,0.749)(10,0.74)(11,0.74)(12,0.731)};
+\addlegendentry{validation}
 \end{axis}
 \end{tikzpicture}
 \end{utpfig}
+
+Left to grow without limit, the same tree reaches depth 21 with 146 leaves. It scores 0.978 on its training rows and 0.722 on validation: it has started describing individual passengers instead of patterns.
 
 \subsection{The controls that limit growth}
 
@@ -202,6 +222,8 @@ Increasing $\alpha$ trades fit for fewer leaves along a nested pruning path. Cro
 \begin{keyidea}
 Trees learn readable nonlinear rules through impurity reduction. Their instability also makes them useful base learners for ensembles.
 \end{keyidea}
+
+\recipecard{Decision tree}{A sequence of yes/no questions, each about one feature, ending in leaves that predict a constant.}{Gini impurity or entropy for classes; squared error for numbers.}{Greedy search: at each node, take the best split available now, and never look back.}
 
 \begin{modelcard}{Decision Trees - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.24\linewidth}X@{}}
@@ -245,10 +267,32 @@ A depth-20 tree has nearly perfect training accuracy and unstable feature import
 Choose between a shallow single tree and a random forest for a decision that must be explained to a nontechnical reviewer. Your memo must separate predictive performance from interpretability and state what level of performance loss, if any, you would accept for the simpler model.
 \end{decisionmemo}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item A tree asks one question at a time and predicts a constant in each leaf, carving the space into rectangles.
+  \item Each split is chosen greedily, to reduce impurity the most. Gini and entropy almost always agree.
+  \item On the Titanic the first question is sex, with a gain of 0.140, far ahead of class or fare.
+  \item Unlimited depth memorizes: training accuracy reached 0.978 with validation at 0.722. Limit growth or prune, and tune on validation.
+  \item Importance scores describe this fitted model. They are unstable under correlation, and they are not causes.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
   \item What does a decision-tree split try to improve at each node?
+  \item A node holds 8 positives and 2 negatives. What is its Gini impurity? A split gives children of $[4+,0-]$ and $[4+,2-]$; what is the gain?
   \item Why can an unconstrained tree achieve excellent training performance yet generalize poorly?
   \item Why are ordinary decision trees largely insensitive to monotonic rescaling of a numerical feature?
+  \item Why can a regression tree not predict a mark above the highest mark it trained on?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item The purity of the children compared with the parent, as measured by the weighted drop in Gini or entropy (or in variance, for regression).
+  \item Parent: $1-(0.8^2+0.2^2)=0.32$. The left child is pure. The right child: $1-[(2/3)^2+(1/3)^2]=0.444$. Weighted child impurity: $0.6\times0.444=0.267$. Gain: $0.32-0.267=0.053$.
+  \item With enough depth it can give every row its own leaf. Those last splits describe individual rows, which is why training accuracy rises to 0.978 while validation falls to 0.722 on the Titanic.
+  \item A split depends only on the order of the values, and stretching a column keeps its order, so the same rows go left and right.
+  \item Each leaf predicts the mean of its training labels, and a mean cannot exceed the largest value in it.
+\end{enumerate}
+\end{checkanswers}

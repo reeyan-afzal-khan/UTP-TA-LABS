@@ -1,0 +1,21 @@
+% Copied from chapters/02-arrays.tex (fig:array-2d).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{utpfigure}[Row and column indexing]
+\begin{tikzpicture}
+\foreach \r in {0,1,2}{
+  \foreach \c in {0,1,2}{
+    \pgfmathtruncatemacro{\v}{3*\r+\c+1}
+    \ifnum\r=1 \ifnum\c=2
+      \node[utphot,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \else
+      \node[utpcell,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \fi\else
+      \node[utpcell,minimum width=1.15cm,minimum height=0.85cm] at (1.15*\c,-0.85*\r) {\v};
+    \fi
+  }
+}
+\foreach \c in {0,1,2}{\node[utplabel] at (1.15*\c,0.68) {col \c};}
+\foreach \r in {0,1,2}{\node[utplabel,anchor=east] at (-0.72,-0.85*\r) {row \r};}
+\node[utptag,anchor=west,align=left] at (2.9,-0.85) {$\leftarrow$ \texttt{matrix[1][2]} $=6$};
+\end{tikzpicture}
+\end{utpfigure}

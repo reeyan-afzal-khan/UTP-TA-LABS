@@ -4,6 +4,24 @@
 \textbf{Coverage.} Chapter~\ref{ch:wireshark}.\\
 \textbf{Goal.} Produce a capture that answers a specific question, rather than a screenshot that shows traffic existed.
 
+\input{labs/visuals/01-flow}
+
+\noindent\textbf{Worked implementation: One host, two terminals, one capture.}
+
+\noindent\textbf{HTTP server.} Start a capture on the loopback interface, then run this in terminal A. Leave it running during the request.
+\lstinputlisting[style=utpterminal]{labs/configs/lab01-01.txt}
+
+\noindent\textbf{HTTP request.} In terminal B, request the page. On Windows use curl.exe; on Linux/macOS use curl.
+\lstinputlisting[style=utpterminal]{labs/configs/lab01-02.txt}
+
+\noindent\textbf{Display filter.} Apply this in Wireshark after the request. Locate SYN, SYN/ACK, ACK, the GET request and the response. Stop the server with Ctrl+C.
+\lstinputlisting[style=utpterminal]{labs/configs/lab01-03.txt}
+
+\textbf{Expected evidence.} The response should contain a directory listing and a successful HTTP status. Save a pcapng containing the exchange. Loopback traffic has no physical Ethernet hop; use the existing LAN exercise for ARP.
+
+
+
+
 \begin{labmode}
 Capture on a network you are authorised to observe --- your own machine, your own lab segment, or the eNSP simulation. Capturing on a shared campus or corporate network without permission is a disciplinary matter and in many jurisdictions an offence.
 
@@ -68,6 +86,14 @@ Write \cmd{!(ip.addr == 192.168.1.10)} instead. The same trap applies to every a
 \medskip\noindent\textbf{Part D --- Read one TCP handshake end to end.}\par
 Filter to a single conversation (right-click a packet, then \emph{Follow $\rightarrow$ TCP Stream}) and identify the three-way handshake:
 
+\input{labs/visuals/01-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:wireshark]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Use the lab's generated traffic so the expected exchange is under your control. The HTTP display filter hides unrelated traffic but does not create a capture. If no packets appear, check the interface and capture timing before changing the server.
+\input{labs/visuals/01-worked-case.tex}
+
 \begin{lstlisting}[style=utpterminal]
 No.  Source        Destination   Proto  Info
 1    192.168.1.10  93.184.216.34 TCP    49152 > 80 [SYN] Seq=0 Win=64240
@@ -90,7 +116,13 @@ Capture a \cmd{ping} to an address that does not exist on your subnet. No reply 
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:wireshark]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/01-wireshark-capture-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Match one client request to its response using endpoints and stream identity. Record the status and explain where the request path and response body appear.
+
+
 \begin{itemize}
   \item The raw \cmd{.pcapng} is saved and submitted, not only screenshots.
   \item The question the capture answers is stated before the evidence.

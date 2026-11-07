@@ -1,0 +1,4 @@
+display ip interface brief
+ping 10.0.12.2
+display current-configuration
+save

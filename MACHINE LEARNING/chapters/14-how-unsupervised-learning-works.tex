@@ -3,9 +3,11 @@
 
 \chapterguide%
   {The shared foundations in Stages 1--2 and the supervised workflow in Stage 3A for comparison.}
-  {define unsupervised objectives and evaluate structure using internal, external, and downstream evidence.}
+  {say what an unsupervised method optimizes when no answers exist; match a question to a family of methods; gather internal, external and practical evidence for a result; and justify your scaling before you interpret anything.}
 
-Given features $X$ without labels, unsupervised learning finds groups, representations, or unusual cases.
+Tip a box of old holiday photos onto the table and start sorting them into piles. Nobody told you which piles to make. You might sort by place, by year, or by who is in them, and each sorting would be sensible. Nobody can mark it right or wrong either. You can only ask whether a sorting is tidy, stable, and useful for what you wanted.
+
+Back to the map in \figref{fig:ml-map}. Ask of the study log, ``what kinds of student are in this group?'', and you will find that no column holds the answer. That is the other half of machine learning: given features $X$ without labels, find groups, representations, or unusual cases.
 
 \begin{utpfig}[Supervised and unsupervised learning]{Supervised learning uses features $X$ and labels $y$ to predict $y$; unsupervised learning has only $X$ and looks for structure in it.}{fig:sup-vs-unsup}
 \begin{tikzpicture}[
@@ -41,7 +43,7 @@ Evaluation follows the objective: variance for PCA, separation for clustering, r
 
 \section{What does fitting mean without labels?}
 
-An unsupervised method still has an objective; it simply does not compare predictions with a supplied label during fitting.
+An unsupervised method still follows the recipe. It has a model, it has a loss, and it has an optimizer. The loss simply does not compare predictions with a supplied label.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}m{0.34\linewidth}X@{}}
@@ -60,7 +62,7 @@ Association mining \textit{(beyond core)} & Find item combinations that occur of
 
 \section{How do we evaluate when there is no answer key?}
 
-There is no universal ``unsupervised accuracy.'' Use evidence that matches the task.
+There is no universal ``unsupervised accuracy.'' Use evidence that matches the task, and more than one kind of it.
 
 \subsection{Internal evidence}
 Assess compactness, separation, reconstruction, retained variance, and stability under resampling or perturbation.
@@ -70,6 +72,10 @@ Compare with independent reference labels when available, using measures such as
 
 \subsection{Practical or downstream evidence}
 Test usefulness: interpretable clusters, retained downstream signal, or anomalies that merit review.
+
+\begin{workedexample}
+Lab~4 groups 200 mall customers with $K$-means and brings all three kinds of evidence. Internal: the silhouette peaks at 0.427 for six groups, with five close behind at 0.417. Stability: most random starts reach the same grouping, though some do not. Practical: the five groups can be named (affluent big spenders, affluent savers, and so on), and a marketing team could act on those names. No single score settles it, and the conclusion is stated as ``five or six''.
+\end{workedexample}
 
 \begin{pitfall}
 Do not invent labels after fitting and treat them as ground truth. Known classes and visual groupings need not match the structure the method preserves.
@@ -96,16 +102,39 @@ Describing a fixed dataset need not require a split. Claims about new data or do
 
 \section{Scaling and representation matter even more here}
 
-Scaling, weighting, encoding, and distance define geometry. Lab~4 standardizes age, income, and spending score before $K$-means.
+In supervised learning, a poor representation shows up as a poor validation score. Here nothing protests. Scaling, weighting, encoding and distance simply define what the method can see.
+
+\begin{workedexample}
+Take the same 200 mall customers and the same $K$-means with five groups. On standardized columns and on raw units, the two groupings agree with an adjusted Rand index of only 0.602 (1 is identical, and 0 is chance). Now express income in ringgit per year instead of thousands of dollars, multiplying that column by 4,400. The grouping becomes identical to clustering on income alone, with an index of 1.000: age and spending no longer count at all. Each result looks like a tidy clustering, and nothing warns you which one you got.
+\end{workedexample}
 
 \begin{keyidea}
 There is no label to reveal a poor representation, so justify the scaling and distance choices before interpreting the result.
 \end{keyidea}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Unsupervised learning has no answer column, but it still has a model, a loss and an optimizer.
+  \item The question picks the family: groups, fewer columns, unusual cases, density, or co-occurrence.
+  \item No universal accuracy exists. Combine internal evidence, external evidence where it exists, and practical usefulness.
+  \item Nothing protests when the representation is wrong, so justify scaling before interpreting. Changing one column's units changed the mall clustering completely.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item Why is there no universal unsupervised-learning accuracy score?
   \item Give one internal, one external, and one downstream form of evidence that could support an unsupervised result.
   \item When does an unsupervised project need a held-out split even though no label is used during fitting?
+  \item A clustering looks tidy. Then income is re-expressed in cents and the clusters change completely. What does that tell you, and what should you do?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item No answer key exists to compare with, and several structures can be valid at once. Evidence has to match the stated aim.
+  \item Internal: a silhouette or a retained-variance figure. External: agreement with independent reference labels, such as an adjusted Rand index. Downstream: a classifier's accuracy after PCA, or a review team's hit rate on flagged cases.
+  \item When you claim something about new data or a later prediction, such as ``PCA keeps accuracy'' or ``this score flags fraud''. Then fit on training rows and judge on held-out rows.
+  \item The clusters were following the largest column's units rather than any real structure. Standardize, or choose weights on purpose, and state the choice.
+\end{enumerate}
+\end{checkanswers}

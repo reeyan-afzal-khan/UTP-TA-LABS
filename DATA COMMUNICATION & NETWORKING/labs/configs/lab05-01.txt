@@ -1,0 +1,14 @@
+system-view
+sysname R1
+interface GigabitEthernet0/0/0
+ ip address 10.0.12.1 24
+ undo shutdown
+quit
+ftp server enable
+aaa
+ local-user ftpuser password cipher Huawei@123
+ local-user ftpuser privilege level 15
+ local-user ftpuser service-type ftp
+ local-user ftpuser ftp-directory flash:
+quit
+return

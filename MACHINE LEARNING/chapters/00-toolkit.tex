@@ -3,11 +3,13 @@
 
 \chapterguide%
   {Create folders and run basic \textbf{terminal commands}.}
-  {organize data and notebooks, configure an environment, install dependencies, and run labs reproducibly.}
+  {organize data and notebooks, configure an environment, install dependencies, check that everything works, and run labs reproducibly.}
+
+Every lab in this course runs from the same folder, in the same Python environment. Twenty minutes spent here saves hours of chasing path errors later.
 
 \section{The course project layout}
 
-Use \texttt{UTP-MACHINE-LEARNING/} as the project root, with these folders:
+Your project root is the course folder. In this repository it is called \texttt{MACHINE LEARNING/}; name your own copy without spaces, for example \texttt{UTP-MACHINE-LEARNING/}, because spaces in paths cause avoidable trouble in terminals. Inside it you will find:
 
 \noindent
 \begin{minipage}[t]{0.49\linewidth}
@@ -30,7 +32,7 @@ all_datasets/
 \begin{minipage}[t]{0.49\linewidth}
 \begin{lstlisting}[style=utpterminal]
 all_experiments/
-  lab01_features_worked.ipynb
+  lab01_features_worked.ipynb     (and .py)
   lab02_supervised_workflow_worked.ipynb
   lab03_supervised_models_worked.ipynb
   lab04_clustering_pca_worked.ipynb
@@ -39,17 +41,23 @@ all_experiments/
   lab07_deep_learning_cnn_worked.ipynb
   lab08_deep_learning_lstm_worked.ipynb
   predict_passenger.py
+  demo_study_log.py         Chapters 2,4,9,10,16,17
+  demo_foundations.py       Chapters 3,5-9
+  demo_model_families.py    Chapters 10-14
+  demo_unsupervised.py      Chapters 15-19
+  demo_advanced.py          Chapters 20-21
+  check_your_turn.py        lab Your-turn answers
 models/
 results/lab01/ ... lab08/
 requirements.txt
 \end{lstlisting}
 \end{minipage}
 
-{\footnotesize Keep the digits ZIP intact. Each lab has one worked notebook; \texttt{predict\_passenger.py} uses the saved Lab~2 model. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs.\par}
+{\footnotesize Keep the digits ZIP intact: the notebooks read it in place. Each lab has one worked notebook with a \texttt{.py} twin that runs the same code. \texttt{predict\_passenger.py} uses the model saved in Lab~2. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs by hand. The \texttt{demo\_*.py} files print every worked number in the chapters and check it with an assert.\par}
 
-\section{Download the datasets}
+\section{The datasets}
 
-Click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
+Check \texttt{all\_datasets/} first. If your copy of the course already holds the twelve files listed above, skip to the next section. Otherwise click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
 
 \begin{utptable}
 \footnotesize
@@ -58,11 +66,11 @@ Click a \textbf{dataset name} to download it, then extract the files into \textb
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}m{0.40\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\utpth{Kaggle Dataset} & \utpth{Description} \\
+\utpth{Kaggle Dataset} & \utpth{Where the labs use it} \\
 \midrule
 \href{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin} & Lab~1: scaling; Lab~2: thresholds; Lab~3: KNN, naive Bayes, SVM; Lab~5: limited labels \\
-\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & Lab~1: pipelines; Lab~2: linear and ridge regression \\
-\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & Lab~1: data quality, prediction timing, feature selection \\
+\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & Lab~2: linear and ridge regression \\
+\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & Lab~1: prediction timing, feature selection, leakage \\
 \href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & Lab~1: feature engineering; Lab~2: baselines, tuning, saving; Lab~3: trees \\
 \href{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing} & Lab~2: daily/hourly time splits; Lab~8: LSTM forecasting \\
 \href{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}{Heart Failure Prediction} & Lab~2 Try-it: mixed-type classification \\
@@ -88,6 +96,8 @@ For \textbf{\texttt{FileNotFoundError}}, check the working directory and filenam
 \end{pitfall}
 
 \section{Two ways to set up: plain Python or Anaconda}
+
+An environment is a private shelf of Python packages for one project. Two projects can then use different versions of the same library without knocking each other over. Route~A uses Python's own \texttt{venv}; Route~B uses conda. Either works, so pick one and stick with it. If you do not already have a preference, take Route~A.
 
 \begin{keyidea}
 Use one environment per project; activate it before installing or running packages.
@@ -222,10 +232,6 @@ python3 -m pip install -r requirements.txt
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{keyidea}
-\textbf{Activate first, then install.} Keep course packages inside the \textbf{project environment}, not in a shared global installation.
-\end{keyidea}
-
 \begin{utpfig}[One environment per project]{Separate environments, separate packages. Each project's \texttt{.venv} holds its own copies of the libraries, and the system Python is left alone; activate the intended project environment before running \texttt{pip install}.}{fig:venv-separate}
 \begin{tikzpicture}[
   font=\small,
@@ -237,8 +243,8 @@ python3 -m pip install -r requirements.txt
   lbl/.style={font=\scriptsize\color{UTPMuted}, align=center},
   hit/.style={-{Stealth[length=2.2mm]}, thick, draw=UTPTeal}]
 
-\node[sysbox] (sys) at (0,2.45) {system Python};
-\node[pkg,text=UTPMuted,anchor=west] at (2.35,2.45) {leave this alone};
+\node[sysbox] (sys) at (0,1.75) {system Python};
+\node[pkg,text=UTPMuted,anchor=west] at (2.35,1.75) {leave this alone};
 
 \node[envbox] (a) at (-2.80,0) {\texttt{THIS DIRECTORY/.venv}};
 \node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
@@ -251,6 +257,7 @@ python3 -m pip install -r requirements.txt
 
 \end{tikzpicture}
 \end{utpfig}
+
 
 \section{Route B: Anaconda or Miniconda}
 
@@ -285,6 +292,53 @@ python -c "import sys; print(sys.executable)"
 Avoid installing the same package with both conda and pip. Use pip with the course requirements. Recreate a broken environment with \texttt{conda env remove -n ml}, then repeat setup.
 \end{pitfall}
 
+\section{Check that everything works}
+
+Run these three commands from the course folder with your environment active. Each one tests something different, so a failure tells you where to look.
+
+\begin{lstlisting}[style=utpterminal]
+python -c "import numpy, pandas, matplotlib, sklearn, joblib, torch; print('Packages OK')"
+python all_experiments/demo_study_log.py
+python all_experiments/lab01_features_worked.py
+\end{lstlisting}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.31\linewidth}m{0.33\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Command} & \utpth{You should see} & \utpth{It proves} \\
+\midrule
+The import line & \texttt{Packages OK} & The environment is active and complete \\
+\texttt{demo\_study\_log.py} & Last line: \texttt{Every number above matches the book.} & NumPy reproduces the chapters' worked examples \\
+\texttt{lab01\_features\_worked.py} & \texttt{raw + engineered validation ROC AUC = 0.872} among the lines & The datasets are in place and scikit-learn works \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{Start a notebook, and read its device line}
+
+Every lab has a worked notebook. Start Jupyter from \texttt{all\_experiments/}, because the notebooks find the data one folder up from where they run:
+
+\begin{lstlisting}[style=utpterminal]
+cd all_experiments
+jupyter lab
+\end{lstlisting}
+
+Open a notebook and choose \textbf{Restart Kernel and Run All Cells}. Labs~1--6 finish in under a minute. Labs~7 and~8 train neural networks: they took 42 and 76 seconds on the CPU that printed this book's numbers, and a slower laptop may need a few minutes. Their Setup cell prints the Python in use and the device it picked: an NVIDIA GPU (\texttt{cuda}) or an Apple GPU (\texttt{mps}) when PyTorch can see one, otherwise the CPU. If you want to reproduce the printed numbers on a machine with a GPU, hide the GPU before starting Jupyter:
+
+\begin{lstlisting}[style=utpterminal]
+# PowerShell
+$env:CUDA_VISIBLE_DEVICES = "-1"
+# macOS or Linux
+export CUDA_VISIBLE_DEVICES=-1
+\end{lstlisting}
+
 \begin{troubleshoot}
-\textbf{Conda not found on Windows:} use Anaconda Prompt, or initialize PowerShell there with \texttt{conda init powershell}. \textbf{Jupyter import failure:} activate \texttt{ml}, restart Jupyter, and check the kernel with Lab~1's environment cell.
+\begin{description}
+  \item[\texttt{Activate.ps1} cannot be loaded] Windows blocks scripts by default. Run \texttt{Set-ExecutionPolicy -Scope CurrentUser RemoteSigned} once in PowerShell, then activate again.
+  \item[Conda not found on Windows] Use Anaconda Prompt, or initialize PowerShell there with \texttt{conda init powershell}.
+  \item[A notebook cannot import a package] Jupyter is running from a different environment. Activate the course environment, restart Jupyter, and run \texttt{import sys; print(sys.executable)} in a cell to confirm which Python it uses.
+  \item[\texttt{Invalid device id} in the Setup cell of Lab~7 or~8] You set \texttt{CUDA\_VISIBLE\_DEVICES} to an empty string. Use \texttt{-1}, as shown above.
+  \item[\texttt{OMP: Error \#15}] Two OpenMP runtimes are loaded. The Setup cells of Labs~7 and~8 set \texttt{KMP\_DUPLICATE\_LIB\_OK}; elsewhere, set it before importing PyTorch.
+\end{description}
 \end{troubleshoot}

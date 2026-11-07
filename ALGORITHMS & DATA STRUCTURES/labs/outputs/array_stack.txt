@@ -1,0 +1,23 @@
+== Suggested trace ==
+peek()    -> 30
+pop()     -> removes 30
+display() -> 20 10 
+  [ok]   LIFO: the last value pushed (30) was the first removed
+
+== Overflow (capacity 5) ==
+push(40) -> ok
+push(50) -> ok
+push(60) -> ok
+push(70) -> refused: stack is full
+display() -> 60 50 40 20 10 
+  [ok]   the push after the stack is full is refused
+
+== Underflow ==
+pop() -> 60
+pop() -> 50
+pop() -> 40
+pop() -> 20
+pop() -> 10
+pop() on an empty stack -> refused: stack is empty
+  [ok]   pop on an empty stack is refused before reading the top
+  [ok]   peek on an empty stack is refused

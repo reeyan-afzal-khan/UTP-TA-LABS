@@ -4,6 +4,22 @@
 \textbf{Coverage.} Chapter~\ref{ch:lacp}.\\
 \textbf{Goal.} Build an Eth-Trunk in manual mode, rebuild it in LACP mode, and understand why the second is safer.
 
+\input{labs/visuals/07-flow}
+
+\noindent\textbf{Worked implementation: Two switches with two LACP members.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{S1.} Use default Layer-2 member ports in the isolated topology.
+\lstinputlisting[style=utpterminal]{labs/configs/lab07-01.txt}
+
+\noindent\textbf{S2.} Use default Layer-2 member ports in the isolated topology.
+\lstinputlisting[style=utpterminal]{labs/configs/lab07-02.txt}
+
+\textbf{Expected evidence.} Connect GE0/0/1 to GE0/0/1 and GE0/0/2 to GE0/0/2. display eth-trunk 1 should show selected members. Shut one member locally; repeat the management-IP ping, then undo shutdown. Configure the aggregation before attaching both parallel cables.
+
+
+
+
 \medskip\noindent\textbf{Part A --- Two problems, one solution.}\par
 Aggregation solves bandwidth and redundancy together. Four gigabit links behave as one four-gigabit link, and losing one degrades capacity instead of connectivity.
 
@@ -24,6 +40,14 @@ So a single large file transfer uses one link. Aggregation increases \emph{aggre
 \end{pitfall}
 
 \medskip\noindent\textbf{Part C --- Manual mode.}\par
+
+\input{labs/visuals/07-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:lacp]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Configure the aggregate before bringing up both parallel cables. The logical interface represents the bundle, while member status reports usable physical links. A single ping flow demonstrates connectivity and failover, not aggregate bandwidth.
+\input{labs/visuals/07-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 system-view
@@ -113,7 +137,13 @@ Then, on the switch that lost the system-priority election, change a port priori
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:lacp]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/07-lacp-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Capture active members, remove one member link and repeat connectivity tests. Explain which evidence demonstrates redundancy and which additional traffic test would be needed to study load distribution.
+
+
 \begin{itemize}
   \item Both manual and LACP modes configured and captured separately.
   \item Both ends use the same mode.

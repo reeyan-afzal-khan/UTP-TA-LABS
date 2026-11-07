@@ -1,0 +1,36 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{utpfigure}[Track the head and tail through each ring edit]
+\begin{tikzpicture}[font=\small]
+\node[utpnode,minimum size=8mm] (r0n0) at (0.00,0.00) {10};
+\node[utpnode,minimum size=8mm] (r0n1) at (1.35,0.00) {20};
+\draw[utparrow] (r0n0)--(r0n1);
+\node[utpnode,minimum size=8mm] (r0n2) at (2.70,0.00) {30};
+\draw[utparrow] (r0n1)--(r0n2);
+\draw[utparrow,draw=UTPOrange] (r0n2.south) to[bend left=35] (r0n0.south);
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,0.00) {\texttt{last=30}; head is \texttt{last->next=10}};
+\node[utpnodehot,minimum size=8mm] (r1n0) at (0.00,-1.65) {5};
+\node[utpnode,minimum size=8mm] (r1n1) at (1.35,-1.65) {10};
+\draw[utparrow] (r1n0)--(r1n1);
+\node[utpnode,minimum size=8mm] (r1n2) at (2.70,-1.65) {20};
+\draw[utparrow] (r1n1)--(r1n2);
+\node[utpnode,minimum size=8mm] (r1n3) at (4.05,-1.65) {30};
+\draw[utparrow] (r1n2)--(r1n3);
+\draw[utparrow,draw=UTPOrange] (r1n3.south) to[bend left=35] (r1n0.south);
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-1.65) {Insert 5 at front; last stays at 30};
+\node[utpnode,minimum size=8mm] (r2n0) at (0.00,-3.30) {5};
+\node[utpnodehot,minimum size=8mm] (r2n1) at (1.35,-3.30) {10};
+\draw[utparrow] (r2n0)--(r2n1);
+\node[utpnodehot,minimum size=8mm] (r2n2) at (2.70,-3.30) {30};
+\draw[utparrow] (r2n1)--(r2n2);
+\draw[utparrow,draw=UTPOrange] (r2n2.south) to[bend left=35] (r2n0.south);
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-3.30) {Delete 20: prev=10, current=20};
+\node[utpnodehot,minimum size=8mm] (r3n0) at (0.00,-4.95) {10};
+\node[utpnode,minimum size=8mm] (r3n1) at (1.35,-4.95) {30};
+\draw[utparrow] (r3n0)--(r3n1);
+\draw[utparrow,draw=UTPOrange] (r3n1.south) to[bend left=35] (r3n0.south);
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-4.95) {Delete head 5: link 30 to 10};
+\node[utpnodehot,minimum size=8mm] (r4n0) at (0.00,-6.60) {10};
+\draw[utparrow,draw=UTPOrange] (r4n0) edge[loop below] (r4n0);
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-6.60) {Delete tail 30: last=10; 10 points to itself};
+\end{tikzpicture}
+\end{utpfigure}

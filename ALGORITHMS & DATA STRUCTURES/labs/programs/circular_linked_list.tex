@@ -1,0 +1,112 @@
+\textbf{Program 1: Circular list with insertion, deletion, and cleanup.}
+
+\textbf{File:} \texttt{circular\_linked\_list.cpp}.
+
+\textbf{Chapter connection:} Circular Linked Lists: last pointer and one-lap traversal.
+
+last->next is the head. Empty, singleton, and multi-node rings need different deletion handling. The program includes beginning/end/value deletion, a structural ring check, and cleanup that terminates without following freed storage.
+
+\input{labs/visuals/program-circular_linked_list}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 11--24.
+
+\lstinputlisting[firstline=11,lastline=24]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement displayCircular, insertBeginning, insertEnd.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 25--62.
+
+\textbf{Read the chapter visual with the code.} The diagram illustrates the storage rule; the program tests the values and cases stated in \texttt{main}.
+\input{labs/visuals/cll-traverse}
+
+\lstinputlisting[firstline=25,lastline=62]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Implement deleteBeginning, deleteEnd.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 63--98.
+
+
+
+\lstinputlisting[firstline=63,lastline=98]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Implement deleteValue, destroy.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 99--127.
+
+\lstinputlisting[firstline=99,lastline=127]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{4}\item \textbf{Implement ringIntact, contents, check and helpers.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 128--163.
+
+\lstinputlisting[firstline=128,lastline=163]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{5}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{circular\_linked\_list.cpp} --- lines 164--202.
+
+\textbf{Trace checkpoint for the supplied main.} Track last separately from the head last->next. Deleting the last remaining node must set last to nullptr, whereas deleting the tail of a longer ring must move last to its predecessor and preserve the link to the head. In main, deleting 25 at the end leaves node 20 pointing to itself. The traversal stops on returning to the head, not on a null link.
+
+\lstinputlisting[firstline=164,lastline=202]{all_experiments/Lab04/circular_linked_list.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect circular\_linked\_list.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra circular_linked_list.cpp -o circular_linked_list.exe
+
+.\circular_linked_list.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Insertions ==
+insert 20 at the end: 20 
+  [ok]   last node still points to the head
+insert 30 at the end: 20 30 
+  [ok]   last node still points to the head
+insert 10 at the beginning: 10 20 30 
+  [ok]   last node still points to the head
+insert 40 at the end: 10 20 30 40 
+  [ok]   last node still points to the head
+insert 5 at the beginning: 5 10 20 30 40 
+  [ok]   last node still points to the head
+  [ok]   the ring holds 5 10 20 30 40
+
+== Deletions ==
+delete from the beginning: 10 20 30 40
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/circular\_linked\_list.txt}.
+
+\begin{tryit}
+
+Build a one-node ring, delete that node, then insert again. Check the singleton self-link and the empty last pointer before attempting another traversal.
+
+\end{tryit}

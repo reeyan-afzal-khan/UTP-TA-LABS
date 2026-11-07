@@ -5,15 +5,38 @@
 \textbf{Goal.} Watch the free-hole list after every allocation.\\
 \textbf{Explain.} Explain how an early placement changes whether later requests can fit.
 
+\input{labs/visuals/07-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{first\_fit.c}}{Choose the first hole that is large enough.}{The search stops immediately when a suitable hole is found.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab07/first_fit.c}
+\noindent\textbf{Start the file.} \texttt{first\_fit.c}, lines 1--28.
+\input{labs/visuals/07-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:allocation]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} choice is a zero-based index and starts at -1 for each request. The break selects the first eligible hole. Update only the chosen hole, and compare the unchanged map before and after the failed request.
+\input{labs/visuals/07-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=28]{all_experiments/Lab07/first_fit.c}
+
+\noindent\textbf{Continue the same file.} \texttt{first\_fit.c}, lines 29--41.
+\lstinputlisting[style=utpcnumbered,firstline=29,lastline=41]{all_experiments/Lab07/first_fit.c}
 
 \labsourcecard{\texttt{best\_fit.c}}{Choose the smallest hole that can satisfy the request.}{The whole hole list must be scanned to find the tightest fit.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab07/best_fit.c}
+\noindent\textbf{Start the file.} \texttt{best\_fit.c}, lines 1--28.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=28]{all_experiments/Lab07/best_fit.c}
+
+\noindent\textbf{Continue the same file.} \texttt{best\_fit.c}, lines 29--41.
+\lstinputlisting[style=utpcnumbered,firstline=29,lastline=41]{all_experiments/Lab07/best_fit.c}
 
 \labsourcecard{\texttt{worst\_fit.c}}{Choose the largest suitable hole.}{The policy tries to leave a relatively large remainder, but the future workload still decides whether that helps.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab07/worst_fit.c}
+\noindent\textbf{Start the file.} \texttt{worst\_fit.c}, lines 1--28.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=28]{all_experiments/Lab07/worst_fit.c}
+
+\noindent\textbf{Continue the same file.} \texttt{worst\_fit.c}, lines 29--41.
+\lstinputlisting[style=utpcnumbered,firstline=29,lastline=41]{all_experiments/Lab07/worst_fit.c}
 
 \section*{Task 1 --- Compile and run}
 \begin{lstlisting}[style=utpbash]
@@ -64,6 +87,9 @@ Pick one of the three programs. Open it in Vim and change the final request from
 \end{quickcheck}
 
 \begin{verification}
+\textbf{Explain and extend your result.} Trace the first two requests by hand for each policy. Report remaining hole sizes and distinguish failed placement from exhaustion of total free memory.
+
+
 \begin{itemize}
   \item The hole list is recorded after every request for each policy, not only the final line.
   \item The hole chosen for the first request is compared across the three policies.

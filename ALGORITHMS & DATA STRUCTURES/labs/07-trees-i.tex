@@ -1,38 +1,24 @@
 \labsection{7}{Tree representation and traversal}{sec:lab07}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab VII}
-\textbf{Objective.} Learn the tree ADT and apply trees to real-life problems.
-
-\textbf{Outcomes.} Implement a tree using an array and a linked representation; implement traversal methods; choose an appropriate tree structure.
-
-\textbf{Problem directions.} Tree representation; binary-tree implementation; traversal algorithms; inserting, deleting, and updating tree elements.
+Array/linked tree representations; traversal, update, insertion, and deletion.
 \end{sourcealignment}
 
 \begin{labproject}{Represent the same binary tree two ways}
-\textbf{Coverage.} Chapter~\ref{ch:trees-i}.\\
-\textbf{Goal.} Represent one binary tree in both linked and array form and produce all three traversal orders.
+\textbf{Goal.} Represent one binary tree twice and compare traversal results.
 
-\begin{lstlisting}
-TreeNode* root = new TreeNode{8, nullptr, nullptr};
-root->left = new TreeNode{4, nullptr, nullptr};
-root->right = new TreeNode{12, nullptr, nullptr};
-root->left->left = new TreeNode{2, nullptr, nullptr};
-root->left->right = new TreeNode{6, nullptr, nullptr};
-\end{lstlisting}
+\textbf{Recall first.} Review the \hyperref[ch:trees-i]{Tree Representation and Traversal} chapter.
 
-Implement inorder, preorder, and postorder traversal. Then represent the same shape in an array and identify each parent/child index.
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab07} folder.
 
-\begin{tryit}
-Write all three traversal sequences before running the program. Add one update operation and one structural insertion/deletion exercise specified by your lab session.
-\end{tryit}
+\input{labs/programs/binary_tree}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Traversals visit every stored node exactly once.
-  \item The linked and array representations describe the same shape.
-  \item Your array child-index formula matches the chosen 0-based or 1-based convention.
-  \item Empty subtrees terminate recursion safely.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

@@ -1,0 +1,111 @@
+\textbf{Program 1: BST operations and height checks.}
+
+\textbf{File:} \texttt{bst.cpp}.
+
+\textbf{Chapter connection:} BST insertion; BST deletion; Height-balancing trees.
+
+Reuse the chapter comparison rule for both insertion and search. Deletion returns the replacement subtree, so callers must assign its result. main covers leaf, one-child, and two-child deletion, then contrasts a chain with a shorter tree.
+
+\input{labs/visuals/program-bst}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 14--30.
+
+\lstinputlisting[firstline=14,lastline=30]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement insertBST, contains, deleteBST.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 31--65.
+
+\input{labs/visuals/walk-bst}
+
+\lstinputlisting[firstline=31,lastline=65]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Implement inorder, height, isBST and helpers.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 66--97.
+
+\lstinputlisting[firstline=66,lastline=97]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Implement draw, destroy, join and helpers.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 98--131.
+
+\lstinputlisting[firstline=98,lastline=131]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{4}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 132--164.
+
+\input{labs/visuals/walk-bst-case}
+
+\textbf{Trace checkpoint for the supplied main.} Follow the three deletion cases in order: remove leaf 20; replace 30 by its only child 40; replace two-child root 50 by successor 60 and remove the successor from its former position. Assign the returned root after each call. Inorder must remain sorted, root must hold 60, and four live nodes must remain before destroy.
+
+\lstinputlisting[firstline=132,lastline=164]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{5}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{bst.cpp} --- lines 165--181. Continue in the same file; do not add another header or opening brace.
+
+\lstinputlisting[firstline=165,lastline=181]{all_experiments/Lab08/bst.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect bst.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra bst.cpp -o bst.exe
+
+.\bst.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Insert 50, 30, 70, 20, 40, 60, 80 ==
+            80
+        70
+            60
+    50
+            40
+        30
+            20
+after insertion
+  inorder: 20 30 40 50 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+
+== Search ==
+  contains(60): yes   contains(65): no
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/bst.txt}.
+
+\begin{tryit}
+
+Insert a duplicate key and verify that the inorder output is unchanged. Delete the root from a one-node tree; assign the returned pointer and confirm it is null.
+
+\end{tryit}

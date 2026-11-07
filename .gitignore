@@ -88,3 +88,8 @@ main.pdf
 
 # Datasets that a notebook extracts from a committed archive
 ARTIFICIAL INTELLIGENCE/all_datasets/lab06-ocr-handwritten-prescription/
+
+# ERP Course
+/results/
+/tools/runtime/
+/tools/data/

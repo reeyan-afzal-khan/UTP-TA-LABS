@@ -4,8 +4,35 @@
 \textbf{Coverage.} Chapter~\ref{ch:ospf}.\\
 \textbf{Goal.} Configure single-area OSPF, watch adjacencies form, and see the network reroute itself without you.
 
+\input{labs/visuals/04-flow}
+
+\noindent\textbf{Worked implementation: The same triangle with OSPF area zero.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{R1.} Use the same cabling and PC addresses as Lab 3. Router IDs must be unique.
+\lstinputlisting[style=utpterminal]{labs/configs/lab04-01.txt}
+
+\noindent\textbf{R2.} Use the same cabling and PC addresses as Lab 3. Router IDs must be unique.
+\lstinputlisting[style=utpterminal]{labs/configs/lab04-02.txt}
+
+\noindent\textbf{R3.} Use the same cabling and PC addresses as Lab 3. Router IDs must be unique.
+\lstinputlisting[style=utpterminal]{labs/configs/lab04-03.txt}
+
+\textbf{Expected evidence.} Start a fresh triangle without the static routes from Lab 3. R1 and R3 must learn each other's LAN through OSPF. Capture neighbours and the route table before and after one link failure.
+
+
+
+
 \begin{labmode}
 Use the same topology as Lab~\ref{sec:lab03-static}. Remove every static route first --- leaving them in place means you will not know which mechanism is carrying your traffic, and static routes have a better preference so they will win.
+
+\input{labs/visuals/04-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:ospf]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Start from the stated fresh topology without the earlier static routes. Diagnose interface and neighbour state before changing route preferences. A configured network statement is an instruction; the neighbour and route displays are the evidence it took effect.
+\input{labs/visuals/04-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 undo ip route-static 192.168.3.0 24 10.0.12.2
@@ -111,7 +138,13 @@ State the trade-off in one sentence, then say which you would deploy on a three-
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:ospf]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/04-ospf-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Capture neighbours and the selected route, then change one link's availability. Compare convergence evidence and the resulting next hop; do not infer the path solely from configuration text.
+
+
 \begin{itemize}
   \item All static routes removed before OSPF is configured.
   \item Router IDs set explicitly and unique.

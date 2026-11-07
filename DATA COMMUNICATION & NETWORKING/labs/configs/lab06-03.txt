@@ -1,0 +1,2 @@
+display ip pool name REMOTE used
+display ip routing-table

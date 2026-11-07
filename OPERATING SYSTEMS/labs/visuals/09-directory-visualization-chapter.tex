@@ -1,0 +1,18 @@
+% Reused from chapters/09-directory-structures.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  grow=down,
+  level distance=1.55cm,
+  level 1/.style={sibling distance=4.2cm},
+  level 2/.style={sibling distance=2.35cm},
+  dir/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.6cm,minimum height=0.75cm,font=\small\bfseries\color{UTPNavy}},
+  file/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1mm,minimum width=1.9cm,minimum height=0.65cm,font=\scriptsize\color{UTPNavy}},
+  edge from parent/.style={draw=UTPMuted,thick,-{Stealth[length=1.8mm]}}
+]
+\node[dir] {root}
+ child {node[dir] {home} child {node[file] {notes.txt}} child {node[file] {code.c}}}
+ child {node[dir] {etc} child {node[file] {config}}}
+ child {node[dir] {tmp}};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

@@ -1,0 +1,13 @@
+Jan: forecast=4120.0 capacity=7040 close=580.0 utilisation=65.3% feasible=True
+Feb: forecast=4120.0 capacity=6400 close=1060.0 utilisation=71.9% feasible=True
+Mar: forecast=4635.0 capacity=7360 close=1425.0 utilisation=67.9% feasible=True
+Apr: forecast=5150.0 capacity=6400 close=1675.0 utilisation=84.4% feasible=True
+May: forecast=5150.0 capacity=6720 close=1925.0 utilisation=80.4% feasible=True
+Jun: forecast=5459.0 capacity=7040 close=2166.0 utilisation=81.0% feasible=True
+Jul: forecast=5665.0 capacity=6720 close=2401.0 utilisation=87.8% feasible=True
+Aug: forecast=5922.5 capacity=7040 close=2528.5 utilisation=85.9% feasible=True
+Sep: forecast=6180.0 capacity=7040 close=2548.5 utilisation=88.1% feasible=True
+Oct: forecast=6180.0 capacity=6720 close=2568.5 utilisation=92.3% feasible=True
+Nov: forecast=6474.0 capacity=7040 close=2294.5 utilisation=88.1% feasible=True
+Dec: forecast=6477.0 capacity=6720 close=2017.5 utilisation=92.3% feasible=True
+Assumptions: chapter production plan; opening stock equals selected safety stock.

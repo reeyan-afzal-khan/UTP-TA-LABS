@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo Employees + process modelling.\\
 \textbf{Goal.} Connect structured employee/department data to an end-to-end recruitment workflow and identify where information systems reduce delay and inconsistency.
 
+\input{labs/visuals/08-flow}
+
+
 \begin{labmode}
 The supplied Odoo build guide uses Employees rather than a full recruitment workflow. Therefore the Odoo component focuses on organisation structure and operational ownership, while the Tutorial 8 recruitment scenario is modelled as a process. If the class deployment provides additional recruitment functionality, it may be demonstrated as an extension, but it is not required by the supplied guide.
 \end{labmode}
@@ -13,6 +16,12 @@ The supplied Odoo build guide uses Employees rather than a full recruitment work
 \medskip\noindent\textbf{Part A --- Verify the organisation structure.}
 
 Open the four departments created in Lab 1. Check managers, employee headcount, and one organisation chart. Open the Sales Manager, Purchasing Officer, Production Planner, and Accountant records and confirm the linked user where applicable.
+
+\input{labs/visuals/08-trace}
+
+
+\textbf{Follow the supplied implementation.} Put the output document or status on each handoff. A rejected application must not vanish from the diagram. Trace both outcomes with one candidate each and confirm who records the decision and who receives it.
+\input{labs/visuals/08-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Complete the ``dream job'' activity.}
 
@@ -61,7 +70,12 @@ Using prior labs, identify where each operational role appears:
 Explain why this is more useful than creating employee names that never appear in business transactions.
 \end{labproject}
 
+\input{labs/walkthroughs/08-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Walk one accepted and one rejected candidate through the process. Identify the owner and evidence at each handoff and revise any ambiguous decision label.
+
+
 \begin{itemize}
   \item The four departments, their managers and the operational employee records are checked against Lab~1.
   \item The flowchart runs from the identified need to the accepted offer and includes at least one decision.

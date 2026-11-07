@@ -1,0 +1,9 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+fx                   3.75
+wealth               3.50
+sme_services         3.50
+payments             3.00
+lending              2.50
+deposits             2.00
+trust_compliance     1.50
+Saved value_chain.csv and evidence_template.csv

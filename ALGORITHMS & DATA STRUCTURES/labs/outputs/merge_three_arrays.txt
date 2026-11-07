@@ -1,0 +1,49 @@
+== Three sorted arrays ==
+  A: 1 4 9
+  B: 2 4 7 10
+  C: 3 5
+  merged: 1 2 3 4 4 5 7 9 10
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges
+
+== With duplicates across arrays ==
+  A: 2 2 8
+  B: 2 6
+  C: 1 2 9
+  merged: 1 2 2 2 2 6 8 9
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges
+
+== One array empty ==
+  A: 5 15
+  B: (empty)
+  C: 10 20 30
+  merged: 5 10 15 20 30
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges
+
+== Largest integer and exhausted inputs ==
+  A: (empty)
+  B: 2147483647
+  C: (empty)
+  merged: 2147483647
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges
+  A: 2147483647
+  B: 2147483647
+  C: (empty)
+  merged: 2147483647 2147483647
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges
+  A: (empty)
+  B: (empty)
+  C: (empty)
+  merged: (empty)
+  [ok]   the result is sorted
+  [ok]   every input value appears exactly once (no loss, no duplication)
+  [ok]   it equals two successive two-way merges

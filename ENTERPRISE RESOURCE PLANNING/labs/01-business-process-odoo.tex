@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo 19 Community Edition.\\
 \textbf{Goal.} Connect functional-area theory to a real ERP structure by creating the company, required apps, departments, employees, and operational users.
 
+\input{labs/visuals/01-flow}
+
+
 \begin{labmode}
 The tutorial asks students to identify business functions, discuss cross-functional Sales teams, describe information flow between Sales and Finance, and draw a purchasing process. The Odoo build makes those abstract boxes concrete: departments become records, employees become owners, and later transactions will be assigned to them.
 \end{labmode}
@@ -25,6 +28,12 @@ Use the navigation conventions from the supplied guide:
 \begin{pitfall}
 Older Odoo tutorials may refer to a separate Edit button or the old ``Storable Product'' type. The supplied Odoo 19 guide states that physical stock items use \textbf{Product Type = Goods} plus \textbf{Track Inventory}.
 \end{pitfall}
+
+\input{labs/visuals/01-trace}
+
+
+\textbf{Follow the supplied implementation.} Employee identity, reporting structure and login permission are distinct records or settings. Reuse the provided account instead of creating a duplicate person. Capture the fields that prove the relationship, not only a menu screenshot.
+\input{labs/visuals/01-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Create or access the database.}
 
@@ -92,7 +101,12 @@ For Question 3, do not write only ``Sales sends order data to Finance.'' Include
 \end{itemize}
 \end{labproject}
 
+\input{labs/walkthroughs/01-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Trace one employee to department and user account. Demonstrate the intended user's access using the permitted classroom account and record which business task the assigned role supports.
+
+
 \begin{itemize}
   \item The database runs Odoo 19 Community with the company set to West End Bicycles, Ipoh, Malaysia.
   \item All eight course apps are installed.

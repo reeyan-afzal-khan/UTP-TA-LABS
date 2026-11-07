@@ -4,6 +4,25 @@
 \textbf{Coverage.} Chapter~\ref{ch:wan}.\\
 \textbf{Goal.} Configure serial encapsulation, switch from HDLC to PPP, and compare PAP with CHAP by capturing both.
 
+\input{labs/visuals/09-flow}
+
+\noindent\textbf{Worked implementation: A complete two-router PPP/CHAP baseline.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{R1 authenticator.} Use serial-capable routers; substitute the actual serial port shown by display interface brief. Configure the lab DCE clock according to its interface help before the link test.
+\lstinputlisting[style=utpterminal]{labs/configs/lab09-01.txt}
+
+\noindent\textbf{R2 authenticated peer.} The name and password must match R1's AAA record.
+\lstinputlisting[style=utpterminal]{labs/configs/lab09-02.txt}
+
+\noindent\textbf{Verify on R1.} After both ends are configured, inspect physical and protocol state before pinging.
+\lstinputlisting[style=utpterminal]{labs/configs/lab09-03.txt}
+
+\textbf{Expected evidence.} The serial interface must be up/up and the ping must succeed. Capture PAP and CHAP as separate runs using the mode-change steps below. CHAP avoids sending the password itself, but does not encrypt application traffic.
+
+
+
+
 \medskip\noindent\textbf{Part A --- Serial links are not Ethernet.}\par
 Two differences matter immediately.
 
@@ -13,6 +32,14 @@ There is no MAC addressing and no ARP --- a serial link is point-to-point, so th
 On a serial link, one end is \term{DCE} and provides the clock; the other is \term{DTE} and follows it. In eNSP the DCE end is determined by which side you attached the cable from, and it is not obvious by inspection.
 
 Find it before troubleshooting anything else:
+
+\input{labs/visuals/09-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:wan]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Device image and interface names can differ, so use the supplied platform notes when selecting the serial port. A credential mismatch changes authentication; changing IP addresses does not repair that mismatch. Restore each deliberate failure before testing the next layer.
+\input{labs/visuals/09-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 <R1> display interface Serial 0/0/0
@@ -24,7 +51,7 @@ No clock rate on the DCE end means the line stays down no matter how correct the
 \begin{lstlisting}[style=utpterminal]
 interface Serial 0/0/0
  ip address 10.0.0.1 30
- clock rate 64000            # DCE end only
+ # Set the DCE clock using this image's serial-interface help.
  undo shutdown
 quit
 \end{lstlisting}
@@ -110,9 +137,9 @@ quit
 \begin{keyidea}
 PAP sends the password across the link in plaintext, once, at setup. Anyone capturing the link has the credential.
 
-CHAP never sends the password. The authenticator sends a random challenge; the peer replies with a hash of the challenge combined with the secret. The authenticator computes the same hash and compares. A captured exchange yields nothing reusable, because the next challenge differs.
+CHAP never sends the password. The authenticator sends a random challenge; the peer replies with a hash of the challenge combined with the secret. The authenticator computes the same hash and compares. A new challenge prevents simple replay; weak shared secrets can still be attacked offline.
 
-CHAP also re-challenges periodically during the session, so a link cannot be hijacked after setup.
+Re-authentication may be configured, but CHAP does not provide application-data encryption or a general guarantee against session attacks.
 \end{keyidea}
 
 \medskip\noindent\textbf{Part G --- Prove the difference.}\par
@@ -149,7 +176,13 @@ Then relate the answer to Lab~\ref{sec:lab05-ftp}: both labs show a credential c
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:wan]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/09-wan-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Capture the successful state, introduce one deliberate credential mismatch and record the changed negotiation state. Restore the credential and confirm recovery without changing addressing.
+
+
 \begin{itemize}
   \item DCE end identified from \cmd{display interface}, with the clock rate set there.
   \item Both HDLC and PPP configured, each with its own captured output.

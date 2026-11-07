@@ -1,42 +1,27 @@
 \labsection{4}{Circular linked-list operations}{sec:lab04}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab IV}
-\textbf{Objective.} Study linked-list types more deeply and implement algorithms for circular linked lists.
-
-\textbf{Outcomes.} Understand circular linked lists and implement one from scratch.
-
-\textbf{Problem directions.} Implement the different insertion/deletion operations possible in a circular linked list; compare singly, doubly, and circular lists.
+Circular linked-list insertion/deletion; compare list representations.
 \end{sourcealignment}
 
 \begin{labproject}{Maintain a circular list without breaking the loop}
-\textbf{Coverage.} Chapter~\ref{ch:circular-list}.\\
-\textbf{Goal.} Maintain a circular list through every insertion and deletion without breaking the ring.
+\textbf{Goal.} Insert, delete, and traverse without breaking the ring.
 
-Implement insertion at beginning/end, deletion from beginning/end, deletion by value, and display.
+\textbf{Recall first.} Review the \hyperref[ch:circular-list]{Circular Linked Lists} chapter.
 
-\begin{lstlisting}
-void displayCircular(Node* last) {
-    if (last == nullptr) return;
-    Node* head = last->next;
-    Node* p = head;
-    do {
-        cout << p->data << ' ';
-        p = p->next;
-    } while (p != head);
-}
-\end{lstlisting}
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab04} folder.
 
-\begin{tryit}
-Use the same input sequence in singly, doubly, and circular implementations. Compare traversal stop conditions and the pointer fields required per node.
-\end{tryit}
+\input{labs/programs/circular_linked_list}
+
+\tcbbreak
+\input{labs/programs/list_comparison}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Empty, one-node, and multi-node cases are tested.
-  \item After every mutation, the last node still points to the head.
-  \item Traversal stops when it returns to the starting node rather than waiting for \texttt{nullptr}.
-  \item Deletion-by-value handles the head, a middle node, and the last node.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

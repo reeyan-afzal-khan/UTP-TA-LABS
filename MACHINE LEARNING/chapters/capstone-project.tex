@@ -3,11 +3,21 @@
 \addcontentsline{toc}{chapter}{Capstone Project}
 \markboth{Capstone Project}{}
 
-Build one reproducible project from raw data to validated conclusions and a reusable model.
+Build one reproducible project from raw data to validated conclusions and a reusable model. The labs handed you the question, the data and the code. Here you choose all three, and you defend every decision with evidence.
 
 \begin{coursechoice}
-Use a public dataset not used as a main lab dataset; Heart Failure is allowed. Keep raw files in \texttt{all\_datasets/} and notebooks in \texttt{all\_experiments/}.
+Use a public dataset not used as a main lab dataset; Heart Failure is allowed, since it appears only in a Lab~2 task. Keep raw files in \texttt{all\_datasets/} and notebooks in \texttt{all\_experiments/}.
 \end{coursechoice}
+
+\section*{Before you start}
+
+Write one page answering three questions, and show it to your tutor before modeling.
+
+\begin{utpsteps}
+  \item \textbf{Which corner of the map?} Does your log hold the answers? Do you want a number, a category, groups, or fewer columns (\figref{fig:ml-map})?
+  \item \textbf{What decision does this serve?} Name who would use the output, and what each kind of wrong answer costs them.
+  \item \textbf{When is the prediction made?} List the columns that exist at that moment. Everything else is leakage (\secref{sec:data-leakage}).
+\end{utpsteps}
 
 \section*{Required capstone sequence}
 
@@ -26,3 +36,36 @@ Use a public dataset not used as a main lab dataset; Heart Failure is allowed. K
   \item \textbf{Reproducibility.} Record paths, packages, seeds, notebook order, and configuration.
   \item \textbf{Artifact.} Save the pipeline and model card under \texttt{models/}; demonstrate reloading and prediction.
 \end{enumerate}
+
+\section*{What to hand in}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item A notebook that runs from top to bottom after \textbf{Restart Kernel and Run All Cells}.
+  \item The saved pipeline and model card under \texttt{models/}, with a cell that reloads them and predicts one new row.
+  \item A results table: baseline, each model family, and the locked model's one test score.
+  \item A two-page report in your own words: the problem and its costs, the split and why it imitates real use, what you compared, what you chose and why, where the model fails, and what it must not be used for.
+\end{itemize}
+\end{labdeliverable}
+
+\section*{How it is judged}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Criterion} & \utpth{What good looks like} \\
+\midrule
+Honest evaluation & The split imitates real use, preprocessing sits inside a pipeline, and the test set is opened once. \\
+Baseline & Every model is compared with a rule that costs nothing, on the same rows. \\
+Comparison & Three families under one protocol, with fold spread or another estimate of uncertainty. \\
+Diagnosis & At least one look at actual errors or subgroups, and what it changed. \\
+Reasoning & Each choice is justified by evidence, including choosing a simpler model when a gain is within noise. \\
+Reproducibility & Someone else can rerun it and get your numbers, and your report states what may vary. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{pitfall}
+Three mistakes cost the most. Fitting a scaler or selector on all the rows before cross-validating. Reporting the best of many test scores. Claiming a cause from a coefficient or an importance score. The course gave you a tool to avoid each one.
+\end{pitfall}

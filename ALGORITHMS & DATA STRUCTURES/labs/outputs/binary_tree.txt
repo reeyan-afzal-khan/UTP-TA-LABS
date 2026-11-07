@@ -1,0 +1,60 @@
+== Predicted before running (write these down first) ==
+  inorder   2 4 6 8 12
+  preorder  8 4 2 6 12
+  postorder 2 6 4 12 8
+
+== Traversals ==
+  inorder   linked: 2 4 6 8 12   array: 2 4 6 8 12 
+  preorder  linked: 8 4 2 6 12   array: 8 4 2 6 12 
+  postorder linked: 2 6 4 12 8   array: 2 6 4 12 8 
+  [ok]   both representations describe the same shape
+  [ok]   all three traversals agree between the representations
+  [ok]   the predictions match
+  [ok]   each traversal visits every stored node exactly once
+
+== Array index table ==
+  0-based: index  left  right  parent   1-based: I  2I  2I+1    value
+               0     1      2       -             1   2     3        8
+               1     3      4       0             2   4     5        4
+               2     -      -       0             3   -     -       12
+               3     -      -       1             4   -     -        2
+               4     -      -       1             5   -     -        6
+
+== Update: change 6 to 7 ==
+  inorder   linked: 2 4 7 8 12   array: 2 4 7 8 12 
+  preorder  linked: 8 4 2 7 12   array: 8 4 2 7 12 
+  postorder linked: 2 7 4 12 8   array: 2 7 4 12 8 
+  [ok]   both representations describe the same shape
+  [ok]   all three traversals agree between the representations
+
+== Structural insertion: 10 becomes the left child of 12 ==
+  0-based: index  left  right  parent   1-based: I  2I  2I+1    value
+               0     1      2       -             1   2     3        8
+               1     3      4       0             2   4     5        4
+               2     5      -       0             3   6     -       12
+               3     -      -       1             4   -     -        2
+               4     -      -       1             5   -     -        7
+               5     -      -       2             6   -     -       10
+  inorder   linked: 2 4 7 8 10 12   array: 2 4 7 8 10 12 
+  preorder  linked: 8 4 2 7 12 10   array: 8 4 2 7 12 10 
+  postorder linked: 2 7 4 10 12 8   array: 2 7 4 10 12 8 
+  [ok]   both representations describe the same shape
+  [ok]   all three traversals agree between the representations
+
+== Deletion: remove 4 (replaced by the deepest, rightmost node, 10) ==
+  0-based: index  left  right  parent   1-based: I  2I  2I+1    value
+               0     1      2       -             1   2     3        8
+               1     3      4       0             2   4     5       10
+               2     -      -       0             3   -     -       12
+               3     -      -       1             4   -     -        2
+               4     -      -       1             5   -     -        7
+  inorder   linked: 2 10 7 8 12   array: 2 10 7 8 12 
+  preorder  linked: 8 10 2 7 12   array: 8 10 2 7 12 
+  postorder linked: 2 7 10 12 8   array: 2 7 10 12 8 
+  [ok]   both representations describe the same shape
+  [ok]   all three traversals agree between the representations
+  [ok]   deleting a value that is not in the tree is refused
+
+== Empty tree ==
+  [ok]   traversing an empty tree terminates and visits nothing
+  [ok]   every node was released

@@ -83,3 +83,13 @@ python .shared/build.py DS --check    # build only, to check a change; writes no
 
 The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
 for the shared styles every book uses.
+
+## Refined lab walkthroughs
+
+10 labs now use compact visual routes, operation traces, and diagrams reused from the teaching chapters. The course fonts and shared page template are unchanged.
+
+Complete R files are shown in consecutive source ranges, with the operation described beside the relevant code. Run `Rscript all_experiments/lab01_workflow.R` from the course folder, substituting the desired lab filename.
+
+**Validation:** All source listings were checked for complete nonblank-line coverage. R execution remains to be checked in the teaching environment because R is not installed on this host.
+
+The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.

@@ -4,6 +4,25 @@
 \textbf{Coverage.} Chapter~\ref{ch:ensp-vrp}.\\
 \textbf{Goal.} Learn the view hierarchy well enough that every later lab becomes typing rather than guessing.
 
+\input{labs/visuals/02-flow}
+
+\noindent\textbf{Worked implementation: Two routers on one subnet.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{R1.} Cable R1 GE0/0/0 to R2 GE0/0/0. Apply this block on the named router.
+\lstinputlisting[style=utpterminal]{labs/configs/lab02-01.txt}
+
+\noindent\textbf{R2.} Cable R1 GE0/0/0 to R2 GE0/0/0. Apply this block on the named router.
+\lstinputlisting[style=utpterminal]{labs/configs/lab02-02.txt}
+
+\noindent\textbf{Verify on R1.} Both interfaces must be up/up before the ping. Save only after the check succeeds; answer the device confirmation prompt.
+\lstinputlisting[style=utpterminal]{labs/configs/lab02-03.txt}
+
+\textbf{Expected evidence.} R1 must reach R2 directly; no static route is needed for their shared subnet.
+
+
+
+
 \begin{labmode}
 This lab has almost no networking content, and it is the most important one in the course. Every configuration you write for the next seven labs assumes you can move between VRP views without thinking about it.
 
@@ -12,6 +31,14 @@ Do it until it is boring. Then do the troubleshooting section, which is where th
 
 \medskip\noindent\textbf{Part A --- The view hierarchy.}\par
 VRP puts you in one of several \term{views}, and a command only exists in the view it belongs to. ``Command not found'' almost always means ``right command, wrong view''.
+
+\input{labs/visuals/02-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:ensp-vrp]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Keep the worked configuration's addressing together. Later individual CLI exercises may use a separate practice subnet; do not mix one side from each example. Check the prompt to distinguish configuration commands from display commands.
+\input{labs/visuals/02-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 <Huawei>                        user view      -- look, do not change
@@ -115,7 +142,13 @@ Run \cmd{shutdown} on R1's \cmd{GE0/0/0}, then check \cmd{display ip interface b
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:ensp-vrp]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/02-ensp-vrp-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Save the working configuration and capture the interface summary. Temporarily shut the lab link, observe the state change, then restore it and repeat the direct ping.
+
+
 \begin{itemize}
   \item \cmd{display ip interface brief} shows up/up on both routers.
   \item A successful ping is captured with its statistics line, not just the prompt.

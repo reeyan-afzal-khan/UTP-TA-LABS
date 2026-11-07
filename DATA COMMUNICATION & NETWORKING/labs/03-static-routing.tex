@@ -4,6 +4,34 @@
 \textbf{Coverage.} Chapter~\ref{ch:static-routing}.\\
 \textbf{Goal.} Make a router forward to a network it is not attached to, then prove a backup route takes over when the primary fails.
 
+\input{labs/visuals/03-flow}
+
+\noindent\textbf{Worked implementation: Three-router primary and backup paths.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{R1 addressing.} Cable the matching 10.0.12, 10.0.23 and 10.0.13 subnets. R1 and R3 GE0/0/2 connect to their LAN PCs.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-01.txt}
+
+\noindent\textbf{R2 addressing.} Cable the matching 10.0.12, 10.0.23 and 10.0.13 subnets. R1 and R3 GE0/0/2 connect to their LAN PCs.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-02.txt}
+
+\noindent\textbf{R3 addressing.} Cable the matching 10.0.12, 10.0.23 and 10.0.13 subnets. R1 and R3 GE0/0/2 connect to their LAN PCs.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-03.txt}
+
+\noindent\textbf{R1 routes.} Apply after recording the connected-only route table. To observe the missing-return-path failure, apply R3's routes last.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-04.txt}
+
+\noindent\textbf{R2 routes.} Apply after recording the connected-only route table. To observe the missing-return-path failure, apply R3's routes last.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-05.txt}
+
+\noindent\textbf{R3 routes.} Apply after recording the connected-only route table. To observe the missing-return-path failure, apply R3's routes last.
+\lstinputlisting[style=utpterminal]{labs/configs/lab03-06.txt}
+
+\textbf{Expected evidence.} R3 normally returns directly over the R1--R3 link; this keeps the return path available when R1's R2-facing link is disabled. The forward and return paths may differ. Use PC1 192.168.1.10/24, gateway 192.168.1.1, and PC3 192.168.3.10/24, gateway 192.168.3.1. Ping between PCs. Disable R1 GE0/0/0 to withdraw the local primary next hop; inspect the route before restoring the interface.
+
+
+
+
 \medskip\noindent\textbf{Part A --- Why the first ping fails.}\par
 Configure the interfaces, then ping from R1's LAN to R3's LAN before adding any routes. It will fail, and understanding exactly why is the point of the lab.
 
@@ -15,11 +43,17 @@ R1 has no entry for R3's LAN, so it drops the packet and reports \emph{Destinati
 
 Confirm before configuring:
 
+\input{labs/visuals/03-trace}
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:static-routing]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Match the destination prefix and next hop in display ip routing-table to the configuration, not just to a successful ping. This experiment removes R1's direct link to the primary next hop. It does not demonstrate detection of every remote failure. Record the selected next hop before shutdown, during failover and after undo shutdown; then explain the return path from R3.
+\input{labs/visuals/03-worked-case.tex}
+
 \begin{lstlisting}[style=utpterminal]
 <R1> display ip routing-table
 \end{lstlisting}
 
-Count the entries. Every one should be \cmd{Direct}. Record that output --- it is the "before" half of your evidence.
+Count the entries. Identify connected prefixes and local host routes; the exact route types depend on the VRP image. Record that output --- it is the "before" half of your evidence.
 
 \medskip\noindent\textbf{Part B --- Static route syntax.}\par
 
@@ -33,7 +67,7 @@ The next hop must be an address R1 can already reach --- normally the neighbouri
 The destination is a \emph{network} address, not a host address.
 
 \cmd{ip route-static 192.168.3.0 24 10.0.12.2} is a route to a network.\\
-\cmd{ip route-static 192.168.3.1 24 10.0.12.2} is a typo that VRP will accept, normalise, and then behave unexpectedly.
+\cmd{ip route-static 192.168.3.1 24 10.0.12.2} has host bits set for that mask; correct it instead of relying on platform-specific handling.
 
 Always write the network address with host bits zeroed.
 \end{pitfall}
@@ -49,7 +83,7 @@ Your ping now reaches R3. R3 has no route back to R1's LAN, so the \emph{reply} 
 Connectivity requires a route in both directions. Always configure and verify both ends before concluding anything.
 \end{keyidea}
 
-Prove it with \cmd{tracert} from R1: the trace advances further than before, then stops. That is the return path failing, not the forward path.
+Use the LAN PCs for this test. Inspect the forward and return route tables separately: a stalled traceroute alone cannot prove which direction failed.
 
 \medskip\noindent\textbf{Part D --- Backup routes and preference.}\par
 Add a second route to the same destination through a different neighbour, with a worse preference:
@@ -93,7 +127,13 @@ Replace both static routes with one default route, \cmd{ip route-static 0.0.0.0 
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:static-routing]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/03-static-routing-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Record the route and ping before, during and after the specified shutdown. Explain why return routing must still work and why a failed ping alone does not identify the failed hop.
+
+
 \begin{itemize}
   \item Routing tables captured before routes, after routes, and after the failover.
   \item Both directions configured, with the one-way failure demonstrated rather than skipped.

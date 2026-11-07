@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo Purchase + Inventory + Manufacturing.\\
 \textbf{Goal.} Demonstrate supplier master data, purchase orders, receipts, inventory availability, and the link between supplier performance and production readiness.
 
+\input{labs/visuals/07-flow}
+
+
 \begin{labmode}
 Tutorial 7 asks students to research an SCM implementation and compare CRM with SCM. The Odoo work gives a concrete supply-chain process you can analyse using metrics such as lead time, fill rate, and on-time performance.
 \end{labmode}
@@ -21,6 +24,14 @@ Create the supplied vendors and link them to raw materials on the product Purcha
 \end{itemize}
 
 Set vendor prices from the guide and record a delivery lead time if the field is present.
+
+\input{labs/visuals/07-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:scm]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Use the supplier mapping in the walkthrough rather than replacing all vendors with one contact. A receipt updates stock; a supplier bill records the financial obligation. Explain each mismatch before closing the procurement task.
+\input{labs/visuals/07-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Raise RFQs and confirm Purchase Orders.}
 
@@ -60,7 +71,15 @@ Group 2: compare CRM and SCM, including similarities, differences, interaction p
 Use the SCM metrics from Chapter 7 to strengthen the Group 1 analysis and the demand-to-fulfilment hand-off to strengthen the Group 2 comparison.
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:scm]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/07-scm-odoo-chapter.tex}
+
+\input{labs/walkthroughs/07-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Trace a partial receipt and its remaining quantity. Compare ordered, received and billed quantities and explain any difference without silently forcing them to agree.
+
+
 \begin{itemize}
   \item Each vendor is linked to the products it supplies.
   \item One RFQ per vendor is confirmed into a Purchase Order, with the Purchasing Officer as Buyer.

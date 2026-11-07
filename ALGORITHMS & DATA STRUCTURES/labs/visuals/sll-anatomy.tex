@@ -1,0 +1,29 @@
+% Copied from chapters/03-linked-lists.tex (fig:sll-anatomy).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[Anatomy of a singly linked list]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\def\nw{1.15}
+\foreach \v/\addr/\nxt [count=\i from 0] in {10/2040/3160, 20/3160/1004, 30/1004/{}}{
+  \pgfmathsetmacro{\x}{4.3*\i}
+  \node[utpcell,minimum width=\nw cm,minimum height=0.9cm] (d\i) at (\x,0) {\v};
+  \ifx\nxt\empty
+    \node[utpcell,minimum width=\nw cm,minimum height=0.9cm,fill=UTPPaleGray,
+          font=\scriptsize\color{UTPMuted}] (p\i) at (\x+\nw,0) {NULL};
+  \else
+    \node[utpcell,minimum width=\nw cm,minimum height=0.9cm,fill=white,
+          font=\scriptsize\color{UTPBlue}] (p\i) at (\x+\nw,0) {\nxt};
+  \fi
+  \node[utplabel,anchor=north,align=center] at (\x+0.575*\nw,-0.58) {node at \texttt{\addr}};
+}
+\node[utplabel,anchor=south] at (0,0.52) {data};
+\node[utplabel,anchor=south] at (\nw,0.52) {next};
+\foreach \i in {0,1}{
+  \pgfmathtruncatemacro{\j}{\i+1}
+  \draw[utpptr] (p\i.east) -- (d\j.west);
+}
+\node[utptag,anchor=east] at (-0.85,0) {HEAD};
+\draw[utpptr,draw=UTPOrange] (-0.8,0) -- (d0.west);
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

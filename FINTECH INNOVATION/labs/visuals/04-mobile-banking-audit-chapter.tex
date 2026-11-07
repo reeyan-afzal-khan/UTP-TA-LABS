@@ -1,0 +1,14 @@
+% Reused from chapters/04-mobile-and-internet-banking.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.6cm,minimum height=1.1cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[b] (a) at (-4.5,0) {Reactive\\``show my balance''};
+\node[b] (b) at (-1.5,0) {Contextual\\``show my spending''};
+\node[b] (c) at (1.5,0) {Predictive\\``warn me early''};
+\node[b] (d) at (4.5,0) {Assistive\\``help me act''};
+\draw[arr](a)--(b); \draw[arr](b)--(c); \draw[arr](c)--(d);
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

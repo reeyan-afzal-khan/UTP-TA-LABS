@@ -1,44 +1,33 @@
 \labsection{10}{Searching and sorting experiments}{sec:lab10}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab X}
-\textbf{Objective.} Search a list and perform sorting using different techniques.
-
-\textbf{Outcomes.} Understand searching techniques and the working of multiple sorting techniques.
-
-\textbf{Manual problems.}
-\begin{enumerate}
-  \item Sort an array in descending order using quick sort, always selecting the median element of the current array/subarray as pivot.
-  \item Implement binary search and test whether a given element is present.
-  \item Modify merge logic to merge three sorted arrays into one array.
-  \item Sort an array using heap sort.
-\end{enumerate}
+Descending quick sort, binary search, three-array merge, and heap sort.
 \end{sourcealignment}
 
 \begin{labproject}{Trace, implement, and compare algorithms}
-\textbf{Coverage.} Chapter~\ref{ch:search-sort}.\\
-\textbf{Goal.} Implement binary search and several sorting methods, then compare them on one common dataset.
+\textbf{Goal.} Implement four algorithms and compare results on controlled inputs.
 
-Use a common dataset where appropriate, for example:
-\begin{lstlisting}
-vector<int> data = {29, 10, 14, 37, 13};
-\end{lstlisting}
+\textbf{Recall first.} Review the \hyperref[ch:search-sort]{Searching and Sorting} chapter.
 
-\begin{tryit}
-Trace at least two sorting methods by hand. Then implement the four manual problems above. Count comparisons or swaps for one sorting pair so the final-project style of algorithm comparison becomes familiar.
-\end{tryit}
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab10} folder.
 
-\begin{clarification}
-The source's quick-sort theory contains a complexity inconsistency, documented in Chapter~\ref{ch:search-sort}. Also, ``median element as pivot'' can mean the element at the middle index rather than the statistical median value; follow the wording used by your instructor or clarify the interpretation before coding.
-\end{clarification}
+\input{labs/programs/quick_sort_descending}
+
+\tcbbreak
+\input{labs/programs/binary_search}
+
+\tcbbreak
+\input{labs/programs/merge_three_arrays}
+
+\tcbbreak
+\input{labs/programs/heap_sort}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Binary search is run only on sorted input.
-  \item Descending quick sort produces a correctly ordered final array.
-  \item The three-way merge preserves every input value exactly once.
-  \item Heap sort output is sorted and the heap property is maintained during extraction.
-  \item Test cases include duplicates and a missing search target.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

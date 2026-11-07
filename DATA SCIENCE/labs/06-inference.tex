@@ -6,24 +6,42 @@
 \textbf{Dataset.} \texttt{student\_performance\_dataset.csv}.\\
 \textbf{Scenario.} A school analyst observes a grade difference between students who report intending higher education and those who do not. Your task is to quantify the difference, assess sampling uncertainty, and prevent statistical significance from being mistaken for a causal conclusion.
 
-\textbf{Core workflow.}
-\begin{enumerate}
-  \item \textbf{Define the estimand.} Let the target be the difference in mean final grade \texttt{G3} between \texttt{higher=yes} and \texttt{higher=no}. Report group sizes and descriptive summaries before inference.
-  \item \textbf{Estimate the observed effect.} Compute the mean difference and a standardised difference. Interpret direction and practical size in the units of the problem.
-  \item \textbf{Bootstrap uncertainty.} Resample within groups, generate at least 5,000 bootstrap estimates, and construct a 95\% percentile interval for the mean difference.
-  \item \textbf{Construct a null model.} Permute the group labels while keeping grades fixed. Use the resulting distribution to estimate a two-sided p-value for no group association.
-  \item \textbf{Compare inferential quantities.} Explain what the point estimate, confidence interval, standardised effect, and p-value each contribute. Explicitly state what none of them establishes.
-  \item \textbf{Audit design limitations.} Identify at least three available variables that may confound the association, such as prior grades, failures, study time, family education, or absences.
-  \item \textbf{Write a defensible conclusion.} Separate the statistical conclusion from the causal conclusion in two distinct sentences.
-\end{enumerate}
+\input{labs/visuals/06-flow}
 
-\begin{tryit}
-\textbf{Extension.} Repeat the comparison after stratifying or adjusting descriptively for one plausible confounder. Do not claim that this single adjustment removes confounding; use it as a sensitivity check on the original result.
-\end{tryit}
+\textbf{Run the complete script.} Start a clean R session in the course folder. Each step continues the same file; comment headings identify the operation performed by the next block.
+\begin{lstlisting}[style=utpterminal]
+Rscript all_experiments/lab06_inference.R
+\end{lstlisting}
 
-\tcbbreak
-\lstinputlisting[style=utpr]{all_experiments/lab06_inference.R}
+\noindent\textbf{Step 1.} Load, validate and prepare the data
+\lstinputlisting[style=utpr,firstline=1,lastline=24]{all_experiments/lab06_inference.R}
+
+\noindent\textbf{Step 2.} Bootstrap confidence interval for the mean difference.
+\input{labs/visuals/06-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:inference]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Trace the source of randomness in each loop. Sampling values within groups estimates uncertainty around the observed contrast; shuffling labels constructs the no-association reference. Neither operation turns these observational groups into a randomised experiment.
+\input{labs/visuals/06-worked-case.tex}
+
+\lstinputlisting[style=utpr,firstline=25,lastline=35]{all_experiments/lab06_inference.R}
+
+\noindent\textbf{Step 3.} Permutation test: shuffle group labels under a no-group-association reference model.
+\lstinputlisting[style=utpr,firstline=36,lastline=55]{all_experiments/lab06_inference.R}
+
+\noindent\textbf{Step 4.} Design audit: plausible confounders available in the same observational dataset.
+\lstinputlisting[style=utpr,firstline=56,lastline=64]{all_experiments/lab06_inference.R}
+
+\noindent\textbf{Step 5.} Sensitivity check: compare within prior-grade bands (G2 quartiles).
+\lstinputlisting[style=utpr,firstline=65,lastline=75]{all_experiments/lab06_inference.R}
+\textbf{Chapter connection.} Revisit \hyperref[ch:inference]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/06-inference-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Repeat with a different seed and compare interval endpoints. Then inspect prior-grade bands and explain why an observational association cannot isolate the causal effect of aspiration.
+
+
 \textbf{Required evidence.} Submit the observed effect, 95\% interval, permutation p-value, one bootstrap distribution graphic, and a four-sentence interpretation covering magnitude, uncertainty, null evidence, and design limitation.
 
 \textbf{Professional standard.} Report uncertainty and effect size together. A small p-value without a meaningful effect estimate is not a complete scientific result.

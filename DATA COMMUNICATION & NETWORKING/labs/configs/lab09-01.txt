@@ -1,0 +1,15 @@
+system-view
+sysname R1
+interface Serial0/0/0
+ ip address 10.0.0.1 30
+ undo shutdown
+quit
+aaa
+ local-user branch password cipher Branch@123
+ local-user branch service-type ppp
+quit
+interface Serial0/0/0
+ link-protocol ppp
+ ppp authentication-mode chap
+quit
+return

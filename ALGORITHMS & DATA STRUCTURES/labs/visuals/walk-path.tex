@@ -1,0 +1,25 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{adslabfigure}[Exact-length search: undo the failed branch]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpnodehot,minimum size=8mm] (r0n0) at (0.00,0.00) {A};
+\node[utplabel,anchor=west,align=left,text width=5.5cm] at (3.8,0.00) {Initial call: remaining=2; mark A};
+\node[utpnode,minimum size=8mm] (r1n0) at (0.00,-1.35) {A};
+\node[utpnodehot,minimum size=8mm] (r1n1) at (1.35,-1.35) {B};
+\draw[utparrow] (r1n0)--(r1n1);
+\node[utplabel,anchor=west,align=left,text width=5.5cm] at (3.8,-1.35) {Try B: push B, mark B; remaining=1};
+\node[utpnode,minimum size=8mm] (r2n0) at (0.00,-2.70) {A};
+\node[utpnode,minimum size=8mm] (r2n1) at (1.35,-2.70) {B};
+\draw[utparrow] (r2n0)--(r2n1);
+\node[utpnodehot,minimum size=8mm] (r2n2) at (2.70,-2.70) {D};
+\draw[utparrow] (r2n1)--(r2n2);
+\node[utplabel,anchor=west,align=left,text width=5.5cm] at (3.8,-2.70) {Try D: remaining=0, but D is not E\\Undo: pop D and clear its on-path marker};
+\node[utpnode,minimum size=8mm] (r3n0) at (0.00,-4.05) {A};
+\node[utpnode,minimum size=8mm] (r3n1) at (1.35,-4.05) {B};
+\draw[utparrow] (r3n0)--(r3n1);
+\node[utpnodehot,minimum size=8mm] (r3n2) at (2.70,-4.05) {E};
+\draw[utparrow] (r3n1)--(r3n2);
+\node[utplabel,anchor=west,align=left,text width=5.5cm] at (3.8,-4.05) {Try E: remaining=0 and target matches\\Return true; retain the successful path};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

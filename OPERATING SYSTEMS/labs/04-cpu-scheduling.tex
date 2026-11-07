@@ -5,18 +5,42 @@
 \textbf{Goal.} Run four policies on the same bursts so only the policy changes.\\
 \textbf{Explain.} Use the trace to explain why order or time quantum changes a metric.
 
+\input{labs/visuals/04-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{fcfs.c}}{Run processes in the supplied order.}{Waiting time is the accumulated burst time of earlier processes.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/fcfs.c}
+\noindent\textbf{Start the file.} \texttt{fcfs.c}, lines 1--26.
+\input{labs/visuals/04-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:scheduling]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} All processes arrive at zero in this program. The printed PID starts at 1 while the array index starts at 0. Check each row against the accumulators before comparing this scheduler with the other supplied policies.
+\input{labs/visuals/04-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=26]{all_experiments/Lab04/fcfs.c}
 
 \labsourcecard{\texttt{sjf.c}}{Sort the same workload by shortest burst first.}{The sorting step changes execution order; the metric loop is otherwise very similar to FCFS.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/sjf.c}
+\noindent\textbf{Start the file.} \texttt{sjf.c}, lines 1--33.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=33]{all_experiments/Lab04/sjf.c}
+
+\noindent\textbf{Continue the same file.} \texttt{sjf.c}, lines 34--43.
+\lstinputlisting[style=utpcnumbered,firstline=34,lastline=43]{all_experiments/Lab04/sjf.c}
 
 \labsourcecard{\texttt{priority.c}}{Sort by priority, where a smaller number means higher priority.}{The code uses PID only as a tie-breaker so equal priorities are deterministic.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/priority.c}
+\noindent\textbf{Start the file.} \texttt{priority.c}, lines 1--30.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=30]{all_experiments/Lab04/priority.c}
+
+\noindent\textbf{Continue the same file.} \texttt{priority.c}, lines 31--49.
+\lstinputlisting[style=utpcnumbered,firstline=31,lastline=49]{all_experiments/Lab04/priority.c}
 
 \labsourcecard{\texttt{round\_robin.c}}{Give each unfinished process a bounded time slice.}{\texttt{remaining[]} tracks work left; \texttt{first\_run[]} gives response time when all arrivals are 0.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/round_robin.c}
+\noindent\textbf{Start the file.} \texttt{round\_robin.c}, lines 1--30.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=30]{all_experiments/Lab04/round_robin.c}
+
+\noindent\textbf{Continue the same file.} \texttt{round\_robin.c}, lines 31--53.
+\lstinputlisting[style=utpcnumbered,firstline=31,lastline=53]{all_experiments/Lab04/round_robin.c}
 
 \section*{Task 1 --- Compile all policies}
 \begin{lstlisting}[style=utpbash]
@@ -70,7 +94,13 @@ Record the first response time of each process for each quantum. Explain the tra
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:scheduling]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/04-cpu-scheduling-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Check every row of one scheduler trace using these identities. Change the round-robin quantum and explain both the response-time effect and the resulting context switches.
+
+
 \begin{itemize}
   \item All four policies run on the same bursts, so only the policy differs.
   \item The FCFS Gantt chart and its waiting times are checked by hand against the program.

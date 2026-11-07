@@ -1,0 +1,16 @@
+system-view
+sysname RELAY
+interface GigabitEthernet0/0/0
+ ip address 10.0.12.2 24
+ undo shutdown
+quit
+interface GigabitEthernet0/0/1
+ ip address 192.168.3.1 24
+ undo shutdown
+quit
+dhcp enable
+interface GigabitEthernet0/0/1
+ dhcp select relay
+ dhcp relay server-ip 10.0.12.1
+quit
+return

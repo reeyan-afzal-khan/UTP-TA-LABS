@@ -1,0 +1,28 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{utpfigure}[Insert 15, then delete 20: preserve the next live node]
+\begin{tikzpicture}[font=\small]
+\node[utpnode,minimum size=8mm] (r0n0) at (0.00,0.00) {10};
+\node[utpnode,minimum size=8mm] (r0n1) at (1.35,0.00) {20};
+\draw[utparrow] (r0n0)--(r0n1);
+\node[utpnode,minimum size=8mm] (r0n2) at (2.70,0.00) {30};
+\draw[utparrow] (r0n1)--(r0n2);
+\node[utplabel,anchor=west] at (3.20,0.00) {NULL};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,0.00) {Initial list: \texttt{p} points to 10};
+\node[utpnode,minimum size=8mm] (r1n0) at (0.00,-1.35) {10};
+\node[utpnodehot,minimum size=8mm] (r1n1) at (1.35,-1.35) {15};
+\draw[utparrow] (r1n0)--(r1n1);
+\node[utpnode,minimum size=8mm] (r1n2) at (2.70,-1.35) {20};
+\draw[utparrow] (r1n1)--(r1n2);
+\node[utpnode,minimum size=8mm] (r1n3) at (4.05,-1.35) {30};
+\draw[utparrow] (r1n2)--(r1n3);
+\node[utplabel,anchor=west] at (4.55,-1.35) {NULL};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-1.35) {\texttt{n->next = p->next}\\then \texttt{p->next = n}};
+\node[utpnode,minimum size=8mm] (r2n0) at (0.00,-2.70) {10};
+\node[utpnodehot,minimum size=8mm] (r2n1) at (1.35,-2.70) {15};
+\draw[utparrow] (r2n0)--(r2n1);
+\node[utpnodehot,minimum size=8mm] (r2n2) at (2.70,-2.70) {30};
+\draw[utparrow] (r2n1)--(r2n2);
+\node[utplabel,anchor=west] at (3.20,-2.70) {NULL};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6.2,-2.70) {\texttt{old} points to 20; connect 15 to 30\\then \texttt{delete old}};
+\end{tikzpicture}
+\end{utpfigure}

@@ -5,88 +5,102 @@
   {Know the NLP pipeline of \chapref{ch:nlp-foundations}, basic probability, and what precision, recall and F1 measure.}
   {turn tweets into a bag-of-words matrix; explain how Multinomial Naive Bayes scores a class and why smoothing is needed; choose metrics for imbalanced classes; run a leakage-safe train/validation/test protocol; and read a confusion matrix, a per-group table and an error sample as evidence.}
 
-Lab~7 classifies airline tweets as negative, neutral or positive using Multinomial Naive Bayes on word counts. The focus is the evaluation protocol: prepare text without leakage, tune on validation data, report imbalance-aware metrics and inspect errors. The same protocol applies to larger models.
+Lab~7 classifies airline tweets as negative, neutral or positive using Multinomial Naive Bayes on word counts. The model is deliberately simple, because the focus here is the evaluation protocol: prepare text without leakage, tune on validation data, report metrics that respect imbalance, and inspect the errors. The same protocol applies to much larger models.
 
 \section{From text to numbers}
 
-A \term{bag of words} represents each document as vocabulary-term counts, discarding word order (\figref{fig:preprocess}).
+A classifier needs numbers, and a tweet is a string. The simplest bridge is a \term{bag of words}: represent each document by how many times each vocabulary term occurs in it, and throw away the word order.
 
-\begin{utpfig}[The text preprocessing pipeline]{Preprocessing converts text to tokens but discards information. Removing ``not'', for example, makes ``not good'' indistinguishable from ``good''.}{fig:preprocess}
+\begin{analogy}
+Tip a tweet's words into a bag and shake it. You can still count them, and ``cancelled'' appearing three times tells you a good deal about the mood. You can no longer tell ``not good, very bad'' from ``not bad, very good''. That lost order is the price of this representation, and it is why this chapter ends by asking what to try next.
+\end{analogy}
+
+\begin{utpfig}[The text preprocessing pipeline]{One tweet through Lab~7's preprocessing. Placeholders stand in for the handle and the link, and then the tokeniser and the stop-word list do their work. ``Again'' is on scikit-learn's English stop list, so it disappears, as do ``not'', ``no'' and ``never'' in other tweets.}{fig:preprocess}
 \begin{tikzpicture}[
   stage/.style={utpbox,text width=2.7cm,minimum height=1.05cm,
     font=\scriptsize\ttfamily\color{UTPNavy}},
   stagelabel/.style={utplabel,anchor=north,align=center,text width=2.7cm}
 ]
 \node[stage] (raw) {@united Flight\\cancelled AGAIN!\\http://t.co/x};
-\node[stage,right=0.6cm of raw] (normalized) {USER flight\\cancelled again!\\URL};
-\node[stage,right=0.6cm of normalized] (filtered) {flight cancelled\\again};
+\node[stage,right=0.6cm of raw] (normalized) {user flight\\cancelled again!\\url};
+\node[stage,right=0.6cm of normalized] (filtered) {user flight\\cancelled url};
 \node[stage,right=0.6cm of filtered,fill=UTPPaleTeal,draw=UTPGreen]
-  (counts) {flight:1\\cancelled:1\\again:1};
+  (counts) {cancelled:1\ flight:1\\url:1\ user:1};
 \draw[utparrow] (raw.east) -- (normalized.west);
 \draw[utparrow] (normalized.east) -- (filtered.west);
 \draw[utparrow] (filtered.east) -- (counts.west);
 \node[stagelabel] at ([yshift=-2mm]raw.south) {Raw tweet};
-\node[stagelabel] at ([yshift=-2mm]normalized.south) {Replace mentions and\\URLs, lowercase};
-\node[stagelabel] at ([yshift=-2mm]filtered.south) {Tokenise, drop\\stopwords};
+\node[stagelabel] at ([yshift=-2mm]normalized.south) {Replace handles and\\URLs, lowercase};
+\node[stagelabel] at ([yshift=-2mm]filtered.south) {Tokenise, drop\\stop words};
 \node[stagelabel] at ([yshift=-2mm]counts.south) {Count terms\\(the bag of words)};
 \end{tikzpicture}
 \end{utpfig}
 
-Lab~7 lowercases text and replaces URLs with \texttt{URL} and handles with \texttt{USER}, reducing one-off terms. \texttt{CountVectorizer} tokenises, removes English stopwords, requires occurrence in at least two training tweets, and caps the vocabulary at 20,000.
+Lab~7's \texttt{clean} function replaces URLs and handles with the placeholders \texttt{URL} and \texttt{USER} and then lowercases everything, so they become the single features \texttt{url} and \texttt{user} rather than thousands of one-off terms. \texttt{CountVectorizer} then tokenises, removes English stop words, requires a term to occur in at least two training tweets, and caps the vocabulary at 20,000.
 
 \subsection{N-grams}
 
-\term{Bigrams} add adjacent token pairs such as ``never again''. They increase features from 4,671 to 11,850 in the lab, making the matrix sparser. Use validation performance to decide whether they help.
+\term{Bigrams} add pairs of adjacent tokens as extra features, which brings back a little of the lost word order. Pairs such as \texttt{hold hours}, \texttt{great flight} and \texttt{best airline} turn up among the most class-specific features in Lab~7. Features grow from 4,671 to 11,850, and the matrix becomes sparser, so let validation performance decide whether they help.
 
 \section{Multinomial Naive Bayes}
 
-Naive Bayes chooses the class $c$ that maximises the posterior probability of the document $d$:
+Naive Bayes chooses the class $c$ that makes the document $d$ most probable:
 \[
 \hat c=\argmax_c\; P(c)\prod_{w\in d}P(w\mid c)^{n_w},
 \]
-Here $n_w$ counts term $w$, $P(c)$ is the training class share, and $P(w\mid c)$ its term probability. The ``naive'' assumption treats terms as independent given the class; despite its limitations for language, it is useful (\figref{fig:naive-bayes}).
+where $n_w$ counts term $w$ in the document, $P(c)$ is the class's share of the training set, and $P(w\mid c)$ is how often term $w$ appears among that class's words. The ``naive'' part is the assumption that terms are independent once the class is known. That is plainly false for language, and the model works usefully anyway.
 
-\begin{utpfig}[How Naive Bayes scores a sentence]{Two-class Naive Bayes compares scores from training-derived priors and term likelihoods; the larger score wins.}{fig:naive-bayes}
-\begin{tikzpicture}[font=\small]
-\node[utplabel,anchor=east,color=UTPNavy] at (-0.8,1.5) {\textbf{tweet}};
-\foreach \w [count=\i from 0] in {flight, was, delayed, again}{
-  \node[utpcell,minimum width=1.25cm,minimum height=0.58cm,font=\scriptsize\bfseries]
-    at (1.35*\i,1.5) {\w};}
-\foreach \cls/\yy/\col/\vals in {%
-  negative/0.35/UTPRed/{0.030,0.012,0.021,0.009},
-  positive/-0.55/UTPGreen/{0.028,0.011,0.002,0.003}}{
-  \node[utplabel,anchor=east,color=\col] at (-0.8,\yy) {\textbf{\cls}};
-  \foreach \v [count=\j from 0] in \vals{
-    \node[minimum width=1.25cm,minimum height=0.5cm,draw=\col!55,fill=\col!10,
-          font=\scriptsize\color{UTPNavy},inner sep=0pt] at (1.35*\j,\yy) {\v};}
-}
-\foreach \i in {0,...,3}{\draw[utpptr,draw=UTPMuted!60] (1.35*\i,1.2) -- (1.35*\i,0.62);}
-\node[utplabel,anchor=west,align=left,color=UTPRed] at (5.5,0.35)
-  {$P(c)\times$ product $=0.63\times6.8\times10^{-8}$};
-\node[utplabel,anchor=west,align=left,color=UTPGreen] at (5.5,-0.55)
-  {$P(c)\times$ product $=0.16\times1.8\times10^{-9}$};
-\node[utpbox,fill=UTPPaleRed,draw=UTPRed,minimum width=3.4cm,font=\scriptsize\color{UTPNavy}]
-  at (2.05,-1.55) {predicted: \textbf{negative}};
-\node[utplabel,anchor=west,align=left,text width=4.9cm] at (5.5,-1.55)
-  {``delayed'' does the work: it is ten times more likely under the negative class. ``flight'' is neutral and contributes almost equally to both.};
+\begin{intuition}
+Think of every word as a witness giving evidence. ``Delayed'' testifies strongly for negative, ``thanks'' testifies for positive, and ``flight'' says about the same to everyone, so it barely matters. Naive Bayes multiplies the testimony together, starting from how common each class is, and the largest product wins.
+\end{intuition}
+
+\figref{fig:naive-bayes} scores two short tweets with the probabilities the fitted Lab~7 model actually learned. Notice the second tweet. Positive tweets are only 16\,\% of the data, so the model starts sceptical, but ``great'' and ``thanks'' are strong enough evidence to overturn that.
+
+\begin{utpfig}[How Naive Bayes scores a sentence]{Two short messages scored with single-word probabilities from the fitted Lab~7 model. Each class starts from its share of the training set and multiplies in one probability per word. ``Flight'' contributes much the same to every class; the other words do the deciding. The largest score in each row is the prediction.}{fig:naive-bayes}
+\begin{tikzpicture}[font=\small,
+  head/.style={utpcell,minimum width=1.3cm,minimum height=0.55cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  val/.style={minimum width=1.3cm,minimum height=0.5cm,draw=#1!55,fill=#1!10,font=\scriptsize\color{UTPNavy},inner sep=0pt},
+  cl/.style={utplabel,anchor=east,font=\scriptsize\bfseries},
+  score/.style={utplabel,anchor=west,font=\scriptsize\color{UTPNavy}}]
+\def\tw{1.4}
+\node[utplabel,anchor=east,color=UTPNavy] at (-0.95,1.75) {\textbf{tweet 1}};
+\foreach \h/\i in {share/0,flight/1,delayed/2,hold/3}{\node[head] at (\tw*\i,1.75) {\h};}
+\foreach \v/\i in {0.635/0,0.0235/1,0.00393/2,0.00483/3}{\node[val=UTPRed] at (\tw*\i,1.15) {\v};}
+\foreach \v/\i in {0.209/0,0.0175/1,0.00067/2,0.00067/3}{\node[val=UTPMuted] at (\tw*\i,0.6) {\v};}
+\foreach \v/\i in {0.156/0,0.0129/1,0.00062/2,0.00022/3}{\node[val=UTPGreen] at (\tw*\i,0.05) {\v};}
+\node[cl,color=UTPRed] at (-0.75,1.15) {negative};
+\node[cl,color=UTPMuted] at (-0.75,0.6) {neutral};
+\node[cl,color=UTPGreen] at (-0.75,0.05) {positive};
+\node[score] at (5.0,1.15) {$=2.8\times10^{-7}$\quad\textbf{predicted: negative}};
+\node[score] at (5.0,0.6) {$=1.6\times10^{-9}$};
+\node[score] at (5.0,0.05) {$=2.7\times10^{-10}$};
+\begin{scope}[yshift=-2.75cm]
+\node[utplabel,anchor=east,color=UTPNavy] at (-0.95,1.75) {\textbf{tweet 2}};
+\foreach \h/\i in {share/0,great/1,flight/2,thanks/3}{\node[head] at (\tw*\i,1.75) {\h};}
+\foreach \v/\i in {0.635/0,0.00066/1,0.0235/2,0.00259/3}{\node[val=UTPRed] at (\tw*\i,1.15) {\v};}
+\foreach \v/\i in {0.209/0,0.00047/1,0.0175/2,0.00406/3}{\node[val=UTPMuted] at (\tw*\i,0.6) {\v};}
+\foreach \v/\i in {0.156/0,0.00839/1,0.0129/2,0.0203/3}{\node[val=UTPGreen] at (\tw*\i,0.05) {\v};}
+\node[cl,color=UTPRed] at (-0.75,1.15) {negative};
+\node[cl,color=UTPMuted] at (-0.75,0.6) {neutral};
+\node[cl,color=UTPGreen] at (-0.75,0.05) {positive};
+\node[score] at (5.0,1.15) {$=2.6\times10^{-8}$};
+\node[score] at (5.0,0.6) {$=7.0\times10^{-9}$};
+\node[score] at (5.0,0.05) {$=3.4\times10^{-7}$\quad\textbf{predicted: positive}};
+\end{scope}
 \end{tikzpicture}
 \end{utpfig}
 
 \subsection{Smoothing}
 
-An unseen class--term pair has probability zero, eliminating that class from the product. \term{Laplace smoothing} adds pseudo-count $\alpha$ to each term:
+What if a word never occurred in any training tweet of some class? Its probability is zero, and one zero wipes out the whole product, however strongly the other words point that way. One unfamiliar witness silences everyone. \term{Laplace smoothing} prevents this by adding a small pseudo-count $\alpha$ to every term, as if each word had been seen a tiny number of times in every class:
 \[
 P(w\mid c)=\frac{\text{count}(w,c)+\alpha}{\sum_{w'}\text{count}(w',c)+\alpha\,|V|}.
 \]
-Small $\alpha$ trusts observed counts; large $\alpha$ moves probabilities towards uniform. Log sums prevent numerical underflow. Lab~7 selects $\alpha=0.3$ from $\{0.3,0.5,1,2\}$ on validation data; n-grams matter more than smoothing here.
-
-\begin{intuition}
-Each term contributes evidence for each class based on training counts. Smoothing prevents an unseen term from eliminating a class.
-\end{intuition}
+Small $\alpha$ trusts the observed counts, and large $\alpha$ moves the probabilities towards uniform. Multiplying many small numbers also underflows a computer's floating point, so real implementations add logarithms instead. Lab~7 selects $\alpha=0.3$ from $\{0.3,0.5,1,2\}$ on validation data, and n-grams turn out to matter more than smoothing here.
 
 \section{Metrics for imbalanced classes}
 
-Tweets are 63\,\% negative, 21\,\% neutral and 16\,\% positive. Always predicting negative achieves 63\,\% accuracy, so report per-class metrics too:
+Tweets are 63\,\% negative, 21\,\% neutral and 16\,\% positive. A model that always says ``negative'' scores 63\,\% accuracy while being completely useless, so accuracy cannot be the headline. Report per-class metrics as well:
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.16\linewidth}m{0.36\linewidth}X@{}}
@@ -101,15 +115,30 @@ F1 & Harmonic mean of precision and recall & One number per class that punishes 
 \end{tabularx}
 \end{utptable}
 
-\term{Macro F1} weights class F1 scores equally. The majority baseline has recall~1 for negative and~0 otherwise, giving macro F1 $0.26$; Naive Bayes reaches $0.70$.
+\figref{fig:nb-confusion} shows where these come from on the real test set. \term{Macro F1} is the plain average of the three class F1 scores, so each class counts equally however rare it is. The majority baseline has recall~1 for negative and~0 otherwise, giving macro F1 $0.26$; Naive Bayes reaches $0.70$.
+
+\begin{utpfig}[The Naive Bayes confusion matrix]{Lab~7's test results on 2,143 tweets. For \emph{neutral}: recall reads along its row, $239/447=0.53$, and precision reads down its column, $239/400=0.60$. Their harmonic mean is F1 $=0.56$. The largest off-diagonal cell, 158, is neutral tweets called negative.}{fig:nb-confusion}
+\begin{tikzpicture}[font=\small,
+  hit/.style={draw=UTPGreen,fill=UTPGreen!28,minimum width=1.75cm,minimum height=0.74cm,font=\small\bfseries\color{UTPNavy}},
+  miss/.style={draw=UTPMuted!30,fill=white,minimum width=1.75cm,minimum height=0.74cm,font=\small\color{UTPMuted}},
+  bad/.style={draw=UTPOrange,fill=UTPPaleOrange,minimum width=1.75cm,minimum height=0.74cm,font=\small\bfseries\color{UTPNavy}}]
+\def\cw{1.8}\def\ch{0.78}
+\foreach \name [count=\i from 0] in {negative,neutral,positive}{\node[font=\scriptsize\color{UTPNavy},anchor=south,align=center] at (\cw*\i,0.42) {predicted\\\name};}
+\foreach \name [count=\i from 0] in {negative,neutral,positive}{\node[font=\scriptsize\color{UTPNavy},anchor=east] at (-1.0,-\ch*\i) {true \name};}
+\node[hit] at (0,0) {1185};\node[miss] at (\cw,0) {115};\node[miss] at (2*\cw,0) {61};
+\node[bad] at (0,-\ch) {158};\node[hit] at (\cw,-\ch) {239};\node[miss] at (2*\cw,-\ch) {50};
+\node[miss] at (0,-2*\ch) {63};\node[miss] at (\cw,-2*\ch) {46};\node[hit] at (2*\cw,-2*\ch) {226};
+\node[anchor=west,align=left,text width=5.2cm,font=\scriptsize\color{UTPNavy}] at (2*\cw+1.3,-\ch) {\textbf{Per-class F1}\\[2pt] negative $0.86$\\ neutral $0.56$\\ positive $0.67$\\[3pt] macro F1 $=(0.86+0.56+0.67)/3=0.70$};
+\end{tikzpicture}
+\end{utpfig}
 
 \begin{pitfall}
-Compute the majority baseline first: accuracy rises from 63\,\% to 77\,\%, while macro F1 rises from $0.26$ to $0.70$. Together they show what the model adds.
+Compute the majority baseline first. Accuracy rises from 63\,\% to 77\,\%, which sounds modest, while macro F1 rises from $0.26$ to $0.70$. Together they show what the model adds.
 \end{pitfall}
 
 \section{A leakage-safe protocol}
 
-\term{Leakage} occurs when test information influences training or model selection. Lab~7 controls it at each stage (\figref{fig:protocol}).
+\term{Leakage} occurs when test information influences training or model selection. It is the examination equivalent of seeing the final paper in advance: the score goes up and tells you nothing about what you can do on a new paper. Lab~7 controls leakage at each stage (\figref{fig:protocol}).
 
 \begin{utpfig}[The evaluation protocol of Lab~7]{Deduplicate before splitting, fit vocabulary and model on training data, select settings on validation data, and evaluate once on test data.}{fig:protocol}
 \begin{tikzpicture}[font=\small,
@@ -126,14 +155,14 @@ Compute the majority baseline first: accuracy rises from 63\,\% to 77\,\%, while
 \end{utpfig}
 
 \begin{description}
-  \item[Duplicates before the split.] There are 213 exact duplicates and 355 duplicates after URL and mention replacement. Keep one copy of each normalised text before splitting to prevent shared answers.
+  \item[Duplicates before the split.] There are 213 exact duplicates and 355 duplicates after URL and mention replacement. Keep one copy of each normalised text before splitting, or a retweet in the training set could hand the model the answer to its twin in the test set.
   \item[Stratified, seeded, saved.] Preserve class proportions in a seeded 70/15/15 split and save the assignment for audit.
-  \item[Vocabulary from training text only.] Fit \texttt{CountVectorizer} on training tweets, then transform validation and test tweets. Test-only words remain unknown.
+  \item[Vocabulary from training text only.] Fit \texttt{CountVectorizer} on training tweets, then transform validation and test tweets. Words seen only in the test set stay unknown, exactly as they would for a deployed model.
   \item[Selection on validation, one look at test.] Compare eight settings on validation data, refit the winner, then evaluate once on test data.
 \end{description}
 
 \begin{keyidea}
-Deduplicate, split, fit, tune, test. Respecting these data boundaries keeps the final score separate from model development.
+Deduplicate, split, fit, tune, test. Respecting these boundaries keeps the final score separate from model development.
 \end{keyidea}
 
 \section{Reading the evidence}
@@ -141,21 +170,29 @@ Deduplicate, split, fit, tune, test. Respecting these data boundaries keeps the 
 The lab produces four kinds of evidence, each answering a question the headline score cannot.
 
 \begin{description}
-  \item[The confusion matrix.] The $3\times3$ table shows neutral tweets often predicted as negative: questions about delays share complaint vocabulary.
-  \item[Per-class scores.] Negative F1 $0.86$, positive $0.67$, neutral $0.56$. Neutral is the hardest class: it has the fewest distinctive words and sits between the other two.
+  \item[The confusion matrix.] Neutral tweets are often predicted as negative, because questions about delays share vocabulary with complaints.
+  \item[Per-class scores.] Negative F1 $0.86$, positive $0.67$, neutral $0.56$. Neutral is the hardest class, with few distinctive words of its own. Its most class-specific features are one-off news topics such as \texttt{wall street} and \texttt{journal}, which say little about any future tweet.
   \item[Per-group scores.] Airline macro F1 ranges from $0.66$ to $0.78$, with 63--594 test tweets per airline. Different sample sizes, class mixes and topics make this a diagnostic, not an airline ranking.
-  \item[An error sample.] Tag the four most confident mistakes per true class (twelve tweets). The reproducible sample reveals missed negation, low-sentiment questions, short texts and a repeatedly retweeted joke with inconsistent labels. The last is a data-quality issue, not just a model error.
+  \item[An error sample.] Tag the four most confident mistakes per true class, twelve tweets in all. The reproducible sample reveals missed negation, low-sentiment questions, short texts and a repeatedly retweeted joke with inconsistent labels. The last is a data-quality issue, not just a model error.
 \end{description}
 
 \begin{pitfall}
-Every sampled error has posterior above $0.999$. Confidence is not correctness: use these uncalibrated Naive Bayes scores for ranking, not as reliable probabilities of being right.
+Every sampled error has posterior above $0.999$. Being confident and wrong is the most damaging kind of mistake, and Naive Bayes does it often because its independence assumption multiplies correlated evidence as if it were new each time. Use these scores for ranking, not as reliable probabilities of being right.
 \end{pitfall}
 
 \section{What the protocol does not fix}
 
-Bag-of-words Naive Bayes struggles with negation, sarcasm and word order. The deliverable asks what representation to try next: weighted counts, embeddings or contextual models. Keep the deduplicated split, validation-based selection and single final test evaluation unchanged.
+Bag-of-words Naive Bayes struggles with negation, sarcasm and word order, and one choice in this pipeline makes that worse. The English stop list removes \texttt{not}, \texttt{no} and \texttt{never}, so ``not good'' and ``good'' look identical. Keeping stop words raises validation macro F1 from $0.697$ to $0.720$ with the same model. That is a real finding, and it came from questioning a default rather than from a more complicated model. The deliverable asks what representation to try next: weighted counts, embeddings or contextual models. Whatever you try, keep the deduplicated split, validation-based selection and single final test evaluation unchanged.
 
-\input{labs/07-nlp-part-b}
+\begin{chapterrecap}
+\begin{itemize}
+  \item A bag of words counts terms and discards order; bigrams recover a little of it.
+  \item Naive Bayes multiplies a class's share by one probability per word, and smoothing stops one unseen word from zeroing a class.
+  \item On imbalanced classes, compare macro F1 against a majority baseline and read the confusion matrix.
+  \item Deduplicate, split, fit on train, tune on validation and test once. Anything else leaks.
+  \item Confidence is not correctness, and defaults such as the stop list deserve testing too.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -171,8 +208,10 @@ Bag-of-words Naive Bayes struggles with negation, sarcasm and word order. The de
 \begin{enumerate}
   \item Kept, every distinct URL and handle becomes a one-off feature that cannot generalise; deleted, the model loses the signal that a link or mention was present. One placeholder token keeps the signal in a single feature.
   \item Without smoothing $P(w\mid\text{positive})=0$, so the product is zero and \emph{positive} can never win, whatever the other words say. With $\alpha=1$ the term gets a small non-zero probability and the remaining words decide.
-  \item Predicting \emph{negative} for everything is right 63\,\% of the time --- the class share. Recall is $1$ for negative and $0$ for the other two classes, so the class F1 scores are about $0.78$, $0$ and $0$, and their mean is $0.26$.
+  \item Predicting \emph{negative} for everything is right 63\,\% of the time, the class share. Recall is $1$ for negative and $0$ for the other two classes, so the class F1 scores are about $0.78$, $0$ and $0$, and their mean is $0.26$.
   \item The vocabulary would include terms that occur only in validation or test tweets, so the feature space would be shaped by data the model must never see. The symptom is a test score that is slightly too good and does not reproduce on genuinely new tweets.
   \item With 63 tweets, one or two mistakes move macro F1 by several points, and the airline's class mix and topics differ from the others'. The score reflects the sample and its content, not service quality.
 \end{enumerate}
 \end{checkanswers}
+
+\input{labs/07-nlp-part-b}

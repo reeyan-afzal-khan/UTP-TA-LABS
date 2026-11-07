@@ -1,0 +1,32 @@
+% Copied from chapters/06-queues.tex (fig:queue-falsefull).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[The ``false full'' problem]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+% state after 5 enqueues, 2 dequeues (capacity 5)
+\foreach \v [count=\i from 0] in {{},{},C,D,E}{
+  \ifx\v\empty
+    \node[utpdim,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {};
+  \else
+    \node[utpcell,minimum width=1.15cm,minimum height=0.85cm] (z\i) at (1.2*\i,0) {\v};
+  \fi
+  \node[utplabel] at (1.2*\i,-0.68) {\i};
+}
+\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+  font=\scriptsize\bfseries\color{UTPOrange!70!black},
+  inner xsep=2.2mm,inner ysep=1mm] (fronttag) at (2.4,1.15) {FRONT};
+\draw[-{Stealth[length=2.1mm,width=1.45mm]},line width=0.9pt,draw=UTPOrange]
+  (fronttag.south) -- ([yshift=0.7mm]z2.north);
+\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1mm,
+  font=\scriptsize\bfseries\color{UTPOrange!70!black},
+  inner xsep=2.2mm,inner ysep=1mm] (reartag) at (4.8,1.15) {REAR};
+\draw[-{Stealth[length=2.1mm,width=1.45mm]},line width=0.9pt,draw=UTPOrange]
+  (reartag.south) -- ([yshift=0.7mm]z4.north);
+\draw[decorate,decoration={brace,mirror,amplitude=4pt,raise=3pt},draw=UTPGreen,semithick]
+  (-0.62,-0.9) -- (0.62,-0.9);
+\node[utplabel,anchor=north,color=UTPGreen,align=center] at (0,-1.3) {free, but\\unreachable};
+\node[utplabel,anchor=west,color=UTPRed,align=left] at (5.7,0)
+  {\texttt{enqueue(F)} fails:\\\texttt{rear} is at the last index};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

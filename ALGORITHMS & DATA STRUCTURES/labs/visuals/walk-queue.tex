@@ -1,0 +1,46 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{adslabfigure}[Capacity 5: storage and indexes after each operation]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,0.00) {10};
+\node[utplabel] at (0.00,0.60) {0};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.92,0.00) {20};
+\node[utplabel] at (0.92,0.60) {1};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,0.00) {30};
+\node[utplabel] at (1.84,0.60) {2};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (2.76,0.00) {40};
+\node[utplabel] at (2.76,0.60) {3};
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (3.68,0.00) {--};
+\node[utplabel] at (3.68,0.60) {4};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,0.00) {Enqueue 10,20,30,40\\\texttt{front=0, rear=4, count=4}};
+\draw[utparrow] (-.85,-0.35)--(-.85,-0.85);
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (0.00,-1.20) {--};
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (0.92,-1.20) {--};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (1.84,-1.20) {30};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-1.20) {40};
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (3.68,-1.20) {--};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-1.20) {Dequeue twice: return 10, then 20\\\texttt{front=2, rear=4, count=2}};
+\draw[utparrow] (-.85,-1.55)--(-.85,-2.05);
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (0.00,-2.40) {--};
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (0.92,-2.40) {--};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-2.40) {30};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-2.40) {40};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (3.68,-2.40) {50};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-2.40) {Enqueue 50 at index 4; rear wraps to 0\\\texttt{front=2, rear=0, count=3}};
+\draw[utparrow] (-.85,-2.75)--(-.85,-3.25);
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (0.00,-3.60) {60};
+\node[utpdim,minimum width=0.88cm,minimum height=.65cm] at (0.92,-3.60) {--};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-3.60) {30};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-3.60) {40};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-3.60) {50};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-3.60) {Enqueue 60 at index 0\\\texttt{front=2, rear=1, count=4}};
+\draw[utparrow] (-.85,-3.95)--(-.85,-4.45);
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (0.00,-4.80) {60};
+\node[utphot,minimum width=0.88cm,minimum height=.65cm] at (0.92,-4.80) {70};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (1.84,-4.80) {30};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (2.76,-4.80) {40};
+\node[utpcell,minimum width=0.88cm,minimum height=.65cm] at (3.68,-4.80) {50};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.8,-4.80) {Enqueue 70: full\\\texttt{front=2, rear=2, count=5}};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

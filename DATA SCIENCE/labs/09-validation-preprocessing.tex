@@ -6,22 +6,41 @@
 \textbf{Datasets.} \texttt{credit\_card\_fraud\_dataset.csv}; Heart Failure is used for a calibration extension.\\
 \textbf{Scenario.} Fraud is rare, so a superficially high accuracy can be operationally useless. You must evaluate a complete modelling process with stratified cross-validation, fold-local preprocessing, and threshold-sensitive metrics.
 
-\textbf{Core workflow.}
-\begin{enumerate}
-  \item \textbf{Measure the class imbalance.} Report fraud prevalence and the accuracy of an ``always legitimate'' classifier. Treat this as the minimum baseline any useful model must beat.
-  \item \textbf{Create stratified folds.} Build five folds that each contain fraud and legitimate transactions. Report the class count in every fold.
-  \item \textbf{Keep preprocessing inside the fold.} For each validation fold, estimate scaling parameters from the corresponding training folds only, then apply those parameters to validation data.
-  \item \textbf{Fit and retain probabilities.} Train logistic regression inside each fold and store validation probabilities so the same predictions can be evaluated at multiple thresholds.
-  \item \textbf{Evaluate decision thresholds.} Compare 0.10, 0.25, and 0.50 using accuracy, precision, recall, and specificity. Include false-positive and false-negative counts where useful.
-  \item \textbf{Report variability.} Summarise both the mean and fold-to-fold spread of the metrics. Identify whether recall is stable enough to support a reliable operational claim.
-  \item \textbf{Choose a threshold from a stated cost.} Define a hypothetical relative cost for missed fraud versus false alarms, then select the threshold that best reflects that priority. Make clear that the cost assumption is external to the model.
-\end{enumerate}
+\input{labs/visuals/09-flow}
 
-\textbf{Calibration extension.} Reuse the Heart Failure modelling workflow, bin held-out predicted probabilities, and compare mean predicted probability with observed event rate. Explain why a model can rank cases well yet still produce poorly calibrated probabilities.
+\textbf{Run the complete script.} Start a clean R session in the course folder. Each step continues the same file; comment headings identify the operation performed by the next block.
+\begin{lstlisting}[style=utpterminal]
+Rscript all_experiments/lab09_validation.R
+\end{lstlisting}
 
-\tcbbreak
-\lstinputlisting[style=utpr]{all_experiments/lab09_validation.R}
+\noindent\textbf{Step 1.} Load, validate and prepare the data
+\lstinputlisting[style=utpr,firstline=1,lastline=11]{all_experiments/lab09_validation.R}
+
+\noindent\textbf{Step 2.} Create stratified fold labels.
+\input{labs/visuals/09-trace}
+\lstinputlisting[style=utpr,firstline=12,lastline=43]{all_experiments/lab09_validation.R}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:validation]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Inspect the scaling assignments inside the loop, not just the final scores. The cost\_5\_to\_1 summary uses an explicitly assumed cost ratio. Compare both mean and variability before selecting a decision rule.
+\input{labs/visuals/09-worked-case.tex}
+
+\lstinputlisting[style=utpr,firstline=44,lastline=75]{all_experiments/lab09_validation.R}
+\lstinputlisting[style=utpr,firstline=76,lastline=81]{all_experiments/lab09_validation.R}
+
+\noindent\textbf{Step 3.} Illustrative operational choice: missing a fraud costs 5 times a false alarm.
+\lstinputlisting[style=utpr,firstline=82,lastline=88]{all_experiments/lab09_validation.R}
+
+\noindent\textbf{Step 4.} Calibration extension with Heart Failure probabilities on a fresh holdout split.
+\lstinputlisting[style=utpr,firstline=89,lastline=113]{all_experiments/lab09_validation.R}
+\textbf{Chapter connection.} Revisit \hyperref[ch:validation]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/09-validation-preprocessing-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Compare two thresholds at the stated cost ratio, then repeat with a second ratio. Explain whether the best decision threshold changes even when predicted probabilities stay fixed.
+
+
 \textbf{Required evidence.} Submit the majority-class baseline, five-fold metric summary, one variability result, and a threshold recommendation tied to an explicit error-cost assumption. Include one sentence identifying where leakage would occur if global scaling were applied before cross-validation.
 
 \textbf{Professional standard.} Validation must reproduce the full future prediction process. Any transformation learned from all records before validation contaminates the estimate of generalisation performance.

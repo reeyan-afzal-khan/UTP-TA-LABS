@@ -5,12 +5,36 @@
 \textbf{Goal.} Run the same increment loop with and without a lock, then inspect a Banker trace.\\
 \textbf{Explain.} Explain why a race is timing-dependent and why ``unsafe'' is not identical to ``deadlocked now''.
 
+\input{labs/visuals/06-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{threads\_demo.c}}{Two threads increment one shared counter.}{The read-increment-write sequence is protected only when the mutex is enabled.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab06/threads_demo.c}
+\noindent\textbf{Start the file.} \texttt{threads\_demo.c}, lines 1--33.
+\input{labs/visuals/06-trace}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=33]{all_experiments/Lab06/threads_demo.c}
+
+\noindent\textbf{Continue the same file.} \texttt{threads\_demo.c}, lines 34--58.
+\lstinputlisting[style=utpcnumbered,firstline=34,lastline=58]{all_experiments/Lab06/threads_demo.c}
 
 \labsourcecard{\texttt{banker.c}}{Compute \texttt{Need = Maximum - Allocation} and search for a safe sequence.}{A process may finish only when every resource in its Need vector is no larger than current Work.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab06/banker.c}
+\noindent\textbf{Start the file.} \texttt{banker.c}, lines 1--30.
+
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:deadlock]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Process numbering in this example is zero-based. Work is the simulated available vector. Releasing allocation, rather than maximum or need, is the critical update. In --unsafe mode work starts at zero; check the no-progress exit.
+\input{labs/visuals/06-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=30]{all_experiments/Lab06/banker.c}
+
+\noindent\textbf{Continue the same file.} \texttt{banker.c}, lines 31--63.
+\lstinputlisting[style=utpcnumbered,firstline=31,lastline=63]{all_experiments/Lab06/banker.c}
+
+\noindent\textbf{Continue the same file.} \texttt{banker.c}, lines 64--94.
+\lstinputlisting[style=utpcnumbered,firstline=64,lastline=94]{all_experiments/Lab06/banker.c}
 
 \section*{Task 1 --- Repeat the race, do not trust one run}
 \begin{lstlisting}[style=utpbash]
@@ -58,7 +82,13 @@ Banker cannot find full sequence & the state is unsafe for the declared maximum 
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:deadlock]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/06-threads-and-deadlocks-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Trace one safe sequence and one unsafe case. For the counter, repeat locked and unlocked runs and explain the critical section rather than relying on one observed wrong total.
+
+
 \begin{itemize}
   \item Five unlocked runs are recorded, not one.
   \item All three locked runs reach the Expected count.

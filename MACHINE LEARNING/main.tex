@@ -1,6 +1,13 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
+% Some MiKTeX installs carry Source Sans without registering its font map, and
+% pdfTeX then stops at the cover with "auto expansion is only possible with
+% scalable fonts". Naming the map here is harmless where it is already known,
+% and only a warning where the file does not exist.
+\pdfmapfile{+SourceSansThree.map}
+
 % ---------- course configuration ----------
+\def\utprunninghead{Machine Learning Notes}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Machine Learning}
 \def\utpcourseoutline{%
@@ -8,6 +15,10 @@
   foundations, supervised and unsupervised learning, and a little touch of
   Deep Learning.%
 }
+
+% ---------- boxes this book renames ----------
+\def\utptitlelabmode{Lab setup}
+\def\utptitledeliverable{Submission checklist}
 
 % ---------- everything shared with the other courses ----------
 \input{../.shared/utpnotes}
@@ -23,7 +34,22 @@
 % its minimum spacing is tight; the page stretches it to fill.
 \utpcontentspage{\normalsize}{\large}{0.30em}{0.04em}{0.04em}
 
+% Every lab sheet is a sequence of labquestion / labanswer pairs (shared
+% lab toolkit, section 12 of utpnotes). Question n is the notebook cell
+% marked [n] after Restart and Run All, and the notebook says so above the
+% cell. The answer holds the code that cell runs, the output to expect, and
+% what that output means.
+
 % ---------- the book ----------
+\input{labs/visual-guide}
+\input{chapters/study-log-figures}
+
+% A heading needs a few lines of room under it, or it moves to the next page with them.
+\let\utpplainsection\section
+\let\utpplainsubsection\subsection
+\renewcommand{\section}{\keepspace{7\baselineskip}\utpplainsection}
+\renewcommand{\subsection}{\keepspace{6\baselineskip}\utpplainsubsection}
+
 \begin{document}
 \utpfrontmatter
 

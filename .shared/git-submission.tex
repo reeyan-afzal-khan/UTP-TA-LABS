@@ -109,9 +109,9 @@ The key's randomart fingerprint is:
 +-----------------+
 \end{lstlisting}
 
-After that you can you can load the \emph{private} key into the SSH agent:
+After that you can load the \emph{private} key into the SSH agent:
 
-# For Windows Powershell:
+For Windows PowerShell:
 
 \begin{lstlisting}[style=utpterminal]
 Set-Service -Name ssh-agent -StartupType Automatic
@@ -120,13 +120,13 @@ ssh-add $env:USERPROFILE\.ssh\id_ed25519
 git config --global core.sshCommand "C:/Windows/System32/OpenSSH/ssh.exe"
 \end{lstlisting}
 
-# For macOS:
+For macOS:
 \begin{lstlisting}[style=utpterminal]
 eval "$(ssh-agent -s)"
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 \end{lstlisting}
 
-# For Linux:
+For Linux:
 \begin{lstlisting}[style=utpterminal]
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_ed25519
@@ -136,7 +136,7 @@ Copy the \emph{public} key. Never upload or share the file without
 \texttt{.pub}.
 
 \begin{lstlisting}[style=utpterminal]
-# Windows Powershell
+# Windows PowerShell
 Get-Content $env:USERPROFILE\.ssh\id_ed25519.pub | Set-Clipboard
 
 # macOS

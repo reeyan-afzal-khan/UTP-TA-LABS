@@ -1,0 +1,220 @@
+\chapter{Local Search: When Only the Answer Counts}
+\label{ch:localsearch}
+
+\chapterguide%
+  {Know the search loop of \chapref{ch:uninformed} and the heuristic idea of \chapref{ch:informed}, and be comfortable with random numbers in Python.}
+  {explain when a problem needs a final answer rather than a route; run hill climbing by hand; say what a local maximum is and why random restarts and simulated annealing escape it; compute an annealing acceptance probability; and use beam search to keep several options alive.}
+
+Until now the route was the answer. The robot needed the whole path to the charger, and we judged a search by what that path cost. Many problems are not like that. When you hand in a solved Sudoku, nobody asks what order you filled it in. A school timetable, a chip layout and the coefficients of a model are all judged only as finished products.
+
+That changes what a search has to remember. If nobody needs the route, there is no reason to keep it. \term{Local search} keeps one candidate, or a few, and keeps improving them. It answers the fourth question from \chapref{ch:uninformed}: \emph{what if only the final answer counts?} This chapter has no lab of its own; it sets up the genetic algorithm of \chapref{ch:ga}, which Lab~8 practises. Every number below comes from \texttt{all\_experiments/demo\_local\_search.py}.
+
+\section{The eight-queens puzzle}
+
+Place eight queens on a chessboard so that no two attack each other. A queen attacks along its row, its column and both diagonals. Keep one queen in each column and each queen can sit on any of eight squares, which gives $8^8$, more than 16.7 million boards, and only 92 of them work.
+
+We can run the search loop of \chapref{ch:uninformed} on this. The goal test is ``no attacks'' and a move shifts one queen. But breadth-first search has to hold a huge to-do list of boards just to reach an answer whose route nobody wants. So what if we keep just one board and keep making it better?
+
+\section{Hill climbing}
+
+Call fewer attacks higher ground, so that every better board is a step uphill. A board's \term{neighbours} are the boards we get by moving one queen up or down its own column. Eight queens with seven other squares each give $8\times7=56$ neighbours. \term{Hill climbing} moves to the best neighbour, then looks around and repeats, and it stops when no neighbour is better (\figref{fig:queens-board}).
+
+\begin{analogy}
+Picture yourself on a hillside in thick fog. You can only feel the ground right next to your feet, so you never plan ahead and you never look back. You take the steepest step up and repeat. When every step would go down, you stop and declare that you have reached the top. That may be a small foothill, with a far taller peak hidden across the valley.
+\end{analogy}
+
+\begin{utpfig}[One hill-climbing step on eight queens]{Left: a random board, written below it as the row of each column's queen, counting rows from zero at the top. Red lines join the 6 attacking pairs. Middle: hill climbing scores all 56 neighbours and moves to the best, which here has 3 attacking pairs. Right: the algorithm in plain words. Between moves it keeps only one board.}{fig:queens-board}
+\begin{tikzpicture}[font=\small]
+\def\q{0.38}
+\foreach \r in {0,...,7}{\foreach \c in {0,...,7}{
+  \pgfmathtruncatemacro{\odd}{mod(\r+\c,2)}
+  \ifnum\odd=1
+    \fill[UTPPaleBlue] (\q*\c,-\q*\r) rectangle ++(\q,-\q);
+  \else
+    \fill[white] (\q*\c,-\q*\r) rectangle ++(\q,-\q);
+  \fi}}
+\draw[draw=UTPBlue!55] (0,0) rectangle (8*\q,-8*\q);
+\foreach \c/\r in {0/7,1/4,2/6,3/1,4/4,5/5,6/3,7/4}{
+  \coordinate (Q\c) at ({\q*\c+\q/2},{-\q*\r-\q/2});
+}
+\foreach \a/\b in {1/4,1/7,2/4,4/5,4/7,6/7}{\draw[draw=UTPRed,thick] (Q\a)--(Q\b);}
+\foreach \c in {0,...,7}{\node[circle,fill=UTPNavy,text=white,inner sep=0pt,minimum size=2.7mm,font=\tiny\bfseries] at (Q\c) {Q};}
+\node[utplabel,anchor=north,align=center] at (4*\q,-8*\q-0.08) {7 4 6 1 4 5 3 4};
+\begin{scope}[xshift=4.0cm,yshift=-1.5cm]
+\draw[utparrow] (-0.35,0) -- (0.3,0);
+\node[utpbox,minimum width=2.5cm,fill=UTPPaleOrange,draw=UTPOrange,align=center,font=\scriptsize\color{UTPNavy}] at (1.65,0) {score 56 neighbours\\take the fewest attacks};
+\draw[utparrow] (3.0,0) -- (3.6,0);
+\end{scope}
+\node[anchor=west,align=left,text width=5.4cm,font=\scriptsize\color{UTPNavy}] at (7.75,-1.5) {%
+  \textbf{Hill climbing}\\[2pt]
+  \texttt{board} $\leftarrow$ a random board\\
+  \textbf{repeat:}\\
+  \quad score every neighbour of \texttt{board}\\
+  \quad \textbf{if} the best is no better: \textbf{stop}\\
+  \quad \texttt{board} $\leftarrow$ the best neighbour};
+\end{tikzpicture}
+\end{utpfig}
+
+The memory saving is dramatic. Hill climbing holds at most 56 boards at any moment, and only one between moves. On one random board with 5 attacking pairs, the breadth-first loop expands 67,836 boards and its to-do list peaks at 456,001. Here is the whole of hill climbing in Python:
+
+\lstinputlisting[style=utppython,firstline=39,lastline=49]{all_experiments/demo_local_search.py}
+
+\begin{libnote}
+You have met this idea already if you have trained a machine learning model. \term{Gradient descent} is hill climbing turned upside down: it walks downhill on the loss, the number that says how wrong the model is. ANFIS in \chapref{ch:fuzzy} used exactly this walk for its membership functions.
+\end{libnote}
+
+\section{Stuck on a local maximum}
+
+The foggy hillside hides a weakness. Run hill climbing on the maze from \chapref{ch:uninformed} with higher ground meaning a smaller Manhattan guess, and the robot goes $(5,1)\to(4,1)\to(3,1)\to(2,1)$ and stops, with a guess of 8. Ahead of it is a wall, and every open neighbour guesses 9. No move looks better, so it quits long before the charger.
+
+The same thing happens on the queens. A board where no single move helps is a \term{local maximum}. It can look fine from where you stand, and it still has attacking queens. How often does that happen? Over 1,000 random boards, hill climbing solves 150 and gets stuck on the other 850.
+
+\section{Two ways to get unstuck}
+
+\subsection{Random restarts}
+
+The first fix is blunt. When you get stuck, throw the board away and climb again from a fresh random one. Keep doing that and you will eventually land on the right hillside, so \term{random-restart hill climbing} always solves the board in the end. It takes 7.3 climbs on average and looks at about 1,700 boards per puzzle solved.
+
+\subsection{Simulated annealing}
+
+Restarts throw away a whole board every time you are stuck. Is there a gentler way off a hilltop? What if the robot sometimes took a step downhill on purpose? It sounds like the dumbest idea in this book, and it works.
+
+\begin{analogy}
+The trick comes from metalworking and crystal growing. Melt a material and then cool it slowly. While it is hot its atoms move around freely, and as it cools they settle into a neat, low-energy crystal. Cool it too fast and the atoms freeze in a disordered jumble. That slow cooling is called \term{annealing}.
+\end{analogy}
+
+In 1983 Kirkpatrick, Gelatt and Vecchi, then at IBM, turned this into a search and used it to design computer chips. \term{Simulated annealing} picks one random move at each step. If the move is no worse, it always takes it. If the move is worse, it may still take it, with a chance that depends on how much worse the move is and on a \term{temperature} $T$ that falls a little at every step:
+\[
+P(\text{accept a move that adds } \Delta \text{ attacks}) \;=\; e^{-\Delta/T}.
+\]
+
+\figref{fig:annealing} shows what that formula does. At $T=1$ a move adding one attack gets through 37 times in 100, and a move adding three gets through about 5 times in 100. At $T=0.1$, one extra attack counts as heavily as ten did before, so it gets through only about 5 times in 100,000. While the search is hot it wanders freely; as it cools it behaves more and more like plain hill climbing.
+
+\begin{utpfig}[Cooling makes bad moves rarer]{The chance of accepting a move that adds $\Delta$ attacks, as the temperature falls. Hot searches accept even bad moves often, which lets them walk off a local maximum. Cold searches almost never do. A move that is no worse ($\Delta\le0$) is always accepted.}{fig:annealing}
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=5.0cm,
+  xlabel={temperature $T$ (the search cools from right to left)}, ylabel={chance of accepting},
+  xmin=0, xmax=1, ymin=0, ymax=0.42,
+  ytick={0,0.1,0.2,0.3,0.4}, yticklabel style={/pgf/number format/fixed},
+  axis lines=left, grid=major, grid style={draw=UTPPaleBlue},
+  domain=0.03:1, samples=80, clip=false]
+\addplot[draw=UTPBlue,very thick] {exp(-1/x)};
+\addplot[draw=UTPTeal,very thick] {exp(-2/x)};
+\addplot[draw=UTPOrange,very thick] {exp(-3/x)};
+\node[font=\scriptsize\color{UTPBlue},anchor=south east] at (axis cs:0.98,0.37) {$\Delta=1$};
+\node[font=\scriptsize\color{UTPTeal!70!black},anchor=south east] at (axis cs:0.98,0.14) {$\Delta=2$};
+\node[font=\scriptsize\color{UTPOrange!85!black},anchor=south east] at (axis cs:0.98,0.05) {$\Delta=3$};
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
+
+\lstinputlisting[style=utppython,firstline=63,lastline=76]{all_experiments/demo_local_search.py}
+
+Annealing has the restart built in. Instead of throwing the whole board away when stuck, it takes a small random step back, keeps the rest of its board, and climbs on from there. It solves 990 of the same 1,000 boards and looks at about 1,100 boards per puzzle solved, roughly 600 fewer than restarts.
+
+\begin{pitfall}
+Annealing has settings: a starting temperature, a cooling rate and a stopping temperature. Cool too quickly and it behaves like hill climbing and freezes on a local maximum. Cool too slowly and it wastes work. The demo starts at $T=1$, multiplies by 0.999 per step and stops below 0.01. Those values suit eight queens and are not universal.
+\end{pitfall}
+
+\section{Beam search: keep a few options}
+
+Local search with one board has a blind spot. Suppose a phone keyboard wants the most likely short message that starts ``the flight''. It gives each possible next word a chance, and a message's chance is its words' chances multiplied together. \figref{fig:beam} uses a small table of chances written by hand.
+
+Keeping one option means taking the single best word each time: ``is'' at 0.5, then ``late'' at 0.45, for a message scoring $0.5\times0.45=0.225$. But look at what got thrown away. ``Was'' scored only 0.4 at the first word, yet ``cancelled'' follows it with 0.8, for a message scoring $0.4\times0.8=0.32$. The best complete message started with a word that looked second best.
+
+\begin{utpfig}[Beam search keeps the second-best word alive]{A hand-written table of next-word chances. With width 1 the search commits to ``is'' at the first word and can never recover. With width 2 it keeps both ``is'' and ``was'', scores every continuation, and finds the better message. Numbers on the right are whole-message chances.}{fig:beam}
+\begin{tikzpicture}[font=\small,
+  w/.style={utpcell,minimum width=1.55cm,minimum height=0.62cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  wk/.style={utpdone,minimum width=1.55cm,minimum height=0.62cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  wd/.style={utpdim,minimum width=1.55cm,minimum height=0.62cm,font=\scriptsize\color{UTPMuted}},
+  lk/.style={semithick,draw=UTPTeal},
+  pl/.style={utplabel,fill=white,inner sep=0.8pt}]
+\node[w] (s) at (0,0) {the flight};
+\node[wk] (a) at (3.0,1.0) {is};
+\node[wk] (b) at (3.0,-0.2) {was};
+\node[wd] (c) at (3.0,-1.3) {left};
+\draw[lk] (s)--(a) node[midway,pl] {0.5};
+\draw[lk] (s)--(b) node[midway,pl] {0.4};
+\draw[draw=UTPMuted!50,semithick] (s)--(c) node[midway,pl] {0.1};
+\node[wd] (a1) at (6.2,1.65) {late};
+\node[wd] (a2) at (6.2,0.9) {full};
+\node[wd] (a3) at (6.2,0.15) {here};
+\draw[draw=UTPMuted!50,semithick] (a)--(a1) node[midway,pl] {0.45};
+\draw[draw=UTPMuted!50,semithick] (a)--(a2) node[midway,pl] {0.35};
+\draw[draw=UTPMuted!50,semithick] (a)--(a3) node[midway,pl] {0.20};
+\node[wk,fill=UTPGreen!30] (b1) at (6.2,-0.6) {cancelled};
+\node[wd] (b2) at (6.2,-1.3) {late};
+\draw[lk,line width=1.2pt] (b)--(b1) node[midway,pl] {0.80};
+\draw[draw=UTPMuted!50,semithick] (b)--(b2) node[midway,pl] {0.15};
+\node[font=\scriptsize\color{UTPMuted},anchor=west] at (7.1,1.65) {0.225: width 1 stops here};
+\node[font=\scriptsize\color{UTPMuted},anchor=west] at (7.1,0.9) {0.175};
+\node[font=\scriptsize\color{UTPMuted},anchor=west] at (7.1,0.15) {0.100};
+\node[font=\scriptsize\bfseries\color{UTPGreen!80!black},anchor=west] at (7.1,-0.6) {0.320: width 2 finds this};
+\node[font=\scriptsize\color{UTPMuted},anchor=west] at (7.1,-1.3) {0.060};
+\end{tikzpicture}
+\end{utpfig}
+
+\term{Beam search} fixes this by keeping the best $k$ options. At every step it grows every option it is holding, scores them all, keeps the best $k$ and drops the rest. The number $k$ is the \term{beam width}, and $k=1$ is hill climbing.
+
+\lstinputlisting[style=utppython,firstline=136,lastline=144]{all_experiments/demo_local_search.py}
+
+Real systems use exactly this idea. Machine translation systems choose each translated sentence by beam search, typically keeping a small handful of options at a time. A wider beam buys a slightly better sentence for more work, because every option you keep is one more to grow at every word. Once beam search drops an option, though, it never goes back, so it is not complete.
+
+\section{The local search scorecard}
+
+Here are the three board searches side by side, on the same 1,000 random boards. All three keep just one board between moves.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}>{\centering\arraybackslash}m{0.17\linewidth}>{\centering\arraybackslash}m{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Search, eight queens} & \utpth{Boards solved} & \utpth{Looked at per solve} & \utpth{Note} \\
+\midrule
+Hill climbing & 150 of 1,000 & 1,555 & Stuck on the other 850 \\
+Random restarts & 1,000 of 1,000 & 1,713 & 7.3 climbs on average \\
+Simulated annealing & 990 of 1,000 & 1,107 & Can run out of temperature first \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Read the third column with care. It divides all the work done by the boards actually solved, so plain hill climbing looks oddly close to the others. It only looks that way: hill climbing fails 85\,\% of the time, and one more climb on a failed board is exactly what random restarts adds.
+
+\begin{keyidea}
+When only the answer matters, keep one board and keep making it better. When it gets stuck, restart it, or take a worse step on purpose while it is still warm. When one option is too few, keep several.
+\end{keyidea}
+
+\begin{tryit}
+Run \texttt{python all\_experiments/demo\_local\_search.py} from the course folder; it takes about a minute. Then, in a copy of the file, change \texttt{cooling=0.999} to \texttt{0.99}. The search now cools about ten times faster. Predict what happens to the number of boards solved and to the work per solve before you run it, and explain the result using \figref{fig:annealing}.
+
+\emph{What to expect.} Boards solved falls from about 990 to about 490, because the search freezes before it has wandered enough. Work per solved board also falls, from about 1,100 to about 720, because a fast-cooling run gives up early. Speed has been bought with reliability.
+\end{tryit}
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Local search keeps candidates rather than routes, so it uses very little memory and suits problems judged only by the final answer.
+  \item Hill climbing always takes the best neighbour and stops when none is better, which traps it on local maxima.
+  \item Random restarts escape by starting over. Simulated annealing escapes by accepting worse moves with probability $e^{-\Delta/T}$ while it cools.
+  \item Beam search keeps the best $k$ options at each step, because the option that looks second best now can turn out best later.
+\end{itemize}
+\end{chapterrecap}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why does a Sudoku not need the path-cost piece of a search problem?
+  \item How many neighbours does an eight-queens board have, and how does hill climbing use them?
+  \item What is a local maximum on the eight-queens puzzle, in terms of attacking pairs?
+  \item At temperature $T=0.5$, what is the chance of accepting a move that adds one attack?
+  \item Explain why beam search with $k=1$ cannot find ``the flight was cancelled''.
+\end{enumerate}
+\end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Only the finished grid is judged. Any order of filling it in gives the same answer, so there is no route whose cost matters.
+  \item $8\times7=56$: each of the eight queens can move to seven other squares in its column. Hill climbing scores all of them and moves to the one with the fewest attacks.
+  \item A board that still has at least one attacking pair, and on which every one of the 56 moves leaves the number of attacks the same or higher.
+  \item $e^{-1/0.5}=e^{-2}\approx0.14$, so about 14 times in 100.
+  \item At the first word it keeps only ``is'' (0.5), and ``was'' (0.4) is dropped for good. Every later step can only extend sentences starting ``the flight is''.
+\end{enumerate}
+\end{checkanswers}

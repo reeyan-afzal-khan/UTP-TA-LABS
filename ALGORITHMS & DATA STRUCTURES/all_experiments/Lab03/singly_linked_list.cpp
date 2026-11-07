@@ -47,7 +47,7 @@ void append(Node*& head, int value) {
     current->next = n;
 }
 
-// Insert so the new value ends up at 0-based `position`. Position 0 is the
+// Insert so the new value ends up at 0-based position. Position 0 is the
 // head; position == size appends. Anything beyond the end is refused.
 bool insertAt(Node*& head, int position, int value) {
     if (position < 0) return false;
@@ -61,7 +61,7 @@ bool insertAt(Node*& head, int position, int value) {
     return true;
 }
 
-// 0-based position of the first node holding `value`, or -1.
+// 0-based position of the first node holding value, or -1.
 int search(Node* head, int value) {
     int position = 0;
     for (Node* current = head; current != nullptr; current = current->next, ++position)

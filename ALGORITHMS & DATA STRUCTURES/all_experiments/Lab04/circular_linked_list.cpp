@@ -128,7 +128,7 @@ void destroy(Node*& last) {
 
 // The ring is intact when walking from the head returns to the head within
 // as many steps as there are live nodes, and the node just before the head
-// is `last`.
+// is last.
 bool ringIntact(Node* last) {
     if (last == nullptr) return Node::live == 0;
     Node* head = last->next;

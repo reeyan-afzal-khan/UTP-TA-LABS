@@ -5,13 +5,13 @@
   {Know what a classifier is, what a train/test split is for, and how to read a confusion matrix.}
   {describe the sense--think--act loop; explain wall following as a reactive policy; turn logged sensor data into a supervised control problem; read a decision tree as a set of threshold rules; evaluate a controller with the right metrics; and state why offline accuracy is not the same as safe control.}
 
-Lab~5 learns the decision stage of a robot\textquotesingle s sense--act loop. A SCITOS G5 robot logged 5,456 readings from 24 ultrasonic sensors alongside a wall-following controller\textquotesingle s actions. The lab learns readable if--then rules and compares them with a more powerful, opaque model.
+The maze robot of Chapter~\ref{ch:uninformed} had a perfect map and all the time it wanted to plan. A real robot often has neither. Lab~5 studies the decision stage of one: a SCITOS G5 robot logged 5,456 readings from 24 ultrasonic sensors alongside the actions of a wall-following controller. The lab learns readable if--then rules from that log and compares them with a more powerful, opaque model.
 
 \section{The sense--think--act loop}
 
-Sensors measure the world, a controller selects commands, and actuators change what the sensors see next (\figref{fig:sta-loop}). The controller may use rules, a lookup table, a classifier or a planner such as A$^\star$ (\chapref{ch:informed}).
+Every robot runs some version of the same cycle. Sensors measure the world, a controller selects a command, and actuators change what the sensors will see next (\figref{fig:sta-loop}). The ``think'' box can be simple rules, a lookup table, a classifier, or a planner such as A$^\star$ (\chapref{ch:informed}).
 
-\begin{utpfig}[The sense--think--act loop]{Lab~5 learns the ``think'' stage from sensor--action pairs. The dashed feedback arrow --- actions changing future readings --- is not tested offline.}{fig:sta-loop}
+\begin{utpfig}[The sense--think--act loop]{Lab~5 learns the ``think'' stage from sensor--action pairs. The dashed feedback arrow, actions changing future readings, is not tested offline.}{fig:sta-loop}
 \begin{tikzpicture}[font=\small]
 \node[utpbox,minimum width=2.9cm,minimum height=1.1cm] (sense) at (0,0) {\textbf{Sense}\\24 ultrasonic distances};
 \node[utpbox,minimum width=2.9cm,minimum height=1.1cm,fill=UTPPaleOrange,draw=UTPOrange,line width=1pt] (think) at (4.6,0) {\textbf{Think}\\readings $\to$ action};
@@ -22,44 +22,49 @@ Sensors measure the world, a controller selects commands, and actuators change w
 \draw[utparrow] (act.south) |- (world.east);
 \draw[utparrow,dashed] (world.west) -| (sense.south);
 \node[utplabel,anchor=south,color=UTPOrange] at (4.6,0.75) {Lab~5: this box is learned from 5,456 logged pairs};
-\node[utplabel,anchor=north,color=UTPMuted] at (4.6,-2.72) {dashed arrow: feedback --- the next reading depends on this action};
+\node[utplabel,anchor=north,color=UTPMuted] at (4.6,-2.72) {dashed arrow: feedback, the next reading depends on this action};
 \end{tikzpicture}
 \end{utpfig}
 
 \begin{intuition}
-Offline control looks like classification: 24 readings in, one of four actions out. In a robot, however, a wrong action can lead to states absent from the training data.
+Offline control looks like classification: 24 readings in, one of four actions out. On a real robot, however, a wrong action can lead to situations the training data never contained.
 \end{intuition}
 
 \section{Wall following as a reactive policy}
 
-\term{Wall following} keeps the robot moving along a wall at a fixed distance --- in this dataset the robot circled the room clockwise, so the wall stayed on its left. Wall-facing sensors read short distances; others read open space, corners and doorways (\figref{fig:sensor-ring}).
+\term{Wall following} keeps a robot moving along a wall at a fixed distance. In this dataset the robot circled the room clockwise, so the wall stayed on its left. Sensors on the wall side read short distances, and the others read open space, corners and doorways (\figref{fig:sensor-ring}).
 
-\begin{utpfig}[The ultrasonic ring and the wall-following task]{The SCITOS robot seen from above, with its ring of 24 ultrasonic sensors. Sensors on the wall side read short distances; the four that Lab~5 selects are the cluster that measures the wall from slightly different angles. The four actions keep the robot moving along the wall.}{fig:sensor-ring}
+\begin{analogy}
+Walk down a dark corridor with one hand on the wall. You need no map and no memory of how far you have come. If your hand presses hard, you edge away; if it loses contact, you edge back. That is a \term{reactive} controller: every decision comes from the current reading alone.
+\end{analogy}
+
+\begin{utpfig}[The ultrasonic ring and the wall-following task]{The SCITOS robot from above, moving to the right with the wall on its left. Its 24 sensors are numbered clockwise from US00 at the front. The four that Lab~5 selects (orange) sit on the rear-left arc, where they measure the wall from slightly different angles.}{fig:sensor-ring}
 \begin{tikzpicture}[font=\small]
-\draw[line width=2.2pt,draw=UTPMuted] (-4.2,-2.6) -- (4.2,-2.6);
-\node[utplabel,anchor=north,color=UTPMuted] at (0,-2.7) {wall};
+\draw[line width=2.2pt,draw=UTPMuted] (-4.6,3.15) -- (4.6,3.15);
+\node[utplabel,anchor=south,color=UTPMuted] at (-3.9,3.2) {wall, on the robot's left};
 \draw[fill=UTPPaleBlue,draw=UTPBlue,line width=1pt] (0,0) circle (1.25);
 \node[font=\scriptsize\bfseries\color{UTPNavy}] at (0,0.15) {SCITOS};
 \node[font=\scriptsize\color{UTPMuted}] at (0,-0.2) {24 sensors};
 \foreach \i in {0,...,23}{
-  \pgfmathsetmacro{\ang}{90-\i*15}
+  \pgfmathsetmacro{\ang}{-\i*15}
   \draw[draw=UTPBlue,thick] ({1.25*cos(\ang)},{1.25*sin(\ang)}) -- ({1.5*cos(\ang)},{1.5*sin(\ang)});
 }
-\foreach \i in {13,14,17,18}{
-  \pgfmathsetmacro{\ang}{90-\i*15}
-  \draw[draw=UTPOrange,line width=1.6pt] ({1.25*cos(\ang)},{1.25*sin(\ang)}) -- ({1.62*cos(\ang)},{1.62*sin(\ang)});
+\foreach \i/\lbl in {13/US13,14/US14,17/US17,18/US18}{
+  \pgfmathsetmacro{\ang}{-\i*15}
+  \draw[draw=UTPOrange,line width=1.8pt] ({1.25*cos(\ang)},{1.25*sin(\ang)}) -- ({1.62*cos(\ang)},{1.62*sin(\ang)});
+  \node[font=\tiny\bfseries\color{UTPOrange!85!black}] at ({1.98*cos(\ang)},{1.92*sin(\ang)}) {\lbl};
 }
-\draw[utpptr,draw=UTPOrange] (0.35,-1.55) -- (0.35,-2.55);
-\draw[utpptr,draw=UTPOrange] (-0.65,-1.4) -- (-1.05,-2.55);
-\node[utplabel,anchor=west,color=UTPOrange,align=left] at (1.0,-1.9) {short readings on the wall side\\(the selected sensors)};
-\draw[utpptr,draw=UTPMuted!70] (0,1.5) -- (0,2.4);
-\node[utplabel,anchor=south,color=UTPMuted] at (0,2.45) {long readings towards open space};
-\draw[utparrow,draw=UTPGreen,line width=1.2pt] (1.7,0) -- (3.2,0);
-\node[utplabel,anchor=west,align=left,color=UTPGreen] at (3.3,0) {heading; the four actions are\\Move-Forward, Slight-Left-Turn,\\Slight-Right-Turn, Sharp-Right-Turn};
+\draw[utpptr,draw=UTPOrange] (0,2.1) -- (0,3.08);
+\draw[utpptr,draw=UTPOrange] (-0.56,2.05) -- (-0.82,3.08);
+\node[utplabel,anchor=west,color=UTPOrange!85!black,align=left] at (0.2,2.6) {short readings on the wall side};
+\node[font=\tiny\bfseries\color{UTPNavy},anchor=west] at (1.55,0) {US00};
+\draw[utparrow,draw=UTPGreen,line width=1.2pt] (2.15,0) -- (3.45,0);
+\node[utplabel,anchor=north west,align=left,color=UTPGreen!80!black] at (1.65,-0.12) {heading; turning right\\moves away from the wall};
+\node[utplabel,anchor=north,align=center,color=UTPMuted] at (0,-1.6) {the four actions: Move-Forward, Slight-Left-Turn,\\Slight-Right-Turn, Sharp-Right-Turn};
 \end{tikzpicture}
 \end{utpfig}
 
-The natural controller for this task is \term{reactive}: no map, no memory, just rules on the current readings.
+Written as rules, the natural controller for this task is short:
 
 \begin{itemize}
   \item If the wall-side distance is very short, turn sharply away from the wall.
@@ -67,27 +72,33 @@ The natural controller for this task is \term{reactive}: no map, no memory, just
   \item Otherwise, move forward.
 \end{itemize}
 
-These rules are cheap and auditable, but need thresholds. Lab~5 learns them from data.
+These rules are cheap and auditable, but they need thresholds. What counts as ``very short''? Lab~5 learns the answer from data.
 
 \section{Learning a controller from logged behaviour}
 
-Each logged sensor--action pair demonstrates the original controller\textquotesingle s policy. Learning from these pairs is \term{behavioural cloning}: supervised classification with 24 features and four classes. Three data properties matter:
+Ask one question of any dataset: \emph{does your log hold the answers?} Here it does. Each row records what the sensors read and what the controller did, so this is \term{supervised} learning. Ask a second question: \emph{is the answer a number or a category?} Here it is one of four actions, so the job is \term{classification} rather than regression. Learning a policy from such demonstrations has a name, \term{behavioural cloning}: supervised classification with 24 features and four classes.
+
+\begin{analogy}
+Think of learning to drive by watching an instructor. You see thousands of moments of good driving and copy them. That works until you drift a little off-centre, because the instructor never drifted, so you have never seen what to do from there.
+\end{analogy}
+
+Three properties of the data shape what we do next.
 
 \begin{description}
-  \item[The classes are imbalanced.] Move-Forward accounts for 40\,\% of rows, Sharp-Right-Turn 38\,\%, Slight-Right-Turn 15\,\% and Slight-Left-Turn 6\,\%. Ignoring slight left turns could still yield 94\,\% accuracy. Report \term{macro F1}, which weights classes equally, and train with \texttt{class\_weight="balanced"}.
-  \item[Consecutive rows are not independent.] Nearby readings resemble each other, making the lab\textquotesingle s random-split test score optimistic. The noise experiment probes robustness beyond this split.
-  \item[Hold test rows back.] Save a seeded, stratified 70/30 split first. Select features, tune depth and fit the reference model on training rows; evaluate test rows in Question~5.
+  \item[The classes are imbalanced.] Move-Forward accounts for 40\,\% of rows, Sharp-Right-Turn 38\,\%, Slight-Right-Turn 15\,\% and Slight-Left-Turn 6\,\%. A controller that never turned slightly left could still reach 94\,\% accuracy. So report \term{macro F1}, which weights classes equally, and train with \texttt{class\_weight="balanced"}.
+  \item[Consecutive rows are not independent.] Neighbouring readings resemble each other, which makes the lab's random-split test score optimistic. The noise experiment probes robustness beyond this split.
+  \item[Test rows are held back.] Save a seeded, stratified 70/30 split first. Select features, tune depth and fit the reference model on training rows, and evaluate on test rows only in Question~5.
 \end{description}
 
 \subsection{Choosing the sensors}
 
-Rank sensors by \term{mutual information} with actions, using training rows only. Keep and save the top four: US13, US14, US17 and US18, a wall-facing cluster. Mutual information measures how much a reading reduces uncertainty about the action.
+Not all 24 sensors matter equally. Rank them by \term{mutual information} with the action, using training rows only, and keep the top four: US14, US17, US18 and US13, a cluster on the wall side. Mutual information measures how much knowing a reading reduces your uncertainty about the action. A sensor pointing into open space tells you little; a sensor watching the wall tells you a lot.
 
 \section{An interpretable controller: the decision tree}
 
-A \term{decision tree} applies feature thresholds until it reaches a class. Each root-to-leaf path is an if--then rule learned from demonstrations (\figref{fig:tree-rules}).
+A \term{decision tree} applies feature thresholds one at a time until it reaches a class, like a game of twenty questions. Each path from the root to a leaf reads as one if--then rule learned from the demonstrations (\figref{fig:tree-rules}).
 
-\begin{utpfig}[A decision tree is a list of threshold rules]{The learned tree\textquotesingle s top three levels and three example rules. Nodes test sensor thresholds; leaves select actions. Limiting depth keeps rules readable.}{fig:tree-rules}
+\begin{utpfig}[A decision tree is a list of threshold rules]{The learned tree\textquotesingle s top three levels and three example rules. Nodes test sensor thresholds; leaves select actions. Limiting depth keeps the rules readable.}{fig:tree-rules}
 \begin{tikzpicture}[font=\small,
   q/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,minimum width=2.3cm,minimum height=0.7cm,align=center,font=\scriptsize\color{UTPNavy}},
   a/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1.5mm,minimum width=2.2cm,minimum height=0.6cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
@@ -97,9 +108,9 @@ A \term{decision tree} applies feature thresholds until it reaches a class. Each
 \node[q] (n1) at (2.4,-1.3) {US18 $\le$ 1.00?};
 \node[q] (n2) at (0.6,-2.6) {US18 $\le$ 0.50?};
 \node[q] (n3) at (4.2,-2.6) {US17 $\le$ 0.90?};
-\node[m] (l2) at (0.6,-3.9) {$\cdots$ right turns};
-\node[a] (l3) at (3.0,-3.9) {Move-Forward};
-\node[m] (l4) at (5.4,-3.9) {$\cdots$ Slight-Left-Turn};
+\node[m] (l2) at (0.3,-3.95) {$\cdots$ turns or\\forward};
+\node[m] (l3) at (2.95,-3.95) {$\cdots$ forward or\\slight right};
+\node[m] (l4) at (5.55,-3.95) {$\cdots$ mostly\\Slight-Left-Turn};
 \draw[utpptr] (r)--(l1) node[midway,left,utplabel] {yes};
 \draw[utpptr] (r)--(n1) node[midway,right,utplabel] {no};
 \draw[utpptr] (n1)--(n2) node[midway,left,utplabel] {yes};
@@ -116,7 +127,7 @@ A \term{decision tree} applies feature thresholds until it reaches a class. Each
 \end{tikzpicture}
 \end{utpfig}
 
-The first split is the wall-following reflex itself: \emph{if the wall-side sensor reads less than 0.9\,m, turn sharply right, away from the wall}. Nobody typed that threshold; it was found from the demonstrations.
+The first split is the wall-following reflex itself: \emph{if the wall-side sensor reads less than 0.9\,m, turn sharply right, away from the wall}. Nobody typed that threshold. It was found in the demonstrations.
 
 \subsection{Choosing the depth}
 
@@ -128,7 +139,7 @@ Interpretability is a design constraint, not a by-product. The lab fixes the num
 
 \section{A reference model and a fair comparison}
 
-The reference \term{random forest} uses 200 bootstrap-trained trees and all 24 sensors. It provides a less interpretable comparison for the compact rule tree. Evaluate both on the same held-out rows.
+The reference \term{random forest} uses 200 trees, each trained on a bootstrap sample of the rows, with all 24 sensors. Instead of one readable note, you consult two hundred advisers and take a vote. It shows what the compact rule tree gives up. Evaluate both on the same held-out rows.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.30\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -142,34 +153,38 @@ Random forest, 24 sensors & 0.995 & 0.993 & 0.992 & 0.992 \\
 \end{tabularx}
 \end{utptable}
 
-The readable controller sacrifices seven percentage points of accuracy and ten of macro F1. Whether this is acceptable depends on the need to audit its behaviour.
+The readable controller sacrifices seven percentage points of accuracy and ten of macro F1. Whether that is acceptable depends on how much you need to audit its behaviour.
 
 \subsection{Reading the confusion matrix}
 
-The rule tree\textquotesingle s recalls are $0.94$ for Move-Forward, $0.91$ for Sharp-Right-Turn, $0.94$ for Slight-Left-Turn and $0.89$ for Slight-Right-Turn. The confusion matrix shows slight right turns mistaken for forward motion or sharp right turns: the narrow middle band is sensitive to nearby thresholds (\figref{fig:bands}).
+A headline score does not tell you which mistakes a controller makes, and on a robot some mistakes are worse than others. \figref{fig:confusion-rule} gives the rule tree's test results. Read along a row to see what happened to one true action, and down a column to see what one predicted action really was.
 
-\begin{utpfig}[Adjacent actions along one sensor]{Why Slight-Right-Turn is the hardest action. Along the wall-side distance the actions occupy adjacent bands, and the slight turn is the narrow one between the other two. A tree draws thresholds at the band edges, and readings near an edge are classified by luck.}{fig:bands}
-\begin{tikzpicture}[font=\small]
-\draw[utpptr] (0,0) -- (11.5,0) node[anchor=west,utplabel] {distance (m)};
-\foreach \x/\l in {0/0.0, 2.6/0.9, 4.4/1.5, 11/3.8}{\draw (\x,0.08)--(\x,-0.08); \node[utplabel,anchor=north] at (\x,-0.12) {\l};}
-\fill[UTPRed,opacity=0.18] (0,0.25) rectangle (2.6,1.05);
-\fill[UTPOrange,opacity=0.22] (2.6,0.25) rectangle (4.4,1.05);
-\fill[UTPGreen,opacity=0.18] (4.4,0.25) rectangle (11,1.05);
-\node[font=\scriptsize\bfseries\color{UTPRed}] at (1.3,0.65) {Sharp-Right-Turn};
-\node[font=\scriptsize\bfseries\color{UTPOrange!80!black},align=center] at (3.5,0.65) {Slight-\\Right-Turn};
-\node[font=\scriptsize\bfseries\color{UTPGreen}] at (7.7,0.65) {Move-Forward};
-\draw[draw=UTPNavy,dashed,thick] (2.6,-0.35)--(2.6,1.35);
-\draw[draw=UTPNavy,dashed,thick] (4.4,-0.35)--(4.4,1.35);
-\node[utplabel,anchor=south,color=UTPNavy] at (2.6,1.38) {threshold};
-\node[utplabel,anchor=south,color=UTPNavy] at (4.4,1.38) {threshold};
-\foreach \x in {2.45,2.75,4.25,4.55}{\node[circle,fill=UTPNavy,inner sep=1.4pt] at (\x,0.65) {};}
-\node[utplabel,anchor=north,align=center,color=UTPMuted] at (3.5,-0.6) {readings near an edge sit a few centimetres\\from being another action};
+\begin{utpfig}[The rule tree's confusion matrix]{The rule tree on 1,637 test rows. Rows are the true action and columns the prediction, so the diagonal counts correct decisions. Recall reads along a row and precision down a column.}{fig:confusion-rule}
+\begin{tikzpicture}[font=\small,
+  hit/.style={draw=UTPGreen,fill=UTPGreen!28,minimum width=1.55cm,minimum height=0.72cm,font=\small\bfseries\color{UTPNavy}},
+  miss/.style={draw=UTPMuted!30,fill=white,minimum width=1.55cm,minimum height=0.72cm,font=\small\color{UTPMuted}},
+  bad/.style={draw=UTPRed,fill=UTPPaleRed,minimum width=1.55cm,minimum height=0.72cm,font=\small\bfseries\color{UTPRed}},
+  rowlab/.style={anchor=east,font=\scriptsize\color{UTPNavy}},
+  collab/.style={anchor=south,font=\scriptsize\color{UTPNavy},align=center}]
+\def\cw{1.6}\def\ch{0.76}
+\foreach \name [count=\i from 0] in {Move-\\Forward,Sharp\\Right,Slight\\Right,Slight\\Left}{\node[collab] at (\cw*\i,0.42) {\name};}
+\foreach \name [count=\i from 0] in {true Move-Forward,true Sharp-Right,true Slight-Right,true Slight-Left}{\node[rowlab] at (-0.9,-\ch*\i) {\name};}
+\node[hit] at (0,0) {624};\node[miss] at (\cw,0) {0};\node[miss] at (2*\cw,0) {12};\node[miss] at (3*\cw,0) {26};
+\node[bad] at (0,-\ch) {36};\node[hit] at (\cw,-\ch) {574};\node[miss] at (2*\cw,-\ch) {11};\node[miss] at (3*\cw,-\ch) {8};
+\node[miss] at (0,-2*\ch) {22};\node[miss] at (\cw,-2*\ch) {0};\node[hit] at (2*\cw,-2*\ch) {221};\node[miss] at (3*\cw,-2*\ch) {5};
+\node[miss] at (0,-3*\ch) {6};\node[miss] at (\cw,-3*\ch) {0};\node[miss] at (2*\cw,-3*\ch) {0};\node[hit] at (3*\cw,-3*\ch) {92};
+\foreach \r/\y in {0.94/0,0.91/-1,0.89/-2,0.94/-3}{\node[font=\scriptsize\color{UTPNavy},anchor=west] at (3*\cw+0.9,\ch*\y) {\r};}
+\node[font=\scriptsize\bfseries\color{UTPNavy},anchor=south] at (3*\cw+1.2,0.42) {recall};
+\foreach \p/\x in {0.91/0,1.00/1,0.91/2,0.70/3}{\node[font=\scriptsize\color{UTPNavy},anchor=north] at (\cw*\x,-3*\ch-0.4) {\p};}
+\node[font=\scriptsize\bfseries\color{UTPNavy},anchor=east] at (-0.9,-3*\ch-0.57) {precision};
 \end{tikzpicture}
 \end{utpfig}
 
+Three things stand out. Slight-Right-Turn has the lowest recall, $0.89$, and 22 of its 27 misses were called Move-Forward: the line between ``keep going'' and ``nudge right'' sits on thresholds such as US17 at 0.79\,m and 0.90\,m, and a reading a few centimetres away flips the action. Slight-Left-Turn has the lowest precision, $0.70$, because balanced class weights push the tree towards this rare action, so 39 of its 131 predictions were wrong. And the red cell deserves the most attention. In 36 test rows the robot should have turned sharply away from the wall and was told to carry on forward. Accuracy counts that the same as any other miss, but an engineer would not.
+
 \section{Robustness: what noise does to thresholds}
 
-Noise can move readings across action thresholds: 0.90\,m may become 0.87 or 0.93\,m. Lab~5 adds Gaussian noise at 2, 5 and 10\,\% of each selected sensor\textquotesingle s training standard deviation. Test macro F1 falls from $0.90$ to $0.86$, $0.79$ and $0.71$.
+Ultrasonic readings are noisy, and noise can move a reading across a threshold: 0.90\,m may become 0.87 or 0.93\,m. Lab~5 adds Gaussian noise at 2, 5 and 10\,\% of each selected sensor's training standard deviation to the test readings. Test macro F1 falls quickly.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.34\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -182,33 +197,56 @@ Rule-tree macro F1 & 0.895 & 0.858 & 0.787 & 0.706 \\
 \end{tabularx}
 \end{utptable}
 
-Possible changes trade simplicity for robustness: more sensors provide redundancy, deeper trees allow finer partitions, and ensembles combine decisions. For a 5\,\% noise budget, justify a choice and its cost.
+Possible responses all trade simplicity for robustness: more sensors provide redundancy, deeper trees allow finer partitions, and ensembles combine many decisions. For a 5\,\% noise budget, you should be able to justify one choice and state its cost.
 
 \begin{pitfall}
-Noise added only to \emph{test} readings measures robustness of a clean-trained controller. Training with noisy data is a different experiment; state which you ran.
+Noise added only to \emph{test} readings measures the robustness of a controller trained on clean data. Training on noisy data is a different experiment. State which one you ran.
 \end{pitfall}
 
 \section{From offline accuracy to safe control}
 
-Four factors separate fixed-table evaluation from a running robot:
+Four factors separate evaluation on a fixed table from a running robot:
 
 \begin{description}
-  \item[Feedback.] A wrong action changes subsequent readings and may lead beyond the training distribution, compounding errors.
+  \item[Feedback.] A wrong action changes the readings that follow and may lead outside the training distribution, where errors compound (\figref{fig:drift}).
   \item[Timing.] Sensor, computation and motor delays can make a correct decision act on an outdated reading.
-  \item[Failure modes.] Sensor failures or ultrasound-absorbing walls can produce unfamiliar readings that the classifier still labels confidently.
-  \item[Safety limits.] Minimum distances, speed caps and emergency stops must constrain the learned policy; accuracy does not measure them.
+  \item[Failure modes.] Sensor failures or sound-absorbing walls can produce unfamiliar readings that the classifier still labels confidently.
+  \item[Safety limits.] Minimum distances, speed caps and emergency stops must constrain the learned policy. Accuracy does not measure them.
 \end{description}
 
-The rule tree is an offline \emph{perception-to-action prototype}, not a validated robot controller. Its readability supports further closed-loop testing.
+\begin{utpfig}[Small errors compound under feedback]{The shaded band is what the demonstrations covered. The learned controller makes a small mistake, drifts to the edge of that band, and then meets readings it was never trained on, so its next mistakes grow. A table of logged rows cannot show this, because the table never changes in response to a prediction.}{fig:drift}
+\begin{tikzpicture}[font=\small]
+\fill[UTPTeal!16] (0,-0.5) rectangle (10.5,0.5);
+\node[utplabel,anchor=west,color=UTPTeal!70!black] at (0.1,0.72) {states seen in the demonstrations};
+\draw[line width=2.2pt,draw=UTPMuted] (0,1.35) -- (10.5,1.35);
+\node[utplabel,anchor=west,color=UTPMuted] at (8.9,1.52) {wall};
+\draw[draw=UTPGreen,line width=1.3pt,-{Stealth[length=2mm]}] (0,0) -- (10.4,0);
+\node[utplabel,anchor=north east,color=UTPGreen!80!black] at (10.4,-0.05) {the demonstrated path};
+\draw[draw=UTPRed,line width=1.3pt,-{Stealth[length=2mm]}] plot[smooth,tension=0.6] coordinates {(0,0) (2,0.02) (3.5,0.14) (5,0.42) (6.2,0.72) (7.2,1.02) (7.9,1.28)};
+\node[utplabel,anchor=north,color=UTPRed,align=center] at (5.6,-0.6) {learned controller: one small error, then unfamiliar readings};
+\node[circle,fill=UTPRed,inner sep=1.3pt] at (3.5,0.14) {};
+\node[utplabel,anchor=south,color=UTPRed] at (3.25,0.2) {first error};
+\end{tikzpicture}
+\end{utpfig}
 
-\input{labs/05-robotics}
+The rule tree is an offline \emph{perception-to-action prototype}, not a validated robot controller. Its readability is what supports the closed-loop testing it would need next.
+
+\begin{chapterrecap}
+\begin{itemize}
+  \item Robots repeat sense, think, act, and actions change what is sensed next.
+  \item Wall following is a reactive policy, and behavioural cloning learns one from logged demonstrations as a classification problem.
+  \item A shallow decision tree is a readable list of threshold rules; a random forest shows what readability costs.
+  \item Macro F1 and the confusion matrix say which actions fail, and that matters more than overall accuracy when errors differ in danger.
+  \item Offline accuracy cannot see feedback, delays, sensor failure or safety limits.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
-  \item Why does Lab~5 report macro F1 rather than accuracy, and what accuracy would a controller that never predicts Slight-Left-Turn achieve?
+  \item Why does Lab~5 report macro F1 rather than accuracy, and what accuracy could a controller that never predicts Slight-Left-Turn achieve?
   \item Feature selection and depth tuning both use only the training rows. What would be wrong with the test score if the four sensors had been chosen on all rows?
   \item Write the first rule of the learned tree in plain English and say what physical situation it responds to.
-  \item Which action is hardest for the rule tree, and what does \figref{fig:bands} say about why?
+  \item Which action has the lowest recall for the rule tree, and what does \figref{fig:confusion-rule} say about where its misses go?
   \item Name one reason a controller with 92\,\% offline accuracy could still drive a robot into a wall.
 \end{enumerate}
 \end{quickcheck}
@@ -218,7 +256,9 @@ The rule tree is an offline \emph{perception-to-action prototype}, not a validat
   \item Accuracy is dominated by the two large classes; a controller that never predicts Slight-Left-Turn could still score about 94\,\%. Macro F1 gives each action equal weight, so the rare turns count.
   \item The test rows would have influenced which sensors were chosen, so the test score would no longer estimate performance on data the model had never seen.
   \item \emph{If sensor US14 reads less than 0.9\,m, turn sharply right.} The robot has come too close to the wall it is following and must steer away from it.
-  \item Slight-Right-Turn. Its readings occupy a narrow band between Move-Forward and Sharp-Right-Turn, so both of its thresholds sit close to its own examples and small differences flip the class.
+  \item Slight-Right-Turn, with recall $0.89$. Of its 27 misses, 22 are called Move-Forward, 5 Slight-Left-Turn and none Sharp-Right-Turn, so the hard boundary is between nudging right and carrying on.
   \item Any of: feedback (one wrong action leads to a sensor state the training data never contained), actuator and sensing delays, a failed sensor returning an unfamiliar reading, or the absence of hard safety limits.
 \end{enumerate}
 \end{checkanswers}
+
+\input{labs/05-robotics}

@@ -1,51 +1,27 @@
 \labsection{2}{Arrays, multidimensional storage, and matrices}{sec:lab02}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab II}
-\textbf{Objective.} Understand the array as a basic prerequisite for more complex data structures.
-
-\textbf{Outcomes.} Explain how arrays are stored in memory and use arrays to solve programming problems.
-
-\textbf{Problem directions.} Real-world scenarios involving arrays; multidimensional arrays; matrix-related problems such as matrix multiplication.
+1D/2D arrays, nested loops, and matrix operations.
 \end{sourcealignment}
 
 \begin{labproject}{Process and multiply matrices}
-\textbf{Coverage.} Chapter~\ref{ch:arrays}.\\
-\textbf{Goal.} Multiply two matrices and explain what each of the three nested loops controls.
+\textbf{Goal.} Multiply compatible matrices and trace one result cell.
 
-The lab example multiplies $A=\begin{psmallmatrix}1&2&3\\4&5&6\end{psmallmatrix}$ ($2\times3$) by $B=\begin{psmallmatrix}7&8\\9&10\\11&12\end{psmallmatrix}$ ($3\times2$). The multiplication refuses incompatible shapes before it starts:
+\textbf{Recall first.} Review the \hyperref[ch:arrays]{Arrays and Two-Dimensional Arrays} chapter.
 
-\begin{lstlisting}
-bool multiply(const int A[][MAXN], int aRows, int aCols,
-              const int B[][MAXN], int bRows, int bCols,
-              int P[][MAXN]) {
-    if (aCols != bRows) return false;
-    const int R = aRows, K = aCols, C = bCols;
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab02} folder.
 
-    for (int i = 0; i < R; ++i)
-        for (int j = 0; j < C; ++j) {
-            P[i][j] = 0;
-            for (int t = 0; t < K; ++t)
-                P[i][j] += A[i][t] * B[t][j];
-        }
-    return true;
-}
-\end{lstlisting}
+\input{labs/programs/matrix_multiply}
 
-\begin{tryit}
-Add two of the following: row sums, column sums, transpose, largest element, diagonal sum, or a check for whether a square matrix is symmetric.
-\end{tryit}
-
-\begin{workedexample}
-For matrix multiplication, the result size is $R\times C$. Each output cell $P[i][j]$ accumulates products across the shared dimension $K$.
-\end{workedexample}
+\tcbbreak
+\input{labs/programs/matrix_operations}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Validate that the number of columns in $A$ equals the number of rows in $B$.
-  \item Print both inputs and the output matrix with clear row/column formatting.
-  \item Trace one output cell by hand and match it to the program result.
-  \item Explain what each nested loop controls.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

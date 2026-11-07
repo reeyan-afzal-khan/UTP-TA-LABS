@@ -1,0 +1,27 @@
+% Reused from chapters/05-ospf.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[node distance=1.0cm and 1.5cm,
+  db/.style={rectangle,rounded corners=1mm,draw=UTPTeal,fill=UTPPaleTeal,
+             minimum width=2.5cm,minimum height=0.95cm,align=center,
+             font=\scriptsize\color{UTPNavy}},
+  ml/.style={font=\scriptsize\color{UTPMuted},align=center}]
+
+\node[router] (r1) {R1};
+\node[router,right=2.2cm of r1] (r2) {R2};
+\node[router,right=2.2cm of r2] (r3) {R3};
+\draw[link] (r1) -- (r2);
+\draw[link] (r2) -- (r3);
+\draw[link] (r1) to[bend right=32] (r3);
+
+\node[db,below=1.15cm of r1] (d1) {identical\\ link-state DB};
+\node[db,below=1.15cm of r2] (d2) {identical\\ link-state DB};
+\node[db,below=1.15cm of r3] (d3) {identical\\ link-state DB};
+\draw[<->,thick,draw=UTPTeal] (d1) -- node[ml,above]{flood} (d2);
+\draw[<->,thick,draw=UTPTeal] (d2) -- node[ml,above]{flood} (d3);
+
+\node[ml,below=0.45cm of d2,text width=9.5cm]
+  {Same database everywhere. Each router then runs Dijkstra \textbf{from itself},
+   so the routing tables all differ --- and all agree.};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

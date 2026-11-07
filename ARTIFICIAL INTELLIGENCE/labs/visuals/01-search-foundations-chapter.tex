@@ -1,0 +1,23 @@
+% Reused from chapters/01-uninformed-search.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpbox,minimum width=2.3cm] (start) at (0,0) {Start\\state};
+\node[utpbox,minimum width=2.6cm,fill=UTPPaleOrange,draw=UTPOrange,line width=1pt]
+  (pick) at (3.6,0) {\textbf{Select from}\\\textbf{frontier}};
+\node[utpbox,minimum width=2.4cm] (goal) at (7.2,0) {Goal\\test?};
+\node[utpbox,minimum width=2.6cm,fill=UTPPaleTeal,draw=UTPGreen] (done) at (10.7,0) {Return\\the path};
+\node[utpbox,minimum width=2.6cm] (expand) at (7.2,-2.1) {Generate\\successors};
+\node[utpbox,minimum width=2.6cm] (vis) at (3.6,-2.1) {Not already\\seen?};
+
+\draw[utparrow] (start)--(pick);
+\draw[utparrow] (pick)--(goal);
+\draw[utparrow] (goal)--(done) node[midway,above,utplabel,color=UTPGreen] {yes};
+\draw[utparrow] (goal)--(expand) node[midway,right,utplabel,color=UTPRed] {no};
+\draw[utparrow] (expand)--(vis);
+\draw[utparrow] (vis) -- (pick) node[midway,right,utplabel,color=UTPGreen] {keep};
+\node[utplabel,anchor=south,align=center,color=UTPOrange] at (3.6,0.72)
+  {\textbf{the only line that changes:} FIFO / LIFO / min-cost};
+\node[utplabel,anchor=east,align=right] at (2.15,-2.1) {discard\\duplicates};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

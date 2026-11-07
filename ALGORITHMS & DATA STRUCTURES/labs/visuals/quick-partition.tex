@@ -1,0 +1,32 @@
+% Copied from chapters/10-searching-sorting.tex (fig:quick-partition).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{utpfigure}[Quick sort partitioning]
+\begin{tikzpicture}[font=\small]
+\foreach \row/\hot/\lbl [count=\r from 0] in {%
+  {7,2,9,4,6}/{4}/{pivot $=6$ (last element)},
+  {2,7,9,4,6}/{0}/{$2<6$: swap into the small region},
+  {2,4,9,7,6}/{1}/{$4<6$: swap into the small region},
+  {2,4,6,7,9}/{2}/{place the pivot at the boundary}}{
+  \begin{scope}[yshift=-0.98*\r cm]
+    \foreach \v [count=\i from 0] in \row{
+      \ifnum\i=\hot
+        \node[utphot,minimum width=0.82cm,minimum height=0.68cm] at (0.87*\i,0) {\v};
+      \else
+        \node[utpcell,minimum width=0.82cm,minimum height=0.68cm] at (0.87*\i,0) {\v};
+      \fi
+    }
+    \node[utplabel,anchor=west] at (4.0,0) {\lbl};
+  \end{scope}
+}
+% final annotation
+\begin{scope}[yshift=-2.94cm]
+\draw[decorate,decoration={brace,mirror,amplitude=3.5pt,raise=3pt},draw=UTPBlue,semithick]
+  (-0.44,-0.38) -- (1.31,-0.38);
+\draw[decorate,decoration={brace,mirror,amplitude=3.5pt,raise=3pt},draw=UTPRed,semithick]
+  (2.19,-0.38) -- (3.93,-0.38);
+\node[utplabel,anchor=north,color=UTPBlue] at (0.44,-0.78) {all $<6$};
+\node[utplabel,anchor=north,color=UTPRed]  at (3.06,-0.78) {all $>6$};
+\node[utplabel,anchor=north,color=UTPGreen] at (1.74,-0.78) {6 is final};
+\end{scope}
+\end{tikzpicture}
+\end{utpfigure}

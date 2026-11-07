@@ -1,9 +1,16 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
+% Some MiKTeX installs carry Source Sans without registering its font map, and
+% pdfTeX then stops at the cover with "auto expansion is only possible with
+% scalable fonts". Naming the map here is harmless where it is already known,
+% and only a warning where the file does not exist.
+\pdfmapfile{+SourceSansThree.map}
+
 % ---------- course configuration ----------
+\def\utprunninghead{Artificial Intelligence Notes}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
-\def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and evolutionary optimization.}
+\def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and optimization, closing with game search.}
 
 % ---------- boxes this book renames ----------
 \def\utptitleintuition{Conceptual intuition}
@@ -23,16 +30,21 @@
 \utpheavycallouts
 \utpbreakableframes
 \utplabprojectcolour{UTPNavy}
+% The chapter on eight queens draws its genes with the shared data-object cells.
+\utpusediagrams{data-objects}
 % A short Learning Path, so stages and chapters are spaced generously.
-\utpcontentspage{\normalsize}{\large}{1.75em}{0.72em}{0.82em}
+\utpcontentspage{\normalsize}{\large}{1.15em}{0.40em}{0.50em}
 
 % Every lab sheet is a sequence of labquestion / labanswer pairs (shared
 % lab toolkit, section 12 of utpnotes). The question states the task as
-% the student meets it in the notebook; the answer holds the worked code,
-% pasted verbatim from the notebook cell, the output to expect, and what
-% that output means.
+% the student meets it in the notebook, under the same number; the answer
+% holds the code that cell runs, the output to expect, and what that
+% output means.
 
 % ---------- the book ----------
+\input{labs/visual-guide}
+\input{chapters/robot-maze-figures}
+
 \begin{document}
 \utpfrontmatter
 
@@ -62,7 +74,11 @@
 \input{chapters/06-nlp-foundations}
 \input{chapters/08-nlp-methods}
 
-\part{Evolutionary Optimization}
-\input{chapters/09-genetic-algorithms}
+\part{Local Search and Evolutionary Optimization}
+\input{chapters/09-local-search}
+\input{chapters/10-genetic-algorithms}
+
+\part{Adversarial Search}
+\input{chapters/11-adversarial-search}
 
 \end{document}

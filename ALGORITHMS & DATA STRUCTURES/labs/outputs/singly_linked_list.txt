@@ -1,0 +1,29 @@
+== Empty list ==
+(empty)
+  [ok]   search on an empty list reports not found
+  [ok]   delete on an empty list is refused without touching a null pointer
+
+== One-node list ==
+10 
+  [ok]   deleting the only node leaves an empty list
+
+== Build 10 15 20 30 40 ==
+10 15 20 30 40 
+  [ok]   insertion at head, middle and tail gives 10 15 20 30 40
+  [ok]   insert beyond the end is refused
+
+== Search ==
+search(30) -> position 3
+search(99) -> -1 (not found)
+  [ok]   a stored value is found at its position
+  [ok]   a missing value reports not found
+
+== Delete by value ==
+delete 10 (head):   15 20 30 40 
+  [ok]   deleting the head moves head to the next node
+delete 20 (middle): 15 30 40 
+delete 40 (tail):   15 30 
+  [ok]   after head, middle and tail deletions the list is 15 30
+  [ok]   deleting a missing value is refused
+  [ok]   live nodes equal list length (deleted nodes were released)
+  [ok]   destroying the list releases every node

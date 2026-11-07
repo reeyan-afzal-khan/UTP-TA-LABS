@@ -27,7 +27,7 @@ int precedence(char op) {
 bool isOperator(char c) { return precedence(c) > 0; }
 bool rightAssociative(char op) { return op == '^'; }
 
-// Returns false (and leaves `postfix` incomplete) for unbalanced parentheses
+// Returns false (and leaves postfix incomplete) for unbalanced parentheses
 // or an unexpected character.
 bool toPostfix(const string& infix, string& postfix, bool trace) {
     stack<char> ops;

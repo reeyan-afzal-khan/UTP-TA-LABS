@@ -1,282 +1,201 @@
 \labsection{7}{NLP Evaluation: Airline Tweet Sentiment Classification}{sec:lab07-nlp-b}
 
 \begin{labproject}{Build and evaluate a three-class sentiment classifier}
-\textbf{Coverage.} Chapter~\ref{ch:nlp-methods}.\\
+\textbf{Read first.} Chapter~\ref{ch:nlp-methods}.\\
 \textbf{Goal.} Compare a majority baseline with validation-tuned Multinomial Naive Bayes under a leakage-safe protocol.\\
 \textbf{Scenario.} An airline support team wants to classify customer tweets as negative, neutral or positive.\\
 \textbf{Data.} \texttt{all\_datasets/lab07-Tweets.csv} (14,640 tweets about six US airlines).\\
-\textbf{Notebook.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.
+\textbf{Notebook.} \texttt{all\_experiments/lab07\_airline\_sentiment\_worked.ipynb}.\\
+\textbf{Hand in.} The executed notebook, the \texttt{results/lab07/} folder and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
-\noindent\textbf{Setup cell.}
-\begin{lstlisting}[style=utppython]
-import re
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from IPython.display import display
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, confusion_matrix, f1_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-
-ROOT = Path.cwd().parent
-DATA = ROOT / "all_datasets"
-RESULTS = ROOT / "results" / "lab07"
-RESULTS.mkdir(parents=True, exist_ok=True)
-CLASSES = ["negative", "neutral", "positive"]
+\begin{labmode}
+\begin{enumerate}
+  \item Activate your course environment and confirm that the data file is in \texttt{all\_datasets/}.
+  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. Everything runs in a few seconds.
+\end{enumerate}
+\begin{lstlisting}[style=utpterminal]
+cd all_experiments
+jupyter lab
 \end{lstlisting}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab07\_airline\_sentiment\_worked.py} runs the same code and writes the same evidence.
+\end{labmode}
+
+\input{labs/visuals/07-flow}
+
+\labroutine
+
+\begin{yourturn}
+\textbf{Warm-up on paper.} The figures of Chapter~\ref{ch:nlp-methods} give two tweets scored by hand. Repeat the idea for the two-word message \emph{delayed thanks}, using negative: share 0.635, delayed 0.00393, thanks 0.00259; positive: share 0.156, delayed 0.00062, thanks 0.0203. Which class wins?
+
+\emph{Answer.} Negative: $0.635\times0.00393\times0.00259\approx6.5\times10^{-6}$. Positive: $0.156\times0.00062\times0.0203\approx2.0\times10^{-6}$. Negative wins, because ``delayed'' and the class share together outweigh ``thanks''.
+\end{yourturn}
+
+\textbf{Setup.} Run the imports and path setup first, and keep this kernel state for the later questions. In the script version the first seven lines also set the working directory.
+\lstinputlisting[style=utppython,firstline=1,lastline=7]{all_experiments/lab07_airline_sentiment_worked.py}
+\lstinputlisting[style=utppython,firstline=8,lastline=24]{all_experiments/lab07_airline_sentiment_worked.py}
 
 \begin{labquestion}{1}{Inspect and clean the data}
-Keep tweet id, text, sentiment and airline. Report the class balance and the number of duplicate texts. Replace URLs and @mentions with placeholder tokens, then drop duplicates \emph{before} splitting --- both exact copies and tweets that become identical after normalisation --- so that no near-copy can land in two different subsets.
+Keep tweet id, text, sentiment and airline. Report the class balance and the number of duplicate texts. Replace URLs and \texttt{@mentions} with placeholder tokens, then drop duplicates \emph{before} splitting, both exact copies and tweets that become identical after normalisation, so that no near-copy can land in two different subsets.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-tweets = pd.read_csv(DATA / "lab07-Tweets.csv", dtype={"tweet_id": str})[["tweet_id", "text", "airline_sentiment", "airline"]]
-
-
-def clean(text):
-    text = re.sub(r"https?://\S+|www\.\S+", " URL ", text)
-    text = re.sub(r"@\w+", " USER ", text)
-    return " ".join(text.lower().split())
-
-
-print("Raw tweets:", len(tweets), "| exact duplicate texts:", int(tweets.text.duplicated().sum()))
-tweets["model_text"] = tweets.text.map(clean)
-print("Duplicates after normalisation:", int(tweets.model_text.duplicated().sum()))
-tweets = tweets.drop_duplicates("model_text").reset_index(drop=True)
-print("Tweets kept:", len(tweets))
-display(tweets.airline_sentiment.value_counts(normalize=True).rename("share").round(3).to_frame())
-\end{lstlisting}
-\expectedoutput
+\input{labs/visuals/07-trace}
+\lstinputlisting[style=utppython,firstline=26,lastline=40]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Raw tweets: 14640 | exact duplicate texts: 213
 Duplicates after normalisation: 355
 Tweets kept: 14285
-                   share
-airline_sentiment
-negative           0.635
-neutral            0.209
-positive           0.156
+share:  negative 0.635   neutral 0.209   positive 0.156
 \end{lstlisting}
-14,640 tweets shrink to 14,285 after duplicate handling. Negative tweets are 63\,\% of the data, so a classifier that always says \emph{negative} would score 63\,\% accuracy while being useless --- macro F1 is the headline metric. Removing near-duplicates before the split matters: a retweet in the training set and its twin in the test set would inflate every score.
+\end{refoutput}
+
+\textbf{What it means.} 14,640 tweets shrink to 14,285 after duplicate handling. Negative tweets are 63\,\% of the data, so a classifier that always says \emph{negative} would score 63\,\% accuracy while being useless, and macro F1 is therefore the headline metric. Removing near-duplicates before the split matters: a retweet in the training set and its twin in the test set would inflate every score.
 \end{labanswer}
 
 \begin{labquestion}{2}{Create a fixed stratified split}
-Split 70/15/15 with seed~42, stratified by sentiment, and save tweet ids with their split label to \texttt{split.csv}.
+Split 70/15/15 with seed 42, stratified by sentiment, and save tweet ids with their split label to \texttt{split.csv}.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-train, rest = train_test_split(tweets.index, test_size=0.30, random_state=42, stratify=tweets.airline_sentiment)
-val, test = train_test_split(rest, test_size=0.50, random_state=42, stratify=tweets.airline_sentiment[rest])
-
-tweets["split"] = "train"
-tweets.loc[val, "split"] = "validation"
-tweets.loc[test, "split"] = "test"
-tweets[["tweet_id", "airline_sentiment", "split"]].to_csv(RESULTS / "split.csv", index=False)
-display(pd.crosstab(tweets.split, tweets.airline_sentiment, margins=True))
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=42,lastline=49]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-airline_sentiment  negative  neutral  positive    All
-split
-test                   1361      447       335   2143
-train                  6348     2087      1564   9999
-validation             1360      447       336   2143
-All                    9069     2981      2235  14285
+split       negative  neutral  positive    All
+test            1361      447       335   2143
+train           6348     2087      1564   9999
+validation      1360      447       336   2143
 \end{lstlisting}
-Stratification keeps the 63/21/16 class mix in all three subsets (9,999 training, 2,143 validation and 2,143 test tweets). The test subset is now frozen: nothing below looks at it until Question~6.
+\end{refoutput}
+
+\textbf{What it means.} Stratification keeps the 63/21/16 class mix in all three subsets. The test subset is now frozen: nothing below looks at it until Question~6.
 \end{labanswer}
 
 \begin{labquestion}{3}{Fit text features on training data only}
-Build a bag-of-words with \texttt{CountVectorizer} (English stop words removed, terms in fewer than two training tweets dropped, at most 20,000 features). Fit it on the training texts only and report the vocabulary size for unigrams and for unigrams plus bigrams.
+Build a bag of words with \texttt{CountVectorizer} (English stop words removed, terms in fewer than two training tweets dropped, at most 20,000 features). Fit it on the training texts only and report the vocabulary size for unigrams and for unigrams plus bigrams.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-def vectorizer(ngram_range):
-    return CountVectorizer(stop_words="english", min_df=2, max_features=20_000, ngram_range=ngram_range)
+The vocabulary is itself something learned from training data. Trace how it moves through the protocol:
+\input{labs/visuals/07-worked-case.tex}
 
-
-for ngram_range in [(1, 1), (1, 2)]:
-    vocabulary = vectorizer(ngram_range).fit(tweets.model_text[train]).vocabulary_
-    print(f"ngram_range={ngram_range}: {len(vocabulary):,} features")
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=51,lastline=57]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 ngram_range=(1, 1): 4,671 features
 ngram_range=(1, 2): 11,850 features
 \end{lstlisting}
-The vocabulary is learned from training tweets alone, so a word that appears only in validation or test tweets is unknown to the model --- exactly the situation a deployed classifier faces. Adding bigrams more than doubles the vocabulary and lets the model see phrases such as \emph{never again} that a unigram model splits apart.
+\end{refoutput}
+
+\textbf{What it means.} The vocabulary is learned from training tweets alone, so a word that appears only in validation or test tweets is unknown to the model, exactly the situation a deployed classifier faces. Adding bigrams more than doubles the vocabulary and lets the model see phrases such as \emph{hold hours} and \emph{great flight} that a unigram model splits apart.
 \end{labanswer}
+
+\textbf{Connect it to the chapter.} This is what \texttt{clean} and the vectoriser do to one tweet. Notice what has gone by the last step.
+\input{labs/visuals/07-nlp-part-b-chapter.tex}
 
 \begin{labquestion}{4}{Establish a majority-class baseline}
 Predict the most frequent training class for every validation tweet and record its accuracy and macro F1. Any real model must beat this.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-majority = tweets.airline_sentiment[train].mode()[0]
-y_val = tweets.airline_sentiment[val]
-majority_f1 = f1_score(y_val, [majority] * len(val), average="macro")
-print(f"Majority class: {majority} | validation accuracy {(y_val == majority).mean():.3f} | validation macro F1 {majority_f1:.3f}")
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=59,lastline=62]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Majority class: negative | validation accuracy 0.635 | validation macro F1 0.259
 \end{lstlisting}
-The majority baseline reaches 63\,\% accuracy but only 0.26 macro F1, because its recall on \emph{neutral} and \emph{positive} is zero. This is the number that shows why accuracy alone is misleading on imbalanced classes.
+\end{refoutput}
+
+\textbf{What it means.} The majority baseline reaches 63\,\% accuracy but only 0.26 macro F1, because its recall on \emph{neutral} and \emph{positive} is zero. This is the number that shows why accuracy alone misleads on imbalanced classes.
 \end{labanswer}
 
 \begin{labquestion}{5}{Tune Naive Bayes on validation data}
-Grid-search the n-gram range $\{(1,1),(1,2)\}$ and the smoothing parameter $\alpha\in\{0.3,0.5,1,2\}$, scoring by validation macro F1. Save \texttt{validation\_results.csv} and select the best setting without looking at the test data.
+Grid-search the n-gram range $\{(1,1), (1,2)\}$ and the smoothing parameter $\alpha \in \{0.3, 0.5, 1, 2\}$, scoring by validation macro F1. Save \texttt{validation\_results.csv} and select the best setting without looking at the test data.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-rows = [{"ngram_range": "majority baseline", "alpha": np.nan, "validation_macro_f1": majority_f1}]
-for ngram_range in [(1, 1), (1, 2)]:
-    features = vectorizer(ngram_range).fit(tweets.model_text[train])
-    X_train, X_val = features.transform(tweets.model_text[train]), features.transform(tweets.model_text[val])
-    for alpha in [0.3, 0.5, 1.0, 2.0]:
-        model = MultinomialNB(alpha=alpha).fit(X_train, tweets.airline_sentiment[train])
-        rows.append({"ngram_range": str(ngram_range), "alpha": alpha,
-                     "validation_macro_f1": f1_score(y_val, model.predict(X_val), average="macro")})
-
-validation = pd.DataFrame(rows).sort_values("validation_macro_f1", ascending=False)
-validation.to_csv(RESULTS / "validation_results.csv", index=False)
-display(validation.round(4))
-
-best = validation.iloc[0]
-best_ngram = (1, 2) if best.ngram_range == "(1, 2)" else (1, 1)
-print("Selected:", best.ngram_range, "alpha =", best.alpha)
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=64,lastline=79]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-         ngram_range  alpha  validation_macro_f1
-5             (1, 2)    0.3               0.6973
-6             (1, 2)    0.5               0.6903
-7             (1, 2)    1.0               0.6868
-1             (1, 1)    0.3               0.6760
+ngram_range  alpha  validation_macro_f1
+(1, 2)         0.3               0.6973
+(1, 2)         0.5               0.6903
+(1, 2)         1.0               0.6868
+(1, 1)         0.3               0.6760
 ...
-0  majority baseline    NaN               0.2588
 Selected: (1, 2) alpha = 0.3
 \end{lstlisting}
-Unigrams plus bigrams with light smoothing ($\alpha=0.3$) gives the best validation macro F1, about 0.70. The differences between settings are small, which is itself useful: Naive Bayes is not very sensitive to $\alpha$ here, and the choice of n-grams matters more than the smoothing.
+\end{refoutput}
+
+\textbf{What it means.} Unigrams plus bigrams with light smoothing give the best validation macro F1, about 0.70. The differences between settings are small, which is itself useful: Naive Bayes is not very sensitive to $\alpha$ here, and the choice of n-grams matters more than the smoothing.
 \end{labanswer}
 
 \begin{labquestion}{6}{Evaluate once on the test data}
 Refit the vectoriser and the selected model on the training tweets, predict the test tweets once, and report accuracy, macro precision, macro recall and macro F1 for the baseline and the model. Save \texttt{metrics.csv}, \texttt{test\_predictions.csv} and the confusion matrix.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-features = vectorizer(best_ngram).fit(tweets.model_text[train])
-model = MultinomialNB(alpha=best.alpha).fit(features.transform(tweets.model_text[train]), tweets.airline_sentiment[train])
-
-X_test = features.transform(tweets.model_text[test])
-test_set = tweets.loc[test].assign(prediction=model.predict(X_test), confidence=model.predict_proba(X_test).max(axis=1))
-test_set.to_csv(RESULTS / "test_predictions.csv", index=False)
-y_test = test_set.airline_sentiment
-
-
-def metric_row(name, prediction):
-    precision, recall, f1, _ = precision_recall_fscore_support(y_test, prediction, average="macro", zero_division=0)
-    return {"model": name, "accuracy": accuracy_score(y_test, prediction), "macro_precision": precision, "macro_recall": recall, "macro_f1": f1}
-
-
-metrics = pd.DataFrame([metric_row("Majority baseline", [majority] * len(test)), metric_row("Multinomial NB", test_set.prediction)])
-metrics.to_csv(RESULTS / "metrics.csv", index=False)
-display(metrics.round(4))
-
-matrix = confusion_matrix(y_test, test_set.prediction, labels=CLASSES)
-pd.DataFrame(matrix, index=CLASSES, columns=CLASSES).to_csv(RESULTS / "confusion_matrix.csv")
-ConfusionMatrixDisplay(matrix, display_labels=CLASSES).plot(colorbar=False)
-plt.title("Naive Bayes test confusion matrix")
-plt.tight_layout()
-plt.savefig(RESULTS / "confusion_matrix.png", dpi=160)
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=81,lastline=104]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/07-notebook-reference.png}
+\end{labvisual}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
                model  accuracy  macro_precision  macro_recall  macro_f1
 0  Majority baseline    0.6351           0.2117        0.3333    0.2589
 1     Multinomial NB    0.7699           0.7036        0.6933    0.6978
 \end{lstlisting}
-On the untouched test set Naive Bayes reaches about 77\,\% accuracy and 0.70 macro F1 against 63\,\% and 0.26 for the baseline. The confusion matrix shows the typical pattern: negative tweets are recognised well, while \emph{neutral} tweets are pulled towards \emph{negative}, because complaint vocabulary dominates the corpus.
+\end{refoutput}
+
+\textbf{What it means.} On the untouched test set Naive Bayes reaches about 77\,\% accuracy and 0.70 macro F1, against 63\,\% and 0.26 for the baseline. The confusion matrix shows the typical pattern: negative tweets are recognised well, while \emph{neutral} tweets are pulled towards \emph{negative}, because complaint vocabulary dominates the corpus.
 \end{labanswer}
 
-\begin{utptable}
-\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.25\linewidth}XXXX@{}}
-\toprule
-\rowcolor{UTPPaleBlue!92}
-\utpth{Method} & \utpth{Accuracy} & \utpth{Macro Precision} & \utpth{Macro Recall} & \utpth{Macro F1} \\
-\midrule
-Majority baseline & 0.635 & 0.212 & 0.333 & 0.259 \\
-Multinomial NB & 0.770 & 0.704 & 0.693 & 0.698 \\
-\bottomrule
-\end{tabularx}
-\end{utptable}
-
 \begin{labquestion}{7}{Inspect subgroup performance and review errors}
-Report per-class precision, recall and F1, then macro F1 per airline (\texttt{per\_airline\_f1.csv}). Finally take the four most confident mistakes for each true class --- twelve deterministic errors --- tag each with a simple category, and save \texttt{error\_analysis.csv}.
+Report per-class precision, recall and F1, then macro F1 per airline (\texttt{per\_airline\_f1.csv}). Finally take the four most confident mistakes for each true class, twelve deterministic errors, tag each with a simple category, and save \texttt{error\_analysis.csv}.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-precision, recall, f1, support = precision_recall_fscore_support(y_test, test_set.prediction, labels=CLASSES)
-per_class = pd.DataFrame({"precision": precision, "recall": recall, "f1": f1, "support": support}, index=CLASSES)
-per_class.to_csv(RESULTS / "per_class_metrics.csv")
-display(per_class.round(3))
-
-rows = []
-for airline, group in test_set.groupby("airline"):
-    rows.append({"airline": airline, "n_test": len(group), "accuracy": accuracy_score(group.airline_sentiment, group.prediction),
-                 "macro_f1": f1_score(group.airline_sentiment, group.prediction, average="macro")})
-per_airline = pd.DataFrame(rows).set_index("airline").sort_values("macro_f1")
-per_airline.to_csv(RESULTS / "per_airline_f1.csv")
-display(per_airline.round(3))
-
-
-def category(text):
-    text = text.lower()
-    if "?" in text:
-        return "question or request"
-    if re.search(r"\b(no|not|never|can't|don't|didn't|won't)\b", text):
-        return "negation"
-    if len(text.split()) <= 7:
-        return "very short text"
-    return "mixed or ambiguous wording"
-
-
-mistakes = test_set[test_set.prediction != test_set.airline_sentiment]
-errors = pd.concat(mistakes[mistakes.airline_sentiment == c].nlargest(4, "confidence") for c in CLASSES)
-errors = errors.assign(category=errors.text.map(category))
-errors[["tweet_id", "airline", "airline_sentiment", "prediction", "confidence", "text", "category"]].to_csv(RESULTS / "error_analysis.csv", index=False)
-display(errors[["airline_sentiment", "prediction", "confidence", "text", "category"]])
-print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=106,lastline=136]{all_experiments/lab07_airline_sentiment_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
           precision  recall     f1  support
 negative      0.843   0.871  0.857     1361
 neutral       0.598   0.535  0.564      447
 positive      0.671   0.675  0.673      335
-                n_test  accuracy  macro_f1
-airline
-Delta              324     0.679     0.659
-American           398     0.781     0.662
-United             594     0.769     0.675
-US Airways         410     0.841     0.714
-Southwest          354     0.757     0.726
-Virgin America      63     0.778     0.782
-...
+macro F1 by airline: Delta 0.659, American 0.662, United 0.675,
+                     US Airways 0.714, Southwest 0.726, Virgin America 0.782 (63 tweets)
+Saved: ['confusion_matrix.csv', 'confusion_matrix.png', 'error_analysis.csv', 'metrics.csv', 'per_airline_f1.csv', 'per_class_metrics.csv', 'split.csv', 'test_predictions.csv', 'validation_results.csv']
 \end{lstlisting}
-\emph{Neutral} is the weakest class (F1 about 0.56): it has the fewest distinctive words and sits between the other two. Airline-level macro F1 ranges from about 0.66 to 0.78, but these are diagnostic subgroup results, not airline ratings --- Virgin America has only 63 test tweets, and airlines differ in class mix and topics. The twelve reviewed errors are dominated by negations the bag-of-words model cannot see, questions and requests that carry little sentiment vocabulary, and retweets of one joke that different annotators labelled differently. The categories are reproducible heuristics, not replacement labels; ambiguous cases still need a human reader.
+\end{refoutput}
+
+\textbf{What it means.} Neutral is the hardest class, because it has few distinctive words and sits between the other two. The airline table is a diagnostic rather than a ranking: Virgin America's score rests on 63 tweets. Read the twelve sampled errors yourself. All twelve carry confidence above 0.999, which is why these scores cannot be treated as probabilities of being right.
 \end{labanswer}
+
+\begin{yourturn}
+Add new cells at the end of the notebook. Choose settings on \emph{validation} data only, using the loop from Question~5 as a pattern, and keep the test set out of it.
+\begin{enumerate}
+  \item \textbf{Question a default.} Refit with \texttt{stop\_words=None}, keeping $\alpha=0.3$ and bigrams. What happens to validation macro F1, and why might it? Check whether \texttt{not}, \texttt{no} and \texttt{never} are in \texttt{sklearn.feature\_extraction.text.ENGLISH\_STOP\_WORDS}.
+  \item \textbf{Try other settings.} Compare \texttt{min\_df=5}, $\alpha=0.1$, and \texttt{TfidfVectorizer} in place of \texttt{CountVectorizer}. Which help?
+  \item \textbf{Look inside the model.} For each class, list the twelve terms with the highest log-probability relative to the other two classes, using the code below. Which class has words that look useful for future tweets, and which does not?
+\end{enumerate}
+\begin{lstlisting}[style=utppython]
+names = np.array(features.get_feature_names_out())
+log_prob = model.feature_log_prob_
+for i, label in enumerate(model.classes_):
+    others = [j for j in range(3) if j != i]
+    odds = log_prob[i] - log_prob[others].mean(axis=0)
+    print(label, list(names[np.argsort(-odds)[:12]]))
+\end{lstlisting}
+\end{yourturn}
+
+\begin{expectedfindings}
+\begin{enumerate}
+  \item Validation macro F1 rises from 0.697 to 0.720, and the vocabulary reaches the 20,000 cap. All three words are on the stop list, along with \texttt{again}, so removing stop words was erasing negation and frequency words that carry sentiment. A default deserved testing.
+  \item All three are slightly worse or clearly worse: \texttt{min\_df=5} gives 0.696, $\alpha=0.1$ gives 0.693, and TF-IDF with Multinomial Naive Bayes gives 0.633, because the model expects counts.
+  \item Negative: \texttt{worst}, \texttt{ridiculous}, \texttt{hung}, \texttt{hold hours}, \texttt{unacceptable}, \texttt{terrible}, \texttt{rude}. Positive: \texttt{good work}, \texttt{guys rock}, \texttt{best airline}, \texttt{great flight}, \texttt{excellent}, \texttt{fantastic}. Those look reusable. Neutral: \texttt{journal}, \texttt{wall street}, \texttt{nantucket}, \texttt{license}, which are one-off news topics. That helps explain why neutral is the hardest class.
+\end{enumerate}
+\end{expectedfindings}
+
+\begin{troubleshoot}
+\begin{description}
+  \item[Test metrics change between runs] Something is not seeded, or the test set is influencing a choice. Check \texttt{random\_state=42} in both splits.
+  \item[Scores suspiciously high] Duplicates may have crept across the split. Confirm that \texttt{Tweets kept: 14285} appears before the split.
+  \item[\texttt{ValueError} about empty vocabulary] You probably passed the wrong column. The vectoriser reads \texttt{model\_text}.
+\end{description}
+\end{troubleshoot}
 
 \begin{verification}
 \begin{itemize}
@@ -287,3 +206,11 @@ Virgin America      63     0.778     0.782
   \item Per-class and per-airline results and the twelve reviewed errors are saved.
 \end{itemize}
 \end{verification}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item Restart the kernel and run all cells without errors.
+  \item Submit the executed notebook, including your \emph{Your turn} cells, and the generated \texttt{results/lab07/} folder.
+  \item Add a short conclusion: explain why macro F1 is the headline metric, name the weakest class, and propose one stronger text representation without changing the evaluation protocol.
+\end{itemize}
+\end{labdeliverable}

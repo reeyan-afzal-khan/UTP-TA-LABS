@@ -1,0 +1,6 @@
+ftp 10.0.12.1
+binary
+dir
+get ftp-demo.cfg
+quit
+dir flash:

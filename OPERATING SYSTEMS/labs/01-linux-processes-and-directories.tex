@@ -5,12 +5,31 @@
 \textbf{Goal.} Run the exact supplied source and inspect live OS state.\\
 \textbf{Explain.} Explain how one executable becomes two processes and how directory names change.
 
+\input{labs/visuals/01-flow}
+
+
 \section*{Source code: read before you run}
 \labsourcecard{\texttt{directory\_list.c}}{Open a directory stream and print every entry returned by Linux.}{The acquire/use/release sequence: \texttt{opendir} $\rightarrow$ \texttt{readdir} loop $\rightarrow$ \texttt{closedir}.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab01/directory_list.c}
+\noindent\textbf{Start the file.} \texttt{directory\_list.c}, lines 1--33.
+\input{labs/visuals/01-trace}
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=33]{all_experiments/Lab01/directory_list.c}
+
+\noindent\textbf{Continue the same file.} \texttt{directory\_list.c}, lines 34--35.
+\lstinputlisting[style=utpcnumbered,firstline=34,lastline=35]{all_experiments/Lab01/directory_list.c}
 
 \labsourcecard{\texttt{fork\_demo.c}}{Create a child process, print process identity, optionally keep the child alive, then wait for it.}{The return value from \texttt{fork()}, the child's PPID, and the parent's \texttt{waitpid}.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab01/fork_demo.c}
+\noindent\textbf{Start the file.} \texttt{fork\_demo.c}, lines 1--34.
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:processes]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Read the branch condition before attributing a line of output to parent or child. Scheduling can change print order. Use the optional delay for observation, then verify the parent waits rather than inferring behaviour from a single output ordering.
+\input{labs/visuals/01-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=34]{all_experiments/Lab01/fork_demo.c}
+
+\noindent\textbf{Continue the same file.} \texttt{fork\_demo.c}, lines 35--51.
+\lstinputlisting[style=utpcnumbered,firstline=35,lastline=51]{all_experiments/Lab01/fork_demo.c}
 
 \begin{utptable}
 \renewcommand{\arraystretch}{1.18}
@@ -68,7 +87,13 @@ Before running, answer: \emph{Will the parent print the new child message too?} 
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:processes]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/01-linux-processes-and-directories-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Start a harmless long-running command, record its PID and parent, terminate only that process and confirm its exit. Explain why a second process with the same command name must remain unaffected.
+
+
 \begin{itemize}
   \item Both programs compile with \texttt{-Wall -Wextra} and run from the unchanged source first.
   \item The child's PPID matches the parent's PID in the \texttt{ps} output.

@@ -1,0 +1,13 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+{'contribution': 2.4000000000000004, 'payback': 18.749999999999996, 'ltv': 80.00000000000001, 'ltv_cac': 1.7777777777777781}
+fast month 60: (60, 1398655.55, -3535670.81) break-even: None
+slow month 60: (60, 139865.56, -353567.08) break-even: None
+stop_after_24 month 60: (60, 288701.65, 19596751.59) break-even: 40
+cac 0.8 LTV/CAC 2.222
+cac 1.2 LTV/CAC 1.481
+arpu 0.8 LTV/CAC 1.156
+arpu 1.2 LTV/CAC 2.4
+cost 0.8 LTV/CAC 2.044
+cost 1.2 LTV/CAC 1.511
+churn 0.8 LTV/CAC 2.222
+churn 1.2 LTV/CAC 1.481

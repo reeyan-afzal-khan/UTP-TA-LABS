@@ -1,0 +1,23 @@
+\begin{adslabfigure}[Each comparison removes a half of the remaining interval]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpcell] at (0.0,0.0) {10};
+\node[utplabel] at (0.0,.65) {0};
+\node[utpcell] at (1.1,0.0) {13};
+\node[utplabel] at (1.1,.65) {1};
+\node[utphot] at (2.2,0.0) {14};
+\node[utplabel] at (2.2,.65) {2};
+\node[utpcell] at (3.3000000000000003,0.0) {29};
+\node[utplabel] at (3.3000000000000003,.65) {3};
+\node[utpcell] at (4.4,0.0) {37};
+\node[utplabel] at (4.4,.65) {4};
+\node[utplabel,anchor=west] at (6,0.0) {29 > 14: left becomes 3};
+\node[utpdim] at (0.0,-1.3) {10};
+\node[utpdim] at (1.1,-1.3) {13};
+\node[utpdim] at (2.2,-1.3) {14};
+\node[utphot] at (3.3000000000000003,-1.3) {29};
+\node[utpcell] at (4.4,-1.3) {37};
+\node[utplabel,anchor=west] at (6,-1.3) {29 == 29: return index 3};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

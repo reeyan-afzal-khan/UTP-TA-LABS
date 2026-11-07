@@ -1,42 +1,28 @@
 \labsection{8}{BSTs, heaps, and balancing structures}{sec:lab08}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab VIII}
-\textbf{Objective.} Understand BSTs, heaps, AVL/height balancing, and B-trees and apply those structures to problems.
-
-\textbf{Outcomes.} Learn BST, heap, and B-tree structures and implement/apply them computationally.
-
-\textbf{Problem directions.} Create max/min heaps; insert/delete heap elements; solve BST problems; practice B-tree creation, insertion, and removal.
+BST operations, min/max heaps, height balancing, and instructor-led B-tree practice.
 \end{sourcealignment}
 
 \begin{labproject}{Compare ordering rules across specialized trees}
-\textbf{Coverage.} Chapter~\ref{ch:trees-ii}.\\
-\textbf{Goal.} Compare the ordering rules of binary search trees and heaps, and show how each restores its rule after a change.
+\textbf{Goal.} Compare BST ordering, heap ordering, and the effect of tree height.
 
-\begin{lstlisting}
-// BST insertion order
-// 50, 30, 70, 20, 40, 60, 80
-// inorder should be sorted.
+\textbf{Recall first.} Review the \hyperref[ch:trees-ii]{BSTs, Heaps, and Height Balancing} chapter.
 
-// Max-heap insertion order
-// 30, 10, 50, 20, 40
-// print the heap array after every insertion.
-\end{lstlisting}
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab08} folder.
 
-\begin{tryit}
-Insert 10,20,30,40,50 into a plain BST and draw the resulting height. Compare that shape with a balanced tree. Then create both a min-heap and max-heap from the same keys.
-\end{tryit}
+\input{labs/programs/bst}
 
-\begin{labmode}
-The supplied course sources name B-tree creation/insertion/removal but do not provide the order/minimum-degree rules needed for a unique implementation. Follow the B-tree parameters specified by your instructor rather than inventing them.
-\end{labmode}
+\tcbbreak
+\input{labs/programs/heap}
+\textbf{Instructor-led B-tree extension.} Use the degree and occupancy rules specified in class to draw split, borrow, and merge. The complete programs here cover BSTs, height checks, and min/max heaps; B-tree implementation is outside these supplied program files.
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item BST inorder output is sorted for the chosen key policy.
-  \item A max-heap parent is not smaller than either child; a min-heap parent is not larger than either child.
-  \item Heap insertion/deletion restores the heap property.
-  \item Complexity claims are related to tree height, not only node count.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

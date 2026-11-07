@@ -3,11 +3,13 @@
 
 \chapterguide%
   {Create folders and run basic \textbf{terminal commands}.}
-  {organize data and notebooks, configure an environment, install dependencies, and run labs reproducibly.}
+  {organize data and notebooks, configure an environment, install dependencies, check that everything works, and run labs reproducibly.}
+
+Every lab in this course runs from the same folder, in the same Python environment. Twenty minutes spent here saves hours of chasing path errors later.
 
 \section{The course project layout}
 
-Use \texttt{UTP-ARTIFICIAL-INTELLIGENCE/} as the project root, with these folders:
+Your project root is the course folder. In this repository it is called \texttt{ARTIFICIAL INTELLIGENCE/}; name your own copy without spaces, for example \texttt{UTP-ARTIFICIAL-INTELLIGENCE/}. It holds these folders:
 
 \noindent\textbf{Datasets}
 \begin{lstlisting}[style=utpterminal]
@@ -24,7 +26,7 @@ all_datasets/
 \noindent\textbf{Experiments, helper code, and generated evidence}
 \begin{lstlisting}[style=utpterminal]
 all_experiments/
-  lab01_search_foundations_worked.ipynb
+  lab01_search_foundations_worked.ipynb        one notebook per lab, each with a .py twin
   lab02_informed_search_worked.ipynb
   lab03_search_engineering_worked.ipynb
   lab04_fuzzy_anfis_worked.ipynb
@@ -32,6 +34,10 @@ all_experiments/
   lab06_handwriting_ocr_worked.ipynb
   lab07_airline_sentiment_worked.ipynb
   lab08_genetic_algorithm_regression_worked.ipynb
+  demo_robot_maze.py                           the maze of Chapters 2-4
+  demo_sliding_puzzle.py                       the 8-puzzle of Chapters 2-3
+  demo_local_search.py                         eight queens and beam search, Chapters 9-10
+  demo_game_search.py                          noughts and crosses, Chapter 11
   utils/
     core.py
     openflights.py
@@ -45,59 +51,51 @@ requirements.txt
 \end{lstlisting}
 
 \begin{keyidea}
-The notebooks import reusable search code from \texttt{utils/}.
-\texttt{results/} stores generated evidence and should not be edited by hand;
-\texttt{requirements.txt} lists the packages installed in \texttt{.venv/}.
+The notebooks import reusable search code from \texttt{utils/}. Each notebook writes its evidence to \texttt{results/}, which should not be edited by hand; \texttt{requirements.txt} lists the packages installed in \texttt{.venv/}. The \texttt{demo\_} scripts need no dataset and print every number the chapters quote for the maze, puzzle and game examples.
 \end{keyidea}
 
-{\footnotesize Keep the digits ZIP intact. Each lab has one worked notebook; \texttt{predict\_passenger.py} uses the saved Lab~2 model. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs.\par}
+\section{The datasets}
 
-\section{Download the datasets}
-
-Click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
+Check \texttt{all\_datasets/} first. If your copy of the course already holds the seven files listed above, skip to the next section. Otherwise click a \textbf{dataset name} below to download it, extract the archive, and save the file under the name in the third column. The notebooks look for exactly those names.
 
 \begin{utptable}
 \footnotesize
 \renewcommand{\arraystretch}{1.1}
-\begin{tabularx}{\linewidth}{@{}m{0.40\linewidth}>{\centering\arraybackslash}m{0.09\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}m{0.36\linewidth}>{\centering\arraybackslash}m{0.07\linewidth}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\utpth{Kaggle dataset} & \utpth{Lab} & \utpth{Use} \\
+\utpth{Kaggle dataset} & \utpth{Lab} & \utpth{Save in \texttt{all\_datasets/} as} \\
 \midrule
 \textbf{OpenFlights:}
 \href{https://www.kaggle.com/datasets/open-flights/flight-route-database}{\textbf{Routes}}
 \& \href{https://www.kaggle.com/datasets/open-flights/airports-train-stations-and-ferry-terminals/data}{\textbf{Airports}}
-& 1--3 & Route search, locations and distances \\
+& 1--3 & \texttt{lab01-03\_routes.csv}, \texttt{lab01-03\_airports.csv} \\
 \href{https://www.kaggle.com/datasets/fedesoriano/air-quality-data-set}
-{\textbf{Air Quality}} & 4 & Fuzzy logic and ANFIS \\
+{\textbf{Air Quality}} & 4 & \texttt{lab04-AirQuality.csv} \\
 \href{https://www.kaggle.com/datasets/uciml/wall-following-robot}
-{\textbf{Wall-Following Robot}} & 5 & Sensor-based control \\
+{\textbf{Wall-Following Robot}} (24 sensors) & 5 & \texttt{lab05-sensor\_readings\_24.csv} \\
 \href{https://www.kaggle.com/datasets/mrdude20/doctor-handwriting-recognition-dataset}
-{\textbf{Doctor Handwriting}} & 6 & OCR evaluation \\
+{\textbf{Doctor Handwriting}} & 6 & \texttt{lab06-ocr-handwritten-prescription.zip}, kept zipped \\
 \href{https://www.kaggle.com/datasets/chandana890/twitter-airline-sentiment-dataset}
-{\textbf{Twitter Airline Sentiment}} & 7 & Sentiment classification \\
+{\textbf{Twitter Airline Sentiment}} & 7 & \texttt{lab07-Tweets.csv} \\
 \href{https://www.kaggle.com/datasets/mirichoi0218/insurance}
-{\textbf{Medical Cost}} & 8 & GA regression \\
+{\textbf{Medical Cost}} & 8 & \texttt{lab08-insurance.csv} \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
-\subsection{Download steps}
-
-\begin{utpsteps}
-  \item Open the link, click \textbf{Download}, and \textbf{extract} the archive.
-  \item Copy the required \textbf{CSV files or images} into \textbf{\texttt{all\_datasets/}}.
-  \item Check that your notebook's \textbf{file paths} match the filenames, including \textbf{capitalization}.
-\end{utpsteps}
-
 \begin{pitfall}
-For \textbf{\texttt{FileNotFoundError}}, check the working directory and filename. Fix the path rather than moving files into the project root.
+For \textbf{\texttt{FileNotFoundError}}, check the working directory and the filename, including capitals. Fix the path or the name rather than moving files into the project root.
 \end{pitfall}
 
 \section{Two ways to set up: plain Python or Anaconda}
 
+\begin{analogy}
+A \term{virtual environment} is a separate toolbox for one project. Install a new wrench in this project's box and every other project's box stays exactly as it was, so a package you upgrade for one course cannot quietly break another.
+\end{analogy}
+
 \begin{keyidea}
-Use one environment per project; activate it before installing or running packages.
+Use one environment per project, and activate it before installing or running packages. Follow Route~A or Route~B below, not both.
 \end{keyidea}
 
 \section{Route A: install Python and configure PATH}
@@ -148,21 +146,18 @@ which -a python3
 
 \textbf{\texttt{venv}} keeps this project's packages separate from other projects. See the \href{https://docs.python.org/3/library/venv.html}{\textbf{venv documentation}}.
 
-The root-level \textbf{\texttt{requirements.txt}} lists dependencies, including PyTorch (\texttt{torch}) for Labs~7--8. A CPU is sufficient.
+The root-level \textbf{\texttt{requirements.txt}} lists the dependencies. A CPU is sufficient for every lab, and no lab needs a GPU.
 
 \begin{lstlisting}[style=utpterminal]
 numpy
 pandas
+matplotlib
 scipy
 scikit-learn
-matplotlib
-jupyter
-nbformat
-nbclient
-nbconvert
 pillow
 pytesseract
 pytest
+jupyter
 \end{lstlisting}
 
 \textbf{Create} the environment in the \textbf{project root}:
@@ -175,7 +170,7 @@ py -m venv .venv
 python3 -m venv .venv
 \end{lstlisting}
 
-\textbf{Activate} it from the same folder:
+\textbf{Activate} it from the same folder. Your prompt then starts with \texttt{(.venv)}:
 
 \begin{lstlisting}[style=utpterminal]
 # Windows (PowerShell)
@@ -252,7 +247,7 @@ python3 -m pip install -r requirements.txt
 \node[sysbox] (sys) at (0,2.45) {system Python};
 \node[pkg,text=UTPMuted,anchor=west] at (2.35,2.45) {leave this alone};
 
-\node[envbox] (a) at (-2.80,0) {\texttt{THIS DIRECTORY/.venv}};
+\node[envbox] (a) at (-2.80,0) {\texttt{this course/.venv}};
 \node[pkg,anchor=north] at (-2.80,-0.52) {numpy\\pandas\\scikit-learn\\jupyter};
 
 \node[envbox] (b) at (2.80,0) {\texttt{some other project/.venv}};
@@ -276,8 +271,8 @@ python3 -m pip install -r requirements.txt
 \textbf{Create} one environment for the course, with a Python version the libraries support, then \textbf{activate} it:
 
 \begin{lstlisting}[style=utpterminal]
-conda create -n ml python=3.12
-conda activate ml
+conda create -n ai python=3.12
+conda activate ai
 \end{lstlisting}
 
 \textbf{Install dependencies} with the same \texttt{requirements.txt} used in Route A:
@@ -294,9 +289,39 @@ python -c "import sys; print(sys.executable)"
 \end{lstlisting}
 
 \begin{pitfall}
-Avoid installing the same package with both conda and pip. Use pip with the course requirements. Recreate a broken environment with \texttt{conda env remove -n ml}, then repeat setup.
+Avoid installing the same package with both conda and pip. Use pip with the course requirements. Recreate a broken environment with \texttt{conda env remove -n ai}, then repeat setup.
 \end{pitfall}
 
+\section{Check that everything works}
+
+Run these three commands from the course folder with your environment active. Each one tests something different, so a failure tells you where to look.
+
+\begin{lstlisting}[style=utpterminal]
+python -c "import numpy, pandas, scipy, sklearn, matplotlib, PIL, pytest; print('Packages OK')"
+python all_experiments/demo_robot_maze.py
+python -m pytest all_experiments/utils -q
+\end{lstlisting}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}m{0.36\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Command} & \utpth{You should see} & \utpth{It proves} \\
+\midrule
+The import line & \texttt{Packages OK} & The environment is active and complete \\
+\texttt{demo\_robot\_maze.py} & Last line: \texttt{Every number above matches the book.} & Your copy of the search code behaves as the book describes \\
+\texttt{pytest} & \texttt{8 passed} & The eight search tests pass on your machine \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Lab~6 also needs the Tesseract OCR engine, which is not a Python package. Its lab sheet gives the install command for each system. Everything else needs only \texttt{requirements.txt}.
+
 \begin{troubleshoot}
-\textbf{Conda not found on Windows:} use Anaconda Prompt, or initialize PowerShell there with \texttt{conda init powershell}. \textbf{Jupyter import failure:} activate \texttt{ml}, restart Jupyter, and check the kernel with Lab~1's environment cell.
+\begin{description}
+  \item[\texttt{Activate.ps1} cannot be loaded] Windows blocks scripts by default. Run \texttt{Set-ExecutionPolicy -Scope CurrentUser RemoteSigned} once in PowerShell, then activate again.
+  \item[Conda not found on Windows] Use Anaconda Prompt, or initialize PowerShell there with \texttt{conda init powershell}.
+  \item[A notebook cannot import a package] Jupyter is running from a different environment. Activate the course environment, restart Jupyter, and run \texttt{import sys; print(sys.executable)} in a cell to confirm which Python it uses.
+  \item[\texttt{No module named utils}] Start Jupyter from \texttt{all\_experiments/}, or run the \texttt{.py} files from the course folder as shown on each lab sheet.
+\end{description}
 \end{troubleshoot}

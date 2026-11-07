@@ -1,11 +1,15 @@
 # Worked notebooks
 
-One executed notebook per lab. The code cells and the explanations between them are the lab
-text from `labs/*.tex`, in the same order and with the same settings, so a notebook and the
-printed lab never disagree. Each notebook adds a Setup cell, a *What the output shows* note
-with the actual numbers after each part, an Evidence cell that writes tables to
-`results/labNN/`, the lab's Try-it or Decision-memo prompt with an empty cell to attempt it,
-and then **one worked solution** (code plus an explanation of what it shows).
+One executed notebook per lab. Every code cell has a `### Question n` heading, and the lab sheet
+in `labs/*.tex` uses the same number and title, so `[n]` after Run All is Question n on the
+sheet. Each notebook has a Setup cell, a *What the output shows* note with the actual numbers
+after each part, an Evidence cell that writes tables to `results/labNN/`, the lab's Try-it or
+Decision-memo prompt with an empty cell to attempt it, and then **one worked solution** (code
+plus an explanation of what it shows).
+
+Each notebook has a `.py` twin with the same code, which runs from the course folder. The
+listings printed on the lab sheets are pulled from these files by line number, so adding or
+removing a line in a twin means updating the sheet's `firstline` and `lastline`.
 
 ## Run
 
@@ -15,8 +19,9 @@ jupyter lab
 ```
 
 Open a notebook and choose **Restart Kernel and Run All Cells**. Paths are relative to the
-course folder (`Path.cwd().parent`), so launch Jupyter from this directory. Every notebook
-finishes in under a minute on a laptop CPU.
+course folder (`Path.cwd().parent`), so launch Jupyter from this directory. Labs 1 to 6 take
+under half a minute each. Labs 7 and 8 took 42 and 76 seconds on the CPU behind the printed
+numbers, and 29 and 21 seconds on a laptop GPU.
 
 ### PyTorch, GPUs, and kernels (Labs 7 and 8)
 
@@ -50,8 +55,8 @@ python -m ipykernel install --user --name my_env --display-name "Python (my_env)
 
 | Notebook | Lab | Datasets | Chapters | Saves a model |
 | --- | --- | --- | --- | --- |
-| `lab01_features_worked.ipynb` | 1 Feature engineering and feature selection | titanic, breast_cancer, student_performance | 2–3, 5, 8 | |
-| `lab02_supervised_workflow_worked.ipynb` | 2 Supervised learning I: regression, classification, and the workflow | medical_cost_personal, bike_sharing_day + hour, titanic, breast_cancer, heart_failure (Try-it) | 6–10 | `titanic_survival.joblib` + card, `insurance_charges.joblib` |
+| `lab01_features_worked.ipynb` | 1 Feature engineering and feature selection | titanic, breast_cancer, student_performance | 3 | |
+| `lab02_supervised_workflow_worked.ipynb` | 2 Supervised learning I: regression, classification, and the workflow | medical_cost_personal, bike_sharing_day + hour, titanic, breast_cancer, heart_failure (Try-it) | 4–10 | `titanic_survival.joblib` + card, `insurance_charges.joblib` |
 | `lab03_supervised_models_worked.ipynb` | 3 Supervised learning II: model families | breast_cancer, titanic, ames_housing, red_wine_quality | 11–14 | `breast_cancer_svm.joblib` |
 | `lab04_clustering_pca_worked.ipynb` | 4 Unsupervised learning I: clustering and PCA | mall_customers, optical_recognition_handwritten_digits.zip | 15–17 | `digits_pca_logistic.joblib` |
 | `lab05_anomaly_limited_labels_worked.ipynb` | 5 Unsupervised learning II: anomaly detection and limited labels | credit_card_fraud, breast_cancer | 18–19 | |
@@ -82,6 +87,20 @@ python predict_passenger.py --pclass 2 --sex female --age 30 --fare 20
 The PyTorch files (`.pt`) hold weights only; rebuild the architecture with `make_cnn()` (Lab 7)
 or `LSTMForecaster()` (Lab 8) and call `load_state_dict`, as the labs' Part D shows. The LSTM
 card also stores the scale factor the inputs must be divided by.
+
+## Scripts that check the book
+
+Every worked number printed in a chapter comes from one of these scripts, which assert it and end
+with `Every number above matches the book.` Run them from the course folder.
+
+| Script | What it checks |
+| --- | --- |
+| `demo_study_log.py` | The ten-student study log that runs through the book |
+| `demo_foundations.py` | Chapters 3 and 5 to 9 |
+| `demo_model_families.py` | Chapters 10 to 14 |
+| `demo_unsupervised.py` | Chapters 15 to 19 |
+| `demo_advanced.py` | Chapters 20 and 21, with NumPy only |
+| `check_your_turn.py` | The expected findings of every lab's Your-turn tasks; `python all_experiments/check_your_turn.py lab03` runs one lab |
 
 ## Evidence
 

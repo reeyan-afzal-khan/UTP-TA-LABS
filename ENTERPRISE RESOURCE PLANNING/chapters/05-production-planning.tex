@@ -246,14 +246,14 @@ instruction to produce a specific quantity. In an integrated system, completing
 the MO is a stock event, not just a status change.
 
 \begin{utpfig}[What completing an MO does to stock]{Before and after the
-Manufacturing Order for 5 Road Bikes. This before/after pair is the evidence the
-labs ask you to capture, and the quickest way to prove the manufacturing event
+Manufacturing Order for 5 Road Bikes, starting from the components bought in Lab 7.
+This before/after pair is the evidence the labs ask you to capture, and the quickest way to prove the manufacturing event
 reached the shared inventory data.}{fig:mo-stock-change}
 \begin{tikzpicture}
 \begin{axis}[
   width=13.6cm, height=5.4cm,
   ybar=3pt, bar width=13pt,
-  ymin=0, ymax=32,
+  ymin=0, ymax=14,
   ylabel={units on hand},
   symbolic x coords={Frame,Tires,Brake Set,Gear Set,Chain,Road Bike},
   xtick=data, x tick label style={font=\scriptsize\color{UTPMuted}},
@@ -263,9 +263,9 @@ reached the shared inventory data.}{fig:mo-stock-change}
   nodes near coords, every node near coord/.append style={font=\tiny\color{UTPMuted}},
 ]
 \addplot[draw=UTPBlue,fill=UTPPaleBlue] coordinates
-  {(Frame,10) (Tires,20) (Brake Set,10) (Gear Set,10) (Chain,10) (Road Bike,0)};
+  {(Frame,5) (Tires,10) (Brake Set,5) (Gear Set,5) (Chain,5) (Road Bike,0)};
 \addplot[draw=UTPGreen,fill=UTPPaleTeal] coordinates
-  {(Frame,5) (Tires,10) (Brake Set,5) (Gear Set,5) (Chain,5) (Road Bike,5)};
+  {(Frame,0) (Tires,0) (Brake Set,0) (Gear Set,0) (Chain,0) (Road Bike,5)};
 \legend{before the MO, after the MO is marked Done}
 \end{axis}
 \end{tikzpicture}

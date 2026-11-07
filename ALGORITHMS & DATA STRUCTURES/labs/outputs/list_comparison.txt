@@ -1,0 +1,15 @@
+Input sequence: 10 20 30 40
+
+Singly, head forward to nullptr:   10 20 30 40 
+Doubly, head forward to nullptr:   10 20 30 40 
+Doubly, tail backward to nullptr:  40 30 20 10 
+Circular, head round to head:      10 20 30 40 
+Circular, two laps, no stop test:  10 20 30 40 10 20 30 40 
+
+                          Singly            Doubly            Circular
+pointer fields per node   1 (next)          2 (prev, next)    1 (next)
+bytes per node here       16                24                16
+last node's next          nullptr           nullptr           the head
+traversal stops when      p == nullptr      p == nullptr      p == head again
+walk backwards?           no                yes, via prev     no
+reach head from the end   no                via prev          one step: last->next

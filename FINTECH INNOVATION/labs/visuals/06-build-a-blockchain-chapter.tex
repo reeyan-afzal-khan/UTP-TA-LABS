@@ -1,0 +1,18 @@
+% Reused from chapters/06-blockchain.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  c/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.2cm,minimum height=0.95cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  auth/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,minimum width=2.7cm,minimum height=1.15cm,align=center,font=\scriptsize\bfseries},
+  peer/.style={draw=UTPTeal,fill=UTPPaleTeal,circle,minimum size=1.2cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=UTPMuted}
+]
+\node[auth] (a) at (-4.3,0) {Central\\authoritative ledger};
+\node[c] (u1) at (-4.3,2) {User}; \node[c] (u2) at (-4.3,-2) {User};
+\draw[arr](u1)--(a); \draw[arr](u2)--(a);
+\node[peer] (p1) at (1.7,1.7) {P1}; \node[peer] (p2) at (4.3,1.7) {P2};
+\node[peer] (p3) at (1.7,-1.7) {P3}; \node[peer] (p4) at (4.3,-1.7) {P4};
+\draw[arr](p1)--(p2); \draw[arr](p2)--(p4); \draw[arr](p4)--(p3); \draw[arr](p3)--(p1); \draw[arr](p1)--(p4); \draw[arr](p2)--(p3);
+\node[font=\scriptsize\color{UTPMuted},align=center] at (3.0,0) {Distributed copies\\+ consensus rules};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

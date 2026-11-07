@@ -2,10 +2,10 @@
 \label{ch:svm}
 
 \chapterguide%
-  {Linear classifiers from \chapref{ch:classification}, model-capacity ideas from \chapref{ch:training}, and dot products/norms from \chapref{ch:linear-algebra}.}
-  {explain margins, kernels, scaling, and SVM tuning; compare supervised model families.}
+  {Linear classifiers from \chapref{ch:classification}, model-capacity ideas from \chapref{ch:training}, and dot products and norms from \chapref{ch:linear-algebra}.}
+  {find a maximum-margin line on a small example; compute hinge loss; explain what $C$ and $\gamma$ do; check the kernel trick with numbers; scale and tune an SVM inside validation; and choose among all the supervised families in this book.}
 
-A support vector machine (SVM) chooses a separating boundary with a wide \emph{margin}. The \term{support vectors}, on or inside that margin, determine the fitted boundary.
+Two neighborhoods sit on either side of open ground, and the council wants to build a road between them. Many routes would keep every house on the correct side. The sensible one is the route that leaves the widest clearance, because a slightly misplaced new house is then still on the correct side. A \term{support vector machine (SVM)} chooses its boundary by the same reasoning, and only the houses at the edge of the road affect where it runs.
 
 \section{The widest street}
 
@@ -16,29 +16,46 @@ A support vector machine (SVM) chooses a separating boundary with a wide \emph{m
   \fill \p circle (2.4pt);
 % class - (open)
 \foreach \p in {(4,4),(5,3.5),(3.6,4.9),(4.6,4.7),(5.2,2.9)}
-  \draw[thick, fill=gray!30] \p circle (2.4pt);
+  \draw[thick, fill=UTPPaleOrange] \p circle (2.4pt);
 % support vectors
 \fill (1.5,2.5) circle (2.4pt);
-\draw[thick, fill=gray!30] (2.5,3.5) circle (2.4pt);
-\draw[thick, fill=gray!30] (4,2) circle (2.4pt);
+\draw[thick, fill=UTPPaleOrange] (2.5,3.5) circle (2.4pt);
+\draw[thick, fill=UTPPaleOrange] (4,2) circle (2.4pt);
 \draw (1.5,2.5) circle (5.5pt);
 \draw (2.5,3.5) circle (5.5pt);
 \draw (4,2) circle (5.5pt);
 % lines
-\draw[thick] (0,5) -- (5,0)
-  node[pos=0.06, right=2pt] {$\bm{w}^{\mathsf T}\bm{x}+b=0$};
+\draw[thick] (0,5) -- (5,0);
+\draw[UTPMuted,thin] (4.6,0.4) -- (5.45,-0.35) node[right=-1pt] {$\bm{w}^{\mathsf T}\bm{x}+b=0$};
 \draw[dashed] (0,4) -- (4,0);
 \draw[dashed] (0,6) -- (6,0);
 % margin arrow
 \draw[{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick]
-  (3.1,0.9) -- (4.1,1.9) node[midway, below right=-1pt] {margin};
-\node[align=left] at (5.35,5.3) {circled points =\\support vectors};
+  (3.6,0.4) -- (4.6,1.4) node[pos=1, above right=0pt and 1pt] {margin};
+\node[align=left] at (6.0,5.35) {circled points =\\support vectors};
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{intuition}
-A hard-margin SVM builds the widest street between two classes. Points touching its curbs determine the street; distant points do not.
-\end{intuition}
+\begin{workedexample}
+Six points: $(1,1)$, $(2,1)$, $(1,2)$ are class $-1$, and $(3,3)$, $(4,3)$, $(3,4)$ are class $+1$ (\figref{fig:svm-toy}). The SVM's answer is $\bm{w}=(\tfrac23,\tfrac23)$ and $b=-3$. Check the score $y(\bm{w}^{\mathsf T}\bm{x}+b)$ at each point: for $(2,1)$ it is $-1\times(\tfrac23\cdot3-3)=1$, and for $(1,2)$ and $(3,3)$ it is also exactly 1. These three are the \term{support vectors}. The other three score 1.67, so they sit beyond the curb and do not affect the street at all. Delete them and the answer stays the same.
+
+The street's width is $2/\|\bm{w}\|_2=2/(\tfrac23\sqrt2)=2.12$.
+\end{workedexample}
+
+\begin{utpfig}[The widest street on six points]{The fitted boundary and its two curbs on six points. The three circled support vectors sit exactly on the curbs. The street is 2.12 wide.}{fig:svm-toy}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=7.2cm, height=6.4cm, axis equal image, xmin=0, xmax=5, ymin=0, ymax=5, xlabel={$x_1$}, ylabel={$x_2$}, xtick={0,...,5}, ytick={0,...,5}]
+\addplot[draw=UTPNavy,very thick,domain=0:4.5] {4.5-x};
+\addplot[draw=UTPNavy,dashed,domain=0:3] {3-x};
+\addplot[draw=UTPNavy,dashed,domain=1:5] {6-x};
+\addplot[only marks,mark=*,mark size=2.2pt,draw=UTPBlue,fill=UTPBlue] coordinates {(1,1)(2,1)(1,2)};
+\addplot[only marks,mark=square*,mark size=2.2pt,draw=UTPOrange,fill=UTPOrange] coordinates {(3,3)(4,3)(3,4)};
+\addplot[only marks,mark=o,mark size=4.2pt,draw=UTPRed,thick] coordinates {(2,1)(1,2)(3,3)};
+\node[font=\scriptsize\color{UTPNavy},anchor=west] at (axis cs:0.15,0.35) {class $-1$};
+\node[font=\scriptsize\color{UTPNavy},anchor=east] at (axis cs:4.9,4.6) {class $+1$};
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
 
 \section{The hard-margin objective}
 
@@ -60,6 +77,27 @@ Real classes overlap, so the SVM used in practice permits violations and charges
   \max\!\left(0,\,1-y_i(\bm{w}^{\mathsf T}\bm{x}_i+b)\right).
 \]
 \term{Hinge loss} is zero beyond the margin and linear within it or on the wrong side. $C$ balances margin width against violations:
+
+\begin{workedexample}
+The hinge loss is $\max(0,\,1-m)$, where $m=y(\bm{w}^{\mathsf T}\bm{x}+b)$ measures how far a point is on the right side, in margin units.
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Where the point is} & \utpth{$m$} & \utpth{Hinge loss} \\
+\midrule
+Well beyond the curb & 2.0 & 0.0 \\
+Exactly on the curb & 1.0 & 0.0 \\
+Inside the street, right side & 0.4 & 0.6 \\
+On the wrong side & $-0.5$ & 1.5 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Points beyond the curb cost nothing and so have no effect on the fit. Log loss, by contrast, keeps rewarding more confidence forever.
+\end{workedexample}
 
 \begin{itemize}
   \item \term{Large $C$}: violations cost more; weaker regularization can overfit.
@@ -88,13 +126,23 @@ class & A & B & B & B & A \\
 Class A has height 4 and class B at most 1. The line $x^2=2.5$ separates them, corresponding to two thresholds $|x|=\sqrt{2.5}$ in the original space.
 \end{workedexample}
 
+\begin{analogy}
+Marbles of two colors lie on a table, with one color in a ring around the other. No straight stick can separate them. Give the table a sharp tap from below so the central marbles fly up, and a flat sheet of card can slide between the two groups. A new feature gives you the extra height.
+\end{analogy}
+
 \section{The kernel trick}
 
-Rich feature maps can be expensive or infinite-dimensional. SVM equations use them only through inner products; a \term{kernel function} computes these directly:
+Rich feature maps can be expensive or infinite-dimensional. The SVM's equations happen to use the mapped rows only through dot products, and a \term{kernel function} computes those dot products directly:
 \[
   k(\bm{x},\bm{x}')=\phi(\bm{x})^{\mathsf T}\phi(\bm{x}'),
 \]
-so the mapped features never need to be constructed at all --- this shortcut is the \term{kernel trick}. Standard choices:
+so the mapped features never need to be constructed at all. That shortcut is the \term{kernel trick}.
+
+\begin{workedexample}
+Let $\phi(\bm{v})=(v_1^2,\ \sqrt2\,v_1v_2,\ v_2^2)$, and take $\bm{x}=(1,2)$ and $\bm{z}=(3,1)$. The long way: $\phi(\bm{x})=(1,\ 2.83,\ 4)$ and $\phi(\bm{z})=(9,\ 4.24,\ 1)$, whose dot product is $9+12+4=25$. The short way: $(\bm{x}^{\mathsf T}\bm{z})^2=(3+2)^2=25$. Same answer, with no need to visit the larger space.
+\end{workedexample}
+
+Standard choices:
 
 \begin{utptable}
 \begin{tabular}{@{}lll@{}}
@@ -111,11 +159,30 @@ RBF (Gaussian) & $\exp\!\left(-\gamma\|\bm{x}-\bm{x}'\|_2^2\right)$ & Smooth, lo
 
 The \term{RBF kernel} measures similarity that decays with distance. Small $\gamma$ gives broad influence and smooth boundaries; large $\gamma$ gives local, flexible boundaries. Tune $C$ and $\gamma$ together on logarithmic grids.
 
+\begin{workedexample}
+RBF similarity $\exp(-\gamma d^2)$ between two points at distance $d$:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{$\gamma$} & \utpth{$d=0.5$} & \utpth{$d=1$} & \utpth{$d=2$} \\
+\midrule
+0.1 & 0.975 & 0.905 & 0.670 \\
+1 & 0.779 & 0.368 & 0.018 \\
+10 & 0.082 & 0.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+At $\gamma=10$ a training point has almost no influence even one unit away, so the boundary can wrap individual points.
+\end{workedexample}
+
 \begin{intuition}
 RBF support vectors act as landmarks with distance-decaying influence. The kernel evaluates their similarity without explicitly constructing the feature map.
 \end{intuition}
 
-% === VISUAL ADDITION: svm-linear-vs-rbf ===
 \subsection{Linear versus RBF boundaries, drawn}
 
 A feature map can make a nonlinear separation linear in the transformed space.
@@ -154,8 +221,8 @@ A feature map can make a nonlinear separation linear in the transformed space.
 \begin{keyidea}
 A kernel changes the representation during fitting; it does not bend an already-trained line afterward.
 \end{keyidea}
-% === END VISUAL ADDITION ===
 
+\keepspace{18\baselineskip}
 \section{What $C$ and $\gamma$ actually do}
 \label{sec:svm-controls}
 
@@ -206,11 +273,32 @@ $C$ is a strictness setting for a teacher marking homework. A low $C$ teacher ac
 $\gamma$ is the radius of each training point's voice. Low $\gamma$ means every point is heard across the whole room, producing a smooth global boundary. High $\gamma$ means each point is only heard by its immediate neighbors, producing islands around individual examples.
 \end{analogy}
 
+\begin{workedexample}
+Lab~3's grid search on the breast-cancer table, RBF kernel, cross-validated ROC AUC on the training rows (\texttt{scale} means $\gamma=1/p$ on standardized data, here about 0.033):
+
+\medskip
+\centering\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{$C$} & \utpth{$\gamma=0.01$} & \utpth{$\gamma=$ scale} & \utpth{$\gamma=0.1$} \\
+\midrule
+0.1 & 0.9852 & 0.9828 & 0.9782 \\
+1 & 0.9925 & 0.9942 & 0.9884 \\
+10 & \textbf{0.9954} & 0.9937 & 0.9817 \\
+100 & 0.9945 & 0.9885 & 0.9815 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Every cell lies between 0.978 and 0.995. The worst cells are the ones with small $C$ and large $\gamma$, and large $\gamma$ also falls away at large $C$. The winner, $C=10$ with $\gamma=0.01$, keeps 51 of its 426 training rows as support vectors. A linear kernel at $C=0.1$ scores 0.9932, so on this data almost all the curvature is unnecessary.
+\end{workedexample}
+
 \section{Multiclass SVMs and support vector regression}
 
 Multiclass reductions include \term{one-vs-rest} ($K$ classifiers) and \term{one-vs-one} (one per class pair, combined by voting).
 
-\term{Support vector regression (SVR)} recycles the margin idea for numeric labels: build a tube of half-width $\varepsilon$ around the prediction and charge nothing for points inside it, using the $\varepsilon$-insensitive loss $\max(0,\,|y-f(\bm{x})|-\varepsilon)$. Only points on or outside the tube become support vectors, giving a sparse, outlier-tolerant regressor with the full kernel toolbox available.
+\term{Support vector regression (SVR)} recycles the margin idea for numeric labels: build a tube of half-width $\varepsilon$ around the prediction and charge nothing for points inside it, using the $\varepsilon$-insensitive loss $\max(0,\,|y-f(\bm{x})|-\varepsilon)$. Only points on or outside the tube become support vectors.
 
 \section{Practical notes}
 
@@ -220,6 +308,8 @@ Multiclass reductions include \term{one-vs-rest} ($K$ classifiers) and \term{one
   \item \term{Scale limits:} kernel SVMs suit small-to-medium datasets; linear SVMs suit high-dimensional text. Large datasets may favor linear models or ensembles.
   \item \term{Probabilities are not native.} SVMs output scores and margins; if calibrated probabilities are needed, apply and validate a calibration step (\chapref{ch:evaluation}).
 \end{itemize}
+
+\recipecard{Support vector machine}{A separating line or plane, $\bm{w}^{\mathsf T}\phi(\bm{x})+b$, possibly in a kernel's richer space.}{Hinge loss plus a penalty that keeps the street wide; $C$ sets the balance.}{A convex quadratic program. Its one best answer depends only on the support vectors.}
 
 \section{Choosing a supervised model}
 \label{sec:supervised-model-choice}
@@ -244,28 +334,45 @@ SVM & Margins and kernels; strong in high dimensions & Scaling required; slow on
 \end{tabular}
 \end{utptable}
 
-Start with regularized linear models; add complexity only for validated gains. In Lab~3, a tuned SVM reaches test AUC 0.997 versus 0.986--0.992 for simpler KNN/naive Bayes fits.
-
-\begin{keyidea}
-SVMs illustrate two reusable ideas: wide margins control complexity, and kernels allow linear methods to express nonlinear boundaries.
-\end{keyidea}
+Start with regularized linear models, and add complexity only for validated gains. In Lab~3 a tuned SVM reaches a test ROC AUC of 0.997 on the breast-cancer rows, where $k$-NN scored 0.986 and naive Bayes 0.992. A linear SVM also reaches 0.997, and with results that close the simplest is the one to keep.
 
 \begin{modelcard}{Support Vector Machines - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.24\linewidth}X@{}}
 Best when & The dataset is small to medium sized, features are informative, and a strong margin-based boundary is useful. \cr
 Preprocessing & Standardize numerical features; encode categories; remove clearly irrelevant features when justified by the validated workflow in \secref{sec:feature-selection}. \cr
 Main controls & $C$ for margin violations; kernel choice; $\gamma$ for RBF-kernel reach; $\varepsilon$ for SVR. \cr
-Strengths & Effective in high-dimensional spaces and flexible through kernels. \cr
 Watch for & Slow training on very large datasets, sensitive scale, difficult probability interpretation, and expensive kernel tuning. \cr
 \end{tabularx}
 \end{modelcard}
 
-\input{labs/03-supervised-models}
+\begin{chapterrecap}
+\begin{itemize}
+  \item An SVM chooses the widest street between the classes. Only the support vectors, the points on or inside its curbs, affect it.
+  \item Soft margins charge hinge loss for violations, and $C$ sets how expensive those are.
+  \item Mapping to richer features can make curved boundaries straight, and a kernel computes the needed dot products without visiting that space.
+  \item $\gamma$ sets how far one point's influence reaches. Tune $C$ and $\gamma$ together, with scaling inside the folds.
+  \item Across the supervised families, start simple and keep complexity only when validation pays for it.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What is the geometric meaning of a larger separating margin in an SVM?
-  \item How do \(C\) and, for an RBF kernel, \(\gamma\) change the flexibility of the fitted decision boundary?
-  \item Why should scaling and SVM hyperparameter selection both happen inside the validation procedure?
+  \item In the six-point example, what happens to the fitted line if you delete the point $(4,3)$? Why?
+  \item A point has $y(\bm{w}^{\mathsf T}\bm{x}+b)=0.7$. What is its hinge loss, and where is it?
+  \item How do $C$ and, for an RBF kernel, $\gamma$ change the flexibility of the fitted decision boundary?
+  \item Why should scaling and SVM tuning both happen inside the validation procedure?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item A wider street between the classes, which leaves more room for new points to land on the correct side. Maximizing it is the SVM's way of controlling capacity.
+  \item Nothing. $(4,3)$ is not a support vector: it lies beyond the curb with a score of 1.67, so it exerts no force on the solution.
+  \item $1-0.7=0.3$. The point is on the correct side but inside the street.
+  \item A larger $C$ makes violations costlier, which narrows the street and allows a more complex fit. A larger $\gamma$ shortens each point's reach, which makes the boundary more local and wiggly.
+  \item Margins are in feature units, so a scaler fitted on validation rows leaks, and an unscaled search tunes the wrong problem. Both belong in a pipeline refitted in every fold.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/03-supervised-models}

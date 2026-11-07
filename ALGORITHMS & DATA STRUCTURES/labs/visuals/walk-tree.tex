@@ -1,0 +1,34 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{adslabfigure}[General binary-tree deletion: copy the last level-order value, then remove its leaf]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\begin{scope}[xshift=0cm,yshift=0cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {Updated 6 to 7; inserted 10};
+\node[utpnode,minimum size=7mm] (n0) at (0,0) {8};
+\node[utpnode,minimum size=7mm] (n1) at (-1.4,-1) {4};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {12};
+\node[utpnode,minimum size=7mm] (n3) at (-2.1,-2) {2};
+\node[utpnodehot,minimum size=7mm] (n4) at (-0.7,-2) {7};
+\node[utpnodehot,minimum size=7mm] (n5) at (0.7,-2) {10};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n1)--(n3);
+\draw[utpedge] (n1)--(n4);
+\draw[utpedge] (n2)--(n5);
+\end{scope}\begin{scope}[xshift=7cm,yshift=0cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {Deleted the value 4};
+\node[utpnode,minimum size=7mm] (n0) at (0,0) {8};
+\node[utpnodehot,minimum size=7mm] (n1) at (-1.4,-1) {10};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {12};
+\node[utpnode,minimum size=7mm] (n3) at (-2.1,-2) {2};
+\node[utpnode,minimum size=7mm] (n4) at (-0.7,-2) {7};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n1)--(n3);
+\draw[utpedge] (n1)--(n4);
+\end{scope}
+\draw[utparrow] (2.5,-.8)--(4.3,-.8);
+\node[utplabel,align=center] at (3.5,-3) {\texttt{target->data = deepest->data}; clear the parent's link; free deepest\\Array: $[8,4,12,2,7,10]\longrightarrow[8,10,12,2,7,\text{empty}]$};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

@@ -1,0 +1,13 @@
+\begin{utpfigure}[Insert C without moving it ahead of B]
+\begin{tikzpicture}[font=\small]
+\node[utpcell] (b) at (0,0) {B / 3};
+\node[utphot] (a) at (2,0) {A / 2};
+\node[utpdim] at (4,0) {empty};
+\node[utplabel,anchor=west] at (6,0) {C / 3 arrives: begin at pos = 2};
+\node[utpcell] at (0,-1.2) {B / 3};
+\node[utphot] at (2,-1.2) {C / 3};
+\node[utpcell] at (4,-1.2) {A / 2};
+\draw[utparrow] (a) -- (4,-.8);
+\node[utplabel,anchor=west,align=left] at (6,-1.2) {Shift A right: 2 $<$ 3\\Stop at B: 3 is not $<$ 3};
+\end{tikzpicture}
+\end{utpfigure}

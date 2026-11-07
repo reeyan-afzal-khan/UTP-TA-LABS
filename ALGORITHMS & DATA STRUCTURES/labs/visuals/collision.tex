@@ -1,0 +1,22 @@
+% Copied from chapters/11-hashing.tex (fig:collision).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{utpfigure}[A hash collision]
+\begin{tikzpicture}[font=\small]
+\node[utpcell,minimum width=1.0cm,minimum height=0.62cm] (a) at (0,0.45) {10};
+\node[utphot,minimum width=1.0cm,minimum height=0.62cm] (b) at (0,-0.45) {15};
+\node[utpstep,fill=UTPPaleTeal,draw=UTPTeal,minimum width=1.9cm,minimum height=0.95cm,
+      font=\small\bfseries\color{UTPNavy}] (h) at (2.4,0) {$x\bmod5$};
+\draw[utpptr] (a.east) -- (h.west);
+\draw[utpptr,draw=UTPRed] (b.east) -- (h.west);
+\begin{scope}[xshift=5.4cm,yshift=0.7cm]
+\foreach \i in {0,...,4}{
+  \node[utpdim,minimum width=1.1cm,minimum height=0.6cm] (t\i) at (0,-0.66*\i) {};
+  \node[utplabel,anchor=east] at (-0.68,-0.66*\i) {\i};
+}
+\node[utphot,minimum width=1.1cm,minimum height=0.6cm] at (0,0) {10};
+\end{scope}
+\draw[utpptr,draw=UTPRed,line width=1pt] (h.east) -- (4.65,0.35);
+\node[utplabel,anchor=west,color=UTPRed,align=left] at (6.3,0.4)
+  {both want slot 0:\\\textbf{collision}};
+\end{tikzpicture}
+\end{utpfigure}

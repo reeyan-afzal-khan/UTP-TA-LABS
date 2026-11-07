@@ -6,24 +6,48 @@
 \textbf{Dataset.} \texttt{bike\_sharing\_dataset\_hour.csv}.\\
 \textbf{Scenario.} Hourly bike records are too granular for a manager who wants to understand commuting demand. Your task is to transform the source table into a compact, traceable analytical dataset without losing the meaning of the original measurements.
 
-\textbf{Core workflow.}
-\begin{enumerate}
-  \item \textbf{State the grain.} Confirm that one row represents one observed hour on one date. Verify the date and hour ranges before any transformation.
-  \item \textbf{Preserve raw variables.} Create readable day-type and hour labels as new fields rather than replacing coded source columns.
-  \item \textbf{Engineer an operational feature.} Define peak-period categories with explicit hour boundaries. Explain why the chosen boundaries are analytical assumptions rather than facts stored in the data.
-  \item \textbf{Represent cyclical time.} Create sine/cosine encodings for hour-of-day so that 23:00 is close to 00:00 in feature space. Verify the unit-circle identity numerically.
-  \item \textbf{Aggregate for a question.} Produce mean rental profiles by hour and working-day status. State how the observational unit changes after aggregation.
-  \item \textbf{Separate demand components.} Summarise \texttt{casual} and \texttt{registered} rentals by peak period and day type. Identify where the two user groups show materially different patterns.
-  \item \textbf{Validate the transformation.} Check that group counts sum to the source row count, engineered categories contain no unexpected missing values, and total rentals remain consistent with their components.
-\end{enumerate}
+\input{labs/visuals/03-flow}
 
-\begin{tryit}
-\textbf{Extension.} Change one peak-period boundary and quantify how much the resulting group summaries change. Use the result to explain why feature engineering should be treated as a modelling decision that may require sensitivity analysis.
-\end{tryit}
+\textbf{Run the complete script.} Start a clean R session in the course folder. Each step continues the same file; comment headings identify the operation performed by the next block.
+\begin{lstlisting}[style=utpterminal]
+Rscript all_experiments/lab03_wrangling.R
+\end{lstlisting}
 
-\tcbbreak
-\lstinputlisting[style=utpr]{all_experiments/lab03_wrangling.R}
+\noindent\textbf{Step 1.} Load, validate and prepare the data
+\lstinputlisting[style=utpr,firstline=1,lastline=10]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 2.} Preserve source columns; all transformations create new fields.
+\input{labs/visuals/03-trace}
+\lstinputlisting[style=utpr,firstline=11,lastline=19]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 3.} Cyclical encodings keep hour 23 close to hour 0 in feature space.
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:wrangling]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} These two coordinates keep midnight next to the previous hour in feature space. Preserve hr for labels. Tiny floating-point differences from 1 are expected; a large error suggests a wrong angle or mismatched columns.
+\input{labs/visuals/03-worked-case.tex}
+
+\lstinputlisting[style=utpr,firstline=20,lastline=23]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 4.} Validation checks before analysis.
+\lstinputlisting[style=utpr,firstline=24,lastline=30]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 5.} Aggregate 17k+ observations into an interpretable demand profile.
+\lstinputlisting[style=utpr,firstline=31,lastline=50]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 6.} Visualise the grouped result, not all raw points.
+\lstinputlisting[style=utpr,firstline=51,lastline=61]{all_experiments/lab03_wrangling.R}
+
+\noindent\textbf{Step 7.} Sensitivity check: move the morning-peak end from 09:00 to 08:00.
+\lstinputlisting[style=utpr,firstline=62,lastline=71]{all_experiments/lab03_wrangling.R}
+\textbf{Chapter connection.} Revisit \hyperref[ch:wrangling]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/03-data-wrangling-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Reproduce one group summary directly from its raw rows. Shift a peak-hour boundary by one hour and identify the exact records whose category changes.
+
+
 \textbf{Required evidence.} Submit the final analysis-ready column definitions, one grouped demand profile, and three validation checks. For every engineered variable, include a one-sentence definition precise enough for another analyst to reproduce it independently.
 
 \textbf{Decision checkpoint.} Recommend one feature that should enter a future demand model and one feature that should \emph{not} be used without additional care. Justify both choices from the variable meaning and the risk of leakage or redundancy.

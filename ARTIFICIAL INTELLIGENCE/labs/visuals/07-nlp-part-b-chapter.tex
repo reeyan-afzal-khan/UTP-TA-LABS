@@ -1,0 +1,22 @@
+% Reused from chapters/08-nlp-methods.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  stage/.style={utpbox,text width=2.7cm,minimum height=1.05cm,
+    font=\scriptsize\ttfamily\color{UTPNavy}},
+  stagelabel/.style={utplabel,anchor=north,align=center,text width=2.7cm}
+]
+\node[stage] (raw) {@united Flight\\cancelled AGAIN!\\http://t.co/x};
+\node[stage,right=0.6cm of raw] (normalized) {user flight\\cancelled again!\\url};
+\node[stage,right=0.6cm of normalized] (filtered) {user flight\\cancelled url};
+\node[stage,right=0.6cm of filtered,fill=UTPPaleTeal,draw=UTPGreen]
+  (counts) {cancelled:1\ flight:1\\url:1\ user:1};
+\draw[utparrow] (raw.east) -- (normalized.west);
+\draw[utparrow] (normalized.east) -- (filtered.west);
+\draw[utparrow] (filtered.east) -- (counts.west);
+\node[stagelabel] at ([yshift=-2mm]raw.south) {Raw tweet};
+\node[stagelabel] at ([yshift=-2mm]normalized.south) {Replace handles and\\URLs, lowercase};
+\node[stagelabel] at ([yshift=-2mm]filtered.south) {Tokenise, drop\\stop words};
+\node[stagelabel] at ([yshift=-2mm]counts.south) {Count terms\\(the bag of words)};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

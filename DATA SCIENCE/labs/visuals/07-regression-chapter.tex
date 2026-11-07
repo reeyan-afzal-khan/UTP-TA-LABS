@@ -1,0 +1,59 @@
+% Reused from chapters/07-regression.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  card/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.27\linewidth,
+    minimum width=0.34\linewidth,minimum height=1.18cm,
+    inner xsep=4mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  flow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.9pt,draw=UTPTeal},
+  testflow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.9pt,draw=UTPOrange!85!black},
+  targetflow/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=0.8pt,draw=UTPOrange!85!black,dashed},
+  flowlabel/.style={fill=white,rounded corners=1mm,
+    inner xsep=2.5mm,inner ysep=1mm,
+    font=\tiny\bfseries}]
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (all) at (0.50,4.20)
+  {\textcolor{UTPTeal}{\textbf{01  AVAILABLE DATA}}\\[4pt]
+   Features and target\\before splitting};
+\node[card] (train) at (0.28,0.85)
+  {\textcolor{UTPBlue}{\textbf{02A  TRAINING PARTITION}}\\[4pt]
+   Used to learn\\model parameters};
+\node[card,draw=UTPOrange!80,fill=UTPPaleOrange] (test) at (0.72,0.85)
+  {\textcolor{UTPOrange!85!black}{\textbf{02B  TEST PARTITION}}\\[4pt]
+   Held out from\\model fitting};
+\node[card] (model) at (0.28,-1.15)
+  {\textcolor{UTPBlue}{\textbf{03A  FIT + FREEZE}}\\[4pt]
+   Model and preprocessing\\are now fixed};
+\node[card,draw=UTPOrange!80,fill=UTPPaleOrange] (features) at (0.72,-1.15)
+  {\textcolor{UTPOrange!85!black}{\textbf{03B  TEST FEATURES}}\\[4pt]
+   Apply frozen\\preprocessing only};
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (pred) at (0.50,-3.15)
+  {\textcolor{UTPTeal}{\textbf{04  TEST PREDICTIONS}}\\[4pt]
+   Fixed model applied\\to test features};
+\node[card,draw=UTPTeal!80,fill=UTPPaleTeal] (eval) at (0.50,-5.05)
+  {\textcolor{UTPTeal}{\textbf{05  EVALUATE}}\\[4pt]
+   MAE, RMSE, and\\residual diagnostics};
+\coordinate (branch) at (0.50,2.45);
+\draw[draw=UTPTeal,line width=0.9pt] (all.south) -- (branch);
+\fill[UTPTeal] (branch) circle (1.2pt);
+\node[flowlabel,text=UTPTeal] at (0.50,2.95)
+  {TRAIN / TEST SPLIT};
+\draw[flow] (branch) -| (train.north);
+\draw[testflow] (branch) -| (test.north);
+\draw[flow] (train.south) -- (model.north);
+\draw[testflow] (test.south) -- (features.north);
+\coordinate (merge) at (0.50,-2.15);
+\draw[draw=UTPTeal,line width=0.9pt] (model.south) |- (merge);
+\draw[draw=UTPOrange!85!black,line width=0.9pt] (features.south) |- (merge);
+\fill[UTPTeal] (merge) circle (1.15pt);
+\draw[flow] (merge) -- (pred.north);
+\draw[flow] (pred.south) -- (eval.north);
+\draw[targetflow] (test.east) -- ++(0.09\linewidth,0) |- (eval.east);
+\node[flowlabel,text=UTPOrange!85!black] at (0.82,-4.78)
+  {HELD-OUT TARGETS};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

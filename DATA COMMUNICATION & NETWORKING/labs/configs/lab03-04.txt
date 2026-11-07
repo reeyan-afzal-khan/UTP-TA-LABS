@@ -1,0 +1,5 @@
+system-view
+ip route-static 192.168.3.0 24 10.0.12.2
+ip route-static 192.168.3.0 24 10.0.13.3 preference 100
+return
+display ip routing-table protocol static

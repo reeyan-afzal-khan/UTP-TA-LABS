@@ -1,0 +1,116 @@
+\textbf{Program 1: Graph storage, BFS, DFS, and exact-length paths.}
+
+\textbf{File:} \texttt{graph\_traversal.cpp}.
+
+\textbf{Chapter connection:} Adjacency list; Breadth-first search; Depth-first search.
+
+Store an undirected edge in both lists. BFS marks on enqueue; DFS records on entry. The exact-length simple-path search uses branch-local markers and undoes a failed branch. Stored neighbour order determines the printed traversal order.
+
+\input{labs/visuals/program-graph_traversal}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 16--29.
+
+\lstinputlisting[firstline=16,lastline=29]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement bfs, visited, dfs.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 30--62.
+
+\input{labs/visuals/bfs}
+
+\lstinputlisting[firstline=30,lastline=62]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Implement dfsStack, visited, pathOfLength.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 63--97.
+
+\input{labs/visuals/walk-dfs-code}
+
+\lstinputlisting[firstline=63,lastline=97]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 98--133.
+
+\input{labs/visuals/walk-graph-storage}
+
+\textbf{Trace checkpoint for the supplied main.} The given seven undirected edges create fourteen adjacency entries. BFS marks discoveries so cycles do not enqueue a vertex repeatedly. DFS follows the stored neighbour order; reversing lists changes the visiting sequence without changing the reachable set. Distinguish global visited for traversal from onPath in the simple-path search, where backtracking must release the current branch's mark.
+
+\lstinputlisting[firstline=98,lastline=133]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{4}\item \textbf{Compare traversal orders and reverse neighbour order.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 134--163. Continue in the same file; do not add another header or opening brace.
+
+
+\lstinputlisting[firstline=134,lastline=163]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{5}\item \textbf{Test exact-length paths with fresh visit markers.}\end{utpsteps}
+
+\texttt{graph\_traversal.cpp} --- lines 164--181. Continue in the same file; do not add another header or opening brace.
+
+\input{labs/visuals/walk-path}
+
+\lstinputlisting[firstline=164,lastline=181]{all_experiments/Lab09/graph_traversal.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect graph\_traversal.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra graph_traversal.cpp -o graph_traversal.exe
+
+.\graph_traversal.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Adjacency list (5 vertices, 7 edges) ==
+  A: B C D 
+  B: A D E 
+  C: A D 
+  D: A B C E 
+  E: B D 
+  [ok]   every edge is stored in both endpoints' lists exactly once (undirected)
+  [ok]   the degree sum is twice the edge count
+
+== Traversals from A ==
+  BFS (queue):          A B C D E 
+  DFS (recursion):      A B D C E 
+  DFS (explicit stack): A B D C E 
+  [ok]   BFS gives A B C D E: all of A's neighbours before E
+  [ok]   DFS gives A B D C E: it follows one branch as deep as it can
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/graph\_traversal.txt}.
+
+\begin{tryit}
+
+Reverse neighbour order and repeat both traversals. For the exact-length path A to E, lengths 1 and 5 must fail; 2 and 4 have simple paths. Reset markers before each new query.
+
+\end{tryit}

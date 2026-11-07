@@ -4,6 +4,28 @@
 \textbf{Coverage.} Chapter~\ref{ch:ftp}.\\
 \textbf{Goal.} Configure an FTP server and client, and internalise the habit of proving each layer before building on it.
 
+\input{labs/visuals/05-flow}
+
+\noindent\textbf{Worked implementation: FTP over the verified two-router link.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{R1 server.} Cable R1 GE0/0/0 to R2 GE0/0/0. This credential is only for the isolated classroom topology.
+\lstinputlisting[style=utpterminal]{labs/configs/lab05-01.txt}
+
+\noindent\textbf{R2 client.} Configure R2, then prove connectivity.
+\lstinputlisting[style=utpterminal]{labs/configs/lab05-02.txt}
+
+\noindent\textbf{Server file.} On R1 save a lab configuration, confirming the prompt. Run dir and use the exact filename shown.
+\lstinputlisting[style=utpterminal]{labs/configs/lab05-03.txt}
+
+\noindent\textbf{Client session.} On R2 connect, enter ftpuser and the lab password when prompted. In the FTP prompt run binary, dir and get. If the server stored a different filename, substitute it.
+\lstinputlisting[style=utpterminal]{labs/configs/lab05-04.txt}
+
+\textbf{Expected evidence.} The retrieved file must exist on R2 and have the same byte count as on R1. A ping alone does not prove a successful FTP transfer.
+
+
+
+
 \begin{labmode}
 This lab is short, and its real lesson is diagnostic order. Every step below verifies the layer beneath it before adding anything. Skip a verification and a later failure becomes ambiguous --- you will not know whether the problem is routing, authentication, or the file system.
 \end{labmode}
@@ -18,6 +40,14 @@ Ping first. Always. It costs five seconds and eliminates three layers of possibl
 \end{keyidea}
 
 \medskip\noindent\textbf{Step 2 --- Enable the server and set its directory.}\par
+
+\input{labs/visuals/05-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:ftp]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Use the filename from the save step exactly. If authentication succeeds but retrieval fails, inspect the remote directory and transfer result separately. Keep the classroom credentials restricted to this practice topology.
+\input{labs/visuals/05-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 system-view
@@ -129,7 +159,13 @@ Find your password in the capture. It is there in plaintext, because FTP does no
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:ftp]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/05-ftp-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Download the saved demo configuration and compare its byte count and contents with the intended source. Record control-session evidence and transfer evidence separately.
+
+
 \begin{itemize}
   \item Ping succeeded before any FTP configuration was attempted.
   \item \cmd{display ftp-server} confirms the service is enabled.

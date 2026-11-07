@@ -6,15 +6,24 @@
 \textbf{Core systems.} Supplied Excel spreadsheet + Odoo Sales/Inventory/Manufacturing reporting.\\
 \textbf{Goal.} Build formula-driven forecast and S\&OP logic, then explain where an integrated ERP would supply the historical data used by the model.
 
+\input{labs/visuals/06-flow}
+
+
 \begin{labmode}
 The tutorial explicitly requires the supplied spreadsheet. Odoo remains part of the lab by providing the operational context: Sales generates history, Inventory provides starting stock, and Manufacturing provides actual production. The spreadsheet performs the aggregate planning calculation.
 
 \medskip
-\textbf{The spreadsheet was not included with the course materials.} Rather than leave the lab uncompletable, \texttt{Lab06/sop\_planner.py} reproduces the same calculation with every formula written out:
+\textbf{The spreadsheet was not included with the course materials.} Rather than leave the lab uncompletable, \texttt{all\_experiments/sop\_planner.py} reproduces the same calculation with every formula written out:
+
+\input{labs/visuals/06-trace}
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:forecasting-sop]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Follow base, forecast, capacity, opening, inventory and utilisation in that order. January closing stock becomes February opening stock. With --unit shoes, capacity halves to 3,520 pairs and January utilisation rises to 130.68\%, so feasible becomes false even though the stock calculation remains 580. Check both conditions in the boolean expression rather than using positive closing stock as the sole feasibility test.
+\input{labs/visuals/06-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
-py sop_planner.py
-py sop_planner.py --safety-stock 500 --unit pairs
+python all_experiments/sop_planner.py
+python all_experiments/sop_planner.py --safety-stock 500 --unit pairs
 \end{lstlisting}
 
 Build the spreadsheet as the tutorial requires --- that is the deliverable. Use the script to \emph{check} it. If your sheet and the script disagree, one of you has a formula wrong, and finding out which is worth more than either answer.
@@ -50,13 +59,19 @@ Plan around the expected festive-demand pressure in June and December rather tha
 
 Tutorial 6 states safety stock = 100, while the supplied spreadsheet contains 500 in the initial December inventory cell. Do not hide the conflict. Confirm which value should be used for assessment and state it in your sheet or submission notes.
 
+
+\textbf{Complete formula checker.} The inputs below reproduce the worked chapter plan. Both unit interpretations are supported; the program reports infeasible months rather than silently changing the plan.
+\lstinputlisting[style=utppython,firstline=1,lastline=27]{all_experiments/sop_planner.py}
+\lstinputlisting[style=utppython,firstline=28,lastline=42]{all_experiments/sop_planner.py}
+\textbf{Reference run: pairs per hour.}
+\lstinputlisting[style=utpterminal]{labs/walkthroughs/sop-pairs.txt}
 \medskip\noindent\textbf{Part E --- Inspect related Odoo reports.}
 
 After completing earlier labs, open:
 \begin{itemize}
   \item \pathmenu{Sales \textrightarrow Reporting};
   \item \pathmenu{Inventory \textrightarrow Reporting};
-  \item \pathmenu{Manufacturing \textrightarrow Reporting}.
+  \item \pathmenu{Manufacturing \textrightarrow Operations \textrightarrow Manufacturing Orders}, switching to its Graph or Pivot view. Manufacturing has no Reporting menu in the default setup.
 \end{itemize}
 
 For each report, identify which S\&OP input or validation measure it could provide in a larger implementation: sales history, starting inventory, production output, or actual-versus-plan comparison.
@@ -66,7 +81,15 @@ Forecasting is not ``outside ERP.'' Even when the planning calculation is perfor
 \end{keyidea}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:forecasting-sop]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/06-forecast-sop-odoo-chapter.tex}
+
+\input{labs/walkthroughs/06-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Run the two documented capacity-unit interpretations. Show the first month where feasibility differs and report both stock and utilisation, rather than only a final annual total.
+
+
 \begin{itemize}
   \item Every calculated row of the forecast uses formulas, not typed values.
   \item One unit is used consistently in the demand and capacity calculations, and the interpretation is recorded.

@@ -5,15 +5,33 @@
 \textbf{Goal.} Run three small utilities and verify them with standard Linux commands.\\
 \textbf{Explain.} Explain what each utility promises to the user and how it reports failure.
 
+\input{labs/visuals/02-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{file\_info.c}}{Read metadata with \texttt{stat()}.}{The program does not read the file's contents; it reads information \emph{about} the file.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/file_info.c}
+\noindent\textbf{Start the file.} \texttt{file\_info.c}, lines 1--32.
+\input{labs/visuals/02-trace}
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:files-cli]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Follow the early returns before reading the printed metadata. With no argument, the program shows usage; with a nonexistent path, stat fails; with a valid path, the populated struct is inspected. Inode numbers are machine-specific and should be compared within your own run. Test all three branches and record the exit status immediately after each command.
+\input{labs/visuals/02-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=32]{all_experiments/Lab02/file_info.c}
 
 \labsourcecard{\texttt{file\_copy.c}}{Copy bytes using POSIX file descriptors.}{The outer loop reads chunks; the inner loop handles a write that may complete only part of a chunk.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/file_copy.c}
+\noindent\textbf{Start the file.} \texttt{file\_copy.c}, lines 1--31.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=31]{all_experiments/Lab02/file_copy.c}
+
+\noindent\textbf{Continue the same file.} \texttt{file\_copy.c}, lines 32--63.
+\lstinputlisting[style=utpcnumbered,firstline=32,lastline=63]{all_experiments/Lab02/file_copy.c}
 
 \labsourcecard{\texttt{mini\_grep.c}}{Search a text file and return a useful exit status.}{\texttt{0}=match, \texttt{1}=no match, \texttt{2}=usage/file error.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/mini_grep.c}
+\noindent\textbf{Start the file.} \texttt{mini\_grep.c}, lines 1--30.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=30]{all_experiments/Lab02/mini_grep.c}
+
+\noindent\textbf{Continue the same file.} \texttt{mini\_grep.c}, lines 31--39.
+\lstinputlisting[style=utpcnumbered,firstline=31,lastline=39]{all_experiments/Lab02/mini_grep.c}
 
 \section*{Task 1 --- Build and inspect metadata}
 \begin{lstlisting}[style=utpbash]
@@ -58,7 +76,13 @@ A professional CLI tool has two audiences: a person reads its output; another pr
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:files-cli]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/02-file-and-directory-utilities-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Use a small scratch input with repeated and blank lines. Predict each pipeline stage, run it and compare the final counts with a manual tally.
+
+
 \begin{itemize}
   \item At least three metadata fields from \texttt{file\_info} match \texttt{stat}.
   \item \texttt{cmp} returns status~0 for the original and the copy.

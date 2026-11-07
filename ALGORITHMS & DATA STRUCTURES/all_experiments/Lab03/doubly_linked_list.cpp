@@ -42,7 +42,7 @@ void pushFront(DNode*& head, DNode*& tail, int value) {
     }
 }
 
-// Insert so the new value ends up at 0-based `position`.
+// Insert so the new value ends up at 0-based position.
 bool insertAt(DNode*& head, DNode*& tail, int position, int value) {
     if (position < 0) return false;
     if (position == 0) { pushFront(head, tail, value); return true; }

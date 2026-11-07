@@ -1,0 +1,8 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+0 433 00840bc65bf527d2
+1 13 00bcd74ebdd225fa
+2 573 00aa03c9d32d703c
+3 196 00dd383641d49f34
+After tampering:
+block 2: invalid proof of work
+block 3: broken previous-hash link

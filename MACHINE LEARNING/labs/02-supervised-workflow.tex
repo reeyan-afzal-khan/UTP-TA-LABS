@@ -1,482 +1,379 @@
 \labsection{2}{Supervised learning I: regression, classification, and the workflow}{sec:lab02-supervised-workflow}
 
 \begin{labproject}{Two regression examples, two classification examples, and a saved model at the end}
-\textbf{Coverage.} Chapters~\ref{ch:supervised}--\ref{ch:classification}.\\
-\textbf{Goal.} Fit regression/classification pipelines, validate chronologically where needed, tune thresholds and hyperparameters, test once, and save models.
+\textbf{Read first.} Chapters~\ref{ch:learning}--\ref{ch:classification}.\\
+\textbf{Goal.} Fit regression and classification pipelines, validate in date order where time matters, choose thresholds and hyperparameters on purpose, test once, and save models that can be loaded and used.\\
+\textbf{Scenario.} Four small commissions: an insurer wants charges predicted, a bike scheme wants demand forecast, a historian wants survival modeled, and a clinic wants a tumor screener whose missed cases are taken seriously. Then the models must leave the notebook as files.\\
+\textbf{Data.} \texttt{all\_datasets/medical\_cost\_personal\_dataset.csv}, \texttt{bike\_sharing\_dataset\_day.csv}, \texttt{bike\_sharing\_dataset\_hour.csv}, \texttt{titanic\_dataset.csv}, \texttt{breast\_cancer\_dataset.csv}; \texttt{heart\_failure\_dataset.csv} in the Try-it.\\
+\textbf{Notebook.} \texttt{all\_experiments/lab02\_supervised\_workflow\_worked.ipynb}.\\
+\textbf{Hand in.} The executed notebook, \texttt{results/lab02/}, the model files and a decision memo, as listed in the checklist at the end of this sheet.
+\end{labproject}
 
-\medskip\noindent\textbf{Setup.}\par
-\begin{lstlisting}[style=utppython]
-import json
-from pathlib import Path
-
-import joblib
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import sklearn
-from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge
-from sklearn.metrics import (
-    ConfusionMatrixDisplay,
-    PrecisionRecallDisplay,
-    RocCurveDisplay,
-    accuracy_score,
-    average_precision_score,
-    classification_report,
-    confusion_matrix,
-    mean_absolute_error,
-    mean_squared_error,
-    precision_score,
-    r2_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-
-PROJECT_ROOT = Path.cwd().parent
-DATA = PROJECT_ROOT / "all_datasets"
-MODELS = PROJECT_ROOT / "models"
-MODELS.mkdir(exist_ok=True)
+\begin{labmode}
+\begin{enumerate}
+  \item Activate your course environment and confirm the data files are in \texttt{all\_datasets/}.
+  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes under a minute.
+  \item Parts A and B are regression, Parts C and D classification, and Part E turns the results into files.
+\end{enumerate}
+\begin{lstlisting}[style=utpterminal]
+cd all_experiments
+jupyter lab
 \end{lstlisting}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab02\_supervised\_workflow\_worked.py} runs the same code and writes the same evidence.
+\end{labmode}
 
-Use one helper for numerical imputation/scaling and categorical imputation/one-hot encoding.
+\input{labs/visuals/02-flow}
 
-\begin{lstlisting}[style=utppython]
-def make_preprocess(num_cols, cat_cols):
-    return ColumnTransformer([
-        ("num", Pipeline([
-            ("impute", SimpleImputer(strategy="median")),
-            ("scale", StandardScaler()),
-        ]), num_cols),
-        ("cat", Pipeline([
-            ("impute", SimpleImputer(strategy="most_frequent")),
-            ("onehot", OneHotEncoder(handle_unknown="ignore")),
-        ]), cat_cols),
-    ])
+\labroutine
+
+\begin{yourturn}
+\textbf{Warm-up on paper.} Do these before opening the notebook; the code will check you.
+\begin{enumerate}
+  \item True values $10,20,30,40$ and predictions $12,18,30,50$. Compute MAE and RMSE. Why is RMSE larger? (MAE 3.5, RMSE about 5.2.)
+  \item Question~9's model at threshold 0.50 has $TP=58$, $FP=22$, $FN=28$ and $TN=115$. Compute precision, recall and accuracy. Then predict: if the threshold falls to 0.30, which of these four counts can only grow, and which can only shrink?
+\end{enumerate}
+\end{yourturn}
+
+\begin{labquestion}{1}{Setup}
+Run the imports and paths first. \texttt{make\_preprocess} is the same helper as in Lab~1: median imputation and scaling for numbers, most-frequent imputation and one-hot encoding for categories.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=8,lastline=43]{all_experiments/lab02_supervised_workflow_worked.py}
+\noindent\textbf{Continue the same step.}
+\lstinputlisting[style=utppython,firstline=44,lastline=58]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+course folder: MACHINE LEARNING
 \end{lstlisting}
+\end{refoutput}
+\end{labanswer}
 
-\medskip\noindent\textbf{Part A --- Regression: ordinary least squares versus ridge.}\par
+\labpart{Part A --- Regression: ordinary least squares versus ridge}
 
-Predict insurance \texttt{charges}. Compare OLS and ridge on the same features and split.
-
-\begin{lstlisting}[style=utppython]
-insurance = pd.read_csv(DATA / "medical_cost_personal_dataset.csv")
-print(insurance.head())
-
-X = insurance.drop(columns="charges")
-y = insurance["charges"]
-num_cols = ["age", "bmi", "children"]
-cat_cols = ["sex", "smoker", "region"]
-
-X_train, X_valid, y_train, y_valid = train_test_split(
-    X, y, test_size=0.20, random_state=42
-)
+\begin{labquestion}{2}{Read the insurance table and split it}
+The table has one row per customer and a numeric label, \texttt{charges}, so this is regression. Two models will share the pipeline and the split; the only difference is ridge's penalty on large coefficients.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/02-trace}
+\lstinputlisting[style=utppython,firstline=60,lastline=70]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+   age     sex     bmi  children smoker     region      charges
+0   19  female  27.900         0    yes  southwest  16884.92400
+1   18    male  33.770         1     no  southeast   1725.55230
+2   28    male  33.000         3     no  southeast   4449.46200
+3   33    male  22.705         0     no  northwest  21984.47061
+4   32    male  28.880         0     no  northwest   3866.85520
 \end{lstlisting}
+\end{refoutput}
 
-MAE gives average dollar error; RMSE emphasizes extremes; $R^2$ compares squared error with the mean-label reference.
+\textbf{What it means.} The 1,338 rows become 1,070 for training and 268 for validation. Look at row 3: a non-smoker charged \$21,984, so charges are far from a clean function of these columns.
+\end{labanswer}
 
-\begin{lstlisting}[style=utppython]
-fitted = {}
-predictions = {}
+\begin{labquestion}{3}{Fit OLS and ridge}
+Three scores per model. MAE is the typical miss in dollars. RMSE weights big misses more, so when it is much larger than MAE, a few predictions are badly wrong. $R^2$ is the share of the label's variation the model explains.
+\end{labquestion}
+\begin{labanswer}
+\input{labs/visuals/02-worked-case.tex}
+\lstinputlisting[style=utppython,firstline=72,lastline=87]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+linear regression
+MAE: 4181.19
+RMSE: 5796.28
+R2: 0.784
 
-for name, estimator in {
-    "linear regression": LinearRegression(),
-    "ridge": Ridge(alpha=10.0),
-}.items():
-    model = Pipeline([("preprocess", make_preprocess(num_cols, cat_cols)), ("model", estimator)])
-    model.fit(X_train, y_train)
-    fitted[name] = model
-    predictions[name] = model.predict(X_valid)
-    pred = predictions[name]
-    print(f"\n{name}")
-    print("MAE:", round(mean_absolute_error(y_valid, pred), 2))
-    print("RMSE:", round(np.sqrt(mean_squared_error(y_valid, pred)), 2))
-    print("R2:", round(r2_score(y_valid, pred), 3))
+ridge
+MAE: 4238.82
+RMSE: 5821.59
+R2: 0.782
 \end{lstlisting}
+\end{refoutput}
 
-Coefficients give conditional prediction changes. Standardized numerical coefficients represent one-standard-deviation changes.
+\textbf{What it means.} Regularization did not help. With 1,070 rows and eleven encoded columns the plain model is already stable. Always guessing the training mean has an MAE of \$9,593, so both models more than halve it.
+\end{labanswer}
 
-\begin{lstlisting}[style=utppython]
-linear = fitted["linear regression"]
-names = linear.named_steps["preprocess"].get_feature_names_out()
-coefs = pd.Series(linear.named_steps["model"].coef_, index=names).sort_values()
+\begin{labquestion}{4}{Read the coefficients}
+A linear model is readable: each coefficient is the change in predicted charges for a one-unit change in that feature, the others held fixed. Because the numeric columns were standardized, one unit is one standard deviation, so the bars are comparable.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=89,lastline=100]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/02-notebook-reference.png}
+\end{labvisual}
 
-plt.figure(figsize=(6, 3.6))
-plt.barh(coefs.index, coefs.values)
-plt.axvline(0, color="grey", linewidth=0.8)
-plt.xlabel("Change in predicted charges (dollars)")
-plt.title("What the linear model learned")
-plt.tight_layout()
-plt.show()
+\textbf{What it means.} \texttt{smoker} is one-hot encoded into two columns, so it appears as a pair of bars at $-11{,}826$ and $+11{,}826$, and the gap between them, \$23,651, is what smoking adds to a prediction. Age adds \$3,615 per standard deviation and BMI \$2,036. Region barely matters. A coefficient is an association inside this model, not a cause.
+\end{labanswer}
+
+\begin{labquestion}{5}{Plot the residuals}
+Two diagnostic plots for the ridge model. The residual plot should look like random scatter around zero; any pattern is something the model failed to use.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=102,lastline=121]{all_experiments/lab02_supervised_workflow_worked.py}
+
+\textbf{What it means.} Smokers form a separate, expensive band, and one straight surface cannot fit both bands: the residuals form stripes, not a cloud. That is a missing interaction, smoker $\times$ BMI, and no penalty will fix it. Your-turn task~1 adds it.
+\end{labanswer}
+
+\labpart{Part B --- Regression on a time series: validate in date order}
+
+\begin{labquestion}{6}{Split the daily bike data in date order}
+Bike rentals are recorded per day for two years. A random split would let the model train on days that come \emph{after} the ones it is validated on, which never happens in real use. So the rows are sorted by date, and the last 20\% of days form the validation set.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=123,lastline=135]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+train: 2011-01-01 to 2012-08-06
+valid: 2012-08-07 to 2012-12-31
 \end{lstlisting}
+\end{refoutput}
 
-\textbf{Inspect.} The smoker coefficient exceeds \$20,000; age and BMI contribute more than region. These are model associations, not causal effects.
+\textbf{What it means.} \texttt{casual} and \texttt{registered} add up to the label, so they are dropped: they would leak the answer. 584 days train, and 147 validate.
+\end{labanswer}
 
-Plot ridge residuals; structure suggests missed patterns.
-
-\begin{lstlisting}[style=utppython]
-ridge_pred = predictions["ridge"]
-residual = y_valid.to_numpy() - ridge_pred
-is_smoker = (X_valid["smoker"] == "yes").to_numpy()
-
-fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.8))
-axes[0].scatter(y_valid[~is_smoker], ridge_pred[~is_smoker], alpha=0.5, label="non-smoker")
-axes[0].scatter(y_valid[is_smoker], ridge_pred[is_smoker], alpha=0.5, label="smoker")
-axes[0].plot([0, y_valid.max()], [0, y_valid.max()], linestyle="--", color="grey")
-axes[0].set_xlabel("Actual charges")
-axes[0].set_ylabel("Predicted charges")
-axes[0].set_title("Ridge: actual versus predicted")
-axes[0].legend()
-axes[1].scatter(ridge_pred, residual, alpha=0.6)
-axes[1].axhline(0, linestyle="--", color="grey")
-axes[1].set_xlabel("Predicted charges")
-axes[1].set_ylabel("Residual (actual - predicted)")
-axes[1].set_title("Ridge: residual plot")
-plt.tight_layout()
-plt.show()
+\begin{labquestion}{7}{Forecast daily demand}
+The calendar columns are categories (month 12 is not ``twelve times'' month 1), so they are one-hot encoded. The weather columns are already numbers between 0 and 1, and trees do not need scaling, so those pass straight through.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=137,lastline=164]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+daily MAE: 1040.4  (mean daily demand in validation: 5897.8 )
 \end{lstlisting}
+\end{refoutput}
 
-\textbf{Inspect.} Smoker bands suggest a smoker $\times$ BMI interaction. Shrinkage alone cannot add this missing structure.
+\textbf{What it means.} Always guessing the training mean misses by 2,290, so the forest more than halves the error. It tracks the weekly rhythm and the winter decline, but it under-predicts autumn 2012: September to November average 700 to 950 rentals a day above its forecasts. Demand was growing year on year, and a forest can only average what it has already seen.
+\end{labanswer}
 
-\medskip\noindent\textbf{Part B --- Regression on a time series: validate in date order.}\par
-
-Sort two years of daily rentals by date; reserve the last 20\% for validation to avoid training on future days.
-
-\begin{lstlisting}[style=utppython]
-bikes = pd.read_csv(DATA / "bike_sharing_dataset_day.csv")
-bikes["dteday"] = pd.to_datetime(bikes["dteday"])
-bikes = bikes.sort_values("dteday").reset_index(drop=True)
-
-# cnt = casual + registered, so those two columns would leak the answer.
-bike_cat = ["season", "yr", "mnth", "holiday", "weekday", "workingday", "weathersit"]
-bike_num = ["temp", "atemp", "hum", "windspeed"]
-X_b = bikes[bike_cat + bike_num]
-y_b = bikes["cnt"]
-
-cut = int(len(bikes) * 0.80)
-print("train:", bikes["dteday"].iloc[0].date(), "to", bikes["dteday"].iloc[cut - 1].date())
-print("valid:", bikes["dteday"].iloc[cut].date(), "to", bikes["dteday"].iloc[-1].date())
+\begin{labquestion}{8}{Repeat on the hourly file}
+The same split rule on the hourly file (17,379 rows), with one new feature, \texttt{hr}. One validation week, hour by hour, shows what the daily plot averages away.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=166,lastline=199]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+hourly MAE: 56.5  (mean hourly demand in validation: 248.8 )
 \end{lstlisting}
+\end{refoutput}
 
-One-hot encode calendar categories; pass numerical weather features directly to the unscaled tree model.
+\textbf{What it means.} Two rush-hour peaks on working days, and one broad hump at the weekend. Lab~8 forecasts this same series with a recurrent network from the previous 24 hours alone.
+\end{labanswer}
 
-\begin{lstlisting}[style=utppython]
-Xb_train, Xb_valid = X_b.iloc[:cut], X_b.iloc[cut:]
-yb_train, yb_valid = y_b.iloc[:cut], y_b.iloc[cut:]
-dates_valid = bikes["dteday"].iloc[cut:]
+\labpart{Part C --- Classification: baselines, probabilities, and the threshold}
 
-bike_model = Pipeline([
-    ("preprocess", ColumnTransformer([
-        ("cat", OneHotEncoder(handle_unknown="ignore"), bike_cat),
-        ("num", "passthrough", bike_num),
-    ])),
-    ("model", RandomForestRegressor(
-        n_estimators=400, min_samples_leaf=2, random_state=42, n_jobs=-1
-    )),
-])
-bike_model.fit(Xb_train, yb_train)
-bike_pred = bike_model.predict(Xb_valid)
-print("daily MAE:", round(mean_absolute_error(yb_valid, bike_pred), 1),
-      " (mean daily demand in validation:", round(yb_valid.mean(), 1), ")")
-
-plt.figure(figsize=(8, 3.6))
-plt.plot(dates_valid, yb_valid.to_numpy(), label="actual")
-plt.plot(dates_valid, bike_pred, label="predicted")
-plt.xlabel("Date")
-plt.ylabel("Daily rentals")
-plt.title("Chronological validation: actual versus predicted demand")
-plt.legend()
-plt.tight_layout()
-plt.show()
+\begin{labquestion}{9}{Set a baseline and compare classifiers on Titanic}
+Seven passenger columns are the features; identifiers stay out. \texttt{stratify=y} keeps the survival rate the same on both sides of the split. Logistic regression is the simple, readable reference, and a random forest is the more flexible challenger. Accuracy counts correct decisions at the default 0.5 cutoff, and ROC AUC judges how well the model \emph{ranks} passengers, whatever the cutoff.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=201,lastline=236]{all_experiments/lab02_supervised_workflow_worked.py}
+\noindent\textbf{Continue the same step.}
+\lstinputlisting[style=utppython,firstline=237,lastline=242]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+majority-class baseline accuracy: 0.614
+logistic       accuracy=0.776 roc_auc=0.842
+random_forest  accuracy=0.798 roc_auc=0.834
+threshold 0.30: precision=0.64 recall=0.81
+threshold 0.50: precision=0.72 recall=0.67
+threshold 0.70: precision=0.90 recall=0.50
 \end{lstlisting}
+\end{refoutput}
 
-\textbf{Inspect.} The forest tracks seasonality but underpredicts peaks beyond the training-label range; it cannot extrapolate.
+\textbf{What it means.} Both models clear the baseline, and the two metrics disagree about which is better. On 223 validation rows a gap of two points is within noise, and a bootstrap puts the logistic AUC anywhere from 0.78 to 0.89. Part~D settles the choice with cross-validation. The threshold table is the one Chapter~\ref{ch:classification} reads.
+\end{labanswer}
 
-Repeat chronologically on 17,379 hourly rows, adding \texttt{hr}; plot one validation week.
+\textbf{Connect it to the chapter.} A loss decides what ``wrong'' costs during fitting, and the threshold decides what it costs afterwards.
+\input{labs/visuals/02-supervised-workflow-chapter.tex}
 
-\begin{lstlisting}[style=utppython]
-hourly = pd.read_csv(DATA / "bike_sharing_dataset_hour.csv")
-hourly["dteday"] = pd.to_datetime(hourly["dteday"])
-hourly = hourly.sort_values(["dteday", "hr"]).reset_index(drop=True)
+\begin{labquestion}{10}{Plot breast-cancer probabilities}
+Now the breast-cancer table: 30 numeric measurements and a label \texttt{M} (malignant) or \texttt{B} (benign). The model outputs a probability for every tumor. Plotting those probabilities separately for benign and malignant cases shows what a threshold does: it is a vertical line, and everything to its right is called malignant.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=244,lastline=271]{all_experiments/lab02_supervised_workflow_worked.py}
 
-hour_cat = bike_cat + ["hr"]
-Xh = hourly[hour_cat + bike_num]
-yh = hourly["cnt"]
-cut_h = int(len(hourly) * 0.80)
+\textbf{What it means.} Almost every benign tumor sits near 0 and almost every malignant one near 1, with few in between. Only the few in the middle are affected by where the line goes.
+\end{labanswer}
 
-hour_model = Pipeline([
-    ("preprocess", ColumnTransformer([
-        ("cat", OneHotEncoder(handle_unknown="ignore"), hour_cat),
-        ("num", "passthrough", bike_num),
-    ])),
-    ("model", RandomForestRegressor(
-        n_estimators=200, min_samples_leaf=2, random_state=42, n_jobs=-1
-    )),
-])
-hour_model.fit(Xh.iloc[:cut_h], yh.iloc[:cut_h])
-hour_pred = hour_model.predict(Xh.iloc[cut_h:])
-print("hourly MAE:", round(mean_absolute_error(yh.iloc[cut_h:], hour_pred), 1),
-      " (mean hourly demand in validation:", round(yh.iloc[cut_h:].mean(), 1), ")")
-
-week = slice(0, 24 * 7)
-plt.figure(figsize=(9, 3.4))
-plt.plot(range(24 * 7), yh.iloc[cut_h:].to_numpy()[week], label="actual")
-plt.plot(range(24 * 7), hour_pred[week], label="predicted")
-plt.xlabel("Hour of the first validation week")
-plt.ylabel("Rentals per hour")
-plt.title("Hourly demand has a shape that hr captures")
-plt.legend()
-plt.tight_layout()
-plt.show()
+\begin{labquestion}{11}{Count errors at two thresholds}
+The confusion matrix counts what happens on each side of the line: rows are the truth, and columns are the decision. Precision asks ``when the model says malignant, how often is it right?'', and recall asks ``of the malignant tumors, how many did it find?''.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=273,lastline=298]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+threshold = 0.50            threshold = 0.30
+[[89  1]                    [[89  1]
+ [ 4 49]]                    [ 2 51]]
+recall for class 1: 0.925   recall for class 1: 0.962
 \end{lstlisting}
+\end{refoutput}
 
-\textbf{Inspect.} Working days have two peaks; weekends one. Lab~8 predicts this series from 24 previous hours.
+\textbf{What it means.} At 0.50 the model misses 4 of 53 malignant tumors with 1 false alarm. At 0.30 it misses 2 with the same 1 false alarm. Lowering the threshold further stops being free: at 0.20 it misses 2 with 3 false alarms, and at 0.10 it misses 1 with 6.
+\end{labanswer}
 
-\medskip\noindent\textbf{Part C --- Classification: baselines, probabilities, and the threshold.}\par
-
-Compare logistic regression and a forest using seven passenger features, no identifiers, and stratified splits. Accuracy evaluates thresholded decisions; AUC evaluates ranking.
-
-\begin{lstlisting}[style=utppython]
-titanic = pd.read_csv(DATA / "titanic_dataset.csv")
-
-features = ["Pclass", "Sex", "Age", "SibSp", "Parch", "Fare", "Embarked"]
-t_num = ["Age", "SibSp", "Parch", "Fare"]
-t_cat = ["Pclass", "Sex", "Embarked"]
-X_t = titanic[features]
-y_t = titanic["Survived"]
-
-Xt_train, Xt_valid, yt_train, yt_valid = train_test_split(
-    X_t, y_t, test_size=0.25, random_state=42, stratify=y_t
-)
-print("majority-class baseline accuracy:", round(1 - yt_valid.mean(), 3))
-
-scores = {}
-fitted_t = {}
-for name, estimator in {
-    "logistic": LogisticRegression(max_iter=1000),
-    "random_forest": RandomForestClassifier(n_estimators=300, min_samples_leaf=2,
-                                            random_state=42),
-}.items():
-    pipe = Pipeline([("preprocess", make_preprocess(t_num, t_cat)), ("model", estimator)])
-    pipe.fit(Xt_train, yt_train)
-    fitted_t[name] = pipe
-    scores[name] = {"accuracy": accuracy_score(yt_valid, pipe.predict(Xt_valid)),
-                    "roc_auc": roc_auc_score(yt_valid, pipe.predict_proba(Xt_valid)[:, 1])}
-    print(f"{name:14s} accuracy={scores[name]['accuracy']:.3f} "
-          f"roc_auc={scores[name]['roc_auc']:.3f}")
-
-# The same logistic model, three decision rules (the table in the notes).
-prob_t = fitted_t["logistic"].predict_proba(Xt_valid)[:, 1]
-for threshold in [0.30, 0.50, 0.70]:
-    pred_t = (prob_t >= threshold).astype(int)
-    print(f"threshold {threshold:.2f}: precision={precision_score(yt_valid, pred_t):.2f} "
-          f"recall={recall_score(yt_valid, pred_t):.2f}")
-
-pd.DataFrame(scores).T.plot.bar(figsize=(5, 3.2), ylim=(0.5, 1.0), rot=0)
-plt.axhline(1 - yt_valid.mean(), linestyle="--", color="grey", label="majority baseline")
-plt.title("Two models, two metrics, one validation split")
-plt.legend(loc="lower right")
-plt.tight_layout()
-plt.show()
+\begin{labquestion}{12}{Summarize the ranking: ROC and PR}
+Two metrics summarize the ranking without choosing a threshold. ROC AUC is the chance that a random malignant tumor scores higher than a random benign one. Average precision (PR AUC) focuses on the positive class, and it is the more honest number when positives are rare.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=300,lastline=310]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+ROC AUC: 0.996
+PR AUC: 0.994
 \end{lstlisting}
+\end{refoutput}
 
-\textbf{Inspect.} Both beat the baseline, but metric rankings differ. Use Part~D cross-validation to assess small differences.
+\textbf{What it means.} The ranking is almost perfect, so the remaining errors are about where the cut goes.
+\end{labanswer}
 
-For 30 tumor measurements, predict \texttt{M} versus \texttt{B}. Plot probabilities by true class; a threshold marks malignant decisions.
+\labpart{Part D --- Tune with cross-validation, then test once}
 
-\begin{lstlisting}[style=utppython]
-cancer = pd.read_csv(DATA / "breast_cancer_dataset.csv")
+\begin{labquestion}{13}{Tune with cross-validation}
+Back to Titanic. A quarter of the rows is now the \emph{test} set, opened once at the very end. Inside the training rows, five-fold cross-validation scores every combination of \texttt{C} (regularization strength) and \texttt{class\_weight}, and the grid search then refits the winning combination on all training rows.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=312,lastline=341]{all_experiments/lab02_supervised_workflow_worked.py}
 
-X_c = cancer.drop(columns=["id", "diagnosis", "Unnamed: 32"], errors="ignore")
-y_c = (cancer["diagnosis"] == "M").astype(int)
+\textbf{What it means.} The curve is flat: every cell lies between 0.847 and 0.850, while the error bars (one standard deviation across five folds) are about 0.025. This dataset does not care much about \texttt{C}.
+\end{labanswer}
 
-Xc_train, Xc_valid, yc_train, yc_valid = train_test_split(
-    X_c, y_c, test_size=0.25, random_state=42, stratify=y_c
-)
-
-cancer_model = Pipeline([
-    ("scale", StandardScaler()),
-    ("model", LogisticRegression(max_iter=2000)),
-])
-cancer_model.fit(Xc_train, yc_train)
-prob = cancer_model.predict_proba(Xc_valid)[:, 1]
-
-plt.figure(figsize=(6, 3.4))
-plt.hist(prob[yc_valid == 0], bins=25, alpha=0.6, label="benign (actual)")
-plt.hist(prob[yc_valid == 1], bins=25, alpha=0.6, label="malignant (actual)")
-plt.axvline(0.50, color="black", linestyle="--", label="threshold 0.50")
-plt.axvline(0.30, color="red", linestyle=":", label="threshold 0.30")
-plt.xlabel("Predicted probability of malignant")
-plt.ylabel("Tumours")
-plt.title("A threshold is a vertical line through this picture")
-plt.legend()
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-Confusion-matrix rows are truth; columns are decisions. Precision measures correct malignant alerts; recall measures detected malignancies. Lowering the threshold increases alerts and cannot reduce recall.
-
-\begin{lstlisting}[style=utppython]
-for threshold in [0.50, 0.30]:
-    pred = (prob >= threshold).astype(int)
-    print(f"\nthreshold = {threshold:.2f}")
-    print(confusion_matrix(yc_valid, pred))
-    print(classification_report(yc_valid, pred, digits=3))
-    ConfusionMatrixDisplay.from_predictions(yc_valid, pred, display_labels=["benign", "malignant"])
-    plt.title(f"Confusion matrix at threshold {threshold:.2f}")
-    plt.tight_layout()
-    plt.show()
-
-thresholds = np.linspace(0.05, 0.95, 19)
-precisions = [precision_score(yc_valid, (prob >= t).astype(int), zero_division=0)
-              for t in thresholds]
-recalls = [recall_score(yc_valid, (prob >= t).astype(int)) for t in thresholds]
-
-plt.figure(figsize=(6, 3.4))
-plt.plot(thresholds, precisions, marker="o", label="precision")
-plt.plot(thresholds, recalls, marker="o", label="recall")
-plt.xlabel("Decision threshold")
-plt.ylabel("Score")
-plt.title("The threshold trades recall for precision")
-plt.legend()
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-ROC AUC measures ranking across classes; average precision summarizes precision--recall, emphasizing positive retrieval.
-
-\begin{lstlisting}[style=utppython]
-print("ROC AUC:", round(roc_auc_score(yc_valid, prob), 3))
-print("PR AUC:", round(average_precision_score(yc_valid, prob), 3))
-
-fig, axes = plt.subplots(1, 2, figsize=(9, 3.6))
-RocCurveDisplay.from_predictions(yc_valid, prob, ax=axes[0])
-axes[0].set_title("ROC curve")
-PrecisionRecallDisplay.from_predictions(yc_valid, prob, ax=axes[1])
-axes[1].set_title("Precision-recall curve")
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\medskip\noindent\textbf{Part D --- Tune with cross-validation, then test once.}\par
-
-Reserve Titanic test rows. Within training data, use five-fold CV to tune \texttt{C} and \texttt{class\_weight}; refit the winner on all training rows.
-
-\begin{lstlisting}[style=utppython]
-X_train, X_test, y_train, y_test = train_test_split(
-    X_t, y_t, test_size=0.25, random_state=42, stratify=y_t
-)
-
-search = GridSearchCV(
-    Pipeline([("preprocess", make_preprocess(t_num, t_cat)),
-              ("model", LogisticRegression(max_iter=2000))]),
-    param_grid={
-        "model__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-        "model__class_weight": [None, "balanced"],
-    },
-    scoring="roc_auc",
-    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
-    n_jobs=-1,
-)
-search.fit(X_train, y_train)
-
-cv_table = pd.DataFrame(search.cv_results_)
-plt.figure(figsize=(5.5, 3.4))
-for weight, group in cv_table.groupby(cv_table["param_model__class_weight"].astype(str)):
-    plt.errorbar(group["param_model__C"].astype(float), group["mean_test_score"],
-                 yerr=group["std_test_score"], marker="o", capsize=3, label=f"class_weight={weight}")
-plt.xscale("log")
-plt.xlabel("C (weaker regularization to the right)")
-plt.ylabel("Cross-validated ROC AUC")
-plt.title("What the grid search saw")
-plt.legend()
-plt.tight_layout()
-plt.show()
-\end{lstlisting}
-
-\textbf{Inspect.} Fold spread exceeds many differences between settings; avoid overinterpreting small gains.
-
+\begin{labquestion}{14}{Open the test set once}
 Only now is the test set touched, once.
-
-\begin{lstlisting}[style=utppython]
-test_prob = search.predict_proba(X_test)[:, 1]
-test_auc = roc_auc_score(y_test, test_prob)
-
-print("best parameters:", search.best_params_)
-print("cross-validated ROC AUC:", round(search.best_score_, 3))
-print("final test ROC AUC:", round(test_auc, 3))
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=343,lastline=348]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+best parameters: {'model__C': 0.1, 'model__class_weight': 'balanced'}
+cross-validated ROC AUC: 0.85
+final test ROC AUC: 0.837
 \end{lstlisting}
+\end{refoutput}
 
-\medskip\noindent\textbf{Part E --- Save the models and use them.}\par
+\textbf{What it means.} The test score is a little lower, as expected, because the cross-validated score was the best of ten options. Report the test number, and do not tune again after seeing it.
 
-Save preprocessing and estimator together with \texttt{joblib.dump}; add a card documenting inputs and evaluation.
+\textbf{An honest caveat.} This split uses the same seed and fraction as Part~C, so these ``test'' rows are the same 223 rows Part~C used for validation. Nothing in this search saw them, but Part~C looked at them when it compared two models. In a real project you would seal the test rows before Part~C; Your-turn task~4 asks how.
+\end{labanswer}
 
-\begin{lstlisting}[style=utppython]
-final_model = search.best_estimator_
-model_path = MODELS / "titanic_survival.joblib"
-joblib.dump(final_model, model_path)
+\labpart{Part E --- Save the models and use them}
 
-card = {
-    "task": "predict Titanic survival (1 = survived)",
-    "features": features,
-    "model": "logistic regression pipeline",
-    "best_parameters": search.best_params_,
-    "training_rows": int(len(X_train)),
-    "final_test_roc_auc": round(float(test_auc), 3),
-    "decision_threshold": 0.5,
-    "scikit_learn_version": sklearn.__version__,
-}
-(MODELS / "titanic_survival_card.json").write_text(json.dumps(card, indent=2))
-size_kb = model_path.stat().st_size / 1024
-print(f"saved: {model_path.name} ({size_kb:.1f} KB) and titanic_survival_card.json")
+\begin{labquestion}{15}{Save the Titanic model with a card}
+A model that exists only inside a running notebook is not finished. \texttt{joblib.dump} writes the whole pipeline, preprocessing and estimator together, to one file. A model card written next to it records what the file expects and how well it did.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=350,lastline=366]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+saved: titanic_survival.joblib (4.5 KB) and titanic_survival_card.json
 \end{lstlisting}
+\end{refoutput}
+\end{labanswer}
 
-Load the pipeline and predict new rows with matching columns, without retraining. Repeat for insurance customers differing in one feature.
-
-\begin{lstlisting}[style=utppython]
-loaded = joblib.load(model_path)
-new_passengers = pd.DataFrame([
-    {"Pclass": 1, "Sex": "female", "Age": 29, "SibSp": 0, "Parch": 0, "Fare": 80.0, "Embarked": "C"},
-    {"Pclass": 3, "Sex": "male",   "Age": 40, "SibSp": 0, "Parch": 0, "Fare":  7.9, "Embarked": "S"},
-])
-new_passengers["survival_probability"] = loaded.predict_proba(new_passengers)[:, 1].round(3)
-print(new_passengers)
-
-joblib.dump(fitted["linear regression"], MODELS / "insurance_charges.joblib")
-pricing = joblib.load(MODELS / "insurance_charges.joblib")
-new_customer = pd.DataFrame([
-    {"age": 35, "sex": "female", "bmi": 27.5, "children": 2, "smoker": "no", "region": "southeast"},
-    {"age": 35, "sex": "female", "bmi": 27.5, "children": 2, "smoker": "yes", "region": "southeast"},
-])
-new_customer["predicted_charges"] = pricing.predict(new_customer).round(0)
-print(new_customer)
+\begin{labquestion}{16}{Reload the models and use them}
+Deployment, in its smallest form, is three lines: load the file, hand it new rows with the same column names, read the predictions. No retraining and no preprocessing code, because the preprocessing traveled inside the file. The insurance model is saved the same way, and prices two customers who differ in one column.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=368,lastline=383]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+   Pclass     Sex  Age  SibSp  Parch  Fare Embarked  survival_probability
+0       1  female   29      0      0  80.0        C                 0.942
+1       3    male   40      0      0   7.9        S                 0.141
+   age     sex   bmi  children smoker     region  predicted_charges
+0   35  female  27.5         2     no  southeast             6526.0
+1   35  female  27.5         2    yes  southeast            30177.0
 \end{lstlisting}
+\end{refoutput}
 
-Run the saved passenger model from the terminal:
-
+\textbf{What it means.} The script \texttt{all\_experiments/predict\_passenger.py} does the same job from the terminal:
 \begin{lstlisting}[style=utpterminal]
 python predict_passenger.py --pclass 2 --sex female --age 30 --fare 20
 \end{lstlisting}
+The two insurance customers differ only in \texttt{smoker}, and their prices differ by \$23,651, the coefficient gap from Question~4.
+\end{labanswer}
 
-\begin{tryit}
-Run the Part~C classification workflow on \texttt{heart\_failure\_dataset.csv} (label \texttt{HeartDisease}). Build the column lists from the data types with \texttt{select\_dtypes}, reuse \texttt{make\_preprocess}, and report accuracy, ROC AUC, and the confusion matrix at threshold 0.5.
-\end{tryit}
+\labpart{Evidence}
 
-\begin{decisionmemo}
-Choose a threshold when missed positives cost more than false alarms. Explain confusion-matrix changes and justify the choice using Part C validation evidence.
-\end{decisionmemo}
-\end{labproject}
+\begin{labquestion}{17}{Save the evidence}
+Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=385,lastline=399]{all_experiments/lab02_supervised_workflow_worked.py}
 
+\textbf{What it means.} \texttt{results/lab02/} now holds \texttt{metrics.csv} and the figures, and \texttt{models/} holds the two \texttt{.joblib} files and the Titanic card. The list also shows models from other labs if you have already run them.
+\end{labanswer}
+
+\labpart{Try it yourself}
+
+\begin{labquestion}{18}{Try it yourself, and a decision memo}
+Run the Part~C workflow on \texttt{heart\_failure\_dataset.csv} (label \texttt{HeartDisease}). Build the column lists from the data types with \texttt{select\_dtypes}, reuse \texttt{make\_preprocess}, and report accuracy, ROC AUC and the confusion matrix at threshold 0.5. Attempt it in this empty cell before reading the solution.
+
+\textbf{Decision memo.} Choose a classification threshold for a setting in which a missed positive costs much more than a false alarm. State what happens to the confusion matrix when the threshold is lowered, and name the validation evidence from Part~C that supports your choice.
+\end{labquestion}
+
+\begin{labquestion}{19}{One solution}
+The same classification workflow on the heart-failure table. The column lists come from the data types, so nothing needs editing by hand.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=403,lastline=423]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+majority baseline accuracy: 0.552
+accuracy: 0.883  ROC AUC: 0.932
+class 1: precision 0.873, recall 0.921, support 127
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Nothing in the modeling code changed except the target column name. That portability is the point of putting preprocessing inside the estimator.
+
+\textbf{A model memo.} Threshold 0.30 for the breast-cancer screener. The default of 0.50 misses 4 of 53 malignant tumors with 1 false alarm. Lowering it to 0.30 recovers two of those misses (recall from 0.925 to 0.962) with no extra false alarm, and 0.20 catches nothing more and adds two false alarms. Lowering a threshold moves the line left through the histogram: false negatives shrink and false positives grow. In screening, a false alarm costs a follow-up test and a miss can cost a life, so the trade is worth making while it stays this cheap.
+\end{labanswer}
+
+\begin{yourturn}
+Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+\begin{enumerate}
+  \item \textbf{Add the missing idea.} Add a column \texttt{smoker\_bmi}, the BMI for smokers and 0 for everyone else, to the Part~A linear model. What happens to $R^2$ and MAE? Compare with the effect of ridge.
+  \item \textbf{What did the date split hide?} Refit the Question~7 forest on a shuffled 80/20 split of the same days. How does its MAE compare with 1,040? Which number would you put in a report to the bike scheme?
+  \item \textbf{Choose a threshold from costs.} Suppose a missed malignant tumor costs ten times a false alarm. Sweep the Question~10 thresholds from 0.05 to 0.95 in steps of 0.05 and compute $10\times\text{misses}+\text{false alarms}$. Which threshold is cheapest?
+  \item \textbf{Seal the test set.} Sketch how you would split Titanic so that Part~C's comparison and Part~D's test use different rows. How many rows would each part get with a 60/20/20 split?
+\end{enumerate}
+\end{yourturn}
+
+\begin{expectedfindings}
+\begin{enumerate}
+  \item $R^2$ rises from 0.784 to 0.865 and MAE falls from \$4,181 to \$2,757. Ridge changed almost nothing, because the problem was a missing idea and not an unstable fit.
+  \item About 451, less than half. The shuffled split lets the forest interpolate between neighboring days, including days after the one it is predicting. Report 1,040, since the bike scheme will always be predicting the future.
+  \item 0.05, with 0 misses and 11 false alarms, for a cost of 11. At 0.30 the cost is $10\times2+1=21$, and at 0.50 it is $10\times4+1=41$. Change the cost ratio, and the answer changes: the threshold is a statement about costs.
+  \item Split once into 60\% and 40\%, then split the 40\% in half: 534 training, 178 validation and 179 test rows. Compare models on the validation rows, and keep the test rows closed until the choice is locked.
+\end{enumerate}
+\end{expectedfindings}
+
+\begin{troubleshoot}
+\begin{description}
+  \item[Every metric differs slightly from the sheet] Check that no earlier cell was edited, and rerun from the top. A shared variable such as \texttt{X\_train} is reused between parts, so running cells out of order changes results.
+  \item[\texttt{KeyError} in \texttt{predict\_passenger.py}] Run Question~15 first: the script needs \texttt{models/titanic\_survival.joblib} and its card.
+  \item[\texttt{cnt} seems too easy to predict] Check that \texttt{casual} and \texttt{registered} are not among your features. They add up to the label.
+  \item[A loky or joblib traceback at the end of the cell] \texttt{n\_jobs=-1} sometimes prints a harmless resource-tracker message on Windows when a pool closes. If the cell's results printed, the run is fine.
+\end{description}
+\end{troubleshoot}
+
+\begin{labchecklists}
 \begin{verification}
 \begin{itemize}
-  \item Every model beats its baseline, and the comparison uses validation data, not the test set.
-  \item The bike-demand split is in date order, and you can explain why the forest underpredicts the peaks.
-  \item The classification threshold is chosen from validation evidence, before the test set is used once.
+  \item Every model beats its baseline, and each comparison uses validation data, not the test set.
+  \item The bike split is in date order, and you can explain why the forest under-predicts autumn 2012.
+  \item The classification threshold is chosen from validation evidence and stated as a policy.
   \item Cross-validation fold spread is reported alongside the differences between settings.
+  \item The final test ROC AUC, 0.837, is reported once, and you can state what Part~C had already seen.
   \item \texttt{models/} holds \texttt{titanic\_survival.joblib} with its card, and \texttt{insurance\_charges.joblib}, and both reload and predict.
 \end{itemize}
 \end{verification}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item Restart the kernel and run all cells without errors.
+  \item Submit the executed notebook, including your \emph{Your turn} cells, the generated \texttt{results/lab02/} folder, and the model files.
+  \item Include your decision memo, in your own words: the threshold you chose, the evidence you used, and what lowering it does to the confusion matrix.
+\end{itemize}
+\end{labdeliverable}
+\end{labchecklists}

@@ -1,0 +1,30 @@
+% Copied from chapters/07-trees-i.tex (fig:traversals).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[Inorder, preorder and postorder compared]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\newcommand{\ttree}[5]{%
+ % #1 xshift, #2 title, #3..#5 = orders for A..G given as csv
+ \begin{scope}[xshift=#1 cm]
+  \node[font=\bfseries\color{UTPNavy}] at (0,1.35) {#2};
+  \node[utpnode,minimum size=7.5mm] (n1) at (0,0.55) {A};
+  \node[utpnode,minimum size=7.5mm] (n2) at (-0.95,-0.45) {B};
+  \node[utpnode,minimum size=7.5mm] (n3) at (0.95,-0.45) {C};
+  \node[utpnode,minimum size=7.5mm] (n4) at (-1.5,-1.45) {D};
+  \node[utpnode,minimum size=7.5mm] (n5) at (-0.4,-1.45) {E};
+  \draw[utpedge] (n1)--(n2); \draw[utpedge] (n1)--(n3);
+  \draw[utpedge] (n2)--(n4); \draw[utpedge] (n2)--(n5);
+  \foreach \nd/\ord in {#3}{
+    \node[circle,fill=UTPOrange,text=white,font=\tiny\bfseries,inner sep=1.1pt]
+      at ($(\nd.north east)+(0.055,0.055)$) {\ord};
+  }
+  \node[utplabel,anchor=north,align=center,color=UTPMuted] at (0,-2.05) {#4};
+  \node[utplabel,anchor=north,align=center] at (0,-2.42) {#5};
+ \end{scope}}
+
+\ttree{0}{Inorder}{n4/1,n2/2,n5/3,n1/4,n3/5}{left, \textbf{root}, right}{D B E A C}
+\ttree{5.6}{Preorder}{n1/1,n2/2,n4/3,n5/4,n3/5}{\textbf{root}, left, right}{A B D E C}
+\ttree{11.2}{Postorder}{n4/1,n5/2,n2/3,n3/4,n1/5}{left, right, \textbf{root}}{D E B C A}
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

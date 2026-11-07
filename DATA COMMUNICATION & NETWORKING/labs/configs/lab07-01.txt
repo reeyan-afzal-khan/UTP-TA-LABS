@@ -1,0 +1,17 @@
+system-view
+sysname S1
+interface Eth-Trunk1
+ mode lacp-static
+quit
+interface GigabitEthernet0/0/1
+ eth-trunk 1
+quit
+interface GigabitEthernet0/0/2
+ eth-trunk 1
+quit
+interface Vlanif1
+ ip address 192.168.1.1 24
+quit
+return
+display eth-trunk 1
+ping 192.168.1.2

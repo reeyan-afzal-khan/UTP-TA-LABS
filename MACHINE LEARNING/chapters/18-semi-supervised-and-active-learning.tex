@@ -2,12 +2,14 @@
 \label{ch:semi-supervised}
 
 \chapterguide%
-  {Supervised learning, validation, classification probabilities, and similarity measures.}
-  {compare pseudo-labeling, propagation, co-training, and active learning while preserving genuine evaluation labels.}
+  {Supervised learning, validation, classification probabilities, and similarity measures. Lab~5 follows this chapter and also uses \chapref{ch:anomaly}.}
+  {say when unlabeled data can help; trace self-training and label propagation by hand; explain how pseudo-labels can reinforce mistakes; choose what to label by uncertainty; and judge any such method against a labeled-only baseline on genuine labels.}
 
-Raw examples may be plentiful while expert labels are costly. Semi-supervised and active learning address this gap.
+Back to the map question: does your log hold the answers? So far the answer was yes or no. Often it is ``some of them.'' Photos, scans and messages are cheap to collect, and a person's time to label them is not.
 
-\term{Semi-supervised learning} uses a small labeled dataset together with a larger unlabeled dataset. \term{Active learning} asks a human to label the examples that would be most useful.
+\begin{analogy}
+A student has a thick workbook and an answer key for only a few pages. One strategy is to mark the rest yourself, using only the answers you feel very sure about, and study from those too. That is \term{semi-supervised learning}, and it works if your confidence is earned. Another strategy is to take the questions you are least sure of to the teacher, who has time for only a few. That is \term{active learning}.
+\end{analogy}
 
 \section{The data setting}
 
@@ -48,16 +50,39 @@ Self-training is the simplest semi-supervised approach.
 \end{utpsteps}
 
 \begin{workedexample}
-A model trained on 1,000 labeled messages pseudo-labels 1,500 of 20,000 unlabeled messages above confidence 0.98. Validation still requires genuine labels.
+One column, labels for $x=1,2$ (class 0) and $x=8,9$ (class 1), and six unlabeled rows. Adopt a pseudo-label only when the model's chance is at least 0.8 or at most 0.2.
+
+\medskip
+\centering\small
+\begin{tabular}{@{}cll@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Round} & \utpth{Chance of class 1 for the unlabeled rows} & \utpth{Adopted} \\
+\midrule
+1 & $x=3$: 0.17,\ 4: 0.31,\ 5: 0.50,\ 6: 0.69,\ 7: 0.83,\ 10: 0.98 & 3, 7, 10 \\
+2 & $x=4$: 0.28,\ 5: 0.51,\ 6: 0.73 & none, so stop \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+The clear rows join the training set, and the ambiguous rows 4, 5 and 6 stay unlabeled. Tighten the threshold and fewer rows join; loosen it and the model's mistakes start to count as facts.
 \end{workedexample}
 
 \begin{pitfall}
 Pseudo-labeling can reinforce confident mistakes. Limit rounds, check class balance, and validate against human labels.
 \end{pitfall}
 
+\begin{workedexample}
+Does it actually help? In Lab~5, the breast-cancer pool has 319 rows, and 70\% of the labels are hidden, leaving 89. Self-training adopts pseudo-labels for 201 of the 230 hidden rows, and reaches a validation accuracy of 0.963. A plain model on just the 89 real labels reaches 0.972, the same as a model with all 319. On this easy table the pseudo-labels did not help at all. Always compute that baseline.
+\end{workedexample}
+
 \section{Graph-based label propagation}
 
-Connect similar observations with weighted edges; propagate labels through the graph.
+Connect similar observations with weighted edges, and let labels spread through the graph like news through a group of friends. Each unlabeled node repeatedly takes the average of its neighbors, while labeled nodes stay fixed.
+
+\begin{workedexample}
+A chain of six nodes, with the left end labeled 1 and the right end labeled 0. The unlabeled nodes start at 0.5 and are updated left to right, using the newest values. After one sweep they read $0.75,\ 0.5,\ 0.5,\ 0.25$. After two: $0.75,\ 0.625,\ 0.375,\ 0.25$. They settle at $0.8,\ 0.6,\ 0.4,\ 0.2$, a smooth slope between the two labels, because each value is the mean of its two neighbors.
+\end{workedexample}
 
 \begin{utpfig}[Graph-based label propagation]{Graph-based label propagation. Similar observations are joined by edges, and the two known labels spread through their own connected groups to the unlabeled points.}{fig:label-propagation}
 \begin{tikzpicture}[
@@ -93,7 +118,7 @@ Both views must be informative and offer complementary errors; nearly identical 
 
 \section{Active learning}
 
-Active learning queries labels expected to be most informative within a fixed budget.
+Active learning asks which labels would be most informative, within a fixed budget.
 
 Common selection strategies include:
 
@@ -111,6 +136,10 @@ Expected impact & Examples whose labels are estimated to improve the model most 
 \end{tabularx}
 \end{utptable}
 
+\begin{workedexample}
+A model gives these unlabeled rows a chance of class 1: $0.97,\ 0.52,\ 0.10,\ 0.61,\ 0.48,\ 0.88$. With budget for two labels, uncertainty sampling asks about the 0.52 and the 0.48, which are nearest to a coin flip. A label on the 0.97 row would probably just confirm what the model already believes.
+\end{workedexample}
+
 \begin{utpfig}[The active-learning loop]{The active-learning loop. The model selects useful unlabeled cases, a human labels them, and the labeled set grows before the model is trained again.}{fig:active-loop}
 \begin{tikzpicture}[
   node distance=0.55cm,
@@ -126,7 +155,7 @@ Expected impact & Examples whose labels are estimated to improve the model most 
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{utpfig}[Uncertainty sampling, step by step]{Uncertainty sampling, step by step: train on the labels you have, score every unlabeled example, select the most uncertain ones, ask a human to label them, and repeat until the labelling budget runs out.}{fig:uncertainty-sampling}
+\begin{utpfig}[Uncertainty sampling, step by step]{Uncertainty sampling, step by step: train on the labels you have, score every unlabeled example, select the most uncertain ones, ask a human to label them, and repeat until the labeling budget runs out.}{fig:uncertainty-sampling}
 \begin{tikzpicture}[
   node distance=1.05cm and 1.35cm,
   st/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=5.25cm,minimum height=1.0cm,inner xsep=3pt,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
@@ -145,7 +174,19 @@ Expected impact & Examples whose labels are estimated to improve the model most 
 \end{tikzpicture}
 \end{utpfig}
 
-In Lab~5, uncertainty sampling does not beat random queries: 40 labels already give near-perfect separation. The Try-it starts with fewer labels to test when querying helps.
+\begin{utpfig}[Uncertainty against random querying]{Lab~5's breast-cancer simulation, validation accuracy against labels bought, starting from 20 labels (10 per class). For a few rounds uncertainty sampling pulls ahead, and from about 80 labels both are level. Validation accuracy moves in steps of 0.009 on 107 rows, so small gaps are noise.}{fig:active-curve}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.72\linewidth, height=4.8cm, xlabel={labels bought}, ylabel={validation accuracy}, xmin=15, xmax=130, ymin=0.91, ymax=0.975,
+  yticklabel style={/pgf/number format/fixed,/pgf/number format/precision=2}, legend style={at={(0.97,0.05)},anchor=south east}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.4pt,thick] coordinates {(20,0.935)(35,0.944)(50,0.963)(65,0.953)(80,0.953)(95,0.953)(110,0.953)(125,0.953)};
+\addlegendentry{uncertainty sampling}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.4pt,thick] coordinates {(20,0.935)(35,0.935)(50,0.925)(65,0.925)(80,0.953)(95,0.953)(110,0.953)(125,0.935)};
+\addlegendentry{random querying}
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
+
+Starting from 40 labels instead of 20, the two policies are close from the start, and both reach the same test accuracy of 0.972. This table is easy: a few dozen labels give a good linear boundary, and no strategy has much left to gain. Active learning earns its keep when the boundary is genuinely hard and labels are genuinely dear.
 
 \section{A safe practical workflow}
 
@@ -158,6 +199,8 @@ In Lab~5, uncertainty sampling does not beat random queries: 40 labels already g
   \item Review performance by class and subgroup, not only overall average performance.
   \item Keep a record of which labels came from humans and which came from the model.
 \end{utpsteps}
+
+\recipecard{Self-training}{Any supervised model that outputs probabilities.}{That model's usual loss, computed on real labels and adopted pseudo-labels.}{Fit, adopt the confident predictions, refit, repeat until nothing new is adopted.}
 
 \begin{modelcard}{Semi-Supervised and Active Learning - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.24\linewidth}X@{}}
@@ -172,10 +215,33 @@ Main risks & Confirmation bias, class imbalance, poor similarity measures, sampl
 Unlabeled data provides structure, not truth. Human labels remain the source of meaning and the basis of fair evaluation.
 \end{keyidea}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item Unlabeled rows reveal where data lies, not what it means. They help only if that structure lines up with the label.
+  \item Self-training adopts confident predictions as labels, and label propagation spreads known labels over a similarity graph. Both can turn mistakes into facts.
+  \item Active learning spends a labeling budget where the model is least sure.
+  \item Keep human-labeled validation and test sets, and compare with a labeled-only baseline. In Lab~5 that baseline matched or beat the clever methods.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
   \item Why can pseudo-labeling reinforce mistakes even when the model is highly confident?
   \item What does an active-learning query strategy try to spend the labeling budget on?
   \item Why must final validation and test labels come from a genuine labeling source rather than from the model itself?
+  \item Chain nodes hold $1,\ ?,\ ?,\ 0$. At rest, what are the two unknown values?
+  \item Self-training scored 0.963 and labels-only 0.972 in Lab~5. Which do you ship, and what else would you check first?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Confidence is not correctness. A wrong pseudo-label joins the training set as if true, the refitted model becomes more confident in the same direction, and the error compounds.
+  \item The rows whose labels are expected to help most, such as those closest to a coin flip, or those several models disagree on.
+  \item A model cannot grade itself. Scores against its own output would measure self-agreement rather than accuracy.
+  \item Each equals the mean of its neighbors, so $2/3$ and $1/3$.
+  \item Labels-only: it is simpler, and on 107 rows the difference of one row is within noise. First I would check the gap on more seeds, or with repeated splits.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/05-anomaly-limited-labels}

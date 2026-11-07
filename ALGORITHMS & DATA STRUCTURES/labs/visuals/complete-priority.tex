@@ -1,0 +1,27 @@
+\begin{adslabfigure}[Higher priority first; equal priorities keep arrival order]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (0.0,0.0) {A/2};
+\node[utplabel,anchor=west] at (6.35,0.0) {A arrives};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (0.0,-0.85) {B/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (1.1,-0.85) {A/2};
+\node[utplabel,anchor=west] at (6.35,-0.85) {B shifts A};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (0.0,-1.7) {B/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (1.1,-1.7) {A/2};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (2.2,-1.7) {C/2};
+\node[utplabel,anchor=west] at (6.35,-1.7) {C stays after A};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (0.0,-2.55) {B/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (1.1,-2.55) {D/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (2.2,-2.55) {A/2};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (3.3000000000000003,-2.55) {C/2};
+\node[utplabel,anchor=west] at (6.35,-2.55) {D stays after B};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (0.0,-3.4) {B/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (1.1,-3.4) {D/5};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (2.2,-3.4) {F/3};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (3.3000000000000003,-3.4) {A/2};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (4.4,-3.4) {C/2};
+\node[utpcell,minimum width=1.0cm,minimum height=.62cm] at (5.5,-3.4) {E/1};
+\node[utplabel,anchor=west] at (6.35,-3.4) {After E then F arrive};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

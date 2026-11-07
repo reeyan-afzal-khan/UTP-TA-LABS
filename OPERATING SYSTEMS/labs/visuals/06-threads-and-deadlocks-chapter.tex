@@ -1,0 +1,34 @@
+% Reused from chapters/06-threads-and-deadlocks.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  seg/.style={draw=UTPBlue,fill=UTPPaleBlue,minimum width=3.0cm,minimum height=0.8cm,
+              font=\scriptsize\color{UTPNavy}},
+  shared/.style={seg,fill=UTPPaleOrange,draw=UTPOrange},
+  stk/.style={draw=UTPTeal,fill=UTPPaleTeal,minimum width=1.7cm,minimum height=0.8cm,
+              font=\scriptsize\color{UTPNavy}},
+  lab/.style={font=\scriptsize\color{UTPMuted},align=center},
+  warn/.style={font=\scriptsize\color{UTPOrange},align=center}]
+
+\draw[draw=UTPNavy,rounded corners=2mm,line width=0.9pt] (-2.1,-2.75) rectangle (8.7,1.75);
+\node[font=\small\bfseries\color{UTPNavy},anchor=north west] at (-2.0,1.65) {one process};
+
+\node[seg]    at (-0.4,0.85) {code (text)};
+\node[shared] at (-0.4,-0.35) {globals};
+\node[shared] at (-0.4,-1.55) {heap};
+\node[lab,text width=2.6cm] at (-0.4,-2.30) {one copy, seen by every thread};
+
+\foreach \i/\x in {1/2.9, 2/5.2, 3/7.5} {
+  \node[stk] at (\x,0.85) {stack \i};
+  \node[stk] at (\x,-0.35) {registers \i};
+  \node[lab] at (\x,-1.08) {thread \i};
+}
+\node[lab,text width=5.6cm] at (5.2,-2.05) {private to each thread --- no synchronisation needed};
+
+\node[warn,text width=11cm] at (3.3,-3.55)
+  {The orange region is the whole reason a mutex exists. Two threads writing a
+   global without one is a data race, and the outcome depends on scheduling ---
+   which is why such a bug reproduces only sometimes.};
+
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

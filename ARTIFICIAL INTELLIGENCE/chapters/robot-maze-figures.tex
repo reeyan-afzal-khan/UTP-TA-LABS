@@ -1,0 +1,169 @@
+% =====================================================================
+%  chapters/robot-maze-figures.tex
+%  Course-local drawing vocabulary for the robot maze of Chapters 2-4.
+%  Everything is built from the shared UTP palette and node styles of
+%  .shared/utpnotes.tex, so the figures match the rest of the book.
+%  The maze data printed here comes from all_experiments/demo_robot_maze.py.
+%
+%    \mazegrid[cell size]{prefix}{rows}   one maze, cell by cell
+%    \mazepins{prefix}                    the robot and charger on top
+%    \mazeroute[style]{prefix}{cells}     a route through named cells
+%    \mazegraph[cell size]{prefix}{rows}  the same maze as dots and lines
+%
+%  A cell in the rows is one of:
+%    W wall    . floor    P puddle    o expanded    a, b the two ripples
+%    a number, drawn on a blue tint that deepens as the number grows
+%  Cells are named prefix-row-column, so (5,1) in maze m is node m-5-1.
+% =====================================================================
+
+\newcommand{\mzstep}{5}   % how quickly the tint of a numbered cell deepens
+\def\mzW{W}\def\mzF{.}\def\mzP{P}\def\mzO{o}\def\mzA{a}\def\mzB{b}\def\mzM{*}
+
+\tikzset{
+  mzcell/.style={minimum width=\mzs cm,minimum height=\mzs cm,inner sep=0pt,
+                 font=\scriptsize\bfseries\color{UTPNavy}},
+  mzwall/.style={mzcell,draw=UTPNavy,fill=UTPNavy!82},
+  mzfloor/.style={mzcell,draw=UTPMuted!35,fill=white},
+  mzseen/.style={mzcell,draw=UTPBlue!50,fill=UTPBlue!24},
+  mzother/.style={mzcell,draw=UTPTeal!60,fill=UTPTeal!26},
+  mzpuddle/.style={mzcell,draw=UTPTeal,fill=UTPTeal!38,font=\small\bfseries\color{UTPTeal!60!black}},
+  mzmeet/.style={mzcell,draw=UTPOrange,fill=UTPOrange!45,line width=1pt},
+  mzrobot/.style={circle,draw=UTPOrange,fill=UTPPaleOrange,line width=0.9pt,inner sep=0pt,
+                  minimum size=0.84*\mzs cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  mzcharger/.style={circle,draw=UTPGreen,fill=UTPPaleTeal,line width=0.9pt,inner sep=0pt,
+                    minimum size=0.84*\mzs cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  mzroute/.style={line width=1.7pt,draw=UTPOrange,opacity=0.9},
+  mzroutealt/.style={line width=1.7pt,draw=UTPGreen,opacity=0.9},
+  mzroutebad/.style={line width=1.7pt,draw=UTPRed,opacity=0.9},
+  mzedge/.style={draw=UTPBlue!55,line width=0.7pt},
+  mzdot/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,inner sep=0pt,minimum size=2.1mm},
+  mztitle/.style={font=\small\bfseries\color{UTPNavy},align=center},
+  mznote/.style={font=\scriptsize\color{UTPMuted},align=center},
+}
+
+% One cell. \mzv holds the token, \mzr and \mzc the row and column.
+\newcommand{\mzdrawcell}[1]{%
+  \ifx\mzv\mzW
+    \node[mzwall] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else\ifx\mzv\mzF
+    \node[mzfloor] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else\ifx\mzv\mzP
+    \node[mzpuddle] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {$\approx$};%
+  \else\ifx\mzv\mzO
+    \node[mzseen] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else\ifx\mzv\mzA
+    \node[mzseen] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else\ifx\mzv\mzB
+    \node[mzother] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else\ifx\mzv\mzM
+    \node[mzmeet] (#1-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr) {};%
+  \else
+    \mzdrawnumber{#1}%
+  \fi\fi\fi\fi\fi\fi\fi
+}
+% A numbered cell. A figure may redefine this, as the f map does.
+\newcommand{\mzdrawnumber}[1]{%
+  \pgfmathtruncatemacro{\mzshade}{6+\mzstep*\mzv}%
+  \node[mzcell,draw=UTPBlue!45,fill=UTPBlue!\mzshade] (#1-\mzr-\mzc)
+    at (\mzs*\mzc,-\mzs*\mzr) {\mzv};%
+}
+
+\newcommand{\mazegrid}[3][0.56]{%
+  \def\mzs{#1}%
+  \foreach \mzrow [count=\mzr from 0] in #3{%
+    \foreach \mzv [count=\mzc from 0] in \mzrow{\mzdrawcell{#2}}%
+  }%
+}
+
+% Numbers drawn again above a route, on a small pale patch, so a route line
+% crossing a numbered cell never hides the number: grid, route, labels, pins.
+\newcommand{\mazelabels}[2]{%
+  \foreach \mzrow [count=\mzr from 0] in #2{%
+    \foreach \mzv [count=\mzc from 0] in \mzrow{%
+      \ifx\mzv\mzW\else
+        \node[inner sep=0.4pt,fill=white,fill opacity=0.72,text opacity=1,rounded corners=0.5pt,
+              font=\scriptsize\bfseries\color{UTPNavy}] at (#1-\mzr-\mzc.center) {\mzv};%
+      \fi
+    }%
+  }%
+}
+
+% The robot at (5,1) and the charger at (2,9), drawn over whatever is under them.
+\newcommand{\mazepins}[1]{%
+  \node[mzrobot] at (#1-5-1.center) {R};%
+  \node[mzcharger] at (#1-2-9.center) {C};%
+}
+
+% Row and column numbers around a 7-by-10 maze.
+\newcommand{\mazeaxes}[1]{%
+  \foreach \mzcol in {0,...,9}{\node[utplabel,anchor=south] at ($(#1-0-\mzcol.north)+(0,0.02)$) {\mzcol};}%
+  \foreach \mzline in {0,...,6}{\node[utplabel,anchor=east] at ($(#1-\mzline-0.west)+(-0.03,0)$) {\mzline};}%
+}
+
+% A route through cells named row-column: \mazeroute{m}{5-1,4-1,3-1}
+\newcommand{\mazeroute}[3][mzroute]{%
+  \foreach \mzrc [remember=\mzrc as \mzprev (initially {})] in #3{%
+    \ifx\mzprev\empty\else
+      \draw[#1] (#2-\mzprev.center) -- (#2-\mzrc.center);%
+    \fi
+  }%
+}
+
+% The state space: one dot per floor cell, one line per pair of adjacent cells.
+\newcommand{\mazegraph}[3][0.56]{%
+  \def\mzs{#1}%
+  \foreach \mzrow [count=\mzr from 0] in #3{%
+    \foreach \mzv [count=\mzc from 0] in \mzrow{%
+      \ifx\mzv\mzW\else
+        \coordinate (#2-\mzr-\mzc) at (\mzs*\mzc,-\mzs*\mzr);%
+        \expandafter\gdef\csname mzf-#2-\mzr-\mzc\endcsname{}%
+      \fi
+    }%
+  }%
+  \foreach \mzrow [count=\mzr from 0] in #3{%
+    \foreach \mzv [count=\mzc from 0] in \mzrow{%
+      \ifx\mzv\mzW\else
+        \pgfmathtruncatemacro{\mznextr}{\mzr+1}%
+        \pgfmathtruncatemacro{\mznextc}{\mzc+1}%
+        \ifcsname mzf-#2-\mzr-\mznextc\endcsname
+          \draw[mzedge] (#2-\mzr-\mzc) -- (#2-\mzr-\mznextc);%
+        \fi
+        \ifcsname mzf-#2-\mznextr-\mzc\endcsname
+          \draw[mzedge] (#2-\mzr-\mzc) -- (#2-\mznextr-\mzc);%
+        \fi
+      \fi
+    }%
+  }%
+  \foreach \mzrow [count=\mzr from 0] in #3{%
+    \foreach \mzv [count=\mzc from 0] in \mzrow{%
+      \ifx\mzv\mzW\else
+        \node[mzdot] at (#2-\mzr-\mzc) {};%
+      \fi
+    }%
+  }%
+}
+
+% ---------------------------------------------------------------- the data
+% Printed by the demo: the plain maze, then the numbers each search works out.
+\def\mazedry{{.,.,.,.,.,.,.,.,.,W},{.,.,W,W,W,.,W,W,.,W},{.,.,W,W,W,.,W,.,.,.},{W,.,.,.,.,.,.,.,.,W},{.,.,W,W,W,.,W,.,.,.},{.,.,.,W,.,W,.,.,.,W},{W,.,.,.,.,.,.,.,.,W}}
+\def\mazerain{{.,.,.,.,.,.,.,.,.,W},{.,.,W,W,W,.,W,W,.,W},{.,.,W,W,W,.,W,.,.,.},{W,.,P,.,P,.,.,.,.,W},{.,.,W,W,W,.,W,.,.,.},{.,.,.,W,.,W,.,.,.,W},{W,.,.,.,.,.,.,.,.,W}}
+% BFS rings: steps from the robot on the dry maze.
+\def\mazerings{{6,5,6,7,8,9,10,11,12,W},{5,4,W,W,W,8,W,W,11,W},{4,3,W,W,W,7,W,9,10,11},{W,2,3,4,5,6,7,8,9,W},{2,1,W,W,W,7,W,9,10,11},{1,0,1,W,5,W,7,8,9,W},{W,1,2,3,4,5,6,7,8,W}}
+% Battery spent reaching each cell on the rainy maze (g).
+\def\mazecost{{6,5,6,7,8,9,10,11,12,W},{5,4,W,W,W,10,W,W,13,W},{4,3,W,W,W,11,W,11,12,13},{W,2,7,8,13,12,11,10,11,W},{2,1,W,W,W,13,W,9,10,11},{1,0,1,W,5,W,7,8,9,W},{W,1,2,3,4,5,6,7,8,W}}
+% The Manhattan guess (h).
+\def\mazeguess{{11,10,9,8,7,6,5,4,3,W},{10,9,W,W,W,5,W,W,2,W},{9,8,W,W,W,4,W,2,1,0},{W,9,8,7,6,5,4,3,2,W},{11,10,W,W,W,6,W,4,3,2},{12,11,10,W,8,W,6,5,4,W},{W,12,11,10,9,8,7,6,5,W}}
+% The best possible f = g + h of each cell on the rainy maze.
+\def\mazef{{17,15,15,15,15,15,15,15,15,W},{15,13,W,W,W,15,W,W,15,W},{13,11,W,W,W,15,W,13,13,13},{W,11,15,15,19,17,15,13,13,W},{13,11,W,W,W,19,W,13,13,13},{13,11,11,W,13,W,13,13,13,W},{W,13,13,13,13,13,13,13,13,W}}
+% Cells each search expands.
+\def\mazebfs{{o,o,o,o,o,o,o,o,.,W},{o,o,W,W,W,o,W,W,o,W},{o,o,W,W,W,o,W,o,o,.},{W,o,o,o,o,o,o,o,o,W},{o,o,W,W,W,o,W,o,o,.},{o,o,o,W,o,W,o,o,o,W},{W,o,o,o,o,o,o,o,o,W}}
+\def\mazedfs{{.,o,o,o,o,o,o,o,o,W},{.,o,W,W,W,.,W,W,o,W},{.,o,W,W,W,.,W,.,o,.},{W,o,.,.,.,.,.,.,.,W},{.,o,W,W,W,.,W,.,.,.},{.,o,.,W,.,W,.,.,.,W},{W,.,.,.,.,.,.,.,.,W}}
+\def\mazebidir{{a,a,a,.,.,.,.,b,b,W},{a,a,W,W,W,.,W,W,b,W},{a,a,W,W,W,.,W,b,b,b},{W,a,a,a,a,*,b,b,b,W},{a,a,W,W,W,.,W,b,b,b},{a,a,a,W,a,W,.,.,b,W},{W,a,a,a,a,.,.,.,.,W}}
+\def\mazeucs{{o,o,o,o,o,o,o,o,o,W},{o,o,W,W,W,o,W,W,o,W},{o,o,W,W,W,o,W,o,o,.},{W,o,o,o,o,o,o,o,o,W},{o,o,W,W,W,o,W,o,o,o},{o,o,o,W,o,W,o,o,o,W},{W,o,o,o,o,o,o,o,o,W}}
+\def\mazegreedy{{.,.,.,.,.,.,.,.,.,W},{.,.,W,W,W,.,W,W,.,W},{.,o,W,W,W,o,W,o,o,.},{W,o,o,o,o,o,o,o,.,W},{.,o,W,W,W,.,W,.,.,.},{.,o,.,W,.,W,.,.,.,W},{W,.,.,.,.,.,.,.,.,W}}
+\def\mazeastar{{.,.,.,.,.,.,.,.,.,W},{.,o,W,W,W,.,W,W,.,W},{o,o,W,W,W,.,W,o,o,.},{W,o,.,.,.,.,.,o,o,W},{o,o,W,W,W,.,W,o,o,o},{o,o,o,W,o,W,o,o,o,W},{W,o,o,o,o,o,o,o,o,W}}
+\def\mazetriple{{.,.,.,.,.,.,.,.,.,W},{.,o,W,W,W,.,W,W,.,W},{o,o,W,W,W,o,W,o,o,.},{W,o,o,o,o,o,o,o,.,W},{.,o,W,W,W,.,W,.,.,.},{.,o,o,W,.,W,.,.,.,W},{W,.,.,.,.,.,.,.,.,W}}
+% The three routes home.
+\def\routecorridor{5-1,4-1,3-1,3-2,3-3,3-4,3-5,3-6,3-7,2-7,2-8,2-9}
+\def\routebottom{5-1,5-2,6-2,6-3,6-4,6-5,6-6,5-6,5-7,4-7,3-7,2-7,2-8,2-9}
+\def\routetop{5-1,4-1,3-1,2-1,1-1,0-1,0-2,0-3,0-4,0-5,0-6,0-7,0-8,1-8,2-8,2-9}

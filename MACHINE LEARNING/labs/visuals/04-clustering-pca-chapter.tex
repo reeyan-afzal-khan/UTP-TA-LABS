@@ -1,0 +1,12 @@
+% Reused from chapters/14-how-unsupervised-learning-works.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  bx/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=4.4cm,minimum height=1.2cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal}
+]
+\node[bx] (s) at (-4.3,0) {Supervised\\$X+y \longrightarrow$ predict $y$};
+\node[bx] (u) at (4.3,0) {Unsupervised\\$X \longrightarrow$ discover structure};
+\draw[arr] (s.east) -- node[above,font=\scriptsize\color{UTPMuted}]{remove the supplied label} (u.west);
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

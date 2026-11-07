@@ -1,0 +1,17 @@
+system-view
+sysname S1
+vlan batch 10 20
+interface GigabitEthernet0/0/1
+ port link-type access
+ port default vlan 10
+quit
+interface GigabitEthernet0/0/2
+ port link-type access
+ port default vlan 20
+quit
+interface GigabitEthernet0/0/24
+ port link-type trunk
+ port trunk allow-pass vlan 10 20
+quit
+return
+display vlan

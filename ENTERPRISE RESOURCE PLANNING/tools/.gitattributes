@@ -1,0 +1,4 @@
+# Keep the launchers runnable, whichever system checks them out.
+*.bat text eol=crlf
+*.sh text eol=lf
+*.command text eol=lf

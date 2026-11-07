@@ -1,0 +1,19 @@
+% Reused from chapters/10-genetic-algorithms.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.4cm,minimum height=0.9cm,align=center,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[b] (p) {Population};
+\node[b,right=0.35cm of p] (fit) {Evaluate\\fitness};
+\node[b,right=0.35cm of fit] (sel) {Select\\parents};
+\node[b,right=0.35cm of sel] (cross) {Crossover};
+\node[b,right=0.35cm of cross] (mut) {Mutation};
+\node[b,below=1.0cm of sel,fill=UTPPaleTeal,draw=UTPGreen] (rep) {New generation\\= elites + children};
+\draw[arr] (p)--(fit); \draw[arr] (fit)--(sel); \draw[arr] (sel)--(cross); \draw[arr] (cross)--(mut);
+\draw[arr] (mut.south) |- (rep.east);
+\draw[arr] (rep.west) -| (p.south);
+\draw[arr,draw=UTPGreen,dashed] (fit.south) -- ++(0,-0.55) -| (rep.north) node[pos=0.25,below,xshift=-1cm,utplabel,color=UTPGreen] {best few copied unchanged (elitism)};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

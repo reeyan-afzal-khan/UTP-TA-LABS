@@ -3,11 +3,11 @@
 
 \chapterguide%
   {\chapref{ch:unsupervised}, distributions and quantiles from \chapref{ch:foundations}, plus clustering and density ideas from \chapref{ch:clustering}.}
-  {score anomalies, compare detectors, set review thresholds, and evaluate alerts.}
+  {score anomalies with statistical rules and see how they fail; compare distance, local density and isolation; turn a score into a review list; and evaluate alerts at a real budget.}
 
-\term{Anomaly detection} ranks departures from a reference pattern, such as fraud, sensor failures, or entry errors.
+A security guard on a quiet night watches for whatever does not fit. Nobody gave the guard a catalog of every possible burglar. The guard knows what normal looks like, and notices departures. \term{Anomaly detection} works the same way: it ranks departures from a reference pattern, such as fraud, sensor failures or data-entry errors. Examples of the thing you are looking for are rare, expensive to label, and tomorrow's may look nothing like yesterday's.
 
-\section{Anomaly detection}
+\section{Two setups, one name}
 
 Two closely related setups share the name:
 
@@ -25,49 +25,112 @@ Novelty detection & The training data contains clean ``normal'' behavior. & Flag
 
 Because anomalies are rare and costly to label, many methods learn a reference pattern and score departures from it.
 
-\subsection{Statistical rules: z-scores and IQR fences}
+\section{Statistical rules: z-scores and IQR fences}
 
 For a single roughly bell-shaped feature, the \term{z-score} measures how many standard deviations an observation sits from the mean:
 \[
   z=\frac{x-\bar{x}}{s},
 \]
-with $|z|>3$ a customary alarm threshold --- under a normal distribution, only about $0.3\%$ of values land that far out.
+with $|z|>3$ a customary alarm threshold, because under a normal distribution only about $0.3\%$ of values land that far out.
 
 \begin{workedexample}
 A temperature sensor averages $\bar{x}=50$ with standard deviation $s=5$. A reading of $68$ has $z=(68-50)/5=3.6$: flagged. A reading of $57$ has $z=1.4$: unremarkable.
 \end{workedexample}
 
-Outliers can inflate the mean and standard deviation, masking themselves. Robust alternatives use the median and scaled median absolute deviation. \term{IQR fences} use quartiles instead (\chapref{ch:statistics}):
+There is a trap in this rule: an outlier can hide itself, because it inflates the very mean and standard deviation that are supposed to expose it.
+
+\begin{workedexample}
+A sensor reads $10,\ 11,\ 9,\ 10,\ 12,\ 11,\ 10,\ 60$. The 60 is obviously wrong. Yet the mean is 16.62 and the standard deviation 17.55, so its z-score is only $(60-16.62)/17.55=2.47$, which does not raise the alarm. The outlier has \emph{masked} itself.
+
+Robust statistics resist this. The median is 10.5, and the median absolute deviation (MAD) is 0.5, so the robust z-score of 60 is $0.6745\times(60-10.5)/0.5=66.8$. The IQR fences agree: with $Q_1=10$ and $Q_3=11.25$, the fences are 8.125 and 13.125, and 60 lies far outside them.
+\end{workedexample}
+
+\term{IQR fences} use quartiles (\chapref{ch:statistics}):
 \[
-  [\,Q_1-1.5\operatorname{IQR},\ Q_3+1.5\operatorname{IQR}\,],
+  [\,Q_1-1.5\operatorname{IQR},\ Q_3+1.5\operatorname{IQR}\,].
 \]
-For $Q_1=20$ and $Q_3=30$ minutes, IQR fences are 5 and 45; a 60-minute delivery is flagged without assuming normality.
+For $Q_1=20$ and $Q_3=30$ minutes, the fences are 5 and 45, so a 60-minute delivery is flagged without assuming normality.
 
 Per-feature checks can miss unusual combinations of individually plausible values. Multivariate methods capture these relationships.
 
-\subsection{Distance and local density}
+\section{Distance and local density}
 
-Distance to the $k$-th nearest neighbor measures isolation, but naturally sparse groups can look anomalous. \term{Local outlier factor (LOF)} compares density with neighboring densities: near~1 is locally typical; much larger values indicate local isolation.
+Distance to the $k$-th nearest neighbor measures isolation, but naturally sparse groups can look anomalous. \term{Local outlier factor (LOF)} instead compares a point's density with that of its neighbors: near 1 is locally typical, and much larger values indicate local isolation.
 
-\subsection{Model-based scores}
+\begin{workedexample}
+A tight group has points 0.1 apart, a loose group has points 1 apart, and one stranger sits 1.0 away from the tight group.
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Point} & \utpth{Distance to third neighbor} & \utpth{Local outlier factor} \\
+\midrule
+Member of the tight group & 0.20 & 1.00 \\
+Member of the loose group & 2.00 & 1.00 \\
+The stranger & 1.20 & 4.71 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+By plain distance, an ordinary loose-group member looks more anomalous than the stranger. LOF asks ``unusual compared with whom?'' and flags only the stranger.
+\end{workedexample}
+
+\section{Model-based scores}
 
 Fit a Gaussian or mixture to reference data and flag low-likelihood cases (\chapref{ch:clustering}). A \term{one-class SVM} instead learns a boundary around the reference population.
 
-\subsection{Isolation forests}
+\section{Isolation forests}
 \label{sec:isolation-forest}
 
-Isolation forests build trees with random feature thresholds and measure how quickly each observation becomes isolated.
+\begin{analogy}
+Play a game of Guess Who with a crowd. To pick out someone with very unusual features takes one or two questions. To pick out one average person from among many similar ones takes a long time. An \term{isolation forest} plays this with random questions: it builds trees of random feature thresholds, and it scores each row by how quickly it becomes isolated.
+\end{analogy}
 
-\begin{intuition}
-Crowded points need many random splits to isolate; isolated points need fewer. Short normalized paths therefore indicate greater anomaly.
-\end{intuition}
+\begin{workedexample}
+Take 99 ordinary values drawn from a bell curve and one stranger at 8. Cut the range at a random point, keep the side the target is on, and repeat until the target is alone. On average the stranger takes 1.6 cuts and an ordinary value takes 9.6.
+\end{workedexample}
 
 Isolation forests need no distance metric. \term{Contamination} sets a threshold, not the true anomaly rate; Lab~5 ranks raw scores instead.
 
-\subsection{Evaluating and using anomaly detectors}
+\section{Evaluating and using anomaly detectors}
+
+Never trust the headline number alone. Lab~5's isolation forest ranks 3,000 held-out card transactions, of which 45 are fraud (1.5\%). It never sees the fraud column while fitting. Its ROC AUC is 0.95, which sounds superb. Its average precision is 0.22, which is 15 times the base rate and still modest. What a review team cares about is the list.
+
+\begin{utptable}
+\centering
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Cases reviewed} & \utpth{Frauds found} & \utpth{Precision} & \utpth{Recall} \\
+\midrule
+10 & 3 & 0.300 & 0.067 \\
+50 & 14 & 0.280 & 0.311 \\
+100 & 20 & 0.200 & 0.444 \\
+200 & 32 & 0.160 & 0.711 \\
+300 & 37 & 0.123 & 0.822 \\
+500 & 42 & 0.084 & 0.933 \\
+1000 & 45 & 0.045 & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{utptable}
+
+\begin{utpfig}[Precision falls as the budget grows]{Lab~5's isolation forest on 3,000 held-out transactions. Reviewing more cases finds more fraud at a falling hit rate. The base rate of 1.5\% is what reviewing at random would achieve.}{fig:precision-at-k}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.72\linewidth, height=4.8cm, xlabel={cases reviewed}, ylabel={share}, xmin=0, xmax=1050, ymin=0, ymax=1.05,
+  legend style={at={(0.97,0.55)},anchor=east}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.4pt,thick] coordinates {(10,0.3)(50,0.28)(100,0.2)(200,0.16)(300,0.123)(500,0.084)(1000,0.045)};
+\addlegendentry{precision: fraud rate in the list}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.4pt,thick] coordinates {(10,0.067)(50,0.311)(100,0.444)(200,0.711)(300,0.822)(500,0.933)(1000,1.0)};
+\addlegendentry{recall: share of all fraud found}
+\addplot[draw=UTPMuted,dashed,domain=0:1050] {0.015};
+\addlegendentry{base rate, 1.5\%}
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
 
 \begin{itemize}
-  \item Evaluate reviewed top-$k$ precision and, with labels, precision--recall. Lab~5's top 100 alerts have 20\% precision against 1.5\% prevalence; AUC 0.95 measures a different aspect.
   \item For distance- and kernel-based detectors, apply the scaling rule from \secref{sec:scaling}.
   \item Choose thresholds from consequences --- how many alarms per day can be investigated? --- not from statistical custom.
   \item Anomalies may be errors or important rare events. Investigate before deleting.
@@ -87,20 +150,20 @@ Anomaly detection differs from classification in one important way: you usually 
 \draw[UTPTeal,thick,dashed] (1.8,1.32) circle (0.95);
 \fill[UTPRed] (3.5,2.4) circle (2.8pt);
 \fill[UTPRed] (0.5,0.4) circle (2.8pt);
-\node[color=UTPRed,anchor=west] at (3.0,2.72) {anomalies};
+\node[color=UTPRed,anchor=east] at (4.15,2.72) {anomalies};
 \node[color=UTPTeal] at (1.8,-0.35) {the "normal" region};
 \node[font=\small\bfseries\color{UTPNavy}] at (2.1,3.25) {Distance / density view};
 \end{scope}
 \begin{scope}[xshift=5.6cm]
 \draw[draw=UTPMuted,fill=white] (0,0) rectangle (4.6,2.9);
 \draw[-{Stealth[length=2mm]},UTPMuted] (0.3,0.45) -- (4.35,0.45);
-\node[color=UTPMuted,anchor=north] at (2.3,0.35) {anomaly score};
+\node[color=UTPMuted,anchor=north,inner sep=1pt] at (2.3,0.40) {anomaly score};
 \draw[UTPBlue,very thick] plot[smooth,domain=0.4:4.3,samples=60]
   (\x, {0.45+2.0*exp(-((\x-1.3)^2)/0.28)});
-\draw[UTPRed,very thick,dashed] (3.05,0.45) -- (3.05,2.6);
-\node[color=UTPRed,anchor=west,align=left] at (3.15,2.2) {threshold\\you choose};
-\node[color=UTPGreen,anchor=east] at (2.2,1.05) {normal};
-\node[color=UTPRed,anchor=west] at (3.3,0.85) {flagged};
+\draw[UTPRed,very thick,dashed] (2.85,0.45) -- (2.85,2.6);
+\node[color=UTPRed,anchor=west,align=left] at (2.95,2.2) {threshold\\you choose};
+\node[color=UTPGreen] at (1.3,2.68) {normal};
+\node[color=UTPRed,anchor=west] at (3.1,0.85) {flagged};
 \node[font=\small\bfseries\color{UTPNavy}] at (2.3,3.25) {Score-and-threshold view};
 \end{scope}
 \end{tikzpicture}
@@ -109,10 +172,6 @@ Anomaly detection differs from classification in one important way: you usually 
 \begin{keyidea}
 Choose thresholds or review batches for actual capacity and error costs; a high score is not a verdict.
 \end{keyidea}
-
-\begin{analogy}
-Anomaly detection learns a reference pattern and flags departures, without requiring examples of every failure.
-\end{analogy}
 
 \section{From anomaly score to investigation}
 
@@ -133,6 +192,8 @@ Can labels arrive later? & Use confirmed outcomes to evaluate ranking quality an
 \end{tabularx}
 \end{utptable}
 
+\recipecard{Isolation forest}{Many trees of random splits. A row's score comes from how shallow its leaf is on average.}{None in the usual sense: the method has no target and no loss to reduce.}{None. Trees are grown at random, and the only choices are their number and the sample size.}
+
 \begin{modelcard}{Anomaly Detection - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.25\linewidth}X@{}}
 Anomaly detection asks & Which observations are unusually inconsistent with a reference pattern? \\
@@ -143,12 +204,32 @@ Main risks & Rare does not always mean harmful; distribution shift can make yest
 \end{tabularx}
 \end{modelcard}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item An anomaly score ranks departures from a reference pattern. It is not a probability of fraud.
+  \item The z-score can be masked by the outlier itself, so prefer the median, the MAD and the IQR.
+  \item Distance alone penalizes naturally sparse groups; LOF judges a point against its own neighborhood.
+  \item Isolation forests need no distance: strangers separate after a few random cuts.
+  \item Evaluate at the real review budget. A ROC AUC of 0.95 and a 20\% hit rate in the top 100 describe the same ranking.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
-  \item Why is an anomaly score not automatically a probability of fraud, failure, or error?
+  \item Why is an anomaly score not automatically a probability of fraud, failure or error?
   \item How does a fixed review capacity turn anomaly detection into a ranking problem?
   \item What is the difference between detecting outliers in the training sample and novelty detection for future observations?
+  \item Readings are $5,5,6,4,5,50$. Compute the median and MAD. Is the 50 flagged by a robust z-score above 3?
+  \item In the fraud table above, why does recall keep rising when precision falls?
 \end{enumerate}
 \end{quickcheck}
 
-\input{labs/05-anomaly-limited-labels}
+\begin{checkanswers}
+\begin{enumerate}
+  \item It measures how unusual a row is under a reference pattern. Unusual can be harmless, and harmful can look ordinary, and nothing calibrates the score to outcomes.
+  \item If the team can check only 100 cases, the only question is which 100, so the quality of the top of the ranking is what counts.
+  \item Outlier detection looks for anomalies already in a contaminated training set. Novelty detection learns from clean normal data and flags new rows that differ from it.
+  \item Median 5, and the absolute deviations are $0,0,1,1,0,45$, so the MAD is 0.5. The robust z-score is $0.6745\times45/0.5\approx60.7$, so yes.
+  \item Recall counts frauds found out of all 45, so each new find raises it. Precision divides by the size of the list, which grows faster than the finds.
+\end{enumerate}
+\end{checkanswers}

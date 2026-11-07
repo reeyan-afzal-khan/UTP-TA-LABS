@@ -74,3 +74,13 @@ python .shared/build.py FI --check    # build only, to check a change; writes no
 
 The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
 for the shared styles every book uses.
+
+## Refined lab walkthroughs
+
+8 labs now use compact visual routes, operation traces, and diagrams reused from the teaching chapters. The course fonts and shared page template are unchanged.
+
+Complete runnable examples are in `all_experiments/lab*.py`. They generate labelled synthetic teaching inputs and result files under `results/labNN/`. The figures and captured outputs describe these fixtures, not observed financial markets or real institutions.
+
+**Validation:** All eight programs ran successfully. Code coverage checks confirm every nonblank source line is printed in the relevant lab.
+
+The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.

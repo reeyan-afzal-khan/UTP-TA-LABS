@@ -3,9 +3,9 @@
 
 \chapterguide%
   {\chapref{ch:data} and \chapref{ch:statistics}: honest holdouts, label types, averages, spread, and sampling uncertainty.}
-  {choose metrics, thresholds, and validation designs; assess probabilities, uncertainty, subgroups, and shift.}
+  {compute regression and classification metrics by hand; read a confusion matrix; move a threshold on purpose; compute a ROC AUC by counting pairs; choose a cross-validation splitter; and say how much a score can be trusted.}
 
-Evaluate with realistic splits, relevant baselines, and metrics tied to error costs.
+Think about a smoke alarm. You could score it by how often it is ``correct'': in a house with no fires it stays silent every day of the year, so even an alarm with no battery in it scores above 99\%. That number is true and useless. What you want to know is whether it rings when there is a fire, and whether it leaves you alone when you make toast. Evaluation is the habit of asking the question that matters, on data the model has not seen, against a baseline that costs nothing.
 
 \section{Evaluation begins with the real objective}
 
@@ -36,6 +36,7 @@ For true values $y_i$ and predictions $\hat{y}_i$, mean squared error and root m
 \]
 MSE strongly penalizes large errors. RMSE is easier to interpret because it uses the same units as the label.
 
+\keepspace{13\baselineskip}
 \begin{workedexample}
 Five delivery times, in minutes. Four predictions are nearly right; one is badly wrong.
 
@@ -162,7 +163,7 @@ Almost every classification metric is a different way of reading the same four b
 \end{utpfig}
 
 \begin{analogy}
-Precision measures how many alerts are correct; recall measures how many positives are detected. Always alerting sacrifices precision; never alerting gives zero recall and undefined precision.
+Back to the alarm. \term{Precision} asks: when it rings, is there really a fire? An alarm that rings at every piece of toast has poor precision. \term{Recall} asks: when there is a fire, does it ring? An alarm with a dead battery has zero recall, and its precision is undefined because it never rang. Turning the sensitivity up or down trades one against the other.
 \end{analogy}
 
 \begin{utptable}
@@ -171,11 +172,11 @@ Precision measures how many alerts are correct; recall measures how many positiv
 \rowcolor{UTPPaleBlue!92}
 \utpth{Metric} & \utpth{Formula} & \utpth{Answers the question} \\
 \midrule
-Accuracy & $\dfrac{TP+TN}{\text{all}}$ & How often is the model right overall? \\[0.5em]
-Precision & $\dfrac{TP}{TP+FP}$ & When it says yes, is it right? \\[0.5em]
-Recall & $\dfrac{TP}{TP+FN}$ & Does it find the ones that matter? \\[0.5em]
-F1 & $2\cdot\dfrac{P\cdot R}{P+R}$ & One number balancing the two \\[0.5em]
-Specificity & $\dfrac{TN}{TN+FP}$ & Does it leave the negatives alone? \\
+Accuracy & $\dfrac{TP+TN}{\text{all}}\rule[-2.2ex]{0pt}{5.4ex}$ & How often is the model right overall? \\[0.5em]
+Precision & $\dfrac{TP}{TP+FP}\rule[-2.2ex]{0pt}{5.4ex}$ & When it says yes, is it right? \\[0.5em]
+Recall & $\dfrac{TP}{TP+FN}\rule[-2.2ex]{0pt}{5.4ex}$ & Does it find the ones that matter? \\[0.5em]
+F1 & $2\cdot\dfrac{P\cdot R}{P+R}\rule[-2.2ex]{0pt}{5.4ex}$ & One number balancing the two \\[0.5em]
+Specificity & $\dfrac{TN}{TN+FP}\rule[-2.2ex]{0pt}{5.4ex}$ & Does it leave the negatives alone? \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
@@ -251,55 +252,66 @@ so $\operatorname{MCC}\approx 52{,}000/81{,}388\approx 0.639$.
 Accuracy, balanced accuracy, and MCC answer different questions; do not report accuracy alone under imbalance.
 \end{workedexample}
 
-Multiclass \term{macro averaging} weights classes equally; \term{micro averaging} pools decisions; \term{weighted averaging} weights classes by frequency.
+\term{Multiclass} problems need one more decision: how to combine the classes. \term{Macro averaging} weights classes equally, \term{micro averaging} pools every decision, and \term{weighted averaging} weights classes by frequency.
+
+\begin{workedexample}
+Three classes have 100, 10 and 2 rows, and a model gets 90, 5 and 1 of them right. Micro-averaged recall pools them: $96/112=0.857$. Macro-averaged recall averages the three recalls: $(0.90+0.50+0.50)/3=0.633$. The large class flatters the first number, and the second shows the small classes are at a coin flip. If small classes matter, report macro.
+\end{workedexample}
 
 \section{Thresholds, ROC curves, and precision-recall curves}
 
-A probability model becomes a hard classifier only after a threshold is chosen. Lowering the threshold usually increases recall and false positives; raising it usually increases precision and false negatives.
+A probability model becomes a yes-or-no classifier only after someone picks a threshold. The model supplies a score, and the threshold is a policy. Lowering it catches more positives and raises more false alarms; raising it does the reverse.
 
-The receiver operating characteristic (ROC) curve plots true-positive rate against false-positive rate across thresholds. ROC AUC is the probability that a randomly chosen positive example receives a higher score than a randomly chosen negative example.
+\begin{workedexample}
+Eight cases, already ranked by the model. Orange circles are real positives and blue dots are real negatives (\figref{fig:threshold-shift}).
 
-Choose thresholds or batch size on validation predictions using costs or capacity. Lock the rule before test evaluation (Lab~2, Part~C).
+\medskip
+\centering\small
+\begin{tabular}{@{}ccccccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Threshold} & \utpth{TP} & \utpth{FP} & \utpth{FN} & \utpth{TN} & \utpth{Precision} & \utpth{Recall} \\
+\midrule
+0.90 & 1 & 0 & 3 & 4 & 1.00 & 0.25 \\
+0.65 & 2 & 1 & 2 & 3 & 0.67 & 0.50 \\
+0.50 & 3 & 2 & 1 & 2 & 0.60 & 0.75 \\
+0.35 & 4 & 2 & 0 & 2 & 0.67 & 1.00 \\
+0.05 & 4 & 4 & 0 & 0 & 0.50 & 1.00 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Recall can only rise as the threshold falls. Precision wanders, because each new flag may be right or wrong. Nothing about the model changed between these rows.
+\end{workedexample}
 
-% === VISUAL ADDITION: threshold-operating-point ===
-\subsection{Thresholds move the operating point}
-
-These six scores stay fixed; only the decision threshold changes.
-
-\begin{utpfig}[Thresholds move the operating point]{Thresholds move the operating point. The six scores stay fixed; lowering the threshold from $0.50$ to $0.30$ catches more positives but also flags more negatives.}{fig:threshold-shift}
-\begin{tikzpicture}[x=10.0cm,y=1cm,font=\scriptsize]
-  \draw[-{Stealth[length=2mm]},UTPMuted] (0,0) -- (1.02,0)
-    node[right] {predicted probability};
+\begin{utpfig}[Thresholds move the operating point]{Thresholds move the operating point. The eight scores stay fixed. Lowering the threshold from 0.65 to 0.35 catches the two remaining positives, at the cost of one more false alarm.}{fig:threshold-shift}
+\begin{tikzpicture}[x=11.0cm,y=1cm,font=\scriptsize]
+  \draw[-{Stealth[length=2mm]},UTPMuted] (0,0) -- (1.03,0) node[right] {score};
   \foreach \x/\lab in {0/0,0.2/.2,0.4/.4,0.6/.6,0.8/.8,1/1}
     \draw[UTPMuted] (\x,0.06)--(\x,-0.06) node[below=2pt] {\lab};
-
-  % scored cases
-  \fill[UTPBlue] (0.18,0.48) circle (2.7pt);
-  \draw[UTPOrange,very thick] (0.32,0.48) circle (3.0pt);
-  \fill[UTPBlue] (0.41,0.48) circle (2.7pt);
-  \draw[UTPOrange,very thick] (0.46,0.48) circle (3.0pt);
-  \fill[UTPBlue] (0.64,0.48) circle (2.7pt);
-  \draw[UTPOrange,very thick] (0.84,0.48) circle (3.0pt);
-
-  \node[anchor=west,text=UTPBlue] at (0.03,1.10) {$\bullet$ actually negative};
-  \node[anchor=west,text=UTPOrange] at (0.34,1.10) {$\circ$ actually positive};
-
-  \draw[UTPNavy,very thick] (0.50,-0.28)--(0.50,0.92);
-  \node[align=left,text=UTPNavy,anchor=west] at (0.54,-0.48)
-    {threshold $0.50$\\flags 2 cases};
-
-  \draw[UTPRed,very thick,dashed] (0.30,-0.48)--(0.30,0.92);
-  \node[align=center,text=UTPRed] at (0.15,-1.05)
-    {lower to $0.30$\\catches more positives\\but also more negatives};
-
-  \draw[-{Stealth[length=1.8mm]},UTPRed,thick] (0.48,-0.18)--(0.32,-0.18);
+  \foreach \x in {0.10,0.30,0.55,0.70} \fill[UTPBlue] (\x,0.48) circle (2.7pt);
+  \foreach \x in {0.40,0.60,0.85,0.95} \draw[UTPOrange,very thick] (\x,0.48) circle (3.0pt);
+  \node[anchor=west,text=UTPBlue] at (0.02,1.25) {$\bullet$ actually negative};
+  \node[anchor=west,text=UTPOrange] at (0.27,1.25) {$\circ$ actually positive};
+  \draw[UTPNavy,very thick] (0.65,-0.28)--(0.65,1.0);
+  \node[align=left,text=UTPNavy,anchor=west] at (0.665,0.98) {threshold 0.65};
+  \draw[UTPRed,very thick,dashed] (0.35,-0.28)--(0.35,1.0);
+  \node[align=right,text=UTPRed,anchor=east] at (0.335,0.98) {threshold 0.35};
+  \draw[-{Stealth[length=1.8mm]},UTPRed,thick] (0.63,-0.20)--(0.37,-0.20);
 \end{tikzpicture}
 \end{utpfig}
 
 \begin{keyidea}
-Lower thresholds increase positive decisions and cannot reduce recall. Higher thresholds reduce alerts but may miss positives; validate the cost/capacity trade-off.
+Lower thresholds increase positive decisions and can never reduce recall. Higher thresholds reduce alerts and may miss positives. Choose the threshold on validation data from costs or capacity, and lock it before test evaluation (Lab~2, Part~C).
 \end{keyidea}
-% === END VISUAL ADDITION ===
+
+\subsection{ROC AUC by counting pairs}
+
+The \term{ROC curve} plots true-positive rate against false-positive rate as the threshold sweeps from high to low. The area under it has a plain meaning: it is the chance that a randomly chosen positive gets a higher score than a randomly chosen negative.
+
+\begin{workedexample}
+Use the same eight cases. Positives scored 0.95, 0.85, 0.60, 0.40 and negatives scored 0.70, 0.55, 0.30, 0.10, so there are $4\times4=16$ pairs. The positive at 0.60 loses to the negative at 0.70. The positive at 0.40 loses to the negatives at 0.70 and 0.55. All the rest are ranked correctly: $13/16$, so ROC AUC is 0.8125. You can check any ROC AUC this way, and it shows that the metric cares only about order, not about any threshold.
+\end{workedexample}
 
 \subsection{Capacity and cost metrics}
 \label{sec:capacity-metrics}
@@ -336,37 +348,33 @@ Randomly calling five customers would reach one churner on average; this ranking
 Churn risk is not persuadability. Ranking metrics cannot establish that contact causes retention; use a causal design such as randomization.
 \end{pitfall}
 
-\begin{utpfig}[ROC and precision-recall curves]{ROC and precision-recall curves for illustrative classifiers. The ROC baseline is the diagonal, but the precision-recall baseline sits at the class rate, so with rare positives a strong ROC AUC can coexist with poor precision at the operating point.}{fig:pr-curves}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.5cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPNavy}}, title={ROC curve},
-  xlabel={False positive rate}, ylabel={True positive rate},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  xmin=0, xmax=1, ymin=0, ymax=1.02,
-  legend style={font=\scriptsize,draw=none,fill=none,at={(0.97,0.05)},anchor=south east}
-]
-\addplot[UTPBlue,very thick,domain=0:1,samples=60]{x^0.087}; \addlegendentry{illustrative high AUC}
-\addplot[UTPTeal,very thick,domain=0:1,samples=60]{x^0.389}; \addlegendentry{illustrative moderate AUC}
-\addplot[UTPMuted,thick,dashed,domain=0:1]{x};               \addlegendentry{random (0.50)}
-\end{axis}
-\end{tikzpicture}
-\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.5cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPNavy}}, title={Precision-recall curve},
-  xlabel={Recall}, ylabel={Precision},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  xmin=0, xmax=1, ymin=0, ymax=1.02,
-  legend style={font=\scriptsize,draw=none,fill=none,at={(0.03,0.05)},anchor=south west}
-]
-\addplot[UTPBlue,very thick,domain=0.02:1,samples=60]{0.97-0.55*x^2.6}; \addlegendentry{good}
-\addplot[UTPTeal,very thick,domain=0.02:1,samples=60]{0.80-0.65*x^1.5}; \addlegendentry{fair}
-\addplot[UTPMuted,thick,dashed,domain=0:1]{0.08};                        \addlegendentry{random (= class rate)}
-\end{axis}
+\subsection{Two real models on one chart}
+
+\figref{fig:pr-curves} shows the two logistic models of Lab~2, one on the Titanic and one on breast cancer. Their positive rates are nearly the same, 0.386 and 0.371, so the charts compare fairly. The cancer model's ROC AUC is 0.996 and the Titanic model's is 0.842.
+
+\begin{utpfig}[ROC and precision-recall curves]{ROC and precision-recall curves for Lab~2's two logistic models on their validation rows, read at 21 thresholds. The ROC baseline is the diagonal; the precision-recall baseline is the positive rate, about 0.38 for both.}{fig:pr-curves}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
+  logaxis, width=7.4cm, height=5.0cm, xmin=0, xmax=1, ymin=0, ymax=1.03]
+\nextgroupplot[title={ROC curve},xlabel={False-positive rate},ylabel={True-positive rate},legend style={at={(0.97,0.05)},anchor=south east}]
+\addplot[draw=UTPBlue,thick] coordinates {(0.0,0.0) (0.0,0.755) (0.0,0.811) (0.0,0.868) (0.0,0.906) (0.011,0.925) (0.011,0.943) (0.011,0.962) (0.022,0.962) (0.033,0.962) (0.044,0.981) (0.067,0.981) (0.122,1.0) (1.0,1.0)};
+\addlegendentry{breast cancer, 0.996}
+\addplot[draw=UTPOrange,thick] coordinates {(0.0,0.0) (0.007,0.058) (0.007,0.163) (0.007,0.256) (0.015,0.326) (0.029,0.395) (0.036,0.5) (0.051,0.547) (0.08,0.593) (0.131,0.651) (0.161,0.674) (0.19,0.733) (0.204,0.802) (0.241,0.814) (0.292,0.814) (0.328,0.826) (0.394,0.849) (0.533,0.884) (0.708,0.93) (0.964,1.0) (1.0,1.0)};
+\addlegendentry{Titanic, 0.842}
+\addplot[draw=UTPMuted,dashed,domain=0:1] {x};
+\addlegendentry{random, 0.50}
+\nextgroupplot[title={Precision-recall curve},xlabel={Recall},ylabel={Precision},legend style={at={(0.03,0.05)},anchor=south west}]
+\addplot[draw=UTPBlue,thick] coordinates {(0.755,1.0) (0.811,1.0) (0.868,1.0) (0.906,1.0) (0.925,0.98) (0.943,0.98) (0.962,0.981) (0.962,0.962) (0.962,0.944) (0.981,0.929) (0.981,0.897) (1.0,0.828) (1.0,0.371)};
+\addlegendentry{breast cancer}
+\addplot[draw=UTPOrange,thick] coordinates {(0.058,0.833) (0.163,0.933) (0.256,0.957) (0.326,0.933) (0.395,0.895) (0.5,0.896) (0.547,0.87) (0.593,0.823) (0.651,0.757) (0.674,0.725) (0.733,0.708) (0.802,0.711) (0.814,0.68) (0.814,0.636) (0.826,0.612) (0.849,0.575) (0.884,0.51) (0.93,0.452) (1.0,0.394) (1.0,0.386)};
+\addlegendentry{Titanic}
+\addplot[draw=UTPMuted,dashed,domain=0:1] {0.38};
+\addlegendentry{positive rate}
+\end{groupplot}
 \end{tikzpicture}
 \end{utpfig}
+
+Rarity changes the story. Lab~5's fraud ranking has a ROC AUC of 0.95, which sounds excellent. Fraud is 1.5\% of those rows, so among the top 100 flagged transactions only 20 are fraud. Most of the ROC credit comes from correctly ranking thousands of ordinary transactions below thousands of others.
 
 \begin{keyidea}
 For rare positives, inspect precision--recall at the intended operating point. Strong ROC AUC can coexist with poor alert precision.
@@ -375,9 +383,10 @@ For rare positives, inspect precision--recall at the intended operating point. S
 \section{Cross-validation}
 \label{sec:cross-validation}
 
-In $k$-fold cross-validation, train on $k-1$ folds and validate on the remaining fold, rotating until all folds have been held out. Compare scores across folds.
+\begin{analogy}
+One mock exam can be easy or hard by chance. Set five, each covering a different part of the syllabus, and the average tells you far more. \term{$k$-fold cross-validation} does this with your data: train on $k-1$ folds, validate on the remaining one, and rotate until every fold has been held out.
+\end{analogy}
 
-% === VISUAL ADDITION: cross-validation-folds ===
 \begin{utpfig}[Five-fold cross-validation]{Five-fold cross-validation stays inside the development data. Each round validates on one fold and trains on the other four; the untouched test set is not a sixth fold and is never used for tuning.}{fig:cv-folds}
 \begin{tikzpicture}[font=\scriptsize]
 \node[font=\small\bfseries\color{UTPNavy},anchor=west] at (0,3.55)
@@ -409,7 +418,10 @@ In $k$-fold cross-validation, train on $k-1$ folds and validate on the remaining
   {average the five validation scores, choose the model, then evaluate the locked choice once};
 \end{tikzpicture}
 \end{utpfig}
-% === END VISUAL ADDITION ===
+
+\begin{workedexample}
+Titanic logistic regression, five folds of the training rows: ROC AUC 0.857, 0.809, 0.885, 0.858, 0.835. The mean is 0.849 and the standard deviation 0.025. Any claim that one model beats this one by 0.01 should be met with suspicion, since the folds themselves disagree by more than that.
+\end{workedexample}
 
 Cross-validation must preserve the data structure:
 
@@ -422,6 +434,7 @@ Cross-validation must preserve the data structure:
 
 After selecting a model and hyperparameters, refit on the allowed training data and evaluate once on the untouched test set.
 
+\keepspace{16\baselineskip}
 \subsection{Choose the cross-validation splitter that matches the data}
 
 \begin{utptable}
@@ -487,7 +500,11 @@ Log loss therefore penalizes extreme confidence in a wrong answer more strongly.
 
 \section{Uncertainty and repeated experiments}
 
-Metrics vary with sampled cases and training randomness. Quantify uncertainty with suitable confidence intervals, bootstrap, repeated cross-validation, or multiple seeds.
+A score computed on 223 rows has error bars whether you draw them or not. Quantify the uncertainty with confidence intervals, the bootstrap, repeated cross-validation, or several seeds.
+
+\begin{workedexample}
+Lab~2's Titanic logistic model scores ROC AUC 0.842 on 223 validation rows. A bootstrap of those rows gives a 95\% interval of 0.781 to 0.893. Refit the same model on five different random splits, and validation AUC comes out as 0.831, 0.828, 0.840, 0.925 and 0.842. So when Lab~2's random forest scores 0.834 on the same rows, nothing is settled.
+\end{workedexample}
 
 Compare models through paired errors on the same cases. Statistical significance does not imply practical value.
 
@@ -524,14 +541,38 @@ Split & Match future use; respect time, groups, location, and repeated observati
 Baseline & Compare with a simple rule using the same data and metric. \cr
 Uncertainty & Use cross-validation, repeated splits, or confidence intervals where appropriate. \cr
 Diagnosis & Inspect errors, subgroups, calibration, threshold behavior, and distribution shift. \cr
-Final report & State the data period, metric definition, uncertainty, limitations, and untouched test result. \cr
+Final report & State the data period, metric, uncertainty, limits and untouched test result. \cr
 \end{tabularx}
 \end{modelcard}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item Choose metrics from the decision and its error costs, before seeing results. Accuracy alone is misleading when classes are unbalanced.
+  \item MAE reports a typical miss, RMSE punishes large ones, and $R^2$ compares with guessing the mean.
+  \item The confusion matrix holds four counts. Precision asks whether a flag is right; recall asks whether positives are found.
+  \item A threshold is a policy, chosen on validation data. ROC AUC is the chance a positive outranks a negative. When positives are rare, look at precision at your capacity.
+  \item Cross-validation must respect groups, time and class balance. Scores on small sets carry wide error bars, so report them.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
-  \item Describe a situation where recall should matter more than precision, and another where precision should matter more than recall.
+  \item Describe one situation where recall should matter more than precision, and one the other way round.
+  \item A filter flags 50 of 500 emails. Of those 50, 30 are spam; there are 40 spam emails in all. Compute precision, recall and accuracy.
   \item What usually happens to recall and false positives when a classification threshold is lowered?
-  \item Why must the cross-validation splitter preserve groups, time order, or class balance when those structures matter to deployment?
+  \item Scores for positives are 0.9 and 0.4; scores for negatives are 0.6 and 0.2. What is the ROC AUC?
+  \item Why must a cross-validation splitter respect groups, time order and class balance?
+  \item Model A scores AUC 0.85 and model B 0.84 on 200 rows. What do you want to see before preferring A?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Disease screening favors recall, because a miss can be fatal and a false alarm costs a follow-up test. A spam filter favors precision, because losing a real email is worse than seeing some spam.
+  \item $TP=30$, $FP=20$, $FN=10$, $TN=440$. Precision $30/50=0.60$, recall $30/40=0.75$, accuracy $470/500=0.94$.
+  \item Recall rises or stays the same, and false positives rise or stay the same.
+  \item Four pairs: $(0.9,0.6)$ right, $(0.9,0.2)$ right, $(0.4,0.6)$ wrong, $(0.4,0.2)$ right. So $3/4=0.75$.
+  \item Otherwise related or future rows sit in training, and the score answers a question nobody asked.
+  \item Fold-by-fold scores, or a bootstrap interval on paired differences. A gap of 0.01 on 200 rows is noise.
+\end{enumerate}
+\end{checkanswers}

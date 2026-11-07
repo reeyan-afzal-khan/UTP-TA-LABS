@@ -1,0 +1,17 @@
+== Heap sort on the common dataset (heap | sorted tail) ==
+  start: 29 10 14 37 13 
+  after building the max-heap: 37 29 14 10 13 
+  extract 37 -> 29 13 14 10 | 37 
+  extract 29 -> 14 13 10 | 29 37 
+  extract 14 -> 13 10 | 14 29 37 
+  extract 13 -> 10 | 13 14 29 37 
+  result: 10 13 14 29 37 
+  comparisons: 12, swaps: 9
+  [ok]   the result is in ascending order
+  [ok]   the heap property held in the unsorted region after every extraction
+
+== More inputs ==
+  [ok]   duplicates: 5 3 5 1 5 9 3
+  [ok]   already sorted: 1 2 3 4 5 6
+  [ok]   reverse sorted: 6 5 4 3 2 1
+  [ok]   one element and empty input

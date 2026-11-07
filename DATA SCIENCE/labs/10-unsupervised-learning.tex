@@ -6,26 +6,47 @@
 \textbf{Datasets.} \texttt{mall\_customers\_dataset.csv} and \texttt{wine\_recognition\_dataset.csv}.\\
 \textbf{Scenario.} You have two unsupervised tasks: identify potentially useful customer groupings and compress correlated chemical measurements. In both cases, the algorithm returns mathematical structure; interpretation must be earned through diagnostics and domain context.
 
-\textbf{Part A---k-means clustering.}
-\begin{enumerate}
-  \item Select age, annual income, and spending score; exclude identifiers. Standardise the features and explain why scale matters for Euclidean distance.
-  \item Fit k-means for several candidate values of $k$ using multiple random starts. Record total within-cluster sum of squares and inspect whether an elbow is visible.
-  \item Choose one $k$ as a working solution and rerun it with a large \texttt{nstart}. Report cluster sizes and centroids in the \emph{original units}.
-  \item Plot income against spending score by cluster and explain what information is omitted because age is the third clustering dimension.
-  \item Test stability by repeating the fit with different random seeds. Distinguish stable broad structure from assignments that change easily.
-\end{enumerate}
+\input{labs/visuals/10-flow}
 
-\textbf{Part B---principal component analysis.}
-\begin{enumerate}
-  \item Exclude \texttt{sample\_id} and \texttt{cultivar} before PCA. Standardise all 13 chemical measurements.
-  \item Report explained variance for the leading components and determine how many components are needed to capture a substantial proportion of total variance.
-  \item Inspect the largest absolute loadings on PC1 and PC2 and describe which original chemical measurements drive those directions.
-  \item Plot PC1 against PC2 without using cultivar labels during fitting. Introduce cultivar only afterward to assess whether known classes align with the unsupervised representation.
-\end{enumerate}
+\textbf{Run the complete script.} Start a clean R session in the course folder. Each step continues the same file; comment headings identify the operation performed by the next block.
+\begin{lstlisting}[style=utpterminal]
+Rscript all_experiments/lab10_unsupervised.R
+\end{lstlisting}
 
-\tcbbreak
-\lstinputlisting[style=utpr]{all_experiments/lab10_unsupervised.R}
+\noindent\textbf{Step 1.} Load, validate and prepare the data
+\lstinputlisting[style=utpr,firstline=1,lastline=6]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 2.} Part A: k-means customer segmentation
+\input{labs/visuals/10-trace}
+\lstinputlisting[style=utpr,firstline=7,lastline=12]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 3.} Compare candidate k values using total within-cluster sum of squares.
+\lstinputlisting[style=utpr,firstline=13,lastline=27]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 4.} Use k=5 as a teaching solution; students should justify or challenge this choice.
+\lstinputlisting[style=utpr,firstline=28,lastline=41]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 5.} Stability check across random seeds using label-invariant co-clustering agreement.
+\lstinputlisting[style=utpr,firstline=42,lastline=65]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 6.} Part B: PCA on chemical measurements; labels are withheld during fitting
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:unsupervised]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Read variance\_table before interpreting the score plot. Squaring pca\$sdev gives component variances, normalising gives explained, and cumsum gives cumulative. The first index where cumulative reaches .80 is 5 for the supplied file. Thus the two-dimensional plot hides about 44.59\% of the standardised variance. Component signs may reverse between implementations without changing these proportions.
+\input{labs/visuals/10-worked-case.tex}
+
+\lstinputlisting[style=utpr,firstline=66,lastline=97]{all_experiments/lab10_unsupervised.R}
+
+\noindent\textbf{Step 7.} Labels are introduced only after PCA for post-hoc interpretation.
+\lstinputlisting[style=utpr,firstline=98,lastline=105]{all_experiments/lab10_unsupervised.R}
+\textbf{Chapter connection.} Revisit \hyperref[ch:unsupervised]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/10-unsupervised-learning-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Describe one cluster's size and feature profile. Compare a two-component projection with the full scaled representation and identify distinctions the plot can hide.
+
+
 \textbf{Required evidence.} Submit one cluster-selection diagnostic, one cluster profile, one PCA explained-variance summary, and one score plot. For each task, write a two-sentence interpretation that separates the algorithmic result from the substantive meaning you are assigning to it.
 
 \textbf{Professional standard.} Do not name clusters as customer ``types'' unless the labels are supported by stable feature profiles and a real decision context. Do not describe a principal component as a latent concept unless its loading pattern and domain meaning justify that interpretation.

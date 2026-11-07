@@ -32,12 +32,12 @@ How the folders are filled:
 | Course | Book | What the folder holds |
 | --- | --- | --- |
 | [Algorithms & Data Structures](<../ALGORITHMS & DATA STRUCTURES/README.md>) | [ADS-Book.pdf](algorithms-data-structures/ADS-Book.pdf) · 98 pages | [11 lab folders and the final project](algorithms-data-structures) |
-| [Artificial Intelligence](<../ARTIFICIAL INTELLIGENCE/README.md>) | [AI-Book.pdf](artificial-intelligence/AI-Book.pdf) · 93 pages | [8 lab folders](artificial-intelligence) |
+| [Artificial Intelligence](<../ARTIFICIAL INTELLIGENCE/README.md>) | [AI-Book.pdf](artificial-intelligence/AI-Book.pdf) · 152 pages | [8 lab folders and the game search chapter](artificial-intelligence) |
 | [Data Communication & Networking](<../DATA COMMUNICATION & NETWORKING/README.md>) | [DCN-Book.pdf](data-communication-networking/DCN-Book.pdf) · 91 pages | [9 lab folders, the group project and the command reference](data-communication-networking) |
 | [Introduction to Data Science](<../DATA SCIENCE/README.md>) | [DS-Book.pdf](data-science/DS-Book.pdf) · 106 pages | [10 lab folders and the capstone](data-science) |
-| [Enterprise Resource Planning](<../ENTERPRISE RESOURCE PLANNING/README.md>) | [ERP-Book.pdf](enterprise-resource-planning/ERP-Book.pdf) · 87 pages | [8 lab folders, the capstone and two appendices](enterprise-resource-planning) |
+| [Enterprise Resource Planning](<../ENTERPRISE RESOURCE PLANNING/README.md>) | [ERP-Book.pdf](enterprise-resource-planning/ERP-Book.pdf) · 103 pages | [8 lab folders, the capstone and two appendices](enterprise-resource-planning) |
 | [FinTech Innovation](<../FINTECH INNOVATION/README.md>) | [FI-Book.pdf](fintech-innovation/FI-Book.pdf) · 105 pages | [8 lab folders and the final revision map](fintech-innovation) |
-| [Machine Learning](<../MACHINE LEARNING/README.md>) | [ML-Book.pdf](machine-learning/ML-Book.pdf) · 160 pages | [8 lab folders and the capstone](machine-learning) |
+| [Machine Learning](<../MACHINE LEARNING/README.md>) | [ML-Book.pdf](machine-learning/ML-Book.pdf) · 274 pages | [8 lab folders and the capstone](machine-learning) |
 | [Operating Systems](<../OPERATING SYSTEMS/README.md>) | [OS-Book.pdf](operating-systems/OS-Book.pdf) · 86 pages | [10 lab folders and the capstone](operating-systems) |
 
 Every file here is generated. Do not edit or re-split them by hand; rebuild instead, from the repository root:

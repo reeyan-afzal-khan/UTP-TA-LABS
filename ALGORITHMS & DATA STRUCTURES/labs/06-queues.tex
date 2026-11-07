@@ -1,39 +1,33 @@
 \labsection{6}{Linear, linked, circular, and priority queues}{sec:lab06}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab VI}
-\textbf{Objective.} Build proper intuition for queues and implement different queue types.
-
-\textbf{Outcomes.} Understand queue variants and efficient array/linked-list implementations.
-
-\textbf{Problem directions.} Array queue with enqueue/dequeue; linked-list queue with enqueue/dequeue; circular-array queue problems. The manual also defines priority-queue processing rules.
+Linear, linked, circular, and priority queues.
 \end{sourcealignment}
 
 \begin{labproject}{Implement queues and demonstrate wrap-around}
-\textbf{Coverage.} Chapter~\ref{ch:queues}.\\
-\textbf{Goal.} Implement array and linked queues, then demonstrate circular wrap-around without confusing the full and empty states.
+\textbf{Goal.} Preserve FIFO order across array wrap-around.
 
-Build an array queue and a linked-list queue. Then implement a circular queue where index movement uses modulo arithmetic.
+\textbf{Recall first.} Review the \hyperref[ch:queues]{Queues} chapter.
 
-\begin{lstlisting}
-// Circular queue, capacity 5
-// enqueue 10, 20, 30, 40
-// dequeue twice
-// enqueue 50, 60
-// rear must wrap without breaking FIFO order
-\end{lstlisting}
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab06} folder.
 
-\begin{tryit}
-Print \texttt{front}, \texttt{rear}, and either \texttt{count} or your chosen full/empty state after every circular operation. As an extension, represent items as \texttt{(value, priority)} and implement the two priority rules from the lab manual.
-\end{tryit}
+\input{labs/programs/linear_queue}
+
+\tcbbreak
+\input{labs/programs/linked_queue}
+
+\tcbbreak
+\input{labs/programs/circular_queue}
+
+\tcbbreak
+\input{labs/programs/priority_queue}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item Array and linked-list queues preserve FIFO order.
-  \item Dequeuing the final linked node resets both front and rear correctly.
-  \item Circular wrap-around visibly reuses low array indexes.
-  \item Full and empty circular states cannot be confused.
-  \item If a priority queue is implemented, equal-priority items preserve arrival order.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

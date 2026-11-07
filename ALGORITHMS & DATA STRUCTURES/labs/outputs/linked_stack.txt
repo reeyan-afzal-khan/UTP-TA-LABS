@@ -1,0 +1,15 @@
+== Suggested trace ==
+peek()    -> 30
+pop()     -> removes 30
+display() -> 20 10 
+  [ok]   LIFO: the last value pushed (30) was the first removed
+
+== Growth past the array version's capacity of 5 ==
+display() -> 90 80 70 60 50 40 20 10 
+  [ok]   eight values stored with no overflow (isFull() is always false)
+
+== Underflow ==
+90 80 70 60 50 40 20 10 
+pop() on an empty stack -> refused: stack is empty
+  [ok]   pop on an empty stack is refused before reading the top
+  [ok]   peek on an empty stack is refused

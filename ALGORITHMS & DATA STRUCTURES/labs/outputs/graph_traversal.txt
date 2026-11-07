@@ -1,0 +1,37 @@
+== Adjacency list (5 vertices, 7 edges) ==
+  A: B C D 
+  B: A D E 
+  C: A D 
+  D: A B C E 
+  E: B D 
+  [ok]   every edge is stored in both endpoints' lists exactly once (undirected)
+  [ok]   the degree sum is twice the edge count
+
+== Traversals from A ==
+  BFS (queue):          A B C D E 
+  DFS (recursion):      A B D C E 
+  DFS (explicit stack): A B D C E 
+  [ok]   BFS gives A B C D E: all of A's neighbours before E
+  [ok]   DFS gives A B D C E: it follows one branch as deep as it can
+  [ok]   recursive and explicit-stack DFS agree
+  [ok]   each vertex is visited exactly once although the graph has cycles
+
+== Try it: reverse every adjacency list and traverse again ==
+  A: D C B 
+  B: E D A 
+  C: D A 
+  D: E C B A 
+  E: D B 
+  BFS: A D C B E    DFS: A D E B C 
+  [ok]   the visiting ORDER changes with the list order
+  [ok]   the SET of vertices reached does not
+
+== Path of a given length from A to E ==
+  length 1: no
+  length 2: yes, A B E 
+  length 3: yes, A B D E 
+  length 4: yes, A C D B E 
+  length 5: no
+  [ok]   no path of length 1 (A and E are not adjacent)
+  [ok]   a path of length 4 visits all five vertices
+  [ok]   no simple path of length 5 exists in a 5-vertex graph

@@ -2,14 +2,18 @@
 \label{ch:dimred}
 
 \chapterguide%
-  {\chapref{ch:unsupervised}, dot products and projections from \chapref{ch:foundations}, and scaling from \chapref{ch:data}. Eigenvectors and eigenvalues are re-introduced from scratch here.}
-  {compute PCA, choose components, assess information loss, and interpret nonlinear visualizations cautiously.}
+  {\chapref{ch:unsupervised}, correlation and dot products from \chapref{ch:foundations}, and scaling from \chapref{ch:data}. Eigenvectors and eigenvalues are introduced here from scratch.}
+  {explain PCA as choosing the best shadow; score a direction by hand; compute shares of variance; read a component's weights; choose how many components to keep from evidence; and read t-SNE and UMAP maps with care.}
 
-Dimensionality reduction compresses redundant features while preserving a stated property, such as variance or neighborhoods. It can support visualization, denoising, faster models, and more manageable geometry (\chapref{ch:knn-nb}).
+The tutor wants all four columns of the study log on one chart. A chart has two axes, and the table has four columns, so that chart cannot be drawn. But you have known the way out since you were a child.
 
-\section{The idea: find better axes}
+\section{The idea: find the best shadow}
 
-A cloud of correlated points does not use its dimensions efficiently --- most of the action happens along a few directions. Principal component analysis (PCA) rotates the coordinate system to point along those directions.
+\begin{analogy}
+Hold a toy horse up to a lamp, and its shadow on the wall flattens three dimensions into two. Turn the horse side-on and the shadow keeps the head, legs and tail, spread out and recognizable. Turn it head-on and the shadow is a narrow blob. Same object, same lamp; the angle is everything. A \term{projection} is that flattening, and \term{principal component analysis (PCA)} finds the angle whose shadow keeps the most.
+\end{analogy}
+
+What does ``keeps the most'' mean as a number? In the good shadow, parts of the horse land far apart. In the bad one, everything lands on top of everything else. So we score a shadow by how spread out it is, and we already have a number for spread: the variance. PCA turns ``keep as much information as possible'' into ``keep as much variance as possible.''
 
 \begin{utpfig}[Principal axes]{Principal component analysis finds better axes. The first component points along the direction of most variance; the second is perpendicular to it.}{fig:pca-axes}
 \begin{tikzpicture}
@@ -34,54 +38,104 @@ A cloud of correlated points does not use its dimensions efficiently --- most of
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{intuition}
-Think of photographing a school of fish. From most angles the school looks like a blob, but from one particular angle its long axis lines up with the frame and one photo captures almost everything. PCA finds that best camera angle: the first principal component is the direction along which the data is most spread out, the second is the most-spread direction perpendicular to the first, and so on.
-\end{intuition}
+\section{One shadow by hand}
 
-% === VISUAL ADDITION: pca-rotate-project ===
-\subsection{PCA as rotate, then project}
+Start with two columns: hours studied and hours slept. Their correlation is $-0.96$, so they are nearly one story told twice. Scale each column to mean 0 and standard deviation 1 first, because we are about to add hours of study to hours of sleep, and each column should get an equal voice. Student J, for example, becomes $(1.57,\,-1.85)$: well above average on study, well below on sleep.
 
-The first component is not merely an arrow drawn on the old graph. It becomes a new coordinate axis, and every observation receives a new number: its position along that axis.
+Now pick a direction, written as weights whose squares add to 1, so that one step along it has length 1. The direction $(0.71,-0.71)$ means ``study up, sleep down.'' A student's shadow on that line is a dot product: J's is $0.71\times1.57+(-0.71)\times(-1.85)\approx2.4$, far along the line.
 
-\begin{utpfig}[PCA as rotate, then project]{PCA as rotate, then project. The data are rotated onto the principal axes, and keeping only the first component turns two columns into one component score.}{fig:pca-rotate-project}
-\begin{tikzpicture}[font=\scriptsize,scale=0.86]
-\def\cloud{
-  (-1.7,-1.35),(-1.25,-0.85),(-0.8,-0.72),(-0.25,-0.05),
-  (0.25,0.18),(0.7,0.48),(1.15,1.02),(1.65,1.28)
-}
-% original
-\begin{scope}
-  \draw[-{Stealth[length=1.8mm]},UTPMuted] (-2.0,0) -- (2.05,0) node[right] {$x_1$};
-  \draw[-{Stealth[length=1.8mm]},UTPMuted] (0,-1.75) -- (0,1.75) node[above] {$x_2$};
-  \foreach \p in \cloud \fill[UTPBlue] \p circle (2.2pt);
-  \node[font=\small\bfseries\color{UTPNavy}] at (0,2.15) {1. Original coordinates};
-\end{scope}
+\begin{workedexample}
+Take the shadow of all ten students on two perpendicular directions, and compute the variance of each set of shadows.
 
-% rotated direction
-\begin{scope}[xshift=5.15cm]
-  \draw[UTPMuted!45] (-2.0,0) -- (2.0,0);
-  \draw[UTPMuted!45] (0,-1.75) -- (0,1.75);
-  \foreach \p in \cloud \fill[UTPBlue] \p circle (2.2pt);
-  \draw[-{Stealth[length=2mm]},UTPTeal,very thick] (-1.75,-1.35) -- (1.82,1.40)
-    node[right,font=\scriptsize] {PC1};
-  \draw[-{Stealth[length=2mm]},UTPOrange,thick] (0.75,-0.98) -- (-0.75,0.98)
-    node[above,font=\scriptsize] {PC2};
-  \node[font=\small\bfseries\color{UTPNavy}] at (0,2.15) {2. Rotate to principal axes};
-\end{scope}
+\medskip
+\centering\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Direction} & \utpth{Meaning} & \utpth{Spread of the shadows} \\
+\midrule
+$(0.71,-0.71)$ & study up, sleep down & 1.965 \\
+$(0.71,\ 0.71)$ & study and sleep up together & 0.035 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+The two scaled columns hold 2 units of spread in total, and one direction holds 1.965 of them, or 98\%. The students barely differ at all along the other. Nothing would be lost by replacing these two columns with one new column, ``cramming versus resting.''
+\end{workedexample}
 
-% projected 1d
-\begin{scope}[xshift=10.25cm]
-  \draw[-{Stealth[length=1.8mm]},UTPTeal,very thick] (-2.0,0) -- (2.05,0) node[right] {PC1 score};
-  \foreach \x in {-1.72,-1.22,-0.86,-0.22,0.28,0.72,1.20,1.68}
-    \fill[UTPBlue] (\x,0) circle (2.3pt);
-  \draw[UTPMuted,dashed] (-2.0,0.65) -- (2.0,0.65);
-  \node[align=center,text=UTPMuted] at (0,1.03) {PC2 discarded};
-  \node[font=\small\bfseries\color{UTPNavy}] at (0,2.15) {3. Project to one dimension};
-  \node[align=center,text=UTPGreen] at (0,-0.72) {two columns become\\one component score};
-\end{scope}
+\begin{utpfig}[Two shadows of the same students]{Hours and sleep, both scaled. Along the ``study up, sleep down'' direction the students spread out, keeping 1.965 of the 2 units of spread. Along the perpendicular direction they crowd together, keeping 0.035.}{fig:shadow}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=7.6cm, height=7.0cm, axis equal image, xmin=-2.4, xmax=2.4, ymin=-2.4, ymax=2.4, xlabel={hours, scaled}, ylabel={sleep, scaled}]
+\addplot[draw=UTPBlue,thick,domain=-2.2:2.2] {-x};
+\addplot[draw=UTPOrange,thick,dashed,domain=-2.2:2.2] {x};
+\addplot[only marks,mark=*,mark size=1.9pt,draw=UTPNavy,fill=UTPNavy] coordinates {(-1.57,1.15)(-1.22,1.15)(-0.87,0.65)(-0.52,0.65)(-0.17,0.65)(0.17,0.15)(0.52,-0.35)(0.87,-0.85)(1.22,-1.35)(1.57,-1.85)};
+\node[font=\scriptsize\color{UTPBlue},anchor=south west] at (axis cs:0.9,-1.0) {spread 1.965};
+\node[font=\scriptsize\color{UTPOrange!85!black},anchor=south east] at (axis cs:1.7,1.7) {spread 0.035};
+\end{axis}
 \end{tikzpicture}
 \end{utpfig}
-% === END VISUAL ADDITION ===
+
+\section{All four columns at once}
+
+PCA runs the same scoring over every possible direction, using one piece of mathematics. Doing the correlation for every pair of columns fills a table; on scaled data it is also the covariance table.
+
+\begin{utptable}
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{} & \utpth{hours} & \utpth{lectures} & \utpth{sleep} & \utpth{mark} \\
+\midrule
+hours & 1.00 & $-0.15$ & $-0.96$ & $-0.25$ \\
+lectures & $-0.15$ & 1.00 & 0.35 & 0.86 \\
+sleep & $-0.96$ & 0.35 & 1.00 & 0.46 \\
+mark & $-0.25$ & 0.86 & 0.46 & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{utptable}
+
+The \term{eigendecomposition} takes that table and returns every direction ranked by spread. Its two words name things we already have: an \term{eigenvector} is one direction, written as its weights, and its \term{eigenvalue} is that direction's spread. In formula form, $S\bm{v}=\lambda\bm{v}$: multiplying the table by the direction only stretches it. NumPy calls the routine \texttt{eigh}.
+
+\lstinputlisting[style=utppython,firstline=108,lastline=114]{all_experiments/demo_study_log.py}
+
+\begin{workedexample}
+The four directions have spreads 2.532, 1.330, 0.130 and 0.008, out of 4 units in total. Their shares are 63.3\%, 33.2\%, 3.3\% and 0.2\%. So the first two together keep 96.5\%, and the other two can go.
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lccccl@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Direction} & \utpth{hours} & \utpth{lectures} & \utpth{sleep} & \utpth{mark} & \utpth{What it reads as} \\
+\midrule
+PC1 & $-0.48$ & 0.46 & 0.56 & 0.50 & attending and rested, not cramming \\
+PC2 & 0.56 & 0.55 & $-0.40$ & 0.47 & how much work went in \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+A big weight means the column matters, and the signs show which columns move together. The names are ours, read from the weights. The sign of a whole direction is arbitrary, so software may flip it.
+\end{workedexample}
+
+Multiplying the scaled table by those two directions gives every student two new coordinates, and the whole group finally fits on one chart (\figref{fig:pc-map}). Far right are D, E and F, who attended, slept and did well. Far left are I and J, the crammers. At the bottom are A and B, who did little work, and at the top are F and G, who did a lot. The three groups $K$-means found from only hours and mark in \chapref{ch:clustering} land in three separate regions, and this time the map also used lectures and sleep. That is the check we promised: the crammers really are the students who skipped lectures and barely slept.
+
+\begin{utpfig}[The whole group on one chart]{Each student on the first two principal components, keeping 96.5\% of the spread of all four columns. Markers show the groups $K$-means found from hours and mark alone.}{fig:pc-map}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.72\linewidth, height=6.2cm, xlabel={PC1: attending and rested, not cramming}, ylabel={PC2: work put in}, xmin=-4, xmax=2.4, ymin=-2.5, ymax=2.5,
+  legend style={at={(0.03,0.97)},anchor=north west},
+  nodes near coords, point meta=explicit symbolic,
+  every node near coord/.append style={font=\tiny\bfseries\color{UTPNavy},anchor=south,inner sep=1.5pt}]
+\addplot[only marks,mark=*,mark size=2pt,draw=UTPBlue,fill=UTPBlue] coordinates {(0.93,-1.78)[A] (0.59,-1.83)[B] (0.69,-0.88)[C]};
+\addlegendentry{light studiers}
+\addplot[only marks,mark=square*,mark size=2pt,draw=UTPOrange,fill=UTPOrange] coordinates {(1.09,-0.08)[D] (1.35,0.60)[E] (1.60,1.72)[F] (0.35,1.33)[G]};
+\addlegendentry{steady}
+\addplot[only marks,mark=triangle*,mark size=2.4pt,draw=UTPGreen,fill=UTPGreen] coordinates {(-0.83,0.95)[H] (-2.41,0.07)[I] (-3.38,-0.10)[J]};
+\addlegendentry{crammers}
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
+
+\recipecard{PCA}{A set of directions to flatten the data onto.}{The spread lost by flattening: here 3.5\% with two directions.}{An exact matrix routine, the eigendecomposition or the SVD, which finds every direction at once.}
 
 \section{PCA step by step}
 
@@ -115,25 +169,27 @@ with $\lambda_1=5$, $\lambda_2=0$, and $\bm v_1=(1,1)/\sqrt2$. Scores $(-2.83,-1
 
 \section{Explained variance: the compression budget}
 
-\begin{utpfig}[A scree plot]{A scree plot of explained variance by component. Past the elbow, later components add little.}{fig:scree}
+Lab~4 applies this to 8$\times$8 handwritten digits, 64 pixel columns per image. The first component alone keeps 14.9\%, and the first ten keep 74.1\%. Keeping 90\%, 95\% and 99\% of the variance needs 21, 29 and 41 components. What the last components hold is mostly pixel noise, and a downstream classifier proves it: logistic regression on all 64 pixels and on 29 components scores the same 0.9477 on the test file.
+
+\begin{utpfig}[Cumulative explained variance]{Real numbers from Lab~4's training digits. Left: the share of variance per component for the first ten. Right: the cumulative share. The curve bends early: 29 of 64 components already keep 95.4\%.}{fig:cumulative-variance}
 \begin{tikzpicture}
-\begin{axis}[
-  width=0.80\linewidth, height=5.4cm,
-  axis lines=left,
-  xlabel={component}, ylabel={\% variance explained},
-  xtick={1,2,3,4,5,6},
-  ymin=0, ymax=50, clip=false
-]
-\addplot[thick, mark=*, mark size=1.7pt] coordinates
-  {(1,45) (2,25) (3,12) (4,8) (5,6) (6,4)};
-\draw[dashed] (axis cs:3.5,0) -- (axis cs:3.5,45);
-\node[font=\small, align=left, anchor=west] at (axis cs:3.7,36)
-  {scree ``elbow'': later components\\add little; keep the first 2--3};
-\end{axis}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
+  logaxis, width=7.4cm, height=4.5cm]
+\nextgroupplot[title={Variance per component},xlabel={component},ylabel={share of variance},ybar,bar width=7pt,ymin=0,ymax=0.17,xmin=0.3,xmax=10.7,xtick={1,...,10},yticklabel style={/pgf/number format/fixed},grid=none,ymajorgrids]
+\addplot[fill=UTPPaleBlue,draw=UTPBlue] coordinates {(1,0.149)(2,0.134)(3,0.117)(4,0.084)(5,0.057)(6,0.051)(7,0.047)(8,0.037)(9,0.035)(10,0.031)};
+\nextgroupplot[title={Cumulative variance kept},xlabel={number of components},ylabel={share kept},ymin=0,ymax=1.05,xmin=0,xmax=66]
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(1,0.149)(2,0.283)(3,0.400)(4,0.484)(5,0.541)(8,0.675)(10,0.741)(15,0.837)(21,0.904)(29,0.954)(41,0.990)(50,0.999)(64,1.000)};
+\draw[UTPOrange,thick,dashed] (axis cs:29,0) -- (axis cs:29,0.954);
+\node[font=\scriptsize\color{UTPNavy},anchor=north west] at (axis cs:30,0.80) {29 components: 95.4\%};
+\end{groupplot}
 \end{tikzpicture}
 \end{utpfig}
 
-Choose components by a variance target, scree plot, or downstream training-fold validation. In Lab~4, 29 of 64 digit components retain 95\% of variance without reducing test accuracy. Discarded eigenvalues sum to lost variance.
+Choose the count by a variance target, a bend in the curve, or downstream validation on training folds. Discarded eigenvalues add up to the variance you lost: here 4.6\% for 29 components.
+
+\begin{workedexample}
+How few can you keep? On Lab~4's validation split, logistic regression scores 0.608 on 2 components, 0.868 on 5, 0.934 on 10, 0.954 on 29 and 0.955 on all 64. Two components make a fine picture and a poor classifier; twenty-nine are almost free.
+\end{workedexample}
 
 \subsection{What PCA cannot promise}
 \label{sec:pca-limitations}
@@ -145,46 +201,13 @@ Choose components by a variance target, scree plot, or downstream training-fold 
   \item \term{Interpretation}: inspect component weights; each component blends original features.
 \end{itemize}
 
+\begin{workedexample}
+\textbf{Scale.} Run PCA on the raw study log, without scaling. The first direction then takes 80.2\% of the variance with a weight of 0.96 on the mark. It has found ``the column with the largest numbers'', since marks vary far more than hours of sleep. On scaled columns the first direction keeps 63.3\% and uses all four columns about equally. Neither is wrong; they answer different questions, so choose on purpose.
+\end{workedexample}
+
 \begin{pitfall}
 Projecting a four-feature clustering into two PCA dimensions only visualizes its existing assignments. Clustering the two PCA columns instead is a different model with reduced information.
 \end{pitfall}
-
-\section{Choosing the component count in practice}
-
-\begin{utpfig}[Cumulative explained variance]{Cumulative explained variance against the number of components. Here five components hold 91\% of the variance.}{fig:cumulative-variance}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.3cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPNavy}}, title={Variance per component},
-  xlabel={Component}, ylabel={Share of variance},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  ybar, bar width=7pt, ymin=0, ymax=0.5, xmin=0.3, xmax=10.7
-]
-\addplot[fill=UTPPaleBlue,draw=UTPBlue] coordinates
-  {(1,0.42)(2,0.23)(3,0.13)(4,0.08)(5,0.05)(6,0.035)(7,0.02)(8,0.015)(9,0.008)(10,0.002)};
-\end{axis}
-\end{tikzpicture}
-\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.3cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPNavy}}, title={Cumulative variance kept},
-  xlabel={Number of components}, ylabel={Total kept},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  ymin=0, ymax=1.05, xmin=0.5, xmax=10.5
-]
-\addplot[UTPTeal,very thick,mark=*,mark size=1.4pt] coordinates
-  {(1,0.42)(2,0.65)(3,0.78)(4,0.86)(5,0.91)(6,0.945)(7,0.965)(8,0.98)(9,0.988)(10,0.99)};
-\draw[UTPRed,thick,dashed] (axis cs:0.5,0.9) -- (axis cs:10.5,0.9);
-\draw[UTPRed,thick,dashed] (axis cs:5,0) -- (axis cs:5,0.9);
-\node[font=\scriptsize\color{UTPRed},anchor=west] at (axis cs:5.3,0.55) {5 components hold 91\%};
-\end{axis}
-\end{tikzpicture}
-\end{utpfig}
-
-\begin{analogy}
-PCA chooses viewing directions with the greatest variance, each orthogonal to the previous ones. A scree plot shows how much each additional direction contributes.
-\end{analogy}
 
 \section{t-SNE and UMAP: maps for the eye}
 \label{sec:tsne-umap}
@@ -200,8 +223,7 @@ Both need cautious reading:
 \begin{itemize}
   \item cluster sizes, empty gaps, and distances between separated groups can be artifacts; even apparent neighborhoods should be checked against original-space distances;
   \item check whether the interpretation survives changes in seeds and hyperparameters;
-  \item apparent clusters need independent stability and domain evidence;
-  \item for ordinary predictive preprocessing, PCA is the simpler default because it has an explicit out-of-sample projection. Nonlinear embeddings need a justified validation design.
+  \item for ordinary preprocessing PCA is the simpler default, because it can project new rows.
 \end{itemize}
 
 \begin{utptable}
@@ -211,7 +233,6 @@ Both need cautious reading:
 \utpth{} & \utpth{PCA} & \utpth{t-SNE / UMAP} \\
 \midrule
 Preserves & global variance, linear structure & local neighborhoods \\
-Deterministic? & yes & no (seed-dependent) \\
 Handles new points & yes (a projection) & UMAP yes; t-SNE awkwardly \\
 Best use & preprocessing, compression, denoising & exploratory visualization \\
 \bottomrule
@@ -228,18 +249,42 @@ PCA quantifies lost variance; nonlinear maps emphasize neighborhoods and need ca
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.24\linewidth}X@{}}
 PCA is best for & Compressing correlated numerical features, denoising, visualization, and faster downstream modeling. \cr
 Preprocessing & Center features; standardize when unit scales are arbitrary and equal standardized influence is intended. \cr
-Main control & Number of components, chosen by explained variance and downstream validation. \cr
-Visualization tools & t-SNE and UMAP can create useful two-dimensional maps of local neighborhoods. \cr
+Main control & Number of components, by explained variance and validation. \cr
+Visualization tools & t-SNE and UMAP make useful two-dimensional maps of neighborhoods. \cr
 Watch for & Loss of interpretability, information loss, leakage from fitting on all data, and over-interpreting visual clusters. \cr
 \end{tabularx}
 \end{modelcard}
 
-\input{labs/04-clustering-pca}
+\begin{chapterrecap}
+\begin{itemize}
+  \item PCA is a shadow: it flattens rows onto the directions that keep the most spread.
+  \item A direction is a list of weights, a shadow is a dot product, and the eigendecomposition of the correlation table ranks every direction at once.
+  \item On the study log, two directions keep 96.5\% of four columns: four columns were really two stories.
+  \item Choose the number of components from a variance target and a downstream test. On the digits, 29 of 64 lost nothing measurable.
+  \item PCA is linear and sensitive to scale, and variance is not the same as usefulness for a label. t-SNE and UMAP make maps for looking at, not measuring on.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What does PCA optimize when it chooses its first principal component?
+  \item Two scaled columns have a correlation of 0.80. What spread does the direction $(0.71,0.71)$ keep, and what share of the total?
+  \item PCA's first direction has weights near $0.25$ on four columns of very different meaning. What does that suggest?
   \item Why can standardization change which PCA directions appear most important?
+  \item A model drops from 0.95 to 0.61 accuracy going from 29 components to 2, while the two-component plot looks clean. What should you conclude?
   \item Why should distances and apparent cluster sizes in a t-SNE or UMAP plot not be interpreted as exact properties of the original high-dimensional data?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item The variance of the shadows, among directions of length 1.
+  \item For two scaled columns, the spreads are $1+r$ and $1-r$, so 1.80 of the 2 units, which is 90\%. Check against the study log: $r=-0.965$ gives 1.965 along $(0.71,-0.71)$.
+  \item Each weight is small and similar, so that component is a general average of the columns, and no single column dominates it. Read the signs and any exceptions before naming it.
+  \item Changing units changes each column's variance, and PCA chases variance, so the column with the largest numbers can win for no good reason.
+  \item Two components are good for looking and not for predicting. A clean picture is not evidence of a good representation for the task.
+  \item They are built to preserve local neighborhoods, so sizes and gaps between groups can be artifacts of the layout, and they change with seeds and settings.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/04-clustering-pca}

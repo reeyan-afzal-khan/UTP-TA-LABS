@@ -1,0 +1,41 @@
+% Reused from chapters/05-visualization.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  encoding/.style={draw=UTPBlue!65,fill=UTPPaleBlue,rounded corners=1.8mm,
+    line width=0.7pt,text width=0.14\linewidth,
+    minimum width=0.18\linewidth,minimum height=1.70cm,
+    inner xsep=2.5mm,inner ysep=2.5mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  precision/.style={-{Stealth[length=2.2mm,width=1.6mm]},
+    line width=1.0pt,draw=UTPTeal}]
+\node[encoding,draw=UTPTeal!80,fill=UTPPaleTeal] (p) at (0.10,0)
+  {\textcolor{UTPTeal}{\textbf{01}}\\[4pt]
+   \textbf{POSITION}\\[5pt]
+   Location on a\\common axis};
+\node[encoding] (l) at (0.30,0)
+  {\textcolor{UTPBlue}{\textbf{02}}\\[4pt]
+   \textbf{LENGTH}\\[5pt]
+   Extent along\\one dimension};
+\node[encoding] (a) at (0.50,0)
+  {\textcolor{UTPBlue}{\textbf{03}}\\[4pt]
+   \textbf{ANGLE / SLOPE}\\[5pt]
+   Angle or\\inclination};
+\node[encoding] (ar) at (0.70,0)
+  {\textcolor{UTPBlue}{\textbf{04}}\\[4pt]
+   \textbf{AREA}\\[5pt]
+   Size in\\two dimensions};
+\node[encoding,draw=UTPOrange!75,fill=UTPPaleOrange] (c) at (0.90,0)
+  {\textcolor{UTPOrange!85!black}{\textbf{05}}\\[4pt]
+   \textbf{COLOUR}\\[5pt]
+   Variation in\\intensity};
+\draw[precision] (0.08,-1.12) -- (0.92,-1.12);
+\foreach \x in {0.10,0.30,0.50,0.70,0.90}
+  \draw[draw=UTPMuted!75,line width=0.65pt]
+    (\x,-1.04) -- (\x,-1.20);
+\node[anchor=north west,font=\scriptsize\bfseries\color{UTPTeal}]
+  at (0.08,-1.27) {HIGHER PRECISION};
+\node[anchor=north east,font=\scriptsize\bfseries\color{UTPOrange!85!black}]
+  at (0.92,-1.27) {LOWER PRECISION};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

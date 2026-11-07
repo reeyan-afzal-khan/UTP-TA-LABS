@@ -2,18 +2,50 @@
 \label{ch:classification}
 
 \chapterguide%
-  {\chapref{ch:supervised}, \chapref{ch:training}, and probability/odds from \chapref{ch:statistics}.}
-  {interpret logistic, softmax, ordinal, and discriminant models; tune thresholds and compare linear classifiers.}
+  {\chapref{ch:regression}, \chapref{ch:training}, the gradient-descent walk of \secref{sec:gradient-descent}, and probability from \chapref{ch:statistics}.}
+  {explain why a line cannot output a probability; turn a score into a probability with the sigmoid; compute log loss by hand and say why it beats squared error; fit a logistic model by gradient descent; move a threshold on purpose; and compare softmax, LDA, QDA and the perceptron.}
 
-Linear classifiers separate categories with flat boundaries. Logistic regression, discriminant analysis, and the perceptron choose those boundaries differently; QDA extends discriminant analysis to curved boundaries.
+The tutor's next question has a different kind of answer: will this student pass? A mark can be any number, but a pass is yes or no. And because a wrong answer costs something (a student who needed help gets none, or tutoring hours go to a student who was fine), the tutor wants more than a verdict. The tutor wants to know how sure the model is.
 
 \section{Why not just use linear regression?}
 
-OLS on $0/1$ labels can predict outside $[0,1]$. Logistic regression constrains probabilities and fits them with cross-entropy.
+Look at the lectures column against who passed. Students who attended 3 and 5 lectures failed, and those who attended 9 or more passed. In between it is mixed: B passed with 6, and A failed with 8. Write fail as 0 and pass as 1, and fit the same straight line as before:
+\[
+  \hat{y}=0.100\times\text{lectures}-0.136.
+\]
+The fit runs without complaint until you read what it says. At 13 lectures the answer is 1.158, a 116\% chance. At 0 lectures it is $-0.136$, a chance of minus 14\%. A straight line has no idea that a probability must stop at 0 and at 1 (\figref{fig:s-curve}).
+
+\section{The dimmer switch}
+
+\begin{analogy}
+A light switch is off or on, like our labels. A dimmer sweeps smoothly from dark to full brightness, and however far you turn the dial, the light cannot go below off or above fully on. Keep the straight line as the dial, and pass its output through a dimmer. The dial position is the \term{score}, and the brightness is the probability.
+\end{analogy}
+
+That dimmer is the \term{sigmoid}, a name that just means S-shaped:
+\[
+  \sigma(z)=\frac{1}{1+e^{-z}},
+  \qquad
+  z=w\,x+b.
+\]
+Here $e\approx2.72$ is a fixed number. A score of 0 gives exactly 0.5, because $e^0=1$. A score of 2 gives 0.881 and a score of $-2$ gives 0.119. The sign of the score picks the side, and its size sets the confidence. The combined model is called \term{logistic regression}. The name is confusing, since it does classification, but it is the old name and everyone uses it.
+
+\begin{utpfig}[Squashing the line]{Pass or fail against lectures attended. The straight line leaves the possible range at both ends, shown in red. The fitted S-curve stays between 0 and 1 and crosses 0.5 at 6.30 lectures. Student A failed with 8 lectures, and student B passed with 6.}{fig:s-curve}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.80\linewidth, height=6.2cm, xlabel={lectures attended}, ylabel={model's answer}, xmin=0, xmax=14.5, ymin=-0.25, ymax=1.35,
+  ytick={0,0.5,1}, legend style={at={(0.03,0.95)},anchor=north west}, clip=true]
+\fill[UTPPaleRed] (axis cs:0,1) rectangle (axis cs:14.5,1.35);
+\fill[UTPPaleRed] (axis cs:0,-0.25) rectangle (axis cs:14.5,0);
+\addplot[draw=UTPOrange,thick,domain=0:14.5] {0.1*x-0.136}; \addlegendentry{straight line}
+\addplot[draw=UTPBlue,very thick,domain=0:14.5,samples=80] {1/(1+exp(-(0.7885*(x-8)+1.3371)))}; \addlegendentry{S-curve}
+\addplot[draw=UTPMuted,dashed,domain=0:14.5,forget plot] {0.5};
+\addplot[logdots,forget plot] table[x=lectures,y=passed,meta=name] {\studylog};
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
 
 \section{From probabilities to odds to a linear model}
 
-\term{Odds} are $p/(1-p)$: $p=0.75$ gives odds~3. Their logarithm, the \term{logit}, spans the real line. Logistic regression assumes linear log-odds:
+The sigmoid has a neat reverse reading, which explains what the slope means. \term{Odds} are $p/(1-p)$: $p=0.75$ gives odds of 3. Their logarithm, the \term{logit}, spans the whole number line, and logistic regression assumes it is linear in the features:
 
 \begin{utptable}
 \begin{tabularx}{0.78\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}X X X@{}}
@@ -30,15 +62,9 @@ $90\%$ & $9:1$ & nine chances for, one against \\
 
 \[
   \log\frac{p}{1-p}
-  =\beta_0+\bm{\beta}^{\mathsf T}\bm{x}.
-\]
-Solving for $p$ inverts the logarithm and produces the familiar S-shaped \term{sigmoid}:
-\[
-  P(Y=1\given\bm{x})
-  =\sigma(z)
-  =\frac{1}{1+e^{-z}},
-  \qquad
-  z=\beta_0+\bm{\beta}^{\mathsf T}\bm{x}.
+  =\beta_0+\bm{\beta}^{\mathsf T}\bm{x},
+  \qquad\text{equivalently}\qquad
+  P(Y=1\given\bm{x})=\sigma(\beta_0+\bm{\beta}^{\mathsf T}\bm{x}).
 \]
 
 \begin{utpfig}[The sigmoid]{The sigmoid maps an unrestricted score to a probability. Scores near zero give probabilities near $0.5$; large positive or negative scores give confident answers.}{fig:sigmoid}
@@ -60,11 +86,7 @@ Solving for $p$ inverts the logarithm and produces the familiar S-shaped \term{s
 \end{tikzpicture}
 \end{utpfig}
 
-\begin{intuition}
-The sigmoid maps an unrestricted score to a probability. Scores near zero give probabilities near $0.5$; large magnitudes indicate confidence.
-\end{intuition}
-
-A unit increase in $x_j$ multiplies the odds by $e^{\beta_j}$, holding other features fixed. Thus $\beta_j=0.7$ roughly doubles odds; $-0.7$ roughly halves them.
+A unit increase in $x_j$ multiplies the odds by $e^{\beta_j}$, holding other features fixed. So $\beta_j=0.7$ roughly doubles the odds and $-0.7$ roughly halves them. The effect on the probability depends on where you start, because the curve is steep in the middle and flat at the ends.
 
 \begin{workedexample}
 Suppose a pass/fail model based on hours studied has $\beta_0=-4$ and $\beta_1=0.08$.
@@ -73,27 +95,134 @@ A student with $x=30$ hours has $z=-1.6$ and $\sigma(-1.6)\approx 0.17$.
 Each additional hour multiplies the odds of passing by $e^{0.08}\approx 1.083$ --- about an $8\%$ increase in the odds, regardless of the starting point.
 \end{workedexample}
 
-\section{Training with cross-entropy}
+\section{The loss: confident and wrong}
 
-For binary classification with predicted probability $p$, the loss for one observation is the \term{cross-entropy} (equivalently, the negative log-likelihood of a Bernoulli model from \chapref{ch:statistics}):
+We need to score a probability. Reaching for squared error again seems natural, so try it on a student who failed, with the model giving three different chances of passing.
+
+\begin{workedexample}
+\centering\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Chance given to ``pass''} & \utpth{The lean} & \utpth{Squared error} & \utpth{Log-loss fee} \\
+\midrule
+0.60 & mild & $0.60^2=0.360$ & $-\ln(0.40)=0.916$ \\
+0.90 & strong & $0.90^2=0.810$ & $-\ln(0.10)=2.303$ \\
+0.99 & certain & $0.99^2=0.980$ & $-\ln(0.01)=4.605$ \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Squared error cannot pass 1, so being certain and wrong costs 0.98, barely more than the 0.81 for merely leaning that way. It has run out of room exactly where the mistake is worst. The fee on the right has no ceiling.
+\end{workedexample}
+
+The better score is \term{log loss}, also called \term{cross-entropy}: the fee is minus the logarithm of the probability the model gave to what actually happened.
 \[
   \mathcal{L}(y,p)
   =-[y\log p+(1-y)\log(1-p)].
 \]
-For $y=1$, loss is $-\log p$, strongly penalizing confident errors. The average-loss gradient is
+A probability is below 1, so its logarithm is negative, and the minus sign turns that into a positive fee. A sure right answer is almost free. A sure wrong answer is ruinous. A model that says 50\% pays 0.693 whichever way the case goes (\figref{fig:fees}).
+
+\begin{utpfig}[The fee for each probability]{The log-loss fee against the chance given to ``pass'', for a student who passed and a student who failed. The two curves cross at 0.5, where the fee is 0.693, and each climbs without limit as the model grows confident and wrong. Squared error for a failing student is shown for comparison.}{fig:fees}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.70\linewidth, height=5.4cm, xlabel={chance given to ``pass''}, ylabel={fee}, xmin=0, xmax=1, ymin=0, ymax=5,
+  legend style={at={(0.5,0.97)},anchor=north}]
+\addplot[draw=UTPBlue,thick,domain=0.007:1,samples=80] {-ln(x)}; \addlegendentry{student passed: $-\ln p$}
+\addplot[draw=UTPOrange,thick,domain=0:0.993,samples=80] {-ln(1-x)}; \addlegendentry{student failed: $-\ln(1-p)$}
+\addplot[draw=UTPMuted,dashed,domain=0:1] {x^2}; \addlegendentry{squared error, student failed}
+\end{axis}
+\end{tikzpicture}
+\end{utpfig}
+
+\section{The optimizer: walking down}
+
+Unlike squared error on a line, log loss has no exact formula for its best $w$ and $b$, so the model has to walk. Everything you need is already here: the model, the loss, and the gradient-descent rule from \secref{sec:gradient-descent}. The two slopes work out neatly: for each row, the slope is simply the prediction minus the truth, $(p_i-y_i)$, weighted by the feature.
 \[
-  \nabla_{\bm{\beta}}J
-  =\frac{1}{n}\sum_{i=1}^{n}(p_i-y_i)\,\bm{x}_i,
+  \frac{\partial J}{\partial w}=\frac{1}{n}\sum_i(p_i-y_i)\,x_i,
+  \qquad
+  \frac{\partial J}{\partial b}=\frac{1}{n}\sum_i(p_i-y_i).
 \]
-so updates depend on $p_i-y_i$. Fit iteratively with gradient or Newton-type methods. Convexity rules out nonglobal local minima but does not guarantee a unique finite solution.
+We center the lectures on 8, because that keeps the numbers small. Nothing else changes. The whole fit, in code:
+
+\lstinputlisting[style=utppython,firstline=61,lastline=80]{all_experiments/demo_study_log.py}
+
+\begin{workedexample}
+At the start, $w=b=0$, so every $p$ is 0.5. The formula gives a slope of $-1.0000$ for $w$. Nudging $w$ by 0.001 and remeasuring the loss gives $-0.9988$, so the formula checks out. With a learning rate of 0.1:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Step} & \utpth{$w$} & \utpth{$b$} & \utpth{Log loss} \\
+\midrule
+1 & 0.1000 & 0.0200 & 0.6011 \\
+10 & 0.4497 & 0.1612 & 0.4285 \\
+100 & 0.6819 & 0.8664 & 0.3528 \\
+500 & 0.7827 & 1.3163 & 0.3430 \\
+2000 & 0.7885 & 1.3371 & 0.3430 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+The loss falls fast and then barely moves, because the walk has reached the flat bottom.
+\end{workedexample}
+
+\section{What the fitted model says}
+
+Follow one student all the way through. Student A attended 8 lectures, so the centered value is 0. The score is $0.7885\times0+1.3371=1.337$, and the chance of passing is $\sigma(1.337)=0.792$. The score can be any number at all; the probability can never leave 0 to 1.
+
+\begin{utptable}
+\centering
+\begin{tabular}{@{}>{\bfseries\color{UTPNavy}}ccccccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Student} & \utpth{Lectures} & \utpth{Passed?} & \utpth{Score} & \utpth{Chance} & \utpth{Verdict} & \utpth{Right?} \\
+\midrule
+J & 3 & no & $-2.605$ & 0.069 & fail & yes \\
+I & 5 & no & $-1.028$ & 0.263 & fail & yes \\
+B & 6 & yes & $-0.240$ & 0.440 & fail & \textbf{no} \\
+C & 7 & yes & 0.549 & 0.634 & pass & yes \\
+A & 8 & no & 1.337 & 0.792 & pass & \textbf{no} \\
+D & 9 & yes & 2.126 & 0.893 & pass & yes \\
+H & 10 & yes & 2.914 & 0.949 & pass & yes \\
+E & 11 & yes & 3.703 & 0.976 & pass & yes \\
+G & 12 & yes & 4.491 & 0.989 & pass & yes \\
+F & 13 & yes & 5.280 & 0.995 & pass & yes \\
+\bottomrule
+\end{tabular}
+\end{utptable}
+
+The model is right on 8 of 10. Its two mistakes differ in kind. Student B was a near thing at 0.44, and pays a fee of 0.820. Student A is the expensive one: the model was 79\% sure, and A failed, for a fee of 1.570. A's two hours of study are not visible to a model that sees only lectures, which is a reminder that a model can be only as good as its columns.
+
+Each extra lecture multiplies the odds of passing by $e^{0.7885}=2.20$. The score is zero, and the chance exactly 0.5, at $8-1.3371/0.7885=6.30$ lectures. That point is the \term{decision boundary}.
 
 \subsection{The decision boundary and the threshold}
 
-At threshold $0.5$, class~1 means $z\ge0$, giving boundary $\beta_0+\bm{\beta}^{\mathsf T}\bm{x}=0$. Tune other thresholds on validation or out-of-fold predictions to reflect error costs (\chapref{ch:evaluation}).
+At threshold $0.5$, class~1 means $z\ge0$, giving the boundary $\beta_0+\bm{\beta}^{\mathsf T}\bm{x}=0$. With two features that boundary is a straight line, and with more it is a flat plane, which is why logistic regression is called a linear classifier even though its output curve is not straight.
+
+The probability and the decision are separate objects. The model supplies the first. The threshold is a policy, chosen to reflect error costs on validation or out-of-fold predictions (\chapref{ch:evaluation}). These are the Titanic validation results printed in Lab~2, Part~C, for one fitted model:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.14\linewidth}ccccX@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Threshold} & \utpth{Flagged} & \utpth{Precision} & \utpth{Recall} & \utpth{Survivors missed} & \utpth{What changed} \\
+\midrule
+0.30 & 110 & 0.64 & 0.81 & 16 & many passengers flagged; most survivors caught \\
+0.50 & 80 & 0.72 & 0.67 & 28 & the default \\
+0.70 & 48 & 0.90 & 0.50 & 43 & few flagged; half the survivors missed \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+Choose the operating point from a stated cost or capacity. Then refit on all training data and assess the locked rule on the test set once.
 
 \subsection{Regularization}
 
-Use $L_1$ or $L_2$ penalties with appropriately scaled features and validation-selected strength (\chapref{ch:regression}). Regularization also prevents coefficients diverging on perfectly separable data.
+Use $L_1$ or $L_2$ penalties with appropriately scaled features and validation-selected strength (\chapref{ch:regression}). Regularization also stops coefficients diverging on perfectly separable data, where a steeper S always scores better and the walk would never end. Lab~2's grid search tunes this strength as $C$, and in scikit-learn a larger $C$ means a weaker penalty.
+
+\recipecard{Logistic regression}{The straight line's score, squashed by the sigmoid into a probability.}{Log loss, which is very large when the model is confident and wrong.}{Gradient descent or a Newton-type method. No exact formula exists.}
 
 \section{Softmax regression for multiple classes}
 
@@ -106,6 +235,34 @@ For $K$ classes, each class $k$ receives its own weight vector, and the \term{so
 Exponentiating and normalizing preserves score order and makes probabilities sum to one. Training minimizes $\mathcal{L}=-\log P(Y=y\given\bm{x})$.
 
 \term{One-vs-rest} trains $K$ binary classifiers, one class against all others, and predicts the highest-scoring class.
+
+\begin{utpfig}[Softmax]{Softmax turns class scores into probabilities. Scores 1.2, 3.4 and 2.0 become 0.08, 0.74 and 0.18: the order is preserved and the probabilities add to one.}{fig:softmax}
+\begin{tikzpicture}[
+  node distance=0.36cm and 0.62cm,
+  sc/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.2mm,minimum width=1.55cm,minimum height=0.6cm,align=center,font=\scriptsize\color{UTPNavy}},
+  pr/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1.2mm,minimum width=1.55cm,minimum height=0.6cm,align=center,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[sc] (s1) {cat: $1.2$};
+\node[sc,below=of s1] (s2) {dog: $3.4$};
+\node[sc,below=of s2] (s3) {fox: $2.0$};
+\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,minimum height=2.5cm,minimum width=1.9cm,align=center,font=\scriptsize\bfseries\color{UTPNavy},right=1.0cm of s2] (sm) {softmax\\[0.15em]\scriptsize\mdseries exponentiate,\\then divide by\\the total};
+\node[pr,right=1.0cm of sm] (p2) {dog: $0.74$};
+\node[pr,above=of p2] (p1) {cat: $0.08$};
+\node[pr,below=of p2] (p3) {fox: $0.18$};
+\draw[arr] (s1.east) -- (sm.west); \draw[arr] (s2.east) -- (sm.west); \draw[arr] (s3.east) -- (sm.west);
+\draw[arr] (sm.east) -- (p1.west); \draw[arr] (sm.east) -- (p2.west); \draw[arr] (sm.east) -- (p3.west);
+\node[font=\scriptsize\itshape\color{UTPMuted},below=0.3cm of p3] {always adds to 1.00};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{workedexample}
+For scores $1.2,\ 3.4,\ 2.0$, the exponentials are $3.32,\ 29.96,\ 7.39$, which add to $40.67$. Dividing gives $0.082,\ 0.737,\ 0.182$.
+\end{workedexample}
+
+\begin{keyidea}
+Softmax preserves score order while normalizing exponentials to a probability distribution.
+\end{keyidea}
 
 \section{Ordered categories are not ordinary multiclass labels}
 \label{sec:ordinal-labels}
@@ -129,6 +286,8 @@ Choose order-aware methods or metrics when warranted, and validate whether they 
 
 \section{Linear discriminant analysis}
 
+Logistic regression learns the boundary directly. Another way to classify is to describe each class by itself, and then ask which description fits a new row better.
+
 Logistic regression is \term{discriminative}: it models $P(y\given\bm{x})$. \term{Linear discriminant analysis (LDA)} is \term{generative}: it models each class's feature distribution and applies Bayes' theorem.
 
 LDA assumes Gaussian classes with means $\bm\mu_k$, shared covariance $\Sigma$, and priors $\pi_k$. Choose the largest discriminant score:
@@ -139,6 +298,10 @@ LDA assumes Gaussian classes with means $\bm\mu_k$, shared covariance $\Sigma$, 
   +\log\pi_k.
 \]
 Estimate priors from frequencies, means within classes, and covariance from pooled within-class variation. Linear dependence on $\bm x$ gives flat boundaries.
+
+\begin{workedexample}
+On the lectures column of the log, passing students average 9.71 lectures and failing students 5.33, with a pooled variance of 6.51. With equal class sizes the boundary would be the midpoint, 7.52. Passing is more common here (7 of 10), and the prior moves the boundary down to 6.26, close to logistic regression's 6.30.
+\end{workedexample}
 
 \begin{intuition}
 With equal-shaped Gaussian class densities, the tie boundary is linear; class priors shift its position.
@@ -156,6 +319,8 @@ When to prefer which:
 
 \section{The perceptron}
 
+The perceptron is the simplest trainer there is, and the ancestor of the neural networks in \chapref{ch:deep}. It has no probabilities and no loss curve: when it makes a mistake it moves the line, and when it does not, it does nothing.
+
 The \term{perceptron} predicts $\hat y=\operatorname{sign}(\bm w^{\mathsf T}\bm x+b)$ for $y\in\{-1,+1\}$. For each misclassified example, update
 \[
   \bm{w}\leftarrow\bm{w}+\eta\,y_i\,\bm{x}_i,
@@ -163,6 +328,17 @@ The \term{perceptron} predicts $\hat y=\operatorname{sign}(\bm w^{\mathsf T}\bm 
   b\leftarrow b+\eta\,y_i.
 \]
 Correct predictions cause no update. Separable data yields convergence; otherwise convergence is not guaranteed. The boundary depends on the training path and supplies no probabilities.
+
+\begin{workedexample}
+Four points: $(2,2)$ and $(0,2)$ are $+1$; $(-1,-1)$ and $(1,-1)$ are $-1$. Start with $\bm{w}=(0,0)$, $b=0$ and $\eta=1$.
+\begin{description}
+  \item[$(2,2)$] The score is 0, which counts as a mistake, so $\bm{w}=(2,2)$ and $b=1$.
+  \item[$(-1,-1)$] The score is $-3$, which is correct, so nothing changes.
+  \item[$(1,-1)$] The score is $+1$, a mistake, so $\bm{w}=(1,3)$ and $b=0$.
+  \item[$(0,2)$] The score is $+6$, which is correct.
+\end{description}
+A second pass makes no mistakes, so training stops with $\bm{w}=(1,3)$ and $b=0$.
+\end{workedexample}
 
 \section{Choosing among linear classifiers}
 
@@ -194,63 +370,9 @@ Watch for & Nonlinear class structure, poorly calibrated probabilities, rare cla
 \end{tabularx}
 \end{modelcard}
 
-\section{Using linear classifiers in practice}
-\label{sec:logistic-practice}
-
-\subsection{Moving the threshold on purpose}
-
-One fitted model, three thresholds. These are the Titanic validation results printed in Lab~2, Part~C:
-
-\begin{utptable}
-\begin{tabularx}{0.82\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.2\linewidth}X X X@{}}
-\toprule
-\rowcolor{UTPPaleBlue!92}
-\utpth{Threshold} & \utpth{Precision} & \utpth{Recall} & \utpth{What changed} \\
-\midrule
-$0.30$ & $0.64$ & $0.81$ & many passengers flagged; most survivors caught \\
-$0.50$ & $0.73$ & $0.67$ & the default \\
-$0.70$ & $0.90$ & $0.50$ & few flagged; half the survivors missed \\
-\bottomrule
-\end{tabularx}
-\end{utptable}
-
-\begin{intuition}
-Only the cutoff changes. Lower thresholds favor recall; higher thresholds reduce alerts. Choose using costs and response capacity.
-\end{intuition}
-
-Choose the operating point from out-of-fold predictions and a stated cost or capacity constraint. Then refit the model on all training data and assess that locked rule on the test set once.
-
-\subsection{Reading the coefficients}
-
 \begin{workedexample}
 For an ``hours studied'' coefficient of $0.62$, each extra hour multiplies passing odds by $e^{0.62}\approx1.86$, holding other features fixed. The probability increase depends on the starting probability.
 \end{workedexample}
-
-\subsection{More than two classes}
-
-\begin{utpfig}[Softmax]{Softmax turns class scores into probabilities. The order of the scores is preserved and the probabilities always add to one.}{fig:softmax}
-\begin{tikzpicture}[
-  node distance=0.36cm and 0.62cm,
-  sc/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.2mm,minimum width=1.55cm,minimum height=0.6cm,align=center,font=\scriptsize\color{UTPNavy}},
-  pr/.style={draw=UTPGreen,fill=UTPPaleTeal,rounded corners=1.2mm,minimum width=1.55cm,minimum height=0.6cm,align=center,font=\scriptsize\color{UTPNavy}},
-  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
-]
-\node[sc] (s1) {cat: $1.2$};
-\node[sc,below=of s1] (s2) {dog: $3.4$};
-\node[sc,below=of s2] (s3) {fox: $2.0$};
-\node[draw=UTPOrange,fill=UTPPaleOrange,rounded corners=2mm,minimum height=2.5cm,minimum width=1.9cm,align=center,font=\scriptsize\bfseries\color{UTPNavy},right=1.0cm of s2] (sm) {softmax\\[0.15em]\scriptsize\mdseries exponentiate,\\then divide by\\the total};
-\node[pr,right=1.0cm of sm] (p2) {dog: $0.75$};
-\node[pr,above=of p2] (p1) {cat: $0.08$};
-\node[pr,below=of p2] (p3) {fox: $0.17$};
-\draw[arr] (s1.east) -- (sm.west); \draw[arr] (s2.east) -- (sm.west); \draw[arr] (s3.east) -- (sm.west);
-\draw[arr] (sm.east) -- (p1.west); \draw[arr] (sm.east) -- (p2.west); \draw[arr] (sm.east) -- (p3.west);
-\node[font=\scriptsize\itshape\color{UTPMuted},below=0.3cm of p3] {always adds to 1.00};
-\end{tikzpicture}
-\end{utpfig}
-
-\begin{keyidea}
-Softmax preserves score order while normalizing exponentials to a probability distribution.
-\end{keyidea}
 
 \begin{tryit}
 Fit logistic regression and obtain out-of-fold training probabilities. Sweep thresholds from 0.05 to 0.95 in steps of 0.05; plot precision against recall without using test data.
@@ -264,12 +386,36 @@ A teammate lowers the probability threshold until test-set recall reaches the de
 For a rare positive class, choose between an unweighted logistic model, class weighting, and a lower decision threshold. State which quantity each intervention changes, which validation metric you would inspect, and why the three options are not interchangeable.
 \end{decisionmemo}
 
-\input{labs/02-supervised-workflow}
+\begin{chapterrecap}
+\begin{itemize}
+  \item A straight line on 0/1 labels leaves the range of a probability, so logistic regression passes its score through the sigmoid, a dimmer that stops at 0 and 1.
+  \item The score's sign picks the side and its size sets the confidence. A unit of a feature multiplies the odds by $e^{\beta}$.
+  \item Log loss charges minus the log of the probability given to what happened, so confident and wrong is ruinous. Squared error cannot punish it enough.
+  \item There is no formula, so the model walks down by gradient descent. Each row's slope is the prediction minus the truth, weighted by the feature.
+  \item The probability and the threshold are separate. Softmax extends the model to many classes; LDA models each class; the perceptron just corrects its mistakes.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
+  \item A score is exactly 0. What probability does the sigmoid give, and why?
+  \item With the fitted model, what chance of passing does a student with 7 lectures get, and which side of a 0.5 threshold is that?
+  \item A model gives 0.95 to a case that turns out negative. What does it pay in log loss? And for a case that turns out positive?
   \item Why is logistic regression called a linear classifier even though it outputs a nonlinear sigmoid probability?
   \item Why should the probability model and the operational classification threshold be treated as separate objects?
   \item What changes when binary logistic regression is extended to a multiclass softmax model?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item 0.5, because $e^0=1$, so $1/(1+1)=0.5$. The two limits, 0 and 1, are approached but never reached.
+  \item 0.634, from a score of 0.549. That is above 0.5, so the verdict is pass, and student C did pass.
+  \item Negative case: $-\ln(0.05)=3.00$. Positive case: $-\ln(0.95)=0.05$.
+  \item The decision boundary, where the score equals zero, is a flat line or plane in feature space. The sigmoid only maps the score to a probability, and it does not bend the boundary.
+  \item The fitted model describes how likely each outcome is, which stays the same however it is used. The threshold is a choice about costs and capacity, which can change without refitting.
+  \item Each class gets its own weight vector and score, and softmax turns the scores into probabilities that add to one. Binary logistic regression is the two-class special case.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/02-supervised-workflow}

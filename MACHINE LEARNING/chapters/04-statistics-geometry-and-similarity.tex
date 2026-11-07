@@ -4,36 +4,34 @@
 \label{ch:linear-algebra}
 
 \chapterguide%
-  {\chapref{ch:data}, \chapref{ch:learning}, and comfort with arithmetic, fractions, powers, and basic algebra.}
-  {use statistics, probability, vectors, matrices, distances, and gradients; recognize uncertainty and scaling effects.}
+  {\chapref{ch:data}, \chapref{ch:learning}, and comfort with arithmetic, fractions, powers and basic algebra.}
+  {describe a column by its center and spread; read a correlation and know what it hides; reason with base rates; multiply matrices by checking shapes; measure distance and similarity; and say what a gradient is.}
 
-Statistics describes variation, uncertainty, and association; geometry describes vectors, distances, and transformations.
+This chapter holds the mathematics the rest of the book leans on, and nothing more. Part~A is about columns: where they sit, how much they spread, and which ones move together. Part~B is about rows: each row of a table is an arrow in space, and most of machine learning is arithmetic on those arrows. Both parts use the tutor's study log from \figref{fig:study-log} wherever they can.
 
 \begin{secondpass}
 \textbf{Second pass:} standard errors, confidence intervals, bootstrap, distributions, Bayes' algebra, inverses, eigenvectors/SVD, and curvature. These need not delay the first models.
 \end{secondpass}
 
 \section*{Part A: Describe data with statistics and probability}
-\section{Describe a distribution with center and spread}
+\section{An average hides almost everything}
 
-A \term{distribution} describes which values occur and how often they occur. Two questions come first:
+Here are the marks of two revision groups. Both average 56.1.
 
-\begin{enumerate}
-  \item Where is the center?
-  \item How spread out are the values?
-\end{enumerate}
+\begin{lstlisting}[style=utpterminal]
+steady group: 54 55 56 56 56 57 57 57 56 57
+study log:    47 50 59 65 68 77 62 52 43 38
+\end{lstlisting}
+
+The first group is uniform and the second is all over the place, yet the average cannot tell them apart. A \term{distribution} describes which values occur and how often, and two questions come first: where is the center, and how spread out are the values?
 
 \subsection{Mean and median}
 
-For values $x_1,\ldots,x_N$, the population mean is
+For values $x_1,\ldots,x_N$, the mean is
 \[
   \mu=\frac{1}{N}\sum_{i=1}^{N}x_i.
 \]
-The symbol $\sum$ means summation: add the $N$ values, then divide by $N$.
-
-The sample mean is usually written $\bar{x}$ and uses the same calculation on a sample.
-
-The \term{median} is the middle value after sorting. It is less affected by extreme values.
+The symbol $\sum$ means summation: add the $N$ values, then divide by $N$. A sample's mean is usually written $\bar{x}$ and is calculated the same way. The \term{median} is the middle value after sorting, or the midpoint of the two middle values, and it is less affected by extreme values.
 
 \begin{workedexample}
 For $30,32,35,38,500$, the mean is $127$ and median $35$. The median better describes typical income here because the extreme value pulls the mean upward.
@@ -41,18 +39,19 @@ For $30,32,35,38,500$, the mean is $127$ and median $35$. The median better desc
 
 \subsection{Variance and standard deviation}
 
-Variance measures average squared distance from the mean:
+To put a number on spread, take each value's distance from the mean, square it so that nothing cancels, and average the squares. That is the \term{variance}:
 \[
   \sigma^2=\frac{1}{N}\sum_{i=1}^{N}(x_i-\mu)^2.
 \]
-The standard deviation is
+The result is in squared marks, which nobody can picture, so we take the square root to get back to plain marks. That is the \term{standard deviation}, the typical distance from the mean:
 \[
   \sigma=\sqrt{\sigma^2}.
 \]
-Standard deviation is easier to interpret because it uses the original unit.
 
 \begin{workedexample}
-For $2,4,6$, the mean is $4$. The distances from the mean are $-2,0,2$. Squaring gives $4,0,4$, so the population variance is $8/3\approx2.67$ and the standard deviation is about $1.63$.
+For $2,4,6$, the mean is $4$. The distances from the mean are $-2,0,2$. Squaring gives $4,0,4$, so the variance is $8/3\approx2.67$ and the standard deviation is about $1.63$.
+
+For the two groups above: the steady group has variance 0.89 and standard deviation 0.94, while the study log has variance 133.69 and standard deviation 11.56. So a typical student in the log sits about 12 marks from the average. Same mean, very different groups.
 \end{workedexample}
 
 \subsection{Quantiles and the interquartile range}
@@ -63,6 +62,8 @@ A quantile is a cut point in sorted data. The first quartile $Q_1$ has about 25\
 \]
 It measures the width of the middle half of the data and is resistant to extreme values.
 
+In the study log the sorted marks run 38, 43, 47, 50, 52, 59, 62, 65, 68, 77. The median is 55.5, $Q_1$ is 47.75 and $Q_3$ is 64.25, so the middle half of the group spans 16.5 marks.
+
 \begin{keyidea}
 Use the mean and standard deviation for roughly symmetric data without severe outliers. Use the median and IQR when the distribution is skewed or contains extreme values.
 \end{keyidea}
@@ -71,7 +72,7 @@ Use the mean and standard deviation for roughly symmetric data without severe ou
 
 The mean and median agree on symmetric data and disagree sharply on skewed data. That disagreement is itself a useful diagnostic.
 
-\begin{utpfig}[Mean versus median]{Mean and median on two distributions. On symmetric data they coincide; on right-skewed data the mean is pulled towards the long tail while the median stays with the bulk of the values.}{fig:mean-median}
+\begin{utpfig}[Mean versus median]{Mean and median on two distributions of 50 values each. On symmetric data they coincide at 4; on right-skewed data the mean, 2.44, is pulled towards the long tail while the median stays at 2 with the bulk of the values.}{fig:mean-median}
 \begin{tikzpicture}[baseline=(current bounding box.north)]
 \begin{axis}[
   width=0.46\linewidth, height=4.2cm, axis lines=left,
@@ -96,9 +97,9 @@ The mean and median agree on symmetric data and disagree sharply on skewed data.
 ]
 \addplot[fill=UTPPaleOrange,draw=UTPOrange] coordinates {(1,18)(2,13)(3,8)(4,5)(5,3)(6,2)(7,1)};
 \draw[UTPTeal,very thick,dashed] (axis cs:2,0) -- (axis cs:2,19);
-\draw[UTPRed,very thick,dashed] (axis cs:2.8,0) -- (axis cs:2.8,19);
-\node[font=\scriptsize\color{UTPTeal}] at (axis cs:5.6,17) {median};
-\node[font=\scriptsize\color{UTPRed}] at (axis cs:5.6,13.5) {mean (pulled right)};
+\draw[UTPRed,very thick,dashed] (axis cs:2.44,0) -- (axis cs:2.44,19);
+\node[font=\scriptsize\color{UTPTeal},anchor=west] at (axis cs:3.0,17) {median 2};
+\node[font=\scriptsize\color{UTPRed},anchor=west] at (axis cs:3.0,13.5) {mean 2.44 (pulled right)};
 \end{axis}
 \end{tikzpicture}
 \end{utpfig}
@@ -140,6 +141,10 @@ $\mu$ sets the bell's center; $\sigma$ sets its width.
 
 \section{Population, sample, and sampling bias}
 
+\begin{analogy}
+A spoonful tells a cook how the whole pot tastes, provided the pot was stirred. Tasting ten spoonfuls from the top of an unstirred pot just repeats the mistake with more confidence. That is the difference between a small sample and a biased one.
+\end{analogy}
+
 A \term{sample} is the observed subset of a \term{population}. Sample statistics estimate population parameters.
 
 For a sample of size $n$, the common sample variance is
@@ -167,6 +172,16 @@ For independent, identically distributed observations with finite variance, samp
 
 A valid 95\% confidence procedure covers the true parameter in about 95\% of repeated samples.
 
+\begin{workedexample}
+Treat the ten marks in the log as a sample. The sample standard deviation (dividing by $n-1$) is $s=12.19$, so
+\[
+  \operatorname{SE}(\bar{x})=\frac{12.19}{\sqrt{10}}=3.85,
+  \qquad
+  56.1\pm1.96\times3.85 \;\text{ gives }\; 48.5\text{ to }63.7.
+\]
+Ten rows is small for this formula, so read the interval as rough. The lesson it carries is sound: with ten students, the average mark is only known to within several marks either way, and model scores on small validation sets are just as shaky. \chapref{ch:evaluation} applies this to a real model.
+\end{workedexample}
+
 \subsection{The bootstrap}
 
 The \term{bootstrap} estimates sampling variability by repeatedly resampling observations with replacement and recalculating the statistic.
@@ -176,6 +191,10 @@ The \term{bootstrap} estimates sampling variability by repeatedly resampling obs
   \item Recalculate the statistic, such as a median or a difference in model loss.
   \item Repeat many times and use suitable quantiles as an interval.
 \end{utpsteps}
+
+\begin{workedexample}
+Five thousand bootstrap resamples of the ten marks give a 95\% interval for the median of 46.5 to 65.0. No formula for the standard error of a median was needed, only the ability to resample and recompute.
+\end{workedexample}
 
 Resampling must preserve dependence: use blocks for time series, groups for repeated measurements, and matched observations for paired comparisons.
 
@@ -201,6 +220,10 @@ Events are independent when knowing one does not change the probability of the o
 
 \section{Bayes' theorem}
 
+\begin{analogy}
+A smoke alarm rings. How worried should you be? That depends on how good the alarm is, and also on how often there really is a fire. Most rings are burnt toast, simply because burnt toast is so much more common than fires. Bayes' theorem is the arithmetic of that reasoning.
+\end{analogy}
+
 Bayes' theorem reverses a conditional probability:
 \[
   P(A\given B)=\frac{P(B\given A)P(A)}{P(B)}.
@@ -212,16 +235,31 @@ Bayes' theorem reverses a conditional probability:
   \item[Posterior] $P(A\given B)$: updated belief after seeing the evidence.
 \end{description}
 
+\keepspace{18\baselineskip}
 \begin{workedexample}
-A condition affects 1\% of people. A test detects 90\% of true cases and gives a false positive for 5\% of people without the condition. Then
+A condition affects 1\% of people. A test detects 90\% of true cases and gives a false positive for 5\% of people without the condition. Count people rather than probabilities. In a town of 10,000:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{} & \utpth{Have the condition} & \utpth{Do not} & \utpth{Total} \\
+\midrule
+Test positive & 90 & 495 & 585 \\
+Test negative & 10 & 9,405 & 9,415 \\
+Total & 100 & 9,900 & 10,000 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Of the 585 people who test positive, 90 have the condition, so the chance is $90/585=0.154$. The formula says the same:
 \[
-P(+)=0.90(0.01)+0.05(0.99)=0.0585.
-\]
-Therefore,
-\[
+P(+)=0.90(0.01)+0.05(0.99)=0.0585,
+\qquad
 P(\text{condition}\given +)=\frac{0.90(0.01)}{0.0585}\approx0.154.
 \]
-A positive result corresponds to about a 15.4\% chance of the condition, not 90\%, because the condition is rare.
+A positive result means about a 15.4\% chance of the condition, not 90\%, because the condition is rare.
 \end{workedexample}
 
 \begin{keyidea}
@@ -251,6 +289,8 @@ Probability distributions connect directly to loss functions. Gaussian error lea
 \section{Covariance and correlation}
 \label{sec:correlation}
 
+After scaling, every column has the same spread, so spread can no longer tell columns apart. What still differs is how they move together. Rewrite each value as a number of standard deviations from its column's mean. Multiply two columns' values row by row, and average the products. When both columns sit above their means together, or below together, the products come out positive. That average is the \term{correlation}.
+
 Covariance describes whether two variables tend to move together:
 \[
   \operatorname{Cov}(X,Y)=\mathbb{E}[(X-\mu_X)(Y-\mu_Y)].
@@ -261,11 +301,28 @@ Pearson correlation standardizes covariance:
 \]
 It lies between $-1$ and $1$ and measures linear association.
 
+\begin{utpfig}[Three correlations from one notebook]{Three pairs of columns from the study log. Left: hours and sleep are mirror twins, nearly one story told twice. Middle: lectures and mark rise together. Right: hours and mark have a correlation close to zero even though they are strongly related, because a straight line through an arch comes out almost flat.}{fig:three-correlations}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1,horizontal sep=1.0cm},
+  logaxis, width=5.4cm, height=4.2cm]
+\nextgroupplot[title={$r=-0.96$},xlabel={hours studied},ylabel={hours slept},xmin=0,xmax=22,ymin=0,ymax=10]
+\addplot[logdots] table[x=hours,y=sleep,meta=name] {\studylog};
+\nextgroupplot[title={$r=0.86$},xlabel={lectures attended},ylabel={mark},xmin=1,xmax=15,ymin=30,ymax=85]
+\addplot[logdots] table[x=lectures,y=mark,meta=name] {\studylog};
+\nextgroupplot[title={$r=-0.25$},xlabel={hours studied},ylabel={mark},xmin=0,xmax=22,ymin=30,ymax=85]
+\addplot[logdots] table[x=hours,y=mark,meta=name] {\studylog};
+\addplot[draw=UTPOrange,thick,domain=1:21] {-0.5*x+61.6};
+\end{groupplot}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+Correlation near $\pm1$ finds twins: two columns telling one story, so one could nearly be dropped. Correlation near 0 means no \emph{straight-line} connection, and it does not mean no connection. Always plot the pair.
+\end{keyidea}
+
 \begin{pitfall}
 Correlation does not establish causation: confounding, reverse direction, or selection may explain it.
 \end{pitfall}
-
-A correlation near zero also does not rule out a curved or other nonlinear relationship.
 
 \begin{optionaltopic}
 \textbf{Likelihood and maximum likelihood estimation.} Given data $x_1,\ldots,x_n$, the likelihood treats the probability of the observed data as a function of a parameter $\theta$:
@@ -287,6 +344,8 @@ Many familiar machine-learning losses are negative log-likelihoods.
 \textbf{Entropy} measures uncertainty; \textbf{cross-entropy} evaluates predicted probabilities; \textbf{KL divergence} compares distributions (\chapref{ch:classification}, \chapref{ch:evaluation}).
 \end{optionaltopic}
 
+\keepspace{12\baselineskip}
+\section*{Part B: Rows as arrows}
 \section{Scalars, vectors, and matrices}
 
 \begin{description}[leftmargin=1.1in,style=nextline]
@@ -302,12 +361,50 @@ For $n$ observations and $p$ features, the design matrix has shape
 The first number is the number of rows; the second is the number of columns.
 
 \begin{workedexample}
-Five hundred students with four features give $X\in\mathbb{R}^{500\times4}$. Lab~1's Student Performance matrix has 649 rows and 32 feature columns.
+The study log is a matrix with 10 rows and 4 columns, $X\in\mathbb{R}^{10\times4}$. Student F is the vector $[12,13,6,77]^{\mathsf T}$. Lab~1's Student Performance matrix has 649 rows and 32 feature columns.
+\end{workedexample}
+
+\section{Dot products: a shopping receipt}
+
+\begin{analogy}
+You buy 2 coffees at 3.50, 3 buns at 1.20 and 1 juice at 2.00. The bill is $2(3.50)+3(1.20)+1(2.00)=12.60$. Multiply matching entries and add them up: that is a dot product of a price list with a basket. A linear model does exactly this, with weights in place of prices and features in place of quantities.
+\end{analogy}
+
+The dot product of two vectors is
+\[
+  \bm{a}^{\mathsf T}\bm{b}=\sum_{j=1}^{p}a_jb_j.
+\]
+It has two useful interpretations.
+
+\begin{enumerate}
+  \item It creates a weighted sum. Linear models use $\bm{w}^{\mathsf T}\bm{x}+b$.
+  \item It measures alignment. A large positive dot product means the vectors point in similar directions; a negative one means they point in opposing directions.
+\end{enumerate}
+
+\begin{workedexample}
+For $\bm{w}=[2,-1]^{\mathsf T}$ and $\bm{x}=[3,4]^{\mathsf T}$,
+\[
+\bm{w}^{\mathsf T}\bm{x}=2(3)+(-1)(4)=2.
+\]
+A linear model with bias $b=0.5$ would predict $2.5$.
 \end{workedexample}
 
 \section{Matrix shapes: the rule that governs everything}
 
 For matrix multiplication, inner dimensions must match; outer dimensions determine the result.
+
+\begin{workedexample}
+A matrix times a vector is one dot product per row. Put the line $\text{mark}=3\times\text{hours}+40$ into this form, with a column of ones to carry the 40:
+\[
+\begin{bmatrix}1&2\\1&4\\1&6\end{bmatrix}
+\begin{bmatrix}40\\3\end{bmatrix}
+=
+\begin{bmatrix}1(40)+2(3)\\1(40)+4(3)\\1(40)+6(3)\end{bmatrix}
+=
+\begin{bmatrix}46\\52\\58\end{bmatrix}.
+\]
+Shapes: $(3\times2)$ times $(2\times1)$ gives $(3\times1)$. Three students go in, and three predictions come out in one multiplication.
+\end{workedexample}
 
 \begin{utpfig}[Matrix shapes]{Matrix shapes in a product. The inner dimensions must match and the outer dimensions survive into the answer: an $(n\times p)$ matrix times a $(p\times 1)$ vector gives an $(n\times 1)$ result.}{fig:matrix-shapes}
 \begin{tikzpicture}[font=\small]
@@ -345,27 +442,6 @@ Multiplying by a scalar stretches or reverses a vector:
 \begin{bmatrix}3\\6\end{bmatrix}.
 \]
 
-\section{Dot products: weighted sums and alignment}
-
-The dot product of two vectors is
-\[
-  \bm{a}^{\mathsf T}\bm{b}=\sum_{j=1}^{p}a_jb_j.
-\]
-It has two useful interpretations.
-
-\begin{enumerate}
-  \item It creates a weighted sum. Linear models use $\bm{w}^{\mathsf T}\bm{x}+b$.
-  \item It measures alignment. A large positive dot product means the vectors point in similar directions; a negative one means they point in opposing directions.
-\end{enumerate}
-
-\begin{workedexample}
-For $\bm{w}=[2,-1]^{\mathsf T}$ and $\bm{x}=[3,4]^{\mathsf T}$,
-\[
-\bm{w}^{\mathsf T}\bm{x}=2(3)+(-1)(4)=2.
-\]
-A linear model with bias $b=0.5$ would predict $2.5$.
-\end{workedexample}
-
 \section{Norms: measuring vector size}
 
 The $L_1$ norm is the sum of absolute values:
@@ -379,6 +455,10 @@ The $L_2$ norm is the ordinary straight-line length:
 These norms appear in distance calculations and regularization.
 
 \section{Distance and similarity}
+
+\begin{analogy}
+A crow flies straight, and a taxi follows the grid. Between the same two buildings they travel different distances, and each is right for its purpose. ``Close'' is a choice you make when you pick a measure.
+\end{analogy}
 
 A model often needs to decide whether two observations are close or similar.
 
@@ -430,6 +510,10 @@ For sets $A=\{0,1,2,5,6\}$ and $B=\{0,2,3,4,5,7,9\}$, the intersection has three
  J(A,B)=\frac{|A\cap B|}{|A\cup B|}=\frac{3}{9}=0.33.
 \]
 Jaccard measures overlap among present items, ignoring shared absences.
+\end{workedexample}
+
+\begin{workedexample}
+Three documents as word counts over the vocabulary (cat, dog, fish): $a=(2,1,0)$, $b=(4,2,0)$ and $c=(0,1,3)$. Document $b$ is $a$ written out twice as long. Euclidean distance says $a$--$b$ is 2.24 and $a$--$c$ is 3.61, so length still counts. Cosine similarity says $a$--$b$ is 1.00, the same direction, and $a$--$c$ is 0.14, nearly unrelated topics. For documents of different lengths, the angle is usually what you want.
 \end{workedexample}
 
 \begin{keyidea}
@@ -487,6 +571,8 @@ Solve linear systems numerically rather than explicitly computing inverses.
 
 \section{Gradients: which way changes the loss?}
 
+A model usually has many numbers to adjust at once. Stand at one setting of them and ask of each number in turn: if I nudge only this one, how fast does the loss change? Each answer is a \term{partial derivative}, and the list of answers is the \term{gradient}.
+
 For a function with several parameters, the gradient collects all partial derivatives:
 \[
   \nabla_{\bm{\theta}}J=
@@ -501,7 +587,15 @@ The gradient points toward the fastest increase in $J$. To reduce a loss, gradie
   \bm{\theta}\leftarrow\bm{\theta}-\alpha\nabla_{\bm{\theta}}J.
 \]
 
-For step sizes and a worked gradient-descent update, see \secref{sec:gradient-descent}.
+\begin{workedexample}
+Take guess A from \chapref{ch:orientation}, $\text{mark}=2\times\text{hours}+47$, on the first six students. Its errors are $-4,-5,0,2,1,6$. For mean squared error the two slopes are
+\[
+  \frac{\partial J}{\partial w}=-\frac{2}{n}\sum_i e_ix_i=-23.33,
+  \qquad
+  \frac{\partial J}{\partial b}=-\frac{2}{n}\sum_i e_i=0.
+\]
+The gradient says: raising $w$ lowers the loss quickly, and $b$ is fine for now. That matches what we know, since the best slope is 3 and this guess is at 2. Gradient descent (\secref{sec:gradient-descent}) would step $w$ upward and leave $b$ alone on this step.
+\end{workedexample}
 
 \begin{optionaltopic}
 \textbf{Eigenvectors and SVD.} An eigenvector is scaled by a square matrix. SVD factors a matrix into rotations/reflections and scaling. Both reveal directions used in PCA (\chapref{ch:dimred}).
@@ -515,10 +609,35 @@ For step sizes and a worked gradient-descent update, see \secref{sec:gradient-de
 Vectors represent observations and parameters; matrices represent datasets and transformations; dot products create weighted sums; distances compare observations; and gradients tell optimization which direction to move.
 \end{keyidea}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item Report a center and a spread. Mean and standard deviation suit symmetric columns; median and IQR suit skewed ones.
+  \item A sample estimates a population. More rows shrink random error as $1/\sqrt{n}$, and they do nothing for bias.
+  \item Rare events stay fairly unlikely even after strong evidence. Count people to check the arithmetic.
+  \item Correlation measures straight-line association. It finds twin columns and misses arches, and it never proves cause.
+  \item A row is a vector, a table is a matrix, a linear model is a dot product, and matrix shapes must match on the inside.
+  \item Distance depends on scale and on your choice of measure. The gradient lists one slope per parameter.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
   \item When would the median and IQR describe a distribution more faithfully than the mean and standard deviation?
-  \item If \(X\) has shape \(n\times p\), what shape must a coefficient vector have for \(X\bm{w}\) to produce one prediction per row?
+  \item The correlation between hours and mark in the study log is $-0.25$. Does that mean study has little to do with the mark? How would you check?
+  \item A rare-disease test has 99\% sensitivity and a 1\% false-positive rate, and 1 person in 1,000 has the disease. Out of 100,000 people, about how many test positive, and what fraction of those have it?
+  \item If $X$ has shape $n\times p$, what shape must a coefficient vector have for $X\bm{w}$ to produce one prediction per row?
   \item Why can standardizing features change a nearest-neighbor or clustering result even though the observations themselves did not change?
+  \item What does a gradient of zero tell you about where you are standing on a bowl?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item When the column is skewed or has extreme values, such as incomes. The extreme values drag the mean and inflate the standard deviation, while the median and IQR stay with the bulk of the data.
+  \item No. A correlation measures only straight-line association, and the scatter plot in \figref{fig:three-correlations} shows a strong arch. Plot the pair before concluding anything.
+  \item 100 people have it and about 99 test positive; 99,900 do not and about 999 test positive. So about 1,098 test positive, and $99/1098\approx9\%$ of them have the disease.
+  \item $p\times1$: the inner dimensions must match, and the result is $n\times1$.
+  \item Distances are computed in the units of the columns. Standardizing changes those units, so a different point can become the nearest (\chapref{ch:data}).
+  \item You are at the bottom: no small nudge of any parameter changes the loss, so gradient descent stops moving.
+\end{enumerate}
+\end{checkanswers}

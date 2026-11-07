@@ -1,0 +1,48 @@
+== H(x) = x mod 5, keys 10 12 14 15 ==
+
+linear probing:
+  key 10  home 0  probes 0               -> slot 0
+  key 12  home 2  probes 2               -> slot 2
+  key 14  home 4  probes 4               -> slot 4
+  key 15  home 0  probes 0 -> 1          -> slot 1
+  table: [0:10] [1:15] [2:12] [3:-] [4:14] 
+  [ok]   every key is found again with the same probe rule
+  [ok]   every probe index stayed inside the table
+
+quadratic probing:
+  key 10  home 0  probes 0               -> slot 0
+  key 12  home 2  probes 2               -> slot 2
+  key 14  home 4  probes 4               -> slot 4
+  key 15  home 0  probes 0 -> 1          -> slot 1
+  table: [0:10] [1:15] [2:12] [3:-] [4:14] 
+  [ok]   every key is found again with the same probe rule
+  [ok]   every probe index stayed inside the table
+
+double hashing:
+  key 10  home 0  probes 0               -> slot 0
+  key 12  home 2  probes 2               -> slot 2
+  key 14  home 4  probes 4               -> slot 4
+  key 15  home 0  probes 0 -> 4 -> 3     -> slot 3
+  table: [0:10] [1:-] [2:12] [3:15] [4:14] 
+  [ok]   every key is found again with the same probe rule
+  [ok]   every probe index stayed inside the table
+
+The collision: 15 mod 5 = 0, already holding 10. Linear probing steps
+to slot 1; quadratic probing also tries 0 + 1*1 = 1; double hashing
+steps by h2(15) = 1 + (15 mod 4) = 4, trying 0, then 4 (taken by 14),
+then 3.
+  [ok]   the double-hash step 1 + (k mod 4) is never 0
+
+== Try it: a crowded table (m = 11) ==
+  inserting 10 keys that pile up on slots 10 and 3: 10 12 14 15 21 32 43 54 25 36
+
+  method                10  12  14  15  21  32  43  54  25  36   total
+  linear probing         1   1   1   1   2   4   7   8   5   6      36
+  quadratic probing      1   1   1   1   2   4   6   x   3   6      36
+  double hashing         1   1   1   1   4   2   3   3   6   3      25
+  (probes needed per key; x = no free slot reached within m probes)
+
+  Linear probing builds one long cluster, so later keys walk further.
+  Quadratic probing jumps out of the cluster but only ever visits about
+  half of the slots, so a crowded table can refuse a key with room left.
+  Double hashing gives each key its own step and spreads the probes.

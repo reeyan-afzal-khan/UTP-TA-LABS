@@ -1,0 +1,122 @@
+\textbf{Program 1: One binary tree, two complete implementations.}
+
+\textbf{File:} \texttt{binary\_tree.cpp}.
+
+\textbf{Chapter connection:} Recursive traversal code; Array representation of a binary tree.
+
+Translate left/right pointers into indexes 2i+1 and 2i+2. Compare shape and all traversals after update, insertion, and general-tree deletion. EMPTY is reserved for unused slots in this positive-valued dataset. Destroy linked nodes in postorder.
+
+\input{labs/visuals/program-binary_tree}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 14--30.
+
+\lstinputlisting[firstline=14,lastline=30]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement inorder, preorder, postorder and helpers.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 31--62.
+
+\input{labs/visuals/traversals}
+
+\lstinputlisting[firstline=31,lastline=62]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Implement deleteValue, destroy.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 63--97.
+
+\input{labs/visuals/walk-tree}
+
+\lstinputlisting[firstline=63,lastline=97]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Implement present, arrayInorder, arrayPreorder and helpers.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 98--124.
+
+\input{labs/visuals/walk-tree-index}
+
+\lstinputlisting[firstline=98,lastline=124]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{4}\item \textbf{Implement arrayDeleteValue, printIndexTable, sameShape.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 125--162.
+
+\lstinputlisting[firstline=125,lastline=162]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{5}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 163--199.
+
+\textbf{Trace checkpoint for the supplied main.} After inserting 10 as the left child of 12, its array position is 2 times 2 plus 1 = 5. Deleting value 4 uses the deepest rightmost node, 10, as replacement in this general binary-tree exercise. That is different from the BST successor rule in the next lab. Check linked and array traversals after every mutation, not only their initial shape.
+
+\lstinputlisting[firstline=163,lastline=199]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{6}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{binary\_tree.cpp} --- lines 200--240. Continue in the same file; do not add another header or opening brace.
+
+\lstinputlisting[firstline=200,lastline=240]{all_experiments/Lab07/binary_tree.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect binary\_tree.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra binary_tree.cpp -o binary_tree.exe
+
+.\binary_tree.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Predicted before running (write these down first) ==
+  inorder   2 4 6 8 12
+  preorder  8 4 2 6 12
+  postorder 2 6 4 12 8
+
+== Traversals ==
+  inorder   linked: 2 4 6 8 12   array: 2 4 6 8 12 
+  preorder  linked: 8 4 2 6 12   array: 8 4 2 6 12 
+  postorder linked: 2 6 4 12 8   array: 2 6 4 12 8 
+  [ok]   both representations describe the same shape
+  [ok]   all three traversals agree between the representations
+  [ok]   the predictions match
+  [ok]   each traversal visits every stored node exactly once
+
+== Array index table ==
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/binary\_tree.txt}.
+
+\begin{tryit}
+
+Delete a missing value and then the only node of a fresh tree in both representations. Compare traversal outputs and shape, and confirm all linked allocations are released.
+
+\end{tryit}

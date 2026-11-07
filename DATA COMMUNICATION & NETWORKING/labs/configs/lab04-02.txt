@@ -1,0 +1,19 @@
+system-view
+sysname R2
+interface GigabitEthernet0/0/0
+ ip address 10.0.12.2 24
+ undo shutdown
+quit
+interface GigabitEthernet0/0/1
+ ip address 10.0.23.2 24
+ undo shutdown
+quit
+ospf 1 router-id 2.2.2.2
+ area 0.0.0.0
+  network 10.0.12.0 0.0.0.255
+  network 10.0.23.0 0.0.0.255
+ quit
+quit
+return
+display ospf peer brief
+display ip routing-table protocol ospf

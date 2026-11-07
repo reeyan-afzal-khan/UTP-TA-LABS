@@ -1,0 +1,25 @@
+% Reused from chapters/05-production-planning.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\foreach \i/\lvl/\q/\h/\d in {%
+  0/{Sales forecast}/{What will customers want?}/{12 months}/{product family},
+  1/{Sales \& Operations Planning}/{How much can we make, and when?}/{monthly}/{product family},
+  2/{Demand management}/{How much of each product, each week?}/{weekly}/{single product},
+  3/{Detailed scheduling}/{Which product runs on which day?}/{daily}/{one run}}{
+  \pgfmathsetmacro{\y}{-\i*1.12}
+  \pgfmathsetmacro{\w}{10.6-\i*0.9}
+  \pgfmathsetmacro{\tw}{\w-0.55}
+  \node[procstep,minimum width=\w cm,minimum height=0.9cm,text width=\tw cm] (p\i) at (6.0,\y)
+    {\lvl\ --- \emph{\q}};
+  \node[procchip,anchor=west] at (11.6,\y) {\h};
+  \node[procnote,anchor=west,text width=2.3cm] at (13.5,\y) {\d};}
+\foreach \i in {0,...,2}{\pgfmathtruncatemacro{\j}{\i+1}\draw[procflow] (p\i)--(p\j);}
+\node[procgood,minimum width=3.3cm,minimum height=0.8cm] (prod) at (3.5,-4.6) {Production};
+\node[procgood,minimum width=3.3cm,minimum height=0.8cm] (mrp)  at (8.5,-4.6) {MRP $\rightarrow$ Purchasing};
+\draw[procflow] (p3.south) -- ++(0,-0.28) -| (prod.north);
+\draw[procflow] (p3.south) -- ++(0,-0.28) -| (mrp.north);
+\node[proccap,anchor=west] at (11.6,0.78) {\bfseries horizon};
+\node[proccap,anchor=west] at (13.5,0.78) {\bfseries detail};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

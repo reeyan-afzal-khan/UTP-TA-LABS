@@ -1,5 +1,21 @@
 \labsection{8}{VLANs: one switch, several networks}{sec:lab08-vlan}
 
+\input{labs/visuals/08-flow}
+
+\noindent\textbf{Worked implementation: Two VLANs across one trunk.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{S1.} Configure the access ports before connecting the hosts.
+\lstinputlisting[style=utpterminal]{labs/configs/lab08-01.txt}
+
+\noindent\textbf{S2.} Configure the access ports before connecting the hosts.
+\lstinputlisting[style=utpterminal]{labs/configs/lab08-02.txt}
+
+\textbf{Expected evidence.} Cable GE0/0/24 between switches. On each switch, host port 1 belongs to VLAN 10 and host port 2 to VLAN 20. Use 192.168.10.11 and .12/24 for the VLAN 10 hosts; 192.168.20.11 and .12/24 for VLAN 20. Leave gateways empty: same-VLAN peers should communicate, inter-VLAN peers should not.
+
+
+
+
 \begin{labproject}{Access, trunk, and hybrid ports --- and what each does to a tag}
 \textbf{Coverage.} Chapter~\ref{ch:vlan}.\\
 \medskip\noindent\textbf{Part A --- What a VLAN actually separates.}\par
@@ -33,6 +49,14 @@ The distinction that matters: access and trunk ports decide tagging by \emph{rol
 \end{keyidea}
 
 \medskip\noindent\textbf{Part C --- Create VLANs and assign access ports.}\par
+
+\input{labs/visuals/08-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:vlan]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Check the host address, access-port VLAN and trunk allow list as three separate checkpoints. Do not add gateways simply to make every ping succeed: isolation is an intended result of this lab's topology.
+\input{labs/visuals/08-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 system-view
@@ -130,7 +154,13 @@ Capture it in Wireshark and explain which frames carry a tag and which do not. T
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:vlan]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/08-vlan-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Record same-VLAN and cross-VLAN tests. Remove VLAN 10 from the lab trunk's allowed list, predict the affected pair, test it and restore the working configuration.
+
+
 \begin{itemize}
   \item VLANs created on both switches, not just one.
   \item Trunk explicitly permits every VLAN that must cross it.

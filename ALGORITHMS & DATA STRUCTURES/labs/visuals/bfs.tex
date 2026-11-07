@@ -1,0 +1,37 @@
+% Copied from chapters/09-graphs.tex (fig:bfs).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[BFS with queue states]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+% graph with BFS levels
+\begin{scope}
+\node[utpnodedone] (A) at (0,1.5) {A};
+\node[utpnodehot] (B) at (2.1,1.5) {B};
+\node[utpnodehot] (C) at (0,0) {C};
+\node[utpnodehot] (D) at (2.1,0) {D};
+\node[utpnode] (E) at (3.9,0.75) {E};
+\foreach \u/\v in {B/E,C/D,D/E,B/D}{\draw[utpedge,draw=UTPMuted!40] (\u)--(\v);}
+\foreach \u/\v in {A/B,A/C,A/D}{\draw[utpedge,draw=UTPOrange,line width=1.1pt] (\u)--(\v);}
+\draw[utpedge,draw=UTPGreen,line width=1.1pt] (B)--(E);
+\node[utplabel,anchor=south,color=UTPGreen] at (0,2.05) {level 0};
+\node[utplabel,anchor=south,color=UTPOrange] at (2.1,2.05) {level 1};
+\node[utplabel,anchor=south,color=UTPBlue] at (3.9,1.35) {level 2};
+\end{scope}
+% queue trace
+\begin{scope}[xshift=6.9cm,yshift=1.35cm]
+\foreach \act/\qs [count=\i from 0] in {%
+  {visit A}/{B C D},
+  {pop B, find E}/{C D E},
+  {pop C}/{D E},
+  {pop D}/{E},
+  {pop E}/{empty}}{
+  \node[utplabel,anchor=east,font=\scriptsize\ttfamily] at (0,-0.56*\i) {\act};
+  \node[utpcell,minimum width=2.1cm,minimum height=0.44cm,
+        font=\scriptsize\ttfamily\color{UTPNavy}] at (1.35,-0.56*\i) {\qs};
+}
+\node[utplabel,anchor=south,color=UTPNavy] at (1.35,0.32) {\textbf{queue after step}};
+\node[utplabel,anchor=north,align=center] at (0.9,-2.75) {output: A B C D E};
+\end{scope}
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

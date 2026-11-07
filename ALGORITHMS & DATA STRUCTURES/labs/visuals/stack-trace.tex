@@ -1,0 +1,39 @@
+% Copied from chapters/05-stacks.tex (fig:stack-trace).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[A stack under push and pop]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\def\cw{1.5}
+\newcommand{\stackframe}[4]{%
+  % #1 = x offset, #2 = caption, #3 = list of values bottom->top, #4 = highlight top?
+  \begin{scope}[xshift=#1 cm]
+    \node[utplabel,anchor=north,align=center] at (0,-0.35) {#2};
+    \foreach \v [count=\k from 0] in {#3}{
+      \node[utpcell,minimum width=\cw cm,minimum height=0.62cm] (q\k) at (0,0.66*\k) {\v};
+    }
+  \end{scope}}
+% empty
+\node[utplabel,anchor=north,align=center] at (0,-0.35) {empty};
+\draw[draw=UTPMuted!45] (-0.75,0.34) -- (-0.75,-0.05) -- (0.75,-0.05) -- (0.75,0.34);
+\node[utplabel,color=UTPMuted] at (0,0.75) {top $=-1$};
+% push 10
+\stackframe{2.3}{\texttt{push(10)}}{10}{}
+\node[utptag,anchor=west] at (3.15,0) {top};
+% push 20
+\stackframe{5.2}{\texttt{push(20)}}{10,20}{}
+\node[utptag,anchor=west] at (6.05,0.66) {top};
+% push 30
+\stackframe{8.1}{\texttt{push(30)}}{10,20,30}{}
+\node[utptag,anchor=west] at (8.95,1.32) {top};
+% pop
+\begin{scope}[xshift=11.0cm]
+  \node[utplabel,anchor=north,align=center] at (0,-0.35) {\texttt{pop()} $\rightarrow30$};
+  \node[utpcell,minimum width=\cw cm,minimum height=0.62cm] at (0,0) {10};
+  \node[utpcell,minimum width=\cw cm,minimum height=0.62cm] at (0,0.66) {20};
+  \node[utpdim,minimum width=\cw cm,minimum height=0.62cm] at (0,1.32) {30};
+  \draw[draw=UTPRed,line width=0.7pt] (-0.42,1.05) -- (0.42,1.59);
+  \node[utptag,anchor=west] at (0.85,0.66) {top};
+\end{scope}
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

@@ -1,0 +1,22 @@
+% Reused from chapters/04-crm.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[draw=UTPMuted!45,fill=UTPPaleGray,rounded corners=2.5mm] (0,-0.55) rectangle (6.4,3.6);
+\node[proccap,color=UTPMuted] at (3.2,3.25) {\bfseries Contact list};
+\node[procquiet,minimum width=5.4cm,minimum height=0.7cm] at (3.2,2.5) {Name and address};
+\node[procquiet,minimum width=5.4cm,minimum height=0.7cm] at (3.2,1.65) {Telephone and email};
+\node[procquiet,minimum width=5.4cm,minimum height=0.7cm] at (3.2,0.8) {Contact person};
+\node[procnote,color=UTPMuted] at (3.2,0.0) {answers \emph{who}};
+
+\draw[draw=UTPBlue!45,fill=UTPPaleBlue!45,rounded corners=2.5mm] (7.6,-0.55) rectangle (14.6,3.6);
+\node[proccap,color=UTPBlue] at (11.1,3.25) {\bfseries CRM};
+\foreach \i/\t in {0/{Which opportunities are open, and worth how much?},
+                   1/{Who owns the next action, and by when?},
+                   2/{What has this customer bought, been promised, complained about?}}{
+  \pgfmathsetmacro{\y}{2.5-\i*0.85}
+  \node[procstep,minimum width=6.4cm,text width=6.0cm,minimum height=0.7cm] at (11.1,\y) {\t};}
+\node[procnote,color=UTPBlue] at (11.1,0.0) {answers \emph{what next}};
+\draw[procflow] (6.6,1.5) -- (7.4,1.5);
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

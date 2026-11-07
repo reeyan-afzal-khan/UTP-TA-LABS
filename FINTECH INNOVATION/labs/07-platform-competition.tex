@@ -4,6 +4,9 @@
 \textbf{Coverage.} Chapter~\ref{ch:bigtech}.\\
 \textbf{Goal.} Apply the chapter's ``four assets and one liability'' framework to a real platform, and reach a defensible view on where the competitive boundary actually sits.
 
+\input{labs/visuals/07-flow}
+
+
 \begin{labmode}
 Choose one Big Tech platform with financial ambitions --- Grab, Apple, Alipay, Amazon, or Gojek --- and the incumbent bank you analysed in Lab~\ref{sec:lab01-unbundling}. Analysing the same bank throughout the course means Labs 1, 5, and 7 accumulate into one coherent argument.
 \end{labmode}
@@ -62,19 +65,36 @@ Super apps do not enter finance through the front door. They start with a paymen
 
 Map your platform's services and mark the sequence in which financial products were added. Then answer: what was the wedge, and what did the wedge make possible next?
 
+
+
+\textbf{Complete worked example.} This runnable fixture uses synthetic inputs. First reproduce it, then adapt the data or ratings with documented evidence. All code below belongs to one file.
 \begin{lstlisting}[style=utpterminal]
-$ python platform_scorecard.py --platform grab --incumbent maybank
-
-asset             platform  incumbent  advantage
-customer_access          5          3  platform
-data                     5          3  platform
-brand_trust              3          5  incumbent
-capital_talent           4          4  neutral
-regulatory_position      2          5  incumbent
-
-contested segments : payments, fx, micro-credit
-defensible segments: deposits, mortgages, wealth, corporate
+python all_experiments/lab07_platform_scorecard.py
 \end{lstlisting}
+
+\noindent\textbf{Setup and output folder.}
+\lstinputlisting[style=utppython,firstline=1,lastline=10]{all_experiments/lab07_platform_scorecard.py}
+
+\noindent\textbf{Make the scoring assumptions visible.}
+\lstinputlisting[style=utppython,firstline=11,lastline=19]{all_experiments/lab07_platform_scorecard.py}
+
+\noindent\textbf{Compare assets without turning them into unsupported market forecasts.}
+\input{labs/visuals/07-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:bigtech]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} This script does not compute a weighted overall winner. Read each asset comparison independently and fill the evidence template before substituting researched ratings. A numerical advantage does not establish licensing rights, adoption or market share.
+\input{labs/visuals/07-worked-case.tex}
+
+\lstinputlisting[style=utppython,firstline=20,lastline=29]{all_experiments/lab07_platform_scorecard.py}
+
+\noindent\textbf{Create a record of evidence and dependencies.}
+\lstinputlisting[style=utppython,firstline=30,lastline=37]{all_experiments/lab07_platform_scorecard.py}
+\input{labs/visuals/07-result.tex}
+\textbf{Check the run.} The following output was captured from the supplied script; it describes the synthetic fixture only.
+\lstinputlisting[style=utpterminal]{labs/outputs/lab07.txt}
+
 
 \medskip\noindent\textbf{Part D --- What the incumbent still owns.}\par
 Chapter~\ref{ch:bigtech} is clear that banks retain real assets, and a credible analysis names them rather than concluding that banks are doomed:
@@ -94,7 +114,13 @@ Then stress-test it. Partnerships fail when one side can eventually build what t
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:bigtech]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/07-platform-competition-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Choose one asset rating, state what evidence would justify changing it, and recompute that asset's difference under both plausible values. Identify whether its advantage label changes; do not report an overall ranking that the script does not calculate.
+
+
 \begin{itemize}
   \item Every asset score cites evidence --- a user figure, a filing, a survey --- not impression.
   \item The platform is explicitly classified as FinTech or TechFin, with the cross-subsidy consequence stated.

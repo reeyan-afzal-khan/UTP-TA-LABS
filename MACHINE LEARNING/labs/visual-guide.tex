@@ -1,0 +1,48 @@
+% Course-local lab vocabulary and visual walkthroughs. Shared templates are not modified.
+\newsavebox{\labgraphicbox}
+\newenvironment{labvisual}[1]{\par\smallskip\noindent\hfill\begin{minipage}{.94\linewidth}\begin{tcolorbox}[enhanced,unbreakable,colback=white,colframe=UTPBlue!35,boxrule=.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,halign=center,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}]}{\end{tcolorbox}\end{minipage}\hfill\mbox{}\par\smallskip}
+\newenvironment{labgraphic}{\begin{lrbox}{\labgraphicbox}}{\end{lrbox}\sbox{\labgraphicbox}{\raisebox{\dp\labgraphicbox}{\usebox{\labgraphicbox}}}%
+  \ifdim\wd\labgraphicbox>\linewidth\sbox{\labgraphicbox}{\resizebox{\linewidth}{!}{\usebox{\labgraphicbox}}}\fi%
+  \ifdim\ht\labgraphicbox>6cm\resizebox{!}{6cm}{\usebox{\labgraphicbox}}\else\usebox{\labgraphicbox}\fi}
+\newcommand{\courselabflow}[4]{\begin{labvisual}{From setup to verified result}\begin{labgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpstep,text width=2.5cm,minimum height=1.15cm] (a) {\textbf{1}\\#1};
+\node[utpstep,text width=2.5cm,minimum height=1.15cm,right=.35cm of a] (b) {\textbf{2}\\#2};
+\node[utpstep,text width=2.5cm,minimum height=1.15cm,right=.35cm of b] (c) {\textbf{3}\\#3};
+\node[utpstep,text width=2.5cm,minimum height=1.15cm,right=.35cm of c] (d) {\textbf{4}\\#4};
+\draw[utparrow] (a)--(b);\draw[utparrow] (b)--(c);\draw[utparrow] (c)--(d);
+\end{tikzpicture}\end{labgraphic}\end{labvisual}}
+\newcommand{\courselabtrace}[7]{\begin{labvisual}{#1}\begin{labgraphic}
+\begin{tikzpicture}[font=\small]
+\node[utpstep,fill=UTPPaleBlue,text width=3.4cm,minimum height=1.8cm,align=left] (a) {\textbf{#2}\\[3pt]#3};
+\node[utpstep,fill=UTPPaleBlue,text width=3.4cm,minimum height=1.8cm,align=left,right=.4cm of a] (b) {\textbf{#4}\\[3pt]#5};
+\node[utpstep,fill=UTPPaleTeal,text width=3.4cm,minimum height=1.8cm,align=left,right=.4cm of b] (c) {\textbf{#6}\\[3pt]#7};
+\draw[utparrow] (a)--(b);\draw[utparrow] (b)--(c);
+\end{tikzpicture}\end{labgraphic}\end{labvisual}}
+
+% A printed output and its "Reference output." label stay together on one page.
+\newenvironment{refoutput}{\par\noindent\begin{minipage}{\linewidth}\expectedoutput}{\end{minipage}\par}
+
+% Start a new page unless at least #1 of room is left, so a box never opens with one stranded line.
+\newcommand{\keepspace}[1]{\par\penalty-100\relax\ifdim\dimexpr\pagegoal-\pagetotal\relax<#1\newpage\fi}
+
+% Two boxes only this book's lab sheets need, built with the shared constructor.
+\utpnewcallout[boxrule=0.9pt]{yourturn}{white}{UTPTeal}{Your turn}
+\utpnewcallout[boxrule=0.65pt,left=2.5mm,right=2.5mm,top=1.6mm,bottom=1.6mm,colbacktitle=UTPMuted]{expectedfindings}{UTPPaleGray!72}{UTPMuted!62}{Expected findings}
+
+% A band that opens a part of the notebook inside a lab sheet.
+\newcommand{\labpart}[1]{\keepspace{11\baselineskip}\par\medskip\noindent{\large\bfseries\color{UTPBlue}#1}\par\nopagebreak\smallskip}
+
+% The verification and submission checklists stay together on one page.
+\newenvironment{labchecklists}{\par\noindent\begin{minipage}{\linewidth}\tcbset{break at=100cm}}{\end{minipage}\par}
+
+% The routine every lab sheet states once, so each Lab-Activity PDF stands alone.
+\newcommand{\labroutine}{%
+  \par\smallskip\noindent\textbf{How to work through this sheet.} Question $n$ is the code cell the notebook labels Question $n$; after \textbf{Restart Kernel and Run All Cells} its prompt reads \texttt{[$n$]}. For each question, do four things in order:
+  \begin{utpsteps}
+    \item \textbf{Predict.} Read the task and write down what you expect before running anything.
+    \item \textbf{Run.} Run the matching cell in the notebook. The listing printed under the question is that same code, so you can read it here and run it there.
+    \item \textbf{Compare.} Check your output against the reference output. Printed figures come from one CPU run with the package versions on the sheet's first output. Other versions can move the last digit; a neural network can move the third decimal.
+    \item \textbf{Explain.} Add a Markdown cell saying what the result means, in your own words. Where your first prediction was wrong, say why.
+  \end{utpsteps}
+  \par\smallskip}

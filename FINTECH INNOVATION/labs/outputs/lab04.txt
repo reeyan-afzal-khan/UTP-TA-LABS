@@ -1,0 +1,14 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+              step  users  overall  step_conversion  dropped
+0         app_open   1000    1.000              NaN        0
+1     signup_start    745    0.745            0.745      255
+2        id_upload    630    0.630            0.846      115
+3      id_verified    389    0.389            0.617      241
+4  address_entered    351    0.351            0.902       38
+5   account_funded    290    0.290            0.826       61
+6    first_payment    263    0.263            0.907       27
+              mean  count
+device                   
+newer_phone  0.622    312
+older_phone  0.613    318
+Device differences here are simulation noise, not a causal UX finding.

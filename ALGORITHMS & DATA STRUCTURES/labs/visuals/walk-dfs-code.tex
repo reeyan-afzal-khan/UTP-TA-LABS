@@ -1,0 +1,12 @@
+\begin{adslabfigure}[DFS: returning from C resumes the suspended call at D]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\foreach \states/\msg [count=\i from 0] in {{A}/{enter A}, {A B}/{A calls B}, {A B D}/{B calls D}, {A B D C}/{D calls C}, {A B D}/{C returns; D continues}, {A B D E}/{D calls E}} {
+\node[utpcell,minimum width=4.2cm] at (0,-.75*\i) {\texttt{\states}};
+\node[utplabel,anchor=west] at (3,-.75*\i) {\msg};
+}
+\node[utplabel,anchor=south] at (0,.4) {active recursive calls};
+\node[utplabel,anchor=north,align=center] at (2,-4.4) {Output is recorded on entry: A B D C E.\\C remains visited after its call returns.};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

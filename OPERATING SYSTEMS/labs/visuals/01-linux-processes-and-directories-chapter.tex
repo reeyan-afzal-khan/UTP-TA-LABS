@@ -1,0 +1,15 @@
+% Reused from chapters/02-linux-processes-files-and-system-calls.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=3.5cm,minimum height=1cm,align=center,font=\small\color{UTPNavy}},
+  live/.style={box,draw=UTPTeal,fill=UTPPaleTeal},
+  kern/.style={box,draw=UTPNavy,fill=UTPNavy!10},
+  ar/.style={-{Stealth[length=2.2mm]},thick,draw=UTPOrange}]
+\node[box] (file) at (-4.2,0) {Executable file\\\texttt{fork\_demo}};
+\node[live] (proc) at (0,0) {Running process\\PID 4200};
+\node[kern] (os) at (4.2,0) {Kernel process table\\state, PID, PPID};
+\draw[ar] (file) -- node[above,font=\scriptsize]{run} (proc);
+\draw[ar] (proc) -- (os);
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

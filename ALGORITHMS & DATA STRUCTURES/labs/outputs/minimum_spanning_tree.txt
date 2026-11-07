@@ -1,0 +1,27 @@
+== Weighted undirected graph ==
+  A-B (4)
+  A-C (2)
+  A-D (5)
+  B-D (3)
+  B-E (6)
+  C-D (1)
+  D-E (7)
+
+== Kruskal: edges in increasing weight ==
+  C-D (1)  accept
+  A-C (2)  accept
+  B-D (3)  accept
+  A-B (4)  reject: would close a cycle
+  A-D (5)  reject: would close a cycle
+  B-E (6)  accept
+
+== Minimum spanning tree ==
+  C-D (1)
+  A-C (2)
+  B-D (3)
+  B-E (6)
+  total weight: 12
+  [ok]   the tree has |V| - 1 = 4 edges
+  [ok]   it includes every vertex and contains no cycle
+  brute force: 21 spanning trees, the lightest weighs 12
+  [ok]   no spanning tree is lighter than the greedy one

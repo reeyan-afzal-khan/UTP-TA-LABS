@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo Products, Purchase, Inventory, and Manufacturing.\\
 \textbf{Goal.} Connect production-planning concepts to the master data and transactions required to manufacture Road Bikes.
 
+\input{labs/visuals/03-flow}
+
+
 \begin{labmode}
 Tutorial 3 asks for a production approach, forecast, and S\&OP plan. Odoo does not replace those planning calculations in this course. Instead, it demonstrates how an approved plan becomes executable master data and manufacturing transactions.
 \end{labmode}
@@ -13,6 +16,14 @@ Tutorial 3 asks for a production approach, forecast, and S\&OP plan. Odoo does n
 \medskip\noindent\textbf{Part A --- Choose the production approach.}
 
 For your Tutorial 3 business venture, justify make-to-stock, make-to-order, or a more customised approach. For West End Bicycles, use the supplied guide's make-to-stock story: build finished bikes before the customer delivery.
+
+\input{labs/visuals/03-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:production-planning]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Check the product and units before confirming the manufacturing order. Reservations describe planned availability; they are not the same as consumption. Record any shortage and receipt before marking the production task complete.
+\input{labs/visuals/03-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Create finished products.}
 
@@ -62,7 +73,15 @@ This is the ERP evidence that the manufacturing event changed the shared invento
 Prepare the sales forecast and S\&OP table required by the tutorial, including the selected product mix and the 90--95\% utilisation requirement specified in that tutorial. Keep the planning units consistent.
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:production-planning]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/03-production-planning-odoo-chapter.tex}
+
+\input{labs/walkthroughs/03-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Reconcile one order from BOM demand to stock moves. Introduce a component shortage in a separate exercise record and explain the resulting availability state and corrective receipt.
+
+
 \begin{itemize}
   \item The Road Bike and its raw materials exist as Goods with Track Inventory enabled.
   \item The Road Bike BOM lists every component with its quantity.

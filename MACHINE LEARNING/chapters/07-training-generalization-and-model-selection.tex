@@ -3,28 +3,30 @@
 
 \chapterguide%
   {\chapref{ch:supervised} and \chapref{ch:evaluation}: supervised objectives, realistic holdouts, and metric choice.}
-  {diagnose fit, regularize, tune, handle imbalance, select features, and save reproducible models without leakage.}
+  {diagnose underfitting and overfitting from training and validation scores; explain bias and variance with numbers; regularize; read a learning curve; tune without fooling yourself; handle imbalance; select features without leakage; and save a model you can reproduce.}
 
-Training lowers error on the data the model sees; model selection chooses how flexible the model may be without being fooled by noise in the validation set. Every development decision is made before the test set is opened.
+Training lowers the error on the data the model sees. That is easy, and it can be made as low as you like by giving the model enough freedom. The hard part is choosing how much freedom to allow, without being fooled by luck and without looking at the test set. Every decision in this chapter is made before the test set is opened.
 
 \begin{coursechoice}
-This chapter sets workflow rules for tuning, feature selection, and imbalance interventions. Chapters 9--14 explain model families; revisit these rules when lasso, trees, and nearest neighbors make them concrete.
+This chapter sets workflow rules for tuning, feature selection and imbalance. \chapsref{ch:regression}{ch:svm} explain the model families; revisit these rules when lasso, trees and nearest neighbors make them concrete.
 \end{coursechoice}
 
 \section{What training is optimizing: empirical risk}
 
-Training commonly minimizes average loss plus a regularization term:
+Training commonly minimizes average loss plus a charge for complexity:
 \[
   J(\bm{\theta})
   =\frac{1}{n}\sum_{i=1}^{n}
   \mathcal{L}(y_i,f_{\bm{\theta}}(\bm{x}_i))
   +\lambda\Omega(\bm{\theta}).
 \]
-The first term fits the observed data; $\Omega$ discourages undesirable complexity. This objective is only a proxy for the true goal of low expected error on future data.
-
-The objective may have one best solution, several equally good ones, or many local dips that can trap an optimizer. Either way, reaching a low training loss does not guarantee good generalization.
+The first term fits the observed rows, and $\Omega$ discourages unnecessary complexity. This objective is only a stand-in for the true goal, low error on future data. It may have one best solution or many local dips, and either way a low training loss guarantees nothing about generalization.
 
 \section{Underfitting and overfitting}
+
+\begin{analogy}
+Three students prepare from past papers. One learns only ``answer C when unsure'' and does badly on everything. One learns the methods and does well on old and new papers alike. One memorizes every past answer, scores full marks on the past papers, and falls apart on new questions. They have underfitted, fitted well, and overfitted.
+\end{analogy}
 
 \begin{description}[leftmargin=1.15in,style=nextline]
   \item[Underfitting] The model is too simple to capture important patterns and performs poorly even on training data.
@@ -32,85 +34,50 @@ The objective may have one best solution, several equally good ones, or many loc
   \item[Good fit] The model captures useful patterns and achieves similar, acceptable performance on training and validation data.
 \end{description}
 
-\begin{utpfig}[Training and validation error against capacity]{Training and validation error as model capacity grows. Both errors are high when the model underfits; past the sweet spot the training error keeps falling while the gap to validation error grows.}{fig:capacity-curve}
+Here is the same thing on the study log. Fit polynomials of growing degree to predict the mark from hours. To score each curve on students it has not seen, use \term{leave-one-out} validation: hide one student, fit on the other nine, predict the hidden one, and repeat for all ten.
+
+\begin{utpfig}[Underfit, good fit, and overfit]{Three curves through the same ten students. A straight line misses the arch, a quadratic captures it, and a degree-7 polynomial threads between the students it can see. Its weakness appears when a student is hidden: fitted without student J it predicts $-149$ for J, whose mark was 38. MSE is on the rows the curve saw; left-out MSE is on the student it did not see.}{fig:three-fits}
 \begin{tikzpicture}
-\begin{axis}[
-  width=0.82\linewidth, height=5.8cm,
-  axis lines=left,
-  xlabel={model complexity $\rightarrow$}, ylabel={error},
-  ticks=none, domain=0:4, samples=90,
-  ymin=0, ymax=1.6, clip=false,
-  legend style={draw=none, font=\small, at={(0.97,0.95)}, anchor=north east}
-]
-\addplot[thick] {1.25*exp(-0.9*x)+0.12};
-\addlegendentry{training error}
-\addplot[thick, dashed] {1.25*exp(-0.9*x)+0.12+0.055*x^2};
-\addlegendentry{validation error}
-\draw[dotted, thick] (axis cs:1.85,0) -- (axis cs:1.85,1.55);
-\node[font=\small, align=center] at (axis cs:0.62,1.5) {underfitting:\\both errors high};
-\node[font=\small, align=center] at (axis cs:3.3,1.32) {overfitting:\\gap grows};
-\node[font=\small, align=center] at (axis cs:1.85,1.68) {sweet spot};
+\begin{groupplot}[group style={group size=3 by 1,horizontal sep=0.75cm},
+  logaxis, width=5.65cm, height=4.6cm, xmin=0, xmax=22, ymin=25, ymax=90, xlabel={hours}, xtick={0,10,20}]
+\nextgroupplot[title={Degree 1: underfit},ylabel={mark}]
+\addplot[logdots] table[x=hours,y=mark,meta=name] {\studylog};
+\addplot[draw=UTPOrange,thick,domain=1:21] {-0.5*x+61.6};
+\node[font=\scriptsize\color{UTPNavy},anchor=south] at (axis cs:11,26) {MSE 125 / left-out 207};
+\nextgroupplot[title={Degree 2: good fit},yticklabels={}]
+\addplot[logdots] table[x=hours,y=mark,meta=name] {\studylog};
+\addplot[draw=UTPGreen,thick,domain=1:21,samples=50] {-0.356*x^2+7.333*x+30.267};
+\node[font=\scriptsize\color{UTPNavy},anchor=south] at (axis cs:11,26) {MSE 18 / left-out 43};
+\nextgroupplot[title={Degree 7: overfit},yticklabels={}]
+\addplot[logdots] table[x=hours,y=mark,meta=name] {\studylog};
+\addplot[draw=UTPRed,thick,restrict y to domain=20:95] coordinates {(2,47.0) (2.5,44.5) (3,45.1) (3.5,47.3) (4,50.1) (4.5,52.9) (5,55.3) (5.5,57.3) (6,59.0) (6.5,60.4) (7,61.6) (7.5,62.9) (8,64.2) (8.5,65.7) (9,67.2) (9.5,68.9) (10,70.5) (10.5,71.8) (11,72.9) (11.5,73.4) (12,73.3) (12.5,72.4) (13,70.8) (13.5,68.4) (14,65.3) (14.5,61.7) (15,57.8) (15.5,53.9) (16,50.2) (16.5,47.2) (17,45.0) (17.5,43.8) (18,43.5) (18.5,43.8) (19,44.0) (19.5,42.6) (20,37.9)};
+\node[font=\scriptsize\color{UTPNavy},anchor=south] at (axis cs:11,26) {MSE 3.5 / left-out 3908};
+\end{groupplot}
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{utpfig}[Training and left-out error against capacity]{Training and left-out error on the study log as the polynomial degree grows. The vertical axis is logarithmic. Training error only falls. Left-out error falls, zigzags, then explodes.}{fig:capacity-curve}
+\begin{tikzpicture}
+\begin{axis}[logaxis, width=0.72\linewidth, height=5.4cm, xlabel={polynomial degree}, ylabel={mean squared error},
+  ymode=log, log basis y=10, xmin=-0.3, xmax=7.3, ymin=2, ymax=6000, xtick={0,...,7},
+  legend style={at={(0.03,0.97)},anchor=north west}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.5pt,thick] coordinates {(0,133.69)(1,125.44)(2,18.34)(3,18.31)(4,6.22)(5,5.79)(6,5.31)(7,3.48)};
+\addlegendentry{rows it saw}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.5pt,thick] coordinates {(0,165.05)(1,206.83)(2,43.48)(3,108.70)(4,20.21)(5,79.44)(6,903.68)(7,3907.53)};
+\addlegendentry{student left out}
 \end{axis}
 \end{tikzpicture}
 \end{utpfig}
+
+Real curves are not the smooth U of textbooks. With ten rows the left-out error zigzags, and degrees 2 and 4 both look reasonable. The large shape is what to read: both errors are high at the left, training error keeps falling to the right, and the gap between them eventually dominates.
 
 \begin{intuition}
-For nested model classes with successful optimization, added flexibility cannot worsen the best training fit. Choose capacity using validation, whose error need not follow a smooth U-curve.
+For nested model classes with successful optimization, added flexibility cannot worsen the best training fit. So training error can never tell you when to stop. Only validation can, and it does not promise you a smooth curve.
 \end{intuition}
 
-% === VISUAL ADDITION: three-fit-regimes ===
-\subsection{Underfit, good fit, and overfit on the same observations}
-
-The same observations illustrate three levels of flexibility.
-
-\begin{utpfig}[Underfit, good fit, and overfit]{The same observations fitted three ways: a model that is too simple, one that captures the pattern, and one that chases sample noise.}{fig:three-fits}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.30\linewidth,height=4.0cm,axis lines=left,ticks=none,
-  title={Underfit},title style={font=\small\bfseries\color{UTPOrange}},
-  xmin=0,xmax=6,ymin=0,ymax=3.2
-]
-\addplot[only marks,mark=*,mark size=1.6pt,UTPBlue] coordinates
-  {(0.5,2.5)(1.3,1.45)(2.1,0.82)(3.0,0.58)(3.8,0.82)(4.7,1.45)(5.5,2.55)};
-\addplot[UTPOrange,very thick,domain=0.3:5.7]{1.45};
-\node[font=\scriptsize\color{UTPMuted},align=center] at (axis cs:3,2.85) {too simple};
-\end{axis}
-\end{tikzpicture}
-\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.30\linewidth,height=4.0cm,axis lines=left,ticks=none,
-  title={Good fit},title style={font=\small\bfseries\color{UTPGreen}},
-  xmin=0,xmax=6,ymin=0,ymax=3.2
-]
-\addplot[only marks,mark=*,mark size=1.6pt,UTPBlue] coordinates
-  {(0.5,2.5)(1.3,1.45)(2.1,0.82)(3.0,0.58)(3.8,0.82)(4.7,1.45)(5.5,2.55)};
-\addplot[UTPGreen,very thick,domain=0.3:5.7,samples=80]{0.22*(x-3)^2+0.55};
-\node[font=\scriptsize\color{UTPMuted},align=center] at (axis cs:3,2.85) {captures the pattern};
-\end{axis}
-\end{tikzpicture}
-\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.30\linewidth,height=4.0cm,axis lines=left,ticks=none,
-  title={Overfit},title style={font=\small\bfseries\color{UTPRed}},
-  xmin=0,xmax=6,ymin=0,ymax=3.2
-]
-\addplot[only marks,mark=*,mark size=1.6pt,UTPBlue] coordinates
-  {(0.5,2.5)(1.3,1.45)(2.1,0.82)(3.0,0.58)(3.8,0.82)(4.7,1.45)(5.5,2.55)};
-\addplot[UTPRed,very thick,smooth] coordinates
-  {(0.3,2.9)(0.5,2.5)(0.9,0.8)(1.3,1.45)(1.7,2.2)(2.1,0.82)
-   (2.55,0.25)(3.0,0.58)(3.35,1.7)(3.8,0.82)(4.25,0.3)(4.7,1.45)
-   (5.1,2.95)(5.5,2.55)(5.8,1.1)};
-\node[font=\scriptsize\color{UTPMuted},align=center] at (axis cs:3,2.85) {chases sample noise};
-\end{axis}
-\end{tikzpicture}
-\end{utpfig}
-
 \begin{keyidea}
-Overfitting means following sample-specific noise, not merely fitting a curve.
+Overfitting means following sample-specific noise, not merely fitting a curve. The degree-2 curve is curved, and it generalizes.
 \end{keyidea}
-% === END VISUAL ADDITION ===
 
 \section{Model capacity and the bias-variance trade-off}\label{sec:bias-variance}
 
@@ -155,15 +122,16 @@ The rigid model is biased; the wild model is unbiased but highly variable. Minim
 Every row includes irreducible noise $\sigma^2=1$, so no model can reduce expected error below~$1$.
 \end{workedexample}
 
-\begin{intuition}
-Bias is a tight group of darts away from the bullseye; variance is a wide scatter around it. Irreducible noise is a wobbling dartboard.
-\end{intuition}
+\begin{analogy}
+Picture darts. \term{Bias} is a tight group landing away from the bullseye, a systematic error. \term{Variance} is a wide scatter around it, a different result on every throw. \term{Irreducible noise} is a board that wobbles, which no player can fix.
+\end{analogy}
 
-More data often reduces variance; stronger assumptions may exchange bias for lower variance. Choose reliable validation performance over complexity.
+More data often reduces variance; stronger assumptions may trade bias for lower variance. Choose the capacity with reliable validation performance, not by how impressive the model sounds.
 
 \section{Regularization}
 
-Regularization discourages unnecessarily large or complex parameter values. Two common penalties are
+Regularization is a budget. Instead of asking only for the best fit, you ask for the best fit that keeps its parameters modest. Two common penalties are
+
 \[
   J_{L_1}(\bm{\theta})=J(\bm{\theta})
   +\lambda\sum_{j=1}^{p}|\theta_j|,
@@ -172,6 +140,7 @@ Regularization discourages unnecessarily large or complex parameter values. Two 
   J_{L_2}(\bm{\theta})=J(\bm{\theta})
   +\lambda\sum_{j=1}^{p}\theta_j^2.
 \]
+
 $L_1$ regularization can make some parameters exactly zero. $L_2$ regularization smoothly shrinks large parameters. The strength $\lambda$ is normally selected with validation data.
 
 \begin{workedexample}
@@ -198,6 +167,8 @@ $5$ & $0.667$ & $0.000$ & ridge is small but alive; lasso has deleted the featur
 Here ridge divides by $1+\lambda$, approaching zero without reaching it at finite $\lambda$. Lasso subtracts $\lambda$ and clips at zero once $\lambda\ge4$.
 \end{workedexample}
 
+\chapref{ch:regression} applies this to the wild degree-7 curve above: a small ridge penalty cuts its left-out error from 3,908 to about 101.
+
 \subsection{Other ways to regularize}
 
 Regularization is broader than adding a penalty to the objective.
@@ -214,7 +185,7 @@ Match regularization to the failure mode; it cannot fix leakage or distribution 
 
 \section{Learning curves}
 
-A learning curve plots training and validation performance against training-set size or training time.
+A \term{learning curve} plots training and validation error against the number of training rows. It answers a practical question: would collecting more data help?
 
 \begin{itemize}
   \item Poor training and validation performance suggests underfitting or an optimization problem.
@@ -223,39 +194,22 @@ A learning curve plots training and validation performance against training-set 
   \item Highly unstable curves suggest sensitivity to the split, seed, or a small validation sample.
 \end{itemize}
 
-\subsection{Reading learning curves in practice}
-
-\begin{utpfig}[Reading learning curves]{Learning curves: training and validation error against training-set size. A persistent gap between the curves suggests variance; two curves that are both poor suggest limited signal or underfitting.}{fig:learning-curves}
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.3cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPRed}}, title={High variance (overfitting)},
-  xlabel={Training rows}, ylabel={Error},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  legend style={font=\scriptsize,draw=none,fill=none,at={(0.98,0.96)},anchor=north east},
-  xmin=0, xmax=1000, ymin=0, ymax=0.5
-]
-\addplot[UTPBlue,very thick,mark=*,mark size=1.2pt] coordinates
-  {(50,0.01)(150,0.02)(300,0.03)(600,0.04)(1000,0.05)}; \addlegendentry{train}
-\addplot[UTPRed,very thick,mark=square*,mark size=1.2pt] coordinates
-  {(50,0.45)(150,0.36)(300,0.31)(600,0.27)(1000,0.25)}; \addlegendentry{validation}
-\end{axis}
-\end{tikzpicture}
-\hfill
-\begin{tikzpicture}[baseline=(current bounding box.north)]
-\begin{axis}[
-  width=0.46\linewidth, height=4.3cm, axis lines=left,
-  title style={font=\small\bfseries\color{UTPOrange}}, title={High bias (underfitting)},
-  xlabel={Training rows}, ylabel={Error},
-  label style={font=\scriptsize\color{UTPMuted}}, tick label style={font=\scriptsize\color{UTPMuted}},
-  legend style={font=\scriptsize,draw=none,fill=none,at={(0.98,0.96)},anchor=north east},
-  xmin=0, xmax=1000, ymin=0, ymax=0.5
-]
-\addplot[UTPBlue,very thick,mark=*,mark size=1.2pt] coordinates
-  {(50,0.20)(150,0.24)(300,0.26)(600,0.27)(1000,0.28)}; \addlegendentry{train}
-\addplot[UTPRed,very thick,mark=square*,mark size=1.2pt] coordinates
-  {(50,0.38)(150,0.33)(300,0.31)(600,0.30)(1000,0.30)}; \addlegendentry{validation}
-\end{axis}
+\begin{utpfig}[Reading learning curves]{Real learning curves on the Titanic table, five-fold validation. The unrestricted tree has a persistent gap: it memorizes, and more rows narrow the gap. Logistic regression's two curves meet near 0.20, so more of the same rows will not help it; it needs better features or a more flexible model.}{fig:learning-curves}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
+  logaxis, width=7.4cm, height=4.7cm, xlabel={training rows}, xmin=0, xmax=750, ymin=0, ymax=0.32,
+  yticklabel style={/pgf/number format/fixed}, legend style={at={(0.97,0.60)},anchor=east}]
+\nextgroupplot[title={Unrestricted tree: high variance},ylabel={error}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.004)(100,0.004)(200,0.008)(400,0.013)(712,0.019)};
+\addlegendentry{training}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.278)(100,0.269)(200,0.244)(400,0.208)(712,0.217)};
+\addlegendentry{validation}
+\nextgroupplot[title={Logistic regression: curves meet},ylabel={error}]
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.132)(100,0.164)(200,0.195)(400,0.196)(712,0.195)};
+\addlegendentry{training}
+\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.228)(100,0.219)(200,0.214)(400,0.202)(712,0.201)};
+\addlegendentry{validation}
+\end{groupplot}
 \end{tikzpicture}
 \end{utpfig}
 
@@ -281,6 +235,8 @@ Sequential search & Uses earlier results to choose promising later experiments. 
 \end{tabularx}
 \end{utptable}
 
+Counting fits keeps a search honest about its cost. Lab~2 tries 5 values of $C$ and 2 class weights over 5 folds, which is $5\times2\times5=50$ fits, and then one refit on all training rows. The curve it draws is almost flat: the best and worst settings differ by about 0.003 in ROC AUC, while the folds differ by about 0.025.
+
 Use identical validation across candidates. Repeated tuning can overfit validation, so retain an untouched final test set.
 
 \subsection{Tuning without fooling yourself}
@@ -289,13 +245,17 @@ Use identical validation across candidates. Repeated tuning can overfit validati
 Random search explores more distinct values when few hyperparameters matter. Small grids suit one or two controls; neither fixes invalid validation.
 \end{intuition}
 
+\begin{pitfall}
+Trying many settings and reporting the best is a selection. Its score is a little optimistic, for the same reason the tallest of ten people is taller than average. In Lab~2 the winner's cross-validated ROC AUC is 0.850 and its one test score is 0.837. A small drop like that is normal.
+\end{pitfall}
+
 \subsection{Nested cross-validation for the selection procedure}
 
-Tune inside each outer training split; outer holdouts evaluate the complete search-plus-model procedure. Lab~2, Part~D instead uses one training-only search and a final test.
+Tune inside each outer training split; outer holdouts then evaluate the complete search-plus-model procedure. Lab~2, Part~D instead uses one training-only search and a final test.
 
 \section{Imbalanced classification: change the policy, not the test set}
 
-Imbalance can make majority predictions look accurate while missing rare cases. Consider metrics, thresholds, class weights, and training-only resampling.
+Imbalance can make majority predictions look accurate while missing every rare case. Consider metrics, thresholds, class weights and training-only resampling, in that order.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}X@{}}
@@ -310,6 +270,26 @@ Resampling & Drop majority rows (\term{undersampling}) or add minority examples 
 \bottomrule
 \end{tabularx}
 \end{utptable}
+
+\begin{workedexample}
+Fraud makes up 1.5\% of Lab~5's card transactions. Saying ``never fraud'' is 98.5\% accurate and catches nothing. A logistic regression on 3,000 held-out transactions, under three policies:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Policy} & \utpth{Flagged} & \utpth{Precision} & \utpth{Recall} & \utpth{Accuracy} \\
+\midrule
+Plain model, threshold 0.50 & 38 & 0.658 & 0.556 & 0.989 \\
+Plain model, threshold 0.10 & 99 & 0.394 & 0.867 & 0.978 \\
+\texttt{class\_weight="balanced"}, threshold 0.50 & 170 & 0.247 & 0.933 & 0.956 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+Moving the threshold and reweighting both buy recall with precision. Accuracy falls as the policy improves for its purpose, which is a further reason not to report accuracy here. The right row depends on how many flags your team can review.
+\end{workedexample}
 
 \begin{coursechoice}
 SMOTE's geometry is developed in \chapref{ch:knn-nb}. Its rule applies now: split first and synthesize only within training folds, never from held-out observations.
@@ -343,7 +323,7 @@ Revisit lasso in \chapref{ch:regression}, tree importances in \chapsref{ch:decis
 \end{secondpass}
 
 \begin{pitfall}
-Fit supervised selectors inside the validated pipeline, separately in each training fold. Selecting once on all labels leaks information; the number of retained features is also a hyperparameter.
+Fit supervised selectors inside the validated pipeline, separately in each training fold. \secref{sec:data-leakage} showed the price of doing otherwise: selecting columns on all the rows made pure noise score 0.80. The number of retained features is also a hyperparameter.
 \end{pitfall}
 
 \begin{keyidea}
@@ -367,7 +347,7 @@ A reproducible experiment records:
   \item training curves, checkpoints, and evaluation outputs.
 \end{itemize}
 
-Report variation across reruns rather than one favorable seed; parallel hardware may prevent bit-for-bit reproduction.
+Report variation across reruns, not one favorable seed. Neither the split seed nor the training seed is innocent: Lab~2's Titanic logistic model scored validation AUC from 0.828 to 0.925 across five split seeds, and Lab~7's CNN moves in the third decimal between PyTorch versions and devices. Parallel hardware may prevent bit-for-bit reproduction.
 
 \begin{keyidea}
 Training fit and generalization are distinct requirements.
@@ -408,29 +388,16 @@ Record weakly represented populations and known subgroup failures. These limits 
 
 \subsection{Save the model you would deploy}
 
-After locking and testing the procedure, save the whole preprocessing-and-estimator pipeline with a model card for reuse.
+After locking and testing the procedure, save the whole preprocessing-and-estimator pipeline with a model card for reuse. This is the code Lab~2 runs:
 
-\begin{lstlisting}[style=utppython]
-import joblib, json
-
-joblib.dump(final_model, MODELS / "titanic_survival.joblib")
-(MODELS / "titanic_survival_card.json").write_text(json.dumps({
-    "features": features,                 # the columns the model expects
-    "final_test_roc_auc": 0.837,          # the one test result
-    "decision_threshold": 0.5,            # the policy chosen on validation data
-    "scikit_learn_version": sklearn.__version__,
-}, indent=2))
-
-loaded = joblib.load(MODELS / "titanic_survival.joblib")
-loaded.predict_proba(new_rows)            # new_rows has the same columns as training
-\end{lstlisting}
+\lstinputlisting[style=utppython,firstline=350,lastline=366]{all_experiments/lab02_supervised_workflow_worked.py}
 
 Verify the saved artifact:
 
 \begin{itemize}
   \item \textbf{Save the pipeline.} Include fitted scaling and encoding, not just the estimator.
-  \item \textbf{Check that the file reproduces the test predictions.} Load it back and compare with the in-memory model before calling it done.
-  \item \textbf{Include a model card:} features, threshold, test score, and library version. Lab~2 saves the model; Lab~3 verifies it; \texttt{predict\_passenger.py} loads it.
+  \item \textbf{Check that the file reproduces the test predictions.} Load it back and compare with the in-memory model before calling it done. Lab~3 runs this check on its SVM.
+  \item \textbf{Include a model card:} features, threshold, test score, and library version. Lab~2 saves and reloads the Titanic model, and \texttt{predict\_passenger.py} uses it from the terminal.
 \end{itemize}
 
 \begin{tryit}
@@ -449,10 +416,35 @@ Two models have nearly equal mean validation performance. One has lower fold-to-
 Using fixed validation folds, compare training and validation performance across capacities. Tune on development data, lock the procedure, and list the refitting steps before one final test.
 \end{tryit}
 
+\begin{chapterrecap}
+\begin{itemize}
+  \item Both errors high means underfitting; a low training error with a much higher validation error means overfitting. Training error can never tell you when to stop.
+  \item Expected squared error splits into bias$^2$, variance and noise. Minimize the total.
+  \item Regularization charges for complexity. Ridge shrinks every coefficient; lasso can delete some.
+  \item Learning curves show whether more data would help: a gap says perhaps, and two curves that meet say no.
+  \item Tune on validation folds, keep selection and resampling inside the folds, and open the test set once.
+  \item Save the whole pipeline with a card, and report variation rather than one lucky seed.
+\end{itemize}
+\end{chapterrecap}
+
 \begin{quickcheck}
 \begin{enumerate}
   \item What train-versus-validation pattern suggests underfitting, and what pattern suggests overfitting?
+  \item From \figref{fig:capacity-curve}, why would choosing the degree by training error always pick the largest degree available?
   \item How can regularization improve validation performance even while making the training fit worse?
+  \item For $\hat\beta_{\text{OLS}}=4$ and $\lambda=2$, what do ridge and lasso give, using the formulas in this chapter?
+  \item A team has 1\% positives and reports 99\% accuracy. Name two things you would change about the evaluation.
   \item Which decisions must be locked before the final test set is evaluated?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item Underfitting: both errors high and close together. Overfitting: training error low and validation error much higher.
+  \item More flexibility can always match the seen rows at least as closely, so training error keeps falling with degree, reaching 3.48 at degree 7, whatever the left-out error does.
+  \item The penalty stops the model from fitting noise. Fit on the training rows gets a little worse, while predictions on new rows get steadier, because variance falls by more than bias rises.
+  \item Ridge gives $4/(1+2)=1.33$. Lasso gives $\max(4-2,0)=2$.
+  \item Report recall, precision or average precision instead of accuracy, compare with the always-no baseline, and choose a threshold on validation data from the review capacity.
+  \item The features, preprocessing, model family, hyperparameters, threshold and any resampling rules. After the test score is seen, none of them may change without losing the claim that the score is honest.
+\end{enumerate}
+\end{checkanswers}

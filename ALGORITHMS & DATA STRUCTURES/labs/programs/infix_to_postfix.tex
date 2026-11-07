@@ -1,0 +1,89 @@
+\textbf{Program 3: Complete infix-to-postfix converter.}
+
+\textbf{File:} \texttt{infix\_to\_postfix.cpp}.
+
+\textbf{Chapter connection:} Lab-manual application: infix to postfix.
+
+Implement the chapter token rules with a stack of operators. precedence and rightAssociative decide when to pop. The trace records the stack and output after each token. Operands are single letters/digits; this is not a full expression grammar validator.
+
+\input{labs/visuals/program-infix_to_postfix}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{infix\_to\_postfix.cpp} --- lines 14--25.
+
+\lstinputlisting[firstline=14,lastline=25]{all_experiments/Lab05/infix_to_postfix.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement isOperator, rightAssociative, toPostfix.}\end{utpsteps}
+
+\texttt{infix\_to\_postfix.cpp} --- lines 26--61.
+
+\input{labs/visuals/infix-trace}
+
+\lstinputlisting[firstline=26,lastline=61]{all_experiments/Lab05/infix_to_postfix.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{infix\_to\_postfix.cpp} --- lines 62--97.
+
+\lstinputlisting[firstline=62,lastline=97]{all_experiments/Lab05/infix_to_postfix.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{infix\_to\_postfix.cpp} --- lines 98--109. Continue in the same file; do not add another header or opening brace.
+
+\lstinputlisting[firstline=98,lastline=109]{all_experiments/Lab05/infix_to_postfix.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect infix\_to\_postfix.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra infix_to_postfix.cpp -o infix_to_postfix.exe
+
+.\infix_to_postfix.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Trace of A+B*C-D (the Chapter 5 figure) ==
+  read A   stack []   output A
+  read +   stack [+]   output A
+  read B   stack [+]   output AB
+  read *   stack [+*]   output AB
+  read C   stack [+*]   output ABC
+  read -   stack [-]   output ABC*+
+  read D   stack [-]   output ABC*+D
+result: ABC*+D-
+
+== Test expressions ==
+  [ok]   A+B*C  ->  ABC*+   (expected ABC*+)
+  [ok]   (A+B)*C  ->  AB+C*   (expected AB+C*)
+  [ok]   A+B*C-D  ->  ABC*+D-   (expected ABC*+D-)
+  [ok]   A*(B+C)/D  ->  ABC+*D/   (expected ABC+*D/)
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/infix\_to\_postfix.txt}.
+
+\begin{tryit}
+
+Compare A-B-C with A\textasciicircum{}B\textasciicircum{}C: expect AB-C- and ABC\textasciicircum{}\textasciicircum{}. Test (A+B and A+B) and check that failure is reported; do not use their incomplete outputs.
+
+\end{tryit}

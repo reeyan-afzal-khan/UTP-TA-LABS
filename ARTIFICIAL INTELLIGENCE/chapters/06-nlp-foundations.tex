@@ -5,11 +5,15 @@
   {Manipulate Python strings, and know what a controlled experiment is.}
   {describe an NLP pipeline from raw input to task output; explain why text normalisation comes before any comparison; compute Levenshtein distance by hand and turn it into character error rate; design a fair before/after comparison of a preprocessing step; and separate segmentation failures from recognition failures in an OCR error analysis.}
 
-NLP starts by acquiring text from keystrokes, speech or images. Lab~6 applies optical character recognition to 89 photographs of handwritten medicine names and asks: \emph{how good is the resulting text, and how should we measure it?}
+Natural language processing (NLP) starts before there is any language to process, because text has to come from somewhere: keystrokes, speech or images. Lab~6 applies optical character recognition to 89 photographs of handwritten medicine names and asks: \emph{how good is the resulting text, and how should we measure it?}
 
 \section{Every NLP task is a pipeline}
 
-NLP pipelines acquire text, normalise it, build a representation, apply a task model and evaluate the output (\figref{fig:nlp-pipeline}). Early errors propagate: downstream models cannot use a word that OCR missed.
+NLP systems acquire text, normalise it, build a representation, apply a task model and evaluate the output (\figref{fig:nlp-pipeline}).
+
+\begin{analogy}
+Think of an assembly line. A part that falls off at the first station is simply missing at every station after it, however good those later stations are. Early errors in NLP work the same way: no downstream model can use a word that OCR never saw.
+\end{analogy}
 
 \begin{utpfig}[The NLP pipeline]{Lab~6 covers acquisition, normalisation and OCR measurement. Lab~7 starts with clean text and builds a representation and classifier.}{fig:nlp-pipeline}
 \begin{tikzpicture}[scale=0.99,transform shape,
@@ -31,34 +35,33 @@ NLP pipelines acquire text, normalise it, build a representation, apply a task m
 
 \section{Optical character recognition as text acquisition}
 
-\term{OCR} converts images to strings. Tesseract uses \term{segmentation} to locate text and a neural \term{recognition} stage to read it. Distinguishing these stages helps separate missed text from misread characters.
+\term{OCR} converts images to strings. Tesseract, the engine used in the lab, works in two stages. \term{Segmentation} locates the text on the page, and a neural \term{recognition} stage reads what it found. Keeping the stages apart in your head matters, because they fail differently: one misses text altogether, the other misreads it.
 
-Lab~6 fixes \texttt{--oem 1} (neural recognition) and \texttt{--psm 7} (single-line segmentation) for every cropped name. Holding these settings constant isolates preprocessing effects.
+Lab~6 fixes \texttt{--oem 1} (neural recognition) and \texttt{--psm 7} (treat the image as a single line of text) for every cropped name. Holding these settings constant isolates the effect of preprocessing.
 
 \begin{intuition}
-Tesseract is trained on print, not cursive on lined paper. Downstream processing cannot reliably recover information the recogniser missed.
+Tesseract was built mainly for print, not for cursive on lined paper. Asking it to read a doctor's handwriting is like asking someone who learned a language from textbooks to follow a fast regional accent. Downstream processing cannot reliably recover what the recogniser missed.
 \end{intuition}
 
 \section{Normalisation before comparison}
 
-``Tab Azimax'' and ``tab azimax'', or ``40 mg'' and ``40mg'', differ as strings. Lab~6 normalises predictions and references to lowercase letters and digits before comparison:
+``Tab Azimax'' and ``tab azimax'', or ``40 mg'' and ``40mg'', differ as strings. If we compared raw strings, a capital letter would count as an error just like a wrong drug name. Lab~6 therefore reduces predictions and references to lowercase letters and digits before comparing them:
 
-\begin{lstlisting}[style=utppython]
-def normalise(text):
-    return re.sub(r"[^a-z0-9]", "", str(text).lower())
-\end{lstlisting}
+\lstinputlisting[style=utppython,firstline=69,lastline=70]{all_experiments/lab06_handwriting_ocr_worked.py}
 
-This rule excludes case, spacing and punctuation from the error count. Tasks that distinguish ``40 mg'' from ``4 0mg'' need a different rule; their scores are not directly comparable.
+This rule excludes case, spacing and punctuation from the error count. A task that must distinguish ``40 mg'' from ``4 0mg'' needs a different rule, and its scores are not directly comparable with these. The choice is visible in the numbers: on the raw baseline the character error rate is 0.88 with this normaliser, 0.88 if spaces are kept, and 0.93 with no normalisation at all.
 
 \begin{keyidea}
-Normalise both sides identically, decide in advance what differences count as errors, and write the rule down. A metric is only meaningful relative to the normalisation it was computed under.
+Normalise both sides identically, decide in advance which differences count as errors, and write the rule down. A metric is only meaningful relative to the normalisation it was computed under.
 \end{keyidea}
 
 \section{Measuring text quality: edit distance}
 
-\term{Exact match} requires identical normalised strings; none of the 89 baseline predictions qualifies. \term{Levenshtein distance} provides a graded measure: the minimum single-character insertions, deletions and substitutions needed to transform one string into another (\figref{fig:levenshtein}).
+\term{Exact match} requires identical normalised strings, and none of the 89 baseline predictions qualifies. That single number hides a lot. Reading \texttt{dicloran} as \texttt{diclorew} is nearly right, while reading it as nothing at all is useless, yet exact match scores both as zero. We need a graded measure.
 
-\begin{utpfig}[Levenshtein distance by dynamic programming]{The table for turning \texttt{nims} into the OCR output \texttt{nidu}. Cell $(i,j)$ holds the cost of matching the first $i$ characters of the reference with the first $j$ of the prediction: one more than the cell above (delete), one more than the cell to the left (insert), or the diagonal plus one if the characters differ (substitute). The answer, 2, is in the bottom-right corner: substitute \texttt{m}$\to$\texttt{d} and \texttt{s}$\to$\texttt{u}.}{fig:levenshtein}
+\term{Levenshtein distance} gives one: the minimum number of single-character insertions, deletions and substitutions needed to turn one string into the other. Imagine a proofreader correcting the OCR output with a red pen and charging one unit per mark. The distance is the smallest possible bill (\figref{fig:levenshtein}).
+
+\begin{utpfig}[Levenshtein distance by dynamic programming]{The table for turning the reference \texttt{nims} into the OCR output \texttt{nidu}, as Lab~6's baseline actually read it. Cell $(i,j)$ holds the cost of matching the first $i$ characters of the reference with the first $j$ of the prediction: one more than the cell above (delete), one more than the cell to the left (insert), or the diagonal plus one if the characters differ (substitute). The answer, 2, is in the bottom-right corner: substitute \texttt{m}$\to$\texttt{d} and \texttt{s}$\to$\texttt{u}.}{fig:levenshtein}
 \begin{tikzpicture}[font=\small]
 \def\W{0.78}
 \foreach \c [count=\ci from 1] in {n,i,d,u}{\node[font=\bfseries\color{UTPOrange}] at (\W*\ci,\W*0.85) {\c};}
@@ -81,18 +84,9 @@ Normalise both sides identically, decide in advance what differences count as er
 \end{tikzpicture}
 \end{utpfig}
 
-The lab's implementation is the table computed one row at a time:
+The lab's implementation computes that table one row at a time, keeping only the previous row:
 
-\begin{lstlisting}[style=utppython]
-def levenshtein(a, b):
-    previous = list(range(len(b) + 1))
-    for i, char_a in enumerate(a, start=1):
-        current = [i]
-        for j, char_b in enumerate(b, start=1):
-            current.append(min(current[j - 1] + 1, previous[j] + 1, previous[j - 1] + (char_a != char_b)))
-        previous = current
-    return previous[-1]
-\end{lstlisting}
+\lstinputlisting[style=utppython,firstline=104,lastline=112]{all_experiments/lab06_handwriting_ocr_worked.py}
 
 The lab reports three distance-based metrics and a separate blank count:
 
@@ -110,15 +104,27 @@ Blank predictions & Images whose normalised prediction is empty & How often did 
 \end{tabularx}
 \end{utptable}
 
+\begin{workedexample}
+Take two images. Reference \texttt{nims} is read as \texttt{nidu}: 2 edits on 4 characters. Reference \texttt{tabnims100mg} is read as nothing: 12 edits on 12 characters.
+
+\[
+\text{mean normalised distance}=\frac{2/4+12/12}{2}=0.75,
+\qquad
+\text{CER}=\frac{2+12}{4+12}=0.875.
+\]
+
+The mean treats both images equally. CER pools the characters, so the long name counts for more.
+\end{workedexample}
+
 \begin{pitfall}
-CER is a ratio of totals, so long references dominate it; the normalised distance is a mean of per-image ratios, so every image counts equally. They can move in opposite directions on the same data. Report both, and say which one a decision rests on.
+CER is a ratio of totals, so long references dominate it. The normalised distance is a mean of per-image ratios, so every image counts equally. The two can move in opposite directions on the same data. Report both, and say which one a decision rests on.
 \end{pitfall}
 
 \section{A controlled preprocessing experiment}
 
-The baseline has CER near $0.9$ and 39 blank predictions. Lab~6 tests one fixed preprocessing pipeline: grayscale, a 20-pixel white border, a width cap and $1.5\times$ enlargement. These target noise, edge contact and character size without changing the OCR settings.
+The baseline has CER near $0.9$ and 44 blank predictions. Lab~6 tests one fixed preprocessing pipeline: grayscale, a 20-pixel white border, a width cap and $1.5\times$ enlargement. These steps target colour noise, text touching the image edge and character size, and they leave the OCR settings alone.
 
-Use the same 89 images, normalisation and OCR configuration so only image preprocessing changes.
+Use the same 89 images, the same normalisation and the same OCR configuration, so that only the image preprocessing changes. A fair experiment changes one thing.
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.30\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
@@ -126,29 +132,25 @@ Use the same 89 images, normalisation and OCR configuration so only image prepro
 \rowcolor{UTPPaleBlue!92}
 \utpth{Pipeline} & \utpth{Exact match} & \utpth{Norm.\ edit distance} & \utpth{CER} & \utpth{Blank} \\
 \midrule
-Raw images & 0.000 & 0.856 & 0.875 & 39 \\
+Raw images & 0.000 & 0.860 & 0.881 & 44 \\
 Grayscale, border, resize & 0.011 & 0.767 & 0.788 & 15 \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
-Blanks fall from 39 to 15 and CER by about $0.09$, but only one image becomes an exact match. Preprocessing improves text recovery while substantial recognition errors remain.
+Blanks fall from 44 to 15 and CER falls by about $0.09$, but only one image, \texttt{ostium}, becomes an exact match. Look past the totals and the picture is more mixed. Measured by edits, 43 images improved, 18 got worse and 28 did not change. Thirty-four images that were blank now yield text, while 5 that yielded text are now blank: \texttt{tab mesulid}, for instance, was read as \texttt{wos Mesulia} on the raw image and not at all after preprocessing. On balance preprocessing helps segmentation find text, and it leaves substantial recognition errors behind.
 
 \section{Error analysis: which stage failed?}
 
-Lab~6 sorts predictions by normalised edit distance and tags the worst cases. It
-Lab~6 keeps all 89 samples, records any OCR-engine exception instead of dropping the image,
-and assigns each difficult case one of three reproducible labels. If Tesseract is not
-installed, the notebook identifies the run as \emph{cached} and loads the validated
-predictions supplied with the course package; it never presents cached text as a live run.
+Lab~6 sorts predictions by normalised edit distance and tags the worst cases. It keeps all 89 samples, records any OCR-engine exception instead of dropping the image, and assigns each difficult case one of three reproducible labels. If Tesseract is not installed, the notebook identifies the run as \emph{cached} and loads the validated predictions supplied with the course package; it never presents cached text as a live run.
 
 \begin{description}
-  \item[Engine error.] Tesseract rejects an individual image. The sample remains in the benchmark as a failed recognition, with the error recorded in \texttt{predictions.csv}.
-  \item[No text detected.] An empty normalised prediction suggests missed text, for example from faint strokes, low contrast or slanted writing. Preprocessing may help.
-  \item[Character confusion.] Text is returned but misread: \texttt{nims} as \texttt{nidu}, or \texttt{dicloran} as \texttt{divlarew}. Persistent handwriting errors point to the need for a handwriting-trained recogniser.
+  \item[Engine error.] Tesseract rejects an individual image. The sample stays in the benchmark as a failed recognition, with the error recorded in \texttt{predictions.csv}.
+  \item[No text detected.] An empty normalised prediction suggests missed text, for example from faint strokes, low contrast or slanted writing. Preprocessing may help. Seven of the eight worst preprocessed cases are of this kind.
+  \item[Character confusion.] Text is returned but misread: \texttt{provas} as \texttt{Pras}, or \texttt{starcox 90} as \texttt{Stak Oe 90}. Persistent handwriting errors point to the need for a recogniser trained on handwriting.
 \end{description}
 
-Save the six hardest images with references and predictions so readers can verify the error tags.
+Save the six hardest images with their references and predictions, so readers can check the tags for themselves.
 
 \begin{keyidea}
 Attribute each failure to the stage that produced it. The fix for ``no text found'' is different from the fix for ``wrong text found'', and an aggregate score cannot tell them apart.
@@ -156,9 +158,17 @@ Attribute each failure to the stage that produced it. The fix for ``no text foun
 
 \section{Fitness for purpose}
 
-The benchmark shows a poor fit between printed-text OCR and cursive handwriting, not evidence for clinical use. Misread medicine names or doses can cause harm. Clinical transcription would require a handwriting-specific recogniser, representative data, held-out validation, privacy controls and human review of uncertain readings.
+The benchmark shows a poor fit between printed-text OCR and cursive handwriting, not evidence for clinical use. Misread medicine names or doses can cause real harm. Clinical transcription would require a handwriting-specific recogniser, representative data, held-out validation, privacy controls and human review of uncertain readings.
 
-\input{labs/06-nlp-part-a}
+\begin{chapterrecap}
+\begin{itemize}
+  \item NLP is a pipeline, and errors made early cannot be repaired later.
+  \item Normalise references and predictions by one written rule before comparing them. A metric means nothing without it.
+  \item Levenshtein distance counts the fewest single-character edits, and normalised distance and CER aggregate it in two different ways.
+  \item Change one thing at a time. Preprocessing cut blanks from 44 to 15 but barely moved exact matches.
+  \item Attribute each failure to segmentation or recognition, because they need different fixes.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
@@ -175,7 +185,9 @@ The benchmark shows a poor fit between printed-text OCR and cursive handwriting,
   \item An engine error is a recorded runtime failure of Tesseract on that image; a blank prediction means the segmenter found no text line; \texttt{nidu} means a line was found but the recogniser misread its characters. Only the last is a recognition failure.
   \item Delete one \texttt{r}: distance $1$. Normalised by the longer length, $1/6\approx0.17$.
   \item Otherwise an improvement could come from the engine settings rather than from the images. A controlled experiment changes one factor at a time.
-  \item The segmentation stage improved --- many more images now yield some text --- while the recognition stage still misreads cursive, so few of those texts are exactly right.
+  \item The segmentation stage improved, since many more images now yield some text, while the recognition stage still misreads cursive, so few of those texts are exactly right.
   \item Any task in which spacing carries meaning: distinguishing ``40 mg'' from ``4 0mg'', counting words, or matching multi-word names.
 \end{enumerate}
 \end{checkanswers}
+
+\input{labs/06-nlp-part-a}

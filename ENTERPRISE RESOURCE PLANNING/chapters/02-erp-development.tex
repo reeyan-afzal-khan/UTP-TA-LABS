@@ -96,7 +96,8 @@ differently.
 \begin{utpfig}[Master versus transaction data]{Master data is written rarely and
 read constantly; transaction data is written constantly and refers back to the
 master records. One bad master record therefore contaminates every transaction
-that points at it.}{fig:master-vs-transaction}
+that points at it. The payment is RM 5,500 because Odoo adds its default 10\% tax
+for Malaysia to the RM 5,000 order.}{fig:master-vs-transaction}
 \begin{tikzpicture}[x=1cm,y=1cm]
 \node[prochead,anchor=west,color=UTPBlue] at (0,3.35) {Master data --- stable, reused};
 \foreach \i/\t in {0/Customer: Seri Iskandar Cycling Club,
@@ -110,7 +111,7 @@ that points at it.}{fig:master-vs-transaction}
 \foreach \i/\t in {0/{SO 001 --- 5 Road Bikes},
                    1/{Delivery WH/OUT/001 --- Done},
                    2/{Invoice INV/2024/001 --- Posted},
-                   3/{Payment --- RM 5{,}000 received}}{
+                   3/{Payment --- RM 5{,}500 received}}{
   \pgfmathsetmacro{\y}{2.55-\i*0.78}
   \node[procdoc,anchor=west,minimum width=6.0cm,text width=5.6cm,align=left,
         minimum height=0.62cm,draw=UTPGreen] (t\i) at (8.6,\y) {\t};}

@@ -1,0 +1,57 @@
+== Insert 50, 30, 70, 20, 40, 60, 80 ==
+            80
+        70
+            60
+    50
+            40
+        30
+            20
+after insertion
+  inorder: 20 30 40 50 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+
+== Search ==
+  contains(60): yes   contains(65): no
+  [ok]   a stored key is found and a missing key is not
+  [ok]   inserting a duplicate (40) is ignored
+
+== Deletions ==
+delete 20 (a leaf)
+  inorder: 30 40 50 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+delete 30 (one child, 40, moves up)
+  inorder: 40 50 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+delete 50 (two children; successor 60 replaces it)
+  inorder: 40 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+            80
+        70
+    60
+        40
+  [ok]   the root now holds the successor 60
+  [ok]   deleted nodes were released
+
+== Try it: the same five keys, two insertion orders ==
+inserted 10, 20, 30, 40, 50 (sorted):
+                    50
+                40
+            30
+        20
+    10
+  height 4, height-balanced: no
+inserted 30, 20, 40, 10, 50:
+            50
+        40
+    30
+        20
+            10
+  height 2, height-balanced: yes
+  [ok]   sorted insertion degrades to a chain of height n-1 = 4
+  [ok]   the other order keeps height 2 and is height-balanced
+  A search walks at most height+1 nodes: 5 in the chain, 3 in the balanced tree.
+  [ok]   every node was released

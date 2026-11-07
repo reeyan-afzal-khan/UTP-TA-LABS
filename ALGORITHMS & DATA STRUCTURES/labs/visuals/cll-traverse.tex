@@ -1,0 +1,32 @@
+% Copied from chapters/04-circular-linked-list.tex (fig:cll-traverse).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[Why circular traversal uses do--while]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\foreach \v/\ang [count=\i from 0] in {10/90, 20/0, 30/270, 40/180}{
+  \node[utpnode,minimum size=9mm] (t\i) at (\ang:1.6) {\v};
+}
+\draw[utparrow] (t0) to[bend left=22] (t1);
+\draw[utparrow] (t1) to[bend left=22] (t2);
+\draw[utparrow] (t2) to[bend left=22] (t3);
+\draw[utparrow] (t3) to[bend left=22] (t0);
+\node[utptag,anchor=south] at (90:2.3) {start \& stop here};
+\node[utplabel,align=center,color=UTPMuted] at (0,0) {visit order\\10, 20, 30, 40};
+
+\begin{scope}[xshift=5.3cm,yshift=0.35cm]
+\node[utpstep,fill=UTPPaleRed,draw=UTPRed,text width=5.8cm,
+  inner xsep=3mm,inner ysep=2.3mm,align=left,anchor=north west]
+  (bad) at (0,0.9)
+  {\textcolor{UTPRed}{\bfseries Wrong}\\[1pt]
+   \texttt{while (current != head) \{...\}}\\
+   condition false immediately $\rightarrow$ prints nothing};
+\node[utpstep,fill=UTPPaleTeal,draw=UTPGreen,text width=5.8cm,
+  inner xsep=3mm,inner ysep=2.3mm,align=left,anchor=north west]
+  (good) at (0,-0.75)
+  {\textcolor{UTPGreen}{\bfseries Right}\\[1pt]
+   \texttt{do \{...\} while (current != head);}\\
+   body runs first, then the test ends the lap};
+\end{scope}
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

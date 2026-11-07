@@ -5,18 +5,45 @@
 \textbf{Goal.} Move one message through a pipe and another through a shared-memory segment.\\
 \textbf{Explain.} Explain who owns each communication object and why shared memory needs separate synchronization.
 
+\input{labs/visuals/05-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{pipe\_demo.c}}{Parent writes bytes; child reads them through a unidirectional pipe.}{Each process closes the pipe end it does not use. Closing the write end is also how end-of-stream can be signalled.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab05/pipe_demo.c}
+\noindent\textbf{Start the file.} \texttt{pipe\_demo.c}, lines 1--33.
+\input{labs/visuals/05-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:ipc]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Map each close to its owner. The supplied example sends one short message and performs one read; a general stream reader would handle partial transfers in a loop. Do not interpret a single successful short read as a guarantee for arbitrary message sizes.
+\input{labs/visuals/05-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=33]{all_experiments/Lab05/pipe_demo.c}
+
+\noindent\textbf{Continue the same file.} \texttt{pipe\_demo.c}, lines 34--43.
+\lstinputlisting[style=utpcnumbered,firstline=34,lastline=43]{all_experiments/Lab05/pipe_demo.c}
 
 \labsourcecard{\texttt{producer\_consumer\_sim.c}}{Make full/empty buffer state visible without threads yet.}{The invariant is \texttt{empty + full = CAPACITY}; blocked operations do not change the counters.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab05/producer_consumer_sim.c}
+\noindent\textbf{Start the file.} \texttt{producer\_consumer\_sim.c}, lines 1--33.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=33]{all_experiments/Lab05/producer_consumer_sim.c}
+
+\noindent\textbf{Continue the same file.} \texttt{producer\_consumer\_sim.c}, lines 34--39.
+\lstinputlisting[style=utpcnumbered,firstline=34,lastline=39]{all_experiments/Lab05/producer_consumer_sim.c}
 
 \labsourcecard{\texttt{shm\_writer.c}}{Create/attach a System V shared-memory segment and place a message in it.}{The writer detaches but deliberately leaves the segment available for another process.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab05/shm_writer.c}
+\noindent\textbf{Start the file.} \texttt{shm\_writer.c}, lines 1--32.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=32]{all_experiments/Lab05/shm_writer.c}
+
+\noindent\textbf{Continue the same file.} \texttt{shm\_writer.c}, lines 33--40.
+\lstinputlisting[style=utpcnumbered,firstline=33,lastline=40]{all_experiments/Lab05/shm_writer.c}
 
 \labsourcecard{\texttt{shm\_reader.c}}{Attach to the existing segment, read the message, then mark the segment for removal.}{The reader demonstrates cleanup with \texttt{shmdt()} and \texttt{shmctl(..., IPC\_RMID,...)}.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab05/shm_reader.c}
+\noindent\textbf{Start the file.} \texttt{shm\_reader.c}, lines 1--34.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=34]{all_experiments/Lab05/shm_reader.c}
+
+\noindent\textbf{Continue the same file.} \texttt{shm\_reader.c}, lines 35--42.
+\lstinputlisting[style=utpcnumbered,firstline=35,lastline=42]{all_experiments/Lab05/shm_reader.c}
 
 \section*{Task 1 --- Pipe: follow the data path}
 \begin{lstlisting}[style=utpbash]
@@ -56,6 +83,9 @@ Run \texttt{./shm\_reader} again after the segment has been removed. The failure
 \end{quickcheck}
 
 \begin{verification}
+\textbf{Explain and extend your result.} Annotate ownership of every descriptor after fork. Explain which close allows EOF, then verify that the complete message arrives and the processes exit without leftover IPC resources.
+
+
 \begin{itemize}
   \item Each process closes the pipe end it does not use, and the sketch shows which.
   \item Every producer/consumer row satisfies \texttt{empty + full = 3}, and blocked actions leave the counters unchanged.

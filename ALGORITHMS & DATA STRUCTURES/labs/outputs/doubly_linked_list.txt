@@ -1,0 +1,62 @@
+== Empty and one-node lists ==
+empty list
+  forward:  (empty)
+  backward: (empty)
+  [ok]   next/prev invariants hold
+  [ok]   search on an empty list reports not found
+  [ok]   delete on an empty list is refused
+append 5
+  forward:  5 
+  backward: 5 
+  [ok]   next/prev invariants hold
+delete 5 (the only node)
+  forward:  (empty)
+  backward: (empty)
+  [ok]   next/prev invariants hold
+
+== Insertions at several positions ==
+append 20
+  forward:  20 
+  backward: 20 
+  [ok]   next/prev invariants hold
+append 40
+  forward:  20 40 
+  backward: 40 20 
+  [ok]   next/prev invariants hold
+insert 10 at the head
+  forward:  10 20 40 
+  backward: 40 20 10 
+  [ok]   next/prev invariants hold
+insert 30 at position 2 (middle)
+  forward:  10 20 30 40 
+  backward: 40 30 20 10 
+  [ok]   next/prev invariants hold
+insert 50 at position 4 (tail)
+  forward:  10 20 30 40 50 
+  backward: 50 40 30 20 10 
+  [ok]   next/prev invariants hold
+  [ok]   the list is 10 20 30 40 50
+
+== Search ==
+search(40) -> position 3
+search(99) -> -1 (not found)
+  [ok]   found and not-found cases are both reported
+
+== Deletions ==
+delete 10 (head)
+  forward:  20 30 40 50 
+  backward: 50 40 30 20 
+  [ok]   next/prev invariants hold
+  [ok]   deleting the head updates head
+delete 50 (tail)
+  forward:  20 30 40 
+  backward: 40 30 20 
+  [ok]   next/prev invariants hold
+  [ok]   deleting the tail updates tail
+delete 30 (middle)
+  forward:  20 40 
+  backward: 40 20 
+  [ok]   next/prev invariants hold
+  [ok]   deleting a missing value is refused
+  [ok]   live nodes equal list length (deleted nodes were released)
+  [ok]   destroying the list releases every node

@@ -1,0 +1,33 @@
+% Reused from chapters/02-wireshark.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% --- case A: on the host itself
+\node[font=\bfseries\scriptsize\color{UTPGreen}] at (1.7,1.75) {On the host};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (a1) at (0.6,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (a2) at (2.8,0.9) {SW};
+\draw[activepath] (a1)--(a2);
+\node[font=\tiny\color{UTPGreen},align=center] at (1.7,0.05) {capture here\\ sees all of PC1's traffic};
+\node[font=\scriptsize\bfseries\color{UTPGreen}] at (1.7,-0.62) {works};
+
+% --- case B: unrelated port
+\node[font=\bfseries\scriptsize\color{UTPRed}] at (6.2,1.75) {On a bystander port};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b1) at (5.1,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b2) at (7.3,0.9) {SW};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (b3) at (7.3,-0.15) {PC3};
+\draw[activepath] (b1)--(b2);
+\draw[deadpath] (b2)--(b3);
+\node[font=\tiny\color{UTPRed},align=center] at (6.0,-0.85) {capture on PC3\\ sees nothing};
+\node[font=\scriptsize\bfseries\color{UTPRed}] at (6.2,-1.5) {empty};
+
+% --- case C: mirrored port
+\node[font=\bfseries\scriptsize\color{UTPBlue}] at (10.7,1.75) {On a mirrored port};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c1) at (9.6,0.9) {PC1};
+\node[switch,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c2) at (11.8,0.9) {SW};
+\node[host,minimum width=1.1cm,minimum height=0.6cm,font=\tiny] (c3) at (11.8,-0.15) {PC3};
+\draw[activepath] (c1)--(c2);
+\draw[flowarrow,dashed] (c2)--(c3);
+\node[font=\tiny\color{UTPBlue},align=center] at (10.5,-0.85) {switch copies frames\\ to the analyser};
+\node[font=\scriptsize\bfseries\color{UTPBlue}] at (10.7,-1.5) {works};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

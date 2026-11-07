@@ -33,7 +33,7 @@ string methodName(Method m) {
     }
 }
 
-// The i-th slot to try for `key` in a table of size m.
+// The i-th slot to try for key in a table of size m.
 int probeIndex(Method method, int key, int i, int m) {
     int h1 = key % m;
     switch (method) {
@@ -46,7 +46,7 @@ int probeIndex(Method method, int key, int i, int m) {
     }
 }
 
-// Inserts `key`, recording every slot tried in `probes`. Returns the slot used,
+// Inserts key, recording every slot tried in probes. Returns the slot used,
 // or -1 if m probes found no free slot.
 int insertKey(vector<int>& table, Method method, int key, vector<int>& probes) {
     int m = static_cast<int>(table.size());

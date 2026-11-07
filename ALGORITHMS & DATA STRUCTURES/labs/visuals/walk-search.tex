@@ -1,0 +1,37 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{utpfigure}[Search for ID 1004: return the position, not the ID]
+\begin{tikzpicture}[font=\small]
+\node[utphot,minimum width=1.03cm,minimum height=.65cm] at (0.00,0.00) {1001};
+\node[utplabel] at (0.00,0.60) {0};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (1.07,0.00) {1002};
+\node[utplabel] at (1.07,0.60) {1};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (2.14,0.00) {1003};
+\node[utplabel] at (2.14,0.60) {2};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (3.21,0.00) {1004};
+\node[utplabel] at (3.21,0.60) {3};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (4.28,0.00) {1005};
+\node[utplabel] at (4.28,0.60) {4};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6,0.00) {\texttt{i=0}: 1001 is not 1004; advance};
+\draw[utparrow] (-.85,-0.35)--(-.85,-0.70);
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (0.00,-1.05) {1001};
+\node[utphot,minimum width=1.03cm,minimum height=.65cm] at (1.07,-1.05) {1002};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (2.14,-1.05) {1003};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (3.21,-1.05) {1004};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (4.28,-1.05) {1005};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6,-1.05) {\texttt{i=1}: 1002 is not 1004; advance};
+\draw[utparrow] (-.85,-1.40)--(-.85,-1.75);
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (0.00,-2.10) {1001};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (1.07,-2.10) {1002};
+\node[utphot,minimum width=1.03cm,minimum height=.65cm] at (2.14,-2.10) {1003};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (3.21,-2.10) {1004};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (4.28,-2.10) {1005};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6,-2.10) {\texttt{i=2}: 1003 is not 1004; advance};
+\draw[utparrow] (-.85,-2.45)--(-.85,-2.80);
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (0.00,-3.15) {1001};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (1.07,-3.15) {1002};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (2.14,-3.15) {1003};
+\node[utphot,minimum width=1.03cm,minimum height=.65cm] at (3.21,-3.15) {1004};
+\node[utpcell,minimum width=1.03cm,minimum height=.65cm] at (4.28,-3.15) {1005};
+\node[utplabel,anchor=west,align=left,text width=6cm] at (6,-3.15) {\texttt{i=3}: match; return 3};
+\end{tikzpicture}
+\end{utpfigure}

@@ -1,0 +1,14 @@
+\begin{adslabfigure}[Transpose: keep the value, exchange the indexes]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\foreach \x/\a/\b/\c/\d/\e/\f/\g/\h/\i in {0/1/2/3/4/5/6/7/8/9,6/1/4/7/2/5/8/3/6/9}{
+\foreach \val/\xx/\yy in {\a/0/0,\b/.85/0,\c/1.7/0,\d/0/-.68,\e/.85/-.68,\f/1.7/-.68,\g/0/-1.36,\h/.85/-1.36,\i/1.7/-1.36}{
+\node[utpcell,minimum width=.8cm,minimum height=.62cm] at (\x+\xx,\yy) {\val};}}
+\draw[utparrow] (2.4,-.68)--(5.3,-.68);
+\node[utplabel,align=center] at (3.85,-.25) {\texttt{T[j][i] = M[i][j]}};
+\node[utplabel] at (.85,.65) {M: original};
+\node[utplabel] at (6.85,.65) {T: transposed};
+\node[utplabel,align=center] at (3.85,-2.2) {M row sums: 6, 15, 24 \quad Diagonal sum: 15\\Maximum: 9 \quad M is not symmetric.};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

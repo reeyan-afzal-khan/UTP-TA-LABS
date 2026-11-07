@@ -15,20 +15,22 @@
 #include <vector>
 using namespace std;
 
-vector<int> mergeThree(const vector<int>& a, const vector<int>& b, const vector<int>& c) {
+vector<int> mergeThree(const vector<int>& a, const vector<int>& b,
+                       const vector<int>& c) {
+    const vector<int>* runs[] = {&a, &b, &c};
+    size_t pos[] = {0, 0, 0};
     vector<int> out;
     out.reserve(a.size() + b.size() + c.size());
-    size_t i = 0, j = 0, k = 0;
-
-    // While any array still has elements, take the smallest front element.
-    // An exhausted array offers INT_MAX, so it is never chosen.
-    while (i < a.size() || j < b.size() || k < c.size()) {
-        int x = i < a.size() ? a[i] : INT_MAX;
-        int y = j < b.size() ? b[j] : INT_MAX;
-        int z = k < c.size() ? c[k] : INT_MAX;
-        if (x <= y && x <= z)  out.push_back(a[i++]);
-        else if (y <= z)       out.push_back(b[j++]);
-        else                   out.push_back(c[k++]);
+    while (true) {
+        int best = -1;
+        for (int r = 0; r < 3; ++r) {
+            if (pos[r] == runs[r]->size()) continue; // exhausted: skip it
+            if (best == -1 || (*runs[r])[pos[r]] < (*runs[best])[pos[best]])
+                best = r;
+        }
+        if (best == -1) break;                       // all three exhausted
+        out.push_back((*runs[best])[pos[best]]);
+        ++pos[best];                                // advance only the winner
     }
     return out;
 }
@@ -78,5 +80,9 @@ int main() {
 
     cout << "\n== One array empty ==\n";
     run({5, 15}, {}, {10, 20, 30});
+    cout << "\n== Largest integer and exhausted inputs ==\n";
+    run({}, {INT_MAX}, {});
+    run({INT_MAX}, {INT_MAX}, {});
+    run({}, {}, {});
     return 0;
 }

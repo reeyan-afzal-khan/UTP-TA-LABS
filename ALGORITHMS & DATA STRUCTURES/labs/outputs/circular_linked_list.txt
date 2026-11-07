@@ -1,0 +1,42 @@
+== Empty and one-node lists ==
+empty: (empty)
+  [ok]   last node still points to the head
+  [ok]   deleting from an empty list is refused
+insert 1 at the end: 1 
+  [ok]   last node still points to the head
+  [ok]   a single node points to itself
+delete from the end (one node): (empty)
+  [ok]   last node still points to the head
+
+== Insertions ==
+insert 20 at the end: 20 
+  [ok]   last node still points to the head
+insert 30 at the end: 20 30 
+  [ok]   last node still points to the head
+insert 10 at the beginning: 10 20 30 
+  [ok]   last node still points to the head
+insert 40 at the end: 10 20 30 40 
+  [ok]   last node still points to the head
+insert 5 at the beginning: 5 10 20 30 40 
+  [ok]   last node still points to the head
+  [ok]   the ring holds 5 10 20 30 40
+
+== Deletions ==
+delete from the beginning: 10 20 30 40 
+  [ok]   last node still points to the head
+delete from the end: 10 20 30 
+  [ok]   last node still points to the head
+delete value 10 (the head): 20 30 
+  [ok]   last node still points to the head
+insert 25 at the end: 20 30 25 
+  [ok]   last node still points to the head
+delete value 30 (a middle node): 20 25 
+  [ok]   last node still points to the head
+delete value 25 (the last node): 20 
+  [ok]   last node still points to the head
+  [ok]   last moved back to 20 when the last node was deleted
+  [ok]   deleting a missing value is refused
+
+Traversal stops when it comes back to the head (do ... while p != head),
+never at nullptr: a circular list has no null pointer to stop at.
+  [ok]   destroying the list releases every node

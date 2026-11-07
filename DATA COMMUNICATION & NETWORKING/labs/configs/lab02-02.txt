@@ -1,0 +1,7 @@
+system-view
+sysname R2
+interface GigabitEthernet0/0/0
+ ip address 10.0.12.2 24
+ undo shutdown
+quit
+return

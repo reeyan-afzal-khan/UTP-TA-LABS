@@ -1,0 +1,24 @@
+% Reused from chapters/20-neural-networks.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  cell/.style={draw=UTPTeal,fill=UTPPaleTeal,rounded corners=1.5mm,minimum width=1.5cm,minimum height=0.9cm,font=\scriptsize\bfseries\color{UTPNavy}},
+  inp/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.2mm,minimum width=1.2cm,minimum height=0.6cm,font=\scriptsize\color{UTPNavy}},
+  outp/.style={draw=UTPOrange,fill=UTPPaleOrange,rounded corners=1.2mm,minimum width=1.5cm,minimum height=0.6cm,font=\scriptsize\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.8mm]},thick,draw=UTPTeal}
+]
+\foreach \t/\x in {1/0,2/2.4,3/4.8,24/8.4} {
+  \node[cell] (c\t) at (\x,0) {LSTM};
+  \node[inp] (i\t) at (\x,-1.4) {$x_{\t}$};
+  \draw[arr] (i\t) -- (c\t);
+}
+\node[font=\Large\color{UTPMuted}] at (6.6,0) {$\cdots$};
+\draw[arr] (c1) -- node[above,font=\scriptsize\color{UTPMuted}] {state} (c2);
+\draw[arr] (c2) -- node[above,font=\scriptsize\color{UTPMuted}] {state} (c3);
+\draw[arr] (c3) -- (6.1,0);
+\draw[arr] (7.1,0) -- (c24);
+\node[outp] (o) at (8.4,1.5) {$\hat{y}_{25}$};
+\draw[arr] (c24) -- (o);
+\node[font=\scriptsize\color{UTPMuted},align=center] at (4.2,-2.3) {24 hourly demand values go in, one step at a time; the same cell (same weights) is used at every step;\\the final state predicts the next hour};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

@@ -29,9 +29,19 @@ in six stages, each core chapter followed by its lab, and a final algorithm-comp
 Lab *N* practises Chapter *N* and opens with how it aligns with the official lab manual. Each lab's folder under
 [`.all_pdfs/algorithms-data-structures/`](../.all_pdfs/algorithms-data-structures) holds that chapter and the lab
 sheet. Every lab also has its own folder under [`all_experiments/`](all_experiments) holding only that lab's
-programs. Each program runs the
-sheet's tasks, including its *Try it yourself*, and prints an `[ok]` line for every item of the sheet's
-verification list it can check. Page numbers are the ones printed in the book.
+programs. The lab sheets now include all 25 complete C++17 programs, from headers and data definitions through
+operations, helper functions, and `main()`. Each file is printed once in consecutive source-line ranges using
+`\lstinputlisting`, so the book and runnable source share the same code. Copy the blocks for one program in
+order; each program is a separate executable.
+
+The program pages connect to the preceding chapter, show a visual execution roadmap and operation diagrams,
+and end with a build command, a captured output excerpt, and a specific follow-up case. Full captured outputs
+are in [`labs/outputs/`](labs/outputs); byte sizes in the structure/union and list comparisons depend on the
+platform. Program-page source lives in [`labs/programs/`](labs/programs). If a C++ file changes length, update
+its consecutive line ranges so every source line from the first include through the final brace remains covered.
+
+The published PDFs and page references below describe the existing edition. They have not been regenerated
+for this source refinement. The fonts, shared layouts, and section structure are unchanged.
 
 | Lab | Lab sheet | Read first | Pages | Programs |
 | --- | --- | --- | --- | --- |

@@ -1,0 +1,20 @@
+% Worked operation using existing chapter styles.
+\begin{adslabfigure}[Pop from the linked stack: save, advance, release]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+
+\foreach \row/\y in {0/0,1/-2.2}{
+\node[utpnode] (b\row) at (2,\y) {20};
+\node[utpnode] (c\row) at (4,\y) {10};
+\draw[utparrow] (b\row)--(c\row);
+\node[utplabel,anchor=west] at (4.5,\y) {NULL};}
+\node[utpnodehot] (a) at (0,0) {30};\draw[utparrow] (a)--(b0);
+\node[utptag,anchor=south] at (0,.6) {top / old};
+\node[utpdim,circle] (gone) at (0,-2.2) {30};
+\draw[UTPRed] (-.3,-2.5)--(.3,-1.9);\draw[UTPRed] (-.3,-1.9)--(.3,-2.5);
+\node[utptag,anchor=south] at (2,-1.6) {top};
+\node[utplabel,anchor=west,align=left] at (6,0) {1. \texttt{old = top}\\2. \texttt{value = old->data} (30)};
+\node[utplabel,anchor=west,align=left] at (6,-2.2) {3. \texttt{top = old->next}\\4. \texttt{delete old}\\Return true; next pop returns 20.};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

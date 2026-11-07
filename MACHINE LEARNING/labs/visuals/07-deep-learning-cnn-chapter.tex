@@ -1,0 +1,22 @@
+% Reused from chapters/20-neural-networks.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  n/.style={circle,draw=UTPBlue,fill=UTPPaleBlue,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{UTPNavy}},
+  h/.style={circle,draw=UTPTeal,fill=UTPPaleTeal,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{UTPNavy}},
+  o/.style={circle,draw=UTPOrange,fill=UTPPaleOrange,minimum size=6.5mm,inner sep=0pt,font=\scriptsize\color{UTPNavy}},
+  e/.style={draw=UTPMuted!55,thin}
+]
+\foreach \i/\y in {1/1.6,2/0.8,3/0,4/-0.8} \node[n] (x\i) at (0,\y) {$x_\i$};
+\foreach \j/\y in {1/1.6,2/0.8,3/0,4/-0.8,5/-1.6} \node[h] (h\j) at (2.6,\y) {};
+\foreach \k/\y in {1/0.8,2/0,3/-0.8} \node[h] (g\k) at (5.2,\y) {};
+\node[o] (out) at (7.8,0) {$\hat{y}$};
+\foreach \i in {1,...,4} \foreach \j in {1,...,5} \draw[e] (x\i) -- (h\j);
+\foreach \j in {1,...,5} \foreach \k in {1,...,3} \draw[e] (h\j) -- (g\k);
+\foreach \k in {1,...,3} \draw[e] (g\k) -- (out);
+\node[font=\scriptsize\color{UTPMuted}] at (0,-1.6) {inputs};
+\node[font=\scriptsize\color{UTPMuted},align=center] at (2.6,-2.4) {hidden layer 1\\(5 weighted sums, each\\passed through ReLU)};
+\node[font=\scriptsize\color{UTPMuted}] at (5.2,-1.6) {hidden layer 2};
+\node[font=\scriptsize\color{UTPMuted}] at (7.8,-1.0) {output};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

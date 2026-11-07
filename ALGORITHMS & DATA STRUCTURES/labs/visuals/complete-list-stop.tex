@@ -1,0 +1,18 @@
+\begin{adslabfigure}[Same values; three traversal stopping rules]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\foreach \r/\label/\stop in {0/Singly/\texttt{p == nullptr},1/Doubly/\texttt{p == nullptr},2/Circular/{\texttt{p == head} again}} {
+\node[utplabel,anchor=east] at (-.8,-1.3*\r) {\label};
+\foreach \n [count=\i from 0] in {10,20,30,40} {
+\node[utpnode] (r\r n\i) at (1.3*\i,-1.3*\r) {\n};
+\ifnum\i>0 \pgfmathtruncatemacro{\j}{\i-1}
+\ifnum\r=1
+\draw[utparrow] (r\r n\j.20)--(r\r n\i.160);
+\draw[utparrow] (r\r n\i.200)--(r\r n\j.340);
+\else\draw[utparrow] (r\r n\j)--(r\r n\i);\fi\fi}
+\node[utplabel,anchor=west] at (4.8,-1.3*\r) {\stop};}
+\draw[utparrow] (r2n3.south) -- ++(0,-.45) -| (r2n0.south);
+\node[utplabel,align=center] at (2,-3.65) {Circular traversal: print the node, advance, then test for head.};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

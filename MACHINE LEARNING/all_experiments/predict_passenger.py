@@ -1,4 +1,4 @@
-"""Predict Titanic survival for one passenger with the model saved by Lab 3.
+"""Predict Titanic survival for one passenger with the model saved by Lab 2.
 
 The notebook trained the model and saved two files in models/:
   titanic_survival.joblib      the fitted pipeline (preprocessing + classifier)

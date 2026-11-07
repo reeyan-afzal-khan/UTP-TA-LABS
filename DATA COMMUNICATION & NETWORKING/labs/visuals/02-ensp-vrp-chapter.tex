@@ -1,0 +1,30 @@
+% Reused from chapters/03-ensp-vrp.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[x=1cm,y=1cm]
+% toolbar
+\node[hdrm,minimum width=13cm,minimum height=0.55cm,anchor=west,
+      font=\scriptsize\color{UTPNavy}] at (0,3.1) {toolbar --- new, open, and the \textbf{start / stop} buttons};
+% palette
+\node[hdrb,minimum width=3.0cm,minimum height=2.9cm,anchor=north west,
+      align=center,font=\scriptsize\color{UTPNavy}] at (0,2.75)
+  {\textbf{device palette}\\[2pt]
+   routers\\ switches\\ end devices\\ connections};
+% canvas
+\node[hdrpay,minimum width=9.9cm,minimum height=2.9cm,anchor=north west,
+      align=center,font=\scriptsize] at (3.1,2.75)
+  {\textbf{canvas}\\[3pt]
+   drag a device here, then drag a \emph{connection} from the palette\\
+   and click the two interfaces you want joined};
+% right-click callout
+\node[hdro,minimum width=6.0cm,minimum height=1.55cm,anchor=north west,
+      align=left,font=\scriptsize\color{UTPNavy}] at (3.1,-0.45)
+  {\textbf{right-click a device}\\[2pt]
+   \ \textbullet\ \textbf{CLI} --- open the VRP console\\
+   \ \textbullet\ \textbf{Settings} --- add an interface card\\
+   \ \textbullet\ \textbf{Data Capture} --- start Wireshark on one interface};
+\draw[-{Stealth[length=2mm]},thick,draw=UTPOrange] (6.1,-0.5) -- (6.1,0.1);
+\node[font=\tiny\color{UTPMuted},anchor=west,text width=3.5cm] at (9.4,-1.2)
+  {A device must be \textbf{started} before its CLI will respond.};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

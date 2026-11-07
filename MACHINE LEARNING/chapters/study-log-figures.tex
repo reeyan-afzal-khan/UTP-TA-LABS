@@ -1,0 +1,67 @@
+% =====================================================================
+%  chapters/study-log-figures.tex
+%  Course-local drawing vocabulary for the tutor's study log, the running
+%  example of the book. Everything is built from the shared UTP palette and
+%  node styles of .shared/utpnotes.tex, so the figures match the other books.
+%  The numbers are printed and checked by all_experiments/demo_study_log.py.
+%
+%    \studylog                 the log as a pgfplots table
+%    logaxis                   the axis style every chart here starts from
+%    logdots                   one labeled dot per student
+%    \recipecard{name}{model}{loss}{optimizer}   the three-step summary box
+% =====================================================================
+
+\pgfplotstableread{
+name hours lectures sleep mark passed pcone pctwo
+A  2  8 8 47 0  0.93 -1.78
+B  4  6 8 50 1  0.59 -1.83
+C  6  7 7 59 1  0.69 -0.88
+D  8  9 7 65 1  1.09 -0.08
+E 10 11 7 68 1  1.35  0.60
+F 12 13 6 77 1  1.60  1.72
+G 14 12 5 62 1  0.35  1.33
+H 16 10 4 52 1 -0.83  0.95
+I 18  5 3 43 0 -2.41  0.07
+J 20  3 2 38 0 -3.38 -0.10
+}\studylog
+
+\pgfplotsset{
+  logaxis/.style={
+    axis lines=left,
+    grid=major, grid style={draw=UTPPaleBlue},
+    label style={font=\scriptsize\color{UTPNavy}},
+    tick label style={font=\scriptsize\color{UTPMuted}},
+    title style={font=\small\bfseries\color{UTPNavy}},
+    legend style={font=\scriptsize,draw=UTPBlue!22,fill=white,fill opacity=0.92,text opacity=1,rounded corners=1pt},
+    legend cell align=left,
+  },
+  logdots/.style={
+    only marks, mark=*, mark size=1.9pt, draw=UTPBlue, fill=UTPBlue,
+    nodes near coords, point meta=explicit symbolic,
+    every node near coord/.append style={font=\tiny\bfseries\color{UTPNavy},anchor=south,inner sep=1.5pt},
+  },
+}
+
+\tikzset{
+  recipebox/.style={utpbox,text width=#1,minimum height=1.25cm},
+  recipebox/.default=3.45cm,
+  mapgate/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,align=center,
+                  font=\small\bfseries,inner sep=2.2mm},
+  mapleaf/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,align=center,
+                  font=\scriptsize\color{UTPNavy},text width=3.25cm,minimum height=1.45cm,inner sep=1.5mm},
+  mapleafb/.style={mapleaf,draw=UTPOrange,fill=UTPPaleOrange},
+  hcell/.style={draw=UTPBlue!55,fill=white,minimum width=0.62cm,minimum height=0.62cm,inner sep=0pt,
+                font=\scriptsize\color{UTPNavy}},
+  hhot/.style={hcell,draw=UTPOrange,fill=UTPPaleOrange,font=\scriptsize\bfseries\color{UTPNavy}},
+  hkey/.style={hcell,draw=UTPTeal,fill=UTPPaleTeal},
+}
+
+% The three steps of one method, in the same words every time.
+\newcommand{\recipecard}[4]{%
+  \begin{modelcard}{The recipe: #1}
+  \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.17\linewidth}X@{}}
+  1. Model & #2 \cr
+  2. Loss & #3 \cr
+  3. Optimizer & #4 \cr
+  \end{tabularx}
+  \end{modelcard}}

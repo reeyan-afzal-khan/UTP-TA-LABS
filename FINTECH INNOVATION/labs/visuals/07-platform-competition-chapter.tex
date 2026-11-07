@@ -1,0 +1,18 @@
+% Reused from chapters/07-big-tech-in-fintech.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  core/.style={draw=UTPNavy,fill=UTPNavy,text=white,rounded corners=2mm,text width=3.1cm,minimum height=1.2cm,align=center,font=\small\bfseries},
+  b/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=2.5cm,minimum height=0.95cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=1.9mm]},thick,draw=UTPTeal}
+]
+\node[core] (p) at (0,0) {Big Tech\\platform};
+\node[b] (u) at (-4,1.8) {Existing users};
+\node[b] (d) at (0,2.5) {Behavioral data};
+\node[b] (t) at (4,1.8) {Technology + talent};
+\node[b] (c) at (-4,-1.8) {Capital};
+\node[b] (x) at (0,-2.5) {Daily engagement};
+\node[b] (e) at (4,-1.8) {Ecosystem distribution};
+\foreach \n in {u,d,t,c,x,e}{\draw[arr](\n)--(p);}
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

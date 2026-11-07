@@ -78,3 +78,13 @@ python .shared/build.py OS --check    # build only, to check a change; writes no
 
 The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
 for the shared styles every book uses.
+
+## Refined lab walkthroughs
+
+10 labs now use compact visual routes, operation traces, and diagrams reused from the teaching chapters. The course fonts and shared page template are unchanged.
+
+Full C and Bash files remain the authoritative source. Listings are divided into consecutive chunks, paired with state traces and the existing compile/run checks.
+
+**Validation:** Thirteen portable C programs compiled with GCC -std=c11 -Wall -Wextra and ran successfully. POSIX processes, IPC, pthreads and Bash require the Linux classroom environment; no WSL distribution is installed here.
+
+The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.

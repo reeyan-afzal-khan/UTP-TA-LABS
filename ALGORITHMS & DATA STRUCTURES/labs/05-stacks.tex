@@ -1,44 +1,30 @@
 \labsection{5}{Stack ADT and expression processing}{sec:lab05}
 
 \begin{sourcealignment}{Official Lab Manual --- Lab V}
-\textbf{Objective.} Build intuition for stacks, their operations, implementations, and use cases.
-
-\textbf{Outcomes.} Understand stack behavior; use push/pop/peek; apply a stack to unseen programming problems.
-
-\textbf{Problem directions.} Implement a stack with an array; implement a stack with a linked list; convert infix notation to postfix using a stack.
+Array stack, linked stack, and infix-to-postfix conversion.
 \end{sourcealignment}
 
 \begin{labproject}{Implement the stack ADT twice}
-\textbf{Coverage.} Chapter~\ref{ch:stacks}.\\
-\textbf{Goal.} Implement the stack ADT with an array and with a linked list, then apply a stack to infix-to-postfix conversion.
+\textbf{Goal.} Build two LIFO stacks, then use a stack to convert expressions.
 
-Required operations are \texttt{push()}, \texttt{pop()}, \texttt{peek()}, \texttt{isFull()}, \texttt{isEmpty()}, and \texttt{display()} for the array version and the corresponding linked-list behavior.
+\textbf{Recall first.} Review the \hyperref[ch:stacks]{Stacks} chapter.
 
-\begin{lstlisting}
-// Suggested trace
-push(10);
-push(20);
-push(30);
-peek();       // 30
-pop();        // removes 30
-display();    // 20 10 from top to bottom
-\end{lstlisting}
+\textbf{Complete source files.} Each program below is a separate C++17 file.
+Copy its code blocks in printed order, including headers, definitions, helpers, and \texttt{main()}.
+The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
+Build one program at a time from its \texttt{all\_experiments/Lab05} folder.
 
-\begin{tryit}
-Deliberately trigger array overflow and stack underflow. Then implement the manual's infix-to-postfix exercise and test \texttt{A+B*C} and \texttt{(A+B)*C}.
-\end{tryit}
+\input{labs/programs/array_stack}
 
-\begin{clarification}
-A linked-list stack normally has no predetermined fixed capacity. If your interface contains \texttt{isFull()}, document whether you impose a maximum node count; otherwise only allocation failure makes the structure unable to grow.
-\end{clarification}
+\tcbbreak
+\input{labs/programs/linked_stack}
+
+\tcbbreak
+\input{labs/programs/infix_to_postfix}
 \end{labproject}
 
 \begin{verification}
-\begin{itemize}
-  \item LIFO order is visible in the output.
-  \item Underflow is handled before reading/removing the top.
-  \item Array overflow is handled before writing past capacity.
-  \item The infix-to-postfix result respects parentheses and operator precedence.
-\end{itemize}
+$\square$ Every listed program compiles independently with its own \texttt{main()}.\\
+$\square$ Recorded outputs match the traces; no built-in check prints \texttt{[FAIL]}.\\
+$\square$ Explain one code-to-diagram state change and demonstrate one additional test.
 \end{verification}
-

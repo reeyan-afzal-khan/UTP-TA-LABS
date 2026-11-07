@@ -1,0 +1,12 @@
+system-view
+sysname R2
+interface Serial0/0/0
+ ip address 10.0.0.2 30
+ undo shutdown
+quit
+interface Serial0/0/0
+ link-protocol ppp
+ ppp chap user branch
+ ppp chap password cipher Branch@123
+quit
+return

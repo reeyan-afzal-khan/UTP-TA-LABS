@@ -3,7 +3,7 @@
 \addcontentsline{toc}{chapter}{Course Map}
 \markboth{Course Map}{}
 
-\begin{utpfig}[How the stages connect]{How the stages connect. After the shared foundations, labelled data leads to the supervised branch and unlabelled data to the unsupervised branch; both feed the advanced concepts and the capstone. Each stage names its chapters, its labs, and the checkpoint to reach before moving on.}{fig:course-stages}
+\begin{utpfig}[How the stages connect]{How the stages connect. After the shared foundations, labeled data leads to the supervised branch and unlabeled data to the unsupervised branch; both feed the advanced concepts and the capstone. Each stage names its chapters, its labs, and the checkpoint to reach before moving on.}{fig:course-stages}
 \begin{tikzpicture}[
   y=1.17cm,
   every node/.append style={execute at begin node={\hyphenpenalty=10000\relax}},
@@ -20,12 +20,12 @@
   junction/.style={circle,fill=UTPTeal,inner sep=1.2pt}
 ]
 \node[stage] (a) at (0,8.65) {{\normalsize\bfseries\color{UTPBlue}Stage 1: Orientation and tools}\hfill{\footnotesize\bfseries Chapters \ref{ch:toolkit}--\ref{ch:orientation}}\par
-  \smallskip Define the problem, follow the ML workflow, and use Python libraries.\par
-  \textbf{Checkpoint:} run the environment and organize a reproducible project.};
+  \smallskip Meet the study log and the three-step recipe, follow the workflow, and set up Python.\par
+  \textbf{Checkpoint:} run the environment and name the model, loss, and optimizer of a method.};
 \node[stage] (b) at (0,6.75) {{\normalsize\bfseries\color{UTPBlue}Stage 2: Shared foundations}\hfill{\footnotesize\bfseries Chapters \ref{ch:data}--\ref{ch:foundations}}\par
-  \smallskip Data quality, safe splits, preprocessing; learning signals, statistics, probability, and geometry.\par
+  \smallskip Data quality, safe splits, preprocessing; gradient descent, statistics, probability, and geometry.\par
   \textbf{Lab 1:} feature engineering and selection. \textbf{Checkpoint:} separate fixed rules from training-fitted choices.};
-\node[gate] (g) at (0,5.05) {What should the model learn?};
+\node[gate] (g) at (0,5.05) {Does your log hold the answers?};
 
 \node[sup] (s1) at (-3.45,2.75) {{\centering\bfseries\color{UTPBlue}Stage 3A: Supervised workflow\par}{\centering\bfseries Chapters \ref{ch:supervised}--\ref{ch:training}\par}\smallskip
   Losses and baselines; metrics, validation, regularization, and tuning.\par
@@ -40,10 +40,10 @@
 \path let \p1 = ($(s1.south)-(s2.north)$) in node[unsup,below=\y1 of u1] (u2) {{\centering\bfseries\color{UTPTeal}Stage 4B: Unsupervised models\par}{\centering\bfseries Chapters \ref{ch:clustering}--\ref{ch:anomaly}\par}\smallskip
   Clustering, dimensionality reduction, and anomaly detection.\par
   \textbf{Lab 4:} clustering and PCA.\par
-  \textbf{Lab 5 bridge:} anomalies and limited labels.};
+  \textbf{Checkpoint:} defend a structure with evidence.};
 
 \node[other] (c) at (0,-3.0) {{\normalsize\bfseries\color{UTPOrange}Stage 5: Advanced concepts}\hfill{\footnotesize\bfseries Chapters \ref{ch:semi-supervised}--\ref{ch:deep}}\par
-  \smallskip\textbf{Ch.~\ref{ch:semi-supervised}} semi-supervised and active learning --- use or request scarce labels.\par
+  \smallskip\textbf{Ch.~\ref{ch:semi-supervised} / Lab 5:} semi-supervised and active learning --- use or request scarce labels; Lab 5 also ranks anomalies from Ch.~\ref{ch:anomaly}.\par
   \textbf{Ch.~\ref{ch:rl} / Lab 6:} reinforcement learning --- learn policies from actions and rewards.\par
   \textbf{Ch.~\ref{ch:deep} / Labs 7--8:} dense networks and CNNs for images; RNNs and LSTMs for sequences.\par
   \smallskip\textbf{Distinction:} limited labels and rewards change the feedback; neural networks change the model.};
@@ -56,8 +56,8 @@
 \coordinate (split) at ($(g.south)+(0,-0.40)$);
 \draw[flow] (g.south) -- (split);
 \node[junction] at (split) {};
-\draw[arr] (split) -| node[pos=0.5,above,branchlabel] {labelled Data} (s1.north);
-\draw[arr] (split) -| node[pos=0.5,above,branchlabel] {Unlabelled Data} (u1.north);
+\draw[arr] (split) -| node[pos=0.5,above,branchlabel] {labeled data} (s1.north);
+\draw[arr] (split) -| node[pos=0.5,above,branchlabel] {unlabeled data} (u1.north);
 \draw[arr] (s1.south) -- (s2.north);
 \draw[arr] (u1.south) -- (u2.north);
 \coordinate (merge) at ($(c.north)+(0,0.60cm)$);
@@ -68,3 +68,39 @@
 \draw[arr] (c.south) -- (d.north);
 \end{tikzpicture}
 \end{utpfig}
+
+\section*{How to use this book}
+
+Each chapter opens with an everyday picture, works a small example you can check with a pen, and only then gives the formal version. Each lab sheet comes straight after the chapters it practises.
+
+\begin{utpsteps}
+  \item \textbf{Read with a pen.} Redo the worked examples before reading the answer. Every number in them is printed by a program in \texttt{all\_experiments/}, so you can check yourself twice.
+  \item \textbf{Answer the check at the end of the chapter.} The answers follow immediately, so cover them first.
+  \item \textbf{Do the lab in the notebook.} Each sheet gives setup steps, a warm-up on paper, questions numbered to match the notebook, reference outputs, and what those outputs mean.
+  \item \textbf{Finish with \emph{Your turn}.} These tasks go beyond the worked answers. Record your own numbers first, then read the expected findings.
+  \item \textbf{Hand in.} Work through the verification and submission checklists at the end of the sheet.
+\end{utpsteps}
+
+The colored boxes each have one job:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.32\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Box} & \utpth{What it is for} \\
+\midrule
+Analogy, Plain idea & The everyday picture, before the formal version. Every analogy breaks down somewhere, so use it to get started and then trust the definition. \\
+Key idea & The one sentence to carry away from a section. \\
+Worked example & A calculation or trace to follow with a pen. \\
+Common mistake & What reliably goes wrong here, and why. \\
+The recipe & The model, loss, and optimizer of one method, in the same words every time. \\
+Try it yourself, Your turn & Something for you to do. Predict first, then run it. \\
+Chapter recap & What a reader should carry forward from the chapter. \\
+Reference note, Beyond the core & Background you can read past without losing the thread. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{sourcebasis}
+The order of the core methods and several analogies across the book (the three-step recipe, the bowl with one lowest point, the hill in fog, the dimmer switch, confident and wrong, the rubber bands, the landmarks, the shadow on a wall, and the question ``does your log hold the answers?'') are adapted from a video lecture, \href{https://www.youtube.com/watch?v=42IVf4m-5fk}{an hour on machine learning}. The tutor's study log, the datasets, the code and all numbers in this book are our own, and every one can be reproduced by running the programs in \texttt{all\_experiments/}.
+\end{sourcebasis}

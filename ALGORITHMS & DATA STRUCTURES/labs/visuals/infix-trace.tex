@@ -1,0 +1,28 @@
+% Copied from chapters/05-stacks.tex (fig:infix-trace).
+% Keep the chapter drawing, type sizes, colours, and node styles unchanged.
+\begin{adslabfigure}[Infix to postfix conversion traced]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\node[anchor=north west,inner sep=0pt] at (0,0){
+\begin{tabular}{@{}>{\bfseries\color{UTPNavy}}c
+                   >{\raggedright\arraybackslash}m{3.9cm}
+                   >{\ttfamily\color{UTPBlue}}l
+                   >{\ttfamily\color{UTPGreen!70!black}}l@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Read} & \utpth{Action} & \utpth{Stack} & \utpth{Output} \\
+\midrule
+A & operand: emit            & \phantom{x}      & A          \\
++ & stack empty: push        & +                & A          \\
+B & operand: emit            & +                & A B        \\
+* & higher than +: push      & + *              & A B        \\
+C & operand: emit            & + *              & A B C      \\
+- & pop * then +, push -     & -                & A B C * +  \\
+D & operand: emit            & -                & A B C * + D\\
+\midrule
+\textit{end} & pop remaining & \phantom{x}      & A B C * + D -\\
+\bottomrule
+\end{tabular}};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

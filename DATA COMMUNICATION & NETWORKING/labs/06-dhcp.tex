@@ -4,6 +4,25 @@
 \textbf{Coverage.} Chapter~\ref{ch:dhcp}.\\
 \textbf{Goal.} Hand out addresses automatically, understand why the process works at all before a client has an address, and extend it across a router.
 
+\input{labs/visuals/06-flow}
+
+\noindent\textbf{Worked implementation: A server and a remote client subnet.}
+Use fresh lab devices. These blocks target the classic eNSP VRP command family used in the chapter. Match interface names with \cmd{display interface brief}. Enter each block on its named device; respond to interactive prompts before continuing.
+
+\noindent\textbf{DHCP server.} Server GE0/0/0 connects to relay GE0/0/0. The return route reaches the client subnet through the relay.
+\lstinputlisting[style=utpterminal]{labs/configs/lab06-01.txt}
+
+\noindent\textbf{Relay.} Connect the DHCP client to relay GE0/0/1 and select DHCP in the client settings.
+\lstinputlisting[style=utpterminal]{labs/configs/lab06-02.txt}
+
+\noindent\textbf{Inspect the lease.} Run on SERVER, then inspect the client address and ping its gateway.
+\lstinputlisting[style=utpterminal]{labs/configs/lab06-03.txt}
+
+\textbf{Expected evidence.} The client must receive a 192.168.3.0/24 address outside the reserved range and gateway 192.168.3.1. Capture the relay address field and match it to the pool network.
+
+
+
+
 \medskip\noindent\textbf{Part A --- The four-message exchange.}\par
 A client with no address has to ask for one --- but it cannot address a request to a server it does not know about.
 
@@ -14,9 +33,9 @@ A client with no address has to ask for one --- but it cannot address a request 
 \utpth{Message} & \utpth{Sent to} & \utpth{Meaning} \\
 \midrule
 DISCOVER & broadcast & Is there a DHCP server out there? \\
-OFFER & broadcast & Yes, and here is an address you may have \\
+OFFER & broadcast/unicast & Yes, and here is an address you may have \\
 REQUEST & broadcast & I accept that one \\
-ACK & broadcast & Confirmed, it is yours for the lease duration \\
+ACK & broadcast/unicast & Confirmed, it is yours for the lease duration \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
@@ -28,6 +47,14 @@ REQUEST is also broadcast, and this is the part students find odd. The client al
 \end{keyidea}
 
 \medskip\noindent\textbf{Part B --- Global pools.}\par
+
+\input{labs/visuals/06-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:dhcp]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} The relay forwards requests between the client LAN and server; it is not itself a replacement for the pool's gateway setting. Keep this remote-pool exercise separate from the later local-pool example and test the gateway before a remote destination.
+\input{labs/visuals/06-worked-case.tex}
 
 \begin{lstlisting}[style=utpterminal]
 system-view
@@ -42,6 +69,7 @@ ip pool LAN1
 quit
 
 interface GigabitEthernet 0/0/0
+ ip address 192.168.1.1 24
  dhcp select global
 quit
 \end{lstlisting}
@@ -49,7 +77,7 @@ quit
 \begin{pitfall}
 \cmd{dhcp enable} is required globally before any pool works, and forgetting it is the most common failure in this lab. Pools configure without complaint and simply never respond.
 
-\cmd{excluded-ip-address} matters too. Without it the pool will happily hand a client the address you assigned statically to the router itself, producing a duplicate-address conflict that appears intermittently and is unpleasant to diagnose.
+\cmd{excluded-ip-address} matters too. Reserve addresses used by statically configured hosts; do not rely on conflict detection to protect those assignments.
 \end{pitfall}
 
 \medskip\noindent\textbf{Part C --- Interface pools.}\par
@@ -93,7 +121,7 @@ That field is how the server knows which pool to draw from. Without it the serve
 display ip pool & Pools, sizes, and how many addresses are in use \\
 display ip pool name LAN1 used & Which addresses are leased, and to whom \\
 display dhcp relay all & Relay configuration and target server \\
-display ip interface brief & Whether the client actually received an address \\
+Client IP settings / ipconfig & Whether the client actually received an address \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
@@ -109,13 +137,19 @@ display ip interface brief & Whether the client actually received an address \\
 \end{troubleshoot}
 
 \begin{tryit}
-Capture the exchange in Wireshark with the display filter \cmd{bootp} (Wireshark still uses DHCP's original protocol name).
+Capture the exchange in Wireshark with the display filter \cmd{dhcp} (older Wireshark versions may use \cmd{bootp}).
 
 Find the DISCOVER and read its source address. Then explain, in one sentence, how the server's OFFER reaches a client that does not yet have an address to send it to.
 \end{tryit}
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:dhcp]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/06-dhcp-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Inspect the assigned address, mask, gateway and lease. Test the gateway first, then a remote destination, and identify the first failed checkpoint if access is incomplete.
+
+
 \begin{itemize}
   \item \cmd{dhcp enable} present before any pool configuration.
   \item Both a global pool and an interface pool demonstrated.

@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo 19 Community app structure.\\
 \textbf{Goal.} Move from generic statements such as ``ERP improves efficiency'' to evidence-based explanations of how integration creates benefits and why implementation is difficult.
 
+\input{labs/visuals/02-flow}
+
+
 \begin{labmode}
 Tutorial 2 uses Team Benefit and Team Challenge. Odoo is used here as a concrete reference architecture: each team must point to at least one app-to-app connection or setup choice that demonstrates the selected benefit/challenge.
 \end{labmode}
@@ -21,6 +24,14 @@ Choose one ERP benefit such as shared data, faster process flow, management visi
 \end{enumerate}
 
 Example structure: ``A Sales Order creates a linked Delivery and can create an Invoice. This reduces repeated entry of product, quantity, customer, and price. Measure the percentage of invoices requiring manual correction.''
+
+\input{labs/visuals/02-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:erp-development]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Use those concrete records to explain integration. If a benefit is proposed rather than measured, name the metric and baseline needed to test it. Sharing a customer name alone does not prove the records are actually linked.
+\input{labs/visuals/02-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Team Challenge.}
 
@@ -45,7 +56,15 @@ The point is to see modularity without silos. The records live in different apps
 Follow Tutorial 2: explain your selected topic, listen to the other subgroup, take notes, and write the required paragraph demonstrating what you learned.
 \end{labproject}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:erp-development]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/02-erp-development-odoo-chapter.tex}
+
+\input{labs/walkthroughs/02-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Choose one process delay and define a baseline measure, data source and proposed improvement. State what observation would support or contradict the claimed ERP benefit.
+
+
 \begin{itemize}
   \item The chosen benefit names the old problem, the ERP mechanism, an Odoo record that shows it, and one metric.
   \item The chosen challenge names who it affects, what happens if it is ignored, and how to reduce the risk.

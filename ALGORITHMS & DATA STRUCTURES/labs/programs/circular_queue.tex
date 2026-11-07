@@ -1,0 +1,82 @@
+\textbf{Program 3: Circular queue and wrap-around.}
+
+\textbf{File:} \texttt{circular\_queue.cpp}.
+
+\textbf{Chapter connection:} Circular queue implementation pattern.
+
+Keep front as the next read position and rear as the next write position. count distinguishes full from empty even when the indexes match. display shows active slots so old bytes are not mistaken for queued values.
+
+\input{labs/visuals/program-circular_queue}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{circular\_queue.cpp} --- lines 13--25.
+
+\lstinputlisting[firstline=13,lastline=25]{all_experiments/Lab06/circular_queue.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement isEmpty, isFull, frontIndex and helpers.}\end{utpsteps}
+
+\texttt{circular\_queue.cpp} --- lines 26--61.
+
+\input{labs/visuals/walk-queue}
+
+\lstinputlisting[firstline=26,lastline=61]{all_experiments/Lab06/circular_queue.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{circular\_queue.cpp} --- lines 62--98.
+
+\textbf{Trace checkpoint for the supplied main.} rear is the next insertion position in this implementation. After enqueueing 50 it wraps to 0; enqueueing 60 writes slot 0 and advances rear to 1. Later front equals rear both when full and when empty, so count decides which state applies. Compare the complete removal sequence with 10, 20, 30, 40, 50, 60, 70; physical slot order is not queue order.
+
+\lstinputlisting[firstline=62,lastline=98]{all_experiments/Lab06/circular_queue.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect circular\_queue.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra circular_queue.cpp -o circular_queue.exe
+
+.\circular_queue.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== The lab trace (capacity 5) ==
+start           front=0 rear=0 count=0   slots: [- - - - -]  EMPTY
+enqueue 10      front=0 rear=1 count=1   slots: [10 - - - -]
+enqueue 20      front=0 rear=2 count=2   slots: [10 20 - - -]
+enqueue 30      front=0 rear=3 count=3   slots: [10 20 30 - -]
+enqueue 40      front=0 rear=4 count=4   slots: [10 20 30 40 -]
+dequeue -> 10   front=1 rear=4 count=3   slots: [- 20 30 40 -]
+dequeue -> 20   front=2 rear=4 count=2   slots: [- - 30 40 -]
+enqueue 50      front=2 rear=0 count=3   slots: [- - 30 40 50]
+  [ok]   rear wrapped from index 4 back to index 0
+enqueue 60      front=2 rear=1 count=4   slots: [60 - 30 40 50]
+  [ok]   60 was stored in slot 0, a slot freed by an earlier dequeue
+
+== Fill to capacity, then empty it ==
+enqueue 70      front=2 rear=2 count=5   slots: [60 70 30 40 50]  FULL
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/circular\_queue.txt}.
+
+\begin{tryit}
+
+After the printed wrap-around trace, fill all five active slots and refuse one more enqueue. Drain in FIFO order; front and rear may match when count is zero or full.
+
+\end{tryit}

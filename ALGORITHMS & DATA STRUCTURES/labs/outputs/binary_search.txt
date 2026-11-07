@@ -1,0 +1,23 @@
+common dataset: 29 10 14 37 13
+  [ok]   searching the unsorted dataset is refused
+sorted:         10 13 14 29 37   (indexes 0..4)
+
+== Search for 29 (present) ==
+    left=0 right=4 mid=2 a[mid]=14  target larger: discard the left half
+    left=3 right=4 mid=3 a[mid]=29  found
+  result: index 3
+  [ok]   29 is found at index 3
+
+== Search for 15 (missing) ==
+    left=0 right=4 mid=2 a[mid]=14  target larger: discard the left half
+    left=3 right=4 mid=3 a[mid]=29  target smaller: discard the right half
+    left > right: the range is empty, not found
+  result: -1
+  [ok]   a missing target returns -1
+
+== Duplicates ==
+data: 3 5 5 5 9
+  binarySearch(5) -> index 2,  firstOccurrence(5) -> index 1
+  [ok]   binary search finds an occurrence of a duplicated value
+  [ok]   the first-occurrence variant returns index 1
+  [ok]   a missing value between duplicates is still not found

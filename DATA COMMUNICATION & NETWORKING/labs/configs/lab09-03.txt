@@ -1,0 +1,3 @@
+display interface Serial0/0/0
+display ip interface brief
+ping 10.0.0.2

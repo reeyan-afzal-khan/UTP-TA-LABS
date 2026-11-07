@@ -1,0 +1,32 @@
+== All records (ID | name | age | course) ==
+1001 | Amina | 20 | CS
+1002 | Ben | 21 | IT
+1003 | Chen | 20 | CS
+1004 | Devi | 22 | IS
+1005 | Ehsan | 21 | IT
+
+== Search by ID ==
+Search 1003: found at index 2 -> Chen
+Search 9999: not found
+
+== Average age (a 1D-array statistic) ==
+Average age: 20.8
+
+== Update record 1004 through a pointer ==
+1001 | Amina | 20 | CS
+1002 | Ben | 21 | IT
+1003 | Chen | 20 | CS
+1004 | Devi | 23 | CS
+1005 | Ehsan | 21 | IT
+
+== Verification ==
+  [ok]   at least five records are stored and displayed
+  [ok]   a valid ID is found
+  [ok]   an invalid ID returns -1 (not found)
+  [ok]   update of an existing ID succeeds
+  [ok]   update of a missing ID is refused
+  [ok]   updating one record changes only the intended record
+
+Array bounds: every loop runs i = 0 .. n-1, so no index reaches students[N].
+Pointer versus index: students[3] names the fourth element by position;
+students + 3 is its address, so (students + 3)->age reaches the same field.

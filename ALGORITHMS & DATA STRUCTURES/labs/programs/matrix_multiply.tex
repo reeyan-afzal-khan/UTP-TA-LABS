@@ -1,0 +1,82 @@
+\textbf{Program 1: A complete matrix multiplication program.}
+
+\textbf{File:} \texttt{matrix\_multiply.cpp}.
+
+\textbf{Chapter connection:} Arrays and Two-Dimensional Arrays: nested loops and matrix multiplication.
+
+The output has one cell per row of A and column of B. multiply rejects incompatible shapes before indexing. Its inner loop accumulates matching products; main prints all cells and separately expands cell P[1][0].
+
+\input{labs/visuals/program-matrix_multiply}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{matrix\_multiply.cpp} --- lines 9--17.
+
+\lstinputlisting[firstline=9,lastline=17]{all_experiments/Lab02/matrix_multiply.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement printMatrix, multiply.}\end{utpsteps}
+
+\texttt{matrix\_multiply.cpp} --- lines 18--43.
+
+\input{labs/visuals/walk-matrix}
+
+\lstinputlisting[firstline=18,lastline=43]{all_experiments/Lab02/matrix_multiply.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{matrix\_multiply.cpp} --- lines 44--84.
+
+\textbf{Trace checkpoint for the supplied main.} For P[1][0], keep i = 1 and j = 0 fixed while t takes 0, 1 and 2. The running sums are 28, 73 and 139. P must start this cell at zero; carrying a previous cell's sum would corrupt the product. In the rejected A-times-A call, the incompatible inner dimensions are detected before any output cell is written.
+
+\lstinputlisting[firstline=44,lastline=84]{all_experiments/Lab02/matrix_multiply.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect matrix\_multiply.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra matrix_multiply.cpp -o matrix_multiply.exe
+
+.\matrix_multiply.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+A (2 x 3)
+  row 0:    1    2    3
+  row 1:    4    5    6
+B (3 x 2)
+  row 0:    7    8
+  row 1:    9   10
+  row 2:   11   12
+P = A x B (2 x 2)
+  row 0:   58   64
+  row 1:  139  154
+
+== Trace of one output cell ==
+P[1][0] = A[1][0]*B[0][0] + A[1][1]*B[1][0] + A[1][2]*B[2][0]
+        = 4*7 + 5*9 + 6*11
+        = 28 + 45 + 66 = 139
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/matrix\_multiply.txt}.
+
+\begin{tryit}
+
+Replace B with a compatible identity matrix in a separate test and predict the unchanged result. Pass incompatible dimensions to multiply and verify that it returns false before writing the output.
+
+\end{tryit}

@@ -5,12 +5,28 @@
 \textbf{Goal.} Create a small namespace containing both link types and inspect it with shell tools.\\
 \textbf{Explain.} Explain which names share an inode and which link stores another pathname.
 
+\input{labs/visuals/09-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{make\_demo\_tree.sh}}{Create a controlled hierarchy with one hard link and one symbolic link.}{\texttt{ln} and \texttt{ln -s} create different relationships even when both look like extra names.}
-\lstinputlisting[style=utpbashnumbered]{all_experiments/Lab09/make_demo_tree.sh}
+\noindent\textbf{Start the file.} \texttt{make\_demo\_tree.sh}, lines 1--11.
+\input{labs/visuals/09-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:directories]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} Run inside the lab's scratch tree. Read the ln commands before testing renames. The relative symlink is resolved from demo\_tree/home/student, not from whichever directory the shell currently happens to use.
+\input{labs/visuals/09-worked-case.tex}
+
+\lstinputlisting[style=utpbashnumbered,firstline=1,lastline=11]{all_experiments/Lab09/make_demo_tree.sh}
 
 \labsourcecard{\texttt{directory\_walk.c}}{Recursively traverse subdirectories without following symbolic links as directories.}{The walker skips \texttt{.} and \texttt{..}, builds a child path, then uses \texttt{lstat()} before recursing.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab09/directory_walk.c}
+\noindent\textbf{Start the file.} \texttt{directory\_walk.c}, lines 1--32.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=32]{all_experiments/Lab09/directory_walk.c}
+
+\noindent\textbf{Continue the same file.} \texttt{directory\_walk.c}, lines 33--47.
+\lstinputlisting[style=utpcnumbered,firstline=33,lastline=47]{all_experiments/Lab09/directory_walk.c}
 
 \section*{Task 1 --- Create and inspect the hierarchy}
 \begin{lstlisting}[style=utpbash]
@@ -63,7 +79,13 @@ Create a new subdirectory and file under \texttt{demo\_tree/tmp}, rerun both \te
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:directories]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/09-directory-visualization-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Create both link types to a scratch file. Rename or remove the target name and record which accesses still work, together with inode and link-count evidence.
+
+
 \begin{itemize}
   \item The tree sketch matches what \texttt{find} reports.
   \item The hard link shares the original's inode number and raises its link count; the symbolic link has its own inode.

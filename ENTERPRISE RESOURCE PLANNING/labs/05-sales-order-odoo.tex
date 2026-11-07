@@ -6,6 +6,9 @@
 \textbf{Core system.} Odoo CRM, Sales, Inventory, and Invoicing.\\
 \textbf{Goal.} Demonstrate a clean order-to-cash document flow and contrast it with the problems in Fitter Snacker's old process.
 
+\input{labs/visuals/05-flow}
+
+
 \begin{labmode}
 Tutorial 5 focuses on the problems of an unintegrated sales process. This lab deliberately makes the same information move through linked Odoo records so you can point to what ERP integration changes.
 \end{labmode}
@@ -13,6 +16,12 @@ Tutorial 5 focuses on the problems of an unintegrated sales process. This lab de
 \medskip\noindent\textbf{Part A --- Confirm the quotation.}
 
 Open the quotation for Seri Iskandar Cycling Club with 5 Road Bikes at RM 1,000 each. Confirm it. The status becomes Sales Order and linked fulfilment/billing actions become available.
+
+\input{labs/visuals/05-trace}
+
+
+\textbf{Follow the supplied implementation.} A posted invoice can exist before payment is settled. Use the state shown by the classroom database and explain In Payment versus Paid where applicable. Compare the quantities delivered and invoiced instead of assuming they must always match automatically.
+\input{labs/visuals/05-worked-case.tex}
 
 \medskip\noindent\textbf{Part B --- Deliver the bikes.}
 
@@ -29,6 +38,8 @@ Observe that customer, product, quantity, and price were carried forward from Sa
 \medskip\noindent\textbf{Part D --- Register payment.}
 
 From the posted invoice, choose Register Payment. Use Bank or Cash, Manual method, full amount, and the current date. Create the payment. The invoice should become Paid or In Payment depending on configuration.
+
+With Malaysia as the country, Odoo applies its default 10\% sales tax to the Road Bike line, so the full amount is RM 5,500: the RM 5,000 order plus RM 500 tax. Revenue is still RM 5,000, because the tax is collected for the government.
 
 \medskip\noindent\textbf{Part E --- Compare old process versus ERP process.}
 
@@ -53,11 +64,17 @@ Payment status & Delayed visibility & Payment status shown on linked invoice \\
 For the company-wide Delicious Foods analysis, describe the data consolidation and governance problems created by divisional systems. For the CIO memo activity, focus on the information-flow problem and explain how integrated order, fulfilment, invoice, and payment records change management visibility.
 \end{labproject}
 
+\input{labs/walkthroughs/05-records.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Trace order, delivery, invoice and payment references for one sale. Reconcile quantities and amounts, and explain any difference between delivery status and invoice payment status.
+
+
 \begin{itemize}
   \item The quotation is confirmed and its status is Sales Order.
   \item The delivery is Done and Road Bike on-hand stock fell by 5.
   \item The invoice was created from the Sales Order and is Posted, with customer, product, quantity and price carried forward.
+  \item The invoice shows RM 5,000 untaxed, RM 500 tax and RM 5,500 total, or you can explain any different tax setting in your database.
   \item The invoice is Paid or In Payment after the payment is registered.
 \end{itemize}
 \end{verification}

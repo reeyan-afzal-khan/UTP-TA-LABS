@@ -83,3 +83,15 @@ python .shared/build.py DCN --check    # build only, to check a change; writes n
 
 The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
 for the shared styles every book uses.
+
+## Refined lab walkthroughs
+
+9 labs now use compact visual routes, operation traces, and diagrams reused from the teaching chapters. The course fonts and shared page template are unchanged.
+
+Worked command sequences and per-device configurations are in `labs/configs/`. Match interface names to the actual classic eNSP VRP image. The static-routing example keeps a direct R3 return path while testing R1 forward-path failover.
+
+**Validation:** Configuration text and topology addressing were reviewed. Live eNSP/Wireshark verification remains to be performed on the classroom images.
+
+The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.
+
+Command-family references: [Huawei DHCP configuration](https://info.support.huawei.com/network/ptmngsys/Web/tsrev_wlan/en/content/wlan/24_edesk_sta_ip_failure/edesk_sta_ip_failure_edesk003.html), [Huawei LACP troubleshooting](https://info.support.huawei.com/network/ptmngsys/Web/tsrev_ce/en/content/ce/02_edesk_dc_trunk_down/edesk_dc_trunk_down_edesk004.html), and [Huawei routing fundamentals](https://info.support.huawei.com/info-finder/encyclopedia/en/detail?action=queryEntityDetail&keyword=IP+routing). Confirm commands against the selected eNSP image.

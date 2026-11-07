@@ -1,0 +1,16 @@
+% Course-local lab figure geometry; chapter typography and palette are retained.
+\newsavebox{\adslabfigurebox}
+\newenvironment{adslabfigure}[1][]{%
+  \par\smallskip\noindent\hfill\begin{minipage}{.94\linewidth}%
+  \utpdiagramsize{.90cm}{.62cm}%
+  \tikzset{utpnode/.append style={minimum size=7mm},
+    utpnodehot/.append style={minimum size=7mm},
+    utpstep/.append style={draw=UTPNavy!65}}%
+  \begin{utpfigure}[#1]%
+}{\end{utpfigure}\end{minipage}\hfill\mbox{}\par\smallskip}
+% Never enlarge a small graphic; constrain only drawings wider than their frame.
+\newenvironment{adslabgraphic}{\begin{lrbox}{\adslabfigurebox}}{%
+  \end{lrbox}%
+  \ifdim\wd\adslabfigurebox>\linewidth
+    \resizebox{\linewidth}{!}{\usebox{\adslabfigurebox}}%
+  \else\usebox{\adslabfigurebox}\fi}

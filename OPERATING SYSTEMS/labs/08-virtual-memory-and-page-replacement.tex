@@ -5,15 +5,41 @@
 \textbf{Goal.} Run three policies on one reference string so the victim rule is the only major change.\\
 \textbf{Explain.} Justify at least one replacement decision from each policy's stored state.
 
+\input{labs/visuals/08-flow}
+
+
 \section*{Source code}
 \labsourcecard{\texttt{fifo.c}}{Replace the page that has been resident the longest.}{\texttt{next} rotates through frame positions; page-use history is ignored.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/fifo.c}
+\noindent\textbf{Start the file.} \texttt{fifo.c}, lines 1--32.
+\input{labs/visuals/08-trace}
+
+
+\textbf{Use the chapter while coding.} Revisit \hyperref[ch:vm]{the earlier chapter explanation}; match its operation to the variables and state changes below.
+
+\textbf{Follow the supplied implementation.} The pointer changes only in the fault branch. Verify hits plus faults equals the number of references. LRU needs different metadata, so do not copy FIFO's hit handling into the recency-based implementation.
+\input{labs/visuals/08-worked-case.tex}
+
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=32]{all_experiments/Lab08/fifo.c}
+
+\noindent\textbf{Continue the same file.} \texttt{fifo.c}, lines 33--40.
+\lstinputlisting[style=utpcnumbered,firstline=33,lastline=40]{all_experiments/Lab08/fifo.c}
 
 \labsourcecard{\texttt{lru.c}}{Replace the least recently used resident page.}{\texttt{last\_used[]} stores the most recent reference step for each frame.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/lru.c}
+\noindent\textbf{Start the file.} \texttt{lru.c}, lines 1--24.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=24]{all_experiments/Lab08/lru.c}
+
+\noindent\textbf{Continue the same file.} \texttt{lru.c}, lines 25--56.
+\lstinputlisting[style=utpcnumbered,firstline=25,lastline=56]{all_experiments/Lab08/lru.c}
 
 \labsourcecard{\texttt{lfu.c}}{Replace the least frequently used resident page; use recency to break ties.}{Two pieces of policy state are tracked: \texttt{frequency[]} and \texttt{last\_used[]}.}
-\lstinputlisting[style=utpcnumbered]{all_experiments/Lab08/lfu.c}
+\noindent\textbf{Start the file.} \texttt{lfu.c}, lines 1--25.
+\lstinputlisting[style=utpcnumbered,firstline=1,lastline=25]{all_experiments/Lab08/lfu.c}
+
+\noindent\textbf{Continue the same file.} \texttt{lfu.c}, lines 26--58.
+\lstinputlisting[style=utpcnumbered,firstline=26,lastline=58]{all_experiments/Lab08/lfu.c}
+
+\noindent\textbf{Continue the same file.} \texttt{lfu.c}, lines 59--61.
+\lstinputlisting[style=utpcnumbered,firstline=59,lastline=61]{all_experiments/Lab08/lfu.c}
 
 \section*{Task 1 --- Compile and collect traces}
 \begin{lstlisting}[style=utpbash]
@@ -58,7 +84,13 @@ Choose one policy. In Vim change the final reference in its array from 2 to 7. P
 \end{enumerate}
 \end{quickcheck}
 
+\textbf{Chapter connection.} Revisit \hyperref[ch:vm]{the chapter explanation} and map its states to the steps below.
+\input{labs/visuals/08-virtual-memory-and-page-replacement-chapter.tex}
+
 \begin{verification}
+\textbf{Explain and extend your result.} Use the same reference string for all algorithms. Mark hits, faults and victims at every step and independently total faults before comparing the printed summaries.
+
+
 \begin{itemize}
   \item The final hit and fault totals are recorded for all three policies on the same reference string.
   \item One victim decision per policy is justified from that policy's rule.

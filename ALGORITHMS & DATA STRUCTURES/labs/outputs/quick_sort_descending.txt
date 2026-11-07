@@ -1,0 +1,19 @@
+== Trace on the common dataset ==
+  start: [29 10 14 37 13]   ([ ] marks the range being partitioned)
+  pivot 14 (middle of 0..4) -> [29 37 14 10 13]   pivot now at index 2
+  pivot 29 (middle of 0..1) -> [37 29] 14 10 13   pivot now at index 1
+  pivot 10 (middle of 3..4) -> 37 29 14 [13 10]   pivot now at index 4
+  result: [37 29 14 13 10]
+  comparisons: 6, swaps: 5
+  [ok]   the result is in descending order
+
+== More inputs ==
+  [ok]   duplicates: 5 3 5 1 5 9 3
+  [ok]   already ascending: 1 2 3 4 5 6
+  [ok]   already descending: 6 5 4 3 2 1
+  [ok]   all equal: 7 7 7 7
+  [ok]   one element and empty input
+
+The middle-index pivot keeps already-sorted input from producing the
+worst case that a last-element pivot gives: each partition still splits
+the range near its centre.

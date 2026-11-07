@@ -36,7 +36,7 @@ int main() {
         else { dTail->next = n; dTail = n; }
     }
 
-    // Circular: only `last` is kept; last->next is the head.
+    // Circular: only last is kept; last->next is the head.
     Node* last = nullptr;
     for (int v : input) {
         Node* n = new Node{v, nullptr};

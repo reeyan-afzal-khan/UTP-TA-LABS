@@ -1,0 +1,17 @@
+% Reused from chapters/02-understanding-and-preparing-data.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[
+  node distance=0.45cm,
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.75cm,minimum height=1.05cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[box] (meaning) {1. Define meaning\\rows, keys, units, timing};
+\node[box,right=of meaning] (rules) {2. Apply fixed rules\\parse, standardize, validate};
+\node[box,right=of rules] (split) {3. Split honestly\\groups, time, population};
+\node[box,right=of split] (learn) {4. Learn preparation\\from training data only};
+\draw[arr] (meaning)--(rules);
+\draw[arr] (rules)--(split);
+\draw[arr] (split)--(learn);
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

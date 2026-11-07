@@ -1,0 +1,59 @@
+% Worked lab input; chapter fonts, colours and TikZ styles retained.
+\begin{adslabfigure}[Three deletion cases applied to the same BST]
+\begin{adslabgraphic}
+\begin{tikzpicture}[font=\small]
+\begin{scope}[xshift=0cm,yshift=0cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {Start};
+\node[utpnode,minimum size=7mm] (n0) at (0,0) {50};
+\node[utpnode,minimum size=7mm] (n1) at (-1.4,-1) {30};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {70};
+\node[utpnodehot,minimum size=7mm] (n3) at (-2.1,-2) {20};
+\node[utpnode,minimum size=7mm] (n4) at (-0.7,-2) {40};
+\node[utpnode,minimum size=7mm] (n5) at (0.7,-2) {60};
+\node[utpnode,minimum size=7mm] (n6) at (2.1,-2) {80};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n1)--(n3);
+\draw[utpedge] (n1)--(n4);
+\draw[utpedge] (n2)--(n5);
+\draw[utpedge] (n2)--(n6);
+\end{scope}\begin{scope}[xshift=5.8cm,yshift=0cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {1. Delete leaf 20};
+\node[utpnode,minimum size=7mm] (n0) at (0,0) {50};
+\node[utpnodehot,minimum size=7mm] (n1) at (-1.4,-1) {30};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {70};
+\node[utpnode,minimum size=7mm] (n4) at (-0.7,-2) {40};
+\node[utpnode,minimum size=7mm] (n5) at (0.7,-2) {60};
+\node[utpnode,minimum size=7mm] (n6) at (2.1,-2) {80};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n1)--(n4);
+\draw[utpedge] (n2)--(n5);
+\draw[utpedge] (n2)--(n6);
+\end{scope}\begin{scope}[xshift=0cm,yshift=-3.8cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {2. Delete 30; promote 40};
+\node[utpnode,minimum size=7mm] (n0) at (0,0) {50};
+\node[utpnodehot,minimum size=7mm] (n1) at (-1.4,-1) {40};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {70};
+\node[utpnode,minimum size=7mm] (n5) at (0.7,-2) {60};
+\node[utpnode,minimum size=7mm] (n6) at (2.1,-2) {80};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n2)--(n5);
+\draw[utpedge] (n2)--(n6);
+\end{scope}\begin{scope}[xshift=5.8cm,yshift=-3.8cm]
+\node[utplabel,anchor=south,color=UTPNavy] at (0,.65) {3. Delete 50; copy successor 60};
+\node[utpnodehot,minimum size=7mm] (n0) at (0,0) {60};
+\node[utpnode,minimum size=7mm] (n1) at (-1.4,-1) {40};
+\node[utpnode,minimum size=7mm] (n2) at (1.4,-1) {70};
+\node[utpnode,minimum size=7mm] (n6) at (2.1,-2) {80};
+\draw[utpedge] (n0)--(n1);
+\draw[utpedge] (n0)--(n2);
+\draw[utpedge] (n2)--(n6);
+\end{scope}
+\draw[utparrow] (2.5,-.8)--(3.3,-.8);
+\draw[utparrow] (2.5,-4.6)--(3.3,-4.6);
+\node[utplabel,align=center] at (2.9,-6.6) {Final inorder: 40,60,70,80. Copying 60 also requires deleting its old node under 70.};
+\end{tikzpicture}
+\end{adslabgraphic}
+\end{adslabfigure}

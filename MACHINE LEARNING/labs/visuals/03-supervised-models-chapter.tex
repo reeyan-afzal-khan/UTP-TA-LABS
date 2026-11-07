@@ -1,0 +1,18 @@
+% Reused from chapters/10-nearest-neighbors-and-naive-bayes.tex
+\begin{labvisual}{Recall the chapter model}
+\begin{labgraphic}
+\begin{tikzpicture}[scale=1.05, font=\small]
+\foreach \p in {(1,1),(1.5,2),(2,1.2),(0.8,2.2)}
+  \fill \p circle (2.3pt);
+\foreach \p in {(3.5,3),(4,2.5),(3,3.6),(4.3,3.4)}
+  \draw[thick, fill=UTPPaleOrange] \p circle (2.3pt);
+\node[star, star points=5, star point ratio=2.4, fill=black,
+      inner sep=1.6pt] (q) at (2.6,2.4) {};
+\draw[dashed] (2.6,2.4) circle (1.32);
+\node[below=2pt] at (2.6,2.3) {new point};
+\node[align=left] at (0.55,3.5) {$\bullet$ = class A};
+\node[align=left] at (4.6,1.5) {$\circ$ = class B};
+\node[align=center] at (2.6,0.3)
+  {$k=3$ neighborhood: two of the three\\nearest points are class B $\rightarrow$ predict B};
+\end{tikzpicture}
+\end{labgraphic}\end{labvisual}

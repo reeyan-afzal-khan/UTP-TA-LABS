@@ -3,9 +3,9 @@
 
 \chapterguide%
   {Probability, expected value, optimization, and the idea of sequential decisions.}
-  {define states, actions, rewards, policies, and values; apply Q-learning and evaluate separately from exploration.}
+  {describe a problem as states, actions and rewards; balance exploring with exploiting; compute a discounted return; run Q-learning updates by hand; read a policy from a Q-table; and evaluate a greedy policy separately from training.}
 
-Reinforcement learning (RL) learns sequential decisions from rewards rather than correct action labels. Actions change future states, so the objective is long-term return.
+Nobody hands a puppy a table of correct actions. It sits, and it gets a treat. It chews a shoe, and it does not. Reinforcement learning (RL) learns the same way: there is no answer column at all, only a score that arrives after the learner acts, sometimes much later. Because actions change what happens next, the goal is not one good move but a good long run.
 
 \begin{coursechoice}
 Lab~6 implements tabular RL. Neural function approximation for deep RL lies beyond this course.
@@ -39,9 +39,11 @@ At time $t$:
 A warehouse robot tracks location and battery, chooses movement or charging, and balances time and collision costs against delivery rewards.
 \end{workedexample}
 
-\section{A simpler case: multi-armed bandits}
+\section{A simpler case: which food stall?}
 
-A bandit chooses among uncertain-reward actions without changing state, balancing learning with reward.
+\begin{analogy}
+Three stalls near campus serve lunch. You have a favorite. Tomorrow you could go back to it, or try the one you have never tried, which might be better or might waste a lunch. Every choice both feeds you and teaches you, and you cannot do both fully at once.
+\end{analogy}
 
 This creates the central RL problem:
 
@@ -51,6 +53,26 @@ This creates the central RL problem:
 \end{description}
 
 An $\varepsilon$-greedy strategy explores with probability $\varepsilon$ and otherwise exploits.
+
+\begin{workedexample}
+Three stalls give a good meal with hidden chances 0.2, 0.5 and 0.8. A student keeps a running average for each stall, and eats 1,000 lunches. Averaged over 500 students:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Strategy} & \utpth{Visits: stall 1} & \utpth{Stall 2} & \utpth{Stall 3} & \utpth{Good meals per lunch} \\
+\midrule
+$\varepsilon=0$: never explore & 1000 & 0 & 0 & 0.199 \\
+$\varepsilon=0.1$: explore one lunch in ten & 54 & 57 & 889 & 0.750 \\
+$\varepsilon=0.5$: explore half the time & 168 & 170 & 662 & 0.648 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+With no exploration, the student goes to the first stall, finds it acceptable, and never learns that a better one exists. Too much exploration keeps paying to learn something already known. The best possible rate is 0.8, and a little exploration gets close.
+\end{workedexample}
 
 \section{Markov decision processes}
 
@@ -68,24 +90,13 @@ Under the Markov assumption, the current state and action contain the informatio
 
 \section{Return and discounting}
 
-The return from time $t$ is the discounted sum of future rewards:
+A reward now is worth more than the same reward later, and the \term{discount factor} $\gamma$ says by how much. The \term{return} from time $t$ is the discounted sum of future rewards:
 \[
   G_t=r_{t+1}+\gamma r_{t+2}+\gamma^2r_{t+3}+\cdots.
 \]
 
-The discount factor $\gamma$ controls how much future rewards matter.
-
-\begin{itemize}
-  \item Small $\gamma$: favor immediate rewards.
-  \item Large $\gamma$: value long-term rewards more strongly.
-\end{itemize}
-
 \begin{workedexample}
-Suppose future rewards are $5$, $4$, and $3$, with $\gamma=0.9$. Then
-\[
-G_t=5+0.9(4)+0.9^2(3)=11.03.
-\]
-The later rewards count, but each is discounted.
+Future rewards are $5,4,3$. With $\gamma=0.9$, $G_t=5+0.9(4)+0.81(3)=11.03$. With $\gamma=0.5$ the return is 7.75. With $\gamma=0$ only the next reward counts, giving 5, and with $\gamma=1$ all count equally, giving 12.
 \end{workedexample}
 
 \section{Policies and value functions}
@@ -124,14 +135,11 @@ This recursive relationship is the basis of Q-learning.
 
 \section{Tabular Q-learning}
 
-When the state and action spaces are small, store one Q-value for every state-action pair in a table.
-
-After observing transition $(s_t,a_t,r_{t+1},s_{t+1})$, update
+When the state and action spaces are small, store one Q-value for every state-action pair in a table. After observing the transition $(s_t,a_t,r_{t+1},s_{t+1})$, update
 \[
 Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha\left[r_{t+1}+\gamma\max_{a'}Q(s_{t+1},a')-Q(s_t,a_t)\right].
 \]
-
-The bracketed quantity is the \term{temporal-difference error}: the difference between the new backup value and the current estimate.
+The quantity in brackets is the \term{temporal-difference error}: what just happened, plus the best you now expect from where you landed, minus what you believed. The estimate moves a fraction $\alpha$ of the way towards that new evidence.
 
 \begin{utpsteps}
   \item Initialize the Q-table, often with zeros.
@@ -142,14 +150,27 @@ The bracketed quantity is the \term{temporal-difference error}: the difference b
   \item Repeat over many episodes, gradually reducing exploration when appropriate.
 \end{utpsteps}
 
-Lab~6 trains on a $4\times4$ grid. After 5,000 episodes, its greedy policy reaches the goal in six moves for return $0.8$; the saved model is the Q-table.
-
 \begin{workedexample}
-With $Q(s,a)=2$, $r=1$, $\gamma=0.9$, next-state maximum 4, and $\alpha=0.5$, the backup is $4.6$ and TD error $2.6$:
-\[
-Q(s,a)\leftarrow2+0.5(2.6)=3.3.
-\]
-The estimate moves halfway toward the new backup value.
+\textbf{One update.} With $Q(s,a)=2$, $r=1$, $\gamma=0.9$, next-state maximum 4 and $\alpha=0.5$: the backup is $1+0.9\times4=4.6$, the TD error is $2.6$, and $Q(s,a)\leftarrow2+0.5(2.6)=3.3$.
+
+\textbf{Value walks backwards.} A corridor of cells 0, 1, 2, then a goal worth $+1$. The agent always walks right, with $\alpha=0.5$ and $\gamma=0.9$, and all Q-values start at zero. Here is $Q(\text{cell},\text{right})$ after each trip:
+
+\medskip
+\centering\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Episode} & \utpth{Cell 0} & \utpth{Cell 1} & \utpth{Cell 2} \\
+\midrule
+1 & 0.0000 & 0.0000 & 0.5000 \\
+2 & 0.0000 & 0.2250 & 0.7500 \\
+3 & 0.1013 & 0.4500 & 0.8750 \\
+4 & 0.2531 & 0.6188 & 0.9375 \\
+\bottomrule
+\end{tabular}
+\par\raggedright
+\medskip
+In episode 1 only the cell beside the goal learns anything. In episode 2 its value reaches the next cell back: $0.5\times(0+0.9\times0.5)=0.225$. News of the reward spreads backward, one cell per trip. That is why tabular RL needs so many episodes.
 \end{workedexample}
 
 \section{One Q-learning update, drawn}
@@ -177,6 +198,29 @@ The diagram separates a Q-update into its current estimate, backup value, and st
 \end{tikzpicture}
 \end{utpfig}
 
+\section{Lab~6's grid, solved}
+
+Lab~6 trains on a $4\times4$ grid: start top-left, goal bottom-right worth $+1$, a trap at row 1, column 3 worth $-1$, and $-0.04$ per step, with $\gamma=0.95$. The shortest route takes six moves, so its plain return is $5\times(-0.04)+1=0.80$, and its discounted return from the start is 0.593.
+
+We can compute the best possible value of every cell directly, by repeating the Bellman idea until nothing changes. \figref{fig:grid-values} shows the result. Lab~6's table, trained only from its own trial and error, reaches these same values to three decimals.
+
+\begin{utpfig}[The best value of every cell]{Best possible values on Lab~6's grid, with the policy the lab's agent learns. Values rise towards the goal. The cell above the trap is worth only 0.666, less than its left neighbor's 0.743, because it has to step back left to get round the trap.}{fig:grid-values}
+\begin{tikzpicture}[x=1.15cm,y=1.15cm,
+  gv/.style={draw=UTPBlue!55,minimum size=1.15cm,inner sep=0pt,align=center,font=\scriptsize\color{UTPNavy}}]
+\foreach \r/\c/\v/\a/\t in {0/0/0.593/{$\downarrow$}/18,0/1/0.666/{$\downarrow$}/24,0/2/0.743/{$\downarrow$}/32,0/3/0.666/{$\leftarrow$}/24,
+  1/0/0.666/{$\downarrow$}/24,1/1/0.743/{$\downarrow$}/32,1/2/0.824/{$\downarrow$}/40,
+  2/0/0.743/{$\rightarrow$}/32,2/1/0.824/{$\downarrow$}/40,2/2/0.910/{$\downarrow$}/50,2/3/1.000/{$\downarrow$}/60,
+  3/0/0.824/{$\rightarrow$}/40,3/1/0.910/{$\rightarrow$}/50,3/2/1.000/{$\rightarrow$}/60}
+  {\node[gv,fill=UTPTeal!\t] at (\c,-\r) {\v\\\a};}
+\node[gv,fill=UTPPaleRed,draw=UTPRed,font=\scriptsize\bfseries\color{UTPRed}] at (3,-1) {TRAP};
+\node[gv,fill=UTPPaleOrange,draw=UTPOrange,font=\scriptsize\bfseries\color{UTPNavy}] at (3,-3) {GOAL};
+\draw[UTPOrange,very thick,-{Stealth[length=2mm]}] (-0.40,0.20) -- (-0.40,-2.40) -- (0.60,-2.40) -- (0.60,-3.40) -- (2.75,-3.40);
+\node[font=\scriptsize\color{UTPOrange!85!black},anchor=west] at (3.6,-3.40) {the greedy route: six moves};
+\end{tikzpicture}
+\end{utpfig}
+
+\recipecard{Q-learning}{A table with one number for each pair of state and action.}{The squared temporal-difference error, in effect: how far the estimate is from reward plus discounted best next value.}{A small step towards that target after every move.}
+
 \section{Exploration strategies}
 
 \begin{utptable}
@@ -195,6 +239,8 @@ Upper confidence methods & Prefer actions with either strong estimated reward or
 Too little exploration can trap the agent in a poor policy. Too much exploration wastes reward and may be unsafe.
 
 \section{Evaluation and responsible use}
+
+Training returns mix learning with random moves, so they are not a fair measure of the policy. Evaluate with exploration switched off. Lab~6's first 100 episodes average a return of $-0.914$, its last 100 average 0.788 (still 5\% random moves), and the greedy policy scores exactly 0.800 on 200 out of 200 episodes.
 
 Policies change the data they encounter. Evaluate across seeds and report mean return and variation.
 
@@ -223,26 +269,7 @@ Main risks & Unsafe exploration, reward hacking, unstable estimates, poor state 
 Reinforcement learning does not learn from a correct answer for every action. It learns from consequences, balancing immediate reward, future reward, and the need to explore.
 \end{keyidea}
 
-\section{Bandit exploration behavior}
-
-Three bandit arms pay $0.2$, $0.5$, and $0.8$ on average. An $\varepsilon=0.1$ agent over 1,000 rounds might produce:
-
-\begin{utptable}
-\begin{tabularx}{0.75\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X X@{}}
-\toprule
-\rowcolor{UTPPaleBlue!92}
-\utpth{Machine} & \utpth{True mean reward} & \utpth{Pulls in 1,000 rounds} \\
-\midrule
-A & $0.2$ & about 40 \\
-B & $0.5$ & about 40 \\
-C & $0.8$ & about 920 \\
-\bottomrule
-\end{tabularx}
-\end{utptable}
-
-\begin{keyidea}
-The agent mostly exploits the best arm while exploring in one decision out of ten. Exploration reduces premature commitment at the cost of immediate reward.
-\end{keyidea}
+\section{Exploration schedules}
 
 \begin{utpfig}[Exploration schedules]{Exploration schedules for $\varepsilon$ over training episodes: a constant rate of $0.1$, and linear and exponential decays that level off at $0.05$.}{fig:epsilon-schedules}
 \begin{tikzpicture}
@@ -260,6 +287,8 @@ The agent mostly exploits the best arm while exploring in one decision out of te
 \end{axis}
 \end{tikzpicture}
 \end{utpfig}
+
+Lab~6 multiplies $\varepsilon$ by 0.9985 per episode from a start of 1, so it reaches its floor of 0.05 after 1,996 of the 5,000 episodes.
 
 \section{Tabular Q-learning dynamics}
 
@@ -285,16 +314,36 @@ Continuing tasks generally use $\gamma<1$ for a finite discounted return; finite
 \lib{gymnasium} (the maintained successor to OpenAI Gym) provides ready-made environments with a uniform interface, so you can practice without writing the environment mechanics yourself. For problems beyond small tables --- for example, image observations or continuous state spaces --- \lib{stable-baselines3} provides implementations of standard deep-RL algorithms on top of PyTorch.
 \end{libnote}
 
-\begin{keyidea}
-Large or continuous state spaces require function approximation; neural approximators lead to deep RL.
-\end{keyidea}
-
-\input{labs/06-reinforcement}
+\begin{chapterrecap}
+\begin{itemize}
+  \item RL learns from rewards that arrive after actions. There is no answer column, and actions change the data you see next.
+  \item Exploring teaches and exploiting earns. On the food stalls, $\varepsilon=0$ got 0.199 and $\varepsilon=0.1$ got 0.750 of a possible 0.8.
+  \item The return discounts future rewards by $\gamma$. A value function is an expected return.
+  \item Q-learning nudges each estimate towards reward plus discounted best next value, so news of a reward walks backward through the table.
+  \item Evaluate the greedy policy separately from training. In high-stakes settings, explore in a simulator first.
+\end{itemize}
+\end{chapterrecap}
 
 \begin{quickcheck}
 \begin{enumerate}
   \item What are the state, action, reward, and transition in a reinforcement-learning formulation?
   \item What two pieces of information appear in the tabular Q-learning backup value?
+  \item With $Q(s,a)=0$, $r=-0.04$, $\gamma=0.95$, next-state maximum 0.6 and $\alpha=0.15$, what is the new $Q(s,a)$?
+  \item In the corridor, what is $Q(\text{cell 1},\text{right})$ after episode 2, and why was it zero after episode 1?
   \item Why should the exploratory training policy be evaluated separately from the final greedy policy?
+  \item A student with $\varepsilon=0$ ate at the first stall forever. Which step of the loop was missing?
 \end{enumerate}
 \end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item The state is the situation now, the action is the choice made, the reward is the immediate score, and the transition is the rule that gives the next state.
+  \item The immediate reward, and the discounted best Q-value available from the next state.
+  \item The backup is $-0.04+0.95\times0.6=0.53$, and the update gives $0+0.15\times0.53=0.0795$.
+  \item 0.225. During episode 1, cell 1 updated before cell 2 had learned anything, so its next-state value was still 0.
+  \item Training deliberately makes some random moves, so its returns understate what the learned policy can do, and they include early episodes from before it learned.
+  \item Exploration: the student never tried the other actions, so their estimates never changed.
+\end{enumerate}
+\end{checkanswers}
+
+\input{labs/06-reinforcement}

@@ -1,0 +1,40 @@
+SYNTHETIC TEACHING EXAMPLE -- replace assumptions with sourced evidence
+Sample account ownership: 64.7%
+gender
+         mean  count
+gender              
+female  0.649    322
+male    0.644    278
+income_quintile
+                  mean  count
+income_quintile              
+1                0.480    127
+2                0.528    106
+3                0.648    125
+4                0.752    133
+5                0.826    109
+urban_rural
+              mean  count
+urban_rural              
+rural        0.682    292
+urban        0.614    308
+education
+            mean  count
+education              
+primary    0.606    198
+secondary  0.685    197
+tertiary   0.649    205
+access        0.647
+active        0.362
+meaningful    0.205
+dtype: float64
+Unbanked denominator: 212
+no_credit_history    0.547
+cost                 0.491
+documentation        0.387
+distance             0.288
+trust                0.231
+dtype: float64
+Thin-file denominator: 500
+Alternative-data reach: 75.2%
+The sample design is synthetic; these are not national estimates.

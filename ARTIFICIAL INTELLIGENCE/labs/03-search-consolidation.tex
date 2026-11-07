@@ -1,90 +1,87 @@
 \labsection{3}{Search Engineering: Package, Tests, CLI, and Benchmark}{sec:lab03-search-code}
 
 \begin{labproject}{Turn Labs 1--2 into a reproducible Python toolkit}
-\textbf{Coverage.} Chapter~\ref{ch:searchpatterns}.\\
-\textbf{Goal.} Standardise five algorithms, verify them with dataset-free tests, expose a CLI, and benchmark ten route queries.\\
+\textbf{Read first.} Chapter~\ref{ch:searchpatterns}.\\
+\textbf{Goal.} Standardise five algorithms, verify them with dataset-free tests, expose a command-line interface, and benchmark ten route queries.\\
 \textbf{Scenario.} Convert notebook logic into reusable, testable software.\\
 \textbf{Data.} The OpenFlights files and \texttt{all\_experiments/utils/search\_queries.csv}; unit tests use hand-made graphs.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}; implementation and tests are in \texttt{all\_experiments/utils/}.
+\textbf{Notebook.} \texttt{all\_experiments/lab03\_search\_engineering\_worked.ipynb}; implementation and tests are in \texttt{all\_experiments/utils/}.\\
+\textbf{Hand in.} The executed notebook, the \texttt{results/lab03/} folder and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
 \begin{labmode}
-Before opening the notebook, check the package from a terminal. The unit tests need no dataset and finish in under a second; the command line reproduces the Lab~2 answer:
+\begin{enumerate}
+  \item Activate your course environment.
+  \item From \texttt{all\_experiments/}, run the tests and one route search in a terminal. These two commands should work before you open the notebook.
+  \item Start Jupyter from the same folder, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. Everything runs in a few seconds.
+\end{enumerate}
 \begin{lstlisting}[style=utpterminal]
 cd all_experiments
 python -m pytest utils -q
 python -m utils --algorithm astar --start KUL --goal KEF
+jupyter lab
 \end{lstlisting}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab03\_search\_engineering\_worked.py} runs the same code and writes the same evidence.
 \end{labmode}
 
-\noindent\textbf{Setup cell.}
+\input{labs/visuals/03-flow}
+
+\labroutine
+
+\begin{yourturn}
+\textbf{Warm-up on paper.} The notebook's tiny graph is below. Before running anything, write down the path and cost you expect from each of BFS, DFS, UCS, GBFS and A$^\star$. The heuristic is $h(S)=5$, $h(A)=4$, $h(B)=1$, $h(G)=0$.
 \begin{lstlisting}[style=utppython]
-import subprocess
-import sys
-from pathlib import Path
-
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from IPython.display import display
-
-import utils
-from utils import SearchResult, bfs, dfs, ucs, gbfs, astar, haversine_km, load_openflights
-
-ROOT = Path.cwd().parent
-DATA = ROOT / "all_datasets"
-RESULTS = ROOT / "results" / "lab03"
-RESULTS.mkdir(parents=True, exist_ok=True)
+toy = {"S": [("A", 2.0), ("B", 5.0)], "A": [("G", 5.0)], "B": [("G", 1.0)], "G": []}
 \end{lstlisting}
+\end{yourturn}
+
+\textbf{Setup.} Run the imports and path setup first, and keep this kernel state for the later questions. In the script version the first seven lines also set the working directory.
+\lstinputlisting[style=utppython,firstline=1,lastline=7]{all_experiments/lab03_search_engineering_worked.py}
+\lstinputlisting[style=utppython,firstline=8,lastline=23]{all_experiments/lab03_search_engineering_worked.py}
+
+\textbf{Read the shared search engine.} Labs~1 and~2 used this module without looking inside. Read it now, in five parts, before running the engineering checks. It lives at \texttt{all\_experiments/utils/core.py}, and the package initialiser exposes these functions to every notebook.
+
+\noindent\textbf{Result record and path reconstruction.}
+\lstinputlisting[style=utppython,firstline=1,lastline=42]{all_experiments/utils/core.py}
+\noindent\textbf{Cost accounting and BFS.}
+\lstinputlisting[style=utppython,firstline=43,lastline=74]{all_experiments/utils/core.py}
+\noindent\textbf{DFS and the priority-frontier interface.}
+\lstinputlisting[style=utppython,firstline=75,lastline=106]{all_experiments/utils/core.py}
+\noindent\textbf{Priority search, stale entries and termination.}
+\lstinputlisting[style=utppython,firstline=107,lastline=135]{all_experiments/utils/core.py}
+\noindent\textbf{UCS, greedy and A$^\star$ entry points.}
+\lstinputlisting[style=utppython,firstline=136,lastline=148]{all_experiments/utils/core.py}
 
 \begin{labquestion}{1}{Standardise the interface}
-Every algorithm must return the same fields: found flag, path, hops, path cost, expanded nodes, maximum frontier and runtime. Show the fields of \texttt{SearchResult}, then run all five algorithms on a small hand-made graph and display the results as one table.
+Every algorithm must return the same fields. Show the fields of \texttt{SearchResult}, then run all five algorithms on the small hand-made graph and display the results as one table.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-print("SearchResult fields:", list(SearchResult.__dataclass_fields__))
+\input{labs/visuals/03-trace}
+Use this fixture before the airline benchmark. A hop-minimising algorithm can choose either two-hop route according to its neighbour order, because it does not look at their weights.
+\input{labs/visuals/03-worked-case.tex}
 
-toy = {"S": [("A", 2.0), ("B", 5.0)], "A": [("G", 5.0)], "B": [("G", 1.0)], "G": []}
-h = {"S": 5.0, "A": 4.0, "B": 1.0, "G": 0.0}.get      # a hand-made consistent heuristic
-
-results = {
-    "BFS": bfs(toy, "S", "G"),
-    "DFS": dfs(toy, "S", "G"),
-    "UCS": ucs(toy, "S", "G"),
-    "GBFS": gbfs(toy, "S", "G", h),
-    "A*": astar(toy, "S", "G", h),
-}
-table = pd.DataFrame({name: r.as_dict() for name, r in results.items()}).T.drop(columns="runtime_ms")
-table["path"] = table.path.map(" -> ".join)
-display(table)
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=25,lastline=39]{all_experiments/lab03_search_engineering_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 SearchResult fields: ['found', 'path', 'hops', 'path_cost_km', 'expanded', 'max_frontier', 'runtime_ms']
-     found         path hops path_cost_km expanded max_frontier
-BFS   True  S -> A -> G    2          7.0        3            2
-DFS   True  S -> A -> G    2          7.0        2            2
-UCS   True  S -> B -> G    2          6.0        3            2
-GBFS  True  S -> B -> G    2          6.0        2            2
-A*    True  S -> B -> G    2          6.0        3            2
+      path          hops  cost  expanded  max_frontier
+BFS   S -> A -> G      2   7.0         3             2
+DFS   S -> A -> G      2   7.0         2             2
+UCS   S -> B -> G      2   6.0         3             2
+GBFS  S -> B -> G      2   6.0         2             2
+A*    S -> B -> G      2   6.0         3             2
 \end{lstlisting}
-All five functions return a \texttt{SearchResult} with identical fields, so one loop can benchmark them. On the toy graph BFS and DFS return the two-edge route S$\to$A$\to$G (cost 7) while UCS and A$^\star$ return the cheaper S$\to$B$\to$G (cost 6); GBFS also picks S$\to$B$\to$G because $h(B)<h(A)$.
+\end{refoutput}
+
+\textbf{What it means.} All five functions return a \texttt{SearchResult} with identical fields, so one loop can benchmark them. BFS and DFS return the two-edge route through A at cost 7, while UCS and A$^\star$ return the cheaper route through B at cost 6. GBFS also picks B, because $h(B) < h(A)$.
 \end{labanswer}
 
 \begin{labquestion}{2}{Separate responsibilities}
 Search logic, data loading, plotting and the command line must live in separate modules. List the package's modules with their one-line purpose, and the names it exports.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-package = Path(utils.__file__).parent
-for module in sorted(package.glob("*.py")):
-    purpose = module.read_text(encoding="utf-8").splitlines()[0].strip('"')
-    print(f"{module.name:<16} {purpose}")
-print("\nExported names:", ", ".join(utils.__all__))
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=41,lastline=45]{all_experiments/lab03_search_engineering_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 __init__.py      Helper code for the AI course notebooks.
 __main__.py      Command-line route search (Lab 3).
@@ -95,123 +92,128 @@ test_search.py   Unit tests for utils.core on tiny hand-made graphs (no dataset 
 
 Exported names: SearchResult, astar, best_first, bfs, dfs, gbfs, ucs, haversine_km, load_openflights, route_is_valid, plot_route_paths
 \end{lstlisting}
-\texttt{core.py} holds the five algorithms and knows nothing about airports; \texttt{openflights.py} cleans the CSV files and computes distances; \texttt{plotting.py} draws routes; \texttt{\_\_main\_\_.py} is the command line; \texttt{test\_search.py} holds the tests. Each module can be changed and tested on its own.
+\end{refoutput}
+
+\textbf{What it means.} \texttt{core.py} holds the five algorithms and knows nothing about airports; \texttt{openflights.py} cleans the CSV files and computes distances; \texttt{plotting.py} draws routes; \texttt{\_\_main\_\_.py} is the command line; \texttt{test\_search.py} holds the tests. Each module can be changed and tested on its own.
 \end{labanswer}
 
-\begin{labquestion}{3}{Run the automated tests}
-The tests use tiny hand-made graphs and cover start~=~goal, unreachable goal, cycles, different objectives, frontier updates, consistent A$^\star$, non-optimal GBFS and negative costs. Run them with \texttt{pytest} from inside the notebook.
-\end{labquestion}
+\textbf{Connect it to the chapter.} The module split is the same boundary as this picture: everything above the frontier policy belongs to the problem, and the policy names the algorithm.
+\input{labs/visuals/03-search-consolidation-chapter.tex}
 
+\begin{labquestion}{3}{Run the automated tests}
+The tests use tiny hand-made graphs and cover start = goal, unreachable goal, cycles, different objectives, frontier updates, consistent A$^\star$, non-optimal GBFS and negative costs. Run them with pytest from inside the notebook.
+\end{labquestion}
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-tests = subprocess.run([sys.executable, "-m", "pytest", "utils", "-q", "--color=no"], capture_output=True, text=True)
-print(tests.stdout)
-assert tests.returncode == 0, tests.stderr
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=47,lastline=49]{all_experiments/lab03_search_engineering_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 ........                                                                 [100%]
-8 passed in 0.59s
+8 passed in 0.71s
 \end{lstlisting}
-All eight tests pass in under a second. They need no dataset, so they run anywhere --- including a continuous-integration server. The \texttt{assert} turns a failing test run into a failing notebook, so a broken package cannot produce a benchmark.
+\end{refoutput}
+
+\textbf{What it means.} All eight tests pass in under a second. They need no dataset, so they run anywhere, including on a continuous-integration server. A harmless \texttt{PytestCacheWarning} may also appear if the folder is read-only or synced by a cloud drive.
 \end{labanswer}
 
 \begin{labquestion}{4}{Exercise the command-line interface}
 Run \texttt{python -m utils --algorithm astar --start KUL --goal KEF} as a subprocess and show its output.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-cli = subprocess.run([sys.executable, "-m", "utils", "--algorithm", "astar", "--start", "KUL", "--goal", "KEF"],
-                     capture_output=True, text=True)
-print(cli.stdout)
-assert cli.returncode == 0, cli.stderr
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=51,lastline=54]{all_experiments/lab03_search_engineering_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=4.20
+ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=3.75
 KUL -> HKT -> LED -> HEL -> KEF
 \end{lstlisting}
-The command line prints the same KUL$\to$HKT$\to$LED$\to$HEL$\to$KEF route and 11,461~km that Lab~2 found: the notebook and the terminal share one implementation.
+\end{refoutput}
+
+\textbf{What it means.} The command line prints the same route and 11,461~km that Lab~2 found, because the notebook and the terminal share one implementation.
 \end{labanswer}
 
 \begin{labquestion}{5}{Benchmark ten route pairs}
 Run BFS, UCS, GBFS and A$^\star$ on the ten queries in \texttt{utils/search\_queries.csv} and summarise success rate, mean cost, mean hops, expanded nodes and runtime per algorithm. Save \texttt{benchmark.csv} and \texttt{benchmark\_summary.csv}.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-_, _, coords, graph, _ = load_openflights(DATA / "lab01-03_airports.csv", DATA / "lab01-03_routes.csv")
-queries = pd.read_csv("utils/search_queries.csv")
-
-
-def heuristic_to(goal):
-    return lambda a: haversine_km(coords[a]["latitude"], coords[a]["longitude"], coords[goal]["latitude"], coords[goal]["longitude"])
-
-
-rows = []
-for query in queries.itertuples():
-    h = heuristic_to(query.goal)
-    results = {"BFS": bfs(graph, query.start, query.goal), "UCS": ucs(graph, query.start, query.goal),
-               "GBFS": gbfs(graph, query.start, query.goal, h), "A*": astar(graph, query.start, query.goal, h)}
-    for name, result in results.items():
-        rows.append({"query_id": query.query_id, "start": query.start, "goal": query.goal, "algorithm": name,
-                     **result.as_dict(), "path": " -> ".join(result.path)})
-
-benchmark = pd.DataFrame(rows).rename(columns={"path_cost_km": "cost_km"})
-benchmark.to_csv(RESULTS / "benchmark.csv", index=False)
-summary = benchmark.groupby("algorithm").agg(success_rate=("found", "mean"), mean_cost_km=("cost_km", "mean"),
-                                             mean_hops=("hops", "mean"), mean_expanded=("expanded", "mean"),
-                                             median_runtime_ms=("runtime_ms", "median")).round(2)
-summary.to_csv(RESULTS / "benchmark_summary.csv")
-display(summary)
-
-costs = benchmark.pivot(index="query_id", columns="algorithm", values="cost_km")
-print("A* cost equals UCS on all 10 queries:", np.allclose(costs["A*"], costs["UCS"]))
-print("GBFS is costlier than UCS on", int((costs["GBFS"] > costs["UCS"] + 1e-6).sum()), "of 10 queries")
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=56,lastline=83]{all_experiments/lab03_search_engineering_worked.py}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-           success_rate  mean_cost_km  mean_hops  mean_expanded  median_runtime_ms
-algorithm
-A*                  1.0      14321.11        2.2           62.7               3.39
-BFS                 1.0      16469.27        1.8          323.9               3.03
-GBFS                1.0      15087.33        2.1            2.1               2.90
-UCS                 1.0      14321.11        2.2         2700.4               7.58
 A* cost equals UCS on all 10 queries: True
 GBFS is costlier than UCS on 7 of 10 queries
 \end{lstlisting}
-Every algorithm succeeds on all ten queries. A$^\star$ matches the UCS cost on every query with a fraction of the expansions; BFS has the highest mean cost because it optimises hops; GBFS expands the fewest states but returns a costlier route on seven queries. For distance-based routing A$^\star$ is the best default among the exact methods.
+\end{refoutput}
+
+\textbf{What it means.} Every algorithm succeeds on all ten queries. A$^\star$ matches the UCS cost on every query with a fraction of the expansions; BFS has the highest mean cost because it optimises hops; GBFS expands the fewest states but returns a costlier route on seven queries. For distance-based routing, A$^\star$ is the best default among the exact methods.
 \end{labanswer}
 
 \begin{labquestion}{6}{Save the evidence}
-Save a bar chart of mean expansions per algorithm, and note the one-line terminal command that runs the same tests outside the notebook.
+Save a bar chart of mean expansions per algorithm. Then note the one-line terminal command that runs the same tests outside the notebook.
 \end{labquestion}
-
 \begin{labanswer}
-\begin{lstlisting}[style=utppython]
-ax = summary.mean_expanded.sort_values().plot.bar(figsize=(7, 4), logy=True)
-ax.set(ylabel="Mean expanded states (log scale)", title="Ten-query search-effort benchmark")
-ax.grid(axis="y", alpha=0.25)
-plt.tight_layout()
-plt.savefig(RESULTS / "benchmark_expansions.png", dpi=160)
-print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
-print("Terminal command (from all_experiments):  python -m pytest utils -q")
-\end{lstlisting}
-\expectedoutput
+\lstinputlisting[style=utppython,firstline=85,lastline=91]{all_experiments/lab03_search_engineering_worked.py}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/03-notebook-reference.png}
+\end{labvisual}
+\begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Saved: ['benchmark.csv', 'benchmark_expansions.png', 'benchmark_summary.csv']
 Terminal command (from all_experiments):  python -m pytest utils -q
 \end{lstlisting}
-\texttt{python -m pytest utils -q} runs the same tests from a clean checkout, which is exactly what a continuous-integration job would do. Setting up such a job is an optional extension; the required evidence is the passing local run.
+\end{refoutput}
+
+\textbf{Read the result.} Regenerate this plot rather than copying it. The vertical axis is logarithmic, so the gap between A$^\star$ and UCS is much larger than it looks.
 \end{labanswer}
+
+\begin{yourturn}
+\begin{enumerate}
+  \item \textbf{Add two tests.} Append the two tests below to \texttt{utils/test\_search.py}, then rerun \texttt{python -m pytest utils -q}. The first checks a boundary case for the informed searches. The second pins down what happens when two routes cost the same. Check the result contract, not only the \texttt{found} flag.
+  \item \textbf{Use the command line.} Run \texttt{ucs}, \texttt{gbfs} and \texttt{astar} from \texttt{DOH} to \texttt{LIM}. Record cost, route and expansions for each.
+  \item \textbf{Find the boundary.} Open \texttt{demo\_robot\_maze.py} and answer: which function plays the role that \texttt{openflights.py} plays for airports, and which lines of \texttt{core.py} had to change for the maze to work?
+\end{enumerate}
+\begin{lstlisting}[style=utppython]
+def test_start_equals_goal_informed():
+    h = {"A": 0.0}.get
+    for algorithm in (gbfs, astar):
+        result = algorithm({"A": []}, "A", "A", h)
+        assert result.found and result.path == ["A"]
+        assert result.hops == 0 and result.path_cost_km == 0
+
+
+def test_equal_cost_routes_keep_the_minimum_cost():
+    graph = {"S": [("A", 1.0), ("B", 1.0)], "A": [("G", 1.0)], "B": [("G", 1.0)], "G": []}
+    assert ucs(graph, "S", "G").path_cost_km == pytest.approx(2.0)
+\end{lstlisting}
+\end{yourturn}
+
+\begin{expectedfindings}
+\begin{enumerate}
+  \item \texttt{10 passed}. Question~3's reference output will now read 10 instead of 8, which is correct. If you remove the tests again, it returns to 8.
+  \item UCS: 14,856~km via MAD, 3,046 expanded. GBFS: 15,333~km via GRU, 2 expanded. A$^\star$: 14,856~km via MAD, 112 expanded.
+  \item \texttt{build\_graph} is the maze's loader, and no line of \texttt{core.py} changed. That is the domain boundary of \figref{fig:domains}: a new domain needs a new loader and nothing else.
+\end{enumerate}
+\end{expectedfindings}
+
+\begin{troubleshoot}
+\begin{description}
+  \item[\texttt{No module named pytest}] Your environment is not active, or the requirements were not installed in it. Activate it and run \texttt{pip install -r requirements.txt}.
+  \item[\texttt{No module named utils}] Run \texttt{python -m utils} and \texttt{python -m pytest utils} from inside \texttt{all\_experiments/}.
+  \item[A test fails after you edited \texttt{core.py}] Good: that is what the tests are for. Read which test failed; each one names one way a search can break.
+\end{description}
+\end{troubleshoot}
 
 \begin{verification}
 \begin{itemize}
   \item All five algorithms return a \texttt{SearchResult} with identical fields.
-  \item All eight tests pass with \texttt{python -m pytest utils -q}, without any dataset.
+  \item All tests pass with \texttt{python -m pytest utils -q}, without any dataset.
   \item The command line prints the KUL$\to$HKT$\to$LED$\to$HEL$\to$KEF route and 11,461~km, as Lab~2 found.
   \item Every algorithm succeeds on all ten benchmark queries, and A$^\star$ matches the UCS cost on each.
   \item \texttt{results/lab03/} holds \texttt{benchmark.csv}, \texttt{benchmark\_summary.csv} and \texttt{benchmark\_expansions.png}.
 \end{itemize}
 \end{verification}
+
+\begin{labdeliverable}
+\begin{itemize}
+  \item Restart the kernel and run all cells without errors.
+  \item Submit the executed notebook, your edited \texttt{test\_search.py} and the generated \texttt{results/lab03/} folder.
+  \item Add a short conclusion: recommend a default method for distance-based routing, and explain which module would change for a different graph domain.
+\end{itemize}
+\end{labdeliverable}

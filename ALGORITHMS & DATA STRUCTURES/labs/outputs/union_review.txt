@@ -1,0 +1,16 @@
+== Structure versus union ==
+sizeof(MeasurementStruct) = 24 bytes
+sizeof(MeasurementUnion)  = 8 bytes (the size of its largest member, double = 8)
+
+After u.count = 42:     u.count   = 42
+After u.reading = 3.75: u.reading = 3.75  (count was overwritten; read only the member written last)
+
+== A 1D array: daily temperatures ==
+day 1: 31
+day 2: 33
+day 3: 30
+day 4: 29
+day 5: 34
+day 6: 32
+day 7: 31
+highest: 34, average: 31.4286

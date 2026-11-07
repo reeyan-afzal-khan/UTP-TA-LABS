@@ -1,0 +1,110 @@
+\textbf{Program 2: Doubly linked list in both directions.}
+
+\textbf{File:} \texttt{doubly\_linked\_list.cpp}.
+
+\textbf{Chapter connection:} Doubly linked lists.
+
+Every edit must repair both next and prev. Keep head and tail consistent when a boundary node changes. The invariantsHold helper checks the structure after each operation; forward and backward displays reveal mismatched links.
+
+\input{labs/visuals/program-doubly_linked_list}
+
+\begin{utpsteps}\setcounter{enumi}{0}\item \textbf{Headers and initial definitions.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 10--24.
+
+\lstinputlisting[firstline=10,lastline=24]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{1}\item \textbf{Implement append, pushFront, insertAt.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 25--60.
+
+\textbf{Read the chapter visual with the code.} The diagram illustrates the storage rule; the program tests the values and cases stated in \texttt{main}.
+\input{labs/visuals/dll}
+
+\lstinputlisting[firstline=25,lastline=60]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{2}\item \textbf{Implement displayForward, displayBackward, search and helpers.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 61--94.
+
+
+
+\lstinputlisting[firstline=61,lastline=94]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{3}\item \textbf{Implement destroy, invariantsHold, forwardContents and helpers.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 95--130.
+
+\lstinputlisting[firstline=95,lastline=130]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{4}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 131--164.
+
+\lstinputlisting[firstline=131,lastline=164]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\begin{utpsteps}\setcounter{enumi}{5}\item \textbf{Connect the test cases in main.}\end{utpsteps}
+
+\texttt{doubly\_linked\_list.cpp} --- lines 165--177. Continue in the same file; do not add another header or opening brace.
+
+\lstinputlisting[firstline=165,lastline=177]{all_experiments/Lab03/doubly_linked_list.cpp}
+
+
+\tcbbreak
+
+\textbf{Build, run, and inspect doubly\_linked\_list.}
+
+From this program\textquotesingle s folder, run these commands in PowerShell:
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+g++ -std=c++17 -Wall -Wextra doubly_linked_list.cpp -o doubly_linked_list.exe
+
+.\doubly_linked_list.exe
+
+\end{lstlisting}
+
+\textbf{Expected output excerpt.} Compare values, order, and pass/fail messages; spacing need not match.
+
+\begin{lstlisting}[style=utpterminal,language={}]
+
+== Insertions at several positions ==
+append 20
+  forward:  20 
+  backward: 20 
+  [ok]   next/prev invariants hold
+append 40
+  forward:  20 40 
+  backward: 40 20 
+  [ok]   next/prev invariants hold
+insert 10 at the head
+  forward:  10 20 40 
+  backward: 40 20 10 
+  [ok]   next/prev invariants hold
+insert 30 at position 2 (middle)
+  forward:  10 20 30 40
+
+\end{lstlisting}
+
+The complete captured run is in \texttt{labs/outputs/doubly\_linked\_list.txt}.
+
+\begin{tryit}
+
+Delete the first and last entries from a fresh three-node list. Check head->prev and tail->next are null, and that backward output is the reverse of forward output.
+
+\end{tryit}
