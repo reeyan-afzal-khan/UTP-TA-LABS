@@ -1,6 +1,8 @@
 /results/
 /tools/runtime/
 /tools/data/
+/tools/*/runtime/
+/tools/*/data/
 
 # =========================
 # macOS

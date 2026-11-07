@@ -53,8 +53,9 @@ Every practical runs in **Odoo 19 Community Edition**. Lab 1 sets up the databas
 deployment, use the database you were assigned. Appendix A is a quick reference to the Odoo menus the labs use.
 
 **[Odoo setup guidelines](ODOO-SETUP.md)** get Odoo 19 running on Windows, macOS or Linux with nothing installed first:
-double-click the launcher in [`tools`](tools/README.md), and Python, Odoo and PostgreSQL are downloaded into that
-folder and stay there. macOS has not been tested yet. The guidelines also show how to run
+open the launcher in your system's folder under [`tools`](tools/README.md), and Python, Odoo and PostgreSQL are downloaded
+into that folder and stay there. macOS has been tested on Intel, but not yet run on Apple Silicon. The guidelines also
+show how to run
 [`all_experiments/odoo_tasks/run_all_labs.py`](all_experiments/odoo_tasks/run_all_labs.py), which performs the Odoo
 tasks of all eight labs and the capstone and checks each result.
 
@@ -72,7 +73,8 @@ ENTERPRISE RESOURCE PLANNING/
   labs/               8 Odoo practicals, input together in Stage 5
   appendices/         the Odoo quick reference and the course source map
   ODOO-SETUP.md       how to set up and run Odoo for the labs, on Windows, macOS or Linux
-  tools/              the launchers and setup script; Python, Odoo and PostgreSQL are downloaded here
+  tools/              windows/, mac/ and linux/, each with its launcher and setup script; Python, Odoo and
+                      PostgreSQL are downloaded into the one you use
   all_experiments/    the S&OP checker, and odoo_tasks/ which runs every lab's Odoo tasks
   results/            evidence the lab code writes (not committed)
   0.from_lecturer/    the lecturer's notes, tutorials, TA answer guides and teaching manuals

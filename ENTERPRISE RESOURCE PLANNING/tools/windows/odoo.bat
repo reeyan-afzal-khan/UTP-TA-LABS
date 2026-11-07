@@ -1,12 +1,12 @@
 @echo off
-rem Windows launcher. Double-click for the menu, or run: tools\odoo setup
-rem Needs nothing installed: on the first run it downloads a private Python into tools\runtime.
+rem Windows launcher. Double-click for the menu, or run: tools\windows\odoo setup
+rem Needs nothing installed: on the first run it downloads a private Python into tools\windows\runtime.
 setlocal
 title Odoo 19 - ERP practicals
 set "TOOLS=%~dp0"
 set "RUNTIME=%TOOLS%runtime"
 set "PY=%RUNTIME%\python\python.exe"
-cd /d "%TOOLS%.."
+cd /d "%TOOLS%..\.."
 if exist "%PY%" goto run
 
 set "URL=https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16+20261026-x86_64-pc-windows-msvc-install_only.tar.gz"
@@ -56,7 +56,7 @@ del "%ARCHIVE%"
 goto failed
 
 :no_unpack
-echo Python could not be unpacked. Delete tools\runtime and try again.
+echo Python could not be unpacked. Delete tools\windows\runtime and try again.
 goto failed
 
 :failed

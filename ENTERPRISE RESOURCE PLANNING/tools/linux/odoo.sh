@@ -1,11 +1,11 @@
 #!/bin/sh
-# macOS and Linux launcher. Run "sh tools/odoo.sh" for the menu, or: sh tools/odoo.sh setup
+# Linux launcher. Run "sh tools/linux/odoo.sh" for the menu, or: sh tools/linux/odoo.sh setup
 # Needs nothing installed beyond curl or wget, and tar: on the first run it downloads a
-# private Python into tools/runtime.
+# private Python into tools/linux/runtime.
 tools=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 runtime="$tools/runtime"
 python="$runtime/python/bin/python3"
-cd "$tools/.." || exit 1
+cd "$tools/../.." || exit 1
 
 bootstrap() {
     release="https://github.com/astral-sh/python-build-standalone/releases/download/20261026"
@@ -16,14 +16,9 @@ bootstrap() {
         Linux-aarch64)
             name="aarch64-unknown-linux-gnu"
             sha="a945427411dc6851a1393533b74a4a1ac434321ae397f2ec69897a9b4fde032b" ;;
-        Darwin-arm64)
-            name="aarch64-apple-darwin"
-            sha="fbf4afef53c2a6b72bb741bc06d5671a9dfaf87bd84e5aa73ac9b3d0d589f14e" ;;
-        Darwin-x86_64)
-            name="x86_64-apple-darwin"
-            sha="a962e47df522889eaa7ff0d6a56203f1079f68aabb65ffdbe8455f362bc769f3" ;;
         *)
             echo "There is no ready-made Python here for $(uname -s) $(uname -m)."
+            echo "This folder is for Linux. For a Mac use tools/mac, and for Windows tools/windows."
             return 1 ;;
     esac
     url="$release/cpython-3.12.16+20261026-$name-install_only.tar.gz"
@@ -59,7 +54,7 @@ bootstrap() {
 
     rm -rf "$unpack"
     mkdir -p "$unpack"
-    tar -xzf "$archive" -C "$unpack" || { echo "Python could not be unpacked. Delete tools/runtime and try again."; return 1; }
+    tar -xzf "$archive" -C "$unpack" || { echo "Python could not be unpacked. Delete tools/linux/runtime and try again."; return 1; }
     mv "$unpack/python" "$runtime/python" || return 1
     rm -rf "$unpack" "$archive"
 }

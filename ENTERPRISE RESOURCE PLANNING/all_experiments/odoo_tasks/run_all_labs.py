@@ -2,9 +2,10 @@
 
 Run inside an Odoo shell, from the course folder, through the launcher's run command:
 
-    sh tools/odoo.sh run all_experiments/odoo_tasks/run_all_labs.py
+    sh tools/mac/odoo.sh run all_experiments/odoo_tasks/run_all_labs.py
 
-On Windows, write tools followed by a backslash and odoo in place of sh tools/odoo.sh.
+On Linux, use sh tools/linux/odoo.sh instead. On Windows, use the odoo launcher in the
+windows folder under tools, which takes the same run command.
 
 The labs follow the tutorial order, but their records depend on each other, so
 this script follows the capstone's order instead: Lab 1, Lab 7, Lab 3, Lab 4,
@@ -17,7 +18,7 @@ so a role without the right access fails here as it would in the browser.
 
 Values the book states are used as printed. The supplied guide is not in the
 course folder, so what it alone would give is marked ASSUMED below.
-Each check is written to tools/data/results/evidence.json.
+Each check is written to data/results/evidence.json, in your system's folder under tools.
 """
 import json
 import os

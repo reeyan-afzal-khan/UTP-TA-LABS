@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Set up and run Odoo 19 for the ERP practicals, entirely inside the tools folder.
 
-Run it through a launcher: double-click tools\\odoo.bat on Windows or tools/odoo.command
-on macOS, or run sh tools/odoo.sh on Linux. With no command, it shows a menu.
+Run it through its launcher: double-click tools/mac/odoo.command, or run
+sh tools/mac/odoo.sh from the course folder. It works on Intel and Apple Silicon Macs.
+With no command, it shows a menu.
 
     setup      download and set up everything, or repair what is missing
     start      start the database and Odoo, and open the browser
@@ -16,8 +17,8 @@ on macOS, or run sh tools/odoo.sh on Linux. With no command, it shows a menu.
     reset      delete the lab database (names ending _labs only)
 
 Nothing is installed on the computer. Python, Odoo and PostgreSQL are downloaded into
-tools/runtime, and the database, passwords and logs live in tools/data. To remove it all,
-stop Odoo and delete those two folders. See ../ODOO-SETUP.md.
+tools/mac/runtime, and the database, passwords and logs live in tools/mac/data. To remove it all,
+stop Odoo and delete those two folders. See ../../ODOO-SETUP.md.
 """
 import argparse
 import configparser
@@ -32,6 +33,7 @@ import platform
 import re
 import secrets
 import shutil
+import signal
 import site
 import socket
 import subprocess
@@ -58,17 +60,15 @@ ODOO_URL = f"https://github.com/odoo/odoo/archive/{ODOO_COMMIT}.tar.gz"
 # Portable PostgreSQL 18.6, with each file's checksum.
 POSTGRES_VERSION = "18.6.0"
 POSTGRES_BUILDS = {
-    ("Windows", "x86_64"): ("windows-amd64", "b7ef2d03588e0439f0d0a2250f43905f7464f1e96ace47703ceaf79094198150"),
-    ("Linux", "x86_64"): ("linux-amd64", "008ee189eaa7ca2b58bd01dd950291e638b998392cf982297acd4779ec898ac1"),
-    ("Linux", "aarch64"): ("linux-arm64v8", "5f54e016723afa6213925a8acb939bac52944b1d348f65c7a20f0cd2928c31be"),
     ("Darwin", "arm64"): ("darwin-arm64v8", "8f6ed6f38195b50a40712ada8b2a12060b6193c1a6977a6eb5cff053bb5a1b89"),
     ("Darwin", "x86_64"): ("darwin-amd64", "690941008aac9ee360820fde9bb7870a4f3dcac5e9e2f9e45e42333a436ad0f9"),
 }
 
-MAX_WINDOWS_ODOO_PATH = 100
+# The oldest macOS that needs no compiler. PostgreSQL's files are built for macOS 13, and on
+# Apple Silicon the package for Odoo's fixed libsass version needs macOS 14.
+OLDEST_MACOS = {"x86_64": 13, "arm64": 14}
 
 TOOLS = Path(__file__).resolve().parent
-COURSE_DIR = TOOLS.parent
 RUNTIME = TOOLS / "runtime"
 DATA = TOOLS / "data"
 PYTHON_DIR = RUNTIME / "python"
@@ -87,7 +87,7 @@ RESULTS = DATA / "results"
 
 WINDOWS = os.name == "nt"
 SYSTEM = {"AMD64": "x86_64", "x86_64": "x86_64", "arm64": "arm64", "aarch64": "aarch64"}.get(platform.machine(), platform.machine())
-LAUNCHER = "tools\\odoo" if WINDOWS else "sh tools/odoo.sh"
+LAUNCHER = "sh tools/mac/odoo.sh"
 INTERACTIVE = sys.stdout.isatty()
 
 COLOURS = {"OK": "32", "WARN": "33", "FAIL": "31", "INFO": "36"}
@@ -151,6 +151,32 @@ def need_ready():
         stop(f"Odoo is not set up yet. Run: {LAUNCHER} setup")
 
 
+def is_synced():
+    """Whether iCloud, OneDrive, Google Drive or Dropbox is syncing this folder."""
+    home = Path.home()
+    if any(TOOLS.is_relative_to(home / place) for place in ("Library/Mobile Documents", "Library/CloudStorage", "Dropbox")):
+        return True
+    # A Desktop or Documents folder synced to iCloud stays where it is, so ask Finder.
+    for folder, setting in (("Desktop", "FXICloudDriveDesktop"), ("Documents", "FXICloudDriveDocuments")):
+        if TOOLS.is_relative_to(home / folder):
+            found = subprocess.run(["/usr/bin/defaults", "read", "com.apple.finder", setting], capture_output=True, text=True)
+            return found.stdout.strip() == "1"
+    return False
+
+
+def warn_about_this_mac():
+    """Things that can cause trouble later on, reported early. Neither stops anything."""
+    version = platform.mac_ver()[0]
+    oldest = OLDEST_MACOS.get(SYSTEM, 13)
+    if int(version.split(".")[0]) < oldest:
+        say("WARN", f"This Mac has macOS {version}, and this setup is made for macOS {oldest} or newer. "
+                    "If it fails, update macOS.")
+    if is_synced():
+        say("WARN", f"This folder is synced to the cloud: {TOOLS}\n"
+                    "       Syncing can damage a running database. Stop Odoo and move the course folder somewhere\n"
+                    "       that is not synced, such as a new folder in your home folder. It keeps working there.")
+
+
 # ------------------------------------------------------------------ downloads
 def download(url, target, sha256=None):
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -189,6 +215,11 @@ def download(url, target, sha256=None):
 # ------------------------------------------------------------------ Python packages
 def pip_install(env, *arguments):
     """Runs pip, showing one line of progress, and its full output only if it fails."""
+    if subprocess.run(["/usr/bin/xcode-select", "-p"], capture_output=True).returncode:
+        # No developer tools here. rjsmin has no ready-made package for a Mac, so pip builds it,
+        # and it tries to compile an optional part. Without this, macOS would stop to offer
+        # to install the tools. rjsmin carries on perfectly well in plain Python.
+        env = {**env, "CC": "/usr/bin/false", "CXX": "/usr/bin/false"}
     process = subprocess.Popen([sys.executable, "-m", "pip", "install", *arguments], stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT, env=env, text=True, encoding="utf-8", errors="replace")
     lines, installed = [], None
@@ -210,16 +241,20 @@ def pip_install(env, *arguments):
 
 
 def write_lab_requirements():
-    """Odoo's own list, with the two packages that would need a compiler changed.
+    """Odoo's own list, with the two packages that would need a compiler changed, and one added.
 
     psycopg2-binary is the same module as psycopg2, built ready to use. python-ldap is
     needed only for signing in through a company directory, which the labs do not use.
+    rl-renderPM draws barcodes. Odoo lists it only for Windows, because Linux systems get
+    it with their own reportlab package, but a Mac needs it too.
     """
     lines = []
     for raw in (ODOO_DIR / "requirements.txt").read_text(encoding="utf-8").splitlines():
         code = raw.split("#")[0].strip()
         if re.match(r"(?i)python-ldap\b", code):
             continue
+        if re.match(r"(?i)rl-renderPM\b", code):
+            code = code.split(";")[0].strip()
         lines.append(re.sub(r"(?i)^psycopg2\b", "psycopg2-binary", code))
     REQUIREMENTS.write_text("\n".join(l for l in lines if l) + "\n", encoding="utf-8")
 
@@ -350,8 +385,12 @@ def start_database(env):
 
 
 def stop_database(env):
+    # Once stopping has begun, let it finish, even if Ctrl+C is pressed again or the window closes.
+    interrupt, hang_up = signal.signal(signal.SIGINT, signal.SIG_IGN), signal.signal(signal.SIGHUP, signal.SIG_IGN)
     subprocess.run([pg_tool("pg_ctl"), "-D", str(PGDATA), "-m", "fast", "-w", "-t", "60", "stop"], env=env,
                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    signal.signal(signal.SIGINT, interrupt)
+    signal.signal(signal.SIGHUP, hang_up)
 
 
 @contextlib.contextmanager
@@ -452,13 +491,10 @@ def create_lab_database(args, env):
 
 
 def cmd_setup(args):
-    # Odoo's longest file path is 144 characters, and Windows limits a whole path to 260.
-    if WINDOWS and len(str(ODOO_DIR)) > MAX_WINDOWS_ODOO_PATH:
-        stop(f"This folder is too deep for Windows: {COURSE_DIR}\n"
-             "       Move it closer to the drive, for example to C:\\ERP, then delete tools\\runtime and try again.")
     env = clean_env()
     heading("Step 1 of 6: Python")
     verify_python()
+    warn_about_this_mac()
     setup_packages(env)
 
     heading("Step 2 of 6: Odoo 19")
@@ -496,6 +532,7 @@ def cmd_setup(args):
 def cmd_check(args):
     env = clean_env()
     verify_python()
+    warn_about_this_mac()
     if not (ODOO_DIR / "odoo-bin").exists():
         say("WARN", f"Odoo is not here yet. To set it up: {LAUNCHER} setup")
         return
@@ -557,7 +594,8 @@ def cmd_start(args):
     try:
         code = subprocess.run(command, env=env).returncode
     except KeyboardInterrupt:
-        print("\nStopping...", flush=True)
+        with contextlib.suppress(OSError):  # if the window was closed, there is nowhere to print this
+            print("\nStopping...", flush=True)
     finally:
         if started:
             stop_database(env)
@@ -643,10 +681,13 @@ def cmd_menu(args):
     here = str(Path(__file__).resolve())
 
     def run(*command):
+        # Ctrl+C reaches this menu as well as the command. Wait for the command to finish, because
+        # letting subprocess stop it here would kill it before it has stopped the database.
+        previous = signal.signal(signal.SIGINT, lambda *_: None)
         try:
             subprocess.run([sys.executable, "-I", here, *command])
-        except KeyboardInterrupt:
-            pass  # Ctrl+C has stopped Odoo; go back to the menu
+        finally:
+            signal.signal(signal.SIGINT, previous)
 
     while True:
         print("\n  Odoo 19 for the ERP practicals")
@@ -687,13 +728,14 @@ def cmd_menu(args):
 
 # ------------------------------------------------------------------ verification
 def inside_tools(path):
-    return os.path.normcase(os.path.abspath(path)).startswith(os.path.normcase(str(TOOLS)))
+    # In lower case, because a Mac's disk usually ignores case: ~/desktop works as well as ~/Desktop.
+    return os.path.abspath(path).lower().startswith(str(TOOLS).lower())
 
 
 def verify_python():
     label = f"Python {sys.version.split()[0]} ({64 if sys.maxsize > 2**32 else 32}-bit)"
     if sys.version_info[:2] != PYTHON:
-        say("FAIL", f"{label}: this course needs Python {PYTHON[0]}.{PYTHON[1]}. Delete tools/runtime and start again.")
+        say("FAIL", f"{label}: this course needs Python {PYTHON[0]}.{PYTHON[1]}. Delete tools/mac/runtime and start again.")
     else:
         say("OK", label)
     if inside_tools(sys.prefix):
@@ -749,8 +791,7 @@ def verify_packages():
             name, version = line.split("==", 1)
             locked[canonicalize_name(name)] = version.strip()
     installed = {canonicalize_name(d.metadata["Name"]): d.version for d in dists}
-    windows_only = {"colorama", "pywin32", "pypiwin32", "rl-renderpm"}
-    expected = {n: v for n, v in locked.items() if WINDOWS or n not in windows_only}
+    expected = locked
     absent = sorted(set(expected) - set(installed))
     wrong = [f"{n} {installed[n]} (locked {expected[n]})" for n in sorted(expected) if n in installed and installed[n] != expected[n]]
     if absent or wrong:
@@ -760,7 +801,7 @@ def verify_packages():
         say("OK", f"all {len(expected)} packages match the known-good versions in {CONSTRAINTS.name}")
 
     names = ["lxml", "lxml.html.clean", "psycopg2", "PIL", "reportlab", "cryptography", "OpenSSL", "sass", "rjsmin", "cbor2"]
-    names += ["win32api"] if WINDOWS else ["gevent"]
+    names += ["gevent", "_rl_renderPM"]
     # In a new process: this one started before the packages were installed, and
     # pywin32 only sets up its import paths when Python starts.
     code = ("import importlib, json, sys\n"
@@ -820,6 +861,10 @@ def verify_all(args):
 
 
 # ------------------------------------------------------------------ command line
+def window_closed(*_):
+    raise KeyboardInterrupt
+
+
 def main():
     sys.stdout.reconfigure(errors="replace")  # a console may lack some of pip's characters
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -830,7 +875,7 @@ def main():
         sub.set_defaults(handler=handler)
         sub.add_argument("--database", default=DATABASE, help=f"lab database (default {DATABASE})")
         sub.add_argument("--port", type=int, default=PORT, help=f"web port (default {PORT})")
-        sub.add_argument("--results", help="folder for the labs' evidence (default tools/data/results)")
+        sub.add_argument("--results", help="folder for the labs' evidence (default tools/mac/data/results)")
         return sub
 
     add("setup", cmd_setup, "download and set up everything, or repair what is missing")
@@ -853,6 +898,10 @@ def main():
         else:
             parser.print_help()
             return
+    # Closing the window sends SIGHUP. Treat it like Ctrl+C, so that the database is stopped too.
+    # The menu just ends, and leaves that to the command it is running.
+    if args.command != "menu":
+        signal.signal(signal.SIGHUP, window_closed)
     args.handler(args)
 
 

@@ -1,67 +1,43 @@
 # Odoo setup tools
 
-Everything needed to run Odoo 19 for the ERP practicals, on Windows, macOS or Linux. You do not need to install
-anything first. Python, Odoo and PostgreSQL are downloaded into this folder, and nothing is installed on your computer.
+Everything needed to run Odoo 19 for the ERP practicals. You do not need to install anything first. Each system has its
+own folder. Python, Odoo and PostgreSQL are downloaded into that folder, and nothing is installed on your computer.
 
 Full instructions and troubleshooting are in the [setup guidelines](../ODOO-SETUP.md).
 
 ## Quick start
 
-Open the menu, choose **1** to set up, then **2** to start Odoo:
+Open the menu for your system, choose **1** to set up, then **2** to start Odoo:
 
-| System | Open the menu |
-| --- | --- |
-| Windows | Double-click `tools\odoo.bat` |
-| macOS | Double-click `tools/odoo.command` |
-| Linux | Run `sh tools/odoo.sh` from the course folder |
+| System | Folder | Open the menu |
+| --- | --- | --- |
+| Windows | [`windows`](windows/README.md) | Double-click `tools\windows\odoo.bat` |
+| macOS, Intel or Apple Silicon | [`mac`](mac/README.md) | Double-click `tools/mac/odoo.command` |
+| Linux | [`linux`](linux/README.md) | Run `sh tools/linux/odoo.sh` from the course folder |
 
-```text
-  1  Set up or repair everything
-  2  Start Odoo and open the browser
-  3  Show the web address and password
-  4  Check that everything is working
-  5  Show where everything is
-  6  Delete the lab database and create it again
-  0  Exit
-```
+Odoo opens at <http://localhost:8070>. Sign in as `admin`; choose **3** to see the password.
 
-You need an internet connection for the first setup, and about 2 GB of free disk space. Odoo opens at
-<http://localhost:8070>. Sign in as `admin`; choose **3** to see the password.
-
-## Commands
-
-If you prefer typing, run these from the course folder. On Windows, start with `tools\odoo`. On macOS and Linux, start
-with `sh tools/odoo.sh`.
-
-| Command | What it does |
-| --- | --- |
-| `setup` | Downloads and sets up everything, or repairs what is missing. Safe to rerun |
-| `start` | Starts the database and Odoo, and opens the browser. `Ctrl+C` stops them |
-| `login` | Shows the web address and password |
-| `check` | Reports on everything and changes nothing |
-| `status` | Shows where everything is, and what is running |
-| `stop` | Stops the database if it was left running |
-| `shell` | Opens a Python shell inside Odoo |
-| `run FILE` | Runs a script inside Odoo |
-| `init` | Creates the lab database |
-| `reset` | Deletes the lab database. It refuses names that do not end in `_labs` |
-
-## What is in this folder
+## What is in each folder
 
 | Path | Contents |
 | --- | --- |
-| `odoo.bat`, `odoo.command`, `odoo.sh` | Launchers for Windows, macOS and Linux. They download Python on the first run |
+| `odoo.bat`, `odoo.command`, `odoo.sh` | That system's launcher. It downloads Python on the first run |
 | `setup_odoo.py` | The script that does the work |
 | `constraints.txt` | The known-good version of each Python package |
-| `runtime/` | Created by setup: Python 3.12, Odoo 19 and PostgreSQL 18. Not committed |
-| `data/` | Created by setup: the database, passwords, logs and lab evidence. Not committed |
+| `README.md` | What is particular to that system, and how far it has been tested |
+| `runtime`, `data` | Created by setup. Not committed |
 
-**To remove everything,** stop Odoo and delete `runtime` and `data`. Nothing is left elsewhere on the computer.
+Each folder is a complete copy and does not need the others, so a fix to `setup_odoo.py` has to be made in each copy that
+needs it.
 
-## Tested on
+`.gitattributes` applies to all three folders, and keeps each launcher's line endings right.
 
-| System | Result |
-| --- | --- |
-| Windows 11 | Set up from nothing, with no Python, conda or PostgreSQL visible; all 105 lab checks pass |
-| Ubuntu 24.04 | Clean machine, with no Python, compiler or PostgreSQL; all 105 lab checks pass |
-| macOS | **Not yet tested.** Please report what you find |
+## If you set up Odoo before these folders existed
+
+Your setup is still in `tools/runtime` and `tools/data`. To keep your database, stop Odoo and move both into your system's
+folder. Otherwise, delete them and set up again from that folder.
+
+## Looking after these tools
+
+[`MAINTAINER-NOTES.md`](MAINTAINER-NOTES.md) says how far each copy has been tested, how the copies differ, and what is left
+to do.

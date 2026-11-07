@@ -1,22 +1,32 @@
 # Odoo 19 setup guidelines
 
 These guidelines get Odoo 19 Community running for all eight labs, on Windows, macOS or Linux. **You do not need to
-install anything first.** Python, Odoo and PostgreSQL are downloaded into the course's `tools` folder and stay there.
-Your computer's settings, and any Python or database already on it, are not used or changed.
+install anything first.** Python, Odoo and PostgreSQL are downloaded into your system's folder under `tools`, and stay
+there. Your computer's settings, and any Python or database already on it, are not used or changed.
+
+| System | Its folder |
+| --- | --- |
+| Windows | `tools\windows` |
+| macOS, on Intel or Apple Silicon | `tools/mac` |
+| Linux | `tools/linux` |
+
+In these guidelines, `<system>` stands for `windows`, `mac` or `linux`.
 
 ## What you need
 
 - An internet connection for the first setup. After that, Odoo works offline.
 - About 2 GB of free disk space.
-- Windows 10 version 1803 or newer, macOS, or Linux. Linux also needs `curl` or `wget`, which most systems have.
+- Windows 10 version 1803 or newer, macOS 13 or newer (macOS 14 or newer on Apple Silicon), or Linux. Linux also needs
+  `curl` or `wget`, which most systems have.
 
 You do **not** need Python, Anaconda, PostgreSQL, Git, Node.js or a compiler.
 
 | System | How far this has been tested |
 | --- | --- |
-| Windows 11 | Fully, from nothing to all 105 lab checks |
-| Ubuntu 24.04 | Fully, from a clean machine to all 105 lab checks |
-| macOS | **Not yet tested.** Please tell your instructor what happens |
+| Windows 11 | Fully, from nothing to all 105 lab checks, before its files moved into `tools\windows`. Not run since then |
+| Ubuntu 24.04 | Fully, from a clean machine to all 105 lab checks, before its files moved into `tools/linux`. Not run since then |
+| macOS 15 on Intel | Fully, from nothing to all 105 lab checks, and signing in through a browser |
+| macOS on Apple Silicon | **Not run yet.** Its downloads were checked from an Intel Mac: the checksums match, the programs are correctly signed, and every package has a ready-made version. Please tell your instructor what happens |
 
 ## Set it up
 
@@ -24,11 +34,11 @@ You do **not** need Python, Anaconda, PostgreSQL, Git, Node.js or a compiler.
 
 | System | What to do | If it is blocked |
 | --- | --- | --- |
-| Windows | Double-click `odoo.bat` in the `tools` folder | If *Windows protected your PC* appears, choose *More info*, then *Run anyway* |
-| macOS | Double-click `odoo.command` in the `tools` folder | Right-click it and choose *Open*. If that does not work, open Terminal in the course folder and run `sh tools/odoo.sh` |
-| Linux | Open a terminal in the course folder and run `sh tools/odoo.sh` | Run it as your normal user, not as root |
+| Windows | Double-click `odoo.bat` in the `tools\windows` folder | If *Windows protected your PC* appears, choose *More info*, then *Run anyway* |
+| macOS | Double-click `odoo.command` in the `tools/mac` folder | See [If macOS blocks it](#if-macos-blocks-it) |
+| Linux | Open a terminal in the course folder and run `sh tools/linux/odoo.sh` | Run it as your normal user, not as root |
 
-The first time, it downloads Python into the `tools` folder and then shows this menu:
+The first time, it downloads Python into the folder and then shows this menu:
 
 ```text
   Odoo 19 for the ERP practicals
@@ -67,6 +77,22 @@ usual `admin`.
 
 **5. To stop Odoo,** press `Ctrl+C` in its window. Next time, just open the menu and choose 2.
 
+### If macOS blocks it
+
+If you got the course as a download, macOS may refuse to open `odoo.command`, saying it cannot verify it. That is because
+it is a script from outside the App Store, not because anything is wrong with it. Either of these gets past it:
+
+- **Use Terminal, which needs no settings changed.** Open Terminal, type `cd ` with a space after it, drag the course
+  folder into the window, and press Return. Then run `sh tools/mac/odoo.sh`.
+- **Allow the file.** Try to open it once. Then open *System Settings*, choose *Privacy & Security*, scroll down, and
+  choose *Open Anyway*.
+
+If macOS asks whether Terminal may use your Desktop or Documents folder, choose *Allow*, because the course folder is
+there.
+
+Keep the course folder out of iCloud, OneDrive, Google Drive and Dropbox, because syncing can damage a running database.
+This includes a Desktop or Documents folder that is synced to iCloud. Setup warns you if the folder is in one of them.
+
 ## How this relates to the install video
 
 The [course video](https://www.youtube.com/watch?v=e9ffZ97NoD8) installs each piece by hand, and it is still the best
@@ -75,9 +101,9 @@ way to see what each one does. The `tools` folder does the same job, but keeps i
 | In the video | With the `tools` folder |
 | --- | --- |
 | Install Git and clone Odoo from GitHub (4 GB) | Downloads a fixed Odoo 19 commit. No Git needed, and the course stays on Odoo 19 |
-| Install Anaconda, add it to PATH, create an environment | A private Python 3.12 in `tools/runtime/python`. No PATH changes |
+| Install Anaconda, add it to PATH, create an environment | A private Python 3.12 in `tools/<system>/runtime/python`. No PATH changes |
 | `pip install setuptools wheel`, then `pip install -r requirements.txt` | The same steps, with fixed versions |
-| Install PostgreSQL, add it to PATH, create a role in pgAdmin | A private PostgreSQL in `tools/runtime/postgres`, with the role created for you |
+| Install PostgreSQL, add it to PATH, create a role in pgAdmin | A private PostgreSQL in `tools/<system>/runtime/postgres`, with the role created for you |
 | Install Node.js and `rtlcss` | Left out, because only right-to-left languages need it |
 | `python odoo-bin -r odoo -w odoo123 ...` | Choose 2 in the menu |
 | Sign in with `admin` / `admin` | Sign in with a generated password |
@@ -99,17 +125,23 @@ on a new database, because it creates the records itself and will not run twice 
 Windows:
 
 ```text
-tools\odoo run all_experiments\odoo_tasks\run_all_labs.py
+tools\windows\odoo run all_experiments\odoo_tasks\run_all_labs.py
 ```
 
-macOS and Linux:
+macOS:
 
 ```text
-sh tools/odoo.sh run all_experiments/odoo_tasks/run_all_labs.py
+sh tools/mac/odoo.sh run all_experiments/odoo_tasks/run_all_labs.py
 ```
 
-It ends with a summary, and writes every check to `tools/data/results/evidence.json`. It also creates these logins, which
-use the same password as `admin`:
+Linux:
+
+```text
+sh tools/linux/odoo.sh run all_experiments/odoo_tasks/run_all_labs.py
+```
+
+It ends with a summary, and writes every check to `tools/<system>/data/results/evidence.json`. It also creates these
+logins, which use the same password as `admin`:
 
 | Login | Role | Department | Main apps |
 | --- | --- | --- | --- |
@@ -119,11 +151,12 @@ use the same password as `admin`:
 | `accountant` | Accountant | Accounting and Finance (head) | Invoicing |
 | `hr.officer` | HR Officer | Human Resources (head) | Employees |
 
-Lab 6's calculation needs only Python. On Windows, use the first line. On macOS and Linux, use the second:
+Lab 6's calculation needs only Python. Use the line for your system, in the order Windows, macOS, Linux:
 
 ```text
-tools\runtime\python\python.exe all_experiments\sop_planner.py
-tools/runtime/python/bin/python3 all_experiments/sop_planner.py
+tools\windows\runtime\python\python.exe all_experiments\sop_planner.py
+tools/mac/runtime/python/bin/python3 all_experiments/sop_planner.py
+tools/linux/runtime/python/bin/python3 all_experiments/sop_planner.py
 ```
 
 **Still your own work:** the tutorial answers, research, slides, flowcharts, swimlanes and screenshots. The script
@@ -134,7 +167,7 @@ creates the records those are based on, not the submissions.
 ## Commands
 
 The menu covers the everyday tasks. If you prefer typing, run these from the course folder. On Windows, start with
-`tools\odoo`. On macOS and Linux, start with `sh tools/odoo.sh`.
+`tools\windows\odoo`. On macOS, start with `sh tools/mac/odoo.sh`. On Linux, start with `sh tools/linux/odoo.sh`.
 
 | Command | What it does |
 | --- | --- |
@@ -155,22 +188,25 @@ Add `--port 8071` to `start` to use another web port.
 
 | Path | Contents |
 | --- | --- |
-| `tools/runtime/python` | Python 3.12 and Odoo's packages |
-| `tools/runtime/odoo` | Odoo 19's code |
-| `tools/runtime/postgres` | PostgreSQL 18 |
-| `tools/data/pgdata` | The database, on port 54329 and reachable only from this computer |
-| `tools/data/odoo-files` | Files uploaded to Odoo |
-| `tools/data/odoo.conf` | Database settings |
-| `tools/data/lab-login.txt`, `postgres-admin.txt` | Generated passwords. Never share or commit these |
-| `tools/data/logs` | `odoo.log` and `postgres.log` |
-| `tools/data/results` | The labs' evidence |
+| `tools/<system>/runtime/python` | Python 3.12 and Odoo's packages |
+| `tools/<system>/runtime/odoo` | Odoo 19's code |
+| `tools/<system>/runtime/postgres` | PostgreSQL 18 |
+| `tools/<system>/data/pgdata` | The database, on port 54329 and reachable only from this computer |
+| `tools/<system>/data/odoo-files` | Files uploaded to Odoo |
+| `tools/<system>/data/odoo.conf` | Database settings |
+| `tools/<system>/data/lab-login.txt`, `postgres-admin.txt` | Generated passwords. Never share or commit these |
+| `tools/<system>/data/logs` | `odoo.log` and `postgres.log` |
+| `tools/<system>/data/results` | The labs' evidence |
 
 `runtime` and `data` are not committed to Git.
 
-- **To back up your lab work,** stop Odoo and copy `tools/data`.
-- **To start over but keep the downloads,** stop Odoo, delete `tools/data`, and choose 1.
-- **To remove everything,** stop Odoo and delete `tools/runtime` and `tools/data`. Nothing is left elsewhere.
+- **To back up your lab work,** stop Odoo and copy `tools/<system>/data`.
+- **To start over but keep the downloads,** stop Odoo, delete `tools/<system>/data`, and choose 1.
+- **To remove everything,** stop Odoo and delete `tools/<system>/runtime` and `tools/<system>/data`. Nothing is left
+  elsewhere.
 - **To move the course folder,** stop Odoo first. It keeps working in its new place.
+- **To keep a setup made before the system folders existed,** stop Odoo and move `tools/runtime` and `tools/data` into
+  your system's folder.
 
 ## What is left out
 
@@ -185,8 +221,14 @@ These are not needed for the labs:
 
 | What you see | Cause | Fix |
 | --- | --- | --- |
-| The window closes at once on Windows | An error appeared and closed | Open a terminal in the course folder and run `tools\odoo` to read it |
-| `This folder is too deep for Windows` | The folder's path is too long for Windows | Move the course folder closer to the drive, such as `C:\ERP`, delete `tools\runtime`, and try again |
+| The window closes at once on Windows | An error appeared and closed | Open a terminal in the course folder and run `tools\windows\odoo` to read it |
+| `This folder is too deep for Windows` | The folder's path is too long for Windows | Move the course folder closer to the drive, such as `C:\ERP`, delete `tools\windows\runtime`, and try again |
+| macOS says it cannot open or verify `odoo.command` | macOS checks files that came from a download | See [If macOS blocks it](#if-macos-blocks-it) |
+| `you do not have appropriate access privileges` on a Mac | A download or cloud drive dropped the run permission | Open Terminal in the course folder and run `sh tools/mac/odoo.sh` |
+| `Operation not permitted` on a Mac | Terminal may not use that folder | In *System Settings*, *Privacy & Security*, *Files & Folders*, allow Terminal. Or move the course folder into a new folder in your home folder |
+| `This folder is synced to the cloud` | The course folder is in iCloud, OneDrive, Google Drive or Dropbox | Stop Odoo and move the course folder to one that is not synced. It keeps working there |
+| `This Mac has macOS ...` | This macOS is older than the setup is made for | Update macOS. If you cannot, carry on and see what happens |
+| `The private Python will not run on this Mac` | `tools/mac/runtime` came from a different type of Mac | Delete `tools/mac/runtime` and try again. Your work in `tools/mac/data` is kept |
 | `Python could not be downloaded` | No connection, or a network blocks GitHub | Check your connection, or try another network |
 | `This needs curl or wget` | Neither is installed on Linux | Run `sudo apt-get install -y curl` |
 | `did not match its expected checksum` | The download was damaged or changed | Try again. If it repeats, tell your instructor |
@@ -199,5 +241,5 @@ These are not needed for the labs:
 | A blank page on first visit | Odoo is still building its web files | Wait about a minute and reload |
 | Printing a PDF gives an error | `wkhtmltopdf` is left out | Take a screenshot instead |
 
-Odoo's log is `tools/data/logs/odoo.log`. To start completely fresh, stop Odoo, delete `tools/runtime` and `tools/data`,
-and open the menu again.
+Odoo's log is `tools/<system>/data/logs/odoo.log`. To start completely fresh, stop Odoo, delete `tools/<system>/runtime`
+and `tools/<system>/data`, and open the menu again.
