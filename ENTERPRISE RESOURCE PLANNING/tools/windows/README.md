@@ -17,7 +17,7 @@ run from the course folder, starting with `tools\windows\odoo`.
 | `odoo.bat` | The launcher. It downloads Python on the first run |
 | `setup_odoo.py` | The script that does the work |
 | `constraints.txt` | The known-good version of each Python package |
-| `runtime\` | Created by setup: Python 3.12, Odoo 19 and PostgreSQL 18. Not committed |
+| `runtime\` | Created by setup: Python 3.12, Odoo 19, PostgreSQL 18 and Microsoft's C++ runtime. Not committed |
 | `data\` | Created by setup: the database, passwords, logs and lab evidence. Not committed |
 
 **To remove everything,** stop Odoo and delete `runtime` and `data`. Nothing is left elsewhere on the computer.
@@ -34,4 +34,5 @@ move the course folder closer to the drive, as the message says.
 
 | System | Result |
 | --- | --- |
-| Windows 11 | Set up from nothing, with no Python, conda or PostgreSQL visible; all 105 lab checks pass. This was before the files moved into this folder, and it has not been run since. Only the paths changed |
+| Windows 11 | Set up from nothing by double-clicking `odoo.bat`, with no Python, conda or PostgreSQL visible. All 105 lab checks pass, and signing in works. `Ctrl+C` and closing the window both stop the database cleanly. Every compiled file also loads with the PC's own C++ runtime out of reach, as on a PC that does not have it |
+| Windows 10 | Not run |

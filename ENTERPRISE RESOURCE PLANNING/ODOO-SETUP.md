@@ -18,15 +18,18 @@ In these guidelines, `<system>` stands for `windows`, `mac` or `linux`.
 - About 2 GB of free disk space.
 - Windows 10 version 1803 or newer, macOS 13 or newer (macOS 14 or newer on Apple Silicon), or Linux. Linux also needs
   `curl` or `wget`, which most systems have.
+- On Windows, a course folder with only English letters in its path, and not too many folders deep. `C:\ERP` is a good
+  place.
 
 You do **not** need Python, Anaconda, PostgreSQL, Git, Node.js or a compiler.
 
 | System | How far this has been tested |
 | --- | --- |
-| Windows 11 | Fully, from nothing to all 105 lab checks, before its files moved into `tools\windows`. Not run since then |
-| Ubuntu 24.04 | Fully, from a clean machine to all 105 lab checks, before its files moved into `tools/linux`. Not run since then |
+| Windows 11 | Fully, from nothing to all 105 lab checks, by double-clicking `odoo.bat`, with no Python, conda or PostgreSQL visible. Every compiled file also loads with the PC's own C++ runtime out of reach, as on a PC that does not have it |
+| Ubuntu 26.04, 24.04 and 22.04, Debian 13, Fedora 43, Arch Linux | Fully, from nothing to all 105 lab checks, each in WSL on an Intel or AMD PC |
 | macOS 15 on Intel | Fully, from nothing to all 105 lab checks, and signing in through a browser |
 | macOS on Apple Silicon | **Not run yet.** Its downloads were checked from an Intel Mac: the checksums match, the programs are correctly signed, and every package has a ready-made version. Please tell your instructor what happens |
+| Windows 10, and Linux on ARM | **Not run yet.** Please tell your instructor what happens |
 
 ## Set it up
 
@@ -38,7 +41,8 @@ You do **not** need Python, Anaconda, PostgreSQL, Git, Node.js or a compiler.
 | macOS | Double-click `odoo.command` in the `tools/mac` folder | See [If macOS blocks it](#if-macos-blocks-it) |
 | Linux | Open a terminal in the course folder and run `sh tools/linux/odoo.sh` | Run it as your normal user, not as root |
 
-The first time, it downloads Python into the folder and then shows this menu:
+The first time, it downloads Python into the folder. Then it shows this menu, which on Windows opens in a window of its
+own:
 
 ```text
   Odoo 19 for the ERP practicals
@@ -75,7 +79,7 @@ loads are quick.
 **4. Sign in** as `admin`. To see the password, choose **3** in the menu. It was generated for you, so it is not the
 usual `admin`.
 
-**5. To stop Odoo,** press `Ctrl+C` in its window. Next time, just open the menu and choose 2.
+**5. To stop Odoo,** press `Ctrl+C` in its window, or close the window. Next time, just open the menu and choose 2.
 
 ### If macOS blocks it
 
@@ -92,6 +96,15 @@ there.
 
 Keep the course folder out of iCloud, OneDrive, Google Drive and Dropbox, because syncing can damage a running database.
 This includes a Desktop or Documents folder that is synced to iCloud. Setup warns you if the folder is in one of them.
+
+### If you use WSL on Windows
+
+You do not need WSL, because `tools\windows` runs directly on Windows. If you would rather use it:
+
+- **Keep the course folder in your Linux home folder,** and use `tools/linux`. A folder under `/mnt/c` will not do,
+  because PostgreSQL refuses to keep its data on the Windows drive. The launcher stops and says so.
+- **Open <http://localhost:8070> in a Windows browser yourself.** The browser may not open on its own.
+- **Run only one of the two at a time,** because they use the same ports.
 
 ## How this relates to the install video
 
@@ -112,7 +125,10 @@ The private Python is standard CPython, from the
 [python-build-standalone](https://github.com/astral-sh/python-build-standalone) project, which packages it to run from
 any folder. The private PostgreSQL comes from
 [Zonky's embedded binaries](https://github.com/zonkyio/embedded-postgres-binaries). The launchers and script check
-each of these downloads against a fixed checksum, and refuse to use one that does not match.
+each of these downloads against a fixed checksum, and refuse to use one that does not match. On Windows, PostgreSQL also
+needs Microsoft's C++ runtime, which not every PC has, so setup puts Microsoft's own files from the
+[`msvc-runtime`](https://pypi.org/project/msvc-runtime/) package beside PostgreSQL. Python brings its own. Choosing **4**
+in the menu confirms that both use these copies, not the computer's.
 
 ## Do the practicals
 
@@ -171,6 +187,7 @@ The menu covers the everyday tasks. If you prefer typing, run these from the cou
 
 | Command | What it does |
 | --- | --- |
+| `menu` | Shows the menu, in the same window |
 | `setup` | Downloads and sets up everything, or repairs what is missing. Safe to rerun |
 | `start` | Starts the database and Odoo, and opens the browser |
 | `login` | Shows the web address and password |
@@ -221,8 +238,12 @@ These are not needed for the labs:
 
 | What you see | Cause | Fix |
 | --- | --- | --- |
-| The window closes at once on Windows | An error appeared and closed | Open a terminal in the course folder and run `tools\windows\odoo` to read it |
+| The window closes at once on Windows | An error appeared and closed | Open a terminal in the course folder and run `tools\windows\odoo menu` to read it |
 | `This folder is too deep for Windows` | The folder's path is too long for Windows | Move the course folder closer to the drive, such as `C:\ERP`, delete `tools\windows\runtime`, and try again |
+| `This folder's path has letters that PostgreSQL cannot use` on Windows | The course folder's path has a letter that is not English, such as `é` or `中`. It may come from your Windows user name | Move the course folder to a plain path, such as `C:\ERP`, and try again |
+| Windows says a `.dll` file was not found | The folder's path has a semicolon in it, and Windows cannot load programs from such a folder | Rename the folder |
+| `Terminate batch job (Y/N)?` on Windows | You typed a command in a terminal, then pressed `Ctrl+C`. Odoo has already stopped | Type `Y`. The double-clicked menu does not ask this |
+| Windows says a file is in use when you move or delete the folder | The database is still running | Run `tools\windows\odoo stop`, then try again |
 | macOS says it cannot open or verify `odoo.command` | macOS checks files that came from a download | See [If macOS blocks it](#if-macos-blocks-it) |
 | `you do not have appropriate access privileges` on a Mac | A download or cloud drive dropped the run permission | Open Terminal in the course folder and run `sh tools/mac/odoo.sh` |
 | `Operation not permitted` on a Mac | Terminal may not use that folder | In *System Settings*, *Privacy & Security*, *Files & Folders*, allow Terminal. Or move the course folder into a new folder in your home folder |
@@ -230,10 +251,12 @@ These are not needed for the labs:
 | `This Mac has macOS ...` | This macOS is older than the setup is made for | Update macOS. If you cannot, carry on and see what happens |
 | `The private Python will not run on this Mac` | `tools/mac/runtime` came from a different type of Mac | Delete `tools/mac/runtime` and try again. Your work in `tools/mac/data` is kept |
 | `Python could not be downloaded` | No connection, or a network blocks GitHub | Check your connection, or try another network |
-| `This needs curl or wget` | Neither is installed on Linux | Run `sudo apt-get install -y curl` |
+| `This needs curl or wget` | Neither is installed on Linux | Install `curl`. On Ubuntu or Debian, run `sudo apt-get install -y curl` |
 | `did not match its expected checksum` | The download was damaged or changed | Try again. If it repeats, tell your instructor |
 | `Permission denied` for `odoo.sh` | Downloading can drop the run permission | Start it with `sh`, as shown |
-| `PostgreSQL refuses to run as root` | You are signed in as root on Linux | Run it as your normal user |
+| `Please run this as your normal user` | You are signed in as root on Linux, or used `sudo` | Run it as your normal user. A new WSL distro may have no other user: run `adduser yourname`, then `su - yourname` |
+| `This course folder is on the Windows drive` | You ran the Linux setup in WSL, from a folder under `/mnt/c` | See [If you use WSL on Windows](#if-you-use-wsl-on-windows) |
+| `gio: ... Operation not supported` on Linux | This computer has no browser set up to open web addresses, which is usual in WSL | This does no harm. Open <http://localhost:8070> yourself |
 | `The database did not start` | Usually left over from a crash | Read the log it names, then run `stop` and try again |
 | `port 54329 is answered by another PostgreSQL` | Another course copy is running | Stop that copy |
 | `Port 8070 is already in use` | Odoo, or something else, is already on it | Open it if it is yours, or add `--port 8071` to `start` |

@@ -1,4 +1,5 @@
-# The known-good package versions for the Odoo 19 practicals (Python 3.12).
+# The known-good package versions for the Odoo 19 practicals on Linux (Python 3.12).
+# They come from a working install on Ubuntu 24.04, plus rl-renderPM.
 # pip uses this as a constraints file:
 # Odoo's requirements.txt decides WHAT is installed, and this file decides WHICH version,
 # including packages Odoo does not pin itself, so every rebuild comes out the same.
@@ -13,13 +14,14 @@ certifi==2026.5.20
 cffi==2.0.0
 chardet==5.2.0
 charset-normalizer==3.4.7
-colorama==0.4.6
 cryptography==42.0.8
 docopt==0.6.2
 docutils==0.20.1
 et_xmlfile==2.0.0
 freezegun==1.2.1
 geoip2==2.9.0
+gevent==24.2.1
+greenlet==3.0.3
 idna==3.6
 isodate==0.7.2
 Jinja2==3.1.2
@@ -41,14 +43,13 @@ psycopg2-binary==2.9.9
 pycparser==3.0
 pyOpenSSL==24.1.0
 PyPDF2==2.12.1
-pypiwin32==223
 pypng==0.20220715.0
 pyserial==3.5
 python-dateutil==2.8.2
+python-magic==0.4.27
 python-stdnum==1.19
 pytz==2026.2
 pyusb==1.2.1
-pywin32==311
 qrcode==7.4.2
 reportlab==4.1.0
 requests==2.31.0
@@ -68,3 +69,5 @@ xlrd==2.0.1
 XlsxWriter==3.1.9
 xlwt==1.3.0
 zeep==4.2.1
+zope.event==6.2
+zope.interface==8.7

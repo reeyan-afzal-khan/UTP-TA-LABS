@@ -32,6 +32,7 @@ import platform
 import re
 import secrets
 import shutil
+import signal
 import site
 import socket
 import subprocess
@@ -58,17 +59,11 @@ ODOO_URL = f"https://github.com/odoo/odoo/archive/{ODOO_COMMIT}.tar.gz"
 # Portable PostgreSQL 18.6, with each file's checksum.
 POSTGRES_VERSION = "18.6.0"
 POSTGRES_BUILDS = {
-    ("Windows", "x86_64"): ("windows-amd64", "b7ef2d03588e0439f0d0a2250f43905f7464f1e96ace47703ceaf79094198150"),
     ("Linux", "x86_64"): ("linux-amd64", "008ee189eaa7ca2b58bd01dd950291e638b998392cf982297acd4779ec898ac1"),
     ("Linux", "aarch64"): ("linux-arm64v8", "5f54e016723afa6213925a8acb939bac52944b1d348f65c7a20f0cd2928c31be"),
-    ("Darwin", "arm64"): ("darwin-arm64v8", "8f6ed6f38195b50a40712ada8b2a12060b6193c1a6977a6eb5cff053bb5a1b89"),
-    ("Darwin", "x86_64"): ("darwin-amd64", "690941008aac9ee360820fde9bb7870a4f3dcac5e9e2f9e45e42333a436ad0f9"),
 }
 
-MAX_WINDOWS_ODOO_PATH = 100
-
 TOOLS = Path(__file__).resolve().parent
-COURSE_DIR = TOOLS.parent.parent
 RUNTIME = TOOLS / "runtime"
 DATA = TOOLS / "data"
 PYTHON_DIR = RUNTIME / "python"
@@ -210,16 +205,20 @@ def pip_install(env, *arguments):
 
 
 def write_lab_requirements():
-    """Odoo's own list, with the two packages that would need a compiler changed.
+    """Odoo's own list, with the two packages that would need a compiler changed, and one added.
 
     psycopg2-binary is the same module as psycopg2, built ready to use. python-ldap is
     needed only for signing in through a company directory, which the labs do not use.
+    rl-renderPM draws barcodes. Odoo lists it only for Windows, because Linux systems get
+    it with their own reportlab package, but this private Python needs it too.
     """
     lines = []
     for raw in (ODOO_DIR / "requirements.txt").read_text(encoding="utf-8").splitlines():
         code = raw.split("#")[0].strip()
         if re.match(r"(?i)python-ldap\b", code):
             continue
+        if re.match(r"(?i)rl-renderPM\b", code):
+            code = code.split(";")[0].strip()
         lines.append(re.sub(r"(?i)^psycopg2\b", "psycopg2-binary", code))
     REQUIREMENTS.write_text("\n".join(l for l in lines if l) + "\n", encoding="utf-8")
 
@@ -350,8 +349,12 @@ def start_database(env):
 
 
 def stop_database(env):
+    # Once stopping has begun, let it finish, even if Ctrl+C is pressed again or the window closes.
+    interrupt, hang_up = signal.signal(signal.SIGINT, signal.SIG_IGN), signal.signal(signal.SIGHUP, signal.SIG_IGN)
     subprocess.run([pg_tool("pg_ctl"), "-D", str(PGDATA), "-m", "fast", "-w", "-t", "60", "stop"], env=env,
                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    signal.signal(signal.SIGINT, interrupt)
+    signal.signal(signal.SIGHUP, hang_up)
 
 
 @contextlib.contextmanager
@@ -452,10 +455,6 @@ def create_lab_database(args, env):
 
 
 def cmd_setup(args):
-    # Odoo's longest file path is 144 characters, and Windows limits a whole path to 260.
-    if WINDOWS and len(str(ODOO_DIR)) > MAX_WINDOWS_ODOO_PATH:
-        stop(f"This folder is too deep for Windows: {COURSE_DIR}\n"
-             "       Move it closer to the drive, for example to C:\\ERP, then delete tools/linux/runtime and try again.")
     env = clean_env()
     heading("Step 1 of 6: Python")
     verify_python()
@@ -469,6 +468,8 @@ def cmd_setup(args):
 
     heading("Step 4 of 6: PostgreSQL")
     setup_postgres_program()
+    with contextlib.suppress(OSError):
+        DOWNLOADS.rmdir()  # only if empty, as it is once both downloads are unpacked
     setup_cluster(env)
     setup_role(env)
 
@@ -557,7 +558,8 @@ def cmd_start(args):
     try:
         code = subprocess.run(command, env=env).returncode
     except KeyboardInterrupt:
-        print("\nStopping...", flush=True)
+        with contextlib.suppress(OSError):  # if the window was closed, there is nowhere to print this
+            print("\nStopping...", flush=True)
     finally:
         if started:
             stop_database(env)
@@ -643,10 +645,13 @@ def cmd_menu(args):
     here = str(Path(__file__).resolve())
 
     def run(*command):
+        # Ctrl+C reaches this menu as well as the command. Wait for the command to finish, because
+        # letting subprocess stop it here would kill it before it has stopped the database.
+        previous = signal.signal(signal.SIGINT, lambda *_: None)
         try:
             subprocess.run([sys.executable, "-I", here, *command])
-        except KeyboardInterrupt:
-            pass  # Ctrl+C has stopped Odoo; go back to the menu
+        finally:
+            signal.signal(signal.SIGINT, previous)
 
     while True:
         print("\n  Odoo 19 for the ERP practicals")
@@ -749,8 +754,7 @@ def verify_packages():
             name, version = line.split("==", 1)
             locked[canonicalize_name(name)] = version.strip()
     installed = {canonicalize_name(d.metadata["Name"]): d.version for d in dists}
-    windows_only = {"colorama", "pywin32", "pypiwin32", "rl-renderpm"}
-    expected = {n: v for n, v in locked.items() if WINDOWS or n not in windows_only}
+    expected = locked
     absent = sorted(set(expected) - set(installed))
     wrong = [f"{n} {installed[n]} (locked {expected[n]})" for n in sorted(expected) if n in installed and installed[n] != expected[n]]
     if absent or wrong:
@@ -760,7 +764,7 @@ def verify_packages():
         say("OK", f"all {len(expected)} packages match the known-good versions in {CONSTRAINTS.name}")
 
     names = ["lxml", "lxml.html.clean", "psycopg2", "PIL", "reportlab", "cryptography", "OpenSSL", "sass", "rjsmin", "cbor2"]
-    names += ["win32api"] if WINDOWS else ["gevent"]
+    names += ["gevent", "_rl_renderPM"]
     # In a new process: this one started before the packages were installed, and
     # pywin32 only sets up its import paths when Python starts.
     code = ("import importlib, json, sys\n"
@@ -820,6 +824,10 @@ def verify_all(args):
 
 
 # ------------------------------------------------------------------ command line
+def window_closed(*_):
+    raise KeyboardInterrupt
+
+
 def main():
     sys.stdout.reconfigure(errors="replace")  # a console may lack some of pip's characters
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -853,6 +861,11 @@ def main():
         else:
             parser.print_help()
             return
+    # Closing the window sends SIGHUP. Treat it like Ctrl+C, so that Odoo and the database stop too.
+    # Left alone, Odoo would take it as a request to restart, and carry on with no window at all.
+    # The menu just ends, and leaves that to the command it is running.
+    if args.command != "menu":
+        signal.signal(signal.SIGHUP, window_closed)
     args.handler(args)
 
 

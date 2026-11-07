@@ -28,6 +28,13 @@ run from the course folder, starting with `sh tools/linux/odoo.sh`.
 
 **To remove everything,** stop Odoo and delete `runtime` and `data`. Nothing is left elsewhere on the computer.
 
+## If you use WSL on Windows
+
+You do not need WSL, because `tools\windows` runs directly on Windows. If you would rather use it, keep the course folder
+in your Linux home folder. The launcher refuses a folder under `/mnt/c`, because PostgreSQL refuses to keep its data on
+the Windows drive. Open <http://localhost:8070> in a Windows browser yourself, because the browser may not open on its
+own. Run only one of `tools\windows` and `tools/linux` at a time, because they use the same ports.
+
 ## If you set up Odoo before this folder existed
 
 Your database is still in `tools/runtime` and `tools/data`. To keep it, stop Odoo and move those two folders into
@@ -37,4 +44,6 @@ Your database is still in `tools/runtime` and `tools/data`. To keep it, stop Odo
 
 | System | Result |
 | --- | --- |
-| Ubuntu 24.04 | Clean machine, with no Python, compiler or PostgreSQL; all 105 lab checks pass. This was before the files moved into this folder, and it has not been run since. Only the paths and one error message changed |
+| Ubuntu 26.04 and 24.04, Debian 13, Fedora 43, Arch Linux | Set up from nothing, with no compiler or PostgreSQL, in WSL on an Intel or AMD PC. All 105 lab checks pass, and signing in works. `Ctrl+C` and closing the terminal stop Odoo and the database, and leave nothing running |
+| Ubuntu 22.04 | The same, but closing the terminal was not tried |
+| Linux on ARM | Not run |

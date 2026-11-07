@@ -22,6 +22,7 @@ stop Odoo and delete those two folders. See ../../ODOO-SETUP.md.
 import argparse
 import configparser
 import contextlib
+import ctypes
 import hashlib
 import importlib
 import importlib.metadata as metadata
@@ -32,6 +33,7 @@ import platform
 import re
 import secrets
 import shutil
+import signal
 import site
 import socket
 import subprocess
@@ -59,13 +61,12 @@ ODOO_URL = f"https://github.com/odoo/odoo/archive/{ODOO_COMMIT}.tar.gz"
 POSTGRES_VERSION = "18.6.0"
 POSTGRES_BUILDS = {
     ("Windows", "x86_64"): ("windows-amd64", "b7ef2d03588e0439f0d0a2250f43905f7464f1e96ace47703ceaf79094198150"),
-    ("Linux", "x86_64"): ("linux-amd64", "008ee189eaa7ca2b58bd01dd950291e638b998392cf982297acd4779ec898ac1"),
-    ("Linux", "aarch64"): ("linux-arm64v8", "5f54e016723afa6213925a8acb939bac52944b1d348f65c7a20f0cd2928c31be"),
-    ("Darwin", "arm64"): ("darwin-arm64v8", "8f6ed6f38195b50a40712ada8b2a12060b6193c1a6977a6eb5cff053bb5a1b89"),
-    ("Darwin", "x86_64"): ("darwin-amd64", "690941008aac9ee360820fde9bb7870a4f3dcac5e9e2f9e45e42333a436ad0f9"),
 }
 
 MAX_WINDOWS_ODOO_PATH = 100
+
+# Microsoft's C++ runtime, which PostgreSQL needs and not every PC has: its files' names start with these.
+VC_RUNTIME = ("msvcp140", "vcruntime140", "concrt140", "vccorlib140", "vcomp140", "vcamp140")
 
 TOOLS = Path(__file__).resolve().parent
 COURSE_DIR = TOOLS.parent.parent
@@ -210,10 +211,11 @@ def pip_install(env, *arguments):
 
 
 def write_lab_requirements():
-    """Odoo's own list, with the two packages that would need a compiler changed.
+    """Odoo's own list, with the two packages that would need a compiler changed, and one added.
 
     psycopg2-binary is the same module as psycopg2, built ready to use. python-ldap is
     needed only for signing in through a company directory, which the labs do not use.
+    msvc-runtime carries Microsoft's C++ runtime, for setup_vc_runtime.
     """
     lines = []
     for raw in (ODOO_DIR / "requirements.txt").read_text(encoding="utf-8").splitlines():
@@ -221,6 +223,7 @@ def write_lab_requirements():
         if re.match(r"(?i)python-ldap\b", code):
             continue
         lines.append(re.sub(r"(?i)^psycopg2\b", "psycopg2-binary", code))
+    lines.append("msvc-runtime")
     REQUIREMENTS.write_text("\n".join(l for l in lines if l) + "\n", encoding="utf-8")
 
 
@@ -295,6 +298,62 @@ def setup_postgres_program():
     say("OK", f"unpacked to {POSTGRES_DIR}")
 
 
+def setup_vc_runtime():
+    """Puts Microsoft's C++ runtime beside PostgreSQL's programs, where Windows looks first.
+
+    postgres.exe needs msvcp140.dll, through its ICU libraries. Many PCs have it because
+    another program installed it, but on a new PC the database could not even start. All of
+    the runtime is copied, not only what PostgreSQL 18.6 needs, so that a later version is covered.
+    """
+    runtime = [p for p in (PYTHON_DIR / "Scripts").glob("*.dll") if p.name.lower().startswith(VC_RUNTIME)]
+    if not runtime:
+        stop(f"Microsoft's C++ runtime is missing from {PYTHON_DIR / 'Scripts'}. To repair: {LAUNCHER} setup")
+    missing = [p for p in runtime if not (POSTGRES_DIR / "bin" / p.name).exists()]
+    for source in missing:
+        shutil.copy2(source, POSTGRES_DIR / "bin" / source.name)
+    if missing:
+        say("OK", "added Microsoft's C++ runtime beside PostgreSQL")
+
+
+def loaded_files(pid):
+    """The full paths of the program files a running process has loaded, or [] if they cannot be read."""
+    class Entry(ctypes.Structure):  # MODULEENTRY32W
+        _fields_ = [("size", ctypes.c_uint32), ("module_id", ctypes.c_uint32), ("process_id", ctypes.c_uint32),
+                    ("global_count", ctypes.c_uint32), ("process_count", ctypes.c_uint32), ("base", ctypes.c_void_p),
+                    ("base_size", ctypes.c_uint32), ("handle", ctypes.c_void_p), ("name", ctypes.c_wchar * 256),
+                    ("path", ctypes.c_wchar * 260)]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateToolhelp32Snapshot.restype = ctypes.c_void_p
+    snapshot = kernel32.CreateToolhelp32Snapshot(0x18, pid)  # its modules, 64-bit and 32-bit
+    if snapshot in (None, ctypes.c_void_p(-1).value):
+        return []
+    entry, found = Entry(size=ctypes.sizeof(Entry)), []
+    more = kernel32.Module32FirstW(ctypes.c_void_p(snapshot), ctypes.byref(entry))
+    while more:
+        found.append(entry.path)
+        more = kernel32.Module32NextW(ctypes.c_void_p(snapshot), ctypes.byref(entry))
+    kernel32.CloseHandle(ctypes.c_void_p(snapshot))
+    return found
+
+
+def verify_vc_runtime():
+    """Which C++ runtime are this Python and the running database really using? Windows decides
+    that when they start, so look at what they loaded, rather than at which files are present."""
+    pids = [os.getpid()]
+    with contextlib.suppress(OSError, ValueError, IndexError):
+        pids.append(int((PGDATA / "postmaster.pid").read_text(encoding="ascii").split()[0]))
+    in_use = [path for pid in pids for path in loaded_files(pid) if Path(path).name.lower().startswith(VC_RUNTIME)]
+    outside = sorted({path for path in in_use if not inside_tools(path)})
+    if outside:
+        say("FAIL", f"this computer's own C++ runtime is in use, which a new PC may not have: {outside[0]}\n"
+                    f"       To repair: {LAUNCHER} setup")
+    elif len(pids) == 2 and any(path.lower().startswith(str(POSTGRES_DIR).lower()) for path in in_use):
+        say("OK", "Python and PostgreSQL use Microsoft's C++ runtime from the tools folder, not the computer's")
+    else:
+        say("WARN", "could not see which C++ runtime PostgreSQL is using")
+
+
 def setup_cluster(env):
     if (PGDATA / "PG_VERSION").exists():
         say("OK", f"database folder already here: {PGDATA}")
@@ -337,7 +396,9 @@ def start_database(env):
     if db_listening():
         return False
     LOGS.mkdir(parents=True, exist_ok=True)
-    flags = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP} if WINDOWS else {"start_new_session": True}
+    # A hidden console of its own, so that neither Ctrl+C nor closing this window reaches the server.
+    # It would die mid-work, as it shares the console otherwise. This way it stops only when asked.
+    flags = {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW}
     # No pipes here: the server would inherit them, and this call would never return.
     code = subprocess.run([pg_tool("pg_ctl"), "-D", str(PGDATA), "-l", str(LOGS / "postgres.log"), "-w", "-t", "60", "start"],
                           env=env, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **flags).returncode
@@ -346,12 +407,37 @@ def start_database(env):
         if log.exists():
             print("".join(log.read_text(encoding="utf-8", errors="replace").splitlines(True)[-15:]), flush=True)
         stop(f"The database did not start. Its log is {log}")
+    stop_database_if_window_closes(env)
     return True
 
 
 def stop_database(env):
+    # Once stopping has begun, let it finish, even if Ctrl+C is pressed again.
+    interrupt = signal.signal(signal.SIGINT, signal.SIG_IGN)
     subprocess.run([pg_tool("pg_ctl"), "-D", str(PGDATA), "-m", "fast", "-w", "-t", "60", "stop"], env=env,
                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    signal.signal(signal.SIGINT, interrupt)
+
+
+def stop_database_if_window_closes(env):
+    """Closing a console window gives no Ctrl+C, only a few seconds before the process is ended.
+
+    Windows calls this first, on a thread of its own. Without it, the database would stay running
+    in the background, and hold its files open so that the folder could not be moved or deleted.
+    """
+    closing_events = (2, 5, 6)  # CTRL_CLOSE_EVENT, CTRL_LOGOFF_EVENT, CTRL_SHUTDOWN_EVENT
+
+    def on_console_event(event):
+        if event in closing_events:
+            # -W: do not wait. The server finishes stopping by itself, after this process has gone.
+            subprocess.run([pg_tool("pg_ctl"), "-D", str(PGDATA), "-m", "fast", "-W", "stop"], env=env,
+                           creationflags=subprocess.CREATE_NO_WINDOW, stdin=subprocess.DEVNULL,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return False  # carry on, and let the process end as usual
+
+    global console_handler  # Windows keeps calling it, so it must not be garbage collected
+    console_handler = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_uint)(on_console_event)
+    ctypes.windll.kernel32.SetConsoleCtrlHandler(console_handler, True)
 
 
 @contextlib.contextmanager
@@ -469,6 +555,9 @@ def cmd_setup(args):
 
     heading("Step 4 of 6: PostgreSQL")
     setup_postgres_program()
+    setup_vc_runtime()
+    with contextlib.suppress(OSError):
+        DOWNLOADS.rmdir()  # only if empty, as it is once both downloads are unpacked
     setup_cluster(env)
     setup_role(env)
 
@@ -557,7 +646,8 @@ def cmd_start(args):
     try:
         code = subprocess.run(command, env=env).returncode
     except KeyboardInterrupt:
-        print("\nStopping...", flush=True)
+        with contextlib.suppress(OSError):  # if the window was closed, there is nowhere to print this
+            print("\nStopping...", flush=True)
     finally:
         if started:
             stop_database(env)
@@ -643,10 +733,13 @@ def cmd_menu(args):
     here = str(Path(__file__).resolve())
 
     def run(*command):
+        # Ctrl+C reaches this menu as well as the command. Wait for the command to finish, because
+        # letting subprocess stop it here would kill it before it has stopped the database.
+        previous = signal.signal(signal.SIGINT, lambda *_: None)
         try:
             subprocess.run([sys.executable, "-I", here, *command])
-        except KeyboardInterrupt:
-            pass  # Ctrl+C has stopped Odoo; go back to the menu
+        finally:
+            signal.signal(signal.SIGINT, previous)
 
     while True:
         print("\n  Odoo 19 for the ERP practicals")
@@ -749,8 +842,7 @@ def verify_packages():
             name, version = line.split("==", 1)
             locked[canonicalize_name(name)] = version.strip()
     installed = {canonicalize_name(d.metadata["Name"]): d.version for d in dists}
-    windows_only = {"colorama", "pywin32", "pypiwin32", "rl-renderpm"}
-    expected = {n: v for n, v in locked.items() if WINDOWS or n not in windows_only}
+    expected = locked
     absent = sorted(set(expected) - set(installed))
     wrong = [f"{n} {installed[n]} (locked {expected[n]})" for n in sorted(expected) if n in installed and installed[n] != expected[n]]
     if absent or wrong:
@@ -760,7 +852,7 @@ def verify_packages():
         say("OK", f"all {len(expected)} packages match the known-good versions in {CONSTRAINTS.name}")
 
     names = ["lxml", "lxml.html.clean", "psycopg2", "PIL", "reportlab", "cryptography", "OpenSSL", "sass", "rjsmin", "cbor2"]
-    names += ["win32api"] if WINDOWS else ["gevent"]
+    names += ["win32api"]
     # In a new process: this one started before the packages were installed, and
     # pywin32 only sets up its import paths when Python starts.
     code = ("import importlib, json, sys\n"
@@ -816,6 +908,7 @@ def verify_all(args):
     else:
         say("FAIL", f"port {DB_PORT} is answered by another PostgreSQL, with its data in {where}")
     say("OK" if createdb and not superuser else "FAIL", f"the '{DB_USER}' role can create databases and is not a superuser")
+    verify_vc_runtime()  # after connecting, so that this Python has loaded psycopg2's compiled code too
     say("OK" if exists else "INFO", f"lab database '{args.database}' {'exists' if exists else 'does not exist yet'}")
 
 
@@ -853,6 +946,11 @@ def main():
         else:
             parser.print_help()
             return
+    # PostgreSQL's programs get paths in the computer's old code page. Chinese, say, turns to ??,
+    # and an accented letter breaks its UTF-8 database: "invalid byte sequence for encoding".
+    if not str(TOOLS).isascii():
+        stop(f"This folder's path has letters that PostgreSQL cannot use on Windows: {COURSE_DIR}\n"
+             "       Move it to a path with only English letters, for example to C:\\ERP, then try again.")
     args.handler(args)
 
 

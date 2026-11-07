@@ -2,10 +2,35 @@
 # Linux launcher. Run "sh tools/linux/odoo.sh" for the menu, or: sh tools/linux/odoo.sh setup
 # Needs nothing installed beyond curl or wget, and tar: on the first run it downloads a
 # private Python into tools/linux/runtime.
-tools=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+tools=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 runtime="$tools/runtime"
 python="$runtime/python/bin/python3"
 cd "$tools/../.." || exit 1
+
+# Before anything is downloaded: PostgreSQL refuses to run as root, and files made as root
+# would then get in the way of the normal user.
+if [ "$(id -u)" = "0" ]; then
+    echo "Please run this as your normal user, not as root or with sudo. PostgreSQL refuses to run as root."
+    echo "If this computer has no other user, as a new WSL distro may not, add one and switch to it:"
+    echo "  adduser yourname"
+    echo "  su - yourname"
+    exit 1
+fi
+
+# The Windows drive, seen from WSL. PostgreSQL refuses to keep its data there, because file
+# permissions do not work on it, and finding that out would first take many slow minutes.
+case "$tools" in
+    /mnt/[a-z]/*)
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+            echo "This course folder is on the Windows drive, which this Linux setup cannot use from WSL:"
+            echo "  $(pwd)"
+            echo "Do one of these instead:"
+            echo "  - In Windows, double-click tools\\windows\\odoo.bat. It does not need WSL."
+            echo "  - Copy the course folder into your Linux home folder, and run this there:"
+            echo "      cp -r \"$(pwd)\" ~/"
+            exit 1
+        fi ;;
+esac
 
 bootstrap() {
     release="https://github.com/astral-sh/python-build-standalone/releases/download/20261026"
@@ -29,16 +54,17 @@ bootstrap() {
     echo "First run: downloading Python 3.12 into the tools folder."
     echo "It stays in that folder. Nothing is installed on this computer."
     echo
+    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+        echo "This needs curl or wget to download Python. Install one, then try again. On Ubuntu or Debian:"
+        echo "  sudo apt-get install -y curl"
+        return 1
+    fi
     mkdir -p "$runtime" || return 1
 
     if command -v curl >/dev/null 2>&1; then
         curl -fL --retry 3 --progress-bar -o "$archive" "$url" || { echo "Python could not be downloaded. Check your internet connection."; return 1; }
-    elif command -v wget >/dev/null 2>&1; then
-        wget -q --show-progress -O "$archive" "$url" || { echo "Python could not be downloaded. Check your internet connection."; return 1; }
     else
-        echo "This needs curl or wget to download Python. Install one, then try again:"
-        echo "  sudo apt-get install -y curl"
-        return 1
+        wget -O "$archive" "$url" || { echo "Python could not be downloaded. Check your internet connection."; return 1; }
     fi
 
     if command -v sha256sum >/dev/null 2>&1; then

@@ -3,80 +3,80 @@
 Where the Odoo tools stood on 7 November 2026, and what is left to do. Students do not need this: their instructions are
 in the [setup guidelines](../ODOO-SETUP.md).
 
-On that date the tools were split into `windows`, `mac` and `linux` folders, working on an Intel Mac. So the Mac copy is
-the only one that has been run since the split.
+| Copy | System | State |
+| --- | --- | --- |
+| `windows` | Windows 11 | Run from nothing by double-clicking, on these files. All 105 lab checks pass |
+| `linux` | Ubuntu 26.04 and 24.04, Debian 13, Fedora 43, Arch Linux | Run from nothing in WSL. All 105 lab checks pass, and `Ctrl+C` and closing the terminal leave nothing running |
+| `linux` | Ubuntu 22.04 | Run from nothing in WSL. All 105 lab checks pass. Closing the terminal was not tried |
+| `mac` | macOS 15.7 on Intel | Run from nothing. All 105 lab checks pass |
+| `mac` | Apple Silicon | **Not run.** Its downloads were inspected from the Intel Mac. See [Test Apple Silicon](#test-apple-silicon) |
 
-| Copy | State |
-| --- | --- |
-| `mac`, on Intel | Run from nothing on macOS 15.7. All 105 lab checks pass |
-| `mac`, on Apple Silicon | **Not run.** Its downloads were inspected from the Intel Mac. See [Test Apple Silicon](#test-apple-silicon) |
-| `windows` | **Not run since the split.** It is the version that passed all 105 checks on Windows 11, with only its paths changed. See [When you first pull this on Windows](#when-you-first-pull-this-on-windows) |
-| `linux` | **Not run since the split.** It is the version that passed all 105 checks on Ubuntu 24.04, with only its paths and one error message changed |
+**Not tried anywhere:** Windows 10, Linux outside WSL, and Linux on ARM.
+
+**A Windows PC without Microsoft's C++ runtime** was not available, so this was proven with Windows' own loader instead.
+Each compiled file in a new install was loaded in a fresh process twice: with System32 searched, to see what it uses,
+then with System32 left out and only Windows' own DLLs loaded first, as such a PC has them. The control was a copy of
+PostgreSQL's files without the tools folder's runtime: 11 of its DLLs quietly used the PC's runtime, and exactly those 11
+could not load without it. The install passed: all 41 DLLs beside `postgres.exe`, all 82 libraries the server can load,
+and all 148 of Python's `.pyd` and `.dll` files. Nine more PostgreSQL libraries need Perl, Python 3.13 or Tcl, which this
+build leaves out, so they load on no PC, and nothing here uses them. `check` also confirms it on every PC, from what
+Python and the running database have loaded.
 
 A few things on the Mac were only simulated, because that Mac could not show them: having no developer tools, and a
 Desktop synced to iCloud. The *Open Anyway* steps for a blocked `odoo.command` were not tried, though the Terminal route
 works on files marked as downloaded.
 
-## When you first pull this on Windows
+## What each copy has
 
-Stop Odoo before pulling. Then, from the course folder:
+Each folder is a complete copy, so a fix has to be made in each copy that needs it.
 
-1. **Use the new launcher.** `tools\odoo.bat` has gone, and is now `tools\windows\odoo.bat`.
+| What | `windows` | `mac` | `linux` |
+| --- | --- | --- | --- |
+| `Ctrl+C` in the menu stops the database (`run` in `cmd_menu`, `stop_database`) | Yes | Yes | Yes |
+| Closing the window stops the database | Yes: PostgreSQL has a hidden console, and `stop_database_if_window_closes` stops it | Yes: `window_closed` | Yes: `window_closed`. Without it, Odoo also carries on, because it takes `SIGHUP` as a request to restart |
+| Barcodes and QR codes work (`rl-renderPM`) | Yes: Odoo's own list has it for Windows | Yes: added in `write_lab_requirements` | Yes: added in the same place. Without it they give HTTP 500 |
+| Microsoft's C++ runtime beside PostgreSQL, all of it (`setup_vc_runtime`), and `check` looking at what Python and the database really loaded (`verify_vc_runtime`) | Yes | Not needed | Not needed |
+| The menu has a window of its own (`odoo.bat`) | Yes. A batch file behind the menu would ask `Terminate batch job (Y/N)?` | Not needed | Not needed |
+| Refuses to run as root, before any download (the launcher) | Not needed | **Not yet** | Yes |
+| Removes the empty `runtime/downloads` (`cmd_setup`) | Yes | **Not yet** | Yes |
+| Accepts a path in the wrong letter case (`inside_tools`) | Yes | Yes | Not needed: Linux paths are exact |
+| Refuses the Windows drive under WSL (the launcher) | Not needed | Not needed | Yes |
+| Refuses a path with non-English letters (`odoo.bat`, and `main`) | Yes. PostgreSQL's programs get paths in the old code page, so Chinese turns to `??`, and an accented letter breaks their UTF-8 database | Not tried. It should not need this, as Linux does not | Not needed: a folder named `tést 中文` passes all 105 lab checks |
 
-2. **Keep your existing database, if you want it.** The pull leaves `tools\runtime` and `tools\data` where they are,
-   because Git ignores them. To carry on with them, move them:
-
-   ```text
-   move tools\runtime tools\windows\runtime
-   move tools\data tools\windows\data
-   ```
-
-   To start fresh instead, delete both, and choose 1 in the menu.
-
-3. **Check that it still works:**
-
-   ```text
-   tools\windows\odoo check
-   ```
-
-   It should end with `Everything is working`. If it says `This folder is too deep for Windows`, the new folder has pushed
-   the path past the script's limit of 100 characters. It adds 8. `C:\Users\reeyanafzal\Desktop\...` comes to 96, and a
-   OneDrive Desktop to 105. Move the course folder closer to the drive.
-
-4. **Run all the labs on a throwaway database,** to prove this copy. The evidence goes to its own folder, so that your
-   own is not overwritten:
-
-   ```text
-   tools\windows\odoo init --database windows_check_labs
-   tools\windows\odoo run all_experiments\odoo_tasks\run_all_labs.py --database windows_check_labs --results tools\windows\data\check-results
-   tools\windows\odoo reset --database windows_check_labs
-   ```
-
-   The second command should report `105/105 checks passed`.
-
-5. **Record the result** in `ODOO-SETUP.md`, `tools/windows/README.md` and these notes.
-
-## Fixes that only the Mac copy has
-
-Testing on the Mac found these. **None is needed for the labs.** The Windows and Linux copies passed all 105 checks without
-them, so leave those copies alone unless one of these gets in your way.
-
-| Fix in `tools/mac/setup_odoo.py` | For Windows | For Linux |
-| --- | --- | --- |
-| Stop the database after `Ctrl+C` in the menu (`run` in `cmd_menu`, and `stop_database`) | Worth having. Probably the same problem, but not confirmed there | Worth having. The code is the same |
-| Stop the database when the window closes (`window_closed`, and `main`) | Would need different code, because Windows has no `SIGHUP`. Not confirmed there | Worth having. The code is the same |
-| Install `rl-renderPM`, which draws barcodes (`write_lab_requirements`) | Not needed. Odoo already lists it for Windows | Only if someone needs barcodes in a report. Not confirmed there |
-| Accept a path in the wrong letter case (`inside_tools`) | Not needed. That copy already ignores case | Not needed. Linux paths are exact |
-
-**What the database problem costs.** After `Ctrl+C` in the menu, or after closing the window, the database can keep running
-in the background. This does the labs no harm: the next start uses it, and the `stop` command or a restart ends it. It only
-gets in the way if you delete or move the course folder straight afterwards, so run `stop` first.
+The two **Not yet** items are small, and safe to copy from `tools/linux` next time you are on a Mac. They were left out
+because the Mac copy cannot be run from Windows, and it works without them.
 
 To see the code for any of these:
 
 ```bash
 diff tools/linux/setup_odoo.py tools/mac/setup_odoo.py
 ```
+
+## How Windows and Linux were tested
+
+- **Only committed files count.** Each test started from `git archive` of the files, unpacked into a new folder, so that
+  nothing left on this machine could hide a problem. For work not yet committed, `git stash create` gives a commit to
+  archive and changes nothing.
+- **On Windows,** the `PATH` was cut down to `System32`, and conda's and Python's variables removed. `Start-Process` on
+  `odoo.bat` does what a double-click does, including the window it opens.
+- **On Linux,** each distro was a bare image brought in with `wsl --import` under a throwaway name, and tested as a normal
+  user. `wsl --unregister` removes it again. The downloads and the labs ran as they would for a student.
+- **Stopping was tested in a real terminal.** Python's `pty` module typed `Ctrl+C`, and closed the terminal, on Linux. On
+  Windows, a script attached to the window's console and pressed the keys, and the window was closed with `WM_CLOSE`, which is
+  what clicking its X sends.
+- **Never run a WSL test while Odoo is running on Windows.** WSL forwards its localhost ports to Windows, so a test can
+  end up talking to the other one. Run them one at a time.
+
+To prove a copy on its own database, without touching the lab database or its evidence, use a throwaway one. Windows is
+shown here, and the others are the same with their own launcher:
+
+```text
+tools\windows\odoo init --database x_labs
+tools\windows\odoo run all_experiments\odoo_tasks\run_all_labs.py --database x_labs --results tools\windows\data\check-results
+tools\windows\odoo reset --database x_labs
+```
+
+The second command should report `105/105 checks passed`.
 
 ## What else is different on a Mac
 
@@ -87,9 +87,10 @@ These have no equivalent in the other copies:
 - **It uses macOS's own `curl`, `tar` and `shasum`,** even when Anaconda's or Homebrew's come first on the `PATH`.
 - **It stops macOS offering to install developer tools.** `rjsmin` has no ready-made Mac package, so pip builds it, and it
   tries to compile an optional part. On a Mac without the tools it is told not to, and runs as plain Python.
-- **`constraints.txt` comes from a working Mac install,** so it also fixes `gevent`, `greenlet`, `python-magic` and the
-  `zope` packages, and leaves out the ones only Windows needs.
 - **It warns about an old macOS or a synced folder,** which would otherwise fail later and in confusing ways.
+
+The Mac and Linux `constraints.txt` hold the same versions. They fix `gevent`, `greenlet`, `python-magic` and the `zope`
+packages, and leave out `colorama`, `msvc-runtime`, `pypiwin32` and `pywin32`, which only Windows needs.
 
 ## Test Apple Silicon
 
