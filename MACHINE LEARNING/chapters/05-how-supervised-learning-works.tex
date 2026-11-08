@@ -172,15 +172,14 @@ Baselines reveal class imbalance, and they show what added complexity actually b
 \rowcolor{UTPPaleBlue!92}
 \utpth{Task} & \utpth{Metric} & \utpth{Baseline} & \utpth{Lab's model} \\
 \midrule
-Insurance charges (Lab~2) & MAE, dollars & 9,593: always the training mean & 4,181: linear regression \\
-Daily bike rentals (Lab~2) & MAE, rentals & 2,290: always the training mean & 1,040: random forest \\
-Final grade at enrolment (Lab~1) & MAE, grade points & 2.37: always the training mean & 2.08: lasso \\
-Titanic survival (Lab~2) & Accuracy & 0.614: always ``did not survive'' & 0.776: logistic regression \\
+Used-car prices (Lab~2) & MAE, dollars & 15,408: always the training mean & 9,009: linear regression \\
+Hotel cancellations in 2017 (Lab~2) & Accuracy & 0.613: always ``kept'' & 0.764: logistic regression \\
+Sign-up before a bank call (Lab~1) & Accuracy & 0.887: always ``no'' & 0.899: logistic regression \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
-Read the grade row closely. With 56 encoded columns, the lasso beats the mean by only 0.29 grade points. That modest gain is the true size of what those columns can tell you at enrolment. Without the baseline, 2.08 would sound like an achievement or a failure depending on who was speaking.
+Read the bank row closely. Nearly nine customers in ten say no, so always predicting ``no'' is already 88.7\% accurate, and the logistic model adds only 1.2 points. That modest gain is all that accuracy can show on this task, so Lab~1 scores the same model by ROC AUC, 0.802, which rewards putting the likely yeses first. Without the baseline, 0.899 would sound like an achievement or a failure depending on who was speaking.
 
 \begin{workedexample}
 If 950 of 1,000 emails are legitimate, predicting ``not spam'' gives 95\% accuracy and zero spam recall. Report rare-class precision and recall (\chapref{ch:evaluation}).

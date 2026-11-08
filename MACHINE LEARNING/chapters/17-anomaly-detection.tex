@@ -96,7 +96,7 @@ Isolation forests need no distance metric. \term{Contamination} sets a threshold
 
 \section{Evaluating and using anomaly detectors}
 
-Never trust the headline number alone. Lab~5's isolation forest ranks 3,000 held-out card transactions, of which 45 are fraud (1.5\%). It never sees the fraud column while fitting. Its ROC AUC is 0.95, which sounds superb. Its average precision is 0.22, which is 15 times the base rate and still modest. What a review team cares about is the list.
+Never trust the headline number alone. Lab~5's isolation forest ranks 85,443 held-out card transactions, of which 148 are fraud (0.17\%). It never sees the fraud column while fitting. Its ROC AUC is 0.95, which sounds superb. Its average precision is 0.22, which is 126 times the base rate and still modest. What a review team cares about is the list.
 
 \begin{utptable}
 \centering
@@ -105,27 +105,27 @@ Never trust the headline number alone. Lab~5's isolation forest ranks 3,000 held
 \rowcolor{UTPPaleBlue!92}
 \utpth{Cases reviewed} & \utpth{Frauds found} & \utpth{Precision} & \utpth{Recall} \\
 \midrule
-10 & 3 & 0.300 & 0.067 \\
-50 & 14 & 0.280 & 0.311 \\
-100 & 20 & 0.200 & 0.444 \\
-200 & 32 & 0.160 & 0.711 \\
-300 & 37 & 0.123 & 0.822 \\
-500 & 42 & 0.084 & 0.933 \\
-1000 & 45 & 0.045 & 1.000 \\
+10 & 7 & 0.700 & 0.047 \\
+50 & 25 & 0.500 & 0.169 \\
+100 & 39 & 0.390 & 0.264 \\
+200 & 50 & 0.250 & 0.338 \\
+300 & 63 & 0.210 & 0.426 \\
+500 & 69 & 0.138 & 0.466 \\
+1000 & 99 & 0.099 & 0.669 \\
 \bottomrule
 \end{tabular}
 \end{utptable}
 
-\begin{utpfig}[Precision falls as the budget grows]{Lab~5's isolation forest on 3,000 held-out transactions. Reviewing more cases finds more fraud at a falling hit rate. The base rate of 1.5\% is what reviewing at random would achieve.}{fig:precision-at-k}
+\begin{utpfig}[Precision falls as the budget grows]{Lab~5's isolation forest on 85,443 held-out transactions. Reviewing more cases finds more fraud at a falling hit rate. The base rate of 0.17\% is what reviewing at random would achieve.}{fig:precision-at-k}
 \begin{tikzpicture}
 \begin{axis}[logaxis, width=0.72\linewidth, height=4.8cm, xlabel={cases reviewed}, ylabel={share}, xmin=0, xmax=1050, ymin=0, ymax=1.05,
   legend style={at={(0.97,0.55)},anchor=east}]
-\addplot[draw=UTPBlue,mark=*,mark size=1.4pt,thick] coordinates {(10,0.3)(50,0.28)(100,0.2)(200,0.16)(300,0.123)(500,0.084)(1000,0.045)};
+\addplot[draw=UTPBlue,mark=*,mark size=1.4pt,thick] coordinates {(10,0.7)(50,0.5)(100,0.39)(200,0.25)(300,0.21)(500,0.138)(1000,0.099)};
 \addlegendentry{precision: fraud rate in the list}
-\addplot[draw=UTPOrange,mark=square*,mark size=1.4pt,thick] coordinates {(10,0.067)(50,0.311)(100,0.444)(200,0.711)(300,0.822)(500,0.933)(1000,1.0)};
+\addplot[draw=UTPOrange,mark=square*,mark size=1.4pt,thick] coordinates {(10,0.047)(50,0.169)(100,0.264)(200,0.338)(300,0.426)(500,0.466)(1000,0.669)};
 \addlegendentry{recall: share of all fraud found}
-\addplot[draw=UTPMuted,dashed,domain=0:1050] {0.015};
-\addlegendentry{base rate, 1.5\%}
+\addplot[draw=UTPMuted,dashed,domain=0:1050] {0.0017};
+\addlegendentry{base rate, 0.17\%}
 \end{axis}
 \end{tikzpicture}
 \end{utpfig}
@@ -210,7 +210,7 @@ Main risks & Rare does not always mean harmful; distribution shift can make yest
   \item The z-score can be masked by the outlier itself, so prefer the median, the MAD and the IQR.
   \item Distance alone penalizes naturally sparse groups; LOF judges a point against its own neighborhood.
   \item Isolation forests need no distance: strangers separate after a few random cuts.
-  \item Evaluate at the real review budget. A ROC AUC of 0.95 and a 20\% hit rate in the top 100 describe the same ranking.
+  \item Evaluate at the real review budget. A ROC AUC of 0.95 and a 39\% hit rate in the top 100 describe the same ranking.
 \end{itemize}
 \end{chapterrecap}
 

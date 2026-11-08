@@ -96,7 +96,7 @@ mark & $-0.25$ & 0.86 & 0.46 & 1.00 \\
 
 The \term{eigendecomposition} takes that table and returns every direction ranked by spread. Its two words name things we already have: an \term{eigenvector} is one direction, written as its weights, and its \term{eigenvalue} is that direction's spread. In formula form, $S\bm{v}=\lambda\bm{v}$: multiplying the table by the direction only stretches it. NumPy calls the routine \texttt{eigh}.
 
-\lstinputlisting[style=utppython,firstline=108,lastline=114]{all_experiments/demo_study_log.py}
+\lstinputlisting[style=utppython,firstline=108,lastline=114]{all_experiments/book_checks/demo_study_log.py}
 
 \begin{workedexample}
 The four directions have spreads 2.532, 1.330, 0.130 and 0.008, out of 4 units in total. Their shares are 63.3\%, 33.2\%, 3.3\% and 0.2\%. So the first two together keep 96.5\%, and the other two can go.
@@ -169,26 +169,26 @@ with $\lambda_1=5$, $\lambda_2=0$, and $\bm v_1=(1,1)/\sqrt2$. Scores $(-2.83,-1
 
 \section{Explained variance: the compression budget}
 
-Lab~4 applies this to 8$\times$8 handwritten digits, 64 pixel columns per image. The first component alone keeps 14.9\%, and the first ten keep 74.1\%. Keeping 90\%, 95\% and 99\% of the variance needs 21, 29 and 41 components. What the last components hold is mostly pixel noise, and a downstream classifier proves it: logistic regression on all 64 pixels and on 29 components scores the same 0.9477 on the test file.
+Lab~4 applies this to $32\times32$ colour photos of wood defects, 3,072 pixel values per image. The first component alone keeps 39.1\%, and the first ten keep 83.9\%. Keeping 90\%, 95\% and 99\% of the variance needs 21, 51 and 253 components. The first components describe mostly the light and colour of the wood: on Lab~4's test boards, logistic regression scores 0.638 on all 3,072 pixel values and 0.633 on 253 components.
 
-\begin{utpfig}[Cumulative explained variance]{Real numbers from Lab~4's training digits. Left: the share of variance per component for the first ten. Right: the cumulative share. The curve bends early: 29 of 64 components already keep 95.4\%.}{fig:cumulative-variance}
+\begin{utpfig}[Cumulative explained variance]{Real numbers from Lab~4's 12,567 development images. Left: the share of variance per component for the first ten. Right: the cumulative share, on a logarithmic axis, which bends early.}{fig:cumulative-variance}
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
   logaxis, width=7.4cm, height=4.5cm]
-\nextgroupplot[title={Variance per component},xlabel={component},ylabel={share of variance},ybar,bar width=7pt,ymin=0,ymax=0.17,xmin=0.3,xmax=10.7,xtick={1,...,10},yticklabel style={/pgf/number format/fixed},grid=none,ymajorgrids]
-\addplot[fill=UTPPaleBlue,draw=UTPBlue] coordinates {(1,0.149)(2,0.134)(3,0.117)(4,0.084)(5,0.057)(6,0.051)(7,0.047)(8,0.037)(9,0.035)(10,0.031)};
-\nextgroupplot[title={Cumulative variance kept},xlabel={number of components},ylabel={share kept},ymin=0,ymax=1.05,xmin=0,xmax=66]
-\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(1,0.149)(2,0.283)(3,0.400)(4,0.484)(5,0.541)(8,0.675)(10,0.741)(15,0.837)(21,0.904)(29,0.954)(41,0.990)(50,0.999)(64,1.000)};
-\draw[UTPOrange,thick,dashed] (axis cs:29,0) -- (axis cs:29,0.954);
-\node[font=\scriptsize\color{UTPNavy},anchor=north west] at (axis cs:30,0.80) {29 components: 95.4\%};
+\nextgroupplot[title={Variance per component},xlabel={component},ylabel={share of variance},ybar,bar width=7pt,ymin=0,ymax=0.42,xmin=0.3,xmax=10.7,xtick={1,...,10},yticklabel style={/pgf/number format/fixed},grid=none,ymajorgrids]
+\addplot[fill=UTPPaleBlue,draw=UTPBlue] coordinates {(1,0.391)(2,0.134)(3,0.099)(4,0.071)(5,0.056)(6,0.023)(7,0.022)(8,0.016)(9,0.015)(10,0.013)};
+\nextgroupplot[title={Cumulative variance kept},xlabel={number of components},ylabel={share kept},ymin=0.3,ymax=1.05,xmode=log,xmin=1,xmax=4000]
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(1,0.391)(2,0.525)(3,0.624)(5,0.750)(10,0.839)(21,0.902)(51,0.950)(100,0.972)(253,0.990)(500,0.996)(1000,0.999)(3072,1.000)};
+\draw[UTPOrange,thick,dashed] (axis cs:253,0.3) -- (axis cs:253,0.990);
+\node[font=\scriptsize\color{UTPNavy},anchor=north east] at (axis cs:230,0.62) {253 components: 99.0\%};
 \end{groupplot}
 \end{tikzpicture}
 \end{utpfig}
 
-Choose the count by a variance target, a bend in the curve, or downstream validation on training folds. Discarded eigenvalues add up to the variance you lost: here 4.6\% for 29 components.
+Choose the count by a variance target, a bend in the curve, or downstream validation on training folds. Discarded eigenvalues add up to the variance you lost: here 1.0\% for 253 components.
 
 \begin{workedexample}
-How few can you keep? On Lab~4's validation split, logistic regression scores 0.608 on 2 components, 0.868 on 5, 0.934 on 10, 0.954 on 29 and 0.955 on all 64. Two components make a fine picture and a poor classifier; twenty-nine are almost free.
+How few can you keep? On Lab~4's validation boards, logistic regression scores 0.420 on 2 components, 0.538 on 10, 0.591 on 50, 0.608 on 248 and 0.618 on all 3,072. Two components make a fine picture and a poor classifier; 248 come within a point of the raw pixels with a twelfth of the inputs.
 \end{workedexample}
 
 \subsection{What PCA cannot promise}
@@ -260,7 +260,7 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
   \item PCA is a shadow: it flattens rows onto the directions that keep the most spread.
   \item A direction is a list of weights, a shadow is a dot product, and the eigendecomposition of the correlation table ranks every direction at once.
   \item On the study log, two directions keep 96.5\% of four columns: four columns were really two stories.
-  \item Choose the number of components from a variance target and a downstream test. On the digits, 29 of 64 lost nothing measurable.
+  \item Choose the component count from a variance target and a downstream test: 90\% of the variance is not 90\% of the usefulness.
   \item PCA is linear and sensitive to scale, and variance is not the same as usefulness for a label. t-SNE and UMAP make maps for looking at, not measuring on.
 \end{itemize}
 \end{chapterrecap}
@@ -271,7 +271,7 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
   \item Two scaled columns have a correlation of 0.80. What spread does the direction $(0.71,0.71)$ keep, and what share of the total?
   \item PCA's first direction has weights near $0.25$ on four columns of very different meaning. What does that suggest?
   \item Why can standardization change which PCA directions appear most important?
-  \item A model drops from 0.95 to 0.61 accuracy going from 29 components to 2, while the two-component plot looks clean. What should you conclude?
+  \item Accuracy falls from 0.841 with 82 components to 0.506 with 2, yet the 2-D plot looks clean. Conclusion?
   \item Why should distances and apparent cluster sizes in a t-SNE or UMAP plot not be interpreted as exact properties of the original high-dimensional data?
 \end{enumerate}
 \end{quickcheck}
@@ -282,8 +282,8 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
   \item For two scaled columns, the spreads are $1+r$ and $1-r$, so 1.80 of the 2 units, which is 90\%. Check against the study log: $r=-0.965$ gives 1.965 along $(0.71,-0.71)$.
   \item Each weight is small and similar, so that component is a general average of the columns, and no single column dominates it. Read the signs and any exceptions before naming it.
   \item Changing units changes each column's variance, and PCA chases variance, so the column with the largest numbers can win for no good reason.
-  \item Two components are good for looking and not for predicting. A clean picture is not evidence of a good representation for the task.
-  \item They are built to preserve local neighborhoods, so sizes and gaps between groups can be artifacts of the layout, and they change with seeds and settings.
+  \item Two components are for looking, not predicting. A clean picture proves nothing.
+  \item They preserve local neighborhoods, so group sizes and gaps can be layout artifacts that change with seeds.
 \end{enumerate}
 \end{checkanswers}
 

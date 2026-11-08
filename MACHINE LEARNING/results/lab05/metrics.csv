@@ -1,5 +1,6 @@
-part,dataset,model,prevalence,roc_auc,average_precision,precision_at_100,validation_accuracy,test_accuracy
-A,credit_card_fraud,isolation_forest,0.015,0.9518,0.2249,0.2,,
-B,breast_cancer,self_training (30% labels),,,,,0.9626,
-B,breast_cancer,active (uncertainty),,,,,,0.972
-B,breast_cancer,active (random),,,,,,0.972
+part,dataset,model,prevalence,roc_auc,average_precision,frauds_in_top_100,validation_accuracy,test_accuracy
+A,creditcard_fraud_ulb,isolation_forest,0.0017,0.95,0.2187,39.0,,
+B,banking77,"labels only (1,000)",,,,,0.638,
+B,banking77,"self_training (1,000 labels)",,,,,0.6325,
+B,banking77,active (uncertainty),,,,,,0.7247
+B,banking77,active (random),,,,,,0.6821

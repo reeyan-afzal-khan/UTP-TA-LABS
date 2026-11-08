@@ -1,5 +1,5 @@
-feature_set,validation_mae
-all 30 features,2.181
-"SelectKBest, k=10",2.139
-lasso (selects itself),2.077
-all 30 + G2 (leakage),0.762
+feature_set,validation_roc_auc
+all 19 features,0.802
+"SelectKBest, k=10",0.791
+L1 penalty (selects itself),0.801
+all 19 + duration (leakage),0.939

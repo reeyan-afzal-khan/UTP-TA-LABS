@@ -74,7 +74,7 @@ Compare with independent reference labels when available, using measures such as
 Test usefulness: interpretable clusters, retained downstream signal, or anomalies that merit review.
 
 \begin{workedexample}
-Lab~4 groups 200 mall customers with $K$-means and brings all three kinds of evidence. Internal: the silhouette peaks at 0.427 for six groups, with five close behind at 0.417. Stability: most random starts reach the same grouping, though some do not. Practical: the five groups can be named (affluent big spenders, affluent savers, and so on), and a marketing team could act on those names. No single score settles it, and the conclusion is stated as ``five or six''.
+Lab~4 groups 5,878 customers of an online shop, built from two years of invoices, with $K$-means and brings all three kinds of evidence. Internal: the silhouette peaks at 0.439 for two groups, and among richer splits four groups (0.365) beat three and five. Stability: every one of eight single random starts reaches the same four groups. Practical: the four groups can be named (lost one-time buyers, lapsing regulars, recent occasional buyers, and best customers, who bring in 72.1\% of revenue), and a marketing team could act on those names. DBSCAN adds a fourth kind of evidence, the customers it refuses to place: 91 wholesale buyers who carry 30.8\% of revenue. No single score settles it, and the conclusion is stated as ``four segments, with the wholesale accounts handled separately''.
 \end{workedexample}
 
 \begin{pitfall}
@@ -105,7 +105,7 @@ Describing a fixed dataset need not require a split. Claims about new data or do
 In supervised learning, a poor representation shows up as a poor validation score. Here nothing protests. Scaling, weighting, encoding and distance simply define what the method can see.
 
 \begin{workedexample}
-Take the same 200 mall customers and the same $K$-means with five groups. On standardized columns and on raw units, the two groupings agree with an adjusted Rand index of only 0.602 (1 is identical, and 0 is chance). Now express income in ringgit per year instead of thousands of dollars, multiplying that column by 4,400. The grouping becomes identical to clustering on income alone, with an index of 1.000: age and spending no longer count at all. Each result looks like a tidy clustering, and nothing warns you which one you got.
+Take the same 5,878 customers and the same $K$-means with four groups. On logged and standardized columns, and on standardized columns without the logs, the two groupings agree with an adjusted Rand index of only 0.172 (1 is identical, and 0 is chance). Now drop the scaling too. Spend in pounds has a standard deviation of 14,440.9, against 209.4 days of recency and 13.0 orders, and the grouping becomes identical to clustering on spend alone, with an index of 1.000: recency and orders no longer count at all. Each result looks like a tidy clustering, and nothing warns you which one you got.
 \end{workedexample}
 
 \begin{keyidea}

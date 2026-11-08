@@ -12,52 +12,55 @@ Every lab in this course runs from the same folder, in the same Python environme
 Your project root is the course folder. In this repository it is called \texttt{MACHINE LEARNING/}; name your own copy without spaces, for example \texttt{UTP-MACHINE-LEARNING/}, because spaces in paths cause avoidable trouble in terminals. Inside it you will find:
 
 \noindent
-\begin{minipage}[t]{0.49\linewidth}
+\begin{minipage}[t]{0.47\linewidth}
 \begin{lstlisting}[style=utpterminal]
-all_datasets/
-  ames_housing_dataset.csv
-  bike_sharing_dataset_day.csv
-  bike_sharing_dataset_hour.csv
-  breast_cancer_dataset.csv
-  credit_card_fraud_dataset.csv
-  heart_failure_dataset.csv
-  mall_customers_dataset.csv
-  medical_cost_personal_dataset.csv
-  optical_recognition_handwritten_digits.zip
-  red_wine_quality_dataset.csv
-  student_performance_dataset.csv
-  titanic_dataset.csv
+all_datasets/       one folder per dataset
+  README.md         the index
+  supervised/       Labs 1-3: the answer is known
+    bank_marketing/
+    hotel_bookings/ hotel_bookings.zip,
+                    README.md
+    lending_club/
+    sms_spam/
+    telco_customer_churn/
+    used_cars/
+  unsupervised/     Labs 4-5: find structure
+    creditcard_fraud_ulb/
+    online_retail_ii/
+    wood_surface_defects/
+  advanced/         Labs 5, 7, 8
+    banking77/
+    electricity_load/
 \end{lstlisting}
 \end{minipage}\hfill
-\begin{minipage}[t]{0.49\linewidth}
+\begin{minipage}[t]{0.51\linewidth}
 \begin{lstlisting}[style=utpterminal]
-all_experiments/
-  lab01_features_worked.ipynb     (and .py)
-  lab02_supervised_workflow_worked.ipynb
-  lab03_supervised_models_worked.ipynb
-  lab04_clustering_pca_worked.ipynb
-  lab05_anomaly_limited_labels_worked.ipynb
-  lab06_reinforcement_worked.ipynb
-  lab07_deep_learning_cnn_worked.ipynb
-  lab08_deep_learning_lstm_worked.ipynb
-  predict_passenger.py
-  demo_study_log.py         Chapters 2,4,9,10,16,17
-  demo_foundations.py       Chapters 3,5-9
-  demo_model_families.py    Chapters 10-14
-  demo_unsupervised.py      Chapters 15-19
-  demo_advanced.py          Chapters 20-21
-  check_your_turn.py        lab Your-turn answers
-models/
-results/lab01/ ... lab08/
-requirements.txt
+all_experiments/           one folder per lab:
+  course_setup.py          the setup every lab shares
+  lab01_features/          notebook, .py twin, README
+  lab02_supervised_workflow/ (+ predict_churn.py)
+  lab03_supervised_models/
+  lab04_clustering_pca/
+  lab05_anomaly_limited_labels/
+  lab06_reinforcement/
+  lab07_deep_learning_cnn/
+  lab08_deep_learning_lstm/
+  book_checks/
+    demo_study_log.py       Chapters 2,4,9,10,16,17
+    demo_foundations.py     Chapters 3,5-9
+    demo_model_families.py  Chapters 10-14
+    demo_unsupervised.py    Chapters 15-19
+    demo_advanced.py        Chapters 20-21
+    check_your_turn.py      Your-turn answers
+models/   results/lab01/ ... lab08/   requirements.txt
 \end{lstlisting}
 \end{minipage}
 
-{\footnotesize Keep the digits ZIP intact: the notebooks read it in place. Each lab has one worked notebook with a \texttt{.py} twin that runs the same code. \texttt{predict\_passenger.py} uses the model saved in Lab~2. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs by hand. The \texttt{demo\_*.py} files print every worked number in the chapters and check it with an assert.\par}
+{\footnotesize Every dataset folder holds its file and a README, its data card: source, licence, columns and quirks. Keep the ZIP files zipped: pandas reads the CSV inside each one. Every lab folder holds one worked notebook, a \texttt{.py} twin that runs the same code, and a README naming its data, outputs and run time; each starts with \texttt{course\_setup.py}, which finds the course folder. \texttt{predict\_churn.py} uses the model saved in Lab~2. Notebooks write models and cards to \texttt{models/} and evidence to \texttt{results/}; do not edit generated outputs by hand. The \texttt{book\_checks/} scripts print every worked number in the chapters and check it with an assert.\par}
 
 \section{The datasets}
 
-Check \texttt{all\_datasets/} first. If your copy of the course already holds the twelve files listed above, skip to the next section. Otherwise click a \textbf{dataset name} to download it, then extract the files into \textbf{\texttt{all\_datasets/}}.
+The course folder ships with all eleven datasets, so there is nothing to download. \texttt{all\_datasets/} groups them by how the course learns from them: \texttt{supervised/} for tables whose answer is known (Labs~1 to~3), \texttt{unsupervised/} for data where the labs look for structure without the answer (Labs~4 and~5), and \texttt{advanced/} for few labels, deep networks and sequences. Every dataset is public and real, and each serves a lab where its quirks teach something. Click a \textbf{dataset name} to read its documentation and licence; each dataset's README records how its file was made from the source.
 
 \begin{utptable}
 \footnotesize
@@ -66,29 +69,29 @@ Check \texttt{all\_datasets/} first. If your copy of the course already holds th
 \begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}m{0.40\linewidth}>{\raggedright\arraybackslash}X@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\utpth{Kaggle Dataset} & \utpth{Where the labs use it} \\
+\utpth{Dataset} & \utpth{Where the labs use it} \\
 \midrule
-\href{https://www.kaggle.com/datasets/uciml/breast-cancer-wisconsin-data}{Breast Cancer Wisconsin} & Lab~1: scaling; Lab~2: thresholds; Lab~3: KNN, naive Bayes, SVM; Lab~5: limited labels \\
-\href{https://www.kaggle.com/datasets/mirichoi0218/insurance}{Medical Cost Personal Data} & Lab~2: linear and ridge regression \\
-\href{https://www.kaggle.com/datasets/larsen0966/student-performance-data-set}{Student Performance} & Lab~1: prediction timing, feature selection, leakage \\
-\href{https://www.kaggle.com/datasets/yasserh/titanic-dataset}{Titanic Dataset} & Lab~1: feature engineering; Lab~2: baselines, tuning, saving; Lab~3: trees \\
-\href{https://www.kaggle.com/datasets/lakshmi25npathi/bike-sharing-dataset}{Bike Sharing} & Lab~2: daily/hourly time splits; Lab~8: LSTM forecasting \\
-\href{https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction}{Heart Failure Prediction} & Lab~2 Try-it: mixed-type classification \\
-\href{https://www.kaggle.com/datasets/shashanknecrothapa/ames-housing-dataset}{Ames Housing} & Lab~3: random forests and gradient boosting \\
-\href{https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009}{Red Wine Quality} & Lab~3: ensembles and feature importance \\
-\href{https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python}{Mall Customers} & Lab~4: K-means and DBSCAN \\
-\href{https://www.kaggle.com/datasets/yadavhim/optical-recognition-of-handwritten-digits}{Optical Recognition of Handwritten Digits} & Lab~4: PCA; Lab~7: CNNs \\
-\href{https://www.kaggle.com/datasets/miadul/credit-card-fraud-detection-dataset}{Credit Card Fraud Detection} & Lab~5: anomaly detection and imbalanced evaluation \\
+\href{https://huggingface.co/datasets/gemuchu/hotel_bookings}{Hotel Booking Demand} & Lab~1: data card, features, leakage; Lab~2: date-order validation, overbooking threshold \\
+\href{https://huggingface.co/datasets/scikit-learn/churn-prediction}{Telco Customer Churn} & Lab~1: repairing types, scaling and neighbors; Lab~2: tuning and a saved model \\
+\href{https://huggingface.co/datasets/MLLab-TS/bank_marketing}{Bank Marketing} & Lab~1: prediction timing, feature selection, leakage \\
+\href{https://huggingface.co/datasets/KTHESAT/usa-used-car-market-cars-com}{Used Cars (Cars.com)} & Lab~2: linear regression on messy listings; Lab~3: forests and boosting \\
+\href{https://huggingface.co/datasets/codesignal/lending-club-loan-accepted}{Lending Club Loans} & Lab~3: KNN, naive Bayes, trees, SVMs \\
+\href{https://huggingface.co/datasets/codesignal/sms-spam-collection}{SMS Spam Collection} & Lab~3 Try-it: text classification \\
+\href{https://huggingface.co/datasets/attik/Online-Retail-II-UCI}{Online Retail II} & Lab~4: customer segments with $K$-means and DBSCAN \\
+\href{https://huggingface.co/datasets/iluvvatar/wood_surface_defects}{Wood Surface Defects} & Lab~4: PCA; Lab~7: dense networks and CNNs \\
+\href{https://huggingface.co/datasets/David-Egea/Creditcard-fraud-detection}{Credit Card Fraud (ULB)} & Lab~5: anomaly detection, imbalanced evaluation \\
+\href{https://huggingface.co/datasets/PolyAI/banking77}{Banking77} & Lab~5: self-training and active learning \\
+\href{https://huggingface.co/datasets/sxj1024/electricity_load_2011_2014}{Electricity Load Diagrams 2011--2014} & Lab~8: LSTM forecasting \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
-\subsection{Download steps}
+\subsection{If a file is missing}
 
 \begin{utpsteps}
-  \item Open the link, click \textbf{Download}, and \textbf{extract} the archive.
-  \item Copy the required \textbf{CSV files or images} into \textbf{\texttt{all\_datasets/}}.
-  \item Check that your notebook's \textbf{file paths} match the filenames, including \textbf{capitalization}.
+  \item Copy it again from the course repository into \textbf{its folder} in \texttt{all\_datasets/}, keeping its \textbf{exact name}, including capitalization.
+  \item Keep \textbf{ZIP files zipped}: the notebooks read them in place.
+  \item Run the notebook from inside the course folder: it finds \texttt{all\_datasets/} by looking upward from where it runs.
 \end{utpsteps}
 
 \begin{pitfall}
@@ -298,8 +301,8 @@ Run these three commands from the course folder with your environment active. Ea
 
 \begin{lstlisting}[style=utpterminal]
 python -c "import numpy, pandas, matplotlib, sklearn, joblib, torch; print('Packages OK')"
-python all_experiments/demo_study_log.py
-python all_experiments/lab01_features_worked.py
+python all_experiments/book_checks/demo_study_log.py
+python all_experiments/lab01_features/lab01_features_worked.py
 \end{lstlisting}
 
 \begin{utptable}
@@ -310,21 +313,14 @@ python all_experiments/lab01_features_worked.py
 \midrule
 The import line & \texttt{Packages OK} & The environment is active and complete \\
 \texttt{demo\_study\_log.py} & Last line: \texttt{Every number above matches the book.} & NumPy reproduces the chapters' worked examples \\
-\texttt{lab01\_features\_worked.py} & \texttt{raw + engineered validation ROC AUC = 0.872} among the lines & The datasets are in place and scikit-learn works \\
+\texttt{lab01\_features\_worked.py} & \texttt{raw + engineered validation ROC AUC = 0.855} among the lines & The datasets are in place and scikit-learn works \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
 
 \section{Start a notebook, and read its device line}
 
-Every lab has a worked notebook. Start Jupyter from \texttt{all\_experiments/}, because the notebooks find the data one folder up from where they run:
-
-\begin{lstlisting}[style=utpterminal]
-cd all_experiments
-jupyter lab
-\end{lstlisting}
-
-Open a notebook and choose \textbf{Restart Kernel and Run All Cells}. Labs~1--6 finish in under a minute. Labs~7 and~8 train neural networks: they took 42 and 76 seconds on the CPU that printed this book's numbers, and a slower laptop may need a few minutes. Their Setup cell prints the Python in use and the device it picked: an NVIDIA GPU (\texttt{cuda}) or an Apple GPU (\texttt{mps}) when PyTorch can see one, otherwise the CPU. If you want to reproduce the printed numbers on a machine with a GPU, hide the GPU before starting Jupyter:
+Every lab has a worked notebook. Start Jupyter from the course folder with \texttt{jupyter lab}; each notebook finds \texttt{all\_datasets/} by looking upward from its own folder. Open a notebook and choose \textbf{Restart Kernel and Run All Cells}. Most labs take under a minute; Labs~7 and~8 train neural networks, about four minutes each on a laptop CPU. Their Setup cell prints the Python in use and the device it picked: an NVIDIA GPU (\texttt{cuda}), an Apple GPU (\texttt{mps}), or the CPU. To reproduce the printed numbers exactly on a machine with a GPU, hide it before starting Jupyter:
 
 \begin{lstlisting}[style=utpterminal]
 # PowerShell

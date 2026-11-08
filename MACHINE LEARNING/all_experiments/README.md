@@ -1,31 +1,78 @@
 # Worked notebooks
 
-One executed notebook per lab. Every code cell has a `### Question n` heading, and the lab sheet
-in `labs/*.tex` uses the same number and title, so `[n]` after Run All is Question n on the
-sheet. Each notebook has a Setup cell, a *What the output shows* note with the actual numbers
-after each part, an Evidence cell that writes tables to `results/labNN/`, the lab's Try-it or
-Decision-memo prompt with an empty cell to attempt it, and then **one worked solution** (code
-plus an explanation of what it shows).
+One folder per lab. Each holds the executed notebook, a `.py` twin with the same code cells, and a
+README naming the lab's data, outputs, run time and the chapters it practises. Every code cell has
+a `### Question n` heading, and the lab sheet in `labs/*.tex` uses the same number and title, so
+`[n]` after Run All is Question n on the sheet. Each notebook has a Setup cell, a *What the output
+shows* note with the actual numbers after each part, a map of the lab's parts in its first cell, a goal under
+each part heading and a checkpoint closing each part (the same as on the sheet), an Evidence cell that writes tables and
+figures to `results/labNN/`, the lab's Try-it prompt with an empty cell to attempt it, and then
+**one worked solution** (code plus an explanation of what it shows).
 
-Each notebook has a `.py` twin with the same code, which runs from the course folder. The
-listings printed on the lab sheets are pulled from these files by line number, so adding or
-removing a line in a twin means updating the sheet's `firstline` and `lastline`.
+```
+all_experiments/
+  course_setup.py                 the setup every lab shares (see below)
+  lab01_features/                 lab01_features_worked.ipynb, .py twin, README.md
+  lab02_supervised_workflow/      ... and predict_churn.py
+  lab03_supervised_models/
+  lab04_clustering_pca/
+  lab05_anomaly_limited_labels/
+  lab06_reinforcement/
+  lab07_deep_learning_cnn/
+  lab08_deep_learning_lstm/
+  book_checks/                    scripts that check every number the book prints
+```
+
+The listings printed on the lab sheets are pulled from the `.py` twins by line number, so adding
+or removing a line in a twin means updating the sheet's `firstline` and `lastline`.
 
 ## Run
 
+From the course folder:
+
 ```bash
-cd all_experiments
 jupyter lab
 ```
 
-Open a notebook and choose **Restart Kernel and Run All Cells**. Paths are relative to the
-course folder (`Path.cwd().parent`), so launch Jupyter from this directory. Labs 1 to 6 take
-under half a minute each. Labs 7 and 8 took 42 and 76 seconds on the CPU behind the printed
-numbers, and 29 and 21 seconds on a laptop GPU.
+Open a lab's notebook and choose **Restart Kernel and Run All Cells**. Each notebook finds the
+course folder by looking upward for `all_datasets/`, so it runs wherever Jupyter was started
+inside the course. Most labs take under a minute on a laptop CPU, Lab 3 about two. Labs 7 and 8
+train neural networks and took about four minutes each on the CPU behind the printed numbers.
+
+### The Setup cell
+
+Every lab's first code cell has the same three steps, in this order:
+
+```python
+# 1. The course helper: finds the course folder and prepares the output folders.
+import sys
+sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
+from course_setup import start_lab
+
+# 2. The libraries this lab uses, grouped by what they are for.
+import numpy as np
+import pandas as pd
+...
+
+# 3. Where this lab reads and writes.
+DATA, RESULTS, MODELS = start_lab("lab02")
+```
+
+`start_lab` returns `DATA` (the `all_datasets/` folder), `RESULTS` (`results/labNN/`, created if
+needed) and `MODELS` (`models/`), and prints where they are. Data files are then named by their
+place inside `all_datasets/`, for example `DATA / "supervised/hotel_bookings/hotel_bookings.zip"`. Labs 7 and 8
+also call `start_pytorch()`, which returns `DEVICE` (see below). `course_setup.py` is short and
+documented; read it once.
+
+Each twin runs the same code from a terminal and writes the same evidence:
+
+```bash
+python all_experiments/lab01_features/lab01_features_worked.py
+```
 
 ### PyTorch, GPUs, and kernels (Labs 7 and 8)
 
-The two deep-learning labs need PyTorch. Their Setup cell handles the common situations:
+The two deep-learning labs need PyTorch. `start_pytorch()` in their Setup cell handles the common situations:
 
 - **PyTorch already installed** in the Python behind the kernel: it is imported and the cell
   prints the version and the device.
@@ -38,7 +85,8 @@ The two deep-learning labs need PyTorch. Their Setup cell handles the common sit
   can see one, otherwise `cpu`. The rest of the lab is written once and runs on whichever was
   chosen. A GPU is a convenience, not a requirement; the stored outputs come from a CPU run,
   and GPU runs differ from them in the last digits because GPU kernels are not bit-for-bit
-  deterministic.
+  deterministic. To reproduce the printed numbers on a machine with a GPU, set
+  `CUDA_VISIBLE_DEVICES=-1` before starting Jupyter (never an empty string).
 
 The first line the Setup cell prints is the Python that is actually running the notebook. If it
 is not the environment you installed PyTorch into (a common cause of `No module named 'torch'`),
@@ -53,54 +101,58 @@ python -m ipykernel install --user --name my_env --display-name "Python (my_env)
 
 ## Index
 
-| Notebook | Lab | Datasets | Chapters | Saves a model |
+| Folder | Lab | Datasets (in `all_datasets/`) | Chapters | Saves a model |
 | --- | --- | --- | --- | --- |
-| `lab01_features_worked.ipynb` | 1 Feature engineering and feature selection | titanic, breast_cancer, student_performance | 3 | |
-| `lab02_supervised_workflow_worked.ipynb` | 2 Supervised learning I: regression, classification, and the workflow | medical_cost_personal, bike_sharing_day + hour, titanic, breast_cancer, heart_failure (Try-it) | 4–10 | `titanic_survival.joblib` + card, `insurance_charges.joblib` |
-| `lab03_supervised_models_worked.ipynb` | 3 Supervised learning II: model families | breast_cancer, titanic, ames_housing, red_wine_quality | 11–14 | `breast_cancer_svm.joblib` |
-| `lab04_clustering_pca_worked.ipynb` | 4 Unsupervised learning I: clustering and PCA | mall_customers, optical_recognition_handwritten_digits.zip | 15–17 | `digits_pca_logistic.joblib` |
-| `lab05_anomaly_limited_labels_worked.ipynb` | 5 Unsupervised learning II: anomaly detection and limited labels | credit_card_fraud, breast_cancer | 18–19 | |
-| `lab06_reinforcement_worked.ipynb` | 6 Reinforcement learning | none (GridWorld in the notebook) | 20 | `gridworld_q_table.npy` |
-| `lab07_deep_learning_cnn_worked.ipynb` | 7 Deep learning I: a first neural network and a CNN for images | optical_recognition_handwritten_digits.zip | 21 | `digits_cnn.pt` + card |
-| `lab08_deep_learning_lstm_worked.ipynb` | 8 Deep learning II: an LSTM for time series | bike_sharing_hour | 21 | `bike_lstm.pt` + card |
+| `lab01_features/` | 1 Feature engineering and feature selection | hotel_bookings, telco_customer_churn, bank_marketing | 1A–3 | |
+| `lab02_supervised_workflow/` | 2 Supervised learning I: regression, classification, and the workflow | used_cars, hotel_bookings, telco_customer_churn | 4–10 | `customer_churn.joblib` + card, `used_car_prices.joblib` |
+| `lab03_supervised_models/` | 3 Supervised learning II: model families | lending_club, used_cars, sms_spam (Try-it) | 11–14 | `loan_default_svm.joblib` |
+| `lab04_clustering_pca/` | 4 Unsupervised learning I: clustering and PCA | online_retail_ii, wood_surface_defects | 15–17 | `wood_pca_logistic.joblib` |
+| `lab05_anomaly_limited_labels/` | 5 Unsupervised learning II: anomaly detection and limited labels | creditcard_fraud_ulb, banking77 | 18–19 | |
+| `lab06_reinforcement/` | 6 Reinforcement learning | none (GridWorld in the notebook) | 20 | `gridworld_q_table.npy` |
+| `lab07_deep_learning_cnn/` | 7 Deep learning I: a first neural network and a CNN for images | wood_surface_defects | 21 | `wood_cnn.pt` + card |
+| `lab08_deep_learning_lstm/` | 8 Deep learning II: an LSTM for time series | electricity_load_hourly | 21 | `electricity_lstm.pt` + card |
 
-The digits archive is read directly from the `.zip` with `zipfile`; nothing needs extracting.
+`all_datasets/` groups the datasets by how the course learns from them (`supervised/`,
+`unsupervised/`, `advanced/`), one folder per dataset with a README, its data card: source,
+licence, what each column means, and quirks. The ZIP files
+are read in place by pandas; nothing needs extracting.
 
 ## Model files
 
 `models/` holds the saved models. A scikit-learn file contains the preprocessing *and* the
-estimator, so it is used by loading it and passing new rows with the original column names:
+estimator, so it is used by loading it and passing new rows with the original column names. The
+card beside a model lists those columns:
 
 ```python
 import joblib, pandas as pd
-model = joblib.load("../models/titanic_survival.joblib")
-model.predict_proba(pd.DataFrame([{"Pclass": 2, "Sex": "female", "Age": 30,
-                                   "SibSp": 0, "Parch": 0, "Fare": 20.0, "Embarked": "S"}]))
+model = joblib.load("models/used_car_prices.joblib")
+model.predict(pd.DataFrame([{"age": 5, "mileage_miles": 30000, "make": "Toyota", "body_type": "SUV",
+                             "drive": "AWD", "fuel_type": "gasoline"}]))
 ```
 
-`predict_passenger.py` does this from the terminal using the Lab 2 model and its card:
+`predict_churn.py` does the same for Lab 2's churn model from the terminal, filling every column it is not given from the card's typical customer:
 
 ```bash
-python predict_passenger.py --pclass 2 --sex female --age 30 --fare 20
+python all_experiments/lab02_supervised_workflow/predict_churn.py --tenure 2 --contract Month-to-month --monthly 85
 ```
 
 The PyTorch files (`.pt`) hold weights only; rebuild the architecture with `make_cnn()` (Lab 7)
 or `LSTMForecaster()` (Lab 8) and call `load_state_dict`, as the labs' Part D shows. The LSTM
-card also stores the scale factor the inputs must be divided by.
+card also stores the scale the inputs must be divided by.
 
 ## Scripts that check the book
 
-Every worked number printed in a chapter comes from one of these scripts, which assert it and end
-with `Every number above matches the book.` Run them from the course folder.
+Every worked number printed in a chapter comes from one of the scripts in `book_checks/`, which
+assert it and end with `Every number above matches the book.` Run them from the course folder.
 
 | Script | What it checks |
 | --- | --- |
 | `demo_study_log.py` | The ten-student study log that runs through the book |
 | `demo_foundations.py` | Chapters 3 and 5 to 9 |
-| `demo_model_families.py` | Chapters 10 to 14 |
-| `demo_unsupervised.py` | Chapters 15 to 19 |
+| `demo_model_families.py` | Chapters 10 to 14, and Lab 3's printed numbers |
+| `demo_unsupervised.py` | Chapters 15 to 19, and Lab 5's printed numbers |
 | `demo_advanced.py` | Chapters 20 and 21, with NumPy only |
-| `check_your_turn.py` | The expected findings of every lab's Your-turn tasks; `python all_experiments/check_your_turn.py lab03` runs one lab |
+| `check_your_turn.py` | The expected findings of every lab's Your-turn tasks; `python all_experiments/book_checks/check_your_turn.py lab03` runs one lab |
 
 ## Evidence
 

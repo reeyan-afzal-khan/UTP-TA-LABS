@@ -1,60 +1,67 @@
 \labsection{1}{Feature engineering and feature selection}{sec:lab01-features}
 
 \begin{labproject}{Check the tools, understand the data, build features, and choose among them}
-\textbf{Read first.} Chapter~\ref{ch:data}. Chapters~\ref{ch:toolkit} and~\ref{ch:git-submission} set up your tools. The lab fits logistic, ridge and lasso models before their chapters: treat them as black boxes for now, since the point here is what goes into them.\\
-\textbf{Goal.} Check the environment, engineer features, see scaling change a distance, and select features without leakage.\\
-\textbf{Scenario.} You inherit three tables and three questions: who survived the Titanic, which tumors are similar, and what final grade a student should expect at enrolment. Before any model matters, you have to get the columns right.\\
-\textbf{Data.} \texttt{all\_datasets/titanic\_dataset.csv}, \texttt{breast\_cancer\_dataset.csv} and \texttt{student\_performance\_dataset.csv}.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab01\_features\_worked.ipynb}.\\
+\textbf{Read first.} Chapter~\ref{ch:data}. Chapters~\ref{ch:toolkit} and~\ref{ch:git-submission} set up your tools. The lab fits logistic regression, with and without an L1 penalty, before its chapter: treat it as a black box for now, since the point here is what goes into it.\\
+\textbf{Goal.} Check the environment, read a data card, engineer features, see scaling change who counts as a neighbor, and select features without leakage.\\
+\textbf{Scenario.} You inherit three real tables and three questions: which hotel bookings will be cancelled, which phone customers resemble each other, and which bank customers are worth a call. Before any model matters, you have to get the columns right, including when each one was written down.\\
+\textbf{Data.} In \texttt{all\_datasets/\allowbreak supervised/}: \texttt{hotel\_bookings/\allowbreak hotel\_bookings.zip}, the bookings of two Portuguese hotels for arrivals from 2015 to 2017 (Antonio, de Almeida and Nunes, 2019); \texttt{telco\_customer\_churn/\allowbreak telco\_customer\_churn.csv}, IBM's sample of a telecom company's customers; and \texttt{bank\_marketing/\allowbreak bank\_marketing.csv}, a Portuguese bank's marketing calls from the UCI repository (Moro, Cortez and Rita, 2014). The \texttt{README.md} in each folder is its data card, and Chapter~\ref{ch:toolkit} links each source.\\
+\textbf{Notebook.} \texttt{all\_experiments/\allowbreak lab01\_features/\allowbreak lab01\_features\_worked.ipynb}, with a README beside it.\\
 \textbf{Hand in.} The executed notebook, the \texttt{results/lab01/} folder and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
+\labroadmap{Your map of this lab}{
+      A & Check your versions, read the data card, find the gaps and the column that leaks the outcome & 2--4 \\
+      B & Engineer five columns from the hotel bookings and test them on a model & 5--7 \\
+      C & Repair the Telco columns and see how scaling changes a customer's neighbors & 8--9 \\
+      D & Select features for the bank's call list without leaking the outcome & 10--12 \\
+      Finish & Save the evidence; then add the arrival weekday yourself & 13--15 \\
+      After & Your-turn tasks, expected findings, troubleshooting and the two checklists & --- \\
+}
+
 \begin{labmode}
 \begin{enumerate}
-  \item Activate your course environment (Chapter~\ref{ch:toolkit}) and confirm that the three data files are in \texttt{all\_datasets/}.
+  \item Activate your course environment (Chapter~\ref{ch:toolkit}) and confirm that the three data files are in \texttt{all\_datasets/\allowbreak supervised/}.
   \item Warm up on the study log, which needs no data. From the course folder, run the command below. Its last line must read \texttt{Every number above matches the book.}
-  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
+  \item From the course folder, start Jupyter, open \texttt{all\_experiments/\allowbreak lab01\_features/\allowbreak lab01\_features\_worked.ipynb}, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
 \end{enumerate}
 \begin{lstlisting}[style=utpterminal]
-python all_experiments/demo_study_log.py
-cd all_experiments
+python all_experiments/book_checks/demo_study_log.py
 jupyter lab
 \end{lstlisting}
-Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab01\_features\_worked.py} runs the same code and writes the same evidence. Its first seven lines set the working directory:
-\lstinputlisting[style=utppython,firstline=1,lastline=7]{all_experiments/lab01_features_worked.py}
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/\allowbreak lab01\_features/\allowbreak lab01\_features\_worked.py} runs the same code and writes the same evidence. Its first nine lines say what it is and set the working directory:
+\lstinputlisting[style=utppython,firstline=1,lastline=9]{all_experiments/lab01_features/lab01_features_worked.py}
 \end{labmode}
-
-\input{labs/visuals/01-flow}
 
 \labroutine
 
 \begin{yourturn}
 \textbf{Warm-up on paper.} Do these before opening the notebook; the code will check you.
 \begin{enumerate}
-  \item Passenger 1 is \emph{Braund, Mr. Owen Harris}, with \texttt{SibSp} 1, \texttt{Parch} 0 and a fare of 7.25. Work out \texttt{FamilySize}, \texttt{IsAlone}, \texttt{Title} and \texttt{LogFare}, which is $\ln(1+\text{fare})$. Question~5 prints the answer.
-  \item Two columns have means 654.9 and 19.3, and standard deviations 351.9 and 4.3. A gap of 100 in the first and of 5 in the second: which one dominates a raw distance, and which one after scaling? Question~9 shows the same effect on real tumors.
+  \item Booking 14876 is for the resort hotel, made 132 days before arrival, for 2 weekend nights and 4 week nights, with 2 adults, no children and 1 baby, by a customer who had cancelled one booking before. Work out \texttt{total\_nights}, \texttt{total\_guests}, \texttt{with\_children}, \texttt{log\_lead\_time}, which is $\ln(1+\text{lead time})$, and \texttt{cancelled\_before}. Could the hotel compute all five the moment the booking is made? Question~5 prints the numbers.
+  \item Two columns have means 2,279.73 and 32.37, and standard deviations 2,266.79 and 24.56. A gap of 100 in the first and of 12 in the second: which one dominates a raw distance, and which one after scaling? Question~9 shows the same effect on real customers.
 \end{enumerate}
 \end{yourturn}
 
 \begin{labquestion}{1}{Setup}
-Run the imports and path setup first, and keep this kernel for the later questions. Notebooks run from \texttt{all\_experiments/}, so the course folder is one level up.
+Run this first, and keep this kernel for the later questions. Every lab starts the same way. \texttt{start\_lab()}, from \texttt{all\_experiments/\allowbreak course\_setup.py}, finds the course folder and returns the three folders the lab uses: \texttt{DATA} to read from, \texttt{RESULTS} and \texttt{MODELS} to write to. The imports in between are grouped by what they are for.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=8,lastline=30]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=11,lastline=33]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 course folder: MACHINE LEARNING
+reads all_datasets/, writes results/lab01/ and models/
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Part A --- Environment check and a first look at the data}
+\labpartopen{Part A}{Environment check and a first look at the data}{Questions 2--4 \textbullet\ Data: hotel bookings and their data card}{Confirm your setup, then learn what each booking column means and which one was written after the outcome.}
 
 \begin{labquestion}{2}{Print the package versions}
 Every result in this course depends on four packages. Print their versions once, at the top, so that if a number ever changes between two runs you can rule out the environment first.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=32,lastline=35]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=35,lastline=38]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 NumPy: 2.3.5
@@ -64,247 +71,336 @@ scikit-learn: 1.7.2
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} These are the versions behind this book's reference outputs. Yours may be newer. The notebook file stores an earlier run on NumPy 2.4.6, pandas 3.0.3, Matplotlib 3.11.0 and scikit-learn 1.9.0, and every model number in Labs 1, 2, 4, 5 and 6 came out the same on both.
+\textbf{What it means.} These are the versions behind this sheet's reference outputs, and the notebook file stores this same run. Yours may be newer. A newer scikit-learn can move the last digit of a score, which is exactly the kind of difference this cell lets you rule in or out.
 \end{labanswer}
 
-\begin{labquestion}{3}{Read the Titanic table}
-The file has one row per passenger and a column \texttt{Survived} that is 1 if the passenger lived. Before any feature is built, answer four questions from the table itself: how big is it, what type is each column, what is missing, and how balanced is the label?
+\begin{labquestion}{3}{Read the data card, then the bookings}
+A professional reads the data dictionary before the data. Every dataset in this course has one, the data card \texttt{README.md} beside the file, which says what each column means, in which units, and how it was recorded. The cell prints its column meanings, then answers three questions from the table itself: how big is it, which hotels and dates does it cover, and how balanced is the label? The arrival date is spread over three columns, with the month as a word, so the cell joins them into one date.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=37,lastline=42]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=40,lastline=57]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-shape: (891, 12)
+hotel                           `Resort Hotel` (Algarve) or `City Hotel` (Lisbon)
+is_canceled                     1 if the booking was cancelled: the label
+lead_time                       days from making the booking to the arrival date
 ...
-Survival rate:
- 0    0.616162
- 1    0.383838
+reservation_status              how the booking ended: `Canceled`, `No-Show` or `Check-Out`
+reservation_status_date         date that last status was set
+
+shape: (119390, 32)
+hotel
+City Hotel      79330
+Resort Hotel    40060
+arrivals from 2015-07-01 to 2017-08-31
+
+Cancellation rate:
+ is_canceled
+0    0.63
+1    0.37
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Only 38\% survived, so a model that always says ``did not survive'' is already 62\% accurate. Anything built later has to beat that.
+\textbf{What it means.} 119,390 bookings and 32 columns, two thirds of them at the city hotel, for arrivals over twenty-six months. 37.0\% were cancelled, so a model that always says ``not cancelled'' is already 63.0\% accurate, and anything built later has to beat that. Read the rest of the card too: \texttt{adr} is a price per night in euros, \texttt{lead\_time} is counted in days, and the authors describe each booking as it stood on the day before arrival. Even a good card leaves questions open: the room types are bare letters, because the source hid their names.
 \end{labanswer}
 
-\begin{labquestion}{4}{Chart the missing values}
-A bar chart makes the gaps easier to compare than a column of numbers. Only three columns have any, and one of them is mostly empty.
+\begin{labquestion}{4}{Chart the missing values, and date the columns}
+A bar chart makes the gaps easier to compare than a column of numbers. Then ask when each column was filled in. \texttt{reservation\_status} says how the booking ended, so check whether it already knows who cancelled, and compare the date it was written with the arrival date.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=44,lastline=53]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=59,lastline=78]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{labvisual}{Reference plot from the supplied notebook}
-\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/01-notebook-reference.png}
+\includegraphics[width=.8\linewidth,height=4cm,keepaspectratio]{labs/visuals/01-notebook-reference.png}
 \end{labvisual}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+company     94.31
+agent       13.69
+country      0.41
+children     0.00
 
-\textbf{What it means.} \texttt{Cabin} is missing for 77\% of rows, \texttt{Age} for 20\%, and \texttt{Embarked} for 2 rows. Regenerate the plot rather than copying it; this saved figure is a reference, not evidence of your own run.
+ is_canceled             0      1
+reservation_status
+Canceled                0  43017
+Check-Out           75166      0
+No-Show                 0   1207
+
+ is_canceled                             0      1
+status written on or after arrival
+False                                   0  42137
+True                                75166   2087
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} \texttt{company} is empty for 94.3\% of bookings and \texttt{agent} for 13.7\%, but the data's authors call these ``not applicable'': no company or travel agent was involved, so here a blank is information, not a gap. \texttt{country} lacks 0.4\% and \texttt{children} only 4 values. \texttt{reservation\_status} is the answer in disguise: every \texttt{Canceled} and \texttt{No-Show} booking was cancelled, and every \texttt{Check-Out} was kept. Its date gives it away too: every kept booking had its status written on or after arrival, and 42,137 of the 44,224 cancelled ones before it. The column comes from the future, so it stays in the table as a record and never enters a model; Your-turn task~1 looks for subtler cases. Regenerate the plot rather than copying it; this saved figure is a reference, not evidence of your own run.
 \end{labanswer}
 
-\labpart{Part B --- Feature engineering}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Your package versions print, and you know which ones differ from the sheet's.
+  \item 119,390 bookings, 37.0\% of them cancelled, so always guessing ``not cancelled'' is already 63.0\% accurate.
+  \item You can say why \texttt{reservation\_status} must never be a feature.
+\end{itemize}
+\end{labcheckpoint}
 
-\begin{labquestion}{5}{Engineer four new columns}
-Feature engineering means building inputs the model cannot see on its own. \texttt{FamilySize} and \texttt{IsAlone} come from two counts, \texttt{Title} is pulled out of the name with a regular expression, and \texttt{LogFare} tames a long right tail. Every one is built from information known before the outcome, which is the test each new feature must pass.
+\labpartopen{Part B}{Feature engineering}{Questions 5--7 \textbullet\ Data: hotel bookings}{Turn nights, guests, lead time and booking history into five new columns, and measure whether they help a model.}
+
+\begin{labquestion}{5}{Engineer five new columns}
+Feature engineering means building inputs the model cannot see on its own. \texttt{total\_nights} adds the weekend and week nights, \texttt{total\_guests} adds the adults, children and babies, and \texttt{with\_children} flags a family; the four blank \texttt{children} counts are read as none. \texttt{log\_lead\_time} takes $\ln(1+x)$ of the days booked ahead, because a few bookings were made up to two years early and would otherwise stretch the scale. \texttt{cancelled\_before} flags a customer who has cancelled a booking before. Every new column uses only what was known when the booking was made, which is the test each feature must pass.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/01-worked-case.tex}
-\lstinputlisting[style=utppython,firstline=55,lastline=62]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=80,lastline=100]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-                      Name Title  FamilySize  IsAlone   Fare   LogFare
-0  Braund, Mr. Owen Harris    Mr           2        0   7.25  2.110213
-...
-Title counts:  Mr 517   Miss 182   Mrs 125   Master 40   Other 27
+                                14876       40060
+hotel                    Resort Hotel  City Hotel
+lead_time                         132           6
+stays_in_weekend_nights             2           0
+stays_in_week_nights                4           2
+adults                              2           1
+children                          0.0         0.0
+babies                              1           0
+previous_cancellations              1           0
+total_nights                        6           2
+total_guests                        3           1
+with_children                       1           0
+log_lead_time                    4.89       1.946
+cancelled_before                    1           0
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Your warm-up should match the first row. Fixed transformations like these can run before the split, because they learn nothing from the data. Do not use \texttt{Survived} to construct an input.
+\textbf{What it means.} Your warm-up should match the first column: 6 nights, 3 guests, a family, and $\ln 133 = 4.89$. The city booking was made 6 days ahead, so its \texttt{log\_lead\_time} is $\ln 7 = 1.95$. The logarithm squeezes long lead times together: 132 days is 22 times 6 days, but 4.89 is only 2.5 times 1.95, so the few bookings made a year or two ahead no longer dominate a linear model. Each column reads only its own booking's fields, so it is a fixed rule that may run before the split. Do not use \texttt{is\_canceled} to construct an input.
 \end{labanswer}
 
 \begin{labquestion}{6}{Check the new columns for signal}
-Grouping the label by the new columns shows whether they carry signal. Two of them clearly do.
+Grouping the label by the new columns shows whether they carry signal. Lead time is cut into bands of days, and stays of eight nights or more share one bar.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=64,lastline=73]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=102,lastline=123]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-Survival by title:        Mr 0.157   Other 0.444   Master 0.575   Miss 0.698   Mrs 0.792
-Survival by family size:  1: 0.304   2: 0.553   3: 0.578   4: 0.724
-                          5: 0.200   6: 0.136   7: 0.333   8: 0.000   11: 0.000
+by days ahead:     {'0-7': 0.096, '8-30': 0.279, '31-90': 0.377, '91-180': 0.447,
+                    '181-365': 0.555, '366+': 0.677}
+by nights:         {0: 0.049, 1: 0.251, 2: 0.44, 3: 0.419, 4: 0.366, 5: 0.342, 6: 0.398,
+                    7: 0.343, 8: 0.357}
+with children:     {0: 0.372, 1: 0.349}
+cancelled before:  {0: 0.339, 1: 0.916}
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} These are the bars in the plot. \texttt{Master} (young boys) survived far more often than \texttt{Mr}, and \texttt{Mrs} more often than \texttt{Miss}, so the title packs sex, age and status into one column. Families of two to four survived at over 50\%, while lone travelers and families of five or more fell to about a third or less.
+\textbf{What it means.} These are the bars in the plot. Cancellations climb steadily with lead time, from 9.6\% for bookings made within a week to 67.7\% for those made more than a year ahead: a plan made far in advance has more time to change. Bookings for zero nights, which arrive and leave on the same day, almost never cancel (4.9\%). Customers who had cancelled before cancelled again 91.6\% of the time, against 33.9\%. Families cancel about as often as everyone else (34.9\% against 37.2\%), so \texttt{with\_children} may add little.
 \end{labanswer}
 
 \begin{labquestion}{7}{Test the new columns on a model}
-Does the engineering help a model? The only fair test is the same model and the same split, with and without the new columns. Preprocessing lives inside a pipeline, so imputation, scaling and encoding are learned from the training rows and reapplied unchanged to validation rows.
+Does the engineering help a model? The only fair test is the same model and the same split, with and without the new columns. The raw set takes eleven numbers and five categories known when the booking is made. It leaves out the agent and company IDs (codes with over 300 values each), the arrival date columns, which Lab~2 puts to work, and columns that may have been filled in later: the country, the room actually assigned and the number of changes. Preprocessing lives inside a pipeline, so imputation, scaling and encoding are learned from the training rows and reapplied unchanged to validation rows.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/01-trace}
-\lstinputlisting[style=utppython,firstline=75,lastline=104]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=125,lastline=158]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-raw columns        validation ROC AUC = 0.842
-raw + engineered   validation ROC AUC = 0.872
+raw columns        validation ROC AUC = 0.846
+raw + engineered   validation ROC AUC = 0.855
+validation bookings: 29848
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Same logistic regression, three points better: the gain came entirely from better columns, which is usually cheaper than a more complex model.
+\textbf{What it means.} Same logistic regression, about one point better, and the gain came entirely from better columns. On 29,848 validation bookings a point is unlikely to be luck, and \texttt{check\_your\_turn.py} confirms it with five-fold cross-validation: 0.858 against 0.848. Better columns are usually the cheapest improvement available, but they are rarely magic.
 \end{labanswer}
 
 \textbf{Connect it to the chapter.} Everything so far followed this safe order of operations.
 \input{labs/visuals/01-features-chapter.tex}
 
-\labpart{Part C --- Scaling changes the geometry}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Validation ROC AUC rises from 0.846 with the raw columns to 0.855 with the engineered ones.
+  \item You can explain why \texttt{log\_lead\_time} suits a linear model better than the raw lead time.
+\end{itemize}
+\end{labcheckpoint}
 
-\begin{labquestion}{8}{See the units of the breast-cancer table}
-Many models (nearest neighbors, clustering, SVMs, neural networks) work by measuring distances between rows. This table has 30 measurements per tumor in very different units.
+\labpartopen{Part C}{Scaling changes the geometry}{Questions 8--9 \textbullet\ Data: Telco customer churn}{Repair a number column stored as text, then see how scaling changes which customers count as neighbors.}
+
+\begin{labquestion}{8}{Fix the types, then see the units}
+The Telco churn table has one row per customer of a phone and internet company, and \texttt{Churn} says whether they left. Distances need numbers, and \texttt{TotalCharges} arrives as text. Find the cells that will not convert, see whose they are, and repair them with a rule you can defend. Then compare the units of the three time-and-money columns.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=106,lastline=111]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=160,lastline=171]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-      area_mean  texture_mean  smoothness_mean
-mean    654.889        19.290            0.096
-std     351.914         4.301            0.014
+shape: (7043, 21)  TotalCharges is stored as: object
+rows that are not numbers: 11  their tenure: [0]
+      tenure  MonthlyCharges  TotalCharges
+mean   32.37           64.76       2279.73
+std    24.56           30.09       2266.79
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A typical gap in area is 350 units, and a typical gap in smoothness is 0.014. In raw units, area will decide every distance on its own.
+\textbf{What it means.} Eleven cells hold a blank, and all eleven belong to customers in their first month, who have not been billed yet. Zero is therefore the right repair; the mean, about \$2,280, would invent a bill for people who have never paid one. A typical gap in \texttt{TotalCharges} is about 2,267 dollars and a typical gap in \texttt{tenure} about 25 months, so in raw units the total bill will decide every distance on its own.
 \end{labanswer}
 
-\begin{labquestion}{9}{Compare distances before and after scaling}
-Compute the distance between the first five tumors twice: once on the raw numbers, and once after standardizing every column to mean 0 and standard deviation 1. Which pair is closest in each?
+\begin{labquestion}{9}{Compare neighbors before and after scaling}
+Many models (nearest neighbors, clustering, SVMs, neural networks) work by measuring distances between rows. Take customer 7795-CFOCW, with 45 months of tenure at \$42.30 a month, and find the ten customers closest to them twice: once in raw units, and once after standardizing each column to mean 0 and standard deviation 1. Who counts as similar?
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=113,lastline=130]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=173,lastline=205]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-raw (results/lab01/distances_raw.csv)         scaled (distances_scaled.csv)
-    0  342  376 1584  538                          0 10.3  6.8 10.5  8.7
-  342    0  277 1679  383                       10.3    0  5.0 16.3  4.4
-  376  277    0 1407  164                        6.8  5.0    0 12.8  4.5
- 1584 1679 1407    0 1362                       10.5 16.3 12.8    0 15.4
-  538  383  164 1362    0                        8.7  4.4  4.5 15.4    0
+raw units     tenure 29-49 months   monthly $39.20-60.20   total $1,815-1,861
+standardized  tenure 43-47 months   monthly $38.25-45.55   total $1,755-2,065
+customers in both lists: 1
 \end{lstlisting}
 \end{refoutput}
+\begin{labvisual}{Reference plot from the supplied notebook}
+\includegraphics[width=.8\linewidth,height=5.5cm,keepaspectratio]{labs/visuals/01-neighbors-reference.png}
+\end{labvisual}
 
-\textbf{What it means.} In raw units the closest pair is tumors 3 and 5, at 164. After scaling it is tumors 2 and 5, at 4.38. Nothing about the tumors changed, only the measuring stick. Any distance-based model would answer differently on the two versions, which is why the scaler sits inside the pipeline.
+\textbf{What it means.} In raw units the ten neighbors have paid almost exactly the customer's \$1,841, but they range from 29 to 49 months and from \$39.20 to \$60.20 a month: several are newer customers on dearer plans. After scaling they range from 43 to 47 months and \$38.25 to \$45.55 a month, customers who really do look alike, even though their totals spread wider. Only one customer is in both lists. Nothing about the customers changed, only the measuring stick, so any distance-based model answers differently on the two versions. That is why the scaler sits inside the pipeline; Your-turn task~3 measures the effect on a model.
 \end{labanswer}
 
-\labpart{Part D --- Feature selection without leakage}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item \texttt{TotalCharges} had 11 blank cells, all from first-month customers, so zero is the right repair.
+  \item The ten nearest neighbors in raw units and after scaling share only one customer.
+\end{itemize}
+\end{labcheckpoint}
 
-\begin{labquestion}{10}{Define the student-grade task}
-Student Performance describes 649 secondary-school students with 32 possible features and a final grade \texttt{G3}. The task is to predict \texttt{G3} \emph{at enrolment}, so the two earlier term grades \texttt{G1} and \texttt{G2} do not exist yet and are left out. With 30 candidate columns, which ones matter?
+\labpartopen{Part D}{Feature selection without leakage}{Questions 10--12 \textbullet\ Data: bank marketing calls}{Choose features for a bank's call list using only what is known before the call.}
+
+\begin{labquestion}{10}{Define the bank-call task}
+The bank-marketing table holds 41,188 phone calls that a Portuguese bank made between May 2008 and November 2010 to sell a term deposit, and \texttt{y} says whether the customer signed up. The task is to decide \emph{before dialing} whom to call, so \texttt{duration}, the length of the call, does not exist yet and is left out. The file separates its fields with semicolons, a common European format, so \texttt{read\_csv} needs \texttt{sep=";"}.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=132,lastline=144]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=207,lastline=225]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-shape: (649, 33)  missing: 0  duplicates: 0
-13 numeric and 17 text features available at enrolment
+shape: (41188, 21)  missing: 0  duplicates: 12
+said yes: 0.113  'unknown' cells: 12716  pdays = 999: 0.963
+9 numeric and 10 text features known before the call
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} This table is clean, so the danger here is not dirt. It is timing.
+\textbf{What it means.} The table looks complete, with no blank cells, but its gaps are in disguise. 12,716 cells say \texttt{unknown}, and \texttt{pdays}, the days since the bank last called, is 999 for the 96.3\% of customers it had never called. A code like 999 is not a number of days, yet a scaler or a distance would treat it as one. Twelve exact duplicates are dropped, leaving 41,176 calls. Only 11.3\% said yes, so always predicting no would be 88.7\% accurate and useless; this part scores with ROC AUC instead.
 \end{labanswer}
 
 \begin{labquestion}{11}{Compare feature sets, and see leakage}
-Three feature sets are compared with the same ridge regression. \texttt{SelectKBest} keeps the ten columns most correlated with the grade, and the lasso penalty shrinks weak coefficients to zero and so selects on its own. Both selectors sit \emph{inside} the pipeline, after encoding, so they only ever see training rows. The fourth run adds \texttt{G2} back on purpose, to show what leakage looks like.
+Four feature sets are compared with the same logistic regression. \texttt{SelectKBest} keeps the ten encoded columns whose averages differ most between yes and no, and the L1 penalty shrinks weak coefficients all the way to zero and so selects on its own. Both selectors sit \emph{inside} the pipeline, after encoding, so they only ever see training rows. The fourth run adds \texttt{duration} back on purpose, to show what leakage looks like. Average precision is printed beside ROC AUC; with 11\% positives, it is the stricter of the two.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=146,lastline=175]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=227,lastline=267]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-all 30 features                  validation MAE = 2.181 grade points
-SelectKBest, k=10                validation MAE = 2.139 grade points
-lasso (selects itself)           validation MAE = 2.077 grade points
-all 30 + G2 (leakage)            validation MAE = 0.762 grade points
+all 19 features              ROC AUC = 0.802   average precision = 0.452
+SelectKBest, k=10            ROC AUC = 0.791   average precision = 0.435
+L1 penalty (selects itself)  ROC AUC = 0.801   average precision = 0.449
+all 19 + duration (leakage)  ROC AUC = 0.939   average precision = 0.595
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Ten columns do about as well as thirty, so most of the table is noise for this task, and a selector inside the pipeline does no harm and a little good. Always guessing the training mean scores 2.37, which is the true scale of these gains. The leaked column cuts the error by two thirds. That looks like a triumph and is a broken experiment, because \texttt{G2} does not exist at enrolment.
+\textbf{What it means.} Ten columns do almost as well as all of them, and the L1 penalty matches the full model, so much of the table is noise for this task, and a selector inside the pipeline costs little. Guessing at random scores ROC AUC 0.5 and average precision 0.113, the share of yes answers, which is the true scale of these gains. The leaked column lifts ROC AUC to 0.939. That looks like a triumph and is a broken experiment, because nobody knows how long a call will last before making it. The dataset's own documentation says the same, and keeps \texttt{duration} only for benchmarks.
 \end{labanswer}
 
-\begin{labquestion}{12}{Read what the lasso kept}
-A lasso's zero coefficients are its selection. List the survivors, and ask whether a teacher would believe them.
+\begin{labquestion}{12}{Read what the L1 penalty kept}
+The penalty's zero coefficients are its selection. List the survivors, and ask whether a bank manager would believe them.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=177,lastline=191]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=269,lastline=287]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-lasso kept 19 of 56 encoded columns
+the L1 penalty kept 21 of 62 encoded columns
+cat__month_may           -0.649
+cat__month_mar            0.558
+num__emp.var.rate        -0.488
+cat__contact_telephone   -0.434
+num__nr.employed         -0.422
+cat__poutcome_failure    -0.368
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A third of the encoded columns survive. The largest coefficients are \texttt{school\_GP} (1.105), \texttt{failures} ($-0.942$), \texttt{higher\_no} ($-0.792$), \texttt{schoolsup\_no} (0.356), \texttt{Dalc} ($-0.349$) and \texttt{studytime} (0.333). Each one makes sense to a teacher, but they describe associations in this table, not causes.
+\textbf{What it means.} A third of the encoded columns survive. The strongest are the calendar and the economy. Calls in May did worse and calls in March better, and calls to a landline (\texttt{contact\_telephone}) did worse than calls to a mobile. A higher employment-variation rate and more people employed (\texttt{nr.employed}) went with fewer sign-ups, and customers whose last campaign failed (\texttt{poutcome\_failure}) said no more often. A manager would believe most of these, but they are associations in this bank's calls of 2008 to 2010, not causes. The economic columns also stand in for the date, which Your-turn task~4 tests.
 \end{labanswer}
 
-\labpart{Evidence}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item All 19 features score ROC AUC 0.802; adding \texttt{duration} jumps to 0.939, and that jump is leakage.
+  \item The L1 penalty keeps 21 of the 62 encoded columns.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Finish}{Save the evidence, then try it yourself}{Questions 13--15}{Write the results folder, then extend the lab yourself before reading one worked solution.}
 
 \begin{labquestion}{13}{Save the evidence}
 Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=193,lastline=203]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=289,lastline=304]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-Saved: ['distances_raw.csv', 'distances_scaled.csv', 'environment.csv', 'feature_selection.csv',
- 'lasso_coefficients.csv', 'missing_values.csv', 'same_five_tumours_two_geometries.png',
- 'small_families_did_best_large_ones_did_worst.png', 'survival_by_title.csv',
- 'titanic_where_the_gaps_are.png', 'what_the_lasso_kept.png']
+Saved: ['cancellation_by_days_ahead.csv', 'environment.csv', 'far_ahead_bookings_cancel_most.png',
+ 'feature_selection.csv', 'hotel_where_the_gaps_are.png', 'l1_coefficients.csv', 'missing_values.csv',
+ 'neighbors_raw_and_scaled.csv', 'one_customer_two_sets_of_neighbors.png', 'what_the_l1_penalty_kept.png']
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Try it yourself}
+\labsubhead{Try it yourself}
 
 \begin{labquestion}{14}{Try it yourself}
-Engineer one more Titanic feature (the first letter of \texttt{Cabin}, or fare per family member) and check whether the validation ROC AUC in Question~7 improves. Then rerun Question~11 with \texttt{k=5} and \texttt{k=20} and see whether the error changes. Attempt it in this empty cell before reading the solution.
+Engineer one more hotel feature, the weekday of arrival (from the \texttt{arrival\_date} built in Question~3), and check whether the validation ROC AUC in Question~7 improves. Then rerun Question~11's \texttt{SelectKBest} with \texttt{k=5} and \texttt{k=20} and see whether the score changes. Attempt it in this empty cell before reading the solution.
 \end{labquestion}
 
 \begin{labquestion}{15}{One solution}
-A cabin-deck feature for Titanic, then the two other \texttt{k} values for the student grades.
+The arrival weekday for the hotel bookings, then the two other \texttt{k} values for the bank calls.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=207,lastline=224]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=308,lastline=332]{all_experiments/lab01_features/lab01_features_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-Deck: B 0.74 (47)   C 0.59 (59)   D 0.76 (33)   E 0.75 (32)   none 0.30 (687)   ...
-raw + engineered           validation ROC AUC = 0.872
-raw + engineered + Deck    validation ROC AUC = 0.868
-SelectKBest, k=5                 validation MAE = 2.134 grade points
-SelectKBest, k=10                validation MAE = 2.139 grade points
-SelectKBest, k=20                validation MAE = 2.125 grade points
+cancellation rate by arrival day: {'Monday': 0.341, 'Tuesday': 0.329, 'Wednesday': 0.361,
+ 'Thursday': 0.412, 'Friday': 0.406, 'Saturday': 0.395, 'Sunday': 0.323}
+raw + engineered           validation ROC AUC = 0.855
+raw + engineered + weekday validation ROC AUC = 0.856
+SelectKBest, k=5             ROC AUC = 0.775   average precision = 0.419
+SelectKBest, k=10            ROC AUC = 0.791   average precision = 0.435
+SelectKBest, k=20            ROC AUC = 0.799   average precision = 0.442
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Passengers with a recorded cabin survived far more often, so \texttt{Deck} carries real signal, but most of it is already in \texttt{Pclass} and \texttt{LogFare}. A feature can be informative and still add nothing, which is why the test is the model's validation score, not the group table. Five, ten and twenty selected columns land within 0.02 grade points of each other, so the exact \texttt{k} matters far less than keeping the selector inside the pipeline.
+\textbf{What it means.} Arrivals on Thursday and Friday were cancelled most often (41.2\% and 40.6\%) and arrivals on Sunday least (32.3\%), so the weekday carries real signal, yet the validation ROC AUC only moves from 0.855 to 0.856. Much of what the weekday says is probably already in the columns the model has, such as the weekend and week nights. A feature can be informative and still add nothing, which is why the test is the model's validation score, not the group table. Five, ten and twenty selected columns score 0.775, 0.791 and 0.799, against 0.802 for all of them: the score climbs slowly with \texttt{k}, and the exact number matters far less than keeping the selector inside the pipeline.
 \end{labanswer}
+
+\labpartopen{After the lab}{Your turn, troubleshooting and hand-in}{Your-turn tasks \textbullet\ Expected findings \textbullet\ Troubleshooting \textbullet\ Checklists}{Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.}
 
 \begin{yourturn}
 Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
 \begin{enumerate}
-  \item \textbf{Fare per person.} Add $\ln(1+\text{Fare}/\text{FamilySize})$ to the engineered Titanic columns. Does the validation ROC AUC of 0.872 move?
+  \item \textbf{Two columns to date.} Add \texttt{room\_changed}, which is 1 when \texttt{assigned\_room\_type} differs from \texttt{reserved\_room\_type}, to the engineered columns of Question~7; then, instead, add \texttt{from\_portugal}, which is 1 when \texttt{country} is \texttt{PRT}. What happens to the validation ROC AUC of 0.855 each time? Group the cancellation rate by each new column, read the data card's note on when the columns were written, and decide whether either could be used the moment a booking is made.
   \item \textbf{Is this leak harmful here?} Fit the Question~7 preprocessing on \emph{all} the rows, then fit the logistic model on the training rows only. Compare the score with the correct version, and with what happened to pure noise in \secref{sec:data-leakage}. What do you conclude?
-  \item \textbf{How late is too late?} Refit the Question~11 ridge model with \texttt{G1} added instead of \texttt{G2}. Which earlier grade leaks more, and why?
-  \item \textbf{Turn the lasso's dial.} Refit the lasso with \texttt{alpha} 0.01 and 0.5. How many of the 56 columns survive, and what happens to the error?
+  \item \textbf{Does scaling change a model?} Predict \texttt{Churn} from the three Question~8 columns with \texttt{KNeighborsClassifier(73)}, once in raw units and once with a \texttt{StandardScaler} in front. Use a stratified 25\% validation split with \texttt{random\_state=42}; 73 is about the square root of the 5,282 training rows. Compare the ROC AUC.
+  \item \textbf{Split by date.} The bank file is stored in date order. Train the Question~11 logistic model on the first 75\% of calls and validate on the last 25\%. How does the ROC AUC compare with the random split, and what happened to the share of yes answers?
+  \item \textbf{Turn the L1 dial.} Refit the L1 model with \texttt{C} 0.001, 0.01 and 1; a smaller \texttt{C} is a stronger penalty. How many of the 62 columns survive, and what happens to the score?
 \end{enumerate}
 \end{yourturn}
 
 \begin{expectedfindings}
-\textbf{Warm-up.} Passenger 1: \texttt{FamilySize} 2, \texttt{IsAlone} 0, \texttt{Title} Mr, \texttt{LogFare} 2.11. For the two gaps, 100 beats 5 in raw units; after scaling they are $100/351.9=0.28$ and $5/4.3=1.16$, so the second dominates.
+\textbf{Warm-up.} Booking 14876: \texttt{total\_nights} 6, \texttt{total\_guests} 3, \texttt{with\_children} 1 (the baby counts), \texttt{log\_lead\_time} $\ln 133 = 4.89$ and \texttt{cancelled\_before} 1. All five can be computed the moment the booking is made: they read only this booking's own fields, and \texttt{previous\_cancellations} counts cancellations made before it. For the two gaps, 100 beats 12 in raw units; after scaling they are $100/2266.79=0.04$ and $12/24.56=0.49$, so the second dominates.
 \begin{enumerate}
-  \item It stays at 0.872. Fare and family size are already in the model, so the ratio brings nothing new.
-  \item It also stays at 0.872 to three decimals. Medians and scales from 891 rows barely differ from those of 668 rows, so this leak does little harm on this table. That does not make it safe: the same habit, applied to selection on all the labels, made pure noise score 0.80. Keep the pipeline, because you cannot know in advance which case you are in.
-  \item With \texttt{G1} the MAE is 1.246 and with \texttt{G2} it is 0.762, against 2.181 with neither. The later grade is closer in time to \texttt{G3}, so it says more. Both are leaks at enrolment; both would be fair inputs for a prediction made later in the year.
-  \item \texttt{alpha} 0.01 keeps 43 columns, MAE 2.159. \texttt{alpha} 0.1 keeps 19, MAE 2.077. \texttt{alpha} 0.5 keeps 4, MAE 2.151. Four columns do almost as well as forty-three.
+  \item \texttt{room\_changed} lifts the score to 0.868, and \texttt{from\_portugal} to 0.888. Only 5.4\% of the 14,917 bookings given a different room were cancelled, against 41.6\% of the rest: rooms are mostly changed when the guest arrives, and a cancelled booking never arrives, so the column partly records the outcome. Domestic bookings were cancelled 56.6\% of the time against 23.6\%, a real pattern, but the data's authors warn that hotels often learn a guest's correct nationality only at check-in, so part of that jump may come from the future too. Neither column is safe until you know when the hotel wrote it, and the file cannot tell you: ask the people who keep the data. Any column recorded after the moment of prediction is a leak, however innocent its name.
+  \item It stays at 0.855 to three decimals. Medians and scales from 119,390 rows barely differ from those of 89,542 training rows, so this leak does little harm on this table. That does not make it safe: the same habit, applied to selection on all the labels, made pure noise score 0.80. Keep the pipeline, because you cannot know in advance which case you are in.
+  \item Raw units score 0.778 and standardized 0.815. In raw units the classifier's neighbors are customers with a similar total bill, which mixes new customers on dear plans with loyal ones on cheap plans; after scaling, tenure and the monthly charge count too.
+  \item The ROC AUC falls from 0.802 to 0.712. The first 75\% of calls had a yes rate of 6.4\% and the last 25\% one of 25.8\%: the later campaigns met a different economy and different customers. A random split mixes the two periods and hides the change, but a model put to work in 2010 would have met it.
+  \item \texttt{C} 0.001 keeps 2 columns, \texttt{nr.employed} and \texttt{pdays}, with ROC AUC 0.765. \texttt{C} 0.01 keeps 12 with 0.794, the lab's 0.03 keeps 21 with 0.801, and \texttt{C} 1 keeps 49 with 0.802. Two columns get most of the way, and a third of the table matches all of it.
 \end{enumerate}
 \end{expectedfindings}
 
 \begin{troubleshoot}
 \begin{description}
-  \item[\texttt{FileNotFoundError}] Jupyter was not started from \texttt{all\_experiments/}, or a data file is misnamed. Check \texttt{course folder:} in the first output, and match the names in Chapter~\ref{ch:toolkit}, capitals too.
-  \item[\texttt{ModuleNotFoundError: IPython} from the script] The \texttt{.py} version imports \texttt{IPython.display}, which comes with \texttt{jupyter}. Install the course requirements in the active environment.
-  \item[The dtype lines show \texttt{str} instead of \texttt{object}] That is pandas 3 against pandas 2, and it changes no numbers.
-  \item[A heatmap's numbers look unreadable] They are drawn in white on the color map. Open the saved PNG in \texttt{results/lab01/}, or read the CSV.
+  \item[\texttt{FileNotFoundError}] A data file is missing or misnamed. Match the names in Chapter~\ref{ch:toolkit}, capitals too, and keep \texttt{hotel\_bookings.zip} zipped: \texttt{read\_csv} reads the CSV inside it.
+  \item[\texttt{No module named 'course\_setup'} in Question~1] The notebook is not running inside its lab folder, so \texttt{".."} is not \texttt{all\_experiments/}. Open it from \texttt{all\_experiments/\allowbreak lab01\_features/} in your copy of the course; Jupyter and VS Code then run it there.
+  \item[\texttt{FileNotFoundError: No all\_datasets/ folder above} \dots] The notebook was copied out of the course folder. Work on it inside your copy of the course, where \texttt{all\_datasets/} sits above it.
+  \item[The bank table has one column] A first column named \texttt{age;"job";"marital";...} means the file was read with commas. Pass \texttt{sep=";"}, as Question~10 does.
+  \item[Question~8 prints \texttt{str} instead of \texttt{object}] That is pandas 3 against pandas 2. The blanks are still blanks, and no number changes.
+  \item[The L1 coefficients differ in the third decimal] The \texttt{liblinear} solver shuffles the rows; keep \texttt{random\_state=42} in Question~11 to reproduce the sheet.
 \end{description}
 \end{troubleshoot}
 
@@ -312,11 +408,12 @@ Add new cells at the end of the notebook for these tasks, and record your number
 \begin{verification}
 \begin{itemize}
   \item Package versions are printed, so the run can be reproduced.
-  \item Every engineered feature (family size, isolation, title, log fare) exists before the outcome is known, and your hand calculation for passenger 1 matches.
-  \item Imputation, scaling and encoding are fitted inside the training pipeline, and both feature sets use the same split: 0.842 and 0.872.
-  \item You can state which pair of tumors is closest before and after scaling, and why it changes.
-  \item Feature selection stays inside the pipeline, and the \texttt{G2} run is identified as leakage rather than a better model.
-  \item \texttt{results/lab01/} holds the seven tables and four figures listed in Question~13.
+  \item You read the data card, and you can name the column written after the outcome and say why it never enters a model.
+  \item Every engineered feature (total nights, total guests, with children, log lead time, cancelled before) exists when the booking is made, and your hand calculation for booking 14876 matches.
+  \item Imputation, scaling and encoding are fitted inside the training pipeline, and both hotel feature sets use the same split: 0.846 and 0.855.
+  \item \texttt{TotalCharges} is repaired with 0 for the 11 new customers, and you can say why the neighbors of customer 7795-CFOCW change after scaling.
+  \item Feature selection stays inside the pipeline, and the \texttt{duration} run is identified as leakage rather than a better model.
+  \item \texttt{results/lab01/} holds the six tables and four figures listed in Question~13.
 \end{itemize}
 \end{verification}
 
@@ -324,7 +421,7 @@ Add new cells at the end of the notebook for these tasks, and record your number
 \begin{itemize}
   \item Restart the kernel and run all cells without errors.
   \item Submit the executed notebook, including your \emph{Your turn} cells, and the generated \texttt{results/lab01/} folder.
-  \item Add a short conclusion: which new columns earned their place, what scaling changed and why, and how you can tell the \texttt{G2} result is not real.
+  \item Add a short conclusion: which new columns earned their place, what scaling changed and why, how you can tell the \texttt{duration} result is not real, and why \texttt{reservation\_status} and \texttt{room\_changed} stay out of the model.
 \end{itemize}
 \end{labdeliverable}
 \end{labchecklists}

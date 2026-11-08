@@ -1,259 +1,285 @@
-\labsection{5}{Unsupervised learning II: anomaly detection and limited labels}{sec:lab05-anomaly-labels}
+\labsection{5}{Unsupervised learning II: anomaly detection and limited labels}{sec:lab05-anomaly-limited-labels}
 
-\begin{labproject}{Learn when labels are absent, rare, or expensive}
-\textbf{Read first.} Chapter~\ref{ch:anomaly} for Part~A and Chapter~\ref{ch:semi-supervised} for Part~B.\\
-\textbf{Goal.} Score an anomaly ranking with labels the model never saw, judge it at a real review budget, then simulate two ways of coping with few labels: self-training and active learning.\\
-\textbf{Scenario.} A card company can review only so many transactions a day. A hospital has plenty of scans and little expert time. Both have the same problem from opposite ends: labels are the expensive part.\\
-\textbf{Data.} \texttt{all\_datasets/credit\_card\_fraud\_dataset.csv} and \texttt{breast\_cancer\_dataset.csv}.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab05\_anomaly\_limited\_labels\_worked.ipynb}.\\
+\begin{labproject}{Ranking card fraud without labels, and getting the most from a small labeling budget}
+\textbf{Read first.} Chapters~\ref{ch:anomaly} and~\ref{ch:semi-supervised}.\\
+\textbf{Goal.} Rank card transactions for review with an anomaly detector that never sees a fraud label, judge the ranking with metrics that respect a 0.17\% base rate, then stretch a small labeling budget with self-training and active learning, checking each against a labels-only baseline.\\
+\textbf{Scenario.} A bank's fraud team can review a few hundred alerts a day and wants the right ones at the top of the list. A bank's support team wants customer messages routed to the right one of 77 desks automatically, and can pay for only a thousand or so of them to be labeled by hand. In both cases labels are the scarce resource, and the question is how far you can get without them.\\
+\textbf{Data.} In \texttt{all\_datasets/}: \texttt{unsupervised/\allowbreak creditcard\_fraud\_ulb/\allowbreak creditcard\_fraud\_ulb.zip}, 284,807 transactions by European cardholders over two days in September 2013, released by the Machine Learning Group of the Universit\'e Libre de Bruxelles (Dal Pozzolo and others, 2015); and \texttt{advanced/\allowbreak banking77/\allowbreak banking77.csv}, 13,083 messages to a bank's support chat, each labeled with one of 77 intents (Casanueva and others, PolyAI, 2020).\\
+\textbf{Notebook.} \texttt{all\_experiments/\allowbreak lab05\_anomaly\_limited\_labels/\allowbreak lab05\_anomaly\_limited\_labels\_worked.ipynb}, with a README beside it.\\
 \textbf{Hand in.} The executed notebook, \texttt{results/lab05/} and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
+\labroadmap{Your map of this lab}{
+      A & Rank card fraud with an Isolation Forest and judge the ranking & 2--4 \\
+      B & Self-train from 1,000 labels; compare two ways of buying labels & 5--9 \\
+      Finish & Save the evidence; then size a review budget and read the messages the learner finds hardest & 10--12 \\
+      After & Your-turn tasks, expected findings, troubleshooting and the two checklists & --- \\
+}
+
 \begin{labmode}
 \begin{enumerate}
-  \item Activate your course environment and confirm that both data files are in \texttt{all\_datasets/}.
-  \item Check the small worked numbers of Chapters~\ref{ch:anomaly} and~\ref{ch:semi-supervised}. The last line must read \texttt{Every number above matches the book.}
-  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
+  \item Activate your course environment and confirm the two data files are in \texttt{all\_datasets/}. Keep the card-payment file zipped: pandas reads the CSV inside it.
+  \item From the course folder, start Jupyter, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes under a minute.
+  \item Part~A uses no labels to train; Part~B uses as few as it can. Both keep a labeled test set, because a claim needs evidence.
 \end{enumerate}
 \begin{lstlisting}[style=utpterminal]
-python all_experiments/demo_unsupervised.py
-cd all_experiments
 jupyter lab
 \end{lstlisting}
-Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab05\_anomaly\_limited\_labels\_worked.py} runs the same code and writes the same evidence.
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/\allowbreak lab05\_anomaly\_limited\_labels/\allowbreak lab05\_anomaly\_limited\_labels\_worked.py} runs the same code and writes the same evidence.
 \end{labmode}
-
-\input{labs/visuals/05-flow}
 
 \labroutine
 
 \begin{yourturn}
-\textbf{Warm-up on paper.} Do these before opening the notebook.
+\textbf{Warm-up on paper.} Do these before opening the notebook; the code will check you.
 \begin{enumerate}
-  \item An analyst reviews the top 10 cases of a ranking, and their true labels are $0,0,1,0,1,0,0,1,0,0$. There are 45 frauds among 3,000 cases. What are precision at 10 and recall at 10, and how many times better than random is that? (0.30; 3/45 = 0.067; 0.30/0.015 = 20 times.)
-  \item A self-training model is 95\% sure of an unlabeled row, and it is wrong. What happens to that row on the next round, and to the rows near it? (It joins the training set as if true, so the model grows more confident around it, and nearby rows follow.)
+  \item 148 of 85,443 test transactions are fraud. What accuracy does ``never fraud'' score, and what average precision does a random ranking score?
+  \item A team reviews its top 100 alerts and finds 39 frauds. How many times better than a random sample of 100 is that?
 \end{enumerate}
 \end{yourturn}
 
 \begin{labquestion}{1}{Setup}
-Run the imports and paths first, and keep this kernel for the later questions.
+Run this first, and keep this kernel for the later questions. Every lab starts the same way. \texttt{start\_lab()}, from \texttt{all\_experiments/\allowbreak course\_setup.py}, finds the course folder and returns the three folders the lab uses: \texttt{DATA} to read from, \texttt{RESULTS} and \texttt{MODELS} to write to. The imports in between are grouped by what they are for.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=8,lastline=26]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=11,lastline=28]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 course folder: MACHINE LEARNING
+reads all_datasets/, writes results/lab05/ and models/
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Part A --- Isolation Forest fraud ranking}
+\labpartopen{Part A}{Ranking fraud without labels}{Questions 2--4 \textbullet\ Data: ULB card transactions}{Rank card transactions with a detector that never sees a fraud label, and judge the ranking at a 0.17\% base rate.}
 
 \begin{labquestion}{2}{Fit an Isolation Forest without labels}
-Ten thousand card transactions, of which about 1.5\% are fraud. An Isolation Forest never sees the \texttt{is\_fraud} column: it builds random trees, and scores each transaction by how quickly it can be isolated from the rest. The labels are held back and used only to judge the ranking afterwards.
+To protect the cardholders, the bank released its columns as 28 anonymous principal components, \texttt{V1} to \texttt{V28}, plus the time and the amount. An Isolation Forest is fitted on the training rows \emph{without} the fraud column: it learns what ordinary looks like, and scores how easily each transaction can be isolated.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/05-trace}
-\lstinputlisting[style=utppython,firstline=28,lastline=44]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=30,lastline=44]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+transactions: 284807  over 48 hours; 492 frauds
+\end{lstlisting}
+\end{refoutput}
 
-\textbf{What it means.} \texttt{forest.fit(X\_train)} takes no labels. Higher scores mean more unusual, which is why the code negates \texttt{decision\_function}. 7,000 rows fit the forest and 3,000 judge it.
+\textbf{What it means.} The labels are still used for one thing: \texttt{stratify} keeps the fraud rate equal in both halves, so the evaluation is fair. The forest itself never sees them.
 \end{labanswer}
 
 \begin{labquestion}{3}{Score the ranking}
-Two summary numbers, then the one that matters in practice. ROC AUC judges the whole ranking. Average precision focuses on the rare positive class, and it is far more demanding when only 1.5\% of rows are positive. An analyst, though, will only ever look at the top of the list, so precision among the top 100 is the operational number.
+Accuracy is useless at a 0.17\% base rate, so the ranking is judged three ways: ROC AUC, average precision, which guessing scores at the prevalence, and how many frauds a team would find in its first 100 reviews.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/05-worked-case.tex}
-\lstinputlisting[style=utppython,firstline=46,lastline=59]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=46,lastline=62]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-fraud prevalence: 0.015
-ROC AUC: 0.9518
-average precision: 0.2249  ( 15.0 x prevalence)
-fraud found in the top 100: 20%
-      fraud_label  anomaly_score  amount
-6394            0       0.212892  840.89
-5883            0       0.168657  978.56
-1623            1       0.166446  569.02
+test transactions: 85443  frauds: 148  prevalence: 0.00173
+ROC AUC: 0.95
+average precision: 0.219  ( 126 x prevalence)
+frauds in the top 100 alerts: 39
+ fraud_label  anomaly_score  amount
+           0          0.251 4861.64
+           0          0.250 1676.60
+           1          0.247    2.28
+           1          0.242    1.00
+           0          0.242 5964.95
+           1          0.240    1.00
 ...
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A ROC AUC of 0.95 looks excellent. Average precision of 0.22 is the more honest number, still fifteen times the base rate. Reviewing the top 100 finds 20 frauds of the 45 present. Notice that the single most unusual transaction is not fraud: unusual and fraudulent are different things.
+\textbf{What it means.} ROC AUC 0.950 sounds excellent, and average precision, 0.219, tells the truer story: most alerts are still genuine. Yet a team reviewing the first 100 would find 39 frauds, where a random 100 would hold fewer than one. Look at the amounts in the top ten: frauds for exactly \$1.00. That is card testing, where a thief checks a stolen card with a tiny purchase, and it is unusual enough for the forest to notice without being told. The genuine alerts are unusual too, mostly large purchases: anomalous is not the same as fraudulent.
 \end{labanswer}
 
-\begin{labquestion}{4}{Plot scores and precision at $k$}
-Two pictures. On the left, the score distributions of fraud and non-fraud overlap, which is where the false alarms come from. On the right, precision as a function of how many cases are reviewed: the curve every review team should see before choosing a budget.
+\begin{labquestion}{4}{Plot the scores and precision at $k$}
+The score distributions for genuine and fraud transactions, and the fraud rate among the top $k$ alerts as $k$ grows.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=61,lastline=80]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=64,lastline=85]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{labvisual}{Reference plot from the supplied notebook}
 \includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/05-notebook-reference.png}
 \end{labvisual}
 
-\textbf{What it means.} Fraud scores sit to the right, but non-fraud rows outnumber them about 65 to 1, so even a small overlap produces many false alarms. That is how ROC AUC can look excellent while precision is modest. The right-hand curve starts high and decays towards the base rate; a team with a fixed budget should read its expected hit rate off this curve.
+\textbf{What it means.} Frauds sit to the right, with overlap. The precision curve falls from about one half at the top of the list towards the base rate: every extra review finds fewer frauds. A fraud team therefore plans by review budget, not by ROC AUC.
 \end{labanswer}
 
-\labpart{Part B --- Self-training and active learning with few labels}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item ROC AUC 0.950, but average precision only 0.219.
+  \item The top 100 alerts hold 39 of the 148 test frauds.
+\end{itemize}
+\end{labcheckpoint}
 
-\begin{labquestion}{5}{Split the cancer data three ways}
-Now the opposite problem: plenty of rows, but labels are expensive. The breast-cancer data is split three ways. The \emph{pool} is where labels can be bought, the \emph{validation} set judges each policy during development, and the \emph{test} set is sealed until both policies are finished.
+\labpartopen{Part B}{Learning from few labels}{Questions 5--9 \textbullet\ Data: Banking77 customer-support messages}{Stretch 1,000 labels with self-training, then compare two ways of buying more labels.}
+
+\begin{labquestion}{5}{Split the messages three ways}
+Banking77 holds 13,083 messages that customers typed to a bank's support chat, each labeled by hand with one of 77 intents, such as \texttt{card\_arrival} or \texttt{exchange\_rate}. Labels cost money, so this part pretends most are unknown: a pool of 8,003 messages to learn from, 2,000 for validation, and the official 3,080 test messages, opened once. Turning text into numbers needs only the words, so the TF-IDF vocabulary of single words and word pairs is learned from the pool without any labels.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=82,lastline=102]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=87,lastline=110]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-pool: 319  validation: 107  test: 143
+pool: 8003  validation: 2000  test: 3080  intents: 77
+                                                        text       intent
+What can I do if my card still hasn't arrived after 2 weeks? card_arrival
+  I have been waiting over a week. Is the card still coming? card_arrival
+      How do I know if I will get my card, or if it is lost? card_arrival
+vocabulary: 8834 words and word pairs
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The validation and test rows always keep their genuine labels, because the policies are judged against those.
+\textbf{What it means.} Three customers ask the same thing in three different ways, which is what makes intents hard: the model must learn that ``hasn't arrived'', ``still coming'' and ``will I get my card'' mean one thing. Each message becomes a row of 8,834 weights, almost all zero. The pool keeps its labels hidden; the code reveals them only when a policy pays for them.
 \end{labanswer}
 
-\begin{labquestion}{6}{Self-train from 30\% of the labels}
-Self-training hides 70\% of the pool labels (scikit-learn uses $-1$ for ``unknown''), fits on the rest, then lets the model label any unlabeled row it is at least 90\% sure about, and refits. It can help when the confident predictions are right; it can also teach the model its own mistakes.
+\begin{labquestion}{6}{Self-train from 1,000 labels}
+Keep the labels of 1,000 pool messages, an eighth of the pool and about 13 per intent, and hide the rest. The baseline uses only those 1,000. Self-training then adopts its own confident predictions, with probability at least 0.8, as pseudo-labels, refits, and repeats.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=104,lastline=114]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=112,lastline=130]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-labels kept: 89 of 319
-self-training validation accuracy: 0.963
+labels only (1,000 messages): validation accuracy 0.638
+self-training adopted 486 pseudo-labels, 98.8% of them right
+self-training: validation accuracy 0.632
+all 8,003 labels (the ceiling): 0.882
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} That sounds good, but is it good compared with what? Your-turn task~2 asks for the baseline this cell does not compute.
+\textbf{What it means.} Self-training did not help: its 486 pseudo-labels were almost all right, yet the score fell slightly. With 77 intents and 13 labels each, the model is confident only about messages it already gets right, so the pseudo-labels teach it nothing new, and they tilt it towards the intents it already knows. The ceiling, 0.882 with every label, shows how much was left on the table. Without the labels-only baseline, ``self-training scored 0.632'' would have sounded like a result; Your-turn task~3 lowers the threshold to see what more pseudo-labels do.
 \end{labanswer}
 
 \textbf{Connect it to the chapter.} A score is only useful with a threshold you chose, and a limited label budget is the same kind of decision.
 \input{labs/visuals/05-anomaly-limited-labels-chapter.tex}
 
 \begin{labquestion}{7}{Simulate active learning}
-Active learning chooses \emph{which} labels to buy. Both policies start from the same 40 labels and buy 15 more per round. Uncertainty sampling asks for the rows whose predicted probability is closest to 0.5, where the model is least sure. Random querying is the control: same budget, no strategy.
+Both policies start from the same 154 labeled messages, two per intent, and buy 100 more per round for ten rounds. Uncertainty sampling buys the messages whose two most likely intents are closest; random querying buys any 100.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=116,lastline=145]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=132,lastline=159]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-round 1: labels= 40  uncertainty=0.944  random=0.944
-round 2: labels= 55  uncertainty=0.925  random=0.953
-round 3: labels= 70  uncertainty=0.981  random=0.963
-round 4: labels= 85  uncertainty=0.953  random=0.963
-round 5: labels=100  uncertainty=0.953  random=0.953
-round 6: labels=115  uncertainty=0.953  random=0.953
-round 7: labels=130  uncertainty=0.953  random=0.963
-round 8: labels=145  uncertainty=0.953  random=0.963
+round  1: labels= 154  uncertainty=0.319  random=0.319
+round  2: labels= 254  uncertainty=0.360  random=0.368
+round  3: labels= 354  uncertainty=0.464  random=0.438
+...
+round  8: labels= 854  uncertainty=0.674  random=0.631
+round  9: labels= 954  uncertainty=0.700  random=0.648
+round 10: labels=1054  uncertainty=0.712  random=0.679
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} No line differs by more than three rows out of 107 (one row is 0.009), so this is mostly noise. Neither policy pulls clearly ahead.
+\textbf{What it means.} The two policies are level for two rounds: a model that knows two examples per intent cannot yet tell which messages are informative. From round~3 uncertainty sampling leads, and the lead grows to about three points. Every message it buys sits between two intents the model confuses, so each label sharpens a boundary that matters.
 \end{labanswer}
 
 \begin{labquestion}{8}{Plot label efficiency}
-Put both curves on one chart, so that the whole run can be read at a glance.
+Validation accuracy against labels bought, for both policies.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=147,lastline=156]{all_experiments/lab05_anomaly_limited_labels_worked.py}
-
-\textbf{What it means.} Both curves start at the same point and flatten within a few rounds. This table is simply easy: 40 labels already give a good linear model, so no policy has much left to gain. Active learning earns its keep where the boundary is genuinely uncertain.
+\lstinputlisting[style=utppython,firstline=161,lastline=170]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \end{labanswer}
 
 \begin{labquestion}{9}{Open the test set once for each policy}
-Both policies are finished, so the test set is opened once for each.
+Refit each policy's final labeled set and score both on the official test messages, once.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=158,lastline=164]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=172,lastline=178]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-final test accuracy, uncertainty sampling: 0.972
-final test accuracy, random querying:     0.972
+final test accuracy with 1054 labels, uncertainty sampling: 0.725
+final test accuracy with 1054 labels, random querying:     0.682
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A tie. Uncertainty sampling did not win, because this dataset is too easy for the policy to matter. The Try-it starts from fewer labels to look for the regime where it does help.
+\textbf{What it means.} The validation lead holds on the test messages: about 4 points from the same 1,054 labels. To reach 0.712 on validation, random querying would need more labels than the ten rounds bought, so on a real budget the choice of \emph{which} messages to label is worth money. One seed and one dataset, though: report it as a promising result, not a law.
 \end{labanswer}
 
-\labpart{Evidence}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Labels only: 0.638. Self-training: 0.632. Every label: 0.882.
+  \item With 1,054 labels, uncertainty sampling scores 0.725 on the test messages and random querying 0.682.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Finish}{Save the evidence, then try it yourself}{Questions 10--12}{Write the results folder, then extend the lab yourself before reading one worked solution.}
 
 \begin{labquestion}{10}{Save the evidence}
 Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=166,lastline=179]{all_experiments/lab05_anomaly_limited_labels_worked.py}
-\begin{refoutput}
-\begin{lstlisting}[style=utpterminal]
-Saved: ['active_learning_curve.csv', 'active_learning_from_20_labels.png',
- 'label_efficiency_during_development.png', 'metrics.csv',
- 'precision_falls_as_the_review_budget_grows.png', 'top_ranked_transactions.csv']
-\end{lstlisting}
-\end{refoutput}
+\lstinputlisting[style=utppython,firstline=180,lastline=197]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \end{labanswer}
 
-\labpart{Try it yourself}
+\labsubhead{Try it yourself}
 
 \begin{labquestion}{11}{Try it yourself}
-Change the review budget in Part~A to 50 and to 300, and report the fraud rate in each list. Then start the active-learning simulation from 10 labels per class instead of 20, and see whether uncertainty sampling pulls ahead. Attempt it in this empty cell before reading the solution.
+A fraud team can review a fixed number of alerts a day. Print the fraud rate and the frauds found in the top 50, 100, 300 and 1,000 alerts. Then look inside the active learner: print the four pool messages its final model is least sure about, with its top two intents and the true one. Attempt it in this empty cell before reading the solution.
 \end{labquestion}
 
 \begin{labquestion}{12}{One solution}
-Two more review budgets, then the active-learning simulation restarted from 10 labels per class.
+The review budgets reuse Question~4's ranking; the messages reuse Question~7's final active model.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=183,lastline=218]{all_experiments/lab05_anomaly_limited_labels_worked.py}
-\noindent\textbf{Continue the same step.}
-\lstinputlisting[style=utppython,firstline=219,lastline=221]{all_experiments/lab05_anomaly_limited_labels_worked.py}
+\lstinputlisting[style=utppython,firstline=201,lastline=215]{all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-top  50 reviewed: fraud rate = 28.0%  (14 frauds found)
-top 100 reviewed: fraud rate = 20.0%  (20 frauds found)
-top 300 reviewed: fraud rate = 12.3%  (37 frauds found)
-labels= 20  uncertainty=0.935  random=0.935
-labels= 35  uncertainty=0.944  random=0.935
-labels= 50  uncertainty=0.963  random=0.925
-labels= 65  uncertainty=0.953  random=0.925
-labels= 80  uncertainty=0.953  random=0.953
-labels= 95  uncertainty=0.953  random=0.953
-labels=110  uncertainty=0.953  random=0.953
-labels=125  uncertainty=0.953  random=0.935
+top   50 reviewed: fraud rate = 50.0%  (25 frauds found)
+top  100 reviewed: fraud rate = 39.0%  (39 frauds found)
+top  300 reviewed: fraud rate = 21.0%  (63 frauds found)
+top 1000 reviewed: fraud rate = 9.9%  (99 frauds found)
+Hello, I have noticed a problem on my recent withdrawal at the banks atm ma
+    cash_withdrawal_charge or pending_cash_withdrawal?  truly cash_withdrawal_charge
+I had a problem with my card payment, can you help?
+    declined_card_payment or reverted_card_payment??  truly declined_card_payment
+I was wondering why my payment hasn't gone through yet, its been a while.
+    transfer_not_received_by_recipient or pending_card_payment?  truly pending_card_payment
+My identity can't be verified.
+    why_verify_identity or unable_to_verify_identity?  truly unable_to_verify_identity
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A team choosing a budget is choosing a point on that curve. Starting from 20 labels, the policies separate for a few rounds, because with so few labels the boundary is genuinely uncertain, and asking about uncertain cases fixes it faster. By about 80 labels the advantage has gone. Remember the scale: 0.963 against 0.925 is four rows of 107.
+\textbf{What it means.} A thousand reviews find 99 of the 148 frauds, two in three, at a hit rate that has fallen to one in ten. The messages the active learner would buy next are genuinely ambiguous: a payment that ``hasn't gone through yet'' could be a pending card payment or a transfer the recipient has not received, and ``I had a problem with my card payment'' fits two intents equally well. Those are the cases where a human label teaches the model the most. One intent's name, \texttt{reverted\_card\_payment?}, ends in a question mark in the source, hence the double mark.
 \end{labanswer}
+
+\labpartopen{After the lab}{Your turn, troubleshooting and hand-in}{Your-turn tasks \textbullet\ Expected findings \textbullet\ Troubleshooting \textbullet\ Checklists}{Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.}
 
 \begin{yourturn}
 Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
 \begin{enumerate}
   \item \textbf{What would labels buy?} Fit a plain logistic regression on the fraud training rows, this time using the labels. Compare its ROC AUC, average precision and frauds in the top 100 with the Isolation Forest's.
-  \item \textbf{Did the unlabeled rows help?} Using the same \texttt{y\_partial} mask as Question~6, fit the plain model on the 89 kept labels only, and score it on the same validation rows. Then fit it on all 319. Compare with self-training's 0.963.
-  \item \textbf{Choose a budget.} Suppose reviewing a case costs \$5 and catching a fraud saves \$200. Using the frauds found at budgets of 50, 100, 200, 300, 500 and 1,000 (14, 20, 32, 37, 42 and 45), compute the net saving at each. Which budget would you choose?
+  \item \textbf{Split by time.} Refit both models on the first 70\% of the two days and score them on the rest. What happens to the Isolation Forest's top 100, and why might unusual behavior in the later hours not be fraud?
+  \item \textbf{Trust it more.} Repeat Question~6's self-training with confidence thresholds of 0.5 and 0.3 instead of 0.8. How many pseudo-labels does it adopt, how many are right, and what happens to validation accuracy against the labels-only 0.638?
+  \item \textbf{Choose a budget.} Suppose reviewing an alert costs \$5 and catching a fraud saves \$200. Compute the net saving at budgets of 50, 100, 300, 1,000, 2,000 and 5,000 reviews. Which budget would you choose?
 \end{enumerate}
 \end{yourturn}
 
 \begin{expectedfindings}
+\textbf{Warm-up.} ``Never fraud'' is $1-148/85{,}443=99.83\%$ accurate and catches nothing. A random ranking's average precision equals the prevalence, 0.0017. A random 100 would hold $100\times0.00173\approx0.17$ frauds, so 39 is about 225 times better.
 \begin{enumerate}
-  \item Logistic regression with labels: ROC AUC 0.991, average precision 0.713, 39 of 45 frauds in the top 100. Isolation Forest without labels: 0.952, 0.225, 20 of 45. When labels exist, use them. The anomaly detector's value is for when they do not, or for new kinds of fraud labels cannot describe yet.
-  \item Labels only, on 89 rows: 0.972. All 319 labels: 0.972. Self-training: 0.963. The unlabeled rows did not help on this table, and 89 labels were already enough. Always compute this baseline before reporting a semi-supervised method.
-  \item Net savings are \$2,550, \$3,500, \$5,400, \$5,900, \$5,900 and \$4,000. Budgets of 300 and 500 tie for best, so the cheaper 300 is the better choice, given these costs. Change the costs, and the answer moves.
+  \item Logistic regression with labels: ROC AUC 0.956, average precision 0.711, 86 frauds in the top 100. The Isolation Forest without labels: 0.950, 0.219 and 39. ROC AUC barely moves, but labels more than double the frauds at the top of the list. When labels exist, use them; the anomaly detector is for when they do not, or for kinds of fraud no label describes yet.
+  \item Split at hour 36.9, the Isolation Forest's ROC AUC is still 0.944, but its average precision falls to 0.044 and its top 100 holds just one fraud. Ordinary behavior in the later hours differs from what the forest learned in the earlier ones, so unusual-but-honest transactions crowd the top of the list. The supervised model, which learned what fraud looks like, keeps an average precision of 0.706 and 72 frauds in its top 100. An anomaly detector finds what is unusual, and what is unusual changes over time.
+  \item At 0.5 it adopts 3,604 pseudo-labels, 76.8\% of them right, and validation accuracy falls to 0.596; at 0.3 it adopts 5,813, only 69.6\% right, and scores 0.606. Both are worse than the 1,000 labels alone. A lower threshold buys more pseudo-labels, but every wrong one is learned as if it were true, and the next round builds on it: confirmation bias, measured. Always compute the baseline before reporting a semi-supervised method.
+  \item The frauds found are 25, 39, 63, 99, 116 and 123, so the net savings are \$4,750, \$7,300, \$11,100, \$14,800, \$13,200 and $-\$400$. A budget of about 1,000 reviews is best at these costs: beyond it, each extra review finds too little fraud to pay for itself. Change the costs, and the answer moves.
 \end{enumerate}
 \end{expectedfindings}
 
 \begin{troubleshoot}
 \begin{description}
-  \item[ROC AUC near 0.05 instead of 0.95] You dropped the minus sign in front of \texttt{decision\_function}. Low values mean unusual, so the ranking came out upside down.
-  \item[\texttt{SelfTrainingClassifier} rejects your labels] The unlabeled marker must be $-1$, and the labels must be integers. Check \texttt{y\_partial} with \texttt{np.unique}.
-  \item[Self-training or active-learning numbers differ on rerun] \texttt{y\_partial} and the first 40 labels draw from the same generator, \texttt{rng}, which keeps moving. Running cells out of order changes both. Restart and run all.
-  \item[All frauds appear in the top 100 of your list] You ranked on a column containing the label. The features must not include \texttt{is\_fraud}.
+  \item[\texttt{FileNotFoundError} for a data file] Keep the card-payment ZIP zipped in \texttt{all\_datasets/\allowbreak unsupervised/}, and the Banking77 CSV in \texttt{all\_datasets/\allowbreak advanced/}; match the names in Chapter~\ref{ch:toolkit}.
+  \item[Self-training is slow or warns about convergence] Each round refits a logistic regression with 77 classes on up to 8,003 messages. A run of under a minute is normal; the warning does not change the result.
+  \item[Your active-learning curve differs] The policies depend on the random starting set; keep the seeds in Questions~6 and~7 to reproduce the sheet.
 \end{description}
 \end{troubleshoot}
 
 \begin{labchecklists}
 \begin{verification}
 \begin{itemize}
-  \item The fraud labels are held back while the Isolation Forest is fitted, and used only to evaluate it.
-  \item Precision at the actual review budget is reported alongside ROC AUC, and you can explain why they tell different stories.
-  \item Self-training and active learning are judged on the same fixed validation and test sets, with genuine labels.
-  \item Uncertainty sampling is compared with random queries at equal label budgets, and small gaps are read against the size of one row.
+  \item The Isolation Forest is fitted without the fraud column, and the ranking is judged by average precision and frauds found, not by accuracy.
+  \item You can explain why the top alerts include genuine transactions.
+  \item Every semi-supervised and active result is compared with a labels-only baseline on the same validation rows.
+  \item The official test messages are scored once, at the end.
 \end{itemize}
 \end{verification}
 
@@ -261,7 +287,7 @@ Add new cells at the end of the notebook for these tasks, and record your number
 \begin{itemize}
   \item Restart the kernel and run all cells without errors.
   \item Submit the executed notebook, including your \emph{Your turn} cells, and the generated \texttt{results/lab05/} folder.
-  \item Add a short conclusion: the review budget you would recommend and why, and whether the unlabeled rows were worth using on this table.
+  \item Add a short conclusion: the review budget you would give the fraud team and why, and whether you would recommend self-training or active learning to the support team.
 \end{itemize}
 \end{labdeliverable}
 \end{labchecklists}

@@ -194,20 +194,20 @@ A \term{learning curve} plots training and validation error against the number o
   \item Highly unstable curves suggest sensitivity to the split, seed, or a small validation sample.
 \end{itemize}
 
-\begin{utpfig}[Reading learning curves]{Real learning curves on the Titanic table, five-fold validation. The unrestricted tree has a persistent gap: it memorizes, and more rows narrow the gap. Logistic regression's two curves meet near 0.20, so more of the same rows will not help it; it needs better features or a more flexible model.}{fig:learning-curves}
+\begin{utpfig}[Reading learning curves]{Real learning curves on Lab~2's 7,043 telecom customers, five-fold validation. The unrestricted tree has a persistent gap: it memorizes every training row, and more rows narrow the gap only slowly. Logistic regression's two curves meet near 0.19, so more of the same rows will not help it; it needs better features or a more flexible model.}{fig:learning-curves}
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
-  logaxis, width=7.4cm, height=4.7cm, xlabel={training rows}, xmin=0, xmax=750, ymin=0, ymax=0.32,
+  logaxis, width=7.4cm, height=4.7cm, xlabel={training rows}, xmin=0, xmax=5800, ymin=0, ymax=0.34,
   yticklabel style={/pgf/number format/fixed}, legend style={at={(0.97,0.60)},anchor=east}]
 \nextgroupplot[title={Unrestricted tree: high variance},ylabel={error}]
-\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.004)(100,0.004)(200,0.008)(400,0.013)(712,0.019)};
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.0)(200,0.0)(500,0.001)(1000,0.001)(2000,0.001)(5634,0.002)};
 \addlegendentry{training}
-\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.278)(100,0.269)(200,0.244)(400,0.208)(712,0.217)};
+\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.309)(200,0.289)(500,0.27)(1000,0.273)(2000,0.27)(5634,0.274)};
 \addlegendentry{validation}
 \nextgroupplot[title={Logistic regression: curves meet},ylabel={error}]
-\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.132)(100,0.164)(200,0.195)(400,0.196)(712,0.195)};
+\addplot[draw=UTPBlue,mark=*,mark size=1.3pt,thick] coordinates {(50,0.12)(200,0.165)(500,0.187)(1000,0.181)(2000,0.188)(5634,0.194)};
 \addlegendentry{training}
-\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.228)(100,0.219)(200,0.214)(400,0.202)(712,0.201)};
+\addplot[draw=UTPOrange,mark=square*,mark size=1.3pt,thick] coordinates {(50,0.253)(200,0.223)(500,0.215)(1000,0.203)(2000,0.2)(5634,0.195)};
 \addlegendentry{validation}
 \end{groupplot}
 \end{tikzpicture}
@@ -235,7 +235,7 @@ Sequential search & Uses earlier results to choose promising later experiments. 
 \end{tabularx}
 \end{utptable}
 
-Counting fits keeps a search honest about its cost. Lab~2 tries 5 values of $C$ and 2 class weights over 5 folds, which is $5\times2\times5=50$ fits, and then one refit on all training rows. The curve it draws is almost flat: the best and worst settings differ by about 0.003 in ROC AUC, while the folds differ by about 0.025.
+Counting fits keeps a search honest about its cost. Lab~2 tries 5 values of $C$ and 2 class weights over 5 folds, which is $5\times2\times5=50$ fits, and then one refit on all training rows. The curve it draws is almost flat: the best and worst settings differ by about 0.007 in ROC AUC, while the folds differ by about 0.031.
 
 Use identical validation across candidates. Repeated tuning can overfit validation, so retain an untouched final test set.
 
@@ -246,7 +246,7 @@ Random search explores more distinct values when few hyperparameters matter. Sma
 \end{intuition}
 
 \begin{pitfall}
-Trying many settings and reporting the best is a selection. Its score is a little optimistic, for the same reason the tallest of ten people is taller than average. In Lab~2 the winner's cross-validated ROC AUC is 0.850 and its one test score is 0.837. A small drop like that is normal.
+Trying many settings and reporting the best is a selection. Its score is a little optimistic, for the same reason the tallest of ten people is taller than average. In Lab~2 the winning churn model's cross-validated ROC AUC is 0.844 and its one test score 0.846. Here the selection effect is smaller than the noise of a 1,761-row test set, so the test score happened to come out a little higher; on another split it could as easily come out lower.
 \end{pitfall}
 
 \subsection{Nested cross-validation for the selection procedure}
@@ -272,7 +272,7 @@ Resampling & Drop majority rows (\term{undersampling}) or add minority examples 
 \end{utptable}
 
 \begin{workedexample}
-Fraud makes up 1.5\% of Lab~5's card transactions. Saying ``never fraud'' is 98.5\% accurate and catches nothing. A logistic regression on 3,000 held-out transactions, under three policies:
+Fraud makes up 0.17\% of Lab~5's card transactions. Saying ``never fraud'' is 99.83\% accurate and catches nothing. A logistic regression on 85,443 held-out transactions, 148 of them fraud, under three policies:
 
 \medskip
 \centering\small
@@ -281,9 +281,9 @@ Fraud makes up 1.5\% of Lab~5's card transactions. Saying ``never fraud'' is 98.
 \rowcolor{UTPPaleBlue!92}
 \utpth{Policy} & \utpth{Flagged} & \utpth{Precision} & \utpth{Recall} & \utpth{Accuracy} \\
 \midrule
-Plain model, threshold 0.50 & 38 & 0.658 & 0.556 & 0.989 \\
-Plain model, threshold 0.10 & 99 & 0.394 & 0.867 & 0.978 \\
-\texttt{class\_weight="balanced"}, threshold 0.50 & 170 & 0.247 & 0.933 & 0.956 \\
+Plain model, threshold 0.50 & 106 & 0.858 & 0.615 & 0.9992 \\
+Plain model, threshold 0.10 & 141 & 0.752 & 0.716 & 0.9991 \\
+\texttt{class\_weight="balanced"}, threshold 0.50 & 2,051 & 0.063 & 0.878 & 0.9773 \\
 \bottomrule
 \end{tabular}
 \par\raggedright
@@ -347,7 +347,7 @@ A reproducible experiment records:
   \item training curves, checkpoints, and evaluation outputs.
 \end{itemize}
 
-Report variation across reruns, not one favorable seed. Neither the split seed nor the training seed is innocent: Lab~2's Titanic logistic model scored validation AUC from 0.828 to 0.925 across five split seeds, and Lab~7's CNN moves in the third decimal between PyTorch versions and devices. Parallel hardware may prevent bit-for-bit reproduction.
+Report variation across reruns, not one favorable seed. Neither the split seed nor the training seed is innocent: Lab~2's churn model scored test AUC from 0.838 to 0.855 across five split seeds, and Lab~7's CNN scores 0.700 in its notebook and 0.686 in the book's check script, which trains the same network from the same seed in a different order and on a single thread. Parallel hardware may prevent bit-for-bit reproduction.
 
 \begin{keyidea}
 Training fit and generalization are distinct requirements.
@@ -390,14 +390,14 @@ Record weakly represented populations and known subgroup failures. These limits 
 
 After locking and testing the procedure, save the whole preprocessing-and-estimator pipeline with a model card for reuse. This is the code Lab~2 runs:
 
-\lstinputlisting[style=utppython,firstline=350,lastline=366]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=368,lastline=384]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 
 Verify the saved artifact:
 
 \begin{itemize}
   \item \textbf{Save the pipeline.} Include fitted scaling and encoding, not just the estimator.
   \item \textbf{Check that the file reproduces the test predictions.} Load it back and compare with the in-memory model before calling it done. Lab~3 runs this check on its SVM.
-  \item \textbf{Include a model card:} features, threshold, test score, and library version. Lab~2 saves and reloads the Titanic model, and \texttt{predict\_passenger.py} uses it from the terminal.
+  \item \textbf{Include a model card:} features, threshold, test score, and library version. Lab~2 saves and reloads its churn model, and \texttt{predict\_churn.py} uses it from the terminal.
 \end{itemize}
 
 \begin{tryit}

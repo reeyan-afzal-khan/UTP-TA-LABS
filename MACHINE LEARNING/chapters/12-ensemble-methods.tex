@@ -62,7 +62,7 @@ Each row can be predicted by the trees that never saw it; the resulting \term{ou
 If one feature is very strong, every bagged tree asks about it first, and the trees end up alike, with a high $\rho$. A \term{random forest} therefore lets each split consider only a random subset of features, which forces the trees to differ. $\sqrt p$ features is a common starting point for classification; validate the fraction for regression and other settings.
 
 \begin{workedexample}
-On the Titanic, under the same five folds, one unrestricted tree averages 0.786 accuracy. A forest of 300 such trees averages 0.816. The fold spreads are 0.008 and 0.015, so this gain is larger than the noise. It cost you the readable rules of a single tree, and some prediction time.
+On Lab~2's 7,043 telecom customers, under the same five folds, one unrestricted tree averages 0.731 accuracy. A forest of 300 such trees averages 0.793. The fold spreads are 0.010 and 0.009, so the gain is about six standard deviations: the averaging has removed most of what the single tree memorized. It cost you the readable rules of a single tree, and some prediction time.
 \end{workedexample}
 
 Practical profile:
@@ -318,7 +318,7 @@ Train the meta-model on \term{out-of-fold} base predictions, not predictions fit
 \end{itemize}
 
 \begin{workedexample}
-Lab~3 compares both families under one protocol. On Ames Housing (log price, three folds), boosting has a log-RMSE of 0.1273 and the forest 0.1383, and boosting wins on every fold, though by less than the folds differ from each other. On red wine quality (validation rows), the order reverses: the forest has an MAE of 0.432 and boosting 0.476, against 0.669 for always guessing the mean. No family wins everywhere.
+Lab~3 compares both families under one protocol. On used-car prices (log price, three folds), boosting has a log-RMSE of 0.1941 and the forest 0.2083, and boosting wins on every fold, by ten times more than the folds differ from each other. On Lab~3's loans the order flips: the forest ranks defaults a little better, with ROC AUC 0.733 against 0.728 and average precision 0.393 against 0.389, a gap no larger than the noise between runs. No family wins everywhere, and sometimes not even on every metric.
 \end{workedexample}
 
 \begin{keyidea}
@@ -416,7 +416,7 @@ Compare a single tree, a random forest, and a gradient-boosting model with the s
   \item Averaging cancels errors only if members disagree. Correlation sets a floor that more models cannot get below.
   \item Bagging fits trees independently on bootstrap samples, each of which misses about 36.8\% of the rows, giving a free out-of-bag estimate. Forests add random feature subsets to force more disagreement.
   \item Boosting adds shallow trees in sequence. AdaBoost reweights hard rows; gradient boosting fits residuals with a learning rate.
-  \item Forests are forgiving; boosting is often stronger and needs tuning and early stopping. Neither wins everywhere, as Ames and wine show.
+  \item Forests are forgiving; boosting is often stronger and needs tuning and early stopping. Neither wins everywhere, as Lab~3's car prices and loans show.
   \item Keep the ensemble only if a validated gain justifies its cost.
 \end{itemize}
 \end{chapterrecap}

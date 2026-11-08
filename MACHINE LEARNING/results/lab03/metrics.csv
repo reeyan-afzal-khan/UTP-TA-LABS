@@ -1,7 +1,8 @@
 part,dataset,model,metric,validation,test
-A,breast_cancer,KNN,roc_auc,0.9864,
-A,breast_cancer,GaussianNB,roc_auc,0.9925,
-B,titanic,decision_tree(depth=4),accuracy,0.7668,
-C,red_wine_quality,random_forest,mae,0.432,
-C,red_wine_quality,gradient_boosting,mae,0.4763,
-D,breast_cancer,"svc {'model__C': 10, 'model__gamma': 0.01, 'model__kernel': 'rbf'}",roc_auc,0.9954,0.9969
+A,lending_club,KNN,roc_auc,0.7227,
+A,lending_club,GaussianNB,roc_auc,0.7165,
+A,lending_club,logistic,roc_auc,0.7306,
+B,lending_club,decision_tree(depth=3),average_precision,0.3379,
+C,used_cars,random_forest,cv_log_rmse,0.2083,
+C,used_cars,gradient_boosting,cv_log_rmse,0.1941,
+D,lending_club,"svc {'model__C': 0.1, 'model__gamma': 0.01, 'model__kernel': 'rbf'}",roc_auc,0.7178,0.7161

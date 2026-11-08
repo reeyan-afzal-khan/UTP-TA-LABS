@@ -274,7 +274,7 @@ $\gamma$ is the radius of each training point's voice. Low $\gamma$ means every 
 \end{analogy}
 
 \begin{workedexample}
-Lab~3's grid search on the breast-cancer table, RBF kernel, cross-validated ROC AUC on the training rows (\texttt{scale} means $\gamma=1/p$ on standardized data, here about 0.033):
+Lab~3's grid search on 15,000 personal loans, RBF kernel with balanced class weights, three-fold cross-validated ROC AUC on the training rows (\texttt{scale} means $\gamma=1/p$ on standardized data, here about 0.077 for thirteen columns):
 
 \medskip
 \centering\small
@@ -283,15 +283,14 @@ Lab~3's grid search on the breast-cancer table, RBF kernel, cross-validated ROC 
 \rowcolor{UTPPaleBlue!92}
 \utpth{$C$} & \utpth{$\gamma=0.01$} & \utpth{$\gamma=$ scale} & \utpth{$\gamma=0.1$} \\
 \midrule
-0.1 & 0.9852 & 0.9828 & 0.9782 \\
-1 & 0.9925 & 0.9942 & 0.9884 \\
-10 & \textbf{0.9954} & 0.9937 & 0.9817 \\
-100 & 0.9945 & 0.9885 & 0.9815 \\
+0.1 & \textbf{0.718} & 0.714 & 0.713 \\
+1 & 0.715 & 0.707 & 0.702 \\
+10 & 0.714 & 0.665 & 0.647 \\
 \bottomrule
 \end{tabular}
 \par\raggedright
 \medskip
-Every cell lies between 0.978 and 0.995. The worst cells are the ones with small $C$ and large $\gamma$, and large $\gamma$ also falls away at large $C$. The winner, $C=10$ with $\gamma=0.01$, keeps 51 of its 426 training rows as support vectors. A linear kernel at $C=0.1$ scores 0.9932, so on this data almost all the curvature is unnecessary.
+Every cell lies between 0.647 and 0.718. The worst corner pairs the narrowest kernel with the largest $C$: each loan only speaks for its own neighborhood, and the boundary bends to fit every one. The winner, $C=0.1$ with $\gamma=0.01$, is the smoothest setting in the grid, and it still keeps 11,478 of its 15,000 training loans as support vectors, 2,205 of them defaults: on noisy data most loans sit near the boundary. The best linear kernel scores 0.713 on 20,000 fresh test loans, against 0.716 for the RBF kernel, so here the curvature does almost no work.
 \end{workedexample}
 
 \section{Multiclass SVMs and support vector regression}
@@ -334,7 +333,7 @@ SVM & Margins and kernels; strong in high dimensions & Scaling required; slow on
 \end{tabular}
 \end{utptable}
 
-Start with regularized linear models, and add complexity only for validated gains. In Lab~3 a tuned SVM reaches a test ROC AUC of 0.997 on the breast-cancer rows, where $k$-NN scored 0.986 and naive Bayes 0.992. A linear SVM also reaches 0.997, and with results that close the simplest is the one to keep.
+Start with regularized linear models, and add complexity only for validated gains. In Lab~3 a tuned RBF SVM reaches a test ROC AUC of 0.716 on fresh loans, where $k$-NN scored 0.723, naive Bayes 0.716 and plain logistic regression 0.731 on validation. A linear SVM reaches 0.713. Here the extra complexity is not earned: the SVM is slower, its saved file holds 11,478 support vectors, and it ranks loans no better than a straight line. On data with a curved boundary the RBF kernel can win clearly; on noisy data like this, the simpler model is the one to keep.
 
 \begin{modelcard}{Support Vector Machines - Quick Guide}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}p{0.24\linewidth}X@{}}

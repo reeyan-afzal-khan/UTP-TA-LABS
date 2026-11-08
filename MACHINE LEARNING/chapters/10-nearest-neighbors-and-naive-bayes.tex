@@ -61,7 +61,7 @@ The single hyperparameter $k$ is a smoothness dial:
 
 Validate $k$. Odd $k$ avoids binary majority-vote ties; distance weighting gives nearer neighbors more influence.
 
-Lab~3 shows what this looks like on the breast-cancer table, with cross-validated ROC AUC for each $k$: 0.946 at $k=1$, 0.984 at 3, 0.985 at 5, 0.987 at 7, 0.988 at 11, and 0.988 at 21. One neighbor is clearly worse, because a single unusual tumor can fool it. After about 7 the curve is flat, so anything in that range is defensible.
+Lab~3 shows this on 20,000 personal loans, of which 19\% defaulted. Cross-validated ROC AUC is 0.552 at $k=1$, 0.632 at 5, 0.692 at 25, 0.710 at 101, 0.719 at 801 and 0.717 at 3,201. One borrower's nearest neighbor says almost nothing about them, because credit data is noisy: borrowers who look alike on paper repay or default for reasons no table records. The default rate among hundreds of similar borrowers is informative, so the curve climbs until neighborhoods hold a few hundred runs. Where it peaks depends on the data, which is why $k$ is validated, not assumed.
 
 \subsection{What $k$-NN is sensitive to}
 
@@ -71,7 +71,7 @@ Lab~3 shows what this looks like on the breast-cancer table, with cross-validate
 \rowcolor{UTPPaleBlue!92}
 \utpth{Sensitivity} & \utpth{Why it matters} & \utpth{Practical response} \\
 \midrule
-Feature scale & Distance inherits the unit problem from \secref{sec:scaling}: an unscaled \texttt{area} column would decide every neighbor on its own. & Standardize inside the pipeline, as Labs~1 and~3 do. \\
+Feature scale & Distance inherits the unit problem from \secref{sec:scaling}: an unscaled speed column, measured in thousands of rpm, would decide every neighbor on its own. & Standardize inside the pipeline, as Labs~1 and~3 do. \\
 Irrelevant features & Every feature affects the distance, so noise features dilute the signal. & Feature selection helps $k$-NN more than most models. \\
 High dimensions & With many weak or noisy features, distance contrast can shrink --- the \term{curse of dimensionality} --- and ``nearest'' may stop meaning ``similar.'' & Feature selection or dimensionality reduction (\chapref{ch:dimred}) can help. \\
 Dataset size & Predicting requires comparing against the whole training set. & Tree-based indexes (KD-trees, ball trees) and approximate nearest-neighbor methods make this workable at scale. \\
@@ -80,7 +80,7 @@ Dataset size & Predicting requires comparing against the whole training set. & T
 \end{utptable}
 
 \begin{workedexample}
-\textbf{Scale.} Lab~3's $k=11$ model on standardized features scores a cross-validated ROC AUC of 0.988 and a validation accuracy of 0.958. On raw units, where the \texttt{area} columns decide every neighbor, those fall to 0.965 and 0.930. The model and the rows are the same; only the ruler changed.
+\textbf{Scale.} Lab~3's $k=801$ model on standardized loans scores a cross-validated ROC AUC of 0.719 and a validation ROC AUC of 0.723. On raw units, where the loan amount (standard deviation \$8,487) dominates every distance and the interest rate (4.3 points) barely counts, those fall to 0.571 and 0.586. The model and the rows are the same; only the ruler changed.
 
 \textbf{Dimensions.} Scatter 500 random points in a unit cube and compare one point's farthest neighbor with its nearest. In 2 dimensions the farthest is 35.61 times further away than the nearest. In 10 dimensions the ratio is 4.68, in 100 it is 1.35, and in 1,000 it is 1.11. When everything is about equally far, ``nearest'' stops meaning much.
 \end{workedexample}
@@ -160,13 +160,13 @@ $P(y)$ is the class \term{prior}; $P(x_j\given y)$ is a feature \term{likelihood
 Predict $\hat y=\argmax_y P(y)\prod_jP(x_j\given y)$. Compute in log space to avoid underflow.
 
 \begin{workedexample}
-A real calculation on the Titanic table. Will a first-class woman survive? Of 891 passengers, 342 lived and 549 died. Among the 342 who lived, 233 were women and 136 traveled first class. Among the 549 who died, 81 were women and 80 traveled first class. Multiply the prior by each clue:
+A real calculation on the 7,043 telecom customers of Labs~1 and~2. Will a customer on a month-to-month contract with fibre internet leave? 1,869 customers left and 5,174 stayed. Among the 1,869 who left, 1,655 were on month-to-month contracts and 1,297 had fibre. Among the 5,174 who stayed, 2,220 were month-to-month and 1,799 had fibre. Multiply the prior by each clue:
 \[
-  \text{lived: }\frac{342}{891}\times\frac{233}{342}\times\frac{136}{342}=0.1040,
+  \text{left: }\frac{1869}{7043}\times\frac{1655}{1869}\times\frac{1297}{1869}=0.1631,
   \qquad
-  \text{died: }\frac{549}{891}\times\frac{81}{549}\times\frac{80}{549}=0.0132.
+  \text{stayed: }\frac{5174}{7043}\times\frac{2220}{5174}\times\frac{1799}{5174}=0.1096.
 \]
-Normalizing gives $0.1040/(0.1040+0.0132)=0.887$. The table can check the answer directly: 91 of the 94 first-class women lived, a rate of 0.968. Naive Bayes got the side right and undershot the probability, because sex and class are not independent clues about survival. That pattern is typical: useful rankings, unreliable probabilities.
+Normalizing gives $0.1631/(0.1631+0.1096)=0.598$. The table can check the answer directly: 1,162 of the 2,128 such customers left, a rate of 0.546. Naive Bayes got the side right and overshot the probability, because the contract and the internet service are not independent clues about leaving: customers who choose one often choose the other, so the model counts the same evidence twice. That pattern is typical: useful rankings, unreliable probabilities.
 \end{workedexample}
 
 \subsection{Three standard variants}
@@ -266,7 +266,7 @@ Main risks & Scale, irrelevant features, slow prediction, high dimensions & Unre
   \item Why can $k$-NN become expensive at prediction time even though its training step is simple?
   \item Training points are $(0,0)$ Red, $(1,0)$ Red, $(3,0)$ Blue, $(4,0)$ Blue. With $k=3$, what is predicted for $(1,1)$?
   \item In the spam example, what would $P(\text{lunch}\given\text{spam})$ be with and without Laplace smoothing?
-  \item Naive Bayes gave 0.887 where the true rate was 0.968. Which assumption explains the gap?
+  \item Naive Bayes gave 0.875 where the true rate was 0.965. Which assumption explains the gap?
 \end{enumerate}
 \end{quickcheck}
 

@@ -5,25 +5,29 @@
 \textbf{Goal.} Train a tabular Q-learning agent on a small grid, evaluate its greedy policy separately from the exploratory training, draw the policy and the values it learned, and save the Q-table as the model.\\
 \textbf{Scenario.} A small robot must cross a grid to a goal without falling into a trap. Nobody can show it the correct move in each cell. It can only act, and notice what happens.\\
 \textbf{Data.} None: the $4\times4$ GridWorld is defined in the notebook, and the agent creates its own experience.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab06\_reinforcement\_worked.ipynb}.\\
+\textbf{Notebook.} \texttt{all\_experiments/\allowbreak lab06\_reinforcement/\allowbreak lab06\_reinforcement\_worked.ipynb}, with a README beside it.\\
 \textbf{Hand in.} The executed notebook, \texttt{results/lab06/}, the saved Q-table and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
+
+\labroadmap{Your map of this lab}{
+      A & Define the grid world, train the Q-table and evaluate the policy & 2--5 \\
+      B & Save the Q-table, read the policy and its values & 6--7 \\
+      Finish & Save the evidence; then move the trap & 8--10 \\
+      After & Your-turn tasks, expected findings, troubleshooting and the two checklists & --- \\
+}
 
 \begin{labmode}
 \begin{enumerate}
   \item Activate your course environment. This lab reads no data file.
   \item Check the worked numbers of Chapter~\ref{ch:rl}, including the grid's exact values. The last line must read \texttt{Every number above matches the book.}
-  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
+  \item From the course folder, start Jupyter, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
 \end{enumerate}
 \begin{lstlisting}[style=utpterminal]
-python all_experiments/demo_advanced.py
-cd all_experiments
+python all_experiments/book_checks/demo_advanced.py
 jupyter lab
 \end{lstlisting}
-Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab06\_reinforcement\_worked.py} runs the same code and writes the same evidence.
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/\allowbreak lab06\_reinforcement/\allowbreak lab06\_reinforcement\_worked.py} runs the same code and writes the same evidence.
 \end{labmode}
-
-\input{labs/visuals/06-flow}
 
 \labroutine
 
@@ -37,25 +41,26 @@ Prefer a plain script? From the course folder, \texttt{python all\_experiments/l
 \end{yourturn}
 
 \begin{labquestion}{1}{Setup}
-Run the imports and paths first, and keep this kernel for the later questions.
+Run this first, and keep this kernel for the later questions. Every lab starts the same way. \texttt{start\_lab()}, from \texttt{all\_experiments/\allowbreak course\_setup.py}, finds the course folder and returns the three folders the lab uses: \texttt{DATA} to read from, \texttt{RESULTS} and \texttt{MODELS} to write to. The imports in between are grouped by what they are for.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=8,lastline=21]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=11,lastline=23]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 course folder: MACHINE LEARNING
+reads all_datasets/, writes results/lab06/ and models/
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Part A --- Tabular Q-learning in a $4\times4$ GridWorld}
+\labpartopen{Part A}{Tabular Q-learning in a \texorpdfstring{$4\times4$}{4x4} GridWorld}{Questions 2--5 \textbullet\ Data: none: the notebook defines the grid world}{Define a small grid world and let an agent learn, from rewards alone, how to reach the goal.}
 
 \begin{labquestion}{2}{Define the world}
 The world is a $4\times4$ grid. The agent starts top-left and must reach the goal bottom-right while avoiding a trap at row 1, column 3. Each move costs a little ($-0.04$), reaching the goal pays $+1$, and falling into the trap costs $-1$ and ends the episode. Walking into a wall leaves the agent where it is. That is the whole environment: a \texttt{step} function that takes a state and an action, and returns the next state, the reward, and whether the episode is over.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/06-trace}
-\lstinputlisting[style=utppython,firstline=23,lastline=40]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=25,lastline=44]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 
 \textbf{What it means.} There is no dataset, no label and no train/test split. The data the agent sees depends on the policy it is learning.
 \end{labanswer}
@@ -65,7 +70,7 @@ The Q-table has one number per (cell, action): the agent's current estimate of t
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/06-worked-case.tex}
-\lstinputlisting[style=utppython,firstline=42,lastline=64]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=46,lastline=70]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 
 \textbf{What it means.} The line \texttt{target = reward if done else ...} is the warm-up's third question. With a decay of 0.9985, $\varepsilon$ reaches its floor of 0.05 after 1,996 of the 5,000 episodes.
 \end{labanswer}
@@ -74,7 +79,7 @@ The Q-table has one number per (cell, action): the agent's current estimate of t
 The training curve is the return per episode, smoothed over 100 episodes. Early returns are negative because a random walker wanders into the trap or times out; as exploration decays the curve rises towards the best achievable return.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=66,lastline=77]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=72,lastline=84]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{labvisual}{Reference plot from the supplied notebook}
 \includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/06-notebook-reference.png}
 \end{labvisual}
@@ -86,7 +91,7 @@ The training curve is the return per episode, smoothed over 100 episodes. Early 
 Training returns mix learning with random moves, so they are not a fair measure of the policy. Evaluation switches exploration off and follows the greedy policy: in each cell, take the action with the highest Q-value.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=79,lastline=92]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=86,lastline=100]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 success rate: 1.0
@@ -101,13 +106,20 @@ learned action at start: down
 \textbf{Connect it to the chapter.} You have now run this loop 5,000 times.
 \input{labs/visuals/06-reinforcement-chapter.tex}
 
-\labpart{Part B --- The Q-table is the model: save it and read the policy}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item The first 100 episodes average a return of $-0.914$, and the last 100 average 0.788.
+  \item The greedy policy reaches the goal 200 times out of 200, with a return of 0.8.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Part B}{The Q-table is the model: save it and read the policy}{Questions 6--7 \textbullet\ Data: the learned Q-table}{Save the learned table, read the policy from it, and compare its values with the exact ones.}
 
 \begin{labquestion}{6}{Save the table and read the policy}
 Everything the agent learned is in the Q-table, so saving it is saving the model. Anyone with the file can act without retraining: in each cell, pick the action with the largest value.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=94,lastline=103]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=102,lastline=121]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 [['down' 'down' 'down' 'left']
@@ -124,7 +136,7 @@ Everything the agent learned is in the Q-table, so saving it is saving the model
 The policy is easier to read as arrows on the grid, drawn over a heat map of each cell's value (the best Q-value available there). Values rise towards the goal.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=105,lastline=126]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=123,lastline=146]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Best value in each cell (Q.max(axis=2)):
@@ -138,22 +150,29 @@ Best value in each cell (Q.max(axis=2)):
 \textbf{What it means.} These equal the exact values in \figref{fig:grid-values}, computed there without any trial and error. The agent learned them from rewards alone. The cell above the trap is worth 0.666, less than its left neighbor's 0.743, because the way out from there starts by stepping back left. The goal and trap cells are zero because no action is ever taken from them.
 \end{labanswer}
 
-\labpart{Evidence}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item The route from the start takes six moves.
+  \item The first row of values reads 0.593, 0.666, 0.743, 0.666, the exact values of the chapter.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Finish}{Save the evidence, then try it yourself}{Questions 8--10}{Write the results folder, then extend the lab yourself before reading one worked solution.}
 
 \begin{labquestion}{8}{Save the evidence}
 Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=128,lastline=136]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=148,lastline=158]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Saved: ['greedy_policy.csv', 'greedy_policy_and_state_values.png', 'metrics.csv',
- 'q_learning_training_curve.png', 'training_returns.csv', 'trap_moved_to_3_1.png']
+ 'q_learning_training_curve.png', 'training_returns.csv']
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Try it yourself}
+\labsubhead{Try it yourself}
 
 \begin{labquestion}{9}{Try it yourself}
 Change one thing: the step cost, the trap location, the exploration schedule, or the discount factor. Write down what you expect the greedy policy to do differently before retraining, then check with \texttt{plot\_policy}. Attempt it in this empty cell before reading the solution.
@@ -163,7 +182,7 @@ Change one thing: the step cost, the trap location, the exploration schedule, or
 Move the trap onto the bottom row, at (3, 1). Prediction before retraining: the learned route runs through (3, 1), straight into the new trap, so the route has to change, for the same six-move length.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=140,lastline=172]{all_experiments/lab06_reinforcement_worked.py}
+\lstinputlisting[style=utppython,firstline=162,lastline=199]{all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 Greedy policy with the trap at (3, 1):
@@ -176,6 +195,8 @@ up     TRAP   right  GOAL
 
 \textbf{What it means.} The route is now down, right, down, right, right, down: still six moves, so the return is still 0.8. The cell beside the new trap, (3, 0), points up and away from it. The right-hand column, which the original policy avoided, is now safe, and its arrows point down. The agent was never told the trap had moved; it relearned from the rewards alone.
 \end{labanswer}
+
+\labpartopen{After the lab}{Your turn, troubleshooting and hand-in}{Your-turn tasks \textbullet\ Expected findings \textbullet\ Troubleshooting \textbullet\ Checklists}{Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.}
 
 \begin{yourturn}
 Add new cells at the end of the notebook for these tasks, using \texttt{train\_q} as a starting point. Write your prediction first, then run it.

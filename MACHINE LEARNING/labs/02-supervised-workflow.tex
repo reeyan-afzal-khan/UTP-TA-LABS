@@ -1,28 +1,34 @@
 \labsection{2}{Supervised learning I: regression, classification, and the workflow}{sec:lab02-supervised-workflow}
 
-\begin{labproject}{Two regression examples, two classification examples, and a saved model at the end}
+\begin{labproject}{A regression problem, two classification problems, and saved models at the end}
 \textbf{Read first.} Chapters~\ref{ch:learning}--\ref{ch:classification}.\\
-\textbf{Goal.} Fit regression and classification pipelines, validate in date order where time matters, choose thresholds and hyperparameters on purpose, test once, and save models that can be loaded and used.\\
-\textbf{Scenario.} Four small commissions: an insurer wants charges predicted, a bike scheme wants demand forecast, a historian wants survival modeled, and a clinic wants a tumor screener whose missed cases are taken seriously. Then the models must leave the notebook as files.\\
-\textbf{Data.} \texttt{all\_datasets/medical\_cost\_personal\_dataset.csv}, \texttt{bike\_sharing\_dataset\_day.csv}, \texttt{bike\_sharing\_dataset\_hour.csv}, \texttt{titanic\_dataset.csv}, \texttt{breast\_cancer\_dataset.csv}; \texttt{heart\_failure\_dataset.csv} in the Try-it.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab02\_supervised\_workflow\_worked.ipynb}.\\
+\textbf{Goal.} Fit regression and classification pipelines on messy data, validate in date order where time matters, choose thresholds and hyperparameters on purpose, test once, and save models that can be loaded and used.\\
+\textbf{Scenario.} Three commissions: a used-car dealer wants asking prices estimated from a listing, a hotel group wants to know which bookings will be cancelled so it can resell rooms without turning guests away, and a telecom company wants a churn model it can hand to its call centre. Then the models must leave the notebook as files.\\
+\textbf{Data.} In \texttt{all\_datasets/\allowbreak supervised/}: \texttt{used\_cars/\allowbreak used\_cars.zip}, 150,000 car listings collected from Cars.com in October 2026; \texttt{hotel\_bookings/\allowbreak hotel\_bookings.zip}, the hotel bookings from Lab~1; and \texttt{telco\_customer\_churn/\allowbreak telco\_customer\_churn.csv}, the telecom customers from Lab~1. Each folder's \texttt{README.md} is its data card.\\
+\textbf{Notebook.} \texttt{all\_experiments/\allowbreak lab02\_supervised\_workflow/\allowbreak lab02\_supervised\_workflow\_worked.ipynb}, with \texttt{predict\_churn.py} and a README beside it.\\
 \textbf{Hand in.} The executed notebook, \texttt{results/lab02/}, the model files and a decision memo, as listed in the checklist at the end of this sheet.
 \end{labproject}
 
+\labroadmap{Your map of this lab}{
+      A & Tidy the car listings, predict prices, read the coefficients and the residuals & 2--5 \\
+      B & Validate hotel cancellations in date order, and see what a shuffled split hides & 6--8 \\
+      C & Beat a baseline, read probabilities, and choose a threshold by cost & 9--12 \\
+      D & Tune the churn model with cross-validation, then open the test set once & 13--14 \\
+      E & Save the models with a card, reload them and use them & 15--16 \\
+      Finish & Save the evidence; then model log prices and write an overbooking memo & 17--19 \\
+      After & Your-turn tasks, expected findings, troubleshooting and the two checklists & --- \\
+}
+
 \begin{labmode}
 \begin{enumerate}
-  \item Activate your course environment and confirm the data files are in \texttt{all\_datasets/}.
-  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes under a minute.
-  \item Parts A and B are regression, Parts C and D classification, and Part E turns the results into files.
+  \item Activate your course environment and confirm the three data files are in \texttt{all\_datasets/\allowbreak supervised/}.
+  \item From the course folder, start Jupyter, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes under a minute.
 \end{enumerate}
 \begin{lstlisting}[style=utpterminal]
-cd all_experiments
 jupyter lab
 \end{lstlisting}
-Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab02\_supervised\_workflow\_worked.py} runs the same code and writes the same evidence.
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/\allowbreak lab02\_supervised\_workflow/\allowbreak lab02\_supervised\_workflow\_worked.py} runs the same code and writes the same evidence.
 \end{labmode}
-
-\input{labs/visuals/02-flow}
 
 \labroutine
 
@@ -30,330 +36,410 @@ Prefer a plain script? From the course folder, \texttt{python all\_experiments/l
 \textbf{Warm-up on paper.} Do these before opening the notebook; the code will check you.
 \begin{enumerate}
   \item True values $10,20,30,40$ and predictions $12,18,30,50$. Compute MAE and RMSE. Why is RMSE larger? (MAE 3.5, RMSE about 5.2.)
-  \item Question~9's model at threshold 0.50 has $TP=58$, $FP=22$, $FN=28$ and $TN=115$. Compute precision, recall and accuracy. Then predict: if the threshold falls to 0.30, which of these four counts can only grow, and which can only shrink?
+  \item Question~9's logistic model at threshold 0.50 flags 2017 bookings as likely cancellations with $TP=8{,}616$, $FP=2{,}479$, $FN=7{,}129$ and $TN=22{,}463$. Compute precision, recall and accuracy. Then predict: if the threshold rises to 0.70, which of these four counts can only grow, and which can only shrink?
 \end{enumerate}
 \end{yourturn}
 
 \begin{labquestion}{1}{Setup}
-Run the imports and paths first. \texttt{make\_preprocess} is the same helper as in Lab~1: median imputation and scaling for numbers, most-frequent imputation and one-hot encoding for categories.
+Run this first, and keep this kernel for the later questions. Every lab starts the same way. \texttt{start\_lab()}, from \texttt{all\_experiments/\allowbreak course\_setup.py}, finds the course folder and returns the three folders the lab uses: \texttt{DATA} to read from, \texttt{RESULTS} and \texttt{MODELS} to write to. The imports in between are grouped by what they are for. \texttt{make\_preprocess} is the same helper as in Lab~1: median imputation and scaling for numbers, most-frequent imputation and one-hot encoding for categories.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=8,lastline=43]{all_experiments/lab02_supervised_workflow_worked.py}
-\noindent\textbf{Continue the same step.}
-\lstinputlisting[style=utppython,firstline=44,lastline=58]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=11,lastline=51]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 course folder: MACHINE LEARNING
+reads all_datasets/, writes results/lab02/ and models/
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Part A --- Regression: ordinary least squares versus ridge}
+\labpartopen{Part A}{Regression: ordinary least squares versus ridge}{Questions 2--5 \textbullet\ Data: used-car listings from Cars.com}{Tidy real listings, predict used-car prices with a straight-line model, read its coefficients, and see where it fails.}
 
-\begin{labquestion}{2}{Read the insurance table and split it}
-The table has one row per customer and a numeric label, \texttt{charges}, so this is regression. Two models will share the pipeline and the split; the only difference is ridge's penalty on large coefficients.
+\begin{labquestion}{2}{Read the car listings, tidy them, and split}
+Each row is one car with a numeric label, \texttt{price\_usd}, so this is regression. Three fixed rules, chosen before any model, keep used cars with a believable price (\$1,000 to \$200,000) and a real odometer reading. Sellers also type the same thing many ways, so \texttt{tidy()} maps the spellings of drivetrain and fuel to a few groups. Two models will share the pipeline and the split; the only difference is ridge's penalty on large coefficients. The car's \texttt{model} (F-150, Camry and over a thousand others) is kept aside for now, and a Your-turn task brings it in.
 \end{labquestion}
 \begin{labanswer}
-\input{labs/visuals/02-trace}
-\lstinputlisting[style=utppython,firstline=60,lastline=70]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=53,lastline=87]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-   age     sex     bmi  children smoker     region      charges
-0   19  female  27.900         0    yes  southwest  16884.92400
-1   18    male  33.770         1     no  southeast   1725.55230
-2   28    male  33.000         3     no  southeast   4449.46200
-3   33    male  22.705         0     no  northwest  21984.47061
-4   32    male  28.880         0     no  northwest   3866.85520
+shape: (150000, 19)
+stock_type
+Used    79262
+New     70738
+used listings kept: 77,646 of 79,262
+spellings before tidying: drivetrain 21  fuel 31
+{'AWD': 28787, 'FWD': 18290, '4WD': 17310, 'RWD': 9008, None: 4251}
+{'gasoline': 63296, None: 5474, 'electric': 3007, 'hybrid': 2986, 'diesel': 2160,
+ 'flex fuel': 594, 'plug-in hybrid': 129}
+62116 listings to train on and 15530 to validate
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The 1,338 rows become 1,070 for training and 268 for validation. Look at row 3: a non-smoker charged \$21,984, so charges are far from a clean function of these columns.
+\textbf{What it means.} The rules drop 1,616 used listings, among them 295 with no price shown, 712 priced above \$200,000 (24 of them in the millions) and 659 with 100 miles or fewer on the clock; a few break two rules. Tidying turns 21 spellings of the drivetrain and 31 of the fuel into four and six groups; what matches no group (``2WD'', ``Unknown'', a blank) becomes a gap that the pipeline's imputer fills. Every rule is fixed and reads no label, so it may run before the split. The listings were collected on one day, so a random 80/20 split is honest here.
 \end{labanswer}
 
 \begin{labquestion}{3}{Fit OLS and ridge}
-Three scores per model. MAE is the typical miss in dollars. RMSE weights big misses more, so when it is much larger than MAE, a few predictions are badly wrong. $R^2$ is the share of the label's variation the model explains.
+Three scores per model. MAE is the typical miss in dollars. RMSE weights big misses more, so when it is much larger than MAE a few predictions are badly wrong. $R^2$ is the share of the price's variation the model explains. Always guessing the training mean is the baseline both must beat.
 \end{labquestion}
 \begin{labanswer}
-\input{labs/visuals/02-worked-case.tex}
-\lstinputlisting[style=utppython,firstline=72,lastline=87]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=89,lastline=107]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-linear regression
-MAE: 4181.19
-RMSE: 5796.28
-R2: 0.784
+always the training mean: MAE 15408
 
-ridge
-MAE: 4238.82
-RMSE: 5821.59
-R2: 0.782
+linear regression          ridge
+MAE: 9009                  MAE: 9062
+RMSE: 14336                RMSE: 14427
+R2: 0.575                  R2: 0.569
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Regularization did not help. With 1,070 rows and eleven encoded columns the plain model is already stable. Always guessing the training mean has an MAE of \$9,593, so both models more than halve it.
+\textbf{What it means.} Both models cut the typical miss from \$15,400 to about \$9,000, and regularization did not help: with 62,116 rows the plain model is already stable. RMSE is about 60\% above MAE, so some cars are missed by far more than the typical amount; Question~5 shows which.
 \end{labanswer}
 
 \begin{labquestion}{4}{Read the coefficients}
-A linear model is readable: each coefficient is the change in predicted charges for a one-unit change in that feature, the others held fixed. Because the numeric columns were standardized, one unit is one standard deviation, so the bars are comparable.
+A linear model is readable: each coefficient is the change in predicted price for a one-unit change in that feature, the others held fixed. The two numeric columns were standardized, so one unit is one standard deviation. Every make gets its own one-hot coefficient, and the cell counts the training listings behind each one.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=89,lastline=100]{all_experiments/lab02_supervised_workflow_worked.py}
-\begin{labvisual}{Reference plot from the supplied notebook}
-\includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/02-notebook-reference.png}
-\end{labvisual}
+\lstinputlisting[style=utppython,firstline=109,lastline=132]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+one standard deviation: {'age': 5.6, 'mileage_miles': 47396.4}
+num__age             -3302.0
+num__mileage_miles   -8553.0
+the four largest:
+              coefficient  listings
+McLaren          76900.0        16
+Ferrari          82800.0        18
+Lancia           83000.0         1
+Lamborghini     115700.0        14
+30 makes have 500 listings or more, for example: {'Porsche': 26300.0, 'Toyota': -11600.0,
+ 'Ford': -13100.0, 'Mitsubishi': -26800.0}
+\end{lstlisting}
+\end{refoutput}
 
-\textbf{What it means.} \texttt{smoker} is one-hot encoded into two columns, so it appears as a pair of bars at $-11{,}826$ and $+11{,}826$, and the gap between them, \$23,651, is what smoking adds to a prediction. Age adds \$3,615 per standard deviation and BMI \$2,036. Region barely matters. A coefficient is an association inside this model, not a cause.
+\textbf{What it means.} One standard deviation of mileage, about 47,000 miles, takes \$8,553 off the price, and one of age, 5.6 years, another \$3,302. Age matters less than you might expect partly because the two move together (correlation 0.61): an old car usually has high mileage, and the model credits much of the wear to the odometer. The make coefficients are read as differences: a Porsche is priced \$37,900 above an otherwise identical Toyota, and a Mitsubishi \$15,200 below. The largest coefficients belong to supercars, and Lancia's rests on a single listing: a rare category gets a confident-looking number from almost no evidence. Each coefficient is an association inside this model, not a cause.
 \end{labanswer}
 
 \begin{labquestion}{5}{Plot the residuals}
-Two diagnostic plots for the ridge model. The residual plot should look like random scatter around zero; any pattern is something the model failed to use.
+Two diagnostic plots for the ridge model. A good residual plot is a shapeless band around zero; any shape is something the model failed to use.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=102,lastline=121]{all_experiments/lab02_supervised_workflow_worked.py}
-
-\textbf{What it means.} Smokers form a separate, expensive band, and one straight surface cannot fit both bands: the residuals form stripes, not a cloud. That is a missing interaction, smoker $\times$ BMI, and no penalty will fix it. Your-turn task~1 adds it.
-\end{labanswer}
-
-\labpart{Part B --- Regression on a time series: validate in date order}
-
-\begin{labquestion}{6}{Split the daily bike data in date order}
-Bike rentals are recorded per day for two years. A random split would let the model train on days that come \emph{after} the ones it is validated on, which never happens in real use. So the rows are sorted by date, and the last 20\% of days form the validation set.
-\end{labquestion}
-\begin{labanswer}
-\lstinputlisting[style=utppython,firstline=123,lastline=135]{all_experiments/lab02_supervised_workflow_worked.py}
+\input{labs/visuals/02-worked-case}
+\lstinputlisting[style=utppython,firstline=134,lastline=158]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-train: 2011-01-01 to 2012-08-06
-valid: 2012-08-07 to 2012-12-31
+spread of the residuals (standard deviation) by quarter of predicted price:
+cheapest     9172.0
+second       8125.0
+third       10943.0
+dearest     23079.0
+predicted prices below zero: 377
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} \texttt{casual} and \texttt{registered} add up to the label, so they are dropped: they would leak the answer. 584 days train, and 147 validate.
+\textbf{What it means.} The residuals fan out: a typical miss of \$8,000 to \$9,000 on the cheaper half of the predictions grows to \$23,079 on the dearest quarter, and 377 cars get a negative price. One straight surface cannot serve a \$5,000 hatchback and a \$150,000 sports car equally well, because a car loses value in proportions, not in fixed dollars. The Try-it fixes the shape; Your-turn task~1 adds the idea the model is missing.
 \end{labanswer}
 
-\begin{labquestion}{7}{Forecast daily demand}
-The calendar columns are categories (month 12 is not ``twelve times'' month 1), so they are one-hot encoded. The weather columns are already numbers between 0 and 1, and trees do not need scaling, so those pass straight through.
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Linear regression misses by \$9,009 on average, against \$15,408 for always guessing the mean; ridge is no better.
+  \item The residual spread grows to \$23,079 on the dearest quarter of predictions, and 377 cars get a negative price.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Part B}{Classification in time: validate in date order}{Questions 6--8 \textbullet\ Data: hotel bookings}{Validate a cancellation model the way a hotel would use it: train on past arrivals, score future ones.}
+
+\begin{labquestion}{6}{Split the bookings in date order}
+Lab~1 scored its hotel model on a shuffled split. A hotel, though, always predicts bookings for dates that have not happened yet, from bookings that already have. So the rows are sorted by arrival date, Lab~1's five engineered columns are rebuilt, and arrivals up to the end of 2016 train while the eight months of 2017 validate.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=137,lastline=164]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=160,lastline=187]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-daily MAE: 1040.4  (mean daily demand in validation: 5897.8 )
+train: 2015-07-01 to 2016-12-31, 78,703 bookings, 36.2% cancelled
+valid: 2017-01-01 to 2017-08-31, 40,687 bookings, 38.7% cancelled
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Always guessing the training mean misses by 2,290, so the forest more than halves the error. It tracks the weekly rhythm and the winter decline, but it under-predicts autumn 2012: September to November average 700 to 950 rentals a day above its forecasts. Demand was growing year on year, and a forest can only average what it has already seen.
+\textbf{What it means.} Two thirds of the bookings train and one third validate, and the cancellation rate is already higher in the later period. \texttt{reservation\_status} stays out, as Lab~1 showed it must.
 \end{labanswer}
 
-\begin{labquestion}{8}{Repeat on the hourly file}
-The same split rule on the hourly file (17,379 rows), with one new feature, \texttt{hr}. One validation week, hour by hour, shows what the daily plot averages away.
+\begin{labquestion}{7}{Score one model on two splits}
+The same logistic regression as Lab~1, fitted twice: once on a shuffled 75/25 split, once on the date split. Only the split differs, so any gap between the two scores is what the shuffle was hiding.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=166,lastline=199]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=189,lastline=200]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-hourly MAE: 56.5  (mean hourly demand in validation: 248.8 )
+shuffled split, ROC AUC:     0.858
+date split (2017), ROC AUC:  0.824
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Two rush-hour peaks on working days, and one broad hump at the weekend. Lab~8 forecasts this same series with a recurrent network from the previous 24 hours alone.
+\textbf{What it means.} The shuffled split flatters the model by more than three points. It let the model train on bookings from the very weeks it was tested on, which a hotel can never do. Your-turn task~2 finds a second reason: thousands of bookings in this file have exact twins.
 \end{labanswer}
 
-\labpart{Part C --- Classification: baselines, probabilities, and the threshold}
-
-\begin{labquestion}{9}{Set a baseline and compare classifiers on Titanic}
-Seven passenger columns are the features; identifiers stay out. \texttt{stratify=y} keeps the survival rate the same on both sides of the split. Logistic regression is the simple, readable reference, and a random forest is the more flexible challenger. Accuracy counts correct decisions at the default 0.5 cutoff, and ROC AUC judges how well the model \emph{ranks} passengers, whatever the cutoff.
+\begin{labquestion}{8}{Compare the months}
+Averaging the predicted probabilities over each month of arrival gives the share of bookings the model expected to cancel; the actual share sits beside it. Months before 2017 were seen in training, and the months after were not.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=201,lastline=236]{all_experiments/lab02_supervised_workflow_worked.py}
-\noindent\textbf{Continue the same step.}
-\lstinputlisting[style=utppython,firstline=237,lastline=242]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=202,lastline=218]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-majority-class baseline accuracy: 0.614
-logistic       accuracy=0.776 roc_auc=0.842
-random_forest  accuracy=0.798 roc_auc=0.834
-threshold 0.30: precision=0.64 recall=0.81
-threshold 0.50: precision=0.72 recall=0.67
-threshold 0.70: precision=0.90 recall=0.50
+arrival_date  2016-12  2017-01  2017-02  2017-03  2017-04  2017-05  2017-06  2017-07  2017-08
+actual          0.362    0.340    0.325    0.336    0.435    0.438    0.432    0.373    0.369
+predicted       0.296    0.303    0.291    0.346    0.406    0.412    0.420    0.361    0.346
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Both models clear the baseline, and the two metrics disagree about which is better. On 223 validation rows a gap of two points is within noise, and a bootstrap puts the logistic AUC anywhere from 0.78 to 0.89. Part~D settles the choice with cross-validation. The threshold table is the one Chapter~\ref{ch:classification} reads.
+\textbf{What it means.} The model follows the training months closely, then under-predicts most of 2017: 30.3\% expected in January against 34.0\%, and about 41\% in April to June against 43 to 44\%. Its ranking still works, but the world it learned from had moved on, and only a split in date order shows it. Lab~8 forecasts a series from its own past, where the same rule holds.
+\end{labanswer}
+
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Training arrivals end on 31 December 2016; the 40,687 arrivals of 2017 are the validation set.
+  \item The same model scores ROC AUC 0.858 shuffled and 0.824 in date order.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Part C}{Classification: baselines, probabilities, and the threshold}{Questions 9--12 \textbullet\ Data: hotel bookings, split in date order}{Beat a baseline, read predicted probabilities, and choose a threshold by what each error costs.}
+
+\begin{labquestion}{9}{Set a baseline and compare classifiers on 2017}
+The date split from Part~B, and two classifiers with the same preparation. Logistic regression is the simple, readable reference, and a random forest the more flexible challenger. Accuracy counts correct decisions at the default 0.5 cutoff; ROC AUC judges how well a model ranks bookings, independent of any cutoff. A hotel would act on a flagged booking by reselling its room, so precision asks: when the model says a booking will cancel, how often is it right?
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=220,lastline=249]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+majority-class baseline accuracy: 0.613
+logistic       accuracy=0.764 roc_auc=0.824
+random_forest  accuracy=0.770 roc_auc=0.841
+threshold 0.30: precision=0.61 recall=0.77
+threshold 0.50: precision=0.78 recall=0.55
+threshold 0.70: precision=0.96 recall=0.29
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} Both models clear the baseline, and the forest leads by about two points of ROC AUC. With 40,687 validation bookings that gap is real, but both are scored on one period, and Your-turn task~2 shows how much the forest's lead depends on the split. The threshold table is the same logistic model with three decision rules.
+\end{labanswer}
+
+\begin{labquestion}{10}{Plot the cancellation probabilities}
+The logistic model gives every 2017 booking a probability of cancelling. Plot those probabilities separately for the bookings that were kept and those that were cancelled: a threshold is a vertical line, and every booking to its right is treated as a likely cancellation whose room can be resold.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=251,lastline=266]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+share of 2017 bookings scored between 0.3 and 0.7: 0.374
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The two groups overlap heavily: more than a third of the bookings sit in the uncertain middle, so wherever the line goes it cuts through both. One feature stands out, a tower of cancelled bookings near 1.0. These are the 4,126 non-refundable bookings of 2017, 99.8\% of which were cancelled, the puzzling pattern the data card warns about.
+\end{labanswer}
+
+\begin{labquestion}{11}{Count errors at two thresholds}
+The confusion matrix counts what happens on each side of the line: rows are the truth, columns are the decision. Precision asks how often a flagged booking really cancelled; recall asks how many of the cancellations were flagged.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=268,lastline=277]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+threshold = 0.50
+[[22463  2479]
+ [ 7129  8616]]
+           1      0.777     0.547     0.642     15745
+threshold = 0.70
+[[24748   194]
+ [11117  4628]]
+           1      0.960     0.294     0.450     15745
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} At 0.50 the hotel flags 11,095 bookings and is right about 8,616 of them, but 2,479 flagged guests arrive to find their room resold. At 0.70 only 194 do, at the price of catching just 4,628 of the 15,745 cancellations and leaving the other rooms empty. Neither number is ``the'' answer: the default 0.50 quietly decides that a walked guest costs no more than an empty room.
+\end{labanswer}
+
+\begin{labquestion}{12}{Summarize the ranking: ROC and PR}
+Two numbers summarize the ranking without choosing any threshold. ROC AUC is the chance that a random cancelled booking scores higher than a random kept one. Average precision (PR AUC) focuses on the positive class; guessing scores the positive rate, so it is the more honest number when positives are rare.
+\end{labquestion}
+\begin{labanswer}
+\lstinputlisting[style=utppython,firstline=279,lastline=310]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+ROC AUC: 0.824
+PR AUC (average precision): 0.786  against 0.387 for guessing
+\end{lstlisting}
+\end{refoutput}
+
+\textbf{What it means.} The ranking is useful but far from perfect: a cancelled booking outranks a kept one about eight times in ten, and average precision doubles the guessing rate. With 38.7\% positives the two summaries tell a similar story; in Lab~5, with 0.17\% frauds, they will not.
 \end{labanswer}
 
 \textbf{Connect it to the chapter.} A loss decides what ``wrong'' costs during fitting, and the threshold decides what it costs afterwards.
 \input{labs/visuals/02-supervised-workflow-chapter.tex}
 
-\begin{labquestion}{10}{Plot breast-cancer probabilities}
-Now the breast-cancer table: 30 numeric measurements and a label \texttt{M} (malignant) or \texttt{B} (benign). The model outputs a probability for every tumor. Plotting those probabilities separately for benign and malignant cases shows what a threshold does: it is a vertical line, and everything to its right is called malignant.
-\end{labquestion}
-\begin{labanswer}
-\lstinputlisting[style=utppython,firstline=244,lastline=271]{all_experiments/lab02_supervised_workflow_worked.py}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item On 2017, the majority baseline scores 0.613; logistic regression 0.764 accuracy and 0.824 ROC AUC.
+  \item At a threshold of 0.50, 2,479 flagged bookings are kept; at 0.70, only 194 are.
+  \item ROC AUC 0.824, and average precision 0.786 against 0.387 for guessing.
+\end{itemize}
+\end{labcheckpoint}
 
-\textbf{What it means.} Almost every benign tumor sits near 0 and almost every malignant one near 1, with few in between. Only the few in the middle are affected by where the line goes.
-\end{labanswer}
-
-\begin{labquestion}{11}{Count errors at two thresholds}
-The confusion matrix counts what happens on each side of the line: rows are the truth, and columns are the decision. Precision asks ``when the model says malignant, how often is it right?'', and recall asks ``of the malignant tumors, how many did it find?''.
-\end{labquestion}
-\begin{labanswer}
-\lstinputlisting[style=utppython,firstline=273,lastline=298]{all_experiments/lab02_supervised_workflow_worked.py}
-\begin{refoutput}
-\begin{lstlisting}[style=utpterminal]
-threshold = 0.50            threshold = 0.30
-[[89  1]                    [[89  1]
- [ 4 49]]                    [ 2 51]]
-recall for class 1: 0.925   recall for class 1: 0.962
-\end{lstlisting}
-\end{refoutput}
-
-\textbf{What it means.} At 0.50 the model misses 4 of 53 malignant tumors with 1 false alarm. At 0.30 it misses 2 with the same 1 false alarm. Lowering the threshold further stops being free: at 0.20 it misses 2 with 3 false alarms, and at 0.10 it misses 1 with 6.
-\end{labanswer}
-
-\begin{labquestion}{12}{Summarize the ranking: ROC and PR}
-Two metrics summarize the ranking without choosing a threshold. ROC AUC is the chance that a random malignant tumor scores higher than a random benign one. Average precision (PR AUC) focuses on the positive class, and it is the more honest number when positives are rare.
-\end{labquestion}
-\begin{labanswer}
-\lstinputlisting[style=utppython,firstline=300,lastline=310]{all_experiments/lab02_supervised_workflow_worked.py}
-\begin{refoutput}
-\begin{lstlisting}[style=utpterminal]
-ROC AUC: 0.996
-PR AUC: 0.994
-\end{lstlisting}
-\end{refoutput}
-
-\textbf{What it means.} The ranking is almost perfect, so the remaining errors are about where the cut goes.
-\end{labanswer}
-
-\labpart{Part D --- Tune with cross-validation, then test once}
+\labpartopen{Part D}{Tune with cross-validation, then test once}{Questions 13--14 \textbullet\ Data: Telco customer churn}{Choose settings by cross-validation on the training rows, then open the test set exactly once.}
 
 \begin{labquestion}{13}{Tune with cross-validation}
-Back to Titanic. A quarter of the rows is now the \emph{test} set, opened once at the very end. Inside the training rows, five-fold cross-validation scores every combination of \texttt{C} (regularization strength) and \texttt{class\_weight}, and the grid search then refits the winning combination on all training rows.
+Back to Lab~1's telecom customers, now to predict who leaves (\texttt{Churn}). The column lists come from the data types, and a quarter of the customers is set aside as the \emph{test} set before anything is fitted, so no step of the search can see them. Inside the training rows, five-fold cross-validation scores every combination of \texttt{C} (regularization strength) and \texttt{class\_weight}, and the grid search then refits the winning combination on all training rows.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=312,lastline=341]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=312,lastline=353]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+4 numeric and 15 text columns; 26.5% of customers left
+cross-validated ROC AUC ranges from 0.841 to 0.844 ; typical fold-to-fold spread 0.015
+\end{lstlisting}
+\end{refoutput}
 
-\textbf{What it means.} The curve is flat: every cell lies between 0.847 and 0.850, while the error bars (one standard deviation across five folds) are about 0.025. This dataset does not care much about \texttt{C}.
+\textbf{What it means.} The curve is flat: every setting lies between 0.841 and 0.844, while the error bars, one standard deviation across five folds, are about 0.015. This table does not care much about \texttt{C}, so small gaps between settings should not be over-read.
 \end{labanswer}
 
 \begin{labquestion}{14}{Open the test set once}
 Only now is the test set touched, once.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=343,lastline=348]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=355,lastline=361]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-best parameters: {'model__C': 0.1, 'model__class_weight': 'balanced'}
-cross-validated ROC AUC: 0.85
-final test ROC AUC: 0.837
+best parameters: {'model__C': 10.0, 'model__class_weight': None}
+cross-validated ROC AUC: 0.844
+final test ROC AUC: 0.846 on 1761 customers
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The test score is a little lower, as expected, because the cross-validated score was the best of ten options. Report the test number, and do not tune again after seeing it.
-
-\textbf{An honest caveat.} This split uses the same seed and fraction as Part~C, so these ``test'' rows are the same 223 rows Part~C used for validation. Nothing in this search saw them, but Part~C looked at them when it compared two models. In a real project you would seal the test rows before Part~C; Your-turn task~4 asks how.
+\textbf{What it means.} The test score agrees with the cross-validated one, as it should when the test rows were sealed from the start. It is still one draw: 1,761 customers carry an uncertainty of about a point either way, which Your-turn task~4 measures. Report the test number once, and do not tune again after seeing it.
 \end{labanswer}
 
-\labpart{Part E --- Save the models and use them}
+\input{labs/visuals/02-trace}
 
-\begin{labquestion}{15}{Save the Titanic model with a card}
-A model that exists only inside a running notebook is not finished. \texttt{joblib.dump} writes the whole pipeline, preprocessing and estimator together, to one file. A model card written next to it records what the file expects and how well it did.
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Best setting: \texttt{C} = 10 without class weights, cross-validated ROC AUC 0.844.
+  \item The final test ROC AUC, 0.846, is reported once, and nothing is tuned after it.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Part E}{Save the models and use them}{Questions 15--16 \textbullet\ Data: the two fitted models}{Save each model with a card, reload it, and use it from a script.}
+
+\begin{labquestion}{15}{Save the churn model with a card}
+A model that exists only inside a running notebook is not finished. \texttt{joblib.dump} writes the whole pipeline, preprocessing and estimator together, to one file. A model card written next to it records what the file expects, how well it did, and a typical customer whose values a script can use for any column it is not given.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=350,lastline=366]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=363,lastline=384]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-saved: titanic_survival.joblib (4.5 KB) and titanic_survival_card.json
+saved: customer_churn.joblib (8.3 KB) and customer_churn_card.json
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
 \begin{labquestion}{16}{Reload the models and use them}
-Deployment, in its smallest form, is three lines: load the file, hand it new rows with the same column names, read the predictions. No retraining and no preprocessing code, because the preprocessing traveled inside the file. The insurance model is saved the same way, and prices two customers who differ in one column.
+Deployment, in its smallest form, is three lines: load the file, hand it new rows with the same column names, read the predictions. No retraining and no preprocessing code, because the preprocessing traveled inside the file. A real customer's row is the template for the two new ones, so every column the model expects is there. The car-price model is saved the same way and prices one car at two mileages.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=368,lastline=383]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=386,lastline=405]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-   Pclass     Sex  Age  SibSp  Parch  Fare Embarked  survival_probability
-0       1  female   29      0      0  80.0        C                 0.942
-1       3    male   40      0      0   7.9        S                 0.141
-   age     sex   bmi  children smoker     region  predicted_charges
-0   35  female  27.5         2     no  southeast             6526.0
-1   35  female  27.5         2    yes  southeast            30177.0
+   tenure        Contract InternetService              PaymentMethod  churn_probability
+0       2  Month-to-month     Fiber optic           Electronic check              0.305
+1      60        Two year             DSL  Bank transfer (automatic)              0.004
+     make body_type  age  mileage_miles  predicted_price
+0  Toyota       SUV    5          30000          36700.0
+1  Toyota       SUV    5          90000          25900.0
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The script \texttt{all\_experiments/predict\_passenger.py} does the same job from the terminal:
+\textbf{What it means.} A new month-to-month fibre customer paying by electronic check has a 30.5\% chance of leaving; a five-year customer on a two-year contract, 0.4\%. The two Toyotas differ only in mileage, and 60,000 extra miles take \$10,800 off the price, the mileage coefficient of Question~4 at work. The script \texttt{predict\_churn.py}, beside the notebook, does the same job from the terminal, filling every column it is not given from the card's typical customer:
 \begin{lstlisting}[style=utpterminal]
-python predict_passenger.py --pclass 2 --sex female --age 30 --fare 20
+python all_experiments/lab02_supervised_workflow/predict_churn.py --tenure 2 --contract Month-to-month --monthly 85
+churn probability: 0.465  ->  likely to stay
 \end{lstlisting}
-The two insurance customers differ only in \texttt{smoker}, and their prices differ by \$23,651, the coefficient gap from Question~4.
 \end{labanswer}
 
-\labpart{Evidence}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item \texttt{customer\_churn.joblib} and its card are in \texttt{models/}, beside \texttt{used\_car\_prices.joblib}.
+  \item \texttt{predict\_churn.py} prints a churn probability from the terminal.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Finish}{Save the evidence, then try it yourself}{Questions 17--19}{Write the results folder, then extend the lab yourself before reading one worked solution.}
 
 \begin{labquestion}{17}{Save the evidence}
 Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=385,lastline=399]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=407,lastline=424]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 
-\textbf{What it means.} \texttt{results/lab02/} now holds \texttt{metrics.csv} and the figures, and \texttt{models/} holds the two \texttt{.joblib} files and the Titanic card. The list also shows models from other labs if you have already run them.
+\textbf{What it means.} \texttt{results/lab02/} now holds \texttt{metrics.csv}, \texttt{monthly\_cancellations.csv} and the figures, and \texttt{models/} holds the churn model with its card and \texttt{used\_car\_prices.joblib}.
 \end{labanswer}
 
-\labpart{Try it yourself}
+\labsubhead{Try it yourself}
 
 \begin{labquestion}{18}{Try it yourself, and a decision memo}
-Run the Part~C workflow on \texttt{heart\_failure\_dataset.csv} (label \texttt{HeartDisease}). Build the column lists from the data types with \texttt{select\_dtypes}, reuse \texttt{make\_preprocess}, and report accuracy, ROC AUC and the confusion matrix at threshold 0.5. Attempt it in this empty cell before reading the solution.
+The residuals of Question~5 fan out, and 377 cars get a negative price. Refit Part~A's linear regression on the logarithm of the price, turn its predictions back into dollars with \texttt{np.exp}, and compare the MAE, $R^2$ and the residual spread by quarter with Questions~3 and~5. Attempt it in this empty cell before reading the solution.
 
-\textbf{Decision memo.} Choose a classification threshold for a setting in which a missed positive costs much more than a false alarm. State what happens to the confusion matrix when the threshold is lowered, and name the validation evidence from Part~C that supports your choice.
+\textbf{Decision memo.} Choose the threshold above which the hotel treats a 2017 booking as a likely cancellation and resells its room, in a setting where walking a guest (finding them a room at another hotel, because theirs was resold) costs about twice the revenue lost on an empty room. State what happens to the confusion matrix when the threshold is lowered, and name the validation evidence from Part~C that supports your choice.
 \end{labquestion}
 
 \begin{labquestion}{19}{One solution}
-The same classification workflow on the heart-failure table. The column lists come from the data types, so nothing needs editing by hand.
+Part~A's model on the logarithm of the price. On that scale each coefficient is a percentage change.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=403,lastline=423]{all_experiments/lab02_supervised_workflow_worked.py}
+\lstinputlisting[style=utppython,firstline=428,lastline=444]{all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-majority baseline accuracy: 0.552
-accuracy: 0.883  ROC AUC: 0.932
-class 1: precision 0.873, recall 0.921, support 127
+log-price model: MAE 7695  R2 0.611  prices below zero: 0
+spread of the residuals by quarter of predicted price:
+cheapest     7763.0
+second       8161.0
+third       11584.0
+dearest     21658.0
+one more year: x0.971   10,000 more miles: x0.931
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Nothing in the modeling code changed except the target column name. That portability is the point of putting preprocessing inside the estimator.
+\textbf{What it means.} The log-price model misses by \$7,695 instead of \$9,009, explains 61.1\% of the variation in dollars instead of 57.5\%, and prices no car below zero. The residuals still widen with price, because a 10\% miss on a dear car is more dollars, but the model now treats price as multiplicative: each extra year multiplies it by 0.971 and each extra 10,000 miles by 0.931, whatever the car. A transformed label is often the cheapest fix for a fan of residuals.
 
-\textbf{A model memo.} Threshold 0.30 for the breast-cancer screener. The default of 0.50 misses 4 of 53 malignant tumors with 1 false alarm. Lowering it to 0.30 recovers two of those misses (recall from 0.925 to 0.962) with no extra false alarm, and 0.20 catches nothing more and adds two false alarms. Lowering a threshold moves the line left through the histogram: false negatives shrink and false positives grow. In screening, a false alarm costs a follow-up test and a miss can cost a life, so the trade is worth making while it stays this cheap.
+\textbf{A model memo.} Threshold 0.65 for the cancellation model. At the default 0.50 the hotel would resell the rooms of 2,479 guests who then arrive, while missing 7,129 cancellations; at 0.70 only 194 guests would be walked, but 11,117 cancelled rooms would stand empty. If walking a guest costs twice an empty room, the cheapest threshold on the 2017 bookings is 0.65, with 10,065 empty rooms and 611 walked guests (Your-turn task~3). It sits close to the break-even probability, $2/(2+1)=0.67$: resell a room only when the booking is at least twice as likely to cancel as to arrive. Lowering a threshold moves the line left through the histogram: more bookings are flagged, so fewer rooms stand empty but more guests are walked, and recall goes up while precision goes down. Change the cost ratio, and the right threshold changes with it: the threshold is a statement about costs.
 \end{labanswer}
+
+\labpartopen{After the lab}{Your turn, troubleshooting and hand-in}{Your-turn tasks \textbullet\ Expected findings \textbullet\ Troubleshooting \textbullet\ Checklists}{Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.}
 
 \begin{yourturn}
 Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
 \begin{enumerate}
-  \item \textbf{Add the missing idea.} Add a column \texttt{smoker\_bmi}, the BMI for smokers and 0 for everyone else, to the Part~A linear model. What happens to $R^2$ and MAE? Compare with the effect of ridge.
-  \item \textbf{What did the date split hide?} Refit the Question~7 forest on a shuffled 80/20 split of the same days. How does its MAE compare with 1,040? Which number would you put in a report to the bike scheme?
-  \item \textbf{Choose a threshold from costs.} Suppose a missed malignant tumor costs ten times a false alarm. Sweep the Question~10 thresholds from 0.05 to 0.95 in steps of 0.05 and compute $10\times\text{misses}+\text{false alarms}$. Which threshold is cheapest?
-  \item \textbf{Seal the test set.} Sketch how you would split Titanic so that Part~C's comparison and Part~D's test use different rows. How many rows would each part get with a 60/20/20 split?
+  \item \textbf{Add the missing idea.} Add \texttt{model} to the Part~A categorical columns, so each of the car models gets its own one-hot column. What happens to $R^2$ and MAE? Compare with the effect of ridge.
+  \item \textbf{What did the date split hide?} Refit the Question~9 random forest on Question~7's shuffled split. How does its ROC AUC compare with 0.841 on 2017? Then count how many shuffled validation bookings have an exact twin, every column equal, among the training bookings. Which number would you put in a report to the hotel?
+  \item \textbf{Choose a threshold from costs.} Suppose walking a guest costs twice an empty room. Sweep the Question~10 thresholds from 0.05 to 0.95 in steps of 0.05 and compute $\text{empty rooms}+2\times\text{walked guests}$, where an empty room is a missed cancellation and a walked guest a flagged booking that was kept. Which threshold is cheapest?
+  \item \textbf{How sure is a test score?} Repeat Part~D five times with \texttt{random\_state} 0 to 4 in the train/test split, tuning and testing each time. How far apart are the five test scores, and what does that say about the 0.846 of Question~14?
 \end{enumerate}
 \end{yourturn}
 
 \begin{expectedfindings}
+\textbf{Warm-up.} MAE 3.5 and RMSE 5.2: the one miss of 10 dominates the squares. Precision $8{,}616/11{,}095=0.777$, recall $8{,}616/15{,}745=0.547$, accuracy $31{,}079/40{,}687=0.764$. Raising the threshold can only remove positive decisions, so $TP$ and $FP$ can only shrink, and $FN$ and $TN$ can only grow.
 \begin{enumerate}
-  \item $R^2$ rises from 0.784 to 0.865 and MAE falls from \$4,181 to \$2,757. Ridge changed almost nothing, because the problem was a missing idea and not an unstable fit.
-  \item About 451, less than half. The shuffled split lets the forest interpolate between neighboring days, including days after the one it is predicting. Report 1,040, since the bike scheme will always be predicting the future.
-  \item 0.05, with 0 misses and 11 false alarms, for a cost of 11. At 0.30 the cost is $10\times2+1=21$, and at 0.50 it is $10\times4+1=41$. Change the cost ratio, and the answer changes: the threshold is a statement about costs.
-  \item Split once into 60\% and 40\%, then split the 40\% in half: 534 training, 178 validation and 179 test rows. Compare models on the validation rows, and keep the test rows closed until the choice is locked.
+  \item $R^2$ rises from 0.575 to 0.792 and MAE falls from \$9,009 to \$5,754, from 1,147 one-hot model columns. Ridge with the model scores 0.772 and \$6,128: the problem was a missing idea, which car it is, not an unstable fit, and the penalty even shrinks the coefficients of rare models that deserved to be large.
+  \item It jumps to 0.911. 9,366 of the 29,848 shuffled validation bookings have an exact twin among the training bookings, and a forest can recall a twin it has already seen. Report 0.841: the hotel will always be predicting bookings for dates that have not come yet.
+  \item 0.65, with 10,065 empty rooms and 611 walked guests, for a cost of 11,287. At 0.50 the cost is $7{,}129+2\times2{,}479=12{,}087$, and at 0.70 it is $11{,}117+2\times194=11{,}505$. Change the cost ratio, and the answer changes: the threshold is a statement about costs.
+  \item The five test scores run from 0.838 to 0.855, and the search picks \texttt{C} 1 or 10 without class weights each time. A test set of 1,761 customers pins the score down to about a point either way, so 0.846 is one honest draw from that range, and a gap of a point between two models on such a test set proves nothing.
 \end{enumerate}
 \end{expectedfindings}
 
 \begin{troubleshoot}
 \begin{description}
-  \item[Every metric differs slightly from the sheet] Check that no earlier cell was edited, and rerun from the top. A shared variable such as \texttt{X\_train} is reused between parts, so running cells out of order changes results.
-  \item[\texttt{KeyError} in \texttt{predict\_passenger.py}] Run Question~15 first: the script needs \texttt{models/titanic\_survival.joblib} and its card.
-  \item[\texttt{cnt} seems too easy to predict] Check that \texttt{casual} and \texttt{registered} are not among your features. They add up to the label.
-  \item[A loky or joblib traceback at the end of the cell] \texttt{n\_jobs=-1} sometimes prints a harmless resource-tracker message on Windows when a pool closes. If the cell's results printed, the run is fine.
+  \item[Every metric differs slightly from the sheet] Check that no earlier cell was edited, and rerun from the top. Running cells out of order reuses variables from the wrong part.
+  \item[\texttt{FileNotFoundError} in \texttt{predict\_churn.py}] Run Question~15 first: the script needs \texttt{models/\allowbreak customer\_churn.joblib} and its card.
+  \item[Question~2 keeps a different number of listings] The three rules must use the same bounds as the cell: a price from 1,000 to 200,000 dollars, inclusive, and more than 100 miles.
+  \item[A loky or joblib message when the kernel stops] \texttt{n\_jobs=-1} sometimes prints a harmless resource-tracker message on Windows when a pool closes. If the cell's results printed, the run is fine.
 \end{description}
 \end{troubleshoot}
 
@@ -361,11 +447,11 @@ Add new cells at the end of the notebook for these tasks, and record your number
 \begin{verification}
 \begin{itemize}
   \item Every model beats its baseline, and each comparison uses validation data, not the test set.
-  \item The bike split is in date order, and you can explain why the forest under-predicts autumn 2012.
-  \item The classification threshold is chosen from validation evidence and stated as a policy.
-  \item Cross-validation fold spread is reported alongside the differences between settings.
-  \item The final test ROC AUC, 0.837, is reported once, and you can state what Part~C had already seen.
-  \item \texttt{models/} holds \texttt{titanic\_survival.joblib} with its card, and \texttt{insurance\_charges.joblib}, and both reload and predict.
+  \item You can explain the car-price residual fan, why ridge did not help, and why Lancia's coefficient deserves no trust.
+  \item The hotel split is in date order, and you can explain why the shuffled split scored higher.
+  \item The overbooking threshold is chosen from validation evidence and stated as a policy.
+  \item The final churn test ROC AUC, 0.846, is reported once, from test rows set aside before tuning.
+  \item \texttt{models/} holds \texttt{customer\_churn.joblib} with its card, and \texttt{used\_car\_prices.joblib}, and both reload and predict.
 \end{itemize}
 \end{verification}
 

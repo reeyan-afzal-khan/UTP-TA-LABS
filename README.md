@@ -17,7 +17,7 @@ whole book and of each lab session.
 | [Introduction to Data Science](<DATA SCIENCE/README.md>) | **ready** | 10 | R | [PDF, 106 pp.](.all_pdfs/data-science/DS-Book.pdf) | data quality, wrangling, EDA, visualization, inference, regression, classification, validation, clustering and PCA |
 | [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/README.md>) | in development | 8 | Odoo 19 Community | [PDF, 103 pp.](.all_pdfs/enterprise-resource-planning/ERP-Book.pdf) | business processes, sales and CRM, production and supply chain, accounting, HR, process modelling |
 | [FinTech Innovation](<FINTECH INNOVATION/README.md>) | in development | 8 | Python | [PDF, 105 pp.](.all_pdfs/fintech-innovation/FI-Book.pdf) | inclusion, P2P and crowdfunding, digital banking, blockchain, Big Tech, cryptocurrencies |
-| [Machine Learning](<MACHINE LEARNING/README.md>) | **ready** | 8 | Python, Jupyter, PyTorch | [PDF, 274 pp.](.all_pdfs/machine-learning/ML-Book.pdf) | supervised, unsupervised, limited-label and reinforcement learning, neural networks, CNNs and LSTMs |
+| [Machine Learning](<MACHINE LEARNING/README.md>) | **ready** | 8 | Python, Jupyter, PyTorch | [PDF, 304 pp.](.all_pdfs/machine-learning/ML-Book.pdf) | supervised, unsupervised, limited-label and reinforcement learning, neural networks, CNNs and LSTMs |
 | [Operating Systems](<OPERATING SYSTEMS/README.md>) | **ready** | 10 | C and Bash on Linux/WSL | [PDF, 86 pp.](.all_pdfs/operating-systems/OS-Book.pdf) | processes, scheduling, concurrency, memory, file systems |
 
 Each course name opens that course's guide: its lab table, what to read before each lab, how to run the code, and
