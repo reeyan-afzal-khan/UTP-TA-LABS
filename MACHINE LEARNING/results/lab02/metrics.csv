@@ -1,9 +1,7 @@
 part,dataset,model,metric,validation,test
-A,medical_cost,linear regression,mae,4181.1945,
-A,medical_cost,ridge,mae,4238.8239,
-B,bike_sharing_day,random_forest (chronological),mae,1040.4151,
-B,bike_sharing_hour,random_forest (chronological),mae,56.509,
-C,titanic,logistic,roc_auc,0.8421,
-C,titanic,random_forest,roc_auc,0.8344,
-C,breast_cancer,logistic,roc_auc,0.9962,
-D,titanic,"logistic {'model__C': 0.1, 'model__class_weight': 'balanced'}",roc_auc,0.85,0.8374
+A,used_cars,linear regression,mae,9009.4654,
+A,used_cars,ridge,mae,9062.0017,
+B,hotel_bookings,logistic (shuffled split),roc_auc,0.8583,
+C,hotel_bookings,logistic (date split),roc_auc,0.8244,
+C,hotel_bookings,random_forest (date split),roc_auc,0.8412,
+D,telco_customer_churn,"logistic {'model__C': 10.0, 'model__class_weight': None}",roc_auc,0.8445,0.846

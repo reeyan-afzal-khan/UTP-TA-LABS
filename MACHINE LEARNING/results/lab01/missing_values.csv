@@ -1,4 +1,5 @@
 ,share_missing
-Cabin,0.7710437710437711
-Age,0.19865319865319866
-Embarked,0.002244668911335578
+company,0.9431
+agent,0.1369
+country,0.0041
+children,0.0

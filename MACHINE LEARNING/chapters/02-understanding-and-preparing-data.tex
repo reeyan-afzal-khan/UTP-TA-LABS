@@ -16,7 +16,7 @@ Before any model, answer five questions about the table itself. None of them nee
 \begin{utpsteps}
   \item \term{What does one row represent?} A person, transaction, image, day, machine, or something else?
   \item \term{What does each column mean?} Record its type, unit, valid range, and source.
-  \item \term{When is prediction made?} Features must exist then. Lab~1's G1 and G2 grades are available at year-end, not enrolment.
+  \item \term{When is prediction made?} Features must exist then. In Lab~1 a call's duration is known only once the call has ended, and a hotel booking's reservation status only after the guest has cancelled or left.
   \item \term{Which rows are related?} Repeated measurements from one person or device must usually stay in the same split.
   \item \term{Who or what is missing?} The dataset may not represent the full population where the model will be used.
 \end{utpsteps}
@@ -89,7 +89,7 @@ Labels usually fall into two basic groups:
 
 Make stored values match their documented meaning using reproducible code, so that anyone can rerun the cleaning and see what it changed. Here is a small messy extract of a student table. It has one duplicated student, an age of $-1$, study hours written as the word \texttt{five}, stray spaces, a programme spelled two ways, and one suspicious 30 hours.
 
-\lstinputlisting[style=utppython,firstline=39,lastline=61]{all_experiments/demo_foundations.py}
+\lstinputlisting[style=utppython,firstline=39,lastline=61]{all_experiments/book_checks/demo_foundations.py}
 
 Running it prints the cleaned table and, more importantly, the log:
 
@@ -205,7 +205,7 @@ A random split is honest only when future rows are independent of past rows and 
 \begin{workedexample}
 \textbf{Patients.} With five visits per patient, a random row split lets the model meet the same patient in training and in validation. It may then recognize patients rather than learn medicine. Group by patient when the model is meant for new patients.
 
-\textbf{Bike rentals.} Lab~2's daily rental forest has a mean absolute error of 1,040 rentals when it trains on the first 80\% of days and predicts the last 20\%, which is how it would really be used. Shuffle the days first, and the same model on the same data scores 451. It looks more than twice as good only because it was allowed to peek at days on both sides of each day it predicts.
+\textbf{Hotel bookings.} Lab~2's cancellation forest scores ROC AUC 0.841 when it trains on arrivals up to the end of 2016 and predicts 2017, which is how a hotel would really use it. Shuffle the bookings first, and the same model on the same data scores 0.911. It looks better only because it was allowed to train on bookings from the very weeks it predicts: 9,366 of the 29,848 shuffled validation bookings have an exact twin among the training rows.
 \end{workedexample}
 
 \begin{pitfall}
@@ -263,11 +263,11 @@ The diagram contrasts fitting the preprocessing before and after the split. Only
 \begin{workedexample}
 How much can leakage inflate a score? Build a table with no signal in it at all: 100 rows, 1,000 columns of random noise, and labels from coin flips. Honest accuracy has to be near 0.5. The listing below picks the 20 columns that look most related to the labels, then cross-validates. It runs the same experiment twice, and only the place where the columns are picked differs.
 
-\lstinputlisting[style=utppython,firstline=100,lastline=108]{all_experiments/demo_foundations.py}
+\lstinputlisting[style=utppython,firstline=100,lastline=108]{all_experiments/book_checks/demo_foundations.py}
 
 Picking on all the rows reports 0.80. Picking inside each fold reports 0.52. With a thousand noise columns, some match the coin flips by luck, and the first version tested the model on the very rows that made those columns look good. Nothing in that first run looks broken, which is what makes leakage dangerous.
 
-Lab~1 shows the other common kind, a column from the future. Predicting a final grade at enrolment has a mean absolute error of 2.18 grade points. Adding the second-term grade \texttt{G2} drops it to 0.76, a triumph that could never be delivered because \texttt{G2} does not exist at enrolment.
+Lab~1 shows the other common kind, a column from the future. Deciding before a sales call whether the customer will sign up scores a ROC AUC of 0.80. Adding the call's duration lifts it to 0.94, a triumph that could never be delivered, because nobody knows how long a call will last before making it.
 \end{workedexample}
 
 \section{Missing values: meaning and strategy}
@@ -377,7 +377,7 @@ Naive Bayes & Depends on variant & Gaussian naive Bayes does not need it; other 
 \end{tabularx}
 \end{utptable}
 
-A $\log(1+x)$ or power transform changes the shape of a distribution, while scaling mainly changes units and location. Titanic fares show why that can matter: the median fare is 14.45 and the largest is 512.33, a skew of 4.79. After $\log(1+x)$ the skew is 0.39. Lab~1 builds this column as \texttt{LogFare}.
+A $\log(1+x)$ or power transform changes the shape of a distribution, while scaling mainly changes units and location. Hotel lead times show why that can matter: across Lab~1's 119,390 bookings the median lead time is 69 days, the mean 104 and the largest 737, a skew of 1.35. After $\log(1+x)$ the skew is $-0.87$: the long right tail is gone, but the transform pulls so hard that the shape now leans the other way. A transform is a choice to check on a histogram, not a cure. Lab~1 keeps both the raw lead time and its log, \texttt{log\_lead\_time}, and lets the model use either.
 
 \subsection{Scaling changes the geometry, drawn}
 
@@ -438,7 +438,7 @@ Choose evaluation metrics before an imbalance intervention (\chapref{ch:evaluati
 
 \section{Feature engineering}
 
-\term{Feature engineering} creates useful inputs from raw data, and it is often the cheapest improvement available. In Lab~1 the same logistic regression on the same split moves from a validation ROC AUC of 0.842 to 0.872 simply by being handed family size, whether the passenger traveled alone, a title pulled out of the name, and the log of the fare. No new model was needed. Typical ideas include:
+\term{Feature engineering} creates useful inputs from raw data, and it is often the cheapest improvement available. In Lab~1 the same logistic regression on the same split moves from a validation ROC AUC of 0.846 to 0.855 when it is handed the total nights, the number of guests, whether children come along, the log of the lead time, and whether the customer has cancelled before. No new model was needed, and five-fold cross-validation confirms the gain: 0.858 against 0.848. Typical ideas include:
 
 \begin{itemize}
   \item price per unit, body-mass index, or another meaningful ratio;
@@ -487,7 +487,7 @@ Temporal aggregate & Lags, rolling means, prior-week counts & Use only data avai
 
 A \term{pipeline} joins the preparation steps and the model into one object. When it is fitted, every step learns from the training rows alone. When it predicts, every step reapplies what it learned. It cannot accidentally peek at held-out rows, and it can be saved and reused as one file. Keep feature selection and resampling within training folds too (\chapref{ch:training}). All of Labs~1--3 use this one helper, which fills gaps, scales the numbers and one-hot encodes the categories:
 
-\lstinputlisting[style=utppython,firstline=75,lastline=85]{all_experiments/lab01_features_worked.py}
+\lstinputlisting[style=utppython,firstline=92,lastline=102]{all_experiments/lab01_features/lab01_features_worked.py}
 
 \begin{utpfig}[A preprocessing pipeline]{A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.}{fig:prep-pipeline}
 \begin{tikzpicture}[
@@ -529,7 +529,7 @@ A teammate computes median values, standardization statistics, and a label-infor
   \item Why must train/test splitting happen before any preprocessing step that learns from the data?
   \item What is the difference between an identifier, a feature, and a label?
   \item Why do you need to know the moment of prediction before you can say whether a feature is leakage?
-  \item Lab~2's bike forest scores 1,040 on a date-order split and 451 on a shuffled split. Which number should you report, and why?
+  \item Lab~2's hotel forest scores ROC AUC 0.841 on a date-order split and 0.911 on a shuffled split. Which number should you report, and why?
   \item A column is coded 1 for red, 2 for green, 3 for blue and fed to a linear model. What false assumption has been added?
   \item In the three-customer example, which step changed the nearest neighbor of $A$, and did it change any customer?
 \end{enumerate}
@@ -539,8 +539,8 @@ A teammate computes median values, standardization statistics, and a label-infor
 \begin{enumerate}
   \item Otherwise the held-out rows influence a median, a scale or a category list, and the later test is no longer on unseen data.
   \item An identifier names a row and should not be a model input. A feature is an input available at prediction time. A label is the answer the model is trained to predict.
-  \item The same column can be fair at one moment and impossible at another. \texttt{G2} is known at the end of term two, so it is fine for predicting in term three and leakage for predicting at enrolment.
-  \item 1,040. The model will be asked about future days from past days, and only the date-order split does that. The shuffled split lets it interpolate between neighboring days.
+  \item The same column can be fair at one moment and impossible at another. A call's \texttt{duration} is fine for studying calls that have finished, and it is leakage for deciding whom to call next, because it does not exist until the call has ended.
+  \item 0.841. The hotel will always predict bookings for future dates from past ones, and only the date-order split does that. The shuffled split lets the forest train on bookings from the same weeks, including exact twins of the ones it is tested on.
   \item That the colors have an order and equal spacing, so that blue is ``more'' than red. One-hot encoding removes the assumption.
   \item Dividing each column by its standard deviation. No customer changed; only the units in which their gaps are measured did.
 \end{enumerate}

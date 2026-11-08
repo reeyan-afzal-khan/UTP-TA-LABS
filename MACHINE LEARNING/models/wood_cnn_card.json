@@ -1,0 +1,23 @@
+{
+  "task": "classify 32x32 colour photos of wood surface defects (seven types)",
+  "classes": [
+    "live knot",
+    "dead knot",
+    "resin",
+    "knot with crack",
+    "crack",
+    "marrow",
+    "quartzity"
+  ],
+  "input": "tensor of shape (n, 3, 32, 32), pixel values divided by 255",
+  "architecture": "make_cnn() in Lab 7: conv16-pool-conv32-pool-dense64-dense7",
+  "training": {
+    "epochs": 10,
+    "learning_rate": 0.001,
+    "batch_size": 128,
+    "seed": 42
+  },
+  "test_accuracy": 0.7001,
+  "torch_version": "2.11.0+cu128",
+  "trained_on": "cpu"
+}

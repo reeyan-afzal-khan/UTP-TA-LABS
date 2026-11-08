@@ -1,0 +1,22 @@
+|--- int_rate <= 14.0
+|   |--- int_rate <= 10.3
+|   |   |--- int_rate <= 7.9
+|   |   |   |--- weights: [2260.0, 131.0] class: 0
+|   |   |--- int_rate >  7.9
+|   |   |   |--- weights: [2158.0, 231.0] class: 0
+|   |--- int_rate >  10.3
+|   |   |--- term_months <= 48.0
+|   |   |   |--- weights: [3309.0, 581.0] class: 0
+|   |   |--- term_months >  48.0
+|   |   |   |--- weights: [663.0, 214.0] class: 0
+|--- int_rate >  14.0
+|   |--- term_months <= 48.0
+|   |   |--- int_rate <= 17.7
+|   |   |   |--- weights: [1728.0, 457.0] class: 0
+|   |   |--- int_rate >  17.7
+|   |   |   |--- weights: [506.0, 209.0] class: 0
+|   |--- term_months >  48.0
+|   |   |--- mort_acc <= 1.5
+|   |   |   |--- weights: [709.0, 641.0] class: 0
+|   |   |--- mort_acc >  1.5
+|   |   |   |--- weights: [789.0, 414.0] class: 0

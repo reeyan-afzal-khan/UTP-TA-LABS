@@ -144,7 +144,7 @@ Unlike squared error on a line, log loss has no exact formula for its best $w$ a
 \]
 We center the lectures on 8, because that keeps the numbers small. Nothing else changes. The whole fit, in code:
 
-\lstinputlisting[style=utppython,firstline=61,lastline=80]{all_experiments/demo_study_log.py}
+\lstinputlisting[style=utppython,firstline=61,lastline=80]{all_experiments/book_checks/demo_study_log.py}
 
 \begin{workedexample}
 At the start, $w=b=0$, so every $p$ is 0.5. The formula gives a slope of $-1.0000$ for $w$. Nudging $w$ by 0.001 and remeasuring the loss gives $-0.9988$, so the formula checks out. With a learning rate of 0.1:
@@ -201,17 +201,17 @@ Each extra lecture multiplies the odds of passing by $e^{0.7885}=2.20$. The scor
 
 At threshold $0.5$, class~1 means $z\ge0$, giving the boundary $\beta_0+\bm{\beta}^{\mathsf T}\bm{x}=0$. With two features that boundary is a straight line, and with more it is a flat plane, which is why logistic regression is called a linear classifier even though its output curve is not straight.
 
-The probability and the decision are separate objects. The model supplies the first. The threshold is a policy, chosen to reflect error costs on validation or out-of-fold predictions (\chapref{ch:evaluation}). These are the Titanic validation results printed in Lab~2, Part~C, for one fitted model:
+The probability and the decision are separate objects. The model supplies the first. The threshold is a policy, chosen to reflect error costs on validation or out-of-fold predictions (\chapref{ch:evaluation}). These are Lab~2's results for one fitted model on the 40,687 hotel bookings of 2017, Part~C, where a flagged booking is treated as a likely cancellation:
 
 \begin{utptable}
 \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.14\linewidth}ccccX@{}}
 \toprule
 \rowcolor{UTPPaleBlue!92}
-\utpth{Threshold} & \utpth{Flagged} & \utpth{Precision} & \utpth{Recall} & \utpth{Survivors missed} & \utpth{What changed} \\
+\utpth{Threshold} & \utpth{Flagged} & \utpth{Precision} & \utpth{Recall} & \utpth{Cancellations missed} & \utpth{What changed} \\
 \midrule
-0.30 & 110 & 0.64 & 0.81 & 16 & many passengers flagged; most survivors caught \\
-0.50 & 80 & 0.72 & 0.67 & 28 & the default \\
-0.70 & 48 & 0.90 & 0.50 & 43 & few flagged; half the survivors missed \\
+0.30 & 20,052 & 0.61 & 0.77 & 3,558 & many bookings flagged; most cancellations caught \\
+0.50 & 11,095 & 0.78 & 0.55 & 7,129 & the default \\
+0.70 & 4,822 & 0.96 & 0.29 & 11,117 & few flagged, almost all right; most cancellations missed \\
 \bottomrule
 \end{tabularx}
 \end{utptable}

@@ -144,7 +144,7 @@ For the six students, each entry of these blocks is something you can check by h
 \]
 Multiply the first row by 7 and subtract it from the second: $70w=210$, so $w=3$, and then $6b=366-126$, so $b=40$. This is the code that does it:
 
-\lstinputlisting[style=utppython,firstline=38,lastline=48]{all_experiments/demo_study_log.py}
+\lstinputlisting[style=utppython,firstline=38,lastline=48]{all_experiments/book_checks/demo_study_log.py}
 
 NumPy's \texttt{polyfit(hours, mark, 1)} prints the same pair the other way round, 3 and then 40.
 \end{workedexample}
@@ -159,7 +159,7 @@ Software solves the system with a stable factorization instead of computing an i
   \item Coefficients are associations, not causal effects (\secref{sec:correlation}); adding or removing one feature can change the sign of another coefficient.
 \end{itemize}
 
-Lab~2's insurance model shows all of this. It one-hot encodes \texttt{smoker} into two columns and standardizes the numbers, so a one-unit change in age means one standard deviation of age. One standard deviation of age adds about \$3,615 to predicted charges and one of BMI about \$2,036, and the gap between the \texttt{smoker\_yes} and \texttt{smoker\_no} coefficients is \$23,651. These are associations inside this model. They do not say what would happen if a person's BMI changed.
+Lab~2's used-car price model shows all of this. It one-hot encodes each make into its own column and standardizes the numbers, so a one-unit change in mileage means one standard deviation of mileage, about 47,000 miles. One standard deviation of mileage takes about \$8,553 off the predicted price, and one of age, 5.6 years, another \$3,302; the gap between the Porsche and Toyota coefficients is \$37,920. Age and mileage are correlated (0.61), so with mileage held fixed an older car loses less than you might expect: the model credits much of the wear to the odometer. These are associations inside this model. They do not say what would happen if someone wound back an odometer.
 
 \subsection{The assumptions, in plain words}
 
@@ -202,7 +202,7 @@ A \term{residual} is what the line left unexplained. Plot residuals against pred
 \end{utpfig}
 
 \begin{workedexample}
-In Lab~2, the insurance model's residuals form bands instead of a cloud. Smokers and non-smokers are separate groups, and BMI raises charges far more for smokers. One straight surface cannot fit both, and no amount of regularization will fix a missing idea. So add the idea, as one new column: \texttt{smoker\_bmi}, the BMI for smokers and zero otherwise.
+In Lab~2, the car-price model's residuals form a widening funnel instead of a cloud: their spread grows from \$9,172 on the cheapest quarter of predictions to \$23,079 on the dearest. The model knows a car's age, mileage and make but not which car it is, and two cars of the same make and age can be very different cars. No amount of regularization will fix a missing idea. So add the idea: the car's \texttt{model}, one-hot encoded into one column for each of its 1,147 models.
 
 \medskip
 \centering\small
@@ -211,14 +211,14 @@ In Lab~2, the insurance model's residuals form bands instead of a cloud. Smokers
 \rowcolor{UTPPaleBlue!92}
 \utpth{Linear regression on the same split} & \utpth{$R^2$} & \utpth{MAE} \\
 \midrule
-Lab~2's columns & 0.784 & \$4,181 \\
-Plus one interaction column & 0.865 & \$2,757 \\
+Lab~2's columns & 0.575 & \$9,009 \\
+Plus the car's model & 0.792 & \$5,754 \\
 \bottomrule
 \end{tabular}
 \end{workedexample}
 
 \begin{keyidea}
-Residual patterns suggest missing structure: curvature suggests nonlinear terms; a widening funnel suggests unequal error variance. Lab~2's insurance bands motivate a smoker $\times$ BMI interaction.
+Residual patterns suggest missing structure: curvature suggests nonlinear terms; a widening funnel suggests unequal error variance. Lab~2's car-price funnel points to a missing idea, which car it is.
 \end{keyidea}
 
 \section{Polynomial regression: curves from a linear model}
@@ -274,7 +274,7 @@ A very small penalty rescues the curve: the fit on seen rows gets slightly worse
 \]
 Lasso sets some coefficients exactly to zero, producing sparse models. Among strongly correlated features, however, it may choose one somewhat arbitrarily.
 
-Lab~1 shows lasso choosing columns from 56 encoded features for predicting a student's final grade. At $\alpha=0.01$ it keeps 43 columns with an MAE of 2.159; at 0.1 it keeps 19 with 2.077; at 0.5 it keeps 4 with 2.151. Most of the table could go without loss.
+Lab~1 puts the same $L_1$ penalty inside a logistic regression (\chapref{ch:classification}) to choose among 62 encoded columns of a bank's call records. scikit-learn sets its strength through $C$, the inverse of $\lambda$, so a smaller $C$ is a stronger penalty. At $C=0.001$ it keeps 2 columns with a validation ROC AUC of 0.765; at 0.03 it keeps 21 with 0.801; at 1 it keeps 49 with 0.802. Two thirds of the table could go without loss.
 
 \subsection{Why the penalties behave differently}
 
@@ -381,7 +381,7 @@ Validate specialized losses against the task metric and check prediction plausib
   \item A line has two parameters: the slope is a rate, and the intercept is a height.
   \item Raw errors cancel, so least squares minimizes squared errors, like rubber bands settling. The best line passes through the average point.
   \item Squared error makes a bowl with one bottom, and the normal equations jump straight to it.
-  \item Coefficients are associations in this model and depend on scale. Residual patterns show what the model missed; a single interaction column lifted the insurance $R^2$ from 0.784 to 0.865.
+  \item Coefficients are associations in this model and depend on scale. Residual patterns show what the model missed; adding the car's model lifted Lab~2's car-price $R^2$ from 0.575 to 0.792.
   \item Linear means linear in the parameters, so curves come from added columns. Ridge shrinks and lasso can delete; both are tuned on validation.
 \end{itemize}
 \end{chapterrecap}

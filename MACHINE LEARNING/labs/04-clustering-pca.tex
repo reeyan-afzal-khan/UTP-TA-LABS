@@ -1,302 +1,333 @@
 \labsection{4}{Unsupervised learning I: clustering and PCA}{sec:lab04-clustering-pca}
 
-\begin{labproject}{Find structure without an answer key}
+\begin{labproject}{Customer segments from two years of invoices, and a compressed view of 15,701 wood-defect images}
 \textbf{Read first.} Chapters~\ref{ch:unsupervised}--\ref{ch:dimred}.\\
-\textbf{Goal.} Choose the number of clusters from evidence rather than habit, compare K-means with DBSCAN, and judge PCA by what a downstream model and the rebuilt images say.\\
-\textbf{Scenario.} A marketing team asks how many kinds of customer a mall has, and a digit-reading system needs to run on far fewer numbers. Neither table offers an answer to check against, so you have to bring your own evidence.\\
-\textbf{Data.} \texttt{all\_datasets/mall\_customers\_dataset.csv} and \texttt{optical\_recognition\_handwritten\_digits.zip}, read in place.\\
-\textbf{Notebook.} \texttt{all\_experiments/lab04\_clustering\_pca\_worked.ipynb}.\\
-\textbf{Hand in.} The executed notebook, \texttt{results/lab04/}, the saved pipeline and a short conclusion, as listed in the checklist at the end of this sheet.
+\textbf{Goal.} Turn raw invoice lines into one row per customer, find segments with K-means and DBSCAN and judge them by evidence and usefulness, then compress images with PCA and choose how much to keep by validation, testing once.\\
+\textbf{Scenario.} An online gift shop hands you two years of invoices and asks who its customers are, with no labels to learn from. A sawmill's inspection camera photographs every defect on its boards and asks how much of each photo it really needs to keep. Neither question has an answer key, so the evidence has to come from the data and from what the answer is for.\\
+\textbf{Data.} In \texttt{all\_datasets/}: \texttt{unsupervised/\allowbreak online\_retail\_ii/\allowbreak online\_retail\_ii.zip}, every invoice line of a UK online shop from December 2009 to December 2011, from the UCI repository (Chen, 2012); and \texttt{unsupervised/\allowbreak wood\_surface\_defects/\allowbreak wood\_defects.npz}, 15,701 photos of seven kinds of defect on sawn boards, cut from a public industrial dataset (Kodytek, Bodzas and Bilik, 2022).\\
+\textbf{Notebook.} \texttt{all\_experiments/\allowbreak lab04\_clustering\_pca/\allowbreak lab04\_clustering\_pca\_worked.ipynb}, with a README beside it.\\
+\textbf{Hand in.} The executed notebook, \texttt{results/lab04/}, the saved PCA model and a short conclusion, as listed in the checklist at the end of this sheet.
 \end{labproject}
+
+\labroadmap{Your map of this lab}{
+      A & Build customer rows, segment them with $K$-means, find outliers with DBSCAN & 2--6 \\
+      B & Compress wood-defect images with PCA, choose the budget, test once and save & 7--11 \\
+      Finish & Save the evidence; then cluster the defect images & 12--14 \\
+      After & Your-turn tasks, expected findings, troubleshooting and the two checklists & --- \\
+}
 
 \begin{labmode}
 \begin{enumerate}
-  \item Activate your course environment and confirm that both data files are in \texttt{all\_datasets/}. Do not unzip the digits; the notebook reads the archive directly.
-  \item Replay the study-log trace of Chapter~\ref{ch:clustering}. The last line must read \texttt{Every number above matches the book.}
-  \item Start Jupyter from \texttt{all\_experiments/}, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes a few seconds.
+  \item Activate your course environment and confirm the two data files are in \texttt{all\_datasets/}. Keep the ZIP file as it is: pandas reads the CSV inside it directly.
+  \item From the course folder, start Jupyter, open the notebook, and choose \textbf{Restart Kernel and Run All Cells}. It takes about two minutes; the pixel models of Questions~8 and~9 take most of it.
+  \item Part~A is clustering and Part~B is PCA. Neither has an answer key, so each question asks for the evidence a result needs.
 \end{enumerate}
 \begin{lstlisting}[style=utpterminal]
-python all_experiments/demo_study_log.py
-cd all_experiments
 jupyter lab
 \end{lstlisting}
-Prefer a plain script? From the course folder, \texttt{python all\_experiments/lab04\_clustering\_pca\_worked.py} runs the same code and writes the same evidence.
+Prefer a plain script? From the course folder, \texttt{python all\_experiments/\allowbreak lab04\_clustering\_pca/\allowbreak lab04\_clustering\_pca\_worked.py} runs the same code and writes the same evidence.
 \end{labmode}
-
-\input{labs/visuals/04-flow}
 
 \labroutine
 
 \begin{yourturn}
-\textbf{Warm-up on paper.} Do these before opening the notebook.
+\textbf{Warm-up on paper.} Do these before opening the notebook; the code will check you.
 \begin{enumerate}
-  \item Points $1,2,9,10,20$ with starting centers 1 and 20. Run $K$-means until nothing moves. (Round 1: $\{1,2,9,10\}$ and $\{20\}$; the first center moves to 5.5. Round 2: 10 is 4.5 from 5.5 and 10 from 20, so nothing changes. Inertia: $20.25+12.25+12.25+20.25=65$.)
-  \item Inertia for $k=2,3,4$ is 389, 295, 205. Compute the saving from each extra cluster. Why can you not simply pick the $k$ with the lowest inertia? (Savings 94 and 90. Inertia always falls as $k$ grows.)
-  \item A PCA's spreads are 6, 3, 0.5, 0.5. What share do the first two keep? (90\%.)
+  \item A customer bought on 1 November 2011 and on 2 December 2011, in two orders worth \pounds 120 and \pounds 80. The data ends on 9 December 2011, and recency is counted from the day after. What are this customer's recency, frequency and monetary value?
+  \item Spend runs from \pounds 3 to \pounds 580,987, with a median of \pounds 868. Why would K-means on the raw numbers spend most of its effort on a few customers, and what does taking logs change?
 \end{enumerate}
 \end{yourturn}
 
 \begin{labquestion}{1}{Setup}
-Run the imports and paths first. \texttt{OMP\_NUM\_THREADS} avoids a known K-means warning on Windows.
+Run this first, and keep this kernel for the later questions. Every lab starts the same way. \texttt{start\_lab()}, from \texttt{all\_experiments/\allowbreak course\_setup.py}, finds the course folder and returns the three folders the lab uses: \texttt{DATA} to read from, \texttt{RESULTS} and \texttt{MODELS} to write to. The imports in between are grouped by what they are for.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=8,lastline=32]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=11,lastline=30]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
 course folder: MACHINE LEARNING
+reads all_datasets/, writes results/lab04/ and models/
 \end{lstlisting}
 \end{refoutput}
 \end{labanswer}
 
-\labpart{Part A --- How many clusters? Elbow and silhouette}
+\labpartopen{Part A}{Clustering customers from their invoices}{Questions 2--6 \textbullet\ Data: Online Retail II invoices}{Turn a million invoice lines into one row per customer, then find segments with $K$-means and outliers with DBSCAN.}
 
-\begin{labquestion}{2}{Read and scale the mall customers}
-Two hundred mall customers, described by age, annual income and a spending score. There is no label: the question is whether these customers fall into groups a marketing team could act on. The three columns are standardized first, so that no column decides every distance on its own.
+\begin{labquestion}{2}{Build one row per customer}
+Clustering needs one row per customer, and the file holds one row per invoice line. Clean the lines with fixed rules, then summarize each customer by recency (days since the last purchase), frequency (number of orders) and monetary value (total spend): the RFM table marketers use. All three have long right tails, so they are logged before scaling.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/04-trace}
-\lstinputlisting[style=utppython,firstline=34,lastline=38]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=32,lastline=59]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-   CustomerID  Gender  Age  Annual Income (k$)  Spending Score (1-100)
-0           1    Male   19                  15                      39
-1           2    Male   21                  15                      81
-2           3  Female   20                  16                       6
-3           4  Female   23                  16                      77
-4           5  Female   31                  17                      40
+invoice lines: 1067371  from 2009-12-01 to 2011-12-09
+no customer ID: 0.228  cancellations: 0.018  exact duplicates: 34335
+779425 clean lines from 5878 customers
+      recency_days  orders     spend
+50%           95.0     3.0     867.7
+mean         200.9     6.3    2955.9
+max          738.0   398.0  580987.0
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} \texttt{Gender} and the ID are left out of the geometry. That is a choice about what ``similar'' means here, and worth stating in your conclusion.
+\textbf{What it means.} Over a million lines become 779,425 sales from 5,878 customers. Almost a quarter of the lines have no customer ID, so they cannot belong to anyone's history; cancellations, returns and repeated lines would distort the totals. Every rule is fixed, so it may run before any model. The mean spend is more than three times the median, the long tail the logs are there to tame.
 \end{labanswer}
 
 \begin{labquestion}{3}{Score $k$ from 2 to 8}
-K-means needs $k$ in advance, so run it for every $k$ from 2 to 8 and record two internal scores. \emph{Inertia} is the total squared distance from each customer to its cluster center, and it always falls as $k$ grows. The \emph{silhouette} compares how close each customer is to its own cluster against the nearest other cluster: higher means better separated, and it can go up or down.
+K-means needs $k$ in advance. Inertia always falls as $k$ grows, so look for a bend; the silhouette asks how much closer each customer is to its own cluster than to the next one, and peaks at a good $k$.
 \end{labquestion}
 \begin{labanswer}
 \input{labs/visuals/04-worked-case.tex}
-\lstinputlisting[style=utppython,firstline=40,lastline=60]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=61,lastline=82]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{labvisual}{Reference plot from the supplied notebook}
 \includegraphics[width=.88\linewidth,height=5cm,keepaspectratio]{labs/visuals/04-notebook-reference.png}
 \end{labvisual}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-k=2  inertia=389.4  silhouette=0.335
-k=3  inertia=295.2  silhouette=0.358
-k=4  inertia=205.2  silhouette=0.404
-k=5  inertia=168.2  silhouette=0.417
-k=6  inertia=133.9  silhouette=0.427
-k=7  inertia=117.0  silhouette=0.417
-k=8  inertia=103.8  silhouette=0.409
+k=2  inertia=8600.4  silhouette=0.439
+k=3  inertia=6375.8  silhouette=0.347
+k=4  inertia=4963.7  silhouette=0.365
+k=5  inertia=4137.7  silhouette=0.339
+...
+k=8  inertia=2919.8  silhouette=0.307
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The elbow bends somewhere around 4 to 6, and the silhouette peaks at 6 with 5 close behind. Neither plot gives a single answer. Together they say ``five or six'', and the final choice should depend on which segments a team can actually use.
+\textbf{What it means.} The silhouette peaks at $k=2$, a split into active and inactive customers that any shopkeeper already knows. Among the richer splits, $k=4$ beats both 3 and 5. The numbers narrow the choice; what the segments are for decides it, and the next questions use four.
 \end{labanswer}
-
-\labpart{Part B --- K-means versus DBSCAN}
 
 \begin{labquestion}{4}{Compare K-means with DBSCAN}
-Two clustering philosophies. K-means assigns every customer to one of $k$ round groups around a center. DBSCAN grows groups from dense regions and leaves customers in sparse areas unassigned, with the label $-1$ for noise. It needs no $k$, but it needs a radius \texttt{eps} and a minimum neighbor count.
+K-means with four segments, against DBSCAN, which finds dense regions and leaves the rest as \emph{noise}. Here noise is not an error: it is the customers who look like no one else.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=62,lastline=73]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=84,lastline=97]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-K-means silhouette: 0.417
-DBSCAN clusters: 1  noise points: 14
+K-means (k=4) silhouette: 0.365
+DBSCAN clusters: 2  noise customers: 91  their share of revenue: 0.308
+noise customers' median orders and spend: {'orders': 29.0, 'spend': 23419.0}
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} With this radius DBSCAN sees one continuous cloud and a handful of stragglers. That is not a failure. It says there are no density gaps between the K-means groups.
+\textbf{What it means.} DBSCAN finds two dense groups and refuses to place 91 customers, 1.5\% of them. Those 91 carry 30.8\% of the shop's revenue, with a median of 29 orders and \pounds 23,419: the wholesale buyers. A method allowed to say ``none of the above'' found the customers who matter most.
 \end{labanswer}
 
-\begin{labquestion}{5}{Describe the clusters}
-A cluster is only useful if someone can describe it. Averaging the original columns per cluster turns the labels back into words.
+\begin{labquestion}{5}{Describe the segments}
+Medians describe each K-means segment in its own units, with its share of the shop's revenue.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=75,lastline=80]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=99,lastline=109]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-                 Age  Annual Income (k$)  Spending Score (1-100)  customers
+                customers  recency_days  orders   spend  revenue_share
 kmeans_cluster
-0               46.2                26.8                    18.4         20
-1               25.2                41.1                    62.2         54
-2               32.9                86.1                    81.5         40
-3               39.9                86.1                    19.4         39
-4               55.6                54.4                    48.9         47
+0                    2056         400.0     1.0   291.0          0.040
+1                    1474         162.0     5.0  1587.0          0.179
+2                    1117          15.0    13.0  5232.0          0.721
+3                    1231          23.0     3.0   721.0          0.059
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The fit used scaled columns, and the profile uses original units so that people can read it. Group 2 is affluent big spenders, group 3 affluent savers, group 1 young moderate earners who spend freely, group 0 lower-income low spenders, and group 4 an older middle group. The names are ours. Group numbers can change between versions, so read the values, not the labels.
+\textbf{What it means.} Four segments a marketing team can act on: 2,056 lost one-time buyers who last ordered over a year ago; 1,474 lapsing regulars, worth a reminder; 1,231 recent occasional buyers, worth a second sale; and 1,117 best customers, who order every few weeks and bring in 72.1\% of all revenue. The cluster numbers are arbitrary; the names come from reading the medians.
 \end{labanswer}
 
 \begin{labquestion}{6}{Plot both clusterings}
-Put both results on the income--spending plane.
+Orders against spend, on log scales, colored by each method's labels.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=82,lastline=94]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=111,lastline=124]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 
-\textbf{What it means.} K-means finds the four corners of the plane plus a middle group, and DBSCAN finds one cloud. Together they say these groups are a convenient partition of one population, rather than five separate tribes.
+\textbf{What it means.} K-means cuts the cloud into four slices, because it always splits the space. DBSCAN draws a different line: its two dense clusters are simply the customers who ordered once and those who came back. Its noise points are the outliers, mostly at the top right, where a few customers have many orders and very large bills, plus a scattering of single unusually large orders.
 \end{labanswer}
 
-\labpart{Part C --- PCA as compression, judged by a downstream model}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item 779,425 clean lines from 5,878 customers.
+  \item The silhouette peaks at $k=2$ (0.439); $k=4$ scores 0.365.
+  \item DBSCAN leaves 91 customers as noise, and they bring 30.8\% of the revenue.
+\end{itemize}
+\end{labcheckpoint}
 
-\begin{labquestion}{7}{Load the digits}
-Each handwritten digit is an $8\times8$ image, stored as 64 pixel brightnesses. The archive ships an official training file and an official test file, and both are read straight from the zip. The test file stays closed until the end.
+\labpartopen{Part B}{PCA on wood-defect images}{Questions 7--11 \textbullet\ Data: wood surface defects}{Compress 3,072 pixels with PCA, choose how much to keep on validation, and open the test images once.}
+
+\begin{labquestion}{7}{Load the images}
+The source holds 20,276 photos of sawn boards, collected for automated quality control, with a box around each defect. The course file holds 15,701 of those defects, cut out and shrunk to 32 by 32 colour pixels, in seven types. Most boards carry several defects, so whole boards go to one side of each split, development or test: a defect never meets its neighbour from the same board on the other side. The test images stay closed until Question~9.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=96,lastline=116]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=126,lastline=150]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-training digits: 3823  test digits: 1797
+images: (15701, 32, 32, 3)  boards: 10358
+per defect type: {'live knot': 3000, 'dead knot': 3000, 'resin': 3000, 'knot with crack': 2276,
+ 'crack': 2169, 'marrow': 1181, 'quartzity': 1075}
+12567 development and 3134 test images; boards in both: 0
 \end{lstlisting}
 \end{refoutput}
+
+\textbf{What it means.} Each image becomes a row of $32\times32\times3=3{,}072$ numbers. Neighboring pixels, and the three colours of one pixel, are strongly correlated: that redundancy is what PCA can remove. The types are not balanced, so the per-type recall in Question~9 matters as much as the accuracy.
 \end{labanswer}
 
 \textbf{Connect it to the chapter.} K-means and PCA both had no answer key, and from here on PCA is judged against one.
 \input{labs/visuals/04-clustering-pca-chapter.tex}
 
 \begin{labquestion}{8}{Choose a PCA budget on validation}
-PCA finds the directions in which the 64 pixel values vary most, and keeps only the top few. The question is how many. Because a classifier will use the compressed images, the fair judge is that classifier's accuracy on a validation split carved from the training file. Three budgets are tried: keep 90\%, 95\% or 99\% of the variance.
+How much variance to keep is a hyperparameter, so it is chosen on validation rows: a quarter of the development boards, split off the same way. Logistic regression on all 3,072 pixels is the reference; with that many inputs it needs up to 3,000 steps to converge.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=118,lastline=134]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=152,lastline=170]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-all 64 pixels: validation accuracy = 0.955
-90% variance: 21 components, validation accuracy = 0.9487
-95% variance: 29 components, validation accuracy = 0.9540
-99% variance: 41 components, validation accuracy = 0.9561
+all 3,072 pixels: validation accuracy = 0.6168
+90% variance:  21 components, validation accuracy = 0.5701
+95% variance:  50 components, validation accuracy = 0.5919
+99% variance: 248 components, validation accuracy = 0.6072
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} The 95\% budget uses less than half of the numbers and scores within a rounding error of all 64. The PCA sits inside the pipeline, so it learns from the fitting rows only.
+\textbf{What it means.} Ninety per cent of the variance fits in just 21 directions, but those directions describe the light and colour of the wood more than the shape of a defect, and they score 0.570. The score climbs with the budget, and 99\%, 248 components, comes within a point of all 3,072 pixels. The budget is 99\%: a twelvefold compression for almost no loss.
 \end{labanswer}
 
-\begin{labquestion}{9}{Open the test file once}
-The 95\% budget is locked, the pipeline is refitted on the whole training file, and the official test file is opened once. The full 64-pixel model is refitted the same way for a fair comparison.
+\begin{labquestion}{9}{Open the test images once}
+The chosen budget, 99\% of the variance, is refit on all the development images and scored once on the test boards, beside logistic regression on all 3,072 pixels.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=136,lastline=148]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=172,lastline=186]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-FINAL TEST (official test file)
-all 64 pixels accuracy: 0.9477
-PCA components kept: 29  variance retained: 0.9537
-PCA -> logistic accuracy: 0.9477
+FINAL TEST (3,134 images from boards never seen in development)
+all 3,072 pixels accuracy: 0.6375
+PCA components kept: 253  variance retained: 0.99
+PCA -> logistic accuracy: 0.6331
+recall per defect type: {'live knot': 0.56, 'dead knot': 0.69, 'resin': 0.73, 'knot with crack': 0.43,
+ 'crack': 0.72, 'marrow': 0.74, 'quartzity': 0.58}
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} A 55\% reduction in numbers, at no cost in test accuracy. Lab~7 comes back to this test file with a neural network.
+\textbf{What it means.} On boards never seen before, 253 components score 0.633 against 0.638 for every pixel: half a point for a model twelve times smaller in its inputs. Knots with cracks are the hardest type (recall 0.43), because they look like the knots they are; cracks, resin and marrow are found most often. A linear model on pixels stops near 64\%; Lab~7 asks whether a network that learns its own features can do better.
 \end{labanswer}
 
-\begin{labquestion}{10}{See what 95\% looks like}
-What does ``keep 95\% of the variance'' look like? Compress a few test digits to their component scores, and rebuild the images from those scores alone. The cumulative-variance curve shows why so few components are enough.
+\begin{labquestion}{10}{See what 99\% looks like}
+Rebuild eight test images from 90\% and from 99\% of the variance to see what each keeps, and draw how the variance accumulates over the 3,072 directions.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=150,lastline=173]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=188,lastline=220]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
+\begin{refoutput}
+\begin{lstlisting}[style=utpterminal]
+components for 50%, 80%, 90%, 95% and 99% of the variance: [2, 8, 21, 51, 253]
+the first three components hold 0.624 of the variance
+\end{lstlisting}
+\end{refoutput}
 
-\textbf{What it means.} The rebuilt digits are slightly blurred but unmistakable: what was thrown away was mostly pixel noise, which is why the classifier lost nothing. The curve climbs steeply and then flattens, and the last 35 components together add 4.6\% of the variance.
+\textbf{What it means.} Two directions hold half of the variance and three hold 62\%: mostly how light or dark, and how yellow, the wood is. Rebuilt from 21 components, a knot is a soft brown blur; from 253, its rings and cracks come back. Variance is not the same as usefulness: the directions that matter for telling defects apart are the faint ones, deep in the curve.
 \end{labanswer}
 
 \begin{labquestion}{11}{Save and reload the model}
-The saved file carries the PCA and the classifier together, so a new 64-pixel image goes in and a digit comes out.
+Save the pipeline, reload it, and check that it still names the first test images.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=175,lastline=181]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=222,lastline=229]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-predicted: [0, 1, 1, 3, 4]
-actual:    [0, 1, 2, 3, 4]
+file size (MB): 6.26
+predicted: ['knot with crack', 'knot with crack', 'dead knot', 'dead knot', 'knot with crack']
+actual:    ['knot with crack', 'knot with crack', 'knot with crack', 'dead knot', 'knot with crack']
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} Four of five right on this small sample, and a 2 read as a 1. One row is not evidence of anything; Question~9's score is the evidence.
+\textbf{What it means.} Four of the five first test images are named correctly, and the miss is the confusion Question~9 predicted: a knot with a crack called a dead knot. The file holds the 253 components, each 3,072 numbers long, and the classifier: the price of compression is storing the directions.
 \end{labanswer}
 
-\labpart{Evidence}
+\begin{labcheckpoint}
+\begin{itemize}[leftmargin=1.2em,itemsep=2pt,topsep=1pt]
+  \item Keeping 99\% of the variance takes 248 components and scores 0.6072 on validation, against 0.6168 for all pixels.
+  \item On the test boards: 0.6375 for all pixels and 0.6331 with 253 components.
+\end{itemize}
+\end{labcheckpoint}
+
+\labpartopen{Finish}{Save the evidence, then try it yourself}{Questions 12--14}{Write the results folder, then extend the lab yourself before reading one worked solution.}
 
 \begin{labquestion}{12}{Save the evidence}
 Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=183,lastline=194]{all_experiments/lab04_clustering_pca_worked.py}
-\begin{refoutput}
-\begin{lstlisting}[style=utpterminal]
-Saved: ['cluster_profiles.csv', 'dbscan_eps_comparison.png', 'figure_02.png',
- 'kmeans_diagnostics.csv', 'metrics.csv', 'most_of_the_picture_lives_in_the_first_30_directions.png',
- 'pca_budget.csv', 'rebuilt_from_29_components.png', 'silhouette_look_for_the_peak.png',
- 'the_first_ten_training_digits_8_x_8_pixels_each.png']
-\end{lstlisting}
-\end{refoutput}
+\lstinputlisting[style=utppython,firstline=231,lastline=243]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \end{labanswer}
 
-\labpart{Try it yourself}
+\labsubhead{Try it yourself}
 
 \begin{labquestion}{13}{Try it yourself}
-Run DBSCAN again with \texttt{eps=0.5}. Count the clusters and the noise points, and decide which of the two DBSCAN results is more useful to a marketing team, and why. Attempt it in this empty cell before reading the solution.
+Cluster images without their labels. Reduce the Question~8 fitting images to 50 PCA components, run K-means with 7 clusters, one per defect type, and only then compare the clusters with the true types, with the adjusted Rand index and a table of what each cluster contains. Attempt it in this empty cell before reading the solution.
 \end{labquestion}
 
 \begin{labquestion}{14}{One solution}
-DBSCAN with a smaller radius, side by side with the lab's setting.
+The labels are used only after the clustering, to judge it. The average image of each cluster shows what K-means grouped by.
 \end{labquestion}
 \begin{labanswer}
-\lstinputlisting[style=utppython,firstline=198,lastline=213]{all_experiments/lab04_clustering_pca_worked.py}
+\lstinputlisting[style=utppython,firstline=247,lastline=269]{all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py}
 \begin{refoutput}
 \begin{lstlisting}[style=utpterminal]
-eps=0.75: clusters = 1  noise = 14
-eps=0.50: clusters = 5  noise = 66  silhouette (clustered only) = 0.528
+adjusted Rand index against the true defect types: 0.129
+         images most common type  purity
+cluster
+2          1570        dead knot    0.56
+1          1630        live knot    0.46
+3          1048            resin    0.39
+...
+0           380            resin    0.27
 \end{lstlisting}
 \end{refoutput}
 
-\textbf{What it means.} DBSCAN at 0.5 finds five dense cores that line up with the K-means corners, and its silhouette on the clustered points (0.53) beats K-means's 0.42. But it calls 66 of 200 customers noise, which is hard to act on, and those customers are not outliers; they simply sit between the dense corners. The practical answer: use K-means segments for targeting, and keep DBSCAN's message in mind when presenting them. The boundaries are drawn for convenience, not discovered.
+\textbf{What it means.} The clusters barely match the types: an adjusted Rand index of 0.129, where 1 would be the types exactly and 0 a random split. The purest cluster is only 56\% dead knots. The average images show why: K-means grouped the defects by brightness, colour and the direction of the grain, which is what varies most in pixels, not by what a grader calls a defect. Without labels, ``similar'' means similar pixels.
 \end{labanswer}
+
+\labpartopen{After the lab}{Your turn, troubleshooting and hand-in}{Your-turn tasks \textbullet\ Expected findings \textbullet\ Troubleshooting \textbullet\ Checklists}{Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.}
 
 \begin{yourturn}
 Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
 \begin{enumerate}
-  \item \textbf{One start or many?} Rerun K-means at $k=5$ with \texttt{n\_init=1}, for seeds 0 to 7. Record each inertia. How many reach the best value? What does that say about the \texttt{n\_init=30} in Question~4?
-  \item \textbf{Take the scaler away.} Refit K-means at $k=5$ on the raw columns and compare with the scaled labels using \texttt{adjusted\_rand\_score}. Then multiply income by 4,400 and compare with clustering on income alone. What do you conclude?
-  \item \textbf{Five or six?} Print the profile table for $k=6$. Which of the five groups in Question~5 splits, and could a marketing team use that split?
-  \item \textbf{How few components?} Score logistic regression on the Question~8 validation rows with 2, 5 and 10 components. What is a two-component PCA good for?
+  \item \textbf{One start or many?} Rerun K-means on the customers at $k=4$ with \texttt{n\_init=1}, for seeds 0 to 7, and record each inertia. Then do the same for the Question~14 images at $k=7$. What does the difference say about \texttt{n\_init}?
+  \item \textbf{Take the logs away.} Refit K-means at $k=4$ on the scaled but unlogged RFM columns, and compare the labels with Question~4's using \texttt{adjusted\_rand\_score}. How large are the four clusters?
+  \item \textbf{Four or five?} Print the segment profile for $k=5$. Which of the four segments splits, and could a marketing team use that split?
+  \item \textbf{How few components?} Score logistic regression on the Question~8 validation rows with 2, 10 and 50 components. What share of the variance do two components keep, and what are they good for?
 \end{enumerate}
 \end{yourturn}
 
 \begin{expectedfindings}
+\textbf{Warm-up.} Recency 8 days (from 2 December to 10 December), frequency 2, monetary value \pounds 200. On raw numbers a gap of \pounds 100,000 between two big spenders outweighs every other difference, so the few largest customers decide the clusters; logs measure spend in ratios, so \pounds 300 against \pounds 3,000 counts as much as \pounds 3,000 against \pounds 30,000.
 \begin{enumerate}
-  \item Six of eight reach 168.2. Seeds 2 and 4 stop at 180.1 and 194.4. That is why Question~4 runs 30 starts and keeps the best.
-  \item Raw against scaled agree at an adjusted Rand index of 0.602, so scaling changed the segments substantially. After the income rescale the index against income alone is 1.000: age and spending no longer count at all. The clustering follows the units unless you decide otherwise.
-  \item At $k=6$, the young group of 54 splits into a lower-income group of 24 who spend a lot (age 25, income 26, score 77) and a middle-income group of 38 (age 27, income 58, score 48), while the rest shift slightly. A team that targets by budget may well want that split, which is an argument for six that the silhouette alone cannot make.
-  \item Validation accuracy is 0.608 with 2 components, 0.868 with 5 and 0.934 with 10, against 0.954 with 29. Two components keep 28.4\% of the variance. They are good for drawing a picture, not for classifying digits.
+  \item The customers are stable: all eight single starts end between 4,963.7 and 4,964.0. The images are not: eight starts end between 248,598 and 251,895, and only three of them land within a few units of the best. Four well-separated customer groups leave little room for a bad start, while seven overlapping defect groups in 50 dimensions leave plenty. Several starts cost little and protect against the second case.
+  \item The adjusted Rand index against Question~4 is only 0.172, and the clusters hold 3,840, 1,999, 35 and 4 customers: two of the four ``segments'' are just the biggest spenders. Without the logs, the units decide the clustering.
+  \item At $k=5$ the best customers split into 480 ``champions'' (median 7 days since the last order, 23 orders, \pounds 9,324) and 1,267 loyal regulars (35 days, 8 orders, \pounds 2,910). A team with a small budget for personal service may well want that split, an argument the silhouette alone cannot make.
+  \item Validation accuracy is 0.420 with 2 components, 0.538 with 10 and 0.591 with 50, against 0.607 with 248. Two components keep 53.0\% of the variance, mostly the light and colour of the wood: good for drawing all the images on one page, not for telling a crack from a knot.
 \end{enumerate}
 \end{expectedfindings}
 
 \begin{troubleshoot}
 \begin{description}
-  \item[\texttt{KeyError: 'optdigits.tra'}] The archive was re-zipped with different names, or it was unzipped and the zip removed. Restore the original \texttt{.zip}.
-  \item[A memory-leak warning from K-means on Windows] Set \texttt{OMP\_NUM\_THREADS=1} before importing scikit-learn, as the Setup cell does. If you ran cells out of order, restart the kernel.
-  \item[The cluster numbers differ from the sheet] Numbers are arbitrary names. Match clusters by their profile values and sizes.
-  \item[DBSCAN finds nothing but noise] Check that you are passing the scaled \texttt{X}, not the raw table. On raw units \texttt{eps=0.75} is far too small.
+  \item[\texttt{FileNotFoundError} for the ZIP] Keep \texttt{unsupervised/\allowbreak online\_retail\_ii/\allowbreak online\_retail\_ii.zip} zipped in \texttt{all\_datasets/}; pandas reads the CSV inside it.
+  \item[A \texttt{KMeans} memory-leak warning on Windows] scikit-learn suggests setting \texttt{OMP\_NUM\_THREADS}; the results are unaffected.
+  \item[Question~2 is slow] Reading a million lines takes a few seconds.
+  \item[Questions~8 and~9 take a minute each] Logistic regression on 3,072 pixels needs many steps; \texttt{max\_iter=3000} lets it converge. With the default it stops early and warns.
 \end{description}
 \end{troubleshoot}
 
 \begin{labchecklists}
 \begin{verification}
 \begin{itemize}
-  \item Features are standardized before clustering, and the elbow and silhouette are both reported.
-  \item The chosen number of clusters is justified with usefulness to a team, not a single score.
-  \item The K-means and DBSCAN results are compared, and the DBSCAN radius is stated.
-  \item PCA is fitted on training digits only, its budget is chosen on validation, and it is judged by the one test score, 0.9477.
-  \item \texttt{models/digits\_pca\_logistic.joblib} reloads and predicts the first test digits.
+  \item The cleaning rules are fixed and listed, and the RFM columns are logged and scaled before clustering.
+  \item The choice of $k$ is justified by the silhouette and by what the segments are for.
+  \item You can say who DBSCAN's noise customers are, and why they matter.
+  \item Every split keeps whole boards on one side, the PCA budget is chosen on validation rows, and the test boards are scored once.
+  \item \texttt{models/wood\_pca\_logistic.joblib} reloads and names the first test images.
 \end{itemize}
 \end{verification}
 
 \begin{labdeliverable}
 \begin{itemize}
   \item Restart the kernel and run all cells without errors.
-  \item Submit the executed notebook, including your \emph{Your turn} cells, the generated \texttt{results/lab04/} folder, and the saved pipeline.
-  \item Add a short conclusion: how many customer segments you would recommend and on what evidence, and how many PCA components you would keep and why.
+  \item Submit the executed notebook, including your \emph{Your turn} cells, the generated \texttt{results/lab04/} folder, and the saved model.
+  \item Add a short conclusion: the segments you would give a marketing team, and why; and whether you would ship the PCA model or the raw-pixel one.
 \end{itemize}
 \end{labdeliverable}
 \end{labchecklists}

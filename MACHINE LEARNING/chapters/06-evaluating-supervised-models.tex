@@ -350,31 +350,33 @@ Churn risk is not persuadability. Ranking metrics cannot establish that contact 
 
 \subsection{Two real models on one chart}
 
-\figref{fig:pr-curves} shows the two logistic models of Lab~2, one on the Titanic and one on breast cancer. Their positive rates are nearly the same, 0.386 and 0.371, so the charts compare fairly. The cancer model's ROC AUC is 0.996 and the Titanic model's is 0.842.
+\figref{fig:pr-curves} shows two logistic models from the labs: Lab~2's hotel cancellations, scored on the bookings of 2017, and Lab~3's loan defaults. The hotel model ranks well, with a ROC AUC of 0.824; the loan model is harder pressed, at 0.731. Their positive rates differ, 0.387 and 0.192, so each precision--recall curve has its own baseline: a model that guesses scores its positive rate, not 0.5.
 
-\begin{utpfig}[ROC and precision-recall curves]{ROC and precision-recall curves for Lab~2's two logistic models on their validation rows, read at 21 thresholds. The ROC baseline is the diagonal; the precision-recall baseline is the positive rate, about 0.38 for both.}{fig:pr-curves}
+\begin{utpfig}[ROC and precision-recall curves]{ROC and precision-recall curves for two logistic models on their validation rows, Lab~2's hotel cancellations and Lab~3's loan defaults, read at 21 thresholds. The ROC baseline is the diagonal; each precision-recall baseline is that table's positive rate, 0.39 for the hotel and 0.19 for the loans.}{fig:pr-curves}
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.3cm},
   logaxis, width=7.4cm, height=5.0cm, xmin=0, xmax=1, ymin=0, ymax=1.03]
 \nextgroupplot[title={ROC curve},xlabel={False-positive rate},ylabel={True-positive rate},legend style={at={(0.97,0.05)},anchor=south east}]
-\addplot[draw=UTPBlue,thick] coordinates {(0.0,0.0) (0.0,0.755) (0.0,0.811) (0.0,0.868) (0.0,0.906) (0.011,0.925) (0.011,0.943) (0.011,0.962) (0.022,0.962) (0.033,0.962) (0.044,0.981) (0.067,0.981) (0.122,1.0) (1.0,1.0)};
-\addlegendentry{breast cancer, 0.996}
-\addplot[draw=UTPOrange,thick] coordinates {(0.0,0.0) (0.007,0.058) (0.007,0.163) (0.007,0.256) (0.015,0.326) (0.029,0.395) (0.036,0.5) (0.051,0.547) (0.08,0.593) (0.131,0.651) (0.161,0.674) (0.19,0.733) (0.204,0.802) (0.241,0.814) (0.292,0.814) (0.328,0.826) (0.394,0.849) (0.533,0.884) (0.708,0.93) (0.964,1.0) (1.0,1.0)};
-\addlegendentry{Titanic, 0.842}
+\addplot[draw=UTPBlue,thick] coordinates {(0.0,0.0) (0.0,0.002) (0.002,0.013) (0.005,0.025) (0.01,0.056) (0.02,0.098) (0.038,0.164) (0.061,0.231) (0.093,0.302) (0.135,0.397) (0.199,0.506) (0.302,0.647) (0.463,0.794) (0.704,0.922) (0.949,0.991) (1.0,1.0)};
+\addlegendentry{loan defaults, 0.731}
+\addplot[draw=UTPOrange,thick] coordinates {(0.0,0.0) (0.0,0.262) (0.001,0.263) (0.001,0.265) (0.003,0.274) (0.008,0.294) (0.024,0.361) (0.059,0.45) (0.08,0.51) (0.099,0.547) (0.131,0.594) (0.19,0.662) (0.256,0.731) (0.315,0.774) (0.414,0.834) (0.518,0.897) (0.617,0.94) (0.732,0.972) (0.845,0.992) (1.0,1.0)};
+\addlegendentry{hotel, 0.824}
 \addplot[draw=UTPMuted,dashed,domain=0:1] {x};
 \addlegendentry{random, 0.50}
 \nextgroupplot[title={Precision-recall curve},xlabel={Recall},ylabel={Precision},legend style={at={(0.03,0.05)},anchor=south west}]
-\addplot[draw=UTPBlue,thick] coordinates {(0.755,1.0) (0.811,1.0) (0.868,1.0) (0.906,1.0) (0.925,0.98) (0.943,0.98) (0.962,0.981) (0.962,0.962) (0.962,0.944) (0.981,0.929) (0.981,0.897) (1.0,0.828) (1.0,0.371)};
-\addlegendentry{breast cancer}
-\addplot[draw=UTPOrange,thick] coordinates {(0.058,0.833) (0.163,0.933) (0.256,0.957) (0.326,0.933) (0.395,0.895) (0.5,0.896) (0.547,0.87) (0.593,0.823) (0.651,0.757) (0.674,0.725) (0.733,0.708) (0.802,0.711) (0.814,0.68) (0.814,0.636) (0.826,0.612) (0.849,0.575) (0.884,0.51) (0.93,0.452) (1.0,0.394) (1.0,0.386)};
-\addlegendentry{Titanic}
-\addplot[draw=UTPMuted,dashed,domain=0:1] {0.38};
-\addlegendentry{positive rate}
+\addplot[draw=UTPBlue,thick] coordinates {(0.002,0.667) (0.013,0.632) (0.025,0.545) (0.056,0.568) (0.098,0.537) (0.164,0.503) (0.231,0.475) (0.302,0.437) (0.397,0.411) (0.506,0.377) (0.647,0.337) (0.794,0.289) (0.922,0.237) (0.991,0.199) (1.0,0.192)};
+\addlegendentry{loan defaults}
+\addplot[draw=UTPOrange,thick] coordinates {(0.262,0.997) (0.263,0.994) (0.265,0.992) (0.274,0.983) (0.294,0.96) (0.361,0.903) (0.45,0.829) (0.51,0.8) (0.547,0.777) (0.594,0.741) (0.662,0.687) (0.731,0.643) (0.774,0.608) (0.834,0.56) (0.897,0.522) (0.94,0.49) (0.972,0.456) (0.992,0.426) (1.0,0.387)};
+\addlegendentry{hotel}
+\addplot[draw=UTPMuted,dashed,domain=0:1] {0.387};
+\addlegendentry{hotel positive rate}
+\addplot[draw=UTPBlue!50,dashed,domain=0:1] {0.192};
+\addlegendentry{loan positive rate}
 \end{groupplot}
 \end{tikzpicture}
 \end{utpfig}
 
-Rarity changes the story. Lab~5's fraud ranking has a ROC AUC of 0.95, which sounds excellent. Fraud is 1.5\% of those rows, so among the top 100 flagged transactions only 20 are fraud. Most of the ROC credit comes from correctly ranking thousands of ordinary transactions below thousands of others.
+Rarity changes the story. Lab~5's fraud ranking has a ROC AUC of 0.95, which sounds excellent. Fraud is 0.17\% of those 85,443 transactions, so among the top 100 flagged ones only 39 are fraud, and its average precision is 0.22. Most of the ROC credit comes from correctly ranking tens of thousands of ordinary transactions below a few hundred unusual ones.
 
 \begin{keyidea}
 For rare positives, inspect precision--recall at the intended operating point. Strong ROC AUC can coexist with poor alert precision.
@@ -420,7 +422,7 @@ One mock exam can be easy or hard by chance. Set five, each covering a different
 \end{utpfig}
 
 \begin{workedexample}
-Titanic logistic regression, five folds of the training rows: ROC AUC 0.857, 0.809, 0.885, 0.858, 0.835. The mean is 0.849 and the standard deviation 0.025. Any claim that one model beats this one by 0.01 should be met with suspicion, since the folds themselves disagree by more than that.
+Lab~2's churn model, five folds of the training rows: ROC AUC 0.860, 0.863, 0.824, 0.835, 0.841. The mean is 0.844 and the standard deviation 0.015. Any claim that one model beats this one by 0.01 should be met with suspicion, since the folds themselves disagree by more than that.
 \end{workedexample}
 
 Cross-validation must preserve the data structure:
@@ -443,10 +445,10 @@ After selecting a model and hyperparameters, refit on the allowed training data 
 \rowcolor{UTPPaleBlue!92}
 \utpth{Splitter (scikit-learn)} & \utpth{Use it when} & \utpth{Course example} \\
 \midrule
-\texttt{KFold} & Rows are independent and the label is a number. & Ames Housing in Lab~3 \\
-\texttt{StratifiedKFold} & Classification, especially with an imbalanced label; every fold keeps the class proportions. & Titanic and breast cancer in Labs~2 and~3 \\
+\texttt{KFold} & Rows are independent and the label is a number. & House prices in Lab~3 \\
+\texttt{StratifiedKFold} & Classification, especially with an imbalanced label; every fold keeps the class proportions. & Churn in Lab~2, loan defaults in Lab~3 \\
 \texttt{GroupKFold} & Several rows belong to one person, device, or school; all of them must land in the same fold. & Repeated patient visits \\
-\texttt{TimeSeriesSplit} & Rows are ordered in time; each fold trains on the past and validates on what came next. & Bike sharing in Lab~2 uses one chronological cut for the same reason \\
+\texttt{TimeSeriesSplit} & Rows are ordered in time; each fold trains on the past and validates on what came next. & Hotel bookings in Lab~2 use one chronological cut for the same reason \\
 \bottomrule
 \end{tabularx}
 \end{utptable}
@@ -500,10 +502,10 @@ Log loss therefore penalizes extreme confidence in a wrong answer more strongly.
 
 \section{Uncertainty and repeated experiments}
 
-A score computed on 223 rows has error bars whether you draw them or not. Quantify the uncertainty with confidence intervals, the bootstrap, repeated cross-validation, or several seeds.
+A score computed on 1,761 rows has error bars whether you draw them or not. Quantify the uncertainty with confidence intervals, the bootstrap, repeated cross-validation, or several seeds.
 
 \begin{workedexample}
-Lab~2's Titanic logistic model scores ROC AUC 0.842 on 223 validation rows. A bootstrap of those rows gives a 95\% interval of 0.781 to 0.893. Refit the same model on five different random splits, and validation AUC comes out as 0.831, 0.828, 0.840, 0.925 and 0.842. So when Lab~2's random forest scores 0.834 on the same rows, nothing is settled.
+Lab~2's churn model scores ROC AUC 0.846 on its 1,761 test customers. A bootstrap of those rows gives a 95\% interval of 0.826 to 0.866. Refit the same model on five other random splits, and the score comes out as 0.844, 0.838, 0.855, 0.847 and 0.847. So when a rival model scores 0.856 on the same rows, nothing is settled.
 \end{workedexample}
 
 Compare models through paired errors on the same cases. Statistical significance does not imply practical value.

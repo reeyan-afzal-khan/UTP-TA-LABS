@@ -123,7 +123,7 @@ Scale inputs before training and save any training-fitted scaling statistics.
 
 \subsection{Counting weights}
 
-Each dense layer has one weight per input per unit, plus one bias per unit. Lab~7's dense network has $(64\times128+128)+(128\times10+10)=9{,}610$ weights.
+Each dense layer has one weight per input per unit, plus one bias per unit. Lab~7's dense network, for $32\times32$ colour images, has $(3{,}072\times128+128)+(128\times7+7)=394{,}247$ weights.
 
 \recipecard{Neural network}{Layers of weighted sums and nonlinear activations, with many thousands of weights.}{Cross-entropy for classes; squared error for numbers.}{Gradient descent on minibatches, usually with Adam. Backpropagation computes the slopes.}
 
@@ -192,7 +192,7 @@ Filters share weights across locations: the same few numbers slide everywhere, s
 
 \keepspace{20\baselineskip}
 \begin{workedexample}
-Lab~7's CNN, with weights counted per layer. A filter layer has (input channels $\times$ filters $\times$ $3\times3$) weights plus one bias per filter.
+Lab~7's CNN for $32\times32$ colour photos of wood defects, with weights counted per layer. A filter layer has (input channels $\times$ filters $\times$ $3\times3$) weights plus one bias per filter, and a colour image has three input channels. The two filter layers need 5,088 weights between them, the first dense layer 131,136, which is why the pooling before it matters.
 
 \medskip
 \centering\small
@@ -201,14 +201,14 @@ Lab~7's CNN, with weights counted per layer. A filter layer has (input channels 
 \rowcolor{UTPPaleBlue!92}
 \utpth{Layer} & \utpth{Output shape} & \utpth{Weights} \\
 \midrule
-Input & $1\times8\times8$ & \\
-Conv, 16 filters, then pool & $16\times4\times4$ & $1\times16\times9+16=160$ \\
-Conv, 32 filters, then pool & $32\times2\times2$ & $16\times32\times9+32=4{,}640$ \\
-Flatten & 128 & \\
-Dense, 64 units & 64 & $128\times64+64=8{,}256$ \\
-Dense, 10 classes & 10 & $64\times10+10=650$ \\
+Input & $3\times32\times32$ & \\
+Conv, 16 filters, then pool & $16\times16\times16$ & $3\times16\times9+16=448$ \\
+Conv, 32 filters, then pool & $32\times8\times8$ & $16\times32\times9+32=4{,}640$ \\
+Flatten & 2,048 & \\
+Dense, 64 units & 64 & $2{,}048\times64+64=131{,}136$ \\
+Dense, 7 classes & 7 & $64\times7+7=455$ \\
 \midrule
-Total & & 13,706 \\
+Total & & 136,679 \\
 \bottomrule
 \end{tabular}
 \end{workedexample}
@@ -276,7 +276,7 @@ From series to windows. A sequence model does not take a table of features; it t
 $N$ values give $N$ minus lookback windows. Neighboring rows overlap, so a random split would put almost the same row on both sides: split in date order. The simplest forecast, \term{persistence}, says the next value equals the last, and on these targets its misses are 19, 12, 0, 1 and 1.
 \end{workedexample}
 
-Lab~8 predicts the next hour's bike demand from the previous 24. Its network has $4\times(32+32\times32+32+32)=4{,}480$ LSTM weights plus 33 in the output layer, 4,513 in all. Persistence misses by 85.2 rentals on average and ``same hour yesterday'' by 80.5. After eight epochs the LSTM misses by 41.9.
+Lab~8 predicts the next hour's electricity demand of 158 customers from the previous 24. Its network has $4\times(32+32\times32+32+32)=4{,}480$ LSTM weights plus 33 in the output layer, 4,513 in all. On the second half of 2014, persistence misses by 6.12~MWh in an average hour, ``same hour yesterday'' by 3.69, and the LSTM by 2.57, which is 2.4\% of the average hour.
 
 \begin{pitfall}
 Compare against last-value and same-hour-yesterday forecasts. Keep the network only if its validated gain justifies its cost.
