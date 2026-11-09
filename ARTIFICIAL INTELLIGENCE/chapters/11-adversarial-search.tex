@@ -228,13 +228,3 @@ Run \texttt{python all\_experiments/demo\_game\_search.py} from the course folde
   \item In MCTS, what is the difference between exploitation and exploration?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item O plays next and picks the smallest value below that move. O blocks at the top right, which leads to a draw, so the move is worth 0. The $+1$ only happens if O makes a mistake.
-  \item The answer stays the same, and the work falls sharply, from 549,946 positions to 18,297 on the empty board.
-  \item A heuristic: a cheap estimate of something too expensive to compute exactly. A$^\star$ estimates the cost left, and an evaluation function estimates who is winning.
-  \item Random games count on mistakes. O moves at random, so it often fails to block, and X then wins. Minimax assumes O never fails to block.
-  \item Exploitation heads for moves that have won the most so far. Exploration tries moves that have barely been tried, in case they are better than they look.
-\end{enumerate}
-\end{checkanswers}

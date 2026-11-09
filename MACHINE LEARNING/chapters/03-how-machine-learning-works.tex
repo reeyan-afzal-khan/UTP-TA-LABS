@@ -233,14 +233,3 @@ Reducing training loss does not establish generalization. An optimizer's job is 
   \item What is the difference between reducing a training objective and demonstrating generalization?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Supervised has a label per example, limited-label has some, unsupervised has none, and reinforcement learning gets rewards after acting.
-  \item The slope is $2(6-4)=4$, so $v\leftarrow 6-0.1\times4=5.6$. The positive slope sends you left, towards 4.
-  \item The step is $\alpha$ times the slope, and the slope shrinks as the bowl flattens. At the bottom it is zero, so the walk stops by itself.
-  \item The learning rate; lower it. A rate that is too large overshoots the bottom and climbs, as $\alpha=1.1$ did on the practice bowl.
-  \item Tables have to be clean and honest whatever you do with them, while the objective depends on the feedback: prediction error needs labels, and compactness or variance does not.
-  \item The first is a statement about rows the optimizer has seen. The second is evidence on rows it has not, from a split that imitates real use.
-\end{enumerate}
-\end{checkanswers}

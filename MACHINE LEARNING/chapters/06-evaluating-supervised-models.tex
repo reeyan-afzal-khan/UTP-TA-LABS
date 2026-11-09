@@ -567,14 +567,3 @@ Final report & State the data period, metric, uncertainty, limits and untouched 
   \item Model A scores AUC 0.85 and model B 0.84 on 200 rows. What do you want to see before preferring A?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Disease screening favors recall, because a miss can be fatal and a false alarm costs a follow-up test. A spam filter favors precision, because losing a real email is worse than seeing some spam.
-  \item $TP=30$, $FP=20$, $FN=10$, $TN=440$. Precision $30/50=0.60$, recall $30/40=0.75$, accuracy $470/500=0.94$.
-  \item Recall rises or stays the same, and false positives rise or stay the same.
-  \item Four pairs: $(0.9,0.6)$ right, $(0.9,0.2)$ right, $(0.4,0.6)$ wrong, $(0.4,0.2)$ right. So $3/4=0.75$.
-  \item Otherwise related or future rows sit in training, and the score answers a question nobody asked.
-  \item Fold-by-fold scores, or a bootstrap interval on paired differences. A gap of 0.01 on 200 rows is noise.
-\end{enumerate}
-\end{checkanswers}

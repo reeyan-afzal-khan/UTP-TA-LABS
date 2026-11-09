@@ -275,16 +275,3 @@ Watch for & Loss of interpretability, information loss, leakage from fitting on 
   \item Why should distances and apparent cluster sizes in a t-SNE or UMAP plot not be interpreted as exact properties of the original high-dimensional data?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item The variance of the shadows, among directions of length 1.
-  \item For two scaled columns, the spreads are $1+r$ and $1-r$, so 1.80 of the 2 units, which is 90\%. Check against the study log: $r=-0.965$ gives 1.965 along $(0.71,-0.71)$.
-  \item Each weight is small and similar, so that component is a general average of the columns, and no single column dominates it. Read the signs and any exceptions before naming it.
-  \item Changing units changes each column's variance, and PCA chases variance, so the column with the largest numbers can win for no good reason.
-  \item Two components are for looking, not predicting. A clean picture proves nothing.
-  \item They preserve local neighborhoods, so group sizes and gaps can be layout artifacts that change with seeds.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/04-clustering-pca}

@@ -363,15 +363,3 @@ Watch for & Slow training on very large datasets, sensitive scale, difficult pro
   \item Why should scaling and SVM tuning both happen inside the validation procedure?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A wider street between the classes, which leaves more room for new points to land on the correct side. Maximizing it is the SVM's way of controlling capacity.
-  \item Nothing. $(4,3)$ is not a support vector: it lies beyond the curb with a score of 1.67, so it exerts no force on the solution.
-  \item $1-0.7=0.3$. The point is on the correct side but inside the street.
-  \item A larger $C$ makes violations costlier, which narrows the street and allows a more complex fit. A larger $\gamma$ shortens each point's reach, which makes the boundary more local and wiggly.
-  \item Margins are in feature units, so a scaler fitted on validation rows leaks, and an unscaled search tunes the wrong problem. Both belong in a pipeline refitted in every fold.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/03-supervised-models}

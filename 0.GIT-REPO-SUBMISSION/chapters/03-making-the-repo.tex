@@ -1,0 +1,38 @@
+\chapter{Create and submit the course repository}
+\label{ch:repo-submission}
+
+\subsection{Create an empty GitHub repository}
+
+Choose one method below to create an empty remote repository: use the GitHub website steps or the optional terminal commands. Do not complete both methods.
+
+\begin{enumerate}[leftmargin=1.7em,itemsep=0.35em,topsep=0.4em]
+  \item Sign in to GitHub. In the upper-right corner, select the \textbf{+} menu and choose \textbf{New repository}.
+  \item Choose the account or organization that should own the repository.
+  \item Enter a repository name, such as \texttt{UTP-course-name}, and select the visibility required by your instructor.
+  \item Leave \textbf{Add a README file} unchecked, and leave the \textbf{.gitignore} template and license set to \textbf{None}.
+  \item Select \textbf{Create repository}. Keep the new repository page open; you will connect it to your local project in the next section.
+\end{enumerate}
+
+\subsection{Prepare the local project and connect it to GitHub}
+
+Do not upload the virtual environment, passwords, tokens, or API keys. In the project root, create a file named \texttt{.gitignore}.
+
+From the project root, create the first commit and connect it to the empty
+GitHub repository. Replace \texttt{USERNAME} and \texttt{REPOSITORY}:
+
+\begin{lstlisting}[style=utpterminal]
+git init -b main
+git add .
+git status
+git commit -m "initial commit"
+
+git remote add origin git@github.com:USERNAME/REPOSITORY.git
+git remote -v
+git push -u origin main
+\end{lstlisting}
+
+\begin{pitfall}
+Always read \texttt{git status} before committing. If a dataset, password,
+token, \texttt{.env} file, or virtual environment appears, stop and update
+\texttt{.gitignore} before running \texttt{git commit}.
+\end{pitfall}

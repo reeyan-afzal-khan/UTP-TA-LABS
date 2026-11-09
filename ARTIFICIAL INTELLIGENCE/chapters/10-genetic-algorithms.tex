@@ -276,15 +276,5 @@ Integer coefficients, penalties on non-zero coefficients or a plateaued loss wou
 \end{enumerate}
 \end{quickcheck}
 
-\begin{checkanswers}
-\begin{enumerate}
-  \item A vector of five real numbers: the intercept and the coefficients of age, BMI, children and smoker status.
-  \item One mutation step size is used for every coefficient gene. With unstandardised inputs the same step would be huge for one coefficient and negligible for another; least squares is indifferent because it solves the problem exactly rather than searching it.
-  \item It can get worse: the best chromosome might not be selected, or might be crossed or mutated away, which happened in 54 of 159 generations on one run. Elitism copies it forward unchanged. The lab's \emph{best-so-far} curve never rises in either case, because it records the best chromosome ever seen.
-  \item The population contracts towards its own centre, because every child lies between two existing points. The lab counteracts this with $\alpha\in[-0.1,1.1]$ (children can land just beyond a parent) and with Gaussian mutation.
-  \item Agreement across ten independent seeds shows the algorithm \emph{reliably} finds the optimum. One exact hit could be a lucky seed and says nothing about the next run.
-  \item $28-4=24$ tickets, one for every pair of queens that does not attack.
-\end{enumerate}
-\end{checkanswers}
 
 \input{labs/08-genetic-algorithms}

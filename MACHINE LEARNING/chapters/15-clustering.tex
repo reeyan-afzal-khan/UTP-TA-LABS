@@ -490,14 +490,3 @@ DBSCAN & Irregular shapes and explicit noise points & Density parameters and var
   \item The name ``crammers'' is in the table above. Where did it come from?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Compact, roughly spherical, similarly sized groups, because every row is assigned by straight-line distance to a center. Scaling changes those distances, and so can change who is nearest.
-  \item Those three students sit close to each other and far from the rest on the chart. The method measures only distance, and it does not know what a column means.
-  \item Groups $\{1,3\}$ and $\{8,10\}$. New landmarks 2 and 9, so nothing moves. The score is $1+1+1+1=4$.
-  \item It falls with every added cluster and reaches zero when each row has its own, so its minimum is always the largest $K$.
-  \item It labels them as noise ($-1$) and assigns them to no cluster.
-  \item From us. We looked at what landed in the group and chose a word. The method never heard it, and the explanation behind the name is a guess until something else supports it.
-\end{enumerate}
-\end{checkanswers}

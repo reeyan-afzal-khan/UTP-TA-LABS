@@ -53,14 +53,10 @@
 \begin{document}
 \utpfrontmatter
 
-% Letter the setup chapters, then start the course content at Chapter 1.
-\renewcommand{\thechapter}{1A}
-\renewcommand{\theHchapter}{setup.1A}
+% Number the toolkit as Chapter 1, then continue with the course content.
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\renewcommand{\thechapter}{1B}
-\renewcommand{\theHchapter}{setup.1B}
-\input{../.shared/git-submission}
 
 \setcounter{chapter}{1}
 \renewcommand{\thechapter}{\arabic{chapter}}
@@ -73,6 +69,7 @@
 \input{chapters/02-understanding-and-preparing-data}
 \input{chapters/03-how-machine-learning-works}
 \input{chapters/04-statistics-geometry-and-similarity}
+\input{labs/01-features}
 
 \part{Supervised Learning}
 \substage{3A}{Supervised Workflow}{Define objectives, evaluation, and selection before comparing models.}
@@ -82,10 +79,12 @@
 \substage{3B}{Supervised Model Families}{Compare model families under one fixed validation workflow.}
 \input{chapters/08-linear-models-for-regression}
 \input{chapters/09-linear-models-for-classification}
+\input{labs/02-supervised-workflow}
 \input{chapters/10-nearest-neighbors-and-naive-bayes}
 \input{chapters/11-decision-trees}
 \input{chapters/12-ensemble-methods}
 \input{chapters/13-support-vector-machines}
+\input{labs/03-supervised-models}
 
 \part{Unsupervised Learning}
 \substage{4A}{Unsupervised Workflow}{Evaluate unlabeled structure through stability, usefulness, and domain evidence.}
@@ -93,12 +92,17 @@
 \substage{4B}{Unsupervised Model Families}{Compare clustering, representations, and anomaly detection; validate their meaning.}
 \input{chapters/15-clustering}
 \input{chapters/16-dimensionality-reduction-and-representation}
+\input{labs/04-clustering-pca}
 \input{chapters/17-anomaly-detection}
+\input{labs/05-anomaly-limited-labels}
 
 \part{Advanced Concepts}
 \input{chapters/18-semi-supervised-and-active-learning}
 \input{chapters/19-reinforcement-learning}
+\input{labs/06-reinforcement}
 \input{chapters/20-neural-networks}
+\input{labs/07-deep-learning-cnn}
+\input{labs/08-deep-learning-lstm}
 
 \input{chapters/capstone-project}
 

@@ -630,14 +630,3 @@ Vectors represent observations and parameters; matrices represent datasets and t
   \item What does a gradient of zero tell you about where you are standing on a bowl?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item When the column is skewed or has extreme values, such as incomes. The extreme values drag the mean and inflate the standard deviation, while the median and IQR stay with the bulk of the data.
-  \item No. A correlation measures only straight-line association, and the scatter plot in \figref{fig:three-correlations} shows a strong arch. Plot the pair before concluding anything.
-  \item 100 people have it and about 99 test positive; 99,900 do not and about 999 test positive. So about 1,098 test positive, and $99/1098\approx9\%$ of them have the disease.
-  \item $p\times1$: the inner dimensions must match, and the result is $n\times1$.
-  \item Distances are computed in the units of the columns. Standardizing changes those units, so a different point can become the nearest (\chapref{ch:data}).
-  \item You are at the bottom: no small nudge of any parameter changes the loss, so gradient descent stops moving.
-\end{enumerate}
-\end{checkanswers}

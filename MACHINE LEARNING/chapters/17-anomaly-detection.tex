@@ -223,13 +223,3 @@ Main risks & Rare does not always mean harmful; distribution shift can make yest
   \item In the fraud table above, why does recall keep rising when precision falls?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item It measures how unusual a row is under a reference pattern. Unusual can be harmless, and harmful can look ordinary, and nothing calibrates the score to outcomes.
-  \item If the team can check only 100 cases, the only question is which 100, so the quality of the top of the ranking is what counts.
-  \item Outlier detection looks for anomalies already in a contaminated training set. Novelty detection learns from clean normal data and flags new rows that differ from it.
-  \item Median 5, and the absolute deviations are $0,0,1,1,0,45$, so the MAD is 0.5. The robust z-score is $0.6745\times45/0.5\approx60.7$, so yes.
-  \item Recall counts frauds found out of all 45, so each new find raises it. Precision divides by the size of the list, which grows faster than the finds.
-\end{enumerate}
-\end{checkanswers}

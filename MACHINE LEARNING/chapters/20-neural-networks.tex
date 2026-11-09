@@ -357,18 +357,3 @@ Machine learning is one recipe with its parts swapped. Pick a formula with numbe
   \item Why must the rows built from a windowed time series be split chronologically rather than at random?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A linear map of a linear map is itself linear, so the two layers could be replaced by one with the product of their weights.
-  \item The sums are $3-1=2$ and $1.5+0.5=2$, and ReLU keeps both. The output is $1(2)-2(2)=-2$.
-  \item $128\times64+64=8{,}256$.
-  \item Its weights: the same small grid is applied at every position. A dense layer would need a separate weight for every pixel, while the filter uses only 9 plus a bias.
-  \item It becomes $4\times4$, keeping the largest value in each block. The result needs fewer numbers downstream, and it matters less exactly where the pattern fired.
-  \item Neighboring windows overlap almost entirely, so a random split puts near-copies in training and validation, and it lets the model train on the future.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/07-deep-learning-cnn}
-
-\input{labs/08-deep-learning-lstm}

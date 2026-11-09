@@ -37,14 +37,10 @@
 \begin{document}
 \utpfrontmatter
 
-% Letter the setup chapters, then start the course content at Chapter 1.
-\renewcommand{\thechapter}{1A}
-\renewcommand{\theHchapter}{setup.1A}
+% Number the toolkit as Chapter 1, then continue with the course content.
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\renewcommand{\thechapter}{1B}
-\renewcommand{\theHchapter}{setup.1B}
-\input{../.shared/git-submission}
 
 \setcounter{chapter}{1}
 \renewcommand{\thechapter}{\arabic{chapter}}

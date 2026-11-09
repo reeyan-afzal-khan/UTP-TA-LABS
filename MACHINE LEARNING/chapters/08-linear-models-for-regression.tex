@@ -396,14 +396,3 @@ Validate specialized losses against the task metric and check prediction plausib
   \item How can an interaction or polynomial feature let a model remain linear in its parameters while representing a nonlinear relationship in the original inputs?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Each extra hour goes with about three more marks. For 7 hours the line predicts $3\times7+40=61$, the average student's mark.
-  \item Misses above and below the line cancel. Any line through the average point has zero mean error, whatever its slope.
-  \item Sliding the line up or down changes the pull from every band. The pulls balance exactly when the mean error is zero, which happens when the line goes through the average point.
-  \item It is the change in the prediction per unit of that feature with the others fixed. Unmeasured causes, reverse direction, and which features happen to be included can all change it, so it describes this model and not an intervention.
-  \item Ridge shrinks all of them smoothly towards zero without reaching it. Lasso subtracts a fixed amount and clips, so weak coefficients become exactly zero.
-  \item The new column is just another input, so the model is still a weighted sum and the same solver applies. In the original inputs, the prediction then bends or depends on a combination.
-\end{enumerate}
-\end{checkanswers}

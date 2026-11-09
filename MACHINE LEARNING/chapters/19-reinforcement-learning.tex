@@ -334,16 +334,3 @@ Continuing tasks generally use $\gamma<1$ for a finite discounted return; finite
   \item A student with $\varepsilon=0$ ate at the first stall forever. Which step of the loop was missing?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item The state is the situation now, the action is the choice made, the reward is the immediate score, and the transition is the rule that gives the next state.
-  \item The immediate reward, and the discounted best Q-value available from the next state.
-  \item The backup is $-0.04+0.95\times0.6=0.53$, and the update gives $0+0.15\times0.53=0.0795$.
-  \item 0.225. During episode 1, cell 1 updated before cell 2 had learned anything, so its next-state value was still 0.
-  \item Training deliberately makes some random moves, so its returns understate what the learned policy can do, and they include early episodes from before it learned.
-  \item Exploration: the student never tried the other actions, so their estimates never changed.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/06-reinforcement}

@@ -534,16 +534,3 @@ A teammate computes median values, standardization statistics, and a label-infor
   \item In the three-customer example, which step changed the nearest neighbor of $A$, and did it change any customer?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Otherwise the held-out rows influence a median, a scale or a category list, and the later test is no longer on unseen data.
-  \item An identifier names a row and should not be a model input. A feature is an input available at prediction time. A label is the answer the model is trained to predict.
-  \item The same column can be fair at one moment and impossible at another. A call's \texttt{duration} is fine for studying calls that have finished, and it is leakage for deciding whom to call next, because it does not exist until the call has ended.
-  \item 0.841. The hotel will always predict bookings for future dates from past ones, and only the date-order split does that. The shuffled split lets the forest train on bookings from the same weeks, including exact twins of the ones it is tested on.
-  \item That the colors have an order and equal spacing, so that blue is ``more'' than red. One-hot encoding removes the assumption.
-  \item Dividing each column by its standard deviation. No customer changed; only the units in which their gaps are measured did.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/01-features}

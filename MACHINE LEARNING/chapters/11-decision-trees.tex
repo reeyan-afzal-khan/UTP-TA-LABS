@@ -286,13 +286,3 @@ Choose between a shallow single tree and a random forest for a decision that mus
   \item Why can a regression tree not predict a mark above the highest mark it trained on?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item The purity of the children compared with the parent, as measured by the weighted drop in Gini or entropy (or in variance, for regression).
-  \item Parent: $1-(0.8^2+0.2^2)=0.32$. The left child is pure. The right child: $1-[(2/3)^2+(1/3)^2]=0.444$. Weighted child impurity: $0.6\times0.444=0.267$. Gain: $0.32-0.267=0.053$.
-  \item With enough depth it can give every row its own leaf. Those last splits describe individual rows, which is why training accuracy rises to 0.998 while validation falls to 0.741 on the telecom customers.
-  \item A split depends only on the order of the values, and stretching a column keeps its order, so the same rows go left and right.
-  \item Each leaf predicts the mean of its training labels, and a mean cannot exceed the largest value in it.
-\end{enumerate}
-\end{checkanswers}

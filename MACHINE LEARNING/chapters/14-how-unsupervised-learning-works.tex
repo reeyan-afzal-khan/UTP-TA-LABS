@@ -129,12 +129,3 @@ There is no label to reveal a poor representation, so justify the scaling and di
   \item A clustering looks tidy. Then income is re-expressed in cents and the clusters change completely. What does that tell you, and what should you do?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item No answer key exists to compare with, and several structures can be valid at once. Evidence has to match the stated aim.
-  \item Internal: a silhouette or a retained-variance figure. External: agreement with independent reference labels, such as an adjusted Rand index. Downstream: a classifier's accuracy after PCA, or a review team's hit rate on flagged cases.
-  \item When you claim something about new data or a later prediction, such as ``PCA keeps accuracy'' or ``this score flags fraud''. Then fit on training rows and judge on held-out rows.
-  \item The clusters were following the largest column's units rather than any real structure. Standardize, or choose weights on purpose, and state the choice.
-\end{enumerate}
-\end{checkanswers}

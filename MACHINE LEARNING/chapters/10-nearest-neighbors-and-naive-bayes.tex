@@ -269,13 +269,3 @@ Main risks & Scale, irrelevant features, slow prediction, high dimensions & Unre
   \item Naive Bayes gave 0.875 where the true rate was 0.965. Which assumption explains the gap?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Distances are computed in the columns' own units, so the largest column dominates unless scaled. Small $k$ means low bias and high variance; large $k$ means the reverse.
-  \item Each prediction measures the distance to every stored row, unless an index or an approximate method is used.
-  \item Distances are 1.41, 1.00, 2.24 and 3.16. The nearest three are $(1,0)$ Red, $(0,0)$ Red and $(3,0)$ Blue, so the vote is Red 2, Blue 1, and the prediction is Red.
-  \item Without smoothing, $0/10=0$. With smoothing, $(0+1)/(10+4)=1/14\approx0.07$.
-  \item Conditional independence of sex and class given survival. The two clues overlap in ways the product ignores.
-\end{enumerate}
-\end{checkanswers}

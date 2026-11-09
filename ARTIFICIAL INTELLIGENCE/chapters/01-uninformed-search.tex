@@ -692,14 +692,5 @@ BFS minimises hops, UCS kilometres, and DFS neither. UCS uses one or two extra l
 \end{enumerate}
 \end{quickcheck}
 
-\begin{checkanswers}
-\begin{enumerate}
-  \item BFS orders its frontier by discovery time alone (a FIFO queue), so the weights never influence which state is examined next. It answers the fewest-edges question and nothing else.
-  \item \texttt{frontier.popleft()} becomes \texttt{frontier.pop()} (newest first), and the successors are pushed in reverse order. The second change fixes which neighbour is tried first, which is why the DFS route changes when the neighbour lists are reversed.
-  \item A state can be reached first by an expensive path; testing on generation would return that path. Testing on pop guarantees that no cheaper entry for the goal is still waiting in the heap.
-  \item \texttt{expanded}: it depends only on the graph and the algorithm, not on the hardware. Runtimes differ between laptops and even between runs.
-  \item BFS counts steps, so it takes the 11-step middle corridor through both puddles. The route costs 19 units. Running totals go 1, 2, 7, 8, 13, 14, 15, so the 15-unit battery is empty at $(3,6)$, four cells short.
-\end{enumerate}
-\end{checkanswers}
 
 \input{labs/01-search-foundations}

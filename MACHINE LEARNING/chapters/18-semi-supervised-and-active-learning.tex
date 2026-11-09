@@ -233,15 +233,3 @@ Unlabeled data provides structure, not truth. Human labels remain the source of 
   \item Self-training scored 0.632 and labels-only 0.638 in Lab~5. Which do you ship, and what would you try before giving up on the unlabeled messages?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Confidence is not correctness. A wrong pseudo-label joins the training set as if true, the refitted model becomes more confident in the same direction, and the error compounds.
-  \item The rows whose labels are expected to help most, such as those closest to a coin flip, or those several models disagree on.
-  \item A model cannot grade itself. Scores against its own output would measure self-agreement rather than accuracy.
-  \item Each equals the mean of its neighbors, so $2/3$ and $1/3$.
-  \item The labels-only model: self-training is slower and no better, and 0.6 points is about 12 of 2,000 validation messages. Before giving up on the unlabeled pool, try active learning, which gained about four points in Lab~5.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/05-anomaly-limited-labels}

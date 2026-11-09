@@ -406,16 +406,3 @@ For a rare positive class, choose between an unweighted logistic model, class we
   \item What changes when binary logistic regression is extended to a multiclass softmax model?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item 0.5, because $e^0=1$, so $1/(1+1)=0.5$. The two limits, 0 and 1, are approached but never reached.
-  \item 0.634, from a score of 0.549. That is above 0.5, so the verdict is pass, and student C did pass.
-  \item Negative case: $-\ln(0.05)=3.00$. Positive case: $-\ln(0.95)=0.05$.
-  \item The decision boundary, where the score equals zero, is a flat line or plane in feature space. The sigmoid only maps the score to a probability, and it does not bend the boundary.
-  \item The fitted model describes how likely each outcome is, which stays the same however it is used. The threshold is a choice about costs and capacity, which can change without refitting.
-  \item Each class gets its own weight vector and score, and softmax turns the scores into probabilities that add to one. Binary logistic regression is the two-class special case.
-\end{enumerate}
-\end{checkanswers}
-
-\input{labs/02-supervised-workflow}

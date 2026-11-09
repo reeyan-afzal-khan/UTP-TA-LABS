@@ -180,14 +180,5 @@ The benchmark shows a poor fit between printed-text OCR and cursive handwriting,
 \end{enumerate}
 \end{quickcheck}
 
-\begin{checkanswers}
-\begin{enumerate}
-  \item An engine error is a recorded runtime failure of Tesseract on that image; a blank prediction means the segmenter found no text line; \texttt{nidu} means a line was found but the recogniser misread its characters. Only the last is a recognition failure.
-  \item Delete one \texttt{r}: distance $1$. Normalised by the longer length, $1/6\approx0.17$.
-  \item Otherwise an improvement could come from the engine settings rather than from the images. A controlled experiment changes one factor at a time.
-  \item The segmentation stage improved, since many more images now yield some text, while the recognition stage still misreads cursive, so few of those texts are exactly right.
-  \item Any task in which spacing carries meaning: distinguishing ``40 mg'' from ``4 0mg'', counting words, or matching multi-word names.
-\end{enumerate}
-\end{checkanswers}
 
 \input{labs/06-nlp-part-a}

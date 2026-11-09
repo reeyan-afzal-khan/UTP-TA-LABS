@@ -437,14 +437,3 @@ Using fixed validation folds, compare training and validation performance across
   \item Which decisions must be locked before the final test set is evaluated?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Underfitting: both errors high and close together. Overfitting: training error low and validation error much higher.
-  \item More flexibility can always match the seen rows at least as closely, so training error keeps falling with degree, reaching 3.48 at degree 7, whatever the left-out error does.
-  \item The penalty stops the model from fitting noise. Fit on the training rows gets a little worse, while predictions on new rows get steadier, because variance falls by more than bias rises.
-  \item Ridge gives $4/(1+2)=1.33$. Lasso gives $\max(4-2,0)=2$.
-  \item Report recall, precision or average precision instead of accuracy, compare with the always-no baseline, and choose a threshold on validation data from the review capacity.
-  \item The features, preprocessing, model family, hyperparameters, threshold and any resampling rules. After the test score is seen, none of them may change without losing the claim that the score is honest.
-\end{enumerate}
-\end{checkanswers}

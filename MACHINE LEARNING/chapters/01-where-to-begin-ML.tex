@@ -291,13 +291,3 @@ Follow the course map: tools and foundations first, each workflow before its mod
   \item In the worked example above, why can excellent training performance still be evidence of a poor model?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item One loan is the observation. Features are facts known before the due date, such as income, amount owed and past late payments. The target is late or not late. The model is any rule from features to a probability, such as logistic regression. The metric might be recall among late payments, because missing them is the costly error.
-  \item Squared error is the loss. The straight line is the model. Solving for the best two numbers is the optimizer.
-  \item The training procedure sets a parameter by reducing the loss, such as the 3 in $3\times\text{hours}$. A hyperparameter is fixed before that happens, such as the degree of the curve, and is chosen by comparing validation results.
-  \item The unsupervised side, in the clustering corner: no column holds the answer, and the shop wants groups.
-  \item The degree-7 curve scores 3.48 on the rows it saw and 3907.53 on rows it did not. Its low training score came from memorizing those rows, and it says nothing about new students.
-\end{enumerate}
-\end{checkanswers}

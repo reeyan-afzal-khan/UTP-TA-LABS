@@ -208,13 +208,3 @@ Run \texttt{python all\_experiments/demo\_local\_search.py} from the course fold
   \item Explain why beam search with $k=1$ cannot find ``the flight was cancelled''.
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item Only the finished grid is judged. Any order of filling it in gives the same answer, so there is no route whose cost matters.
-  \item $8\times7=56$: each of the eight queens can move to seven other squares in its column. Hill climbing scores all of them and moves to the one with the fewest attacks.
-  \item A board that still has at least one attacking pair, and on which every one of the 56 moves leaves the number of attacks the same or higher.
-  \item $e^{-1/0.5}=e^{-2}\approx0.14$, so about 14 times in 100.
-  \item At the first word it keeps only ``is'' (0.5), and ``was'' (0.4) is dropped for good. Every later step can only extend sentences starting ``the flight is''.
-\end{enumerate}
-\end{checkanswers}

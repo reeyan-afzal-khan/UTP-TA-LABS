@@ -251,14 +251,5 @@ The rule tree is an offline \emph{perception-to-action prototype}, not a validat
 \end{enumerate}
 \end{quickcheck}
 
-\begin{checkanswers}
-\begin{enumerate}
-  \item Accuracy is dominated by the two large classes; a controller that never predicts Slight-Left-Turn could still score about 94\,\%. Macro F1 gives each action equal weight, so the rare turns count.
-  \item The test rows would have influenced which sensors were chosen, so the test score would no longer estimate performance on data the model had never seen.
-  \item \emph{If sensor US14 reads less than 0.9\,m, turn sharply right.} The robot has come too close to the wall it is following and must steer away from it.
-  \item Slight-Right-Turn, with recall $0.89$. Of its 27 misses, 22 are called Move-Forward, 5 Slight-Left-Turn and none Sharp-Right-Turn, so the hard boundary is between nudging right and carrying on.
-  \item Any of: feedback (one wrong action leads to a sensor state the training data never contained), actuator and sensing delays, a failed sensor returning an unfamiliar reading, or the absence of hard safety limits.
-\end{enumerate}
-\end{checkanswers}
 
 \input{labs/05-robotics}

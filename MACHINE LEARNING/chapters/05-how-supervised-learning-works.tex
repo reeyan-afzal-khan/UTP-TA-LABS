@@ -263,13 +263,3 @@ Question 5 & Does the final model need interpretability, probabilities, speed, o
   \item What does a learned model have to demonstrate beyond beating its own training loss?
 \end{enumerate}
 \end{quickcheck}
-
-\begin{checkanswers}
-\begin{enumerate}
-  \item A regression label is a number, so the model predicts a value and is judged by the size of its miss. A classification label is a category, so the model predicts a class, often with a probability.
-  \item Errors are $-5,0,5$. The average error is 0, the MAE is $10/3=3.33$ and the MSE is $50/3=16.67$. The average hides the misses because they cancel.
-  \item The optimizer needs a smooth loss with useful slopes, while the people using the model care about something else, such as dollars or missed cases. The 0--1 loss is the classic example: fine as a metric, useless as a loss.
-  \item Nothing yet. The model matches the always-no baseline, so it may have learned nothing. Look at recall on churners.
-  \item It has to beat a baseline on data it has not seen, using a split that imitates real use.
-\end{enumerate}
-\end{checkanswers}
