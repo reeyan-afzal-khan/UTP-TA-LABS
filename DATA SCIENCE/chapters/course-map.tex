@@ -6,29 +6,12 @@
 Data science turns questions and data into evidence that others can inspect, reproduce, and challenge. This course emphasises analytical workflow, with R as a tool. Four stages build on Chapter~\ref{ch:toolkit}, which introduces R, RStudio, optional conda management, and the required Git/GitHub SSH workflow; the capstone integrates them. The chapters use varied datasets to build transferable skills rather than familiarity with a single dataset.
 
 \begin{utpfigure}
-\newcommand{\coursemapcard}[3]{%
-  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
-    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
-    \vspace{0.02em}%
-    {\bfseries\strut #2}\par
-    \vspace{0.08em}%
-    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
-  }%
-}
-\begin{tikzpicture}[
-  node distance=0.58cm and 0.66cm,
-  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
-    minimum width=3.99cm,minimum height=1.88cm,align=left,
-    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
-  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
-  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
-    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
-]
-\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Questions, data quality, and reproducibility}};
-\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Working with data}{Wrangling, EDA, and visualization}};
-\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Prediction}{Inference, regression, and classification}};
-\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Structure}{Clustering and PCA}};
-\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Capstone}{An end-to-end analysis}};
+\begin{tikzpicture}[utp course map]
+\node[card] (a) {\utpcoursemapcard{STAGE 01}{Foundations}{Questions, data quality, and reproducibility}};
+\node[card,right=of a] (b) {\utpcoursemapcard{STAGE 02}{Working with data}{Wrangling, EDA, and visualization}};
+\node[card,right=of b] (c) {\utpcoursemapcard{STAGE 03}{Prediction}{Inference, regression, and classification}};
+\node[card,below=of c] (d) {\utpcoursemapcard{STAGE 04}{Structure}{Clustering and PCA}};
+\node[finalcard,left=of d] (e) {\utpcoursemapcard{STAGE 05}{Capstone}{An end-to-end analysis}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \draw[arr] (c) -- (d);

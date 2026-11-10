@@ -10,30 +10,13 @@ lab that puts that chapter's ideas into practice, and the capstone brings the fi
 stages together.
 
 \begin{utpfigure}
-\newcommand{\coursemapcard}[3]{%
-  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
-    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
-    \vspace{0.02em}%
-    {\bfseries\strut #2}\par
-    \vspace{0.08em}%
-    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
-  }%
-}
-\begin{tikzpicture}[
-  node distance=0.58cm and 0.66cm,
-  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
-    minimum width=3.99cm,minimum height=1.88cm,align=left,
-    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
-  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
-  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
-    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
-]
-\node[card] (a) {\coursemapcard{STAGE 01}{Orientation}{Linux, the terminal, and the OS}};
-\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Processes}{Processes, files, and the shell}};
-\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{CPU and concurrency}{Scheduling, IPC, and deadlock}};
-\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Memory}{Allocation, paging, and replacement}};
-\node[card,left=of d] (e) {\coursemapcard{STAGE 05}{Storage}{Directories, records, and blocks}};
-\node[finalcard,left=of e] (f) {\coursemapcard{CAPSTONE}{Exam map}{Trace state across the course}};
+\begin{tikzpicture}[utp course map]
+\node[card] (a) {\utpcoursemapcard{STAGE 01}{Orientation}{Linux, the terminal, and the OS}};
+\node[card,right=of a] (b) {\utpcoursemapcard{STAGE 02}{Processes}{Processes, files, and the shell}};
+\node[card,right=of b] (c) {\utpcoursemapcard{STAGE 03}{CPU and concurrency}{Scheduling, IPC, and deadlock}};
+\node[card,below=of c] (d) {\utpcoursemapcard{STAGE 04}{Memory}{Allocation, paging, and replacement}};
+\node[card,left=of d] (e) {\utpcoursemapcard{STAGE 05}{Storage}{Directories, records, and blocks}};
+\node[finalcard,left=of e] (f) {\utpcoursemapcard{CAPSTONE}{Exam map}{Trace state across the course}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \draw[arr] (c) -- (d);

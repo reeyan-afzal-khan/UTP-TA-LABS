@@ -9,8 +9,7 @@ whole book and of each lab session.
 
 ## Courses
 
-To edit and preview the LaTeX books locally, open this repository root in VS Code
-and follow the [VS Code LaTeX guide](VSCODE-LATEX.md).
+To edit and preview the LaTeX books locally, open this repository root in VS Code and follow the [local LaTeX setup and VS Code guide](.latex-setup/README.md).
 
 | Course | Status | Labs | Lab tools | Book | Covers |
 | --- | --- | --- | --- | --- | --- |
@@ -95,5 +94,4 @@ chapter, the labs, the build, and registering the course here.
 
 ## Disclaimer
 
-These materials support teaching and independent study. They are not official university publications and do not
-replace the current course outline, assessment brief, or institutional policies.
+These materials support teaching and independent study. They are not official university publications and do not replace the current course outline, assessment brief, or institutional policies.

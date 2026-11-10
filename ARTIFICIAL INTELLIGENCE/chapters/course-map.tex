@@ -6,29 +6,12 @@
 The course moves from searching a graph to learning from data and back to search in new forms. Chapter~\ref{ch:toolkit} sets up the project folders and Python environment. After that, each chapter builds an idea and each lab sheet right after it puts that idea to work, following the same steps: define the task, validate the data, run a controlled experiment, interpret the results, and submit the executed notebook with its generated evidence.
 
 \begin{utpfigure}
-\newcommand{\coursemapcard}[3]{%
-  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
-    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
-    \vspace{0.02em}%
-    {\bfseries\strut #2}\par
-    \vspace{0.08em}%
-    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
-  }%
-}
-\begin{tikzpicture}[
-  node distance=0.58cm and 0.66cm,
-  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
-    minimum width=3.99cm,minimum height=1.88cm,align=left,
-    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
-  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
-  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
-    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
-]
-\node[card] (a) {\coursemapcard{STAGE 01}{Route search}{BFS, DFS, UCS, and A$^\star$ on a maze and airline data}};
-\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Reasoning}{Fuzzy logic, ANFIS, and robot sensing}};
-\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Language}{Handwriting OCR and sentiment}};
-\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Optimization}{Local search and genetic algorithms}};
-\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Games}{Minimax and Monte Carlo Tree Search}};
+\begin{tikzpicture}[utp course map]
+\node[card] (a) {\utpcoursemapcard{STAGE 01}{Route search}{BFS, DFS, UCS, and A$^\star$ on a maze and airline data}};
+\node[card,right=of a] (b) {\utpcoursemapcard{STAGE 02}{Reasoning}{Fuzzy logic, ANFIS, and robot sensing}};
+\node[card,right=of b] (c) {\utpcoursemapcard{STAGE 03}{Language}{Handwriting OCR and sentiment}};
+\node[card,below=of c] (d) {\utpcoursemapcard{STAGE 04}{Optimization}{Local search and genetic algorithms}};
+\node[finalcard,left=of d] (e) {\utpcoursemapcard{STAGE 05}{Games}{Minimax and Monte Carlo Tree Search}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \draw[arr] (c) -- (d);

@@ -6,27 +6,10 @@
 This course is easiest to understand as one connected story: technology changes how financial services are delivered, which expands access, creates new intermediaries, reshapes banks, and finally enables new infrastructure and platform competitors. Three stages tell that story; the final revision map compresses it.
 
 \begin{utpfigure}
-\newcommand{\coursemapcard}[3]{%
-  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
-    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
-    \vspace{0.02em}%
-    {\bfseries\strut #2}\par
-    \vspace{0.08em}%
-    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
-  }%
-}
-\begin{tikzpicture}[
-  node distance=0.58cm and 0.66cm,
-  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
-    minimum width=3.99cm,minimum height=1.88cm,align=left,
-    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
-  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
-  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
-    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
-]
-\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Why FinTech emerged, and who it can reach}};
-\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Alternative finance}{P2P lending, mobile and digital banks}};
-\node[finalcard,right=of b] (c) {\coursemapcard{STAGE 03}{Infrastructure}{Blockchain, Big Tech, and crypto}};
+\begin{tikzpicture}[utp course map]
+\node[card] (a) {\utpcoursemapcard{STAGE 01}{Foundations}{Why FinTech emerged, and who it can reach}};
+\node[card,right=of a] (b) {\utpcoursemapcard{STAGE 02}{Alternative finance}{P2P lending, mobile and digital banks}};
+\node[finalcard,right=of b] (c) {\utpcoursemapcard{STAGE 03}{Infrastructure}{Blockchain, Big Tech, and crypto}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \end{tikzpicture}

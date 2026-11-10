@@ -11,7 +11,7 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}/.vscode/build-latex.ps1",
+        "${workspaceFolder}/.latex-setup/Build.ps1",
         "-MainFile",
         "${workspaceFolder}/${input:course}/main.tex"
       ],
@@ -27,6 +27,48 @@
         "reveal": "always",
         "panel": "dedicated",
         "clear": true
+      }
+    },
+    {
+      "label": "LaTeX: check local setup",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/.latex-setup/Check.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "LaTeX: build all courses",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/.latex-setup/Build-All.ps1"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
       }
     }
   ],
@@ -46,7 +88,7 @@
         "MACHINE LEARNING",
         "OPERATING SYSTEMS"
       ],
-      "default": "MACHINE LEARNING"
+      "default": "0.GIT-REPO-SUBMISSION"
     }
   ]
 }

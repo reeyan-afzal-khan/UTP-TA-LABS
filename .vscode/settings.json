@@ -1,9 +1,15 @@
 {
   "latex-workshop.latex.recipes": [
     {
-      "name": "UTP: build course (latexmk)",
+      "name": "UTP: full build (references checked)",
       "tools": [
         "utp-latexmk"
+      ]
+    },
+    {
+      "name": "UTP: one-pass preview (references may be stale)",
+      "tools": [
+        "utp-preview"
       ]
     }
   ],
@@ -17,16 +23,33 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "%WORKSPACE_FOLDER%/.vscode/build-latex.ps1",
+        "%WORKSPACE_FOLDER%/.latex-setup/Build.ps1",
         "-MainFile",
         "%DOC_EXT%"
+      ],
+      "cwd": "%DIR%"
+    },
+    {
+      "name": "utp-preview",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "%WORKSPACE_FOLDER%/.latex-setup/Build.ps1",
+        "-MainFile",
+        "%DOC_EXT%",
+        "-Mode",
+        "Preview"
       ],
       "cwd": "%DIR%"
     }
   ],
   "latex-workshop.latex.recipe.default": "first",
   "latex-workshop.latex.outDir": "%WORKSPACE_FOLDER%/.build/%RELATIVE_DIR%",
-  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.autoBuild.run": "onFileChange",
   "latex-workshop.latex.autoBuild.interval": 1500,
   "latex-workshop.latex.autoBuild.cleanAndRetry.enabled": false,
   "latex-workshop.latex.autoClean.run": "never",

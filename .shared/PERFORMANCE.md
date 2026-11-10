@@ -1,5 +1,10 @@
 # Compilation performance
 
+For local Windows builds, use the [setup guide](../.latex-setup/README.md).
+The [local validation report](../.latex-setup/VALIDATION.md) distinguishes actual
+typesetting from unchanged incremental checks and records all nine book timings.
+`onFileChange` changes when a build starts; it does not make TeX typeset instantly.
+
 The normal build now optimizes the shared box renderer directly. There is no
 Memoize dependency, diagram cache, extraction step, shell-escape requirement,
 or Python requirement for compiling a course. Upload the course and `.shared/`
@@ -8,7 +13,7 @@ with their existing relative structure and compile `main.tex` normally.
 ## What changed
 
 Profiling the 298-page ML book without caching attributed about 11 seconds to
-box drawing, 6–7 seconds to course diagrams, and 2 seconds to code listings.
+box drawing, 6â€“7 seconds to course diagrams, and 2 seconds to code listings.
 The box time includes repeated creation of invisible TikZ geometry nodes.
 
 `style/rendering.tex` gives the shared flat-colour boxes equivalent PGF vector
@@ -97,7 +102,7 @@ Both paths included the identical listing-colour precomputation.
 | ALGORITHMS & DATA STRUCTURES | 15.9 s | 13.7 s | 14.0% |
 
 These gains are relative to source rendering with the original box engine,
-not the previous generated-cache experiment. The improvement is about 14–21%
+not the previous generated-cache experiment. The improvement is about 14â€“21%
 in these two local examples; this is not a claim of a dramatic Prism speedup.
 The main additional benefit is eliminating cache assets, package dependencies
 and refresh work while keeping diagrams and code editable.

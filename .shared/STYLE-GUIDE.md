@@ -54,3 +54,16 @@ wording hooks, including `\utplabroutinecompare`. The box constructors
 so a course can intentionally restyle a shared default. Omit redundant
 declarations when the shared style already matches. Lab visuals and activities
 are loaded centrally; do not input the removed `labs/visual-guide.tex`.
+
+## Course maps
+
+Use `\utpcoursemapcard{stage}{title}{detail}` inside a
+`\begin{tikzpicture}[utp course map]` for the standard stage-card diagram.
+`style/course-map.tex` owns card dimensions, text styling, spacing and arrow
+appearance. Courses own the node content, positions and connections. The generic
+`card`, `finalcard` and `arr` style names are scoped to pictures using this option;
+other diagrams, including ML's branched overview, keep their own layout.
+
+After shared changes, run `.latex-setup/Build-All.ps1` and compare the affected
+PDF pages. Main files retain the same five sections; do not move subject-specific
+wording or diagram topology into shared presentation modules.

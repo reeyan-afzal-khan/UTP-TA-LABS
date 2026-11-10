@@ -10,6 +10,10 @@ Every course loads one public entry point:
 layout, reusable teaching components and book assembly. Course folders own
 subject matter, reading order, runnable code and course-specific wording.
 
+Local installation, VS Code recipes and build scripts live in
+[`.latex-setup/`](../.latex-setup/README.md). Keep machine-specific setup out of
+these reusable TeX modules.
+
 ## Where to make a change
 
 | File or folder | Responsibility |
@@ -24,6 +28,7 @@ subject matter, reading order, runnable code and course-specific wording.
 | `style/boxes.tex` | learning boxes and constructors for new boxes |
 | `style/commands.tex` | text helpers, references, lists, heading-space option |
 | `style/diagrams.tex` | base TikZ styles and optional library loader |
+| `style/course-map.tex` | shared course-map cards and scoped arrow/node styles for seven books |
 | `style/figures.tex` | chapter figure/table frames and image helpers |
 | `style/frontmatter.tex` | cover/contents assembly, toolkit numbering, stage dividers |
 | `style/listings.tex` | code languages, terminal output, pseudocode |

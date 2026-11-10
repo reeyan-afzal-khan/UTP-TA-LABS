@@ -11,29 +11,12 @@ consumes what the previous one produced, which is also the order in which
 information moves through a real company.
 
 \begin{utpfigure}
-\newcommand{\coursemapcard}[3]{%
-  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
-    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
-    \vspace{0.02em}%
-    {\bfseries\strut #2}\par
-    \vspace{0.08em}%
-    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
-  }%
-}
-\begin{tikzpicture}[
-  node distance=0.58cm and 0.66cm,
-  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
-    minimum width=3.99cm,minimum height=1.88cm,align=left,
-    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
-  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
-  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
-    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
-]
-\node[card] (a) {\coursemapcard{STAGE 01}{Foundations}{Business processes and ERP systems}};
-\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Customer and sales}{CRM and the sales order process}};
-\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Plan and supply}{Production, S\&OP, and MRP}};
-\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Finance and people}{Accounting, HR, and process change}};
-\node[finalcard,left=of d] (e) {\coursemapcard{STAGE 05}{Odoo practicals}{West End Bicycles, built end to end}};
+\begin{tikzpicture}[utp course map]
+\node[card] (a) {\utpcoursemapcard{STAGE 01}{Foundations}{Business processes and ERP systems}};
+\node[card,right=of a] (b) {\utpcoursemapcard{STAGE 02}{Customer and sales}{CRM and the sales order process}};
+\node[card,right=of b] (c) {\utpcoursemapcard{STAGE 03}{Plan and supply}{Production, S\&OP, and MRP}};
+\node[card,below=of c] (d) {\utpcoursemapcard{STAGE 04}{Finance and people}{Accounting, HR, and process change}};
+\node[finalcard,left=of d] (e) {\utpcoursemapcard{STAGE 05}{Odoo practicals}{West End Bicycles, built end to end}};
 \draw[arr] (a) -- (b);
 \draw[arr] (b) -- (c);
 \draw[arr] (c) -- (d);
