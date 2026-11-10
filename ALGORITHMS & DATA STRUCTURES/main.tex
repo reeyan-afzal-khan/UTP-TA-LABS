@@ -1,7 +1,6 @@
 \documentclass[11pt,oneside,a4paper]{report}
-\usepackage{pdflscape}
 
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utplabtotal{11}
 \def\utpcoursetitle{Algorithms \& Data Structures}
 \def\utpcourseoutline{%
@@ -9,42 +8,24 @@
   data-structure choices with correctness and performance.%
 }
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
-\utpnewquietbox{clarification}{UTPBlue!42}{UTPBlue}{Clarification}
-\newtcolorbox{sourcealignment}[1]{enhanced,breakable,colback=white,colframe=UTPMuted!55,boxrule=0.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=1.5mm,bottom=1.5mm,fonttitle=\bfseries\color{UTPMuted},title={#1}}
-\utpnewcallout{projectrequirement}{UTPPaleBlue}{UTPBlue}{Project requirement}
-\utpnewcallout{recommendedworkflow}{UTPPaleTeal}{UTPTeal}{Recommended workflow}
 
-% ---------- book-specific settings ----------
-% Pseudocode, solid callout titles, frames that may break across pages,
-% a navy lab box, diagrams on a slightly larger grid, and C++ as the
-% default listing language.
+% 3. Course options
+\usepackage{pdflscape}
 \utpusealgorithms
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
 \utpdiagramsize{1.05cm}{0.85cm}
 \lstset{style=utpcpp}
 \utpcontentspage{\normalsize}{\large}{0.98em}{0.32em}{0.38em}
 
-% ---------- commands used only in this book ----------
-\newcommand{\ptrnull}{{\scriptsize\color{UTPMuted}NULL}}
+% 4. Course content helpers
+% No additional content helpers.
 
-\input{labs/figure-style}
-
-% ---------- the book ----------
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
-% Number the toolkit as Chapter 1, then continue with the course content.
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Foundations}
 \input{chapters/01-introduction}

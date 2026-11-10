@@ -1,6 +1,6 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utprunninghead{Enterprise Resource Planning}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Enterprise Resource Planning}
@@ -8,53 +8,27 @@
   ERP concepts, business processes, and integrated Odoo 19 Community Edition
   practicals for West End Bicycles.%
 }
-
-% ---------- boxes this book renames ----------
 \def\utptitlelabmode{How the practical connects to the concept}
+\def\utptitleapplication{Odoo 19 Community}
 
-% ---------- everything shared with the other courses ----------
-\pdfmapfile{+SourceSansThree.map}
+% 2. Shared presentation
 \input{../.shared/utpnotes}
-\usepackage{needspace}
 
-% ---------- book-specific settings ----------
-% The house style every book shares with Algorithms & Data Structures:
-% solid callout titles, frames that may break across pages, and a navy
-% lab box. Business processes are drawn with the process diagram library.
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
+% 3. Course options
+\usepackage{needspace}
 \utpusediagrams{process}
 \lstset{style=utpterminal}
 \utpcontentspage{\normalsize}{\large}{1.20em}{0.50em}{0.55em}
+\utpnewcallout[boxrule=0.75pt]{applicationbox}{UTPPaleTeal}{UTPTeal}{\utptitleapplication}
 
-% ---------- boxes and commands used only in this book ----------
-\utpnewcallout[boxrule=0.9pt,top=1.9mm,bottom=1.9mm]{odoobox}{white}{UTPBlue}{Odoo 19 Community}
-\newcommand{\odooapp}[1]{\textbf{\color{UTPBlue}#1}}
-\newcommand{\pathmenu}[1]{\textbf{\color{UTPTeal}#1}}
-% The practicals follow the tutorial order, not the chapters, so each one
-% names the chapters it practises right after its banner, by label:
-% \labcovers{ch:sales-order,ch:accounting}. Nothing is printed; the line goes
-% to the .aux file, where .shared/build.py reads it to fill that lab's folder
-% in .all_pdfs/ with the right chapters.
-\makeatletter
-\newcommand{\labcovers}[1]{\protected@write\@auxout{}{\string\utplabcovers{#1}}}
-\makeatother
-\newcommand{\utplabcovers}[1]{}
+% 4. Course content helpers
+% No additional content helpers.
 
-% ---------- the book ----------
-\input{labs/visual-guide}
-
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{ERP Foundations and Business Processes}
 \input{chapters/01-business-processes}

@@ -1,0 +1,72 @@
+% --------------------------------------------------------------------
+%  STAGE DIVIDER
+% --------------------------------------------------------------------
+%  A full-page divider used by the longer books to open a part:
+%  \substage{3A}{Supervised Workflow}{one-line summary}.
+%  Harmless to leave unused.
+
+\newcommand{\substage}[3]{%
+  \cleardoublepage
+  \thispagestyle{empty}
+  \phantomsection
+  \addcontentsline{toc}{chapter}{Stage #1 --- #2}
+  \begin{center}
+    \vspace*{0.20\textheight}
+    {\Large\bfseries\color{UTPTeal} Stage #1\par}
+    \vspace{0.45em}
+    {\Huge\bfseries\color{UTPNavy} #2\par}
+    \vspace{0.65em}
+    {\color{UTPTeal}\rule{0.46\linewidth}{1.5pt}\par}
+    \vspace{1.1em}
+    \begin{minipage}{0.76\linewidth}
+      \centering\large\color{UTPMuted} #3
+    \end{minipage}
+  \end{center}
+  \cleardoublepage
+}
+
+% --------------------------------------------------------------------
+%  FRONT MATTER
+% --------------------------------------------------------------------
+%  The opening every book shares: the cover, the contents in roman
+%  numerals, the course map, then chapter one on an arabic page 1.
+%
+%      \begin{document}
+%      \utpfrontmatter
+%
+%  What it prints comes from the configuration in configuration.tex --- the
+%  cover text from \utpcoursetitle and \utpcourseoutline, the overview
+%  chapter from \utpcoursemap --- and the contents page is set as
+%  \utpcontentspage (contents.tex) describes. A book with no overview
+%  chapter sets \def\utpcoursemap{} and the step is skipped.
+%
+%  Page anchors are off across the cover so hyperref does not warn
+%  about the unnumbered pages, and back on before the contents links
+%  are used.
+%
+%  The number of front-matter pages is recorded in the .aux file as
+%  \utpfrontpages, which is how the PDF build tooling turns the page numbers
+%  in the contents into physical pages when it splits the book.
+
+\newcommand{\utpfrontmatter}{%
+  \hypersetup{pageanchor=false}%
+  \input{../.shared/cover}%
+  \cleardoublepage
+  \pagenumbering{roman}%
+  \setcounter{tocdepth}{0}%
+  \utptableofcontents
+  \newpage
+  \hypersetup{pageanchor=true}%
+  \ifx\utpcoursemap\empty\else\input{\utpcoursemap}\fi
+  \cleardoublepage
+  \ifdefined\ReadonlyShipoutCounter
+    \immediate\write\csname @auxout\endcsname
+      {\string\gdef\string\utpfrontpages{\the\ReadonlyShipoutCounter}}%
+  \fi
+  \pagenumbering{arabic}%
+}
+
+% Compatibility alias for older course entry points. Keep ordinary input
+% semantics: the included chapter advances the counter and owns its labels.
+% New entry points may use \input directly; never force the chapter back to 1.
+\newcommand{\utptoolkit}[1]{\input{#1}}

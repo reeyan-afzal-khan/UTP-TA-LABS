@@ -1,6 +1,6 @@
 % Worked operation using existing chapter styles.
-\begin{adslabfigure}[At a matching node: return the subtree that replaces it]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[At a matching node: return the subtree that replaces it]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 
 \node[utpstep,align=center] (q) at (5,0) {\texttt{value == root->data}};
@@ -10,5 +10,5 @@
 \draw[utparrow] (q)--node[utplabel,above right]{both children exist}(b);
 \node[utplabel,align=center] at (5,-3.5) {The caller assigns the returned pointer to its child link (or to the tree root).};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}

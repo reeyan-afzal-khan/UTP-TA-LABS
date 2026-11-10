@@ -1,66 +1,109 @@
-# Shared layer
+# Shared LaTeX presentation
 
-Everything the course books have in common, and everything needed to build
-them, lives in this folder. A course folder holds only its own content; its
-`main.tex` reaches all of this through one line:
+Every course loads one public entry point:
 
 ```latex
 \input{../.shared/utpnotes}
 ```
 
-Change something here and every book changes with it. Back to the
-[repository README](../README.md).
+`utpnotes.tex` is a short loader. Its modules own typography, colours, page
+layout, reusable teaching components and book assembly. Course folders own
+subject matter, reading order, runnable code and course-specific wording.
 
-## What is here
+## Where to make a change
 
-| Path                                       | What it is                                                         |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| [`utpnotes.tex`](utpnotes.tex)             | the shared preamble: packages, palette, boxes, figures, lab toolkit |
-| [`cover.tex`](cover.tex)                   | the title page, filled in from each book's configuration           |
-| [`logos/`](logos)                          | the UTP and department logos the cover prints                      |
-| [`diagrams/network.tex`](diagrams/network.tex)           | TikZ vocabulary for networks and protocols            |
-| [`diagrams/process.tex`](diagrams/process.tex)           | TikZ vocabulary for business processes                |
-| [`diagrams/data-objects.tex`](diagrams/data-objects.tex) | TikZ vocabulary for in-memory data and flowcharts     |
-| [`build.py`](build.py)                     | builds the books and publishes them, compressed, to `.all_pdfs/`   |
-| [`TEMPLATE-main.tex`](TEMPLATE-main.tex)   | the starting point for a new course's `main.tex`                   |
-| [`STYLE-GUIDE.md`](STYLE-GUIDE.md)         | the house style every book follows: tables, figures, chapters, labs |
-| [`ADDING-A-COURSE.md`](ADDING-A-COURSE.md) | the checklist for adding a course                                  |
+| File or folder | Responsibility |
+| --- | --- |
+| `utpnotes.tex` | module loading order; the only shared input used by courses |
+| `style/rendering.tex` | equivalent native vector fills for faster shared boxes |
+| `style/configuration.tex` | default course metadata and configuration |
+| `style/packages.tex` | packages and body/code fonts |
+| `style/theme.tex` | palette, page spacing, tables, chart defaults |
+| `style/contents.tex` | contents entries and Learning Path spacing |
+| `style/headings.tex` | chapter/section headings, running headers, footers |
+| `style/boxes.tex` | learning boxes and constructors for new boxes |
+| `style/commands.tex` | text helpers, references, lists, heading-space option |
+| `style/diagrams.tex` | base TikZ styles and optional library loader |
+| `style/figures.tex` | chapter figure/table frames and image helpers |
+| `style/frontmatter.tex` | cover/contents assembly, toolkit numbering, stage dividers |
+| `style/listings.tex` | code languages, terminal output, pseudocode |
+| `style/defaults.tex` | house-style choices applied after definitions |
+| `labs/layout.tex` | lab banners, questions, answers, coverage metadata |
+| `labs/visuals.tex` | lab frames, scaling, flow/trace diagrams, compact figures |
+| `labs/activities.tex` | notebook routine, output, roadmaps, checkpoints |
+| `diagrams/` | network, process and data-object diagram libraries |
+| `cover.tex`, `logos/` | shared cover design and branding assets |
 
-## Building
+For a change across courses, edit the owning module above. Do not add the
+same override to each course. Internal modules are loaded by `utpnotes` in
+dependency order; do not input them directly from a course.
 
-```bash
-python .shared/build.py                  # build and publish every book
-python .shared/build.py ML OS            # only these, by course code or folder name
-python .shared/build.py DS --check       # build only, to check a change; writes nothing
+## Standard course entry point
+
+Every `main.tex` has the same five sections:
+
+1. **Course metadata and wording:** title, lab count, outline, box titles.
+2. **Shared presentation:** the single `utpnotes` input.
+3. **Course options:** optional packages, diagram libraries, listing language,
+   contents spacing, and opt-in behavior such as `\utpkeepheadings`.
+4. **Course content helpers:** subject-specific figure definitions and, when
+   needed, `labs/config.tex` for notebook wording.
+5. **Document content:** front matter and chapters/labs in reading order.
+
+No course entry point defines environments, colours, fonts, or reusable
+formatting commands. [TEMPLATE-main.tex](TEMPLATE-main.tex) follows this same
+structure. See [ADDING-A-COURSE.md](ADDING-A-COURSE.md) and
+[STYLE-GUIDE.md](STYLE-GUIDE.md) for authoring conventions.
+
+## Reusing a component
+
+- Shared teaching boxes include `clarification`, `sourcealignment{title}`,
+  `conceptmap`, `referencebox`, `projectrequirement`, `recommendedworkflow`
+  and `applicationbox`. Set `\utptitleapplication` before loading `utpnotes`
+  to label a product walkthrough, such as ERP's Odoo instructions.
+- Use `\utpapp{name}` for application names, `\pathmenu{path}` for menu paths,
+  and `\ptrnull` for a null-pointer label.
+- `utpcompactlabfigure[title]` uses the standard lab frame with compact
+  data-structure geometry. Put its drawing in `labgraphic`; this replaces
+  ADS-specific figure environments without changing their appearance.
+- `\labroutine` owns the Predict / Run / Compare / Explain structure. AI and
+  ML override only `\utplabroutineintro` and `\utplabroutinecompare` in their
+  local `labs/config.tex`; they do not duplicate its layout.
+- `\input{chapters/00-toolkit}` loads the introductory chapter normally.
+  `\utptoolkit` remains a compatibility alias with the same numbering behaviour.
+  `\labcovers{ch:label,...}` records nonadjacent lab coverage in the auxiliary
+  file using the existing metadata format.
+
+All nine documents inherit the same body/code font selection. Font Awesome
+in the Git guide supplies icons only. Contents spacing and teaching wording
+may differ by course while the presentation remains shared.
+
+## Faster compilation
+
+Shared boxes use direct PGF vector fills, avoiding repeated TikZ geometry-node
+construction. TikZ diagrams and syntax-highlighted listings remain editable
+source. Builds need no generated cache, Memoize, Python, or shell escape.
+See [PERFORMANCE.md](PERFORMANCE.md) for measurements, verification and
+maintenance guidance.
+
+## Building and verification
+
+Compile from the course directory, using an existing separate output folder:
+
+```powershell
+pdflatex -interaction=nonstopmode -halt-on-error -output-directory="C:/Temp/utp-check" main.tex
 ```
 
-The course codes are the initials of the folder name: `ADS`, `AI`, `DCN`,
-`DS`, `ERP`, `FI`, `ML`, `OS`. Each book is compiled in a temporary folder
-outside the repository, so nothing is written to the course folders; the
-only output is `.all_pdfs/<course>/`, replaced as a whole: the book, one
-`Lab-NN/` folder per lab (its chapters and the lab sheet), and the capstone
-and appendices. Every published PDF is compressed: images printed at more
-than 200 dpi are resampled to 200 dpi, and fonts and duplicate objects are
-shared; text and drawings are unchanged.
+Repeat until contents and references settle (normally three passes). Install
+required TeX packages first; the Git guide uses `fontawesome5`. The former
+`.shared/build.py` is absent from this checkout; these commands do not publish
+or replace `.all_pdfs/`.
 
-Building needs `pdflatex` (MiKTeX or TeX Live); publishing needs PyMuPDF
-(`pip install pymupdf`). Without it, `build.py` splits the book with poppler's
-`pdfseparate` and `pdfunite` (MiKTeX ships them) and does not compress.
-
-A book can still be built by hand from inside its folder,
-`pdflatex main.tex` three times, which is what an online editor does.
-
-## Naming
-
-There is one name for each idea, and every book uses it. A name is either an
-unprefixed learning box (`keyidea`, `labproject`) or carries the `utp` prefix
-(`utpfigure`, `utppython`, `UTPNavy`, `utpcell`). Course prefixes (`ml`, `ds`,
-`erp`, ...) are not used anywhere, so a chapter moved between books compiles
-unchanged.
-
-A box only one book needs is declared in that book's `main.tex` with a shared
-constructor (`\utpnewcallout`, `\utpnewquietbox`). When a second book wants it,
-it moves into `utpnotes.tex`.
+After a shared change, compile all affected books, check logs for new errors,
+undefined references and overflow, and compare rendered pages. For a pure
+refactor, compare extracted page text and page breaks against the baseline.
+Keep temporary build files out of the source directories. No diagram cache
+needs to be generated or uploaded.
 
 ## Reference
 
@@ -81,7 +124,7 @@ it moves into `utpnotes.tex`.
 | `\utpchaptertocword`, `\utpchaptertocindent`, `\utpchaptertocnumwidth` | chapter entries in the contents | Chapter~, 1.5em, 6em |
 | `\utpmonofont`           | `sourcecodepro` or `inconsolata`                  | sourcecodepro            |
 | `\utpextragraphicspath`  | image folders searched before `figures/`          | none                     |
-| `\utptitle...`           | the title of any box, e.g. `\utptitlepitfall`     | see section 8            |
+| `\utptitle...`           | the title of any box, e.g. `\utptitlepitfall`     | see `style/boxes.tex`            |
 
 ### Book settings, one line each after the `\input`
 
@@ -90,6 +133,7 @@ it moves into `utpnotes.tex`.
 | `\utpcontentspage{size}{part size}{p}{c}{l}`    | how loosely the one-page contents is set                      |
 | `\utpusediagrams{network,process,data-objects}` | load diagram libraries                                        |
 | `\utpusealgorithms`                             | load algorithm2e, coloured to match                           |
+| `\utpkeepheadings{section space}{subsection space}` | reserve room beneath headings (opt-in) |
 | `\utpdiagramsize{w}{h}`                         | resize `utpcell` and the other array cells                    |
 | `\utpheavycallouts`                             | solid title bars on keyidea, workedexample, intuition, firstread |
 | `\utpbreakableframes`                           | `utpfigure` and `utptable` may split over a page              |
@@ -105,7 +149,8 @@ it moves into `utpnotes.tex`.
 | asking            | `tryit`, `quickcheck`, `debugtask`, `decisionmemo`, `coursechoice`, `miniproject` |
 | chapter frame     | `\chapterguide{before}{after}` opens a chapter, `chapterrecap` closes it |
 | with a title arg  | `modelcard{title}`, `labproject{title}` |
-| source material   | `sourcebasis` (what a chapter is built on) |
+| source material   | `sourcebasis`, `sourcealignment{title}` |
+| reusable extensions | `clarification`, `referencebox`, `conceptmap`, `projectrequirement`, `recommendedworkflow`, `applicationbox` |
 | lab               | `labmode`, `labquestion{n}{title}`, `labanswer`, `checkanswers`, `verification`, `troubleshoot`, `labdeliverable` |
 
 ### Figures and tables

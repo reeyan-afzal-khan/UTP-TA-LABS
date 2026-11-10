@@ -1,0 +1,72 @@
+% --------------------------------------------------------------------
+%  TABLE OF CONTENTS
+% --------------------------------------------------------------------
+%  Formatting for part, chapter and lab entries, and for a list of
+%  figures if a book prints one. The lab level is a custom tocloft list
+%  so lab banners appear in the contents.
+%
+%  Part styling is skipped when \utpstyleparts is 0, which is what a
+%  book without \part divisions should set.
+%
+%  The contents page is meant to fill exactly one page, and how loosely
+%  it is set depends on how many entries a book has. One line after the
+%  input tunes it:
+%
+%      \utpcontentspage{<base size>}{<part size>}%
+%                      {<space before a part>}{<before a chapter>}{<before a lab>}
+%      \utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}   % the default
+
+\addto\captionsamerican{\renewcommand{\contentsname}{Learning Path}}
+\newlistentry{lab}{toc}{-1}
+\providecommand{\utpstyleparts}{1}
+\ifnum\utpstyleparts=1
+\renewcommand{\cftpartpresnum}{}
+\renewcommand{\cftpartaftersnum}{}
+\setlength{\cftpartnumwidth}{5.2em}
+\setlength{\cftbeforepartskip}{0.38em}
+\renewcommand{\cftpartfont}{\normalsize\bfseries\color{UTPNavy}}
+\renewcommand{\cftpartpagefont}{\normalsize\bfseries\color{UTPNavy}}
+\renewcommand{\cftpartleader}{\hfill}
+\fi
+\renewcommand{\cftchappresnum}{\utpchaptertocword}
+\renewcommand{\cftchapaftersnum}{\quad}
+\setlength{\cftchapindent}{\utpchaptertocindent}
+\setlength{\cftchapnumwidth}{\utpchaptertocnumwidth}
+\setlength{\cftbeforechapskip}{0pt}
+\renewcommand{\cftchapfont}{\normalfont}
+\renewcommand{\cftchappagefont}{\normalfont}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\setlength{\cftlabindent}{3em}
+\setlength{\cftlabnumwidth}{0em}
+\setlength{\cftbeforelabskip}{0.10em}
+\renewcommand{\cftlabfont}{\bfseries\color{UTPOrange!90!black}}
+\renewcommand{\cftlabpagefont}{\bfseries\color{UTPOrange!90!black}}
+\renewcommand{\cftlableader}{\color{UTPOrange!65!UTPMuted}\cftdotfill{\cftlabdotsep}}
+
+% A list of figures, for a book that prints one (\listoffigures).
+\renewcommand{\cftfigfont}{\normalfont\small}
+\renewcommand{\cftfigpagefont}{\normalfont\small}
+\renewcommand{\cftfigpresnum}{Figure~}
+\renewcommand{\cftfigaftersnum}{\quad}
+\setlength{\cftfigindent}{1.5em}
+\setlength{\cftfignumwidth}{5.6em}
+\setlength{\cftbeforefigskip}{0pt}
+\renewcommand{\cftfigleader}{\cftdotfill{\cftdotsep}}
+
+% The contents page itself, printed by \utpfrontmatter (frontmatter.tex).
+\newcommand{\utpcontentspage}[5]{%
+  \def\utptocsize{#1}\def\utptocpartsize{#2}%
+  \def\utptocpartskip{#3}\def\utptocchapterskip{#4}\def\utptoclabskip{#5}}
+\utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}
+\newcommand{\utptableofcontents}{%
+  \begingroup
+  \utptocsize
+  \setlength{\parskip}{0pt}%
+  \setlength{\cftbeforepartskip}{\utptocpartskip}%
+  \setlength{\cftbeforechapskip}{\utptocchapterskip}%
+  \setlength{\cftbeforelabskip}{\utptoclabskip}%
+  \renewcommand{\cftpartfont}{\utptocpartsize\bfseries\color{UTPNavy}}%
+  \renewcommand{\cftpartpagefont}{\utptocpartsize\bfseries\color{UTPNavy}}%
+  \tableofcontents
+  \endgroup
+}

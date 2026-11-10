@@ -1,12 +1,6 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% Some MiKTeX installs carry Source Sans without registering its font map, and
-% pdfTeX then stops at the cover with "auto expansion is only possible with
-% scalable fonts". Naming the map here is harmless where it is already known,
-% and only a warning where the file does not exist.
-\pdfmapfile{+SourceSansThree.map}
-
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utprunninghead{Machine Learning Notes}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Machine Learning}
@@ -15,52 +9,25 @@
   foundations, supervised and unsupervised learning, and a little touch of
   Deep Learning.%
 }
-
-% ---------- boxes this book renames ----------
 \def\utptitlelabmode{Lab setup}
 \def\utptitledeliverable{Submission checklist}
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
 
-% ---------- book-specific settings ----------
-% The house style every book shares with Algorithms & Data Structures:
-% solid callout titles, frames that may break across pages, and a navy
-% lab box.
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
-% The Learning Path lists 21 chapters, 4 stage dividers and 8 labs, so
-% its minimum spacing is tight; the page stretches it to fill.
+% 3. Course options
 \utpcontentspage{\normalsize}{\large}{0.30em}{0.04em}{0.04em}
+\utpkeepheadings{7\baselineskip}{6\baselineskip}
 
-% Every lab sheet is a sequence of labquestion / labanswer pairs (shared
-% lab toolkit, section 12 of utpnotes). Question n is the notebook cell
-% marked [n] after Restart and Run All, and the notebook says so above the
-% cell. The answer holds the code that cell runs, the output to expect, and
-% what that output means.
-
-% ---------- the book ----------
-\input{labs/visual-guide}
+% 4. Course content helpers
+\input{labs/config}
 \input{chapters/study-log-figures}
 
-% A heading needs a few lines of room under it, or it moves to the next page with them.
-\let\utpplainsection\section
-\let\utpplainsubsection\subsection
-\renewcommand{\section}{\keepspace{7\baselineskip}\utpplainsection}
-\renewcommand{\subsection}{\keepspace{6\baselineskip}\utpplainsubsection}
-
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
-% Number the toolkit as Chapter 1, then continue with the course content.
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Orientation and Tools}
 \input{chapters/01-where-to-begin-ML}

@@ -1,0 +1,126 @@
+% --------------------------------------------------------------------
+%  COLOUR PALETTE
+% --------------------------------------------------------------------
+%  One palette, defined once under UTP* names, and used by every book,
+%  box, diagram and chart. Five accents (blue, teal, green, orange, red)
+%  with a pale tint of each for box backgrounds, plus navy for headings,
+%  gold for the cover, ink and muted for text, and a sixth accent,
+%  purple, for charts and layered diagrams that need one more series.
+
+\definecolor{UTPNavy}{HTML}{18324A}
+\definecolor{UTPBlue}{HTML}{246B9E}
+\definecolor{UTPTeal}{HTML}{138A80}
+\definecolor{UTPGreen}{HTML}{2D7D46}
+\definecolor{UTPOrange}{HTML}{C86B24}
+\definecolor{UTPRed}{HTML}{B34843}
+\definecolor{UTPPurple}{HTML}{6B4FA0}
+\definecolor{UTPGold}{HTML}{D4A13E}
+\definecolor{UTPInk}{HTML}{263238}
+\definecolor{UTPMuted}{HTML}{60717C}
+\definecolor{UTPPaleBlue}{HTML}{EEF6FB}
+\definecolor{UTPPaleTeal}{HTML}{EEF8F6}
+\definecolor{UTPPaleOrange}{HTML}{FFF5EA}
+\definecolor{UTPPaleRed}{HTML}{FFF0EF}
+\definecolor{UTPPalePurple}{HTML}{F0ECF9}
+\definecolor{UTPPaleGray}{HTML}{F4F6F7}
+\color{UTPInk}
+
+% --------------------------------------------------------------------
+%  PAGE LAYOUT AND TABLES
+% --------------------------------------------------------------------
+%  Paragraph spacing, list indents, and the table look: alternating
+%  row tint, top-aligned paragraph columns, ragged-right cells.
+%
+%  Two extra column types for tabularx tables:
+%      D{width}   a fixed-width, ragged-right, vertically centred column
+%      Y          a ragged-right column that fills the remaining width
+%
+%  Every table in every book has the same shape, the one Algorithms &
+%  Data Structures set: a utptable frame around a full-width tabularx,
+%  booktabs rules, a tinted header row of \utpth cells (centred, bold,
+%  navy), and a first column in bold navy when it names the rows.
+%  Cells are vertically centred, so use m{} rather than p{} columns.
+%
+%      \begin{utptable}
+%      \begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}X@{}}
+%      \toprule
+%      \rowcolor{UTPPaleBlue!92}
+%      \utpth{Operation} & \utpth{What it does} \\
+%      \midrule
+%      Insertion & Add a new element. \\
+%      \bottomrule
+%      \end{tabularx}
+%      \end{utptable}
+%
+%  A book whose tables carry dense text asks for \utpcompacttables after
+%  the input: tabularx tables then set in \footnotesize with tighter
+%  padding and vertically centred cells.
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlist[itemize]{leftmargin=1.45em,itemsep=0.22em,topsep=0.25em}
+\setlist[enumerate]{leftmargin=1.75em,itemsep=0.28em,topsep=0.3em}
+\setlist[description]{font=\bfseries\color{UTPNavy},itemsep=0.25em,topsep=0.3em}
+\renewcommand{\arraystretch}{1.34}
+\setlength{\tabcolsep}{6.5pt}
+\arrayrulecolor{UTPBlue!45}
+% Keep paragraph-style columns ragged and vertically centred. Tables use
+% fixed m columns beside flexible X columns; giving X the same centring
+% keeps a short cell level with a tall neighbour in a multi-line row.
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\makeatletter
+\g@addto@macro\@arrayparboxrestore{\RaggedRight\arraybackslash}
+\makeatother
+% A header cell: centred, bold and navy, on the tinted header row.
+\newcommand{\utpth}[1]{\multicolumn{1}{c}{\bfseries\color{UTPNavy}#1}}
+\AtBeginEnvironment{tabular}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{UTPPaleBlue!72}{white}}
+\AtBeginEnvironment{tabularx}{\small\setlength{\extrarowheight}{0.6pt}\rowcolors{2}{UTPPaleBlue!72}{white}}
+\AtBeginEnvironment{figure}{\centering}
+\newcolumntype{D}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\utpcompacttables}{%
+  \renewcommand{\tabularxcolumn}[1]{m{##1}}%
+  \AtBeginEnvironment{tabularx}{%
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}%
+    \renewcommand{\arraystretch}{1.25}%
+    \setlength{\extrarowheight}{0.6pt}%
+  }%
+}
+\emergencystretch=1.5em
+\hbadness=10000
+\hfuzz=8pt
+
+% Page-breaking discipline. Without these a paragraph can leave a single
+% line stranded at the foot of one page or the head of the next, which is
+% the most visible sign of unattended typesetting.
+\widowpenalty=10000          % no first line of a paragraph left alone at a page foot
+\clubpenalty=10000           % no last line of a paragraph left alone at a page head
+\displaywidowpenalty=10000   % the same around displayed equations
+\brokenpenalty=10000         % do not break a page after a hyphenated line
+\predisplaypenalty=10000     % keep the line before a display with it
+% Pages are built from boxes of many heights, so let the last line float
+% up rather than stretching the gaps between boxes to force a flush foot.
+\raggedbottom
+% Prefer a slightly loose line to an overfull one, but do not hyphenate
+% freely -- short sans lines look ragged when over-hyphenated.
+\tolerance=1200
+\hyphenpenalty=200
+
+% Character protrusion and font expansion. Both are what stop a justified
+% sans column from showing visible rivers down the page.
+\microtypesetup{protrusion=true,expansion=true,tracking=true}
+
+\pgfplotsset{
+  compat=1.18,
+  every axis/.append style={
+    axis line style={draw=UTPMuted!85,line width=0.55pt},
+    tick style={draw=UTPMuted!85},
+    tick label style={font=\scriptsize\color{UTPMuted}},
+    label style={font=\small\color{UTPNavy}},
+    title style={font=\small\bfseries\color{UTPNavy}},
+    legend style={font=\scriptsize,draw=UTPBlue!22,fill=white,rounded corners=1pt}
+  },
+  every axis plot/.append style={line width=1.15pt}
+}
+\tikzset{every picture/.append style={line cap=round,line join=round}}

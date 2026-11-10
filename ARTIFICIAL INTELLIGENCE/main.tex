@@ -1,18 +1,10 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% Some MiKTeX installs carry Source Sans without registering its font map, and
-% pdfTeX then stops at the cover with "auto expansion is only possible with
-% scalable fonts". Naming the map here is harmless where it is already known,
-% and only a warning where the file does not exist.
-\pdfmapfile{+SourceSansThree.map}
-
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utprunninghead{Artificial Intelligence Notes}
 \def\utplabtotal{8}
 \def\utpcoursetitle{Artificial Intelligence}
 \def\utpcourseoutline{Eight laboratory-guided modules covering search, fuzzy systems, robotics,\par natural language processing, and optimization, closing with game search.}
-
-% ---------- boxes this book renames ----------
 \def\utptitleintuition{Conceptual intuition}
 \def\utptitlefirstread{Core material}
 \def\utptitleoptional{Extension}
@@ -20,42 +12,22 @@
 \def\utptitlelabmode{Lab setup}
 \def\utptitledeliverable{Submission checklist}
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
 
-% ---------- book-specific settings ----------
-% The house style every book shares with Algorithms & Data Structures:
-% solid callout titles, frames that may break across pages, and a navy
-% lab box.
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
-% The chapter on eight queens draws its genes with the shared data-object cells.
+% 3. Course options
 \utpusediagrams{data-objects}
-% A short Learning Path, so stages and chapters are spaced generously.
 \utpcontentspage{\normalsize}{\large}{1.15em}{0.40em}{0.50em}
 
-% Every lab sheet is a sequence of labquestion / labanswer pairs (shared
-% lab toolkit, section 12 of utpnotes). The question states the task as
-% the student meets it in the notebook, under the same number; the answer
-% holds the code that cell runs, the output to expect, and what that
-% output means.
-
-% ---------- the book ----------
-\input{labs/visual-guide}
+% 4. Course content helpers
+\input{labs/config}
 \input{chapters/robot-maze-figures}
 
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
-% Number the toolkit as Chapter 1, then continue with the course content.
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Search and Problem Solving}
 \input{chapters/01-uninformed-search}

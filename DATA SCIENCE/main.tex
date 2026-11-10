@@ -1,48 +1,30 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utplabtotal{10}
 \def\utpcoursetitle{Introduction to Data Science}
 \def\utpcourseoutline{%
   Practical data science in R: from framing questions and preparing data to
   analysis, modelling, validation, and responsible communication.%
 }
-
-% ---------- boxes this book renames ----------
 \def\utptitlepitfall{Analytical pitfall}
 \def\utptitlelabmode{Lab guidance}
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
 
-% ---------- book-specific settings ----------
-% The house style every book shares with Algorithms & Data Structures:
-% solid callout titles, frames that may break across pages, and a navy
-% lab box. R objects and control flow are drawn with the data-objects
-% vocabulary.
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
+% 3. Course options
 \utpusediagrams{data-objects}
 \utpcontentspage{\normalsize}{\large}{1.40em}{0.46em}{0.54em}
 
-% ---------- boxes used only in this book ----------
-\utpnewquietbox{referencebox}{UTPMuted!58}{UTPMuted}{Reference note}
+% 4. Course content helpers
+% No additional content helpers.
 
-% ---------- the book ----------
-\input{labs/visual-guide}
-
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
-% Number the toolkit as Chapter 1, then continue with the course content.
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Foundations: Questions, Data, and Reproducibility}
 \input{chapters/01-data-science-workflow}

@@ -1,7 +1,7 @@
 % Copied from chapters/06-queues.tex (fig:queue-falsefull).
 % Keep the chapter drawing, type sizes, colours, and node styles unchanged.
-\begin{adslabfigure}[The ``false full'' problem]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[The ``false full'' problem]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 % state after 5 enqueues, 2 dequeues (capacity 5)
 \foreach \v [count=\i from 0] in {{},{},C,D,E}{
@@ -28,5 +28,5 @@
 \node[utplabel,anchor=west,color=UTPRed,align=left] at (5.7,0)
   {\texttt{enqueue(F)} fails:\\\texttt{rear} is at the last index};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}

@@ -1,0 +1,46 @@
+% --------------------------------------------------------------------
+%  HEADINGS
+% --------------------------------------------------------------------
+%  The chapter badge (a coloured block with a word and the number),
+%  part pages, and section spacing.
+%
+%  The word in the badge is \utpchapterlabel; Data Communication sets
+%  it to LAB because each of its chapters is a lab.
+
+\titleformat{\chapter}[display]
+  {\bfseries\color{UTPNavy}}
+  {\filleft\colorbox{UTPBlue}{\parbox{2.55cm}{\centering\color{white}\Large
+    \utpchapterlabel\\[-0.15em]\Huge\thechapter}}}
+  {0.65em}{\Huge\raggedright}
+  [\vspace{0.25em}{\color{UTPBlue}\titlerule[1.2pt]}]
+\renewcommand{\thepart}{Stage~\arabic{part}}
+\titleformat{\part}[display]
+  {\centering\color{UTPNavy}\bfseries}
+  {\Large\color{UTPTeal}\thepart}{0.45em}{\Huge}
+  [\vspace{0.55em}\color{UTPTeal}\rule{0.45\linewidth}{1.5pt}]
+\titleformat{\section}{\Large\bfseries\color{UTPNavy}}{\thesection}{0.55em}{}
+\titleformat{\subsection}{\large\bfseries\color{UTPBlue}}{\thesubsection}{0.5em}{}
+\titlespacing*{\chapter}{0pt}{-1.8em}{1.0em}
+\titlespacing*{\part}{0pt}{0pt}{1em}
+\titlespacing*{\section}{0pt}{1.2em}{0.35em}
+\titlespacing*{\subsection}{0pt}{0.95em}{0.2em}
+
+% --------------------------------------------------------------------
+%  PAGE FURNITURE
+% --------------------------------------------------------------------
+%  Running heads and footers. The left header is \utprunninghead;
+%  the right one follows the current chapter.
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\color{UTPMuted}\utprunninghead}
+\rhead{\small\color{UTPMuted}\nouppercase{\leftmark}}
+\cfoot{\small\color{UTPMuted}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{UTPPaleBlue}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \cfoot{\small\color{UTPMuted}\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}

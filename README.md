@@ -9,6 +9,9 @@ whole book and of each lab session.
 
 ## Courses
 
+To edit and preview the LaTeX books locally, open this repository root in VS Code
+and follow the [VS Code LaTeX guide](VSCODE-LATEX.md).
+
 | Course | Status | Labs | Lab tools | Book | Covers |
 | --- | --- | --- | --- | --- | --- |
 | [Algorithms & Data Structures](<ALGORITHMS & DATA STRUCTURES/README.md>) | in development | 11 | C++ | [PDF, 98 pp.](.all_pdfs/algorithms-data-structures/ADS-Book.pdf) | arrays through hashing, correctness arguments, complexity, edge-case testing, reproducible benchmarking |

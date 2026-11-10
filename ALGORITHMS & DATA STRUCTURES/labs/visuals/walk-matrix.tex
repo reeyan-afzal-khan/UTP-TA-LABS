@@ -1,6 +1,6 @@
 % Four equally sized panels, read left to right, then down.
-\begin{adslabfigure}[Build each output cell with the same inner loop]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[Build each output cell with the same inner loop]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 \foreach \x/\y/\a/\b/\c/\d/\hot/\expr in {
 0/0/58/{--}/{--}/{--}/0/{$1(7)+2(9)+3(11)=58$},
@@ -15,5 +15,5 @@
 \end{scope}}
 \node[utplabel,align=center] at (2.975,-4.15) {\texttt{i}: row of A \quad \texttt{j}: column of B \quad \texttt{t}: shared index\\Reset the sum before computing each cell.};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}

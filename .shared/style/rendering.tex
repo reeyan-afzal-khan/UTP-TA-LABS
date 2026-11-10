@@ -1,0 +1,51 @@
+% Faster vector rendering for the shared flat-colour boxes.
+% Only the fill/path implementation changes: layout, text, radii, and the
+% first/middle/last page-break geometry remain owned by tcolorbox.
+% Fancy boxes (overlays, shadows, borderlines) should use enhanced explicitly.
+% Set \def\utpfastboxes{0} before utpnotes to use the original renderer.
+\providecommand{\utpfastboxes}{1}
+\tcbset{utpplain/.style={enhanced}}
+\makeatletter
+% Use the original renderer if a different tcolorbox lacks these helpers.
+\newif\ifutp@nativeavailable
+\utp@nativeavailabletrue
+\@for\utp@helper:=tcbsubskin,tcb@boundary@base,tcb@drawwithtitle@standard,tcb@boundaryframe@pathfirst,tcb@boundaryframe@pathmiddle,tcb@boundaryframe@pathlast\do{%
+  \ifcsname\utp@helper\endcsname\else\utp@nativeavailablefalse\fi}
+\ifnum\utpfastboxes=1\relax
+\ifutp@nativeavailable
+% Fill an existing PGF boundary directly, without a TikZ path parser.
+\newcommand{\utp@fillpath}[3]{\begin{pgfscope}\pgfsetfillcolor{#1}\pgfsetfillopacity{#2}#3\pgfusepath{fill}\end{pgfscope}}
+\def\utp@frame{\utp@fillpath{tcbcolframe}{\kvtcb@opacityframe}{\tcb@outerboundary}}
+% First segment: preserve the top corners and extend the fill to the break.
+\def\utp@interiorfirst{%
+  \utp@fillpath{tcbcolback}{\kvtcb@opacityback}{%
+    \iftcb@hasTitle
+      \tcb@boundary@base{\kvtcb@left@rule}{0pt}{\tcb@width-\kvtcb@right@rule}{\kvtcb@bottom@rule+\tcb@innerheight}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}%
+    \else
+      \tcb@boundary@base{\kvtcb@left@rule}{0pt}{\tcb@width-\kvtcb@right@rule}{\tcb@height-\kvtcb@top@rule}{\tcb@arc@zpt}{\tcb@arc@ins@NW}{\tcb@arc@ins@NE}{\tcb@arc@zpt}%
+    \fi}}
+% Middle segment: both edges are open; retain the original title area if present.
+\def\utp@interiormiddle{%
+  \iftcb@hasTitle\utp@interiorfirst\else
+    \utp@fillpath{tcbcolback}{\kvtcb@opacityback}{\tcb@boundary@base{\kvtcb@left@rule}{0pt}{\tcb@width-\kvtcb@right@rule}{\tcb@height}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}}%
+  \fi}
+% Last segment: extend the fill upward and preserve the bottom corners.
+\def\utp@interiorlast{%
+  \iftcb@hasTitle\tcb@drawwithtitle@standard\else
+    \utp@fillpath{tcbcolback}{\kvtcb@opacityback}{\tcb@boundary@base{\kvtcb@left@rule}{\kvtcb@bottom@rule}{\tcb@width-\kvtcb@right@rule}{\tcb@height}{\tcb@arc@ins@SW}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@ins@SE}}%
+  \fi}
+% A repeated title on a continuation has square top corners.
+\def\utp@titlecontinuation{\utp@fillpath{tcbcolbacktitle}{\kvtcb@opacitybacktitle}{\tcb@boundary@base{\kvtcb@left@rule}{\kvtcb@bottom@rule+\tcb@innerheight+\kvtcb@title@rule}{\tcb@width-\kvtcb@right@rule}{\tcb@height-\kvtcb@top@rule}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}{\tcb@arc@zpt}}}
+% These skins are intentionally for flat boxes. The ordinary enhanced skins
+% remain available for overlays, shadows, and the decorated cover.
+\tcbset{utp native/.style={geometry nodes=false,frame code=\utp@frame,segmentation engine=standard,title engine=standard,set@extensions@preframe=,set@extensions@postframe=,set@extensions@final=}}
+\tcbsubskin{utpflat}{enhanced}{utp native,interior engine=standard,interior titled engine=standard,skin first=utpflatfirst,skin middle=utpflatmiddle,skin last=utpflatlast}
+\tcbsubskin{utpflatfirst}{enhancedfirst}{utp native,interior code=\utp@interiorfirst,interior titled code=\utp@interiorfirst,skin first=utpflatfirst,skin middle=utpflatmiddle,skin last=utpflatmiddle}
+\tcbsubskin{utpflatmiddle}{enhancedmiddle}{utp native,interior code=\utp@interiormiddle,interior titled code=\utp@interiormiddle,title code=\utp@titlecontinuation,skin first=utpflatmiddle,skin middle=utpflatmiddle,skin last=utpflatmiddle}
+\tcbsubskin{utpflatlast}{enhancedlast}{utp native,interior code=\utp@interiorlast,interior titled code=\utp@interiorlast,title code=\utp@titlecontinuation,skin first=utpflatmiddle,skin middle=utpflatmiddle,skin last=utpflatlast}
+\tcbset{utpplain/.style={skin=utpflat}}
+\else
+  \PackageWarningNoLine{utpnotes}{Native box helpers unavailable; using enhanced boxes}
+\fi
+\fi
+\makeatother

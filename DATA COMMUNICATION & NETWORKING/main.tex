@@ -1,6 +1,6 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utprunninghead{Data Communication \& Networking Notes}
 \def\utplabtotal{9}
 \def\utpcoursetitle{Data Communication \& Networking}
@@ -8,44 +8,26 @@
   Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP,\\
   routing, FTP, DHCP, LACP, VLANs, and WAN configuration.%
 }
-% Most of the pages are device transcripts, so the monospace face is
-% the one that tells 0 from O and 1 from l at a glance.
-\def\utpmonofont{inconsolata}
-
-% ---------- boxes this book renames ----------
 \def\utptitleworked{Worked configuration}
 \def\utptitlelabmode{How to use this lab}
 \def\utptitletroubleshoot{When it does not work}
 \def\utptitleverification{Verification evidence}
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
 
-% ---------- book-specific settings ----------
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
+% 3. Course options
 \utpusediagrams{network}
-\utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}
 
-% ---------- boxes used only in this book ----------
-\utpnewquietbox[colback=UTPPaleBlue!45,boxrule=0.7pt,top=1.8mm,bottom=1.8mm]{conceptmap}{UTPBlue!55}{UTPNavy}{Concept map}
+% 4. Course content helpers
+% No additional content helpers.
 
-% ---------- the book ----------
-\input{labs/visual-guide}
-
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 
 % Install eNSP before beginning the simulator labs.
-% Number the toolkit as Chapter 1, then continue with the course content.
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{setup.1}
 \input{chapters/00-toolkit}
-
-\setcounter{chapter}{1}
-\renewcommand{\thechapter}{\arabic{chapter}}
-\renewcommand{\theHchapter}{\arabic{chapter}}
 
 \part{Observe and Configure}
 \input{chapters/01-foundation.tex}

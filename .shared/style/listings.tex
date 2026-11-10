@@ -1,0 +1,96 @@
+% --------------------------------------------------------------------
+%  LISTING STYLES
+% --------------------------------------------------------------------
+%  Two base looks, and one named style per language built on them, so
+%  the colours and frame are the same in every book:
+%
+%      utpcode          the base for source code
+%      utpterminal      the base for commands typed and output printed
+%      utppython        Python
+%      utpr             R
+%      utpc             C
+%      utpcpp           C++
+%      utpbash          shell scripts and commands
+%      utpcnumbered     C with line numbers, for a complete source file
+%      utpbashnumbered  shell with line numbers, likewise
+%
+%      \begin{lstlisting}[style=utppython] ... \end{lstlisting}
+%      \lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/fcfs.c}
+%
+%  A book that sets most of its listings in one style makes it the
+%  default once, after the input:  \lstset{style=utpcpp}
+
+% Resolve repeated colour mixtures once, preserving the original RGB values.
+\colorlet{UTPListingString}{UTPGreen!70!black}
+\colorlet{UTPListingBackground}{UTPPaleGray!72}
+\colorlet{UTPListingCodeFrame}{UTPBlue!28}
+\colorlet{UTPListingTerminalFrame}{UTPMuted!35}
+
+\lstdefinestyle{utpcode}{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\bfseries\color{UTPBlue},
+  commentstyle=\itshape\color{UTPMuted},
+  stringstyle=\color{UTPListingString},
+  backgroundcolor=\color{UTPListingBackground},
+  frame=single,
+  rulecolor=\color{UTPListingCodeFrame},
+  framesep=5pt,
+  breaklines=true,
+  breakatwhitespace=false,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  upquote=true,
+  tabsize=4,
+  aboveskip=0.7em,
+  belowskip=0.8em
+}
+\lstdefinestyle{utpterminal}{
+  basicstyle=\ttfamily\scriptsize,
+  backgroundcolor=\color{UTPListingBackground},
+  frame=single,
+  rulecolor=\color{UTPListingTerminalFrame},
+  framesep=5pt,
+  breaklines=true,
+  showstringspaces=false,
+  keepspaces=true,
+  columns=fullflexible,
+  upquote=true,
+  aboveskip=0.6em,
+  belowskip=0.7em
+}
+
+\lstdefinestyle{utppython}{style=utpcode,language=Python}
+\lstdefinestyle{utpr}{style=utpcode,language=R,tabsize=2}
+\lstdefinestyle{utpc}{style=utpcode,language=C}
+\lstdefinestyle{utpcpp}{style=utpcode,language=C++}
+\lstdefinestyle{utpbash}{style=utpcode,language=bash,
+  rulecolor=\color{UTPListingTerminalFrame},aboveskip=0.6em,belowskip=0.7em}
+\lstdefinestyle{utpcnumbered}{style=utpc,numbers=left,numberstyle=\tiny\color{UTPMuted},
+  numbersep=7pt,xleftmargin=1.7em,framexleftmargin=1.4em}
+\lstdefinestyle{utpbashnumbered}{style=utpbash,numbers=left,numberstyle=\tiny\color{UTPMuted},
+  numbersep=7pt,xleftmargin=1.7em,framexleftmargin=1.4em}
+
+% Pseudocode. A book that sets algorithms asks for them once, after the
+% input, and gets algorithm2e loaded and coloured to match:
+%
+%     \utpusealgorithms
+%
+% \algostyle then sets one algorithm environment a size smaller than the
+% text around it.
+\newcommand{\utpalgorithmstyle}{%
+  \SetAlCapNameFnt{\bfseries\color{UTPNavy}}%
+  \SetAlCapFnt{\bfseries\color{UTPNavy}}%
+  \SetAlgoCaptionSeparator{.}%
+  \SetKwInput{KwIn}{Input}%
+  \SetKwInput{KwOut}{Output}%
+  \SetNlSty{color}{UTPMuted}{}%
+  \SetCommentSty{\itshape\color{UTPMuted}}%
+  \SetKwSty{bfseries\color{UTPBlue}}%
+  \SetArgSty{}%
+  \providecommand{\algostyle}{\small\SetAlgoNlRelativeSize{-1}\DontPrintSemicolon\SetAlgoVlined}%
+}
+\newcommand{\utpusealgorithms}{%
+  \usepackage[linesnumbered,ruled,vlined]{algorithm2e}%
+  \utpalgorithmstyle
+}

@@ -1,0 +1,63 @@
+% --------------------------------------------------------------------
+%  COURSE CONFIGURATION
+% --------------------------------------------------------------------
+%  The knobs below, plus \utpstyleparts in contents.tex and the box titles
+%  in boxes.tex, are the whole configuration surface. A book sets what
+%  it needs BEFORE the \input and inherits the rest.
+%
+%  \providecommand means "define unless the book already did", which is
+%  what makes the \def-before-\input pattern work.
+%
+%  Running text
+%    \utprunninghead   the left running head on every page.
+%    \utpchapterlabel  the word in the chapter badge. CHAPTER by
+%                      default; a book whose chapters are labs sets LAB.
+%    \utplabtotal      the N in the "Lab 3 of N" banners.
+
+\providecommand{\utprunninghead}{Course Notes}
+\providecommand{\utpchapterlabel}{CHAPTER}
+\providecommand{\utplabtotal}{10}
+
+%  Cover, printed by frontmatter.tex
+%    \utpcoursetitle       the title on the title page.
+%    \utpdocumentsubtitle  the line under the title; Teaching Assistant Guide by default.
+%    \utpcourseoutline     the sentence or two below it; \\ breaks a line.
+%    \utpoutlineheading    the small heading above that sentence.
+%    \utpauthor            the name in the PREPARED BY block.
+%    \utpauthorrole        the line under the name.
+
+\providecommand{\utpcoursetitle}{\utprunninghead}
+\providecommand{\utpdocumentsubtitle}{Teaching Assistant Guide}
+\providecommand{\utpcourseoutline}{}
+\providecommand{\utpoutlineheading}{COURSE OUTLINE}
+\providecommand{\utpauthor}{Reeyan Afzal Khan}
+\providecommand{\utpauthorrole}{Graduate Research Assistant}
+
+%  Files and folders
+%    \utpextragraphicspath  image folders to search before the standard
+%                           ones, as brace groups: {{screenshots/}}.
+%                           A course's own figures/ folder and the
+%                           shared logos are always searched.
+%    \utpcoursemap          the overview chapter \utpfrontmatter inputs
+%                           after the contents. Empty means none.
+
+\providecommand{\utpextragraphicspath}{}
+\providecommand{\utpcoursemap}{chapters/course-map}
+
+%  Contents entries for chapters (contents.tex applies them). A book whose
+%  chapters are labs says so once here rather than restating the three
+%  tocloft settings after the input.
+%    \utpchaptertocword      Chapter~ by default, Lab~ in one book.
+%    \utpchaptertocindent    left indent of the entry.
+%    \utpchaptertocnumwidth  room reserved for the word and number.
+
+\providecommand{\utpchaptertocword}{Chapter~}
+\providecommand{\utpchaptertocindent}{1.5em}
+\providecommand{\utpchaptertocnumwidth}{6em}
+
+%  Monospace face (packages.tex)
+%    \utpmonofont   sourcecodepro by default. inconsolata is the
+%                   alternative, for a book whose pages are mostly
+%                   device transcripts.
+
+\providecommand{\utpmonofont}{sourcecodepro}

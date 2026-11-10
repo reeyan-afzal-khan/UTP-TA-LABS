@@ -1,7 +1,7 @@
 % Copied from chapters/11-hashing.tex (fig:probing).
 % Keep the chapter drawing, type sizes, colours, and node styles unchanged.
-\begin{adslabfigure}[Linear probing and clustering]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[Linear probing and clustering]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 \foreach \row/\hot/\lbl [count=\r from 0] in {%
   {10,{},12,{},14}/{9}/{10, 12, 14 land directly: 1 probe each},
@@ -29,5 +29,5 @@
 \node[utplabel,anchor=north,color=UTPRed] at (1.9,-3.55)
   {a cluster: no free slot until the table wraps};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}

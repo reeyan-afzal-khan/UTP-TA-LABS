@@ -1,6 +1,6 @@
-% Course-local visual walkthroughs. Shared templates are not modified.
+% Shared lab frames and flow/trace diagrams. Loaded by utpnotes.tex.
 \newsavebox{\labgraphicbox}
-\newenvironment{labvisual}[1]{\par\smallskip\noindent\hfill\begin{minipage}{.94\linewidth}\begin{tcolorbox}[enhanced,unbreakable,colback=white,colframe=UTPBlue!35,boxrule=.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,halign=center,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}]}{\end{tcolorbox}\end{minipage}\hfill\mbox{}\par\smallskip}
+\newenvironment{labvisual}[1]{\par\smallskip\noindent\hfill\begin{minipage}{.94\linewidth}\begin{tcolorbox}[utpplain,unbreakable,colback=white,colframe=UTPBlue!35,boxrule=.5pt,arc=2mm,left=2.5mm,right=2.5mm,top=2.2mm,bottom=2.2mm,halign=center,fonttitle=\bfseries\color{white},colbacktitle=UTPBlue,title={#1}]}{\end{tcolorbox}\end{minipage}\hfill\mbox{}\par\smallskip}
 \newenvironment{labgraphic}{\begin{lrbox}{\labgraphicbox}}{\end{lrbox}\sbox{\labgraphicbox}{\raisebox{\dp\labgraphicbox}{\usebox{\labgraphicbox}}}%
   \ifdim\wd\labgraphicbox>\linewidth\sbox{\labgraphicbox}{\resizebox{\linewidth}{!}{\usebox{\labgraphicbox}}}\fi%
   \ifdim\ht\labgraphicbox>6cm\resizebox{!}{6cm}{\usebox{\labgraphicbox}}\else\usebox{\labgraphicbox}\fi}
@@ -19,3 +19,12 @@
 \node[utpstep,fill=UTPPaleTeal,text width=3.4cm,minimum height=1.8cm,align=left,right=.4cm of b] (c) {\textbf{#6}\\[3pt]#7};
 \draw[utparrow] (a)--(b);\draw[utparrow] (b)--(c);
 \end{tikzpicture}\end{labgraphic}\end{labvisual}}
+
+% Compact data-structure diagrams within the standard lab frame.
+\newenvironment{utpcompactlabfigure}[1][]{%
+  \begin{labvisual}{#1}%
+  \utpdiagramsize{.90cm}{.62cm}%
+  \tikzset{utpnode/.append style={minimum size=7mm},
+    utpnodehot/.append style={minimum size=7mm},
+    utpstep/.append style={draw=UTPNavy!65}}%
+}{\end{labvisual}}

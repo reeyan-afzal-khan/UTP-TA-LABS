@@ -1,6 +1,6 @@
 \documentclass[11pt,oneside,a4paper]{report}
 
-% ---------- course configuration ----------
+% 1. Course metadata and wording
 \def\utprunninghead{Operating Systems Notes}
 \def\utplabtotal{10}
 \def\utpcoursetitle{Operating Systems}
@@ -8,24 +8,16 @@
   A step-by-step path from the Linux command line and process model through CPU scheduling, concurrency, memory management, and file systems, with one practical lab paired to each core chapter.%
 }
 
-% ---------- everything shared with the other courses ----------
+% 2. Shared presentation
 \input{../.shared/utpnotes}
 
-% ---------- book-specific settings ----------
-% The house style every book shares with Algorithms & Data Structures:
-% solid callout titles, frames that may break across pages, and a navy
-% lab box.
-\utpheavycallouts
-\utpbreakableframes
-\utplabprojectcolour{UTPNavy}
-% Each lab sheet prints its complete C and shell sources from
-% all_experiments/ with the numbered listing styles (utpcnumbered,
-% utpbashnumbered) and introduces each file with \labsourcecard.
-\utpcontentspage{\normalsize}{\large}{1.15em}{0.38em}{0.30em}
+% 3. Course options
+% Use the shared defaults.
 
-% ---------- the book ----------
-\input{labs/visual-guide}
+% 4. Course content helpers
+% No additional content helpers.
 
+% 5. Document content
 \begin{document}
 \utpfrontmatter
 

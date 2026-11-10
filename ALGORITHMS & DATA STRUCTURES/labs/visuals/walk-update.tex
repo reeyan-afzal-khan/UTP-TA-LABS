@@ -1,6 +1,6 @@
 % Worked lab input; chapter fonts, colours and TikZ styles retained.
-\begin{adslabfigure}[One address, two field changes]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[One address, two field changes]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 
 \node[utpstep,align=left,text width=3.7cm] (a) at (0,0) {\textbf{students[3]}\\ID: 1004 \quad Devi\\age: 22 \quad course: IS};
@@ -8,5 +8,5 @@
 \draw[utparrow] (a)--node[utplabel,above,align=center]{\texttt{selected->age = 23}\\\texttt{selected->course = "CS"}}(b);
 \node[utplabel,align=center] at (4,-1.3) {\texttt{selected = \&students[3]} points to the original record\\The other four records remain unchanged};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}

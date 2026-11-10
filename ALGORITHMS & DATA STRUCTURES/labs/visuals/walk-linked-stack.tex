@@ -1,6 +1,6 @@
 % Worked operation using existing chapter styles.
-\begin{adslabfigure}[Pop from the linked stack: save, advance, release]
-\begin{adslabgraphic}
+\begin{utpcompactlabfigure}[Pop from the linked stack: save, advance, release]
+\begin{labgraphic}
 \begin{tikzpicture}[font=\small]
 
 \foreach \row/\y in {0/0,1/-2.2}{
@@ -16,5 +16,5 @@
 \node[utplabel,anchor=west,align=left] at (6,0) {1. \texttt{old = top}\\2. \texttt{value = old->data} (30)};
 \node[utplabel,anchor=west,align=left] at (6,-2.2) {3. \texttt{top = old->next}\\4. \texttt{delete old}\\Return true; next pop returns 20.};
 \end{tikzpicture}
-\end{adslabgraphic}
-\end{adslabfigure}
+\end{labgraphic}
+\end{utpcompactlabfigure}
