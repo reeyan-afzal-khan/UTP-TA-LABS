@@ -63,37 +63,16 @@ env/
 *.o
 *.obj
 
-# LaTeX build products (keep source files only).
-# .shared/build.py compiles outside the repository and writes only to
-# .all_pdfs/, which IS committed. These cover a book built by hand with
-# pdflatex inside its course folder; a main.pdf there is such a stray build.
-main.pdf
-*.aux
-*.bbl
-*.bcf
-*.blg
-*.fdb_latexmk
-*.fls
-*.lof
-*.log
-*.lot
-*.out
-*.run.xml
-*.synctex.gz
-*.toc
-*.xdv
-# ...but this .log is lab input, not a build product: Operating Systems Lab 3 reads it.
-!OPERATING SYSTEMS/all_experiments/Lab03/events.log
-
-#.courses
+# =========================
+# Courses
+# =========================
 /.courses/
 
-# Datasets that a notebook extracts from a committed archive
-ARTIFICIAL INTELLIGENCE/all_datasets/lab06-ocr-handwritten-prescription/
+# =========================
+# Local VS Code course builds (never published PDFs).
+# =========================
+/.build/
 
 # ERP Course
-/results/
 /tools/runtime/
 /tools/data/
-# Local VS Code course builds (never published PDFs).
-/.build/
