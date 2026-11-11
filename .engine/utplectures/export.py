@@ -165,7 +165,7 @@ How it works
 
 Made from {lec.course.folder.name}/{source} by .all_lectures/engine (see its README). Once you edit
 this file, `lecture.py build` uses your version; `lecture.py build {lec.course.code} {lec.stem} --rescript`
-throws your edits away and regenerates it from the LaTeX.
+throws your edits away and regenerates it from the Typst.
 """
 
 import sys

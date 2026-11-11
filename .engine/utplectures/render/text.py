@@ -125,7 +125,7 @@ def make_text(markup: str, *, font: str, size: float, color: str, width: float |
 
 def glyph_ranges(markups: list[str], total: int) -> list[tuple[int, int]] | None:
     """Glyph index ranges of consecutive pieces of one text, or None if they do not add up."""
-    from ..latex.inline import count_glyphs
+    from ..typst.inline import count_glyphs
     counts = [count_glyphs(m) for m in markups]
     if sum(counts) != total:
         return None

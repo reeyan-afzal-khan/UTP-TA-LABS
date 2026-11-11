@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace the fast-acquisition cash projection])[#flow([*\1. Input / state*
+
+Month 1: 50,000 new customers. Contribution 120,000 minus acquisition cost 2,250,000 gives cash -2,130,000.], [*\2. Operation*
+
+Month 2: 50,000 times 0.97 + 50,000 = 98,500 customers. Monthly contribution = 236,400.], [*\3. Check*
+
+Month 2 cash = -2,130,000 + 236,400 - 2,250,000 = -4,143,600. Cash is cumulative.])]

@@ -1,8 +1,0 @@
-\begin{labvisual}{Tampering changes a hash; it does not repair the next link}
-\begin{labgraphic}\begin{tikzpicture}[font=\small]
-\node[utpstep,text width=2.5cm,minimum height=1.25cm] (a) {Block 0\\previous: zeros\\hash: $H_0$};
-\node[utpstep,text width=2.5cm,minimum height=1.25cm,right=.35cm of a] (b) {Block 1\\previous: $H_0$\\hash: $H_1$};
-\node[utpstep,fill=UTPPaleOrange,text width=2.5cm,minimum height=1.25cm,right=.35cm of b] (c) {Block 2 changed\\previous: $H_1$\\new hash: $H'_2$};
-\node[utpstep,text width=2.5cm,minimum height=1.25cm,right=.35cm of c] (d) {Block 3\\stored previous: $H_2$\\$H_2\ne H'_2$};
-\draw[utparrow] (a)--(b);\draw[utparrow] (b)--(c);\draw[utparrow,draw=UTPOrange] (c)--(d);
-\end{tikzpicture}\end{labgraphic}\end{labvisual}

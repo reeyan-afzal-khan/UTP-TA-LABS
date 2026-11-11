@@ -7,9 +7,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-ENGINE = Path(__file__).resolve().parents[1]          # .all_lectures/engine
-LECTURES = ENGINE.parent                               # .all_lectures
-ROOT = LECTURES.parent                                 # the repository
+ENGINE = Path(__file__).resolve().parents[1]
+ROOT = ENGINE.parent
+LECTURES = ROOT / '.all_lectures'
 SHARED = ROOT / ".shared"
 CONFIG = ENGINE / "config"
 FONTS = ENGINE / "assets" / "fonts"

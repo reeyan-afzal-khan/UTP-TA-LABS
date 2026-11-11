@@ -2,7 +2,7 @@
 
 One folder per lab. Each holds the executed notebook, a `.py` twin with the same code cells, and a
 README naming the lab's data, outputs, run time and the chapters it practises. Every code cell has
-a `### Question n` heading, and the lab sheet in `labs/*.tex` uses the same number and title, so
+a `### Question n` heading, and the lab sheet in `labs/*.typ` uses the same number and title, so
 `[n]` after Run All is Question n on the sheet. Each notebook has a Setup cell, a *What the output
 shows* note with the actual numbers after each part, a map of the lab's parts in its first cell, a goal under
 each part heading and a checkpoint closing each part (the same as on the sheet), an Evidence cell that writes tables and

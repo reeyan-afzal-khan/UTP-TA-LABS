@@ -24,7 +24,7 @@ from bisect import bisect_right
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .latex.inline import split_sentences_plain
+from .typst.inline import split_sentences_plain
 from .paths import cache_dir
 from .script import SHOW, sha1
 

@@ -6,10 +6,10 @@ A step-by-step path from the Linux command line and the process model, through C
 memory management, to file systems. Each core chapter is paired with one practical lab, and every lab sheet prints
 the complete source files it runs from [`all_experiments/`](all_experiments).
 
-**[Book (PDF, 86 pages)](../.all_pdfs/operating-systems/OS-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/operating-systems) ·
+**[Book (PDF, the complete book)](../.all-pdfs/operating-systems/OS-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/operating-systems) ·
 [Vim quick reference](all_experiments/VIM-QUICK-REFERENCE.md) ·
-[LaTeX source](main.tex) ·
+[Typst source](main.typ) ·
 [All courses](../README.md)
 
 ## Stages
@@ -25,22 +25,22 @@ the complete source files it runs from [`all_experiments/`](all_experiments).
 
 ## Labs
 
-Each lab folder under [`.all_pdfs/operating-systems/`](../.all_pdfs/operating-systems) holds the chapters to read
+Each lab folder under [`.all-pdfs/operating-systems/`](../.all-pdfs/operating-systems) holds the chapters to read
 before the lab and the lab sheet. Page numbers are the ones printed in the book.
 
-| Lab | Lab sheet | Read first | Pages | Sources |
+| Lab | Lab sheet | Read first | Page ranges | Sources |
 | --- | --- | --- | --- | --- |
-| 1 | [Processes and the Linux namespace](../.all_pdfs/operating-systems/Lab-01/Lab-Activity.pdf) | Toolkit, What an OS does, Ch. 1 | 14–16 | [Lab01](all_experiments/Lab01): `fork_demo.c`, `directory_list.c` |
-| 2 | [Files, metadata, and reliable CLI utilities](../.all_pdfs/operating-systems/Lab-02/Lab-Activity.pdf) | Ch. 2 | 19–22 | [Lab02](all_experiments/Lab02): `file_info.c`, `file_copy.c`, `mini_grep.c` |
-| 3 | [Shell scripting for OS observation and automation](../.all_pdfs/operating-systems/Lab-03/Lab-Activity.pdf) | Ch. 3 | 26–28 | [Lab03](all_experiments/Lab03): `system_report.sh`, `process_summary.sh`, `log_summary.sh` |
-| 4 | [CPU scheduling: compare policies on one workload](../.all_pdfs/operating-systems/Lab-04/Lab-Activity.pdf) | Ch. 4 | 35–38 | [Lab04](all_experiments/Lab04): `fcfs.c`, `sjf.c`, `priority.c`, `round_robin.c` |
-| 5 | [Interprocess communication and synchronization](../.all_pdfs/operating-systems/Lab-05/Lab-Activity.pdf) | Ch. 5 | 42–45 | [Lab05](all_experiments/Lab05): `pipe_demo.c`, `shm_writer.c`, `shm_reader.c`, `producer_consumer_sim.c` |
-| 6 | [Threads, mutexes, and resource safety](../.all_pdfs/operating-systems/Lab-06/Lab-Activity.pdf) | Ch. 6 | 49–52 | [Lab06](all_experiments/Lab06): `threads_demo.c`, `banker.c` |
-| 7 | [Contiguous memory allocation and fragmentation](../.all_pdfs/operating-systems/Lab-07/Lab-Activity.pdf) | Ch. 7 | 57–60 | [Lab07](all_experiments/Lab07): `first_fit.c`, `best_fit.c`, `worst_fit.c` |
-| 8 | [Virtual memory and page replacement](../.all_pdfs/operating-systems/Lab-08/Lab-Activity.pdf) | Ch. 8 | 64–67 | [Lab08](all_experiments/Lab08): `fifo.c`, `lru.c`, `lfu.c` |
-| 9 | [File-system namespace, paths, and links](../.all_pdfs/operating-systems/Lab-09/Lab-Activity.pdf) | Ch. 9 | 72–74 | [Lab09](all_experiments/Lab09): `make_demo_tree.sh`, `directory_walk.c` |
-| 10 | [File records and indexed block allocation](../.all_pdfs/operating-systems/Lab-10/Lab-Activity.pdf) | Ch. 10 | 78–81 | [Lab10](all_experiments/Lab10): `text_records.c`, `binary_records.c`, `indexed_allocation.c` |
-| | [Revision map and capstone practice](../.all_pdfs/operating-systems/Capstone-Project.pdf) | all | 82–83 | |
+| 1 | [Processes and the Linux namespace](../.all-pdfs/operating-systems/Lab-01/Lab-Activity.pdf) | Toolkit, What an OS does, Ch. 1 | See manifest | [Lab01](all_experiments/Lab01): `fork_demo.c`, `directory_list.c` |
+| 2 | [Files, metadata, and reliable CLI utilities](../.all-pdfs/operating-systems/Lab-02/Lab-Activity.pdf) | Ch. 2 | See manifest | [Lab02](all_experiments/Lab02): `file_info.c`, `file_copy.c`, `mini_grep.c` |
+| 3 | [Shell scripting for OS observation and automation](../.all-pdfs/operating-systems/Lab-03/Lab-Activity.pdf) | Ch. 3 | See manifest | [Lab03](all_experiments/Lab03): `system_report.sh`, `process_summary.sh`, `log_summary.sh` |
+| 4 | [CPU scheduling: compare policies on one workload](../.all-pdfs/operating-systems/Lab-04/Lab-Activity.pdf) | Ch. 4 | See manifest | [Lab04](all_experiments/Lab04): `fcfs.c`, `sjf.c`, `priority.c`, `round_robin.c` |
+| 5 | [Interprocess communication and synchronization](../.all-pdfs/operating-systems/Lab-05/Lab-Activity.pdf) | Ch. 5 | See manifest | [Lab05](all_experiments/Lab05): `pipe_demo.c`, `shm_writer.c`, `shm_reader.c`, `producer_consumer_sim.c` |
+| 6 | [Threads, mutexes, and resource safety](../.all-pdfs/operating-systems/Lab-06/Lab-Activity.pdf) | Ch. 6 | See manifest | [Lab06](all_experiments/Lab06): `threads_demo.c`, `banker.c` |
+| 7 | [Contiguous memory allocation and fragmentation](../.all-pdfs/operating-systems/Lab-07/Lab-Activity.pdf) | Ch. 7 | See manifest | [Lab07](all_experiments/Lab07): `first_fit.c`, `best_fit.c`, `worst_fit.c` |
+| 8 | [Virtual memory and page replacement](../.all-pdfs/operating-systems/Lab-08/Lab-Activity.pdf) | Ch. 8 | See manifest | [Lab08](all_experiments/Lab08): `fifo.c`, `lru.c`, `lfu.c` |
+| 9 | [File-system namespace, paths, and links](../.all-pdfs/operating-systems/Lab-09/Lab-Activity.pdf) | Ch. 9 | See manifest | [Lab09](all_experiments/Lab09): `make_demo_tree.sh`, `directory_walk.c` |
+| 10 | [File records and indexed block allocation](../.all-pdfs/operating-systems/Lab-10/Lab-Activity.pdf) | Ch. 10 | See manifest | [Lab10](all_experiments/Lab10): `text_records.c`, `binary_records.c`, `indexed_allocation.c` |
+| | [Revision map and capstone practice](../.all-pdfs/operating-systems/Capstone-Project.pdf) | all | See manifest | |
 
 ## Running the labs
 
@@ -60,24 +60,23 @@ Lab 6 adds `-pthread` for the threaded programs. Vim is the course's source edit
 
 ```text
 OPERATING SYSTEMS/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           the two orientation chapters, Chapters 1-10, the course map and the revision map
   labs/               10 lab sheets, each input at the end of its chapter
   all_experiments/    Lab01-Lab10, the C and shell sources each lab compiles and runs,
                       and VIM-QUICK-REFERENCE.md
 ```
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py OS            # rebuild the book and its lab PDFs in .all_pdfs/operating-systems/
-python .shared/build.py OS --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py OS
+python .typst-setup/scripts/publish.py OS
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.
 
 ## Refined lab walkthroughs
 
@@ -86,5 +85,3 @@ for the shared styles every book uses.
 Full C and Bash files remain the authoritative source. Listings are divided into consecutive chunks, paired with state traces and the existing compile/run checks.
 
 **Validation:** Thirteen portable C programs compiled with GCC -std=c11 -Wall -Wextra and ran successfully. POSIX processes, IPC, pthreads and Bash require the Linux classroom environment; no WSL distribution is installed here.
-
-The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.

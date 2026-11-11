@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace R1 routing to 192.168.3.0/24])[#flow([*\1. Input / state*
+
+R1 normally selects next hop 10.0.12.2 through R2, using static preference 60.], [*\2. Operation*
+
+Shut R1 GE0/0/0 as instructed. The backup through 10.0.13.3 has preference 100.], [*\3. Check*
+
+Check the active route, then ping PC3. R3 must still have a working route back to the source LAN.])]

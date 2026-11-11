@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
-from manim import (DOWN, LEFT, ORIGIN, RIGHT, UP, Code, Dot, ImageMobject, Line, MathTex, Rectangle,
+from manim import (DOWN, LEFT, ORIGIN, RIGHT, UP, Code, Dot, ImageMobject, Line, Rectangle,
                    RoundedRectangle, SVGMobject, VGroup, VMobject)
 from pygments.style import Style
 from pygments.token import (Comment, Error, Generic, Keyword, Name, Number, Operator, Punctuation, String,
@@ -489,9 +489,12 @@ def load_image(path: str, max_w: float, max_h: float) -> ImageMobject:
     return img
 
 
-def math_tex(theme: Theme, tex: str, size: float = 46, color: str = "ink"):
+def math_typst(theme: Theme, markup: str, size: float = 46, color: str = "ink"):
     try:
-        return MathTex(tex, font_size=size, color=theme.c(color))
+        from ..figures import math_svg
+        result = SVGMobject(str(math_svg(markup, theme.c(color).to_hex())))
+        result.scale_to_fit_height(size / 45)
+        return result
     except Exception:
-        from ..latex.inline import math_to_markup
-        return theme.text(math_to_markup(tex), size=size * 0.75, color=color)
+        from ..typst.inline import math_to_markup
+        return theme.text(math_to_markup(markup), size=size * 0.75, color=color)

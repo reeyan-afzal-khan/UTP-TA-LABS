@@ -7,4 +7,4 @@ psutil>=5.9
 potracer>=0.0.4      # the UTP logo, traced once into vector layers
 scipy>=1.11          # ... its symmetry and centre lines
 fonttools>=4.40      # ... its wordmark, set in a real serif
-# also needed on PATH: MiKTeX (pdflatex, pdftocairo, pdfinfo) and ffmpeg / ffprobe
+# also needed: official Typst via .typst-setup, and ffmpeg / ffprobe on PATH

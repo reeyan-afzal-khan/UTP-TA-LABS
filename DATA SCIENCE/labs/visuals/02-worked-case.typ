@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace the derived age field])[#flow([*\1. Input / state*
+
+Keep Titanic Age as the raw field and initialise imputed\_n for the audit.], [*\2. Operation*
+
+Age\_imputed fills missing values using medians within Pclass and Sex groups; imputed\_n counts replacements.], [*\3. Check*
+
+Compare raw missingness, imputed\_n and the derived values; raw Age must remain recoverable.])]

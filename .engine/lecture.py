@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""UTP lecture engine: narrated Manim videos from the course LaTeX.
+"""UTP lecture engine: narrated Manim videos from the course Typst.
 
-    python .all_lectures/engine/lecture.py list [COURSE]
-    python .all_lectures/engine/lecture.py build ADS ch1 lab1          render and publish
-    python .all_lectures/engine/lecture.py build ADS ch1 --draft       quick 540p30 preview, not published
-    python .all_lectures/engine/lecture.py script ADS ch1              (re)write the editable script only
-    python .all_lectures/engine/lecture.py voice-sheet ADS ch1         what to record for your own voice
-    python .all_lectures/engine/lecture.py doctor                      check the tools are installed
+    python .engine/lecture.py list [COURSE]
+    python .engine/lecture.py build ADS ch1 lab1          render and publish
+    python .engine/lecture.py build ADS ch1 --draft       quick 540p30 preview, not published
+    python .engine/lecture.py script ADS ch1              (re)write the editable script only
+    python .engine/lecture.py voice-sheet ADS ch1         what to record for your own voice
+    python .engine/lecture.py doctor                      check the tools are installed
 
 COURSE is a code (ADS, AI, DCN, DS, ERP, FI, ML, OS), a folder name or a slug.
 After a course, pick lectures with ch1, lab3, or a file name (01-introduction);
@@ -51,7 +51,7 @@ def _ensure_environment() -> None:
     for exe in candidates:
         if exe and Path(exe).exists() and Path(exe).resolve() != Path(sys.executable).resolve():
             sys.exit(subprocess.call([exe, __file__, *sys.argv[1:]]))
-    sys.exit("Manim Community is not installed for this Python. See .all_lectures/engine/README.md (Setup).")
+    sys.exit("Manim Community is not installed for this Python. See .engine/README.md (Setup).")
 
 
 def select(tokens: list[str]):
@@ -136,7 +136,7 @@ def cmd_voice_sheet(args) -> None:
                  "(.wav, .mp3, .m4a or .flac). Silence at either end is trimmed. Cues you have not recorded",
                  "keep the TTS voice, so you can record a few at a time. Rebuild the lecture to re-pace the",
                  "video to your timing:", "", "```bash",
-                 f"python .all_lectures/engine/lecture.py build {lec.course.code} {lec.stem}", "```", ""]
+                 f"python .engine/lecture.py build {lec.course.code} {lec.stem}", "```", ""]
         for sc in script["scenes"]:
             lines.append(f"## {sc['id']} · {sc['type']}" + (f" · {sc['section']}" if sc.get("section") else ""))
             lines.append("")
@@ -170,7 +170,7 @@ def main() -> None:
     s.add_argument("--draft", action="store_true", help="quick low-resolution preview in the cache, not published")
     s.add_argument("--stills", action="store_true",
                    help="layout check: save a full-size still at the end of every cue, render no video")
-    s.add_argument("--rescript", action="store_true", help="regenerate the script from the LaTeX, dropping edits")
+    s.add_argument("--rescript", action="store_true", help="regenerate the script from the Typst, dropping edits")
     s.add_argument("--voice", choices=["auto", "tts", "recorded"], help="override voice.mode")
     s.add_argument("--keep-going", action="store_true", help="continue with the next lecture after a failure")
     s.set_defaults(fn=cmd_build)

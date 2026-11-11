@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace the supplied feature-engineering block])[#flow([*\1. Input / state*
+
+Start with the booking columns lead\_time, the two night counts, adults, children, babies and previous\_cancellations.], [*\2. Operation*
+
+Add the nights and the guests, flag children and earlier cancellations, and take log1p of the lead time.], [*\3. Check*
+
+Compare raw and engineered feature sets with the same split and logistic model.])]

@@ -2,7 +2,7 @@
 
 Five model families under one workflow, on two real tables: 100,000 Lending Club loans, a hard and noisy credit problem where the data, not the algorithm, sets the ceiling, and Lab 2's Cars.com listings for forests against boosting. The Try-it puts naive Bayes on 5,572 text messages.
 
-**Lab sheet:** [`Lab-03/Lab-Activity.pdf`](../../../.all_pdfs/machine-learning/Lab-03/Lab-Activity.pdf), which practises Chapters 11 to 14.
+**Lab sheet:** [`Lab-03/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-03/Lab-Activity.pdf), which practises Chapters 11 to 14.
 
 ## Parts
 

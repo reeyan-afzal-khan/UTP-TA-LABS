@@ -1,0 +1,144 @@
+#import "/.shared/typst/utp.typ": *
+#unit("chapters", "command-reference")
+
+
+#heading(level: 1, numbering: none)[Command Quick Reference]
+
+
+This appendix is a lookup aid. Confirm the required VRP view before entering a command.
+
+
+#heading(level: 2, numbering: none)[Core VRP and interface commands]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose in the labs],),
+    table.hline(),
+    [system-view], [Enter system configuration view.],
+    [sysname R1], [Rename the device.],
+    [interface GigabitEthernet 0/0/0], [Enter an Ethernet interface view.],
+    [ip address 10.0.13.1 24], [Assign an IPv4 address/prefix.],
+    [description \<text\>], [Label an interface.],
+    [display this], [Display the configuration in the current view.],
+    [display interface \<interface\>], [Display detailed interface state.],
+    [display ip interface brief], [Compact IP/interface state summary.],
+    [ping \<address\>], [Test IP reachability.],
+    [save], [Save the current configuration.],
+    [display saved-configuration], [Display the stored configuration.],
+  )]
+  , kind: table
+  )
+
+
+#heading(level: 2, numbering: none)[Static routing and OSPF]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose],),
+    table.hline(),
+    [ip route-static 10.0.3.0 24 10.0.23.3], [Add a next-hop static route.],
+    [ip route-static ... preference 80], [Add a less-preferred backup static route.],
+    [display ip routing-table], [Inspect direct, static, and dynamic routes.],
+    [ospf 1 router-id 10.0.1.1], [Create/select OSPF process 1 with a router ID.],
+    [area 0], [Enter OSPF area 0.],
+    [network 10.0.12.0 0.0.0.255], [Enable matching interfaces for OSPF.],
+    [display ospf peer], [Detailed OSPF neighbor state.],
+    [display ospf peer brief], [Condensed OSPF neighbor summary.],
+  )]
+  , kind: table
+  )
+
+
+#heading(level: 2, numbering: none)[FTP]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose],),
+    table.hline(),
+    [ftp server enable], [Enable the FTP server.],
+    [set default ftp-directory flash:/], [Set default server directory.],
+    [local-user huawei ...], [Create/configure the local FTP/PPP user under AAA.],
+    [display ftp-server], [Verify server status and port.],
+    [ftp 10.0.12.1], [Open an FTP client connection.],
+    [dir], [List files in the FTP session.],
+    [binary], [Set binary transfer mode.],
+    [get \<remote\> \<local\>], [Download from server to client.],
+    [put \<local\> \<remote\>], [Upload from client to server.],
+    [bye], [Close the FTP session.],
+  )]
+  , kind: table
+  )
+
+
+#heading(level: 2, numbering: none)[DHCP]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose],),
+    table.hline(),
+    [dhcp enable], [Enable DHCP functionality.],
+    [ip pool pool1], [Create a named global pool.],
+    [network 10.0.12.0 mask 24], [Define pool network.],
+    [gateway-list 10.0.12.1], [Define default gateway offered by pool.],
+    [lease day 1 hour 12], [Configure lease duration.],
+    [dhcp select global], [Use a global pool on an interface.],
+    [dhcp select interface], [Use an interface-based pool.],
+    [dhcp server excluded-ip-address \<IP\>], [Prevent an address from dynamic allocation.],
+    [dhcp server dns-list \<IP\>], [Offer a DNS server value.],
+    [ip address dhcp-alloc], [Make a switch Vlanif request an address dynamically.],
+    [display ip pool name \<name\>], [Inspect pool state and lease counters.],
+  )]
+  , kind: table
+  )
+
+
+#heading(level: 2, numbering: none)[Eth-Trunk, LACP, and VLAN]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose],),
+    table.hline(),
+    [undo negotiation auto], [Disable Ethernet auto-negotiation.],
+    [speed 100], [Force the lab member-link speed.],
+    [interface Eth-Trunk 1], [Enter/create the logical bundle.],
+    [eth-trunk 1], [Add a physical interface to Eth-Trunk 1.],
+    [mode lacp], [Enable static LACP on the Eth-Trunk (syntax varies by VRP image).],
+    [lacp priority 100], [Set LACP system/interface priority depending on view.],
+    [port link-type access], [Configure a host-facing access port.],
+    [port default vlan 4], [Bind an access port to VLAN 4.],
+    [port link-type trunk], [Configure trunk behavior.],
+    [port trunk allow-pass vlan all], [Permit VLANs on the trunk.],
+    [port link-type hybrid], [Configure a hybrid port.],
+    [port hybrid untagged vlan 2 4], [Send listed VLANs untagged on egress.],
+    [port hybrid pvid vlan 4], [Classify untagged ingress using VLAN 4 as PVID.],
+  )]
+  , kind: table
+  )
+
+
+#heading(level: 2, numbering: none)[WAN, PPP, PAP, and CHAP]
+ #figure(
+  align(center)[#table(
+    columns: 2,
+    align: (left,left,),
+    table.header([Command], [Purpose],),
+    table.hline(),
+    [interface Serial 1/0/0], [Enter a serial interface.],
+    [link-protocol hdlc], [Use HDLC encapsulation.],
+    [baudrate 128000], [Change DCE clock rate in the lab.],
+    [link-protocol ppp], [Use PPP encapsulation.],
+    [ppp authentication-mode pap], [Require PAP authentication.],
+    [ppp pap local-user huawei password cipher ...], [Configure PAP credentials on the authenticated peer.],
+    [ppp authentication-mode chap], [Require CHAP authentication.],
+    [ppp chap user huawei], [Configure CHAP username.],
+    [ppp chap password cipher ...], [Configure CHAP password.],
+  )]
+  , kind: table
+  )
+
+#callout("pitfall", title: [Common mistake])[If a command is rejected, check the prompt and required view before changing its syntax.]

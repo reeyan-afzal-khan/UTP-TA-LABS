@@ -2,44 +2,40 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "LaTeX: build selected course",
+      "label": "Typst: build selected course",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "python3",
+      "windows": {
+        "command": "python"
+      },
       "args": [
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/.latex-setup/Build.ps1",
-        "-MainFile",
-        "${workspaceFolder}/${input:course}/main.tex"
+        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "${input:course}"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
       },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
       "problemMatcher": [],
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated",
-        "clear": true
+        "panel": "dedicated"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
       }
     },
     {
-      "label": "LaTeX: check local setup",
+      "label": "Typst: watch selected course",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "python3",
+      "windows": {
+        "command": "python"
+      },
       "args": [
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/.latex-setup/Check.ps1"
+        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "${input:course}",
+        "--watch"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -51,16 +47,54 @@
       }
     },
     {
-      "label": "LaTeX: build all courses",
+      "label": "Typst: build all courses",
       "type": "process",
-      "command": "powershell.exe",
+      "command": "python3",
+      "windows": {
+        "command": "python"
+      },
       "args": [
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "${workspaceFolder}/.latex-setup/Build-All.ps1"
+        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "--all"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Typst: check setup",
+      "type": "process",
+      "command": "python3",
+      "windows": {
+        "command": "python"
+      },
+      "args": [
+        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "--check"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Typst: install compiler",
+      "type": "process",
+      "command": "python3",
+      "windows": {
+        "command": "python"
+      },
+      "args": [
+        "${workspaceFolder}/.typst-setup/scripts/install.py"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -76,7 +110,7 @@
     {
       "id": "course",
       "type": "pickString",
-      "description": "Choose the course to compile",
+      "description": "Choose the course",
       "options": [
         "0.GIT-REPO-SUBMISSION",
         "ALGORITHMS & DATA STRUCTURES",

@@ -2,7 +2,7 @@
 
     class Video(Lecture):
         course = "algorithms-data-structures"
-        source = "chapters/01-introduction.tex"
+        source = "chapters/01-introduction.typ"
 
         def s01(self):                                  # one method per scene, played in this order
             return title(kicker="Algorithms & Data Structures", label="Chapter 1",
@@ -103,12 +103,12 @@ def table(**kw) -> dict:
 
 
 def figure(**kw) -> dict:
-    """A figure from the LaTeX, by its key or label: figure, label, number, title, caption."""
+    """A figure from the Typst, by its key or label: figure, label, number, title, caption."""
     return _scene("figure", **kw)
 
 
 def equation(**kw) -> dict:
-    """A displayed equation: tex."""
+    """A displayed equation: markup."""
     return _scene("math", **kw)
 
 
@@ -134,7 +134,7 @@ class Lecture:
     """A lecture video: subclass it, set course and source, and write one method per scene."""
 
     course: str = ""        # the course folder's slug or code: "algorithms-data-structures" or "ADS"
-    source: str = ""        # the LaTeX it was made from, relative to the course folder
+    source: str = ""        # the Typst it was made from, relative to the course folder
 
     # ------------------------------------------------------------ the script
 

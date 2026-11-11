@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 
-from .latex.inline import code_to_speech
+from .typst.inline import code_to_speech
 
 NUMBERS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
            "eleven", "twelve"]

@@ -65,7 +65,7 @@ def make_plan(lec: Lecture, settings: dict, script: dict, figblocks: dict, voice
     for s in fig_scenes:
         fb = figblocks.get(s.get("figure") or "") or figblocks.get(s.get("label") or "")
         info = compiled.get(figure_key(course, fb), {}) if fb is not None else {
-            "error": "this figure is no longer in the LaTeX"}
+            "error": "this figure is no longer in the Typst"}
         figures[s.get("figure") or s.get("label") or ""] = info
         if s.get("label"):
             figures[s["label"]] = info
@@ -102,7 +102,7 @@ def make_plan(lec: Lecture, settings: dict, script: dict, figblocks: dict, voice
         "out": {
             "media_dir": str(work / "media"),
             "text_dir": str(cache_dir("text")),
-            "tex_dir": str(cache_dir("tex")),
+            "tex_dir": str(cache_dir("markup")),
             "name": lec.stem,
             "timeline": str(work / "timeline.json"),
             "result": str(work / "result.json"),
@@ -143,7 +143,7 @@ def render(plan: dict, log=print) -> dict:
 
 def build_lecture(lec: Lecture, *, draft: bool = False, stills: bool = False, rescript: bool = False,
                   voice: str | None = None, log=print) -> Path:
-    """From the LaTeX (or your edited script). Also writes the video's Manim code, <name>.py; once you
+    """From the Typst (or your edited script). Also writes the video's Manim code, <name>.py; once you
     have edited that file, it is what gets built (until --rescript)."""
     log(f"{lec.course.code} {lec.label}: {lec.rel}")
     settings = load_settings(lec.course.slug)
@@ -178,7 +178,7 @@ def build_from_python(cls, path, *, draft: bool = False, stills: bool = False, o
     if settings is None:
         log(f"{lec.course.code} {lec.label}: {Path(path).name}")
         settings = load_settings(lec.course.slug)
-    if figblocks is None or meta is None:                 # figures and titles still come from the LaTeX
+    if figblocks is None or meta is None:                 # figures and titles still come from the Typst
         from .script import ScriptBuilder
         builder = ScriptBuilder(lec, settings)
         fresh = builder.build()

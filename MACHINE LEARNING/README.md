@@ -9,10 +9,10 @@ a small example you can check by hand, and ends with a recap, a check and its an
 chapters in five stages (Chapter 1 comes in two parts, 1A and 1B), eight labs and a capstone project. Labs are written
 in Python with scikit-learn and PyTorch, on real public datasets from Hugging Face and the UCI repository.
 
-**[Book (PDF, 304 pages)](../.all_pdfs/machine-learning/ML-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/machine-learning) ·
+**[Book (PDF, the complete book)](../.all-pdfs/machine-learning/ML-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/machine-learning) ·
 [Notebook guide](all_experiments/README.md) ·
-[LaTeX source](main.tex) ·
+[Typst source](main.typ) ·
 [All courses](../README.md)
 
 ## Stages
@@ -31,23 +31,23 @@ Lab 5 practices Chapters 18 and 19, so its sheet comes after Chapter 19, at the 
 
 ## Labs
 
-Each lab has its own folder under [`.all_pdfs/machine-learning/`](../.all_pdfs/machine-learning), holding the
+Each lab has its own folder under [`.all-pdfs/machine-learning/`](../.all-pdfs/machine-learning), holding the
 chapters to read before it and the lab sheet itself; Labs 7 and 8 both practice Chapter 21, so each folder has a
 copy. Page numbers are the ones printed in the book. Every sheet opens with a map of its parts; each part starts with its goal and data and ends with a checkpoint.
 Every sheet also has a header, setup steps, a warm-up on paper, questions numbered to match the notebook, reference outputs with what they mean, Your-turn tasks with expected
 findings, troubleshooting, and verification and submission checklists.
 
-| Lab | Lab sheet | Read first | Pages | Worked notebook | Datasets |
+| Lab | Lab sheet | Read first | Page ranges | Worked notebook | Datasets |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [Feature engineering and feature selection](../.all_pdfs/machine-learning/Lab-01/Lab-Activity.pdf) | Ch. 1A–3 | 30–48 | [lab01_features_worked](all_experiments/lab01_features/lab01_features_worked.ipynb) | Hotel booking demand, Telco churn, bank marketing |
-| 2 | [Supervised learning I: regression, classification, and the workflow](../.all_pdfs/machine-learning/Lab-02/Lab-Activity.pdf) | Ch. 4–10 | 115–134 | [lab02_supervised_workflow_worked](all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.ipynb) | Used-car listings (Cars.com), hotel booking demand, Telco churn |
-| 3 | [Supervised learning II: model families](../.all_pdfs/machine-learning/Lab-03/Lab-Activity.pdf) | Ch. 11–14 | 164–181 | [lab03_supervised_models_worked](all_experiments/lab03_supervised_models/lab03_supervised_models_worked.ipynb) | Lending Club loans, used-car listings, SMS spam (Try-it) |
-| 4 | [Unsupervised learning I: clustering and PCA](../.all_pdfs/machine-learning/Lab-04/Lab-Activity.pdf) | Ch. 15–17 | 206–219 | [lab04_clustering_pca_worked](all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.ipynb) | Online Retail II invoices, wood surface defects |
-| 5 | [Unsupervised learning II: anomaly detection and limited labels](../.all_pdfs/machine-learning/Lab-05/Lab-Activity.pdf) | Ch. 18–19 | 231–243 | [lab05_anomaly_limited_labels_worked](all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.ipynb) | ULB card fraud, Banking77 support messages |
-| 6 | [Reinforcement learning](../.all_pdfs/machine-learning/Lab-06/Lab-Activity.pdf) | Ch. 20 | 251–261 | [lab06_reinforcement_worked](all_experiments/lab06_reinforcement/lab06_reinforcement_worked.ipynb) | none (the notebook builds a GridWorld) |
-| 7 | [Deep learning I: a first neural network and a CNN for images](../.all_pdfs/machine-learning/Lab-07/Lab-Activity.pdf) | Ch. 21 | 270–284 | [lab07_deep_learning_cnn_worked](all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.ipynb) | Wood surface defects |
-| 8 | [Deep learning II: an LSTM for time series](../.all_pdfs/machine-learning/Lab-08/Lab-Activity.pdf) | Ch. 21 | 285–298 | [lab08_deep_learning_lstm_worked](all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.ipynb) | Portuguese electricity load, 2011–2014 |
-| | [Capstone project](../.all_pdfs/machine-learning/Capstone-Project.pdf) | all | 299–300 | | your choice |
+| 1 | [Feature engineering and feature selection](../.all-pdfs/machine-learning/Lab-01/Lab-Activity.pdf) | Ch. 1A–3 | See manifest | [lab01_features_worked](all_experiments/lab01_features/lab01_features_worked.ipynb) | Hotel booking demand, Telco churn, bank marketing |
+| 2 | [Supervised learning I: regression, classification, and the workflow](../.all-pdfs/machine-learning/Lab-02/Lab-Activity.pdf) | Ch. 4–10 | See manifest | [lab02_supervised_workflow_worked](all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.ipynb) | Used-car listings (Cars.com), hotel booking demand, Telco churn |
+| 3 | [Supervised learning II: model families](../.all-pdfs/machine-learning/Lab-03/Lab-Activity.pdf) | Ch. 11–14 | See manifest | [lab03_supervised_models_worked](all_experiments/lab03_supervised_models/lab03_supervised_models_worked.ipynb) | Lending Club loans, used-car listings, SMS spam (Try-it) |
+| 4 | [Unsupervised learning I: clustering and PCA](../.all-pdfs/machine-learning/Lab-04/Lab-Activity.pdf) | Ch. 15–17 | See manifest | [lab04_clustering_pca_worked](all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.ipynb) | Online Retail II invoices, wood surface defects |
+| 5 | [Unsupervised learning II: anomaly detection and limited labels](../.all-pdfs/machine-learning/Lab-05/Lab-Activity.pdf) | Ch. 18–19 | See manifest | [lab05_anomaly_limited_labels_worked](all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.ipynb) | ULB card fraud, Banking77 support messages |
+| 6 | [Reinforcement learning](../.all-pdfs/machine-learning/Lab-06/Lab-Activity.pdf) | Ch. 20 | See manifest | [lab06_reinforcement_worked](all_experiments/lab06_reinforcement/lab06_reinforcement_worked.ipynb) | none (the notebook builds a GridWorld) |
+| 7 | [Deep learning I: a first neural network and a CNN for images](../.all-pdfs/machine-learning/Lab-07/Lab-Activity.pdf) | Ch. 21 | See manifest | [lab07_deep_learning_cnn_worked](all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.ipynb) | Wood surface defects |
+| 8 | [Deep learning II: an LSTM for time series](../.all-pdfs/machine-learning/Lab-08/Lab-Activity.pdf) | Ch. 21 | See manifest | [lab08_deep_learning_lstm_worked](all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.ipynb) | Portuguese electricity load, 2011–2014 |
+| | [Capstone project](../.all-pdfs/machine-learning/Capstone-Project.pdf) | all | See manifest | | your choice |
 
 ## Running the labs
 
@@ -74,7 +74,7 @@ number in a chapter comes from `all_experiments/book_checks/demo_*.py`, and ever
 
 ```text
 MACHINE LEARNING/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           the chapters, the course map, the capstone and the study-log figures
   labs/               8 lab sheets, each input after the chapters it practices
   all_datasets/       11 datasets in supervised/, unsupervised/ and advanced/, each with a data card
@@ -85,14 +85,13 @@ MACHINE LEARNING/
   requirements.txt    Python packages for the notebooks
 ```
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py ML            # rebuild the book and its lab PDFs in .all_pdfs/machine-learning/
-python .shared/build.py ML --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py ML
+python .typst-setup/scripts/publish.py ML
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.

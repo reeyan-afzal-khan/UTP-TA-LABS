@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace fit versus transform in text classification])[#flow([*\1. Input / state*
+
+Clean and deduplicate model\_text, then preserve train, val and test indices.], [*\2. Operation*
+
+Fit a vectorizer on model\_text\[train\] transform other splits using those learned feature columns.], [*\3. Check*
+
+After validation selects settings, features transforms test text and model predicts X\_test.])]

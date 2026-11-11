@@ -1,0 +1,29 @@
+{
+  "ENTERPRISE RESOURCE PLANNING/01-business-process-odoo": [
+    "ch:business-processes",
+    "ch:erp-development"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/02-erp-development-odoo": [
+    "ch:erp-development"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/03-production-planning-odoo": [
+    "ch:production-planning"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/04-crm-odoo": [
+    "ch:crm"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/05-sales-order-odoo": [
+    "ch:sales-order",
+    "ch:accounting"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/06-forecast-sop-odoo": [
+    "ch:forecasting-sop"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/07-scm-odoo": [
+    "ch:scm"
+  ],
+  "ENTERPRISE RESOURCE PLANNING/08-hr-process-odoo": [
+    "ch:hr",
+    "ch:process-modeling"
+  ]
+}

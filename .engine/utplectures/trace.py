@@ -14,7 +14,7 @@ import re
 
 from .codeinfo import _function_sentence, count_word, say_list
 from .heapmodel import HeapModel, is_ptr, ref_of
-from .latex.inline import code_to_speech
+from .typst.inline import code_to_speech
 from .minicpp import CppError, Interpreter, format_path, names_used, show, speak
 from .script_marks import SHOW
 

@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Clustering and compression answer different questions])[#flow([*K-means*
+
+Assign each point to a nearest centroid], [*DBSCAN*
+
+Dense neighborhoods form clusters; noise may remain], [*PCA*
+
+Rotate onto variance directions; test reconstruction or utility])]

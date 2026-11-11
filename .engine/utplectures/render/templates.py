@@ -22,7 +22,7 @@ from .opsdemo import ArrayDemo, ValueDemo
 from .text import strip_markup
 from .viz import MemoryPanel
 from .widgets import (BODY_BOTTOM, BODY_TOP, CONTENT_W, FRAME_H, FRAME_W, LEFT_X, RIGHT_X, CodePanel, TablePanel,
-                      Theme, bullet_row, chip_rows, fit, headline, load_image, load_svg, math_tex, title_chip)
+                      Theme, bullet_row, chip_rows, fit, headline, load_image, load_svg, math_typst, title_chip)
 
 
 def grow(mob, max_w: float, max_h: float, max_up: float = 1.3):
@@ -376,7 +376,7 @@ class CalloutTemplate(Template):
             y_key = (area_top + BODY_BOTTOM) / 2
             math_mob = None
             if maths:
-                math_mob = math_tex(th, maths[0].get("tex", ""), size=64, color="ink")
+                math_mob = math_typst(th, maths[0].get("markup", ""), size=64, color="ink")
                 fit(math_mob, CONTENT_W - 1.0, 2.0)
                 math_mob.move_to([0, area_top - 0.9 - math_mob.height / 2, 0])
                 y_key = (math_mob.get_bottom()[1] + BODY_BOTTOM) / 2
@@ -385,7 +385,7 @@ class CalloutTemplate(Template):
                 if p.get("kind") == "math":
                     m = math_mob if p is maths[0] else None
                     if m is None:
-                        m = math_tex(th, p.get("tex", ""), size=52)
+                        m = math_typst(th, p.get("markup", ""), size=52)
                         fit(m, CONTENT_W - 1.0, 1.6)
                         m.move_to([0, y_key, 0])
                     steps.append(lambda m=m: with_chip([Write(m)]))
@@ -761,7 +761,7 @@ class MathTemplate(Template):
     reveal_time = 1.4
 
     def build(self):
-        m = math_tex(self.theme, self.sc.get("tex", ""), size=72)
+        m = math_typst(self.theme, self.sc.get("markup", ""), size=72)
         fit(m, CONTENT_W - 1, 3.5)
         m.move_to([0, self.mid_y, 0])
         self.steps = [lambda: [Write(m)]]

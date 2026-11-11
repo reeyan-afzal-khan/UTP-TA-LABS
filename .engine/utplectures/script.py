@@ -1,11 +1,11 @@
 """The lecture script: what is shown and what is said, scene by scene.
 
-The script is generated from the LaTeX and saved next to the video as
+The script is generated from the Typst and saved next to the video as
 <name>.script.yaml. It is the place to refine a lecture: change the wording
 of the narration ('say'), the text on screen, or the order of scenes, then
-rebuild. The engine regenerates the script whenever the LaTeX changes, unless
+rebuild. The engine regenerates the script whenever the Typst changes, unless
 you have edited it; then it keeps your version and tells you the source moved
-on (rebuild with --rescript to start again from the LaTeX).
+on (rebuild with --rescript to start again from the Typst).
 
 Scene types: title, guide, section, prose, bullets, callout, code, table,
 figure, math, outro. Within a scene, each cue (a stretch of narration)
@@ -27,18 +27,18 @@ import yaml
 from . import ENGINE_VERSION
 from .codeinfo import LANGUAGE_NAMES, STYLE_LANGUAGES, code_steps, lexer_name, say_list, split_listing
 from .courses import Lecture
-from .latex.blocks import (Block, BlockParser, Callout, CodeBlock, FigureBlock, Guide, Heading, InputRef,
+from .typst.blocks import (Block, BlockParser, Callout, CodeBlock, FigureBlock, Guide, Heading, InputRef,
                            LabBanner, ListBlock, MathBlock, Para, TableBlock)
 from .beats import item_show, paragraph_show
-from .latex.inline import InlineContext, convert, math_to_speech, split_sentences_latex
-from .latex.reader import split_top_level
+from .typst.inline import InlineContext, convert, math_to_speech, split_sentences_typst
+from .typst.reader import split_top_level
 from .ops import detect as detect_operations
 from .paths import LECTURES
 from .trace import Tracer, narrate
 
 
 def load_demos(lecture: Lecture) -> list[dict]:
-    """The demos for one lecture from .all_lectures/<course>/demos.yaml: {<tex stem>: [{after, say, code}]}."""
+    """The demos for one lecture from .all_lectures/<course>/demos.yaml: {<markup stem>: [{after, say, code}]}."""
     path = LECTURES / lecture.course.slug / "demos.yaml"
     if not path.exists():
         return []
@@ -101,10 +101,9 @@ class ScriptBuilder:
         self.mono = theme.get("mono", "Source Code Pro")
         self.tracer = Tracer()                            # runs the lecture's listings in order
         self.ctx = InlineContext(self.course.labels, self.course.macros)
-        m = re.search(r"\\lstset\{[^}]*style=(\w+)", self.course.main_tex)
-        self.default_lexer = STYLE_LANGUAGES.get(m.group(1), "text") if m else "text"
+        self.default_lexer = "text"
         self.scenes: list[dict] = []
-        self.figures: dict[str, FigureBlock] = {}     # figure key -> its LaTeX (kept out of the YAML)
+        self.figures: dict[str, FigureBlock] = {}     # figure key -> its Typst (kept out of the YAML)
         self.cue_no = 0
         self.section = ""          # header text for the scenes that follow
         self.sec_numbers = [0, 0, 0]
@@ -115,14 +114,14 @@ class ScriptBuilder:
 
     # ------------------------------------------------------------ conversion
 
-    def md(self, tex: str, ctx: InlineContext | None = None) -> str:
-        return convert(tex, ctx or self.ctx, self.colors, self.mono)[0]
+    def md(self, markup: str, ctx: InlineContext | None = None) -> str:
+        return convert(markup, ctx or self.ctx, self.colors, self.mono)[0]
 
-    def sp(self, tex: str, ctx: InlineContext | None = None) -> str:
-        return convert(tex, ctx or self.ctx, self.colors, self.mono)[1]
+    def sp(self, markup: str, ctx: InlineContext | None = None) -> str:
+        return convert(markup, ctx or self.ctx, self.colors, self.mono)[1]
 
-    def plain(self, tex: str) -> str:
-        return convert(tex, self.ctx, self.colors, self.mono)[2]
+    def plain(self, markup: str) -> str:
+        return convert(markup, self.ctx, self.colors, self.mono)[2]
 
     def cue(self, say: str, **extra) -> dict:
         self.cue_no += 1
@@ -183,19 +182,19 @@ class ScriptBuilder:
             nxt = blocks[i + 1]
             if not isinstance(b, Para):
                 continue
-            p = self.plain(b.tex).rstrip()
+            p = self.plain(b.markup).rstrip()
             if isinstance(nxt, (ListBlock, TableBlock)) and p.endswith(":"):
                 lead[i + 1] = i
             elif isinstance(nxt, CodeBlock) and (p.endswith(":") or words(p) <= 45):
                 lead[i + 1] = i
-            elif isinstance(nxt, FigureBlock) and nxt.label and nxt.label in b.tex:
+            elif isinstance(nxt, FigureBlock) and nxt.label and nxt.label in b.markup:
                 lead[i + 1] = i
         for i, b in enumerate(blocks[:-1]):
             nxt = blocks[i + 1]
             if not isinstance(nxt, Para) or (i + 1) in lead.values():
                 continue
-            p = self.plain(nxt.tex).rstrip()
-            if isinstance(b, FigureBlock) and b.label and b.label in nxt.tex:
+            p = self.plain(nxt.markup).rstrip()
+            if isinstance(b, FigureBlock) and b.label and b.label in nxt.markup:
                 trail[i] = i + 1
             elif isinstance(b, CodeBlock) and words(p) <= 30 and not p.endswith(":"):
                 trail[i] = i + 1
@@ -227,7 +226,7 @@ class ScriptBuilder:
         elif isinstance(b, Guide):
             self._guide(b)
         elif isinstance(b, Para):
-            self._prose(b.tex, frame, intro_say)
+            self._prose(b.markup, frame, intro_say)
         elif isinstance(b, ListBlock):
             self._bullets(b, frame, lead_para, intro_say)
         elif isinstance(b, Callout):
@@ -240,9 +239,9 @@ class ScriptBuilder:
         elif isinstance(b, FigureBlock):
             self._figure(b, frame, lead_para, trail_para, intro_say)
         elif isinstance(b, MathBlock):
-            cues = [self.cue(_cap(math_to_speech(b.tex)) + ".")]
+            cues = [self.cue(_cap(math_to_speech(b.markup)) + ".")]
             self._prefix(cues, intro_say)
-            self.scene("math", cues, frame, tex=b.tex)
+            self.scene("math", cues, frame, markup=b.markup)
         elif isinstance(b, InputRef):
             return b.path.startswith("labs/")              # the lab gets its own video
         return False
@@ -314,8 +313,8 @@ class ScriptBuilder:
 
     # ------------------------------------------------------------------ prose
 
-    def _prose(self, tex: str, frame, intro_say: str | None) -> None:
-        sentences = split_sentences_latex(tex)
+    def _prose(self, markup: str, frame, intro_say: str | None) -> None:
+        sentences = split_sentences_typst(markup)
         if not sentences:
             return
         limit = int(self.cfg.get("prose_words_per_card", 70))
@@ -336,7 +335,7 @@ class ScriptBuilder:
     def _list_items(self, lb: ListBlock, depth: int = 0) -> list[dict]:
         out = []
         for n, item in enumerate(lb.items, 1):
-            text_tex = item.tex
+            text_tex = item.markup
             entry = {"text": item_show(text_tex, self.ctx, self.colors, self.mono)}
             if lb.kind == "description" and item.label:
                 entry["term"] = self.md(item.label)
@@ -355,27 +354,27 @@ class ScriptBuilder:
                 if isinstance(child, ListBlock):
                     out.extend(self._list_items(child, depth + 1))
                 elif isinstance(child, Para):
-                    out.append({"text": self.md(child.tex), "depth": depth + 1,
-                                "_say": _end(self.sp(child.tex))})
+                    out.append({"text": self.md(child.markup), "depth": depth + 1,
+                                "_say": _end(self.sp(child.markup))})
         return out
 
     def _operations(self, names: list[str], texts: list[str], says: list[str], frame, lead_para: Para | None,
                     intro_say: str | None) -> bool:
         """A list or table of data-structure operations becomes a live demonstration."""
-        context = self.plain(lead_para.tex) if lead_para is not None else ""
+        context = self.plain(lead_para.markup) if lead_para is not None else ""
         found = detect_operations(names, context + " " + self.section)
         if found is None:
             return False
         subject, ops = found
         cues = []
         if lead_para is not None:
-            cues.append(self.cue(self.sp(lead_para.tex)))
+            cues.append(self.cue(self.sp(lead_para.markup)))
         items = []
         for name, text, say, op in zip(names, texts, says, ops):
             items.append({"op": op or "", "name": name, "text": text})
             cues.append(self.cue(say or name))
         self._prefix(cues, intro_say)
-        intro = paragraph_show([lead_para.tex], self.ctx, self.colors, self.mono, longest=20)[0] \
+        intro = paragraph_show([lead_para.markup], self.ctx, self.colors, self.mono, longest=20)[0] \
             if lead_para is not None else None
         self.scene("operations", cues, frame, subject=subject, intro=intro if lead_para is not None else None,
                    items=items)
@@ -395,8 +394,8 @@ class ScriptBuilder:
             cues = []
             intro = None
             if p == 0 and lead_para is not None:
-                intro = self.md(lead_para.tex)
-                cues.append(self.cue(self.sp(lead_para.tex)))
+                intro = self.md(lead_para.markup)
+                cues.append(self.cue(self.sp(lead_para.markup)))
             for it in page:
                 cues.append(self.cue(it.pop("_say") or "…"))
             if p == 0:
@@ -408,12 +407,12 @@ class ScriptBuilder:
 
     def _callout(self, c: Callout, frame, intro_say: str | None) -> None:
         styles = self.course.styles
-        title_tex = styles.title_tex(c.env, c.args)
-        title_md = self.md(title_tex)
-        title_say = self.sp(title_tex)
+        title_markup = styles.title_markup(c.env, c.args)
+        title_md = self.md(title_markup)
+        title_say = self.sp(title_markup)
         speak_title = bool(self.cfg.get("speak_box_titles", True)) and title_say
         simple = all(isinstance(b, (Para, ListBlock, MathBlock)) for b in c.blocks)
-        total_words = sum(words(self.plain(b.tex)) for b in c.blocks if isinstance(b, Para))
+        total_words = sum(words(self.plain(b.markup)) for b in c.blocks if isinstance(b, Para))
         total_items = sum(len(b.items) for b in c.blocks if isinstance(b, ListBlock))
         too_big = total_words > 120 or total_items > 7 or total_words + 12 * total_items > 150
         think = c.env in self.cfg.get("think_after", [])
@@ -427,15 +426,15 @@ class ScriptBuilder:
             while k < len(blocks):
                 b = blocks[k]
                 if isinstance(b, Para):
-                    say = self.sp(b.tex)
+                    say = self.sp(b.markup)
                     nxt = blocks[k + 1] if k + 1 < len(blocks) else None
-                    if isinstance(nxt, MathBlock) and not re.search(r"[.!?]\s*$", self.plain(b.tex)):
+                    if isinstance(nxt, MathBlock) and not re.search(r"[.!?]\s*$", self.plain(b.markup)):
                         # "... the relationship as" + equation: one sentence, the equation is what is shown
-                        parts.append({"kind": "math", "tex": nxt.tex})
-                        say = say.rstrip(":") + " " + _end(math_to_speech(nxt.tex))
+                        parts.append({"kind": "math", "markup": nxt.markup})
+                        say = say.rstrip(":") + " " + _end(math_to_speech(nxt.markup))
                         k += 1
                     else:
-                        sentences = split_sentences_latex(b.tex)
+                        sentences = split_sentences_typst(b.markup)
                         parts.append({"kind": "text", "show": paragraph_show(sentences, self.ctx, self.colors,
                                                                              self.mono, longest=40)})
                         say = f" {SHOW} ".join(self.sp(x) for x in sentences)
@@ -447,8 +446,8 @@ class ScriptBuilder:
                                       ("term" if b.kind == "description" else "dot")})
                         cues.append(self.cue(say or "…"))
                 elif isinstance(b, MathBlock):
-                    parts.append({"kind": "math", "tex": b.tex})
-                    cues.append(self.cue(_cap(_end(math_to_speech(b.tex)))))
+                    parts.append({"kind": "math", "markup": b.markup})
+                    cues.append(self.cue(_cap(_end(math_to_speech(b.markup)))))
                 k += 1
             if cues:
                 cues[0]["say"] = intro + cues[0]["say"]
@@ -481,8 +480,8 @@ class ScriptBuilder:
             cues = []
             lead = None
             if n == 0 and lead_para is not None:
-                lead = self.md(lead_para.tex)
-                cues.append(self.cue(self.sp(lead_para.tex)))
+                lead = self.md(lead_para.markup)
+                cues.append(self.cue(self.sp(lead_para.markup)))
             elif n == 0 and trace is None:
                 cues.append(self.cue("Here are the commands." if lexer == "bash" else
                                      (f"Here it is in {name}." if name else "Here is the code.")))
@@ -503,8 +502,8 @@ class ScriptBuilder:
                 cues.append(self.cue("The listing continues."))
             note = None
             if n == len(chunks) - 1 and trail_para is not None:
-                note = self.md(trail_para.tex)
-                cues.append(self.cue(self.sp(trail_para.tex)))
+                note = self.md(trail_para.markup)
+                cues.append(self.cue(self.sp(trail_para.markup)))
             if n == 0:
                 self._prefix(cues, intro_say)
             self.scene("code", cues, frame, language=lexer, label=name or None, first_line=first,
@@ -523,7 +522,7 @@ class ScriptBuilder:
         cols = t.columns or []
         ncols = max([len(r) for r in t.rows + t.header] or [1])
         while len(cols) < ncols:
-            from .latex.blocks import Column
+            from .typst.blocks import Column
             cols.append(Column())
         columns = [{"width": c.width, "align": c.align, "bold": c.bold, "color": c.color} for c in cols[:ncols]]
         pages = balanced(t.rows, int(self.cfg.get("table_rows_per_card", 7))) or [[]]
@@ -531,8 +530,8 @@ class ScriptBuilder:
             cues = []
             intro = None
             if p == 0 and lead_para is not None:
-                intro = self.md(lead_para.tex)
-                cues.append(self.cue(self.sp(lead_para.tex)))
+                intro = self.md(lead_para.markup)
+                cues.append(self.cue(self.sp(lead_para.markup)))
             elif p == 0 and ncols > 2 and head_plain:
                 cues.append(self.cue(f"This table compares {say_list(head_plain[1:])}, "
                                      f"{head_plain[0].lower()} by {head_plain[0].lower()}."))
@@ -560,14 +559,14 @@ class ScriptBuilder:
         number = self.course.labels.get(f.label or "", None)
         cues = []
         if lead_para is not None:
-            cues.append(self.cue(_cap(self.sp(lead_para.tex, ctx))))
+            cues.append(self.cue(_cap(self.sp(lead_para.markup, ctx))))
         caption_md = self.md(f.caption, ctx) if f.caption else None
         if f.caption:
             cues.append(self.cue(_cap(self.sp(f.caption, ctx))))
         elif f.title:
             cues.append(self.cue(_end(self.sp(f.title))))
         if trail_para is not None:
-            cues.append(self.cue(_cap(self.sp(trail_para.tex, ctx))))
+            cues.append(self.cue(_cap(self.sp(trail_para.markup, ctx))))
         if not cues:
             cues.append(self.cue("Take a look at this figure."))
         self._prefix(cues, intro_say)
@@ -618,15 +617,15 @@ _Dumper.add_representer(str, _str_rep)
 HEADER = """\
 # Lecture script for {source} ({label}: {title})
 #
-# Generated from the LaTeX by the UTP lecture engine (.all_lectures/engine).
+# Generated from the Typst by the UTP lecture engine (.all_lectures/engine).
 # Edit it to refine the video: 'say' is the narration, the other fields are
 # what appears on screen ('show' = the few words shown per spoken sentence:
 # a headline, [chips], or '' for nothing new). Each cue reveals the next step
 # of its scene as it starts; [show] inside 'say' reveals another step at that
 # word. On code: 'beats: [a, b]' plays steps of the running code, 'lines: [a, b]'
-# highlights lines. See .all_lectures/engine/README.md.
+# highlights lines. See .engine/README.md.
 #
-# Once you edit this file the engine keeps your version, even when the LaTeX
+# Once you edit this file the engine keeps your version, even when the Typst
 # changes (it warns you). Rebuild with --rescript to regenerate it.
 """
 
@@ -649,8 +648,8 @@ def is_edited(script: dict) -> bool:
 
 def prepare_script(lecture: Lecture, settings: dict, rescript: bool = False,
                    log=print) -> tuple[dict, dict[str, FigureBlock]]:
-    """The script to render, regenerated from the LaTeX unless you have edited it,
-    and the LaTeX of its figures (by figure key and by label)."""
+    """The script to render, regenerated from the Typst unless you have edited it,
+    and the Typst of its figures (by figure key and by label)."""
     builder = ScriptBuilder(lecture, settings)
     fresh = builder.build()
     figures = dict(builder.figures)
@@ -660,7 +659,7 @@ def prepare_script(lecture: Lecture, settings: dict, rescript: bool = False,
         current = load_script(path)
         if current and is_edited(current):
             if current.get("fingerprint", {}).get("source") != fresh["fingerprint"]["source"]:
-                log(f"  ! {path.name}: you edited this script and the LaTeX has changed since; "
+                log(f"  ! {path.name}: you edited this script and the Typst has changed since; "
                     f"keeping your version (use --rescript to regenerate)")
             else:
                 log(f"  using your edited script {path.name}")

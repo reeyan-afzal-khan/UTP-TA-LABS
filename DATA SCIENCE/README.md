@@ -6,10 +6,10 @@ Practical data science in R, from framing a question and auditing data quality, 
 visualization and inference, to regression, classification, validation and unsupervised learning, with
 reproducibility and responsible communication throughout. Eleven chapters in four stages, ten labs and a capstone.
 
-**[Book (PDF, 106 pages)](../.all_pdfs/data-science/DS-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/data-science) ·
+**[Book (PDF, the complete book)](../.all-pdfs/data-science/DS-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/data-science) ·
 [Dataset guide](all_datasets/DATASET_GUIDE.md) ·
-[LaTeX source](main.tex) ·
+[Typst source](main.typ) ·
 [All courses](../README.md)
 
 ## Stages
@@ -24,22 +24,22 @@ reproducibility and responsible communication throughout. Eleven chapters in fou
 
 ## Labs
 
-Each lab folder under [`.all_pdfs/data-science/`](../.all_pdfs/data-science) holds the chapters to read before the
+Each lab folder under [`.all-pdfs/data-science/`](../.all-pdfs/data-science) holds the chapters to read before the
 lab and the lab sheet. Page numbers are the ones printed in the book.
 
-| Lab | Lab sheet | Read first | Pages | Script | Datasets |
+| Lab | Lab sheet | Read first | Page ranges | Script | Datasets |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [Frame a question and build a reproducible data profile](../.all_pdfs/data-science/Lab-01/Lab-Activity.pdf) | Ch. 1–2 | 14–15 | [lab01_workflow.R](all_experiments/lab01_workflow.R) | bike sharing (day) |
-| 2 | [Audit missingness, categories, and validity](../.all_pdfs/data-science/Lab-02/Lab-Activity.pdf) | Ch. 3 | 23–25 | [lab02_data_quality.R](all_experiments/lab02_data_quality.R) | Iris, Titanic; Ames housing and red wine as extensions |
-| 3 | [Reshape time-aware data and engineer defensible features](../.all_pdfs/data-science/Lab-03/Lab-Activity.pdf) | Ch. 4 | 32–33 | [lab03_wrangling.R](all_experiments/lab03_wrangling.R) | bike sharing (hour) |
-| 4 | [Explore distributions, subgroups, and relationships](../.all_pdfs/data-science/Lab-04/Lab-Activity.pdf) | Ch. 5 | 40–41 | [lab04_eda.R](all_experiments/lab04_eda.R) | medical cost |
-| 5 | [Design graphics that answer a question](../.all_pdfs/data-science/Lab-05/Lab-Activity.pdf) | Ch. 6 | 48–49 | [lab05_visualization.R](all_experiments/lab05_visualization.R) | red wine quality; bike sharing (hour) as an extension |
-| 6 | [Quantify uncertainty with bootstrap and permutation logic](../.all_pdfs/data-science/Lab-06/Lab-Activity.pdf) | Ch. 7 | 57–59 | [lab06_inference.R](all_experiments/lab06_inference.R) | student performance |
-| 7 | [Build and diagnose a regression model](../.all_pdfs/data-science/Lab-07/Lab-Activity.pdf) | Ch. 8 | 67–69 | [lab07_regression.R](all_experiments/lab07_regression.R) | Ames housing |
-| 8 | [Evaluate probabilistic classification](../.all_pdfs/data-science/Lab-08/Lab-Activity.pdf) | Ch. 9 | 78–80 | [lab08_classification.R](all_experiments/lab08_classification.R) | heart failure; breast cancer and digits as extensions |
-| 9 | [Validate an imbalanced classifier without leakage](../.all_pdfs/data-science/Lab-09/Lab-Activity.pdf) | Ch. 10 | 88–90 | [lab09_validation.R](all_experiments/lab09_validation.R) | credit card fraud; heart failure for calibration |
-| 10 | [Discover structure with clustering and PCA](../.all_pdfs/data-science/Lab-10/Lab-Activity.pdf) | Ch. 11 | 98–100 | [lab10_unsupervised.R](all_experiments/lab10_unsupervised.R) | mall customers, wine recognition |
-| | [Capstone project](../.all_pdfs/data-science/Capstone-Project.pdf) | all | 101–103 | | your choice |
+| 1 | [Frame a question and build a reproducible data profile](../.all-pdfs/data-science/Lab-01/Lab-Activity.pdf) | Ch. 1–2 | See manifest | [lab01_workflow.R](all_experiments/lab01_workflow.R) | bike sharing (day) |
+| 2 | [Audit missingness, categories, and validity](../.all-pdfs/data-science/Lab-02/Lab-Activity.pdf) | Ch. 3 | See manifest | [lab02_data_quality.R](all_experiments/lab02_data_quality.R) | Iris, Titanic; Ames housing and red wine as extensions |
+| 3 | [Reshape time-aware data and engineer defensible features](../.all-pdfs/data-science/Lab-03/Lab-Activity.pdf) | Ch. 4 | See manifest | [lab03_wrangling.R](all_experiments/lab03_wrangling.R) | bike sharing (hour) |
+| 4 | [Explore distributions, subgroups, and relationships](../.all-pdfs/data-science/Lab-04/Lab-Activity.pdf) | Ch. 5 | See manifest | [lab04_eda.R](all_experiments/lab04_eda.R) | medical cost |
+| 5 | [Design graphics that answer a question](../.all-pdfs/data-science/Lab-05/Lab-Activity.pdf) | Ch. 6 | See manifest | [lab05_visualization.R](all_experiments/lab05_visualization.R) | red wine quality; bike sharing (hour) as an extension |
+| 6 | [Quantify uncertainty with bootstrap and permutation logic](../.all-pdfs/data-science/Lab-06/Lab-Activity.pdf) | Ch. 7 | See manifest | [lab06_inference.R](all_experiments/lab06_inference.R) | student performance |
+| 7 | [Build and diagnose a regression model](../.all-pdfs/data-science/Lab-07/Lab-Activity.pdf) | Ch. 8 | See manifest | [lab07_regression.R](all_experiments/lab07_regression.R) | Ames housing |
+| 8 | [Evaluate probabilistic classification](../.all-pdfs/data-science/Lab-08/Lab-Activity.pdf) | Ch. 9 | See manifest | [lab08_classification.R](all_experiments/lab08_classification.R) | heart failure; breast cancer and digits as extensions |
+| 9 | [Validate an imbalanced classifier without leakage](../.all-pdfs/data-science/Lab-09/Lab-Activity.pdf) | Ch. 10 | See manifest | [lab09_validation.R](all_experiments/lab09_validation.R) | credit card fraud; heart failure for calibration |
+| 10 | [Discover structure with clustering and PCA](../.all-pdfs/data-science/Lab-10/Lab-Activity.pdf) | Ch. 11 | See manifest | [lab10_unsupervised.R](all_experiments/lab10_unsupervised.R) | mall customers, wine recognition |
+| | [Capstone project](../.all-pdfs/data-science/Capstone-Project.pdf) | all | See manifest | | your choice |
 
 ## Running the labs
 
@@ -64,7 +64,7 @@ the datasets as read-only, as the [dataset guide](all_datasets/DATASET_GUIDE.md)
 
 ```text
 DATA SCIENCE/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           11 chapters, the course map and the capstone
   labs/               10 lab sheets, each input after its chapter
   all_datasets/       the bundled CSV files and DATASET_GUIDE.md
@@ -72,17 +72,16 @@ DATA SCIENCE/
   figures/            the charts the chapters include, listed in figures/MANIFEST.md
 ```
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py DS            # rebuild the book and its lab PDFs in .all_pdfs/data-science/
-python .shared/build.py DS --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py DS
+python .typst-setup/scripts/publish.py DS
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.
 
 ## Refined lab walkthroughs
 
@@ -91,5 +90,3 @@ for the shared styles every book uses.
 Complete R files are shown in consecutive source ranges, with the operation described beside the relevant code. Run `Rscript all_experiments/lab01_workflow.R` from the course folder, substituting the desired lab filename.
 
 **Validation:** All source listings were checked for complete nonblank-line coverage. R execution remains to be checked in the teaching environment because R is not installed on this host.
-
-The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.

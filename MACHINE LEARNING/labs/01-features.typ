@@ -1,0 +1,238 @@
+#import "/.shared/typst/utp.typ": *
+#unit("labs", "01-features")
+
+#lab("1")[Feature engineering and feature selection] <sec:lab01-features>
+
+#callout("labproject", title: [Check the tools, understand the data, build features, and choose among them])[#strong[Read first.] Chapter~#ref(label("ch:data"), supplement: none). Chapter~#ref(label("ch:toolkit"), supplement: none) sets up your tools. The lab fits logistic regression, with and without an L1 penalty, before its chapter: treat it as a black box for now, since the point here is what goes into it. \
+#strong[Goal.] Check the environment, read a data card, engineer features, see scaling change who counts as a neighbor, and select features without leakage. \
+#strong[Scenario.] You inherit three real tables and three questions: which hotel bookings will be cancelled, which phone customers resemble each other, and which bank customers are worth a call. Before any model matters, you have to get the columns right, including when each one was written down. \
+#strong[Data.] In `all_datasets/ supervised/`: `hotel_bookings/ hotel_bookings.zip`, the bookings of two Portuguese hotels for arrivals from 2015 to 2017 (Antonio, de Almeida and Nunes, 2019); `telco_customer_churn/ telco_customer_churn.csv`, IBM's sample of a telecom company's customers; and `bank_marketing/ bank_marketing.csv`, a Portuguese bank's marketing calls from the UCI repository (Moro, Cortez and Rita, 2014). The `README.md` in each folder is its data card, and Chapter~#ref(label("ch:toolkit"), supplement: none) links each source. \
+#strong[Notebook.] `all_experiments/ lab01_features/ lab01_features_worked.ipynb`, with a README beside it. \
+#strong[Hand in.] The executed notebook, the `results/lab01/` folder and a short conclusion, as listed in the checklist at the end of this sheet.]
+
+#heading(level: 2, numbering: none)[Your map of this lab]
+#figure(
+  align(center)[#table(
+    columns: 3,
+    align: (left,left,left,),
+    [Part], [What you do], [Questions],
+    [A], [Check your versions, read the data card, find the gaps and the column that leaks the outcome], [2--4],
+    [B], [Engineer five columns from the hotel bookings and test them on a model], [5--7],
+    [C], [Repair the Telco columns and see how scaling changes a customer's neighbors], [8--9],
+    [D], [Select features for the bank's call list without leaking the outcome], [10--12],
+    [Finish], [Save the evidence; then add the arrival weekday yourself], [13--15],
+    [After], [Your-turn tasks, expected findings, troubleshooting and the two checklists], [---],
+  )]
+  , kind: table
+  )
+
+#callout("labmode", title: [Lab setup])[+ Activate your course environment (Chapter~#ref(label("ch:toolkit"), supplement: none)) and confirm that the three data files are in `all_datasets/ supervised/`.
+
++ Warm up on the study log, which needs no data. From the course folder, run the command below. Its last line must read `Every number above matches the book.`
+
++ From the course folder, start Jupyter, open `all_experiments/ lab01_features/ lab01_features_worked.ipynb`, and choose #strong[Restart Kernel and Run All Cells]. It takes a few seconds.
+
+#code-block("python all_experiments/book_checks/demo_study_log.py\njupyter lab", lang: "text") Prefer a plain script? From the course folder, `python all_experiments/ lab01_features/ lab01_features_worked.py` runs the same code and writes the same evidence. Its first nine lines say what it is and set the working directory: #source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 1, last: 9, lang: "python")]
+
+#strong[How to work through this sheet.] Predict the result, run the matching notebook cell, compare with the reference output, and explain the result in your own words.
+
+#callout("yourturn", title: [Your turn])[#strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
+
++ Booking 14876 is for the resort hotel, made 132 days before arrival, for 2 weekend nights and 4 week nights, with 2 adults, no children and 1 baby, by a customer who had cancelled one booking before. Work out `total_nights`, `total_guests`, `with_children`, `log_lead_time`, which is $ln \( 1 + upright("lead time") \)$, and `cancelled_before`. Could the hotel compute all five the moment the booking is made? Question~5 prints the numbers.
+
++ Two columns have means 2,279.73 and 32.37, and standard deviations 2,266.79 and 24.56. A gap of 100 in the first and of 12 in the second: which one dominates a raw distance, and which one after scaling? Question~9 shows the same effect on real customers.]
+
+#callout("labquestion", title: [Question 1 --- Setup])[Run this first, and keep this kernel for the later questions. Every lab starts the same way. `start_lab()`, from `all_experiments/ course_setup.py`, finds the course folder and returns the three folders the lab uses: `DATA` to read from, `RESULTS` and `MODELS` to write to. The imports in between are grouped by what they are for.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 11, last: 33, lang: "python") *Reference output.*
+
+#code-block("course folder: MACHINE LEARNING\nreads all_datasets/, writes results/lab01/ and models/", lang: "text")]
+
+#callout("labpart", title: [Part A --- Environment check and a first look at the data])[*Goal.* Confirm your setup, then learn what each booking column means and which one was written after the outcome.
+
+Questions 2--4 •~Data: hotel bookings and their data card]
+
+#callout("labquestion", title: [Question 2 --- Print the package versions])[Every result in this course depends on four packages. Print their versions once, at the top, so that if a number ever changes between two runs you can rule out the environment first.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 35, last: 38, lang: "python") *Reference output.*
+
+#code-block("NumPy: 2.3.5\npandas: 2.3.3\nMatplotlib: 3.10.6\nscikit-learn: 1.7.2", lang: "text")
+
+#strong[What it means.] These are the versions behind this sheet's reference outputs, and the notebook file stores this same run. Yours may be newer. A newer scikit-learn can move the last digit of a score, which is exactly the kind of difference this cell lets you rule in or out.]
+
+#callout("labquestion", title: [Question 3 --- Read the data card, then the bookings])[A professional reads the data dictionary before the data. Every dataset in this course has one, the data card `README.md` beside the file, which says what each column means, in which units, and how it was recorded. The cell prints its column meanings, then answers three questions from the table itself: how big is it, which hotels and dates does it cover, and how balanced is the label? The arrival date is spread over three columns, with the month as a word, so the cell joins them into one date.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 40, last: 57, lang: "python") *Reference output.*
+
+#code-block("hotel                           `Resort Hotel` (Algarve) or `City Hotel` (Lisbon)\nis_canceled                     1 if the booking was cancelled: the label\nlead_time                       days from making the booking to the arrival date\n...\nreservation_status              how the booking ended: `Canceled`, `No-Show` or `Check-Out`\nreservation_status_date         date that last status was set\n\nshape: (119390, 32)\nhotel\nCity Hotel      79330\nResort Hotel    40060\narrivals from 2015-07-01 to 2017-08-31\n\nCancellation rate:\n is_canceled\n0    0.63\n1    0.37", lang: "text")
+
+#strong[What it means.] 119,390 bookings and 32 columns, two thirds of them at the city hotel, for arrivals over twenty-six months. 37.0% were cancelled, so a model that always says "not cancelled" is already 63.0% accurate, and anything built later has to beat that. Read the rest of the card too: `adr` is a price per night in euros, `lead_time` is counted in days, and the authors describe each booking as it stood on the day before arrival. Even a good card leaves questions open: the room types are bare letters, because the source hid their names.]
+
+#callout("labquestion", title: [Question 4 --- Chart the missing values, and date the columns])[A bar chart makes the gaps easier to compare than a column of numbers. Then ask when each column was filled in. `reservation_status` says how the booking ended, so check whether it already knows who cancelled, and compare the date it was written with the arrival date.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 59, last: 78, lang: "python") #callout("labvisual", title: [Reference plot from the supplied notebook])[#image("/MACHINE LEARNING/labs/visuals/01-notebook-reference.png", width: 90%)] *Reference output.*
+
+#code-block("company     94.31\nagent       13.69\ncountry      0.41\nchildren     0.00\n\n is_canceled             0      1\nreservation_status\nCanceled                0  43017\nCheck-Out           75166      0\nNo-Show                 0   1207\n\n is_canceled                             0      1\nstatus written on or after arrival\nFalse                                   0  42137\nTrue                                75166   2087", lang: "text")
+
+#strong[What it means.] `company` is empty for 94.3% of bookings and `agent` for 13.7%, but the data's authors call these "not applicable": no company or travel agent was involved, so here a blank is information, not a gap. `country` lacks 0.4% and `children` only 4 values. `reservation_status` is the answer in disguise: every `Canceled` and `No-Show` booking was cancelled, and every `Check-Out` was kept. Its date gives it away too: every kept booking had its status written on or after arrival, and 42,137 of the 44,224 cancelled ones before it. The column comes from the future, so it stays in the table as a record and never enters a model; Your-turn task~1 looks for subtler cases. Regenerate the plot rather than copying it; this saved figure is a reference, not evidence of your own run.]
+
+#callout("labcheckpoint", title: [Checkpoint: before you move on])[- Your package versions print, and you know which ones differ from the sheet's.
+
+- 119,390 bookings, 37.0% of them cancelled, so always guessing "not cancelled" is already 63.0% accurate.
+
+- You can say why `reservation_status` must never be a feature.]
+
+#callout("labpart", title: [Part B --- Feature engineering])[*Goal.* Turn nights, guests, lead time and booking history into five new columns, and measure whether they help a model.
+
+Questions 5--7 •~Data: hotel bookings]
+
+#callout("labquestion", title: [Question 5 --- Engineer five new columns])[Feature engineering means building inputs the model cannot see on its own. `total_nights` adds the weekend and week nights, `total_guests` adds the adults, children and babies, and `with_children` flags a family; the four blank `children` counts are read as none. `log_lead_time` takes $ln \( 1 + x \)$ of the days booked ahead, because a few bookings were made up to two years early and would otherwise stretch the scale. `cancelled_before` flags a customer who has cancelled a booking before. Every new column uses only what was known when the booking was made, which is the test each feature must pass.] #callout("labanswer", title: [Worked answer])[
+#include "/MACHINE LEARNING/labs/visuals/01-worked-case.typ"
+ #source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 80, last: 100, lang: "python") *Reference output.*
+
+#code-block("14876       40060\nhotel                    Resort Hotel  City Hotel\nlead_time                         132           6\nstays_in_weekend_nights             2           0\nstays_in_week_nights                4           2\nadults                              2           1\nchildren                          0.0         0.0\nbabies                              1           0\nprevious_cancellations              1           0\ntotal_nights                        6           2\ntotal_guests                        3           1\nwith_children                       1           0\nlog_lead_time                    4.89       1.946\ncancelled_before                    1           0", lang: "text")
+
+#strong[What it means.] Your warm-up should match the first column: 6 nights, 3 guests, a family, and $ln 133 = 4.89$. The city booking was made 6 days ahead, so its `log_lead_time` is $ln 7 = 1.95$. The logarithm squeezes long lead times together: 132 days is 22 times 6 days, but 4.89 is only 2.5 times 1.95, so the few bookings made a year or two ahead no longer dominate a linear model. Each column reads only its own booking's fields, so it is a fixed rule that may run before the split. Do not use `is_canceled` to construct an input.]
+
+#callout("labquestion", title: [Question 6 --- Check the new columns for signal])[Grouping the label by the new columns shows whether they carry signal. Lead time is cut into bands of days, and stays of eight nights or more share one bar.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 102, last: 123, lang: "python") *Reference output.*
+
+#code-block("by days ahead:     {'0-7': 0.096, '8-30': 0.279, '31-90': 0.377, '91-180': 0.447,\n                    '181-365': 0.555, '366+': 0.677}\nby nights:         {0: 0.049, 1: 0.251, 2: 0.44, 3: 0.419, 4: 0.366, 5: 0.342, 6: 0.398,\n                    7: 0.343, 8: 0.357}\nwith children:     {0: 0.372, 1: 0.349}\ncancelled before:  {0: 0.339, 1: 0.916}", lang: "text")
+
+#strong[What it means.] These are the bars in the plot. Cancellations climb steadily with lead time, from 9.6% for bookings made within a week to 67.7% for those made more than a year ahead: a plan made far in advance has more time to change. Bookings for zero nights, which arrive and leave on the same day, almost never cancel (4.9%). Customers who had cancelled before cancelled again 91.6% of the time, against 33.9%. Families cancel about as often as everyone else (34.9% against 37.2%), so `with_children` may add little.]
+
+#callout("labquestion", title: [Question 7 --- Test the new columns on a model])[Does the engineering help a model? The only fair test is the same model and the same split, with and without the new columns. The raw set takes eleven numbers and five categories known when the booking is made. It leaves out the agent and company IDs (codes with over 300 values each), the arrival date columns, which Lab~2 puts to work, and columns that may have been filled in later: the country, the room actually assigned and the number of changes. Preprocessing lives inside a pipeline, so imputation, scaling and encoding are learned from the training rows and reapplied unchanged to validation rows.] #callout("labanswer", title: [Worked answer])[
+#include "/MACHINE LEARNING/labs/visuals/01-trace.typ"
+ #source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 125, last: 158, lang: "python") *Reference output.*
+
+#code-block("raw columns        validation ROC AUC = 0.846\nraw + engineered   validation ROC AUC = 0.855\nvalidation bookings: 29848", lang: "text")
+
+#strong[What it means.] Same logistic regression, about one point better, and the gain came entirely from better columns. On 29,848 validation bookings a point is unlikely to be luck, and `check_your_turn.py` confirms it with five-fold cross-validation: 0.858 against 0.848. Better columns are usually the cheapest improvement available, but they are rarely magic.]
+
+#strong[Connect it to the chapter.] Everything so far followed this safe order of operations. 
+#include "/MACHINE LEARNING/labs/visuals/01-features-chapter.typ"
+
+
+#callout("labcheckpoint", title: [Checkpoint: before you move on])[- Validation ROC AUC rises from 0.846 with the raw columns to 0.855 with the engineered ones.
+
+- You can explain why `log_lead_time` suits a linear model better than the raw lead time.]
+
+#callout("labpart", title: [Part C --- Scaling changes the geometry])[*Goal.* Repair a number column stored as text, then see how scaling changes which customers count as neighbors.
+
+Questions 8--9 •~Data: Telco customer churn]
+
+#callout("labquestion", title: [Question 8 --- Fix the types, then see the units])[The Telco churn table has one row per customer of a phone and internet company, and `Churn` says whether they left. Distances need numbers, and `TotalCharges` arrives as text. Find the cells that will not convert, see whose they are, and repair them with a rule you can defend. Then compare the units of the three time-and-money columns.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 160, last: 171, lang: "python") *Reference output.*
+
+#code-block("shape: (7043, 21)  TotalCharges is stored as: object\nrows that are not numbers: 11  their tenure: [0]\n      tenure  MonthlyCharges  TotalCharges\nmean   32.37           64.76       2279.73\nstd    24.56           30.09       2266.79", lang: "text")
+
+#strong[What it means.] Eleven cells hold a blank, and all eleven belong to customers in their first month, who have not been billed yet. Zero is therefore the right repair; the mean, about \$2,280, would invent a bill for people who have never paid one. A typical gap in `TotalCharges` is about 2,267 dollars and a typical gap in `tenure` about 25 months, so in raw units the total bill will decide every distance on its own.]
+
+#callout("labquestion", title: [Question 9 --- Compare neighbors before and after scaling])[Many models (nearest neighbors, clustering, SVMs, neural networks) work by measuring distances between rows. Take customer 7795-CFOCW, with 45 months of tenure at \$42.30 a month, and find the ten customers closest to them twice: once in raw units, and once after standardizing each column to mean 0 and standard deviation 1. Who counts as similar?] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 173, last: 205, lang: "python") *Reference output.*
+
+#code-block("raw units     tenure 29-49 months   monthly $39.20-60.20   total $1,815-1,861\nstandardized  tenure 43-47 months   monthly $38.25-45.55   total $1,755-2,065\ncustomers in both lists: 1", lang: "text") #callout("labvisual", title: [Reference plot from the supplied notebook])[#image("/MACHINE LEARNING/labs/visuals/01-neighbors-reference.png", width: 90%)]
+
+#strong[What it means.] In raw units the ten neighbors have paid almost exactly the customer's \$1,841, but they range from 29 to 49 months and from \$39.20 to \$60.20 a month: several are newer customers on dearer plans. After scaling they range from 43 to 47 months and \$38.25 to \$45.55 a month, customers who really do look alike, even though their totals spread wider. Only one customer is in both lists. Nothing about the customers changed, only the measuring stick, so any distance-based model answers differently on the two versions. That is why the scaler sits inside the pipeline; Your-turn task~3 measures the effect on a model.]
+
+#callout("labcheckpoint", title: [Checkpoint: before you move on])[- `TotalCharges` had 11 blank cells, all from first-month customers, so zero is the right repair.
+
+- The ten nearest neighbors in raw units and after scaling share only one customer.]
+
+#callout("labpart", title: [Part D --- Feature selection without leakage])[*Goal.* Choose features for a bank's call list using only what is known before the call.
+
+Questions 10--12 •~Data: bank marketing calls]
+
+#callout("labquestion", title: [Question 10 --- Define the bank-call task])[The bank-marketing table holds 41,188 phone calls that a Portuguese bank made between May 2008 and November 2010 to sell a term deposit, and `y` says whether the customer signed up. The task is to decide #emph[before dialing] whom to call, so `duration`, the length of the call, does not exist yet and is left out. The file separates its fields with semicolons, a common European format, so `read_csv` needs `sep=";"`.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 207, last: 225, lang: "python") *Reference output.*
+
+#code-block("shape: (41188, 21)  missing: 0  duplicates: 12\nsaid yes: 0.113  'unknown' cells: 12716  pdays = 999: 0.963\n9 numeric and 10 text features known before the call", lang: "text")
+
+#strong[What it means.] The table looks complete, with no blank cells, but its gaps are in disguise. 12,716 cells say `unknown`, and `pdays`, the days since the bank last called, is 999 for the 96.3% of customers it had never called. A code like 999 is not a number of days, yet a scaler or a distance would treat it as one. Twelve exact duplicates are dropped, leaving 41,176 calls. Only 11.3% said yes, so always predicting no would be 88.7% accurate and useless; this part scores with ROC AUC instead.]
+
+#callout("labquestion", title: [Question 11 --- Compare feature sets, and see leakage])[Four feature sets are compared with the same logistic regression. `SelectKBest` keeps the ten encoded columns whose averages differ most between yes and no, and the L1 penalty shrinks weak coefficients all the way to zero and so selects on its own. Both selectors sit #emph[inside] the pipeline, after encoding, so they only ever see training rows. The fourth run adds `duration` back on purpose, to show what leakage looks like. Average precision is printed beside ROC AUC; with 11% positives, it is the stricter of the two.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 227, last: 267, lang: "python") *Reference output.*
+
+#code-block("all 19 features              ROC AUC = 0.802   average precision = 0.452\nSelectKBest, k=10            ROC AUC = 0.791   average precision = 0.435\nL1 penalty (selects itself)  ROC AUC = 0.801   average precision = 0.449\nall 19 + duration (leakage)  ROC AUC = 0.939   average precision = 0.595", lang: "text")
+
+#strong[What it means.] Ten columns do almost as well as all of them, and the L1 penalty matches the full model, so much of the table is noise for this task, and a selector inside the pipeline costs little. Guessing at random scores ROC AUC 0.5 and average precision 0.113, the share of yes answers, which is the true scale of these gains. The leaked column lifts ROC AUC to 0.939. That looks like a triumph and is a broken experiment, because nobody knows how long a call will last before making it. The dataset's own documentation says the same, and keeps `duration` only for benchmarks.]
+
+#callout("labquestion", title: [Question 12 --- Read what the L1 penalty kept])[The penalty's zero coefficients are its selection. List the survivors, and ask whether a bank manager would believe them.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 269, last: 287, lang: "python") *Reference output.*
+
+#code-block("the L1 penalty kept 21 of 62 encoded columns\ncat__month_may           -0.649\ncat__month_mar            0.558\nnum__emp.var.rate        -0.488\ncat__contact_telephone   -0.434\nnum__nr.employed         -0.422\ncat__poutcome_failure    -0.368", lang: "text")
+
+#strong[What it means.] A third of the encoded columns survive. The strongest are the calendar and the economy. Calls in May did worse and calls in March better, and calls to a landline (`contact_telephone`) did worse than calls to a mobile. A higher employment-variation rate and more people employed (`nr.employed`) went with fewer sign-ups, and customers whose last campaign failed (`poutcome_failure`) said no more often. A manager would believe most of these, but they are associations in this bank's calls of 2008 to 2010, not causes. The economic columns also stand in for the date, which Your-turn task~4 tests.]
+
+#callout("labcheckpoint", title: [Checkpoint: before you move on])[- All 19 features score ROC AUC 0.802; adding `duration` jumps to 0.939, and that jump is leakage.
+
+- The L1 penalty keeps 21 of the 62 encoded columns.]
+
+#callout("labpart", title: [Finish --- Save the evidence, then try it yourself])[*Goal.* Write the results folder, then extend the lab yourself before reading one worked solution.
+
+Questions 13--15]
+
+#callout("labquestion", title: [Question 13 --- Save the evidence])[Write the numbers above to the results folder. These files are regenerated on every run, so do not edit them by hand.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 289, last: 304, lang: "python") *Reference output.*
+
+#code-block("Saved: ['cancellation_by_days_ahead.csv', 'environment.csv', 'far_ahead_bookings_cancel_most.png',\n 'feature_selection.csv', 'hotel_where_the_gaps_are.png', 'l1_coefficients.csv', 'missing_values.csv',\n 'neighbors_raw_and_scaled.csv', 'one_customer_two_sets_of_neighbors.png', 'what_the_l1_penalty_kept.png']", lang: "text")]
+
+#heading(level: 2, numbering: none)[Try it yourself]
+#callout("labquestion", title: [Question 14 --- Try it yourself])[Engineer one more hotel feature, the weekday of arrival (from the `arrival_date` built in Question~3), and check whether the validation ROC AUC in Question~7 improves. Then rerun Question~11's `SelectKBest` with `k=5` and `k=20` and see whether the score changes. Attempt it in this empty cell before reading the solution.]
+
+#callout("labquestion", title: [Question 15 --- One solution])[The arrival weekday for the hotel bookings, then the two other `k` values for the bank calls.] #callout("labanswer", title: [Worked answer])[#source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 308, last: 332, lang: "python") *Reference output.*
+
+#code-block("cancellation rate by arrival day: {'Monday': 0.341, 'Tuesday': 0.329, 'Wednesday': 0.361,\n 'Thursday': 0.412, 'Friday': 0.406, 'Saturday': 0.395, 'Sunday': 0.323}\nraw + engineered           validation ROC AUC = 0.855\nraw + engineered + weekday validation ROC AUC = 0.856\nSelectKBest, k=5             ROC AUC = 0.775   average precision = 0.419\nSelectKBest, k=10            ROC AUC = 0.791   average precision = 0.435\nSelectKBest, k=20            ROC AUC = 0.799   average precision = 0.442", lang: "text")
+
+#strong[What it means.] Arrivals on Thursday and Friday were cancelled most often (41.2% and 40.6%) and arrivals on Sunday least (32.3%), so the weekday carries real signal, yet the validation ROC AUC only moves from 0.855 to 0.856. Much of what the weekday says is probably already in the columns the model has, such as the weekend and week nights. A feature can be informative and still add nothing, which is why the test is the model's validation score, not the group table. Five, ten and twenty selected columns score 0.775, 0.791 and 0.799, against 0.802 for all of them: the score climbs slowly with `k`, and the exact number matters far less than keeping the selector inside the pipeline.]
+
+#callout("labpart", title: [After the lab --- Your turn, troubleshooting and hand-in])[*Goal.* Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.
+
+Your-turn tasks •~Expected findings •~Troubleshooting •~Checklists]
+
+#callout("yourturn", title: [Your turn])[Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+
++ #strong[Two columns to date.] Add `room_changed`, which is 1 when `assigned_room_type` differs from `reserved_room_type`, to the engineered columns of Question~7; then, instead, add `from_portugal`, which is 1 when `country` is `PRT`. What happens to the validation ROC AUC of 0.855 each time? Group the cancellation rate by each new column, read the data card's note on when the columns were written, and decide whether either could be used the moment a booking is made.
+
++ #strong[Is this leak harmful here?] Fit the Question~7 preprocessing on #emph[all] the rows, then fit the logistic model on the training rows only. Compare the score with the correct version, and with what happened to pure noise in #ref(label("sec:data-leakage"), supplement: [Section]). What do you conclude?
+
++ #strong[Does scaling change a model?] Predict `Churn` from the three Question~8 columns with `KNeighborsClassifier(73)`, once in raw units and once with a `StandardScaler` in front. Use a stratified 25% validation split with `random_state=42`; 73 is about the square root of the 5,282 training rows. Compare the ROC AUC.
+
++ #strong[Split by date.] The bank file is stored in date order. Train the Question~11 logistic model on the first 75% of calls and validate on the last 25%. How does the ROC AUC compare with the random split, and what happened to the share of yes answers?
+
++ #strong[Turn the L1 dial.] Refit the L1 model with `C` 0.001, 0.01 and 1; a smaller `C` is a stronger penalty. How many of the 62 columns survive, and what happens to the score?]
+
+#callout("expectedfindings", title: [Expected findings])[#strong[Warm-up.] Booking 14876: `total_nights` 6, `total_guests` 3, `with_children` 1 (the baby counts), `log_lead_time` $ln 133 = 4.89$ and `cancelled_before` 1. All five can be computed the moment the booking is made: they read only this booking's own fields, and `previous_cancellations` counts cancellations made before it. For the two gaps, 100 beats 12 in raw units; after scaling they are $100 \/ 2266.79 = 0.04$ and $12 \/ 24.56 = 0.49$, so the second dominates.
+
++ `room_changed` lifts the score to 0.868, and `from_portugal` to 0.888. Only 5.4% of the 14,917 bookings given a different room were cancelled, against 41.6% of the rest: rooms are mostly changed when the guest arrives, and a cancelled booking never arrives, so the column partly records the outcome. Domestic bookings were cancelled 56.6% of the time against 23.6%, a real pattern, but the data's authors warn that hotels often learn a guest's correct nationality only at check-in, so part of that jump may come from the future too. Neither column is safe until you know when the hotel wrote it, and the file cannot tell you: ask the people who keep the data. Any column recorded after the moment of prediction is a leak, however innocent its name.
+
++ It stays at 0.855 to three decimals. Medians and scales from 119,390 rows barely differ from those of 89,542 training rows, so this leak does little harm on this table. That does not make it safe: the same habit, applied to selection on all the labels, made pure noise score 0.80. Keep the pipeline, because you cannot know in advance which case you are in.
+
++ Raw units score 0.778 and standardized 0.815. In raw units the classifier's neighbors are customers with a similar total bill, which mixes new customers on dear plans with loyal ones on cheap plans; after scaling, tenure and the monthly charge count too.
+
++ The ROC AUC falls from 0.802 to 0.712. The first 75% of calls had a yes rate of 6.4% and the last 25% one of 25.8%: the later campaigns met a different economy and different customers. A random split mixes the two periods and hides the change, but a model put to work in 2010 would have met it.
+
++ `C` 0.001 keeps 2 columns, `nr.employed` and `pdays`, with ROC AUC 0.765. `C` 0.01 keeps 12 with 0.794, the lab's 0.03 keeps 21 with 0.801, and `C` 1 keeps 49 with 0.802. Two columns get most of the way, and a third of the table matches all of it.]
+
+#callout("troubleshoot", title: [Troubleshooting])[/ `FileNotFoundError`: #block[
+A data file is missing or misnamed. Match the names in Chapter~#ref(label("ch:toolkit"), supplement: none), capitals too, and keep `hotel_bookings.zip` zipped: `read_csv` reads the CSV inside it.
+]
+
+/ `No module named ’course_setup’` in Question~1: #block[
+The notebook is not running inside its lab folder, so `".."` is not `all_experiments/`. Open it from `all_experiments/ lab01_features/` in your copy of the course; Jupyter and VS Code then run it there.
+]
+
+/ `FileNotFoundError: No all_datasets/ folder above` …: #block[
+The notebook was copied out of the course folder. Work on it inside your copy of the course, where `all_datasets/` sits above it.
+]
+
+/ The bank table has one column: #block[
+A first column named `age;"job";"marital";...` means the file was read with commas. Pass `sep=";"`, as Question~10 does.
+]
+
+/ Question~8 prints `str` instead of `object`: #block[
+That is pandas 3 against pandas 2. The blanks are still blanks, and no number changes.
+]
+
+/ The L1 coefficients differ in the third decimal: #block[
+The `liblinear` solver shuffles the rows; keep `random_state=42` in Question~11 to reproduce the sheet.
+]]
+
+#callout("verification", title: [Verification checklist])[- Package versions are printed, so the run can be reproduced.
+
+- You read the data card, and you can name the column written after the outcome and say why it never enters a model.
+
+- Every engineered feature (total nights, total guests, with children, log lead time, cancelled before) exists when the booking is made, and your hand calculation for booking 14876 matches.
+
+- Imputation, scaling and encoding are fitted inside the training pipeline, and both hotel feature sets use the same split: 0.846 and 0.855.
+
+- `TotalCharges` is repaired with 0 for the 11 new customers, and you can say why the neighbors of customer 7795-CFOCW change after scaling.
+
+- Feature selection stays inside the pipeline, and the `duration` run is identified as leakage rather than a better model.
+
+- `results/lab01/` holds the six tables and four figures listed in Question~13.]

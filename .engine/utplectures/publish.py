@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from .latex.inline import split_sentences_plain
+from .typst.inline import split_sentences_plain
 from .paths import LECTURES
 
 MAX_LINE = 42
@@ -151,7 +151,7 @@ def update_index(courses) -> None:
 
 
 def lec_title(lec) -> str:
-    from .latex.inline import InlineContext, parse_inline, runs_to_plain
+    from .typst.inline import InlineContext, parse_inline, runs_to_plain
     return runs_to_plain(parse_inline(lec.title, InlineContext())).replace("|", "/")
 
 

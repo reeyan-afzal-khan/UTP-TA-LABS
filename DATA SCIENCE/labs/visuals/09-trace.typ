@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Repeat preparation inside each fold])[#flow([*Fit*
+
+Use the fold-training subset to learn parameters], [*Transform*
+
+Apply those parameters to the validation subset], [*Aggregate*
+
+Combine validation metrics; never train on held-out rows])]

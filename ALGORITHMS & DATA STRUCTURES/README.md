@@ -7,9 +7,9 @@ Arrays through hashing in C++: how each structure is stored, what its operations
 implementation is correct, and how to compare two choices with tests and reproducible benchmarks. Twelve chapters
 in six stages, each core chapter followed by its lab, and a final algorithm-comparison project.
 
-**[Book (PDF, 98 pages)](../.all_pdfs/algorithms-data-structures/ADS-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/algorithms-data-structures) ·
-[LaTeX source](main.tex) ·
+**[Book (PDF, the complete book)](../.all-pdfs/algorithms-data-structures/ADS-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/algorithms-data-structures) ·
+[Typst source](main.typ) ·
 [Lecturer materials](0.from_lecturer) ·
 [All courses](../README.md)
 
@@ -27,7 +27,7 @@ in six stages, each core chapter followed by its lab, and a final algorithm-comp
 ## Labs
 
 Lab *N* practises Chapter *N* and opens with how it aligns with the official lab manual. Each lab's folder under
-[`.all_pdfs/algorithms-data-structures/`](../.all_pdfs/algorithms-data-structures) holds that chapter and the lab
+[`.all-pdfs/algorithms-data-structures/`](../.all-pdfs/algorithms-data-structures) holds that chapter and the lab
 sheet. Every lab also has its own folder under [`all_experiments/`](all_experiments) holding only that lab's
 programs. The lab sheets now include all 25 complete C++17 programs, from headers and data definitions through
 operations, helper functions, and `main()`. Each file is printed once in consecutive source-line ranges using
@@ -43,20 +43,20 @@ its consecutive line ranges so every source line from the first include through 
 The published PDFs and page references below describe the existing edition. They have not been regenerated
 for this source refinement. The fonts, shared layouts, and section structure are unchanged.
 
-| Lab | Lab sheet | Read first | Pages | Programs |
+| Lab | Lab sheet | Read first | Page ranges | Programs |
 | --- | --- | --- | --- | --- |
-| 1 | [Programming foundations and structured records](../.all_pdfs/algorithms-data-structures/Lab-01/Lab-Activity.pdf) | Ch. 1 | 8–9 | [Lab01](all_experiments/Lab01): `student_records`, `union_review` |
-| 2 | [Arrays, multidimensional storage, and matrices](../.all_pdfs/algorithms-data-structures/Lab-02/Lab-Activity.pdf) | Ch. 2 | 15–16 | [Lab02](all_experiments/Lab02): `matrix_multiply`, `matrix_operations` |
-| 3 | [Singly and doubly linked lists](../.all_pdfs/algorithms-data-structures/Lab-03/Lab-Activity.pdf) | Ch. 3 | 23–24 | [Lab03](all_experiments/Lab03): `singly_linked_list`, `doubly_linked_list` |
-| 4 | [Circular linked-list operations](../.all_pdfs/algorithms-data-structures/Lab-04/Lab-Activity.pdf) | Ch. 4 | 30–31 | [Lab04](all_experiments/Lab04): `circular_linked_list`, `list_comparison` |
-| 5 | [Stack ADT and expression processing](../.all_pdfs/algorithms-data-structures/Lab-05/Lab-Activity.pdf) | Ch. 5 | 37–38 | [Lab05](all_experiments/Lab05): `array_stack`, `linked_stack`, `infix_to_postfix` |
-| 6 | [Linear, linked, circular, and priority queues](../.all_pdfs/algorithms-data-structures/Lab-06/Lab-Activity.pdf) | Ch. 6 | 44–45 | [Lab06](all_experiments/Lab06): `linear_queue`, `linked_queue`, `circular_queue`, `priority_queue` |
-| 7 | [Tree representation and traversal](../.all_pdfs/algorithms-data-structures/Lab-07/Lab-Activity.pdf) | Ch. 7 | 52–53 | [Lab07](all_experiments/Lab07): `binary_tree` |
-| 8 | [BSTs, heaps, and balancing structures](../.all_pdfs/algorithms-data-structures/Lab-08/Lab-Activity.pdf) | Ch. 8 | 60–61 | [Lab08](all_experiments/Lab08): `bst`, `heap` |
-| 9 | [Graph representation, traversal, and spanning trees](../.all_pdfs/algorithms-data-structures/Lab-09/Lab-Activity.pdf) | Ch. 9 | 68–69 | [Lab09](all_experiments/Lab09): `graph_traversal`, `minimum_spanning_tree` |
-| 10 | [Searching and sorting experiments](../.all_pdfs/algorithms-data-structures/Lab-10/Lab-Activity.pdf) | Ch. 10 | 79–80 | [Lab10](all_experiments/Lab10): `quick_sort_descending`, `binary_search`, `merge_three_arrays`, `heap_sort` |
-| 11 | [Hashing and collision resolution](../.all_pdfs/algorithms-data-structures/Lab-11/Lab-Activity.pdf) | Ch. 11 | 86–87 | [Lab11](all_experiments/Lab11): `hashing_collisions` |
-| | [Final project: algorithm comparison](../.all_pdfs/algorithms-data-structures/Capstone-Project.pdf) | Ch. 12 | 89–94 | |
+| 1 | [Programming foundations and structured records](../.all-pdfs/algorithms-data-structures/Lab-01/Lab-Activity.pdf) | Ch. 1 | See manifest | [Lab01](all_experiments/Lab01): `student_records`, `union_review` |
+| 2 | [Arrays, multidimensional storage, and matrices](../.all-pdfs/algorithms-data-structures/Lab-02/Lab-Activity.pdf) | Ch. 2 | See manifest | [Lab02](all_experiments/Lab02): `matrix_multiply`, `matrix_operations` |
+| 3 | [Singly and doubly linked lists](../.all-pdfs/algorithms-data-structures/Lab-03/Lab-Activity.pdf) | Ch. 3 | See manifest | [Lab03](all_experiments/Lab03): `singly_linked_list`, `doubly_linked_list` |
+| 4 | [Circular linked-list operations](../.all-pdfs/algorithms-data-structures/Lab-04/Lab-Activity.pdf) | Ch. 4 | See manifest | [Lab04](all_experiments/Lab04): `circular_linked_list`, `list_comparison` |
+| 5 | [Stack ADT and expression processing](../.all-pdfs/algorithms-data-structures/Lab-05/Lab-Activity.pdf) | Ch. 5 | See manifest | [Lab05](all_experiments/Lab05): `array_stack`, `linked_stack`, `infix_to_postfix` |
+| 6 | [Linear, linked, circular, and priority queues](../.all-pdfs/algorithms-data-structures/Lab-06/Lab-Activity.pdf) | Ch. 6 | See manifest | [Lab06](all_experiments/Lab06): `linear_queue`, `linked_queue`, `circular_queue`, `priority_queue` |
+| 7 | [Tree representation and traversal](../.all-pdfs/algorithms-data-structures/Lab-07/Lab-Activity.pdf) | Ch. 7 | See manifest | [Lab07](all_experiments/Lab07): `binary_tree` |
+| 8 | [BSTs, heaps, and balancing structures](../.all-pdfs/algorithms-data-structures/Lab-08/Lab-Activity.pdf) | Ch. 8 | See manifest | [Lab08](all_experiments/Lab08): `bst`, `heap` |
+| 9 | [Graph representation, traversal, and spanning trees](../.all-pdfs/algorithms-data-structures/Lab-09/Lab-Activity.pdf) | Ch. 9 | See manifest | [Lab09](all_experiments/Lab09): `graph_traversal`, `minimum_spanning_tree` |
+| 10 | [Searching and sorting experiments](../.all-pdfs/algorithms-data-structures/Lab-10/Lab-Activity.pdf) | Ch. 10 | See manifest | [Lab10](all_experiments/Lab10): `quick_sort_descending`, `binary_search`, `merge_three_arrays`, `heap_sort` |
+| 11 | [Hashing and collision resolution](../.all-pdfs/algorithms-data-structures/Lab-11/Lab-Activity.pdf) | Ch. 11 | See manifest | [Lab11](all_experiments/Lab11): `hashing_collisions` |
+| | [Final project: algorithm comparison](../.all-pdfs/algorithms-data-structures/Capstone-Project.pdf) | Ch. 12 | See manifest | |
 
 Where a sheet leaves a choice to the instructor, the program states the one it makes in its opening comment:
 the priority convention in Lab 6 (a larger number is a higher priority), a simple path for Lab 9's path-length
@@ -87,21 +87,20 @@ on every run.
 
 ```text
 ALGORITHMS & DATA STRUCTURES/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           12 chapters and the course map
   labs/               11 lab sheets, each input at the end of its chapter
   all_experiments/    Lab01-Lab11, the C++ programs for each lab
   0.from_lecturer/    the lecturer's final-project guidelines
 ```
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py ADS            # rebuild the book and its lab PDFs in .all_pdfs/algorithms-data-structures/
-python .shared/build.py ADS --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py ADS
+python .typst-setup/scripts/publish.py ADS
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.

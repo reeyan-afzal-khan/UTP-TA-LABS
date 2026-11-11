@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace KNN model selection in the supplied loop])[#flow([*\1. Input / state*
+
+Try k\_values = \[1, 5, 25, 101, 201, 401, 801, 1601, 3201\] using the same five stratified folds.], [*\2. Operation*
+
+Each candidate pipeline learns imputation and scaling within its fold-training data; cv\_scores records mean ROC AUC.], [*\3. Check*
+
+best\_k selects the largest mean score; evaluate the chosen model on held-out rows.])]

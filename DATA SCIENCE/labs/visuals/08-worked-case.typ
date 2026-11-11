@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace all three supplied decision thresholds])[#flow([*\1. Input / state*
+
+prob holds glm response probabilities for the fixed test rows.], [*\2. Operation*
+
+thresholds is \[.30, .50, .70\] metric\_row converts each probability into a decision.], [*\3. Check*
+
+threshold\_results compares the decisions; cm separately displays the matrix at .50.])]

@@ -8,10 +8,10 @@ End Bicycles. Ten chapters in four stages cover business processes, ERP developm
 planning, forecasting and S&OP, supply chain and MRP, accounting, HR, and process modelling. Eight integrated Odoo
 practicals, a capstone and two appendices follow.
 
-**[Book (PDF, 103 pages)](../.all_pdfs/enterprise-resource-planning/ERP-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/enterprise-resource-planning) ·
-[Odoo quick reference (Appendix A)](../.all_pdfs/enterprise-resource-planning/Appendix-A.pdf) ·
-[LaTeX source](main.tex) ·
+**[Book (PDF, the complete book)](../.all-pdfs/enterprise-resource-planning/ERP-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/enterprise-resource-planning) ·
+[Odoo quick reference (Appendix A)](../.all-pdfs/enterprise-resource-planning/Appendix-A.pdf) ·
+[Typst source](main.typ) ·
 [Lecturer materials](0.from_lecturer) ·
 [All courses](../README.md)
 
@@ -31,20 +31,20 @@ practicals, a capstone and two appendices follow.
 Unlike the other courses, the practicals follow the tutorial schedule rather than the chapter order, so they are
 collected together in Stage 5. Lab *N* is Tutorial *N*. Each practical names the chapters it draws on with
 `\labcovers` after its banner, so its folder under
-[`.all_pdfs/enterprise-resource-planning/`](../.all_pdfs/enterprise-resource-planning) holds exactly the chapters
+[`.all-pdfs/enterprise-resource-planning/`](../.all-pdfs/enterprise-resource-planning) holds exactly the chapters
 in the "Read first" column, then the practical. Page numbers are the ones printed in the book.
 
-| Lab | Practical | Tutorial | Read first | Pages |
+| Lab | Practical | Tutorial | Read first | Page ranges |
 | --- | --- | --- | --- | --- |
-| 1 | [Business Process and Odoo Environment Setup](../.all_pdfs/enterprise-resource-planning/Lab-01/Lab-Activity.pdf) | T1 | Ch. 1–2 | 64–67 |
-| 2 | [ERP Benefits, Challenges, and Modular Integration](../.all_pdfs/enterprise-resource-planning/Lab-02/Lab-Activity.pdf) | T2 | Ch. 2 | 68–70 |
-| 3 | [Production Planning and Manufacturing in Odoo](../.all_pdfs/enterprise-resource-planning/Lab-03/Lab-Activity.pdf) | T3 | Ch. 5 | 71–74 |
-| 4 | [Customer Relationship Management in Odoo](../.all_pdfs/enterprise-resource-planning/Lab-04/Lab-Activity.pdf) | T4 | Ch. 4 | 75–77 |
-| 5 | [Sales Order Process: Order-to-Cash in Odoo](../.all_pdfs/enterprise-resource-planning/Lab-05/Lab-Activity.pdf) | T5 | Ch. 3, 8 | 78–80 |
-| 6 | [Sales Forecasting and S&OP with ERP Data](../.all_pdfs/enterprise-resource-planning/Lab-06/Lab-Activity.pdf) | T6 | Ch. 6 | 81–85 |
-| 7 | [Supply Chain Management: Procure, Receive, and Measure](../.all_pdfs/enterprise-resource-planning/Lab-07/Lab-Activity.pdf) | T7 | Ch. 7 | 86–88 |
-| 8 | [Human Resources and Recruitment Process Modelling](../.all_pdfs/enterprise-resource-planning/Lab-08/Lab-Activity.pdf) | T8 | Ch. 9–10 | 89–91 |
-| | [Capstone: West End Bicycles End-to-End ERP Story](../.all_pdfs/enterprise-resource-planning/Capstone-Project.pdf) | | all | 92–95 |
+| 1 | [Business Process and Odoo Environment Setup](../.all-pdfs/enterprise-resource-planning/Lab-01/Lab-Activity.pdf) | T1 | Ch. 1–2 | See manifest |
+| 2 | [ERP Benefits, Challenges, and Modular Integration](../.all-pdfs/enterprise-resource-planning/Lab-02/Lab-Activity.pdf) | T2 | Ch. 2 | See manifest |
+| 3 | [Production Planning and Manufacturing in Odoo](../.all-pdfs/enterprise-resource-planning/Lab-03/Lab-Activity.pdf) | T3 | Ch. 5 | See manifest |
+| 4 | [Customer Relationship Management in Odoo](../.all-pdfs/enterprise-resource-planning/Lab-04/Lab-Activity.pdf) | T4 | Ch. 4 | See manifest |
+| 5 | [Sales Order Process: Order-to-Cash in Odoo](../.all-pdfs/enterprise-resource-planning/Lab-05/Lab-Activity.pdf) | T5 | Ch. 3, 8 | See manifest |
+| 6 | [Sales Forecasting and S&OP with ERP Data](../.all-pdfs/enterprise-resource-planning/Lab-06/Lab-Activity.pdf) | T6 | Ch. 6 | See manifest |
+| 7 | [Supply Chain Management: Procure, Receive, and Measure](../.all-pdfs/enterprise-resource-planning/Lab-07/Lab-Activity.pdf) | T7 | Ch. 7 | See manifest |
+| 8 | [Human Resources and Recruitment Process Modelling](../.all-pdfs/enterprise-resource-planning/Lab-08/Lab-Activity.pdf) | T8 | Ch. 9–10 | See manifest |
+| | [Capstone: West End Bicycles End-to-End ERP Story](../.all-pdfs/enterprise-resource-planning/Capstone-Project.pdf) | | all | See manifest |
 
 ## Running the labs
 
@@ -62,13 +62,13 @@ tasks of all eight labs and the capstone and checks each result.
 ## Still to do
 
 - Decide whether the practicals should move next to their chapters in the book, as in the other courses, or stay
-  together in tutorial order. The lab folders under `.all_pdfs/` are already organised by lab either way.
+  together in tutorial order. The lab folders under `.all-pdfs/` are already organised by lab either way.
 
 ## Folder map
 
 ```text
 ENTERPRISE RESOURCE PLANNING/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           10 chapters, the course map (with a list of figures) and the capstone
   labs/               8 Odoo practicals, input together in Stage 5
   appendices/         the Odoo quick reference and the course source map
@@ -81,19 +81,18 @@ ENTERPRISE RESOURCE PLANNING/
 ```
 
 The business-process diagrams are drawn with the shared
-[process diagram library](../.shared/diagrams/process.tex).
+[process diagram library](../.shared/typst/utp.typ).
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py ERP            # rebuild the book and its lab PDFs in .all_pdfs/enterprise-resource-planning/
-python .shared/build.py ERP --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py ERP
+python .typst-setup/scripts/publish.py ERP
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.
 
 ## Refined lab walkthroughs
 
@@ -102,7 +101,5 @@ for the shared styles every book uses.
 Record walkthroughs in `labs/walkthroughs/` identify actions and observable stock/document states. `all_experiments/sop_planner.py` implements the worked chapter forecast with explicit unit and opening-stock assumptions.
 
 **Validation:** The S&OP checker passed for both pairs/hour and literal shoes/hour; the latter correctly reports infeasible capacity. The labs' Odoo tasks were then run on Odoo 19 Community with `run_all_labs.py`, from an empty database, and the results were spot-checked by signing in to the web interface.
-
-The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.
 
 UI references: [Odoo 19 bills of materials](https://www.odoo.com/documentation/19.0/applications/inventory_and_mrp/manufacturing/basic_setup/bill_configuration.html) and [one-step manufacturing](https://www.odoo.com/documentation/19.0/applications/inventory_and_mrp/manufacturing/basic_setup/one_step_manufacturing.html).

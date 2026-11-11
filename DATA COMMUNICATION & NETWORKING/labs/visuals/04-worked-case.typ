@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [Trace the OSPF triangle configuration])[#flow([*\1. Input / state*
+
+Use unique router IDs and the supplied 10.0.12.0, 10.0.13.0 and 10.0.23.0 links.], [*\2. Operation*
+
+Advertise the intended links and LANs in area 0; inspect each neighbour relationship.], [*\3. Check*
+
+Check learned remote-LAN routes and end-to-end connectivity after adjacency forms.])]

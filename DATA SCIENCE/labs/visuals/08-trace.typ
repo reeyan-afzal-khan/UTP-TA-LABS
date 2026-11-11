@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [A probability is not a decision])[#flow([*Score*
+
+The model assigns a probability to each test row], [*Threshold*
+
+Convert probability to a class at a stated cutoff], [*Count*
+
+Separate false positives from false negatives])]

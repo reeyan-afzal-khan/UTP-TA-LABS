@@ -2,7 +2,7 @@
 
 The supervised workflow from start to finish, on three real tables: Cars.com used-car listings for linear and ridge regression on messy data, two Portuguese hotels' bookings for a date-order split, probabilities and an overbooking threshold, and a telecom company's customers for tuning, a sealed test set and a saved model.
 
-**Lab sheet:** [`Lab-02/Lab-Activity.pdf`](../../../.all_pdfs/machine-learning/Lab-02/Lab-Activity.pdf), which practises Chapters 4 to 10.
+**Lab sheet:** [`Lab-02/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-02/Lab-Activity.pdf), which practises Chapters 4 to 10.
 
 ## Parts
 

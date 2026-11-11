@@ -1,0 +1,102 @@
+#import "/.shared/typst/utp.typ": *
+#unit("labs", "03-production-planning-odoo")
+
+#lab("3")[Production Planning and Manufacturing in Odoo] <sec:lab03>
+
+#callout("labproject", title: [Turn a production plan into products, a BOM, and a completed Manufacturing Order])[#strong[Coverage.] Tutorial 3 + Chapter 5. \
+#strong[Core system.] Odoo Products, Purchase, Inventory, and Manufacturing. \
+#strong[Goal.] Connect production-planning concepts to the master data and transactions required to manufacture Road Bikes.
+
+
+#include "/ENTERPRISE RESOURCE PLANNING/labs/visuals/03-flow.typ"
+
+
+#callout("labmode", title: [How the practical connects to the concept])[Tutorial 3 asks for a production approach, forecast, and S&OP plan. Odoo does not replace those planning calculations in this course. Instead, it demonstrates how an approved plan becomes executable master data and manufacturing transactions.]
+
+#strong[Part A --- Choose the production approach.]
+
+For your Tutorial 3 business venture, justify make-to-stock, make-to-order, or a more customised approach. For West End Bicycles, use the supplied guide's make-to-stock story: build finished bikes before the customer delivery.
+
+
+#include "/ENTERPRISE RESOURCE PLANNING/labs/visuals/03-trace.typ"
+
+
+#strong[Use the chapter while coding.] Revisit #link(label("ch:production-planning"))[the earlier chapter explanation]; match its operation to the variables and state changes below.
+
+#strong[Follow the supplied implementation.] Check the product and units before confirming the manufacturing order. Reservations describe planned availability; they are not the same as consumption. Record any shortage and receipt before marking the production task complete. 
+#include "/ENTERPRISE RESOURCE PLANNING/labs/visuals/03-worked-case.typ"
+
+
+#strong[Part B --- Create finished products.]
+
+Create Road Bike and, if required by the class, the additional sample finished products. For Road Bike:
+
+- Product Type = Goods;
+
+- Track Inventory = enabled;
+
+- Can be Sold = enabled;
+
+- Sales Price = RM 1,000.
+
+#strong[Part C --- Create raw materials.]
+
+Create Aluminium Frame, Rubber Tires, Brake Set, Gear Set, and Bicycle Chain as Goods with Track Inventory enabled and Can be Purchased enabled. Use the guide costs as reference values.
+
+#strong[Part D --- Build the Road Bike BOM.]
+
+Use #strong[Manufacturing Products Bills of Materials]. Create a BOM for 1 Road Bike with:
+
+- 1 Aluminium Frame;
+
+- 2 Rubber Tires;
+
+- 1 Brake Set;
+
+- 1 Gear Set;
+
+- 1 Bicycle Chain.
+
+Before manufacturing, verify that components have actually been received into stock. The SCM lab explains purchasing in depth; for this lab, use stock created through the supplied purchase/receipt steps or the instructor's prepared database.
+
+#strong[Part E --- Manufacture 5 Road Bikes.]
+
+Create a Manufacturing Order for quantity 5, assign the Production Planner as Responsible, confirm the order, check component availability, and complete production using the Odoo 19 flow described in the supplied guide. Mark the MO Done.
+
+#strong[Part F --- Verify the inventory transformation.]
+
+Before completion, record component on-hand quantities. After completion, verify:
+
+- frame stock decreased by 5;
+
+- tyre stock decreased by 10;
+
+- each other component decreased by 5;
+
+- Road Bike stock increased by 5.
+
+This is the ERP evidence that the manufacturing event changed the shared inventory data.
+
+#strong[Part G --- Complete the Tutorial 3 planning work.]
+
+Prepare the sales forecast and S&OP table required by the tutorial, including the selected product mix and the 90--95% utilisation requirement specified in that tutorial. Keep the planning units consistent.]
+
+#strong[Chapter connection.] Revisit #link(label("ch:production-planning"))[the chapter explanation] and map its states to the steps below. 
+#include "/ENTERPRISE RESOURCE PLANNING/labs/visuals/03-production-planning-odoo-chapter.typ"
+
+
+
+#include "/ENTERPRISE RESOURCE PLANNING/labs/walkthroughs/03-records.typ"
+
+
+#callout("verification", title: [Verification checklist])[#strong[Explain and extend your result.] Reconcile one order from BOM demand to stock moves. Introduce a component shortage in a separate exercise record and explain the resulting availability state and corrective receipt.
+
+- The Road Bike and its raw materials exist as Goods with Track Inventory enabled.
+
+- The Road Bike BOM lists every component with its quantity.
+
+- Components were received into stock before the Manufacturing Order was confirmed.
+
+- The Manufacturing Order for 5 Road Bikes is Done.
+
+- On-hand stock changed as expected: frames down 5, tyres down 10, other components down 5, Road Bikes up 5.]

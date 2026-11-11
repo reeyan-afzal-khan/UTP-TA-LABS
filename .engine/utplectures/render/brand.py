@@ -1,6 +1,6 @@
 """The UTP logo as clean vector art, for a black background, and its animation.
 
-The repository's logo (.shared/logos/logo-UTP.png) is a 391 x 761 raster drawn
+The repository's logo (.shared/assets/logos/logo-UTP.png) is a 391 x 761 raster drawn
 for paper. It is rebuilt once as vector layers, each made as cleanly as the
 source allows:
 
@@ -31,7 +31,7 @@ from PIL import Image
 
 from ..paths import SHARED, cache_dir
 
-SOURCE = SHARED / "logos" / "logo-UTP.png"
+SOURCE = SHARED / "assets" / "logos" / "logo-UTP.png"
 UTP_BLUE = "#0B4F94"
 UTP_GOLD = "#E5A21E"
 WORD_FONT = "georgia.ttf"       # the wordmark face (falls back to tracing the letters)

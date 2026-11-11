@@ -37,4 +37,4 @@ def ensure_environment(script: str) -> None:
     exe = lecture_python()
     if exe and Path(exe).resolve() != Path(sys.executable).resolve():
         sys.exit(subprocess.call([exe, str(script), *sys.argv[1:]]))
-    sys.exit("Manim Community is not installed for this Python. See .all_lectures/engine/README.md (Setup).")
+    sys.exit("Manim Community is not installed for this Python. See .engine/README.md (Setup).")

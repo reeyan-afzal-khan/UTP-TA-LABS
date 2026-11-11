@@ -1,0 +1,9 @@
+#import "/.shared/typst/utp.typ": *
+
+#callout("labvisual", title: [FCFS: all four arrivals are zero])[#flow([*P1*
+
+Burst 8: start 0, finish 8, wait 0], [*P2*
+
+Burst 4: start 8, finish 12, wait 8], [*P3 then P4*
+
+Finish at 14 and 15; waits are 12 and 14])]

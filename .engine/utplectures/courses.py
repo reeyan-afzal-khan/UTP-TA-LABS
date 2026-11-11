@@ -1,25 +1,12 @@
-"""Courses and their lectures: one lecture per chapter file and per lab file.
-
-A course is a folder with a main.tex (the same rule as .shared/build.py).
-Chapters are the files main.tex \\inputs from chapters/, in book order; labs
-are the files \\input from labs/, by a chapter or by main.tex itself.
-Each lecture's video takes its source file's name:
-
-    ALGORITHMS & DATA STRUCTURES/chapters/01-introduction.tex
-        -> .all_lectures/algorithms-data-structures/chapters/01-introduction.mp4
-"""
-
-from __future__ import annotations
-
-import re
+"""Course discovery from Typst entry points."""
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
-
-from .latex.reader import Source, read_args
-from .latex.styles import StyleBook
-from .paths import LECTURES, ROOT, SHARED
-
+import re
+import json
+from .typst.reader import evaluate, inline, descendants
+from .typst.styles import StyleBook
+from .paths import ROOT, LECTURES
 
 @dataclass
 class Lecture:
@@ -78,132 +65,49 @@ class Lecture:
 
 
 class Course:
-    def __init__(self, folder: Path):
+    def __init__(self, folder):
         self.folder = folder
-        self.code = "".join(w[0] for w in folder.name.split() if w[0].isalpha()).upper()
-        self.slug = "-".join(re.findall(r"[a-z0-9]+", folder.name.lower()))
-        self.main_tex = (folder / "main.tex").read_text(encoding="utf-8")
-        m = re.search(r"\\def\\utpcoursetitle\{", self.main_tex)
-        title = read_args(self.main_tex, m.end() - 1, "m")[0][0] if m else folder.name.title()
-        self.title = (title or "").replace("\\&", "&").strip()
-        m = re.search(r"\\def\\utplabtotal\{(\d+)\}", self.main_tex)
-        self.lab_total = m.group(1) if m else None
-
-    def __repr__(self) -> str:
-        return f"Course({self.code}, {self.slug})"
-
+        registry = json.loads((ROOT/'.typst-setup/config/courses.json').read_text())
+        self.code = registry[folder.name]['code']
+        self.slug = registry[folder.name]['slug']
+        self.main_typ = (folder/'main.typ').read_text(encoding='utf-8')
+        match = re.search(r'book.with\(title: \[([^\]]+)', self.main_typ)
+        self.title = match[1] if match else folder.name.title()
+        match = re.search(r'lab-total:\s*(\d+)', self.main_typ)
+        self.lab_total = match[1] if match else None
+        self.macros = {}
     @cached_property
-    def styles(self) -> StyleBook:
-        shared = (SHARED / "utpnotes.tex").read_text(encoding="utf-8")
-        return StyleBook(shared, self.main_tex)
-
+    def styles(self): return StyleBook()
     @cached_property
-    def macros(self) -> dict[str, tuple[int, str]]:
-        """The book's own one-line \\newcommand definitions, expanded inline."""
-        pre = self.main_tex.split("\\begin{document}")[0]
-        out: dict[str, tuple[int, str]] = {}
-        for m in re.finditer(r"\\newcommand\{\\(\w+)\}(?:\[(\d)\])?\{", pre):
-            body, _ = _group(pre, m.end() - 1)
-            out[m.group(1)] = (int(m.group(2) or 0), body)
-        return out
-
+    def lectures(self):
+        result=[]; chapter=0; parent=None
+        for match in re.finditer(r'#include\s+"([^"]+)"', self.main_typ):
+            path = ROOT/match[1].lstrip('/') if match[1].startswith('/') else self.folder/match[1]
+            if path.parent.name not in ('chapters','labs','appendices') or path.stem=='course-map':continue
+            ast = evaluate(path.read_text(encoding='utf-8'))
+            lab = next((n['value'] for n in descendants(ast) if n.get('func')=='metadata' and isinstance(n.get('value'),dict) and n['value'].get('utp')=='lab'),None)
+            head = next((n for n in descendants(ast) if n.get('func')=='heading'),None)
+            if lab:
+                lecture=Lecture(self,'lab',path,str(lab['number']),inline(lab['title']))
+                if parent:parent.labs.append(lecture)
+            elif head:
+                numbered=head.get('numbering','auto') is not None
+                if numbered:chapter+=1
+                lecture=Lecture(self,'chapter',path,str(chapter) if numbered else None,inline(head.get('body',{})))
+                parent=lecture
+            else:continue
+            result.append(lecture)
+        return result
     @cached_property
-    def lectures(self) -> list[Lecture]:
-        lectures: list[Lecture] = []
-        main = Source(self.main_tex).text.split("\\begin{document}", 1)[-1]
-        chapter_no = 0
-        seen: set[Path] = set()
-
-        def add_lab(path: Path, parent: Lecture | None) -> None:
-            if path in seen or not path.exists():
-                return
-            seen.add(path)
-            text = Source(path.read_text(encoding="utf-8")).text
-            m = re.search(r"\\labsection\{", text)
-            number, title = None, path.stem
-            if m:
-                (number, title), _ = read_args(text, m.end() - 1, "mm")
-            lab = Lecture(self, "lab", path, (number or "").strip() or None, title or path.stem)
-            lectures.append(lab)
-            if parent:
-                parent.labs.append(lab)
-
-        for m in re.finditer(r"\\(?:input|include)\{([^}]*)\}", main):
-            rel = m.group(1).strip()
-            path = (self.folder / rel).with_suffix(".tex") if not rel.endswith(".tex") else self.folder / rel
-            if rel.startswith("labs/"):
-                add_lab(path, None)
-                continue
-            if not rel.startswith("chapters/") or not path.exists() or path in seen:
-                continue
-            seen.add(path)
-            text = Source(path.read_text(encoding="utf-8")).text
-            h = re.search(r"\\chapter(\*?)\{", text)
-            number, title = None, path.stem
-            if h:
-                title = _group(text, h.end() - 1)[0]
-                if not h.group(1):
-                    chapter_no += 1
-                    number = str(chapter_no)
-            chapter = Lecture(self, "chapter", path, number, title)
-            lectures.append(chapter)
-            for lm in re.finditer(r"\\(?:input|include)\{(labs/[^}]*)\}", text):
-                lrel = lm.group(1)
-                add_lab((self.folder / lrel).with_suffix(".tex") if not lrel.endswith(".tex")
-                        else self.folder / lrel, chapter)
-        return lectures
-
-    @cached_property
-    def labels(self) -> dict[str, str]:
-        """label -> how the book refers to it: Figure 1.2, Chapter 3, Section 2.1, Lab 4."""
-        labels: dict[str, str] = {}
-        for lec in self.lectures:
-            text = Source(lec.source.read_text(encoding="utf-8")).text
-            if lec.kind == "lab":
-                m = re.search(r"\\labsection\{[^}]*\}\{", text)
-                if m:
-                    args, _ = read_args(text, m.start() + len("\\labsection"), "mmm")
-                    if args[2]:
-                        labels[args[2]] = f"Lab {lec.number}"
-                continue
-            ch = lec.number or "0"
-            sec = fig = tab = 0
-            last = f"Chapter {ch}"                 # what a \label right here refers to
-            for m in re.finditer(r"\\(chapter|section)(\*?)\{|\\begin\{(utpfig|figure)\}"
-                                 r"|\\captionof\{(table)\}|\\label\{([^}]*)\}", text):
-                if m.group(1) == "chapter":
-                    last = f"Chapter {ch}"
-                elif m.group(1) == "section":
-                    if not m.group(2):
-                        sec += 1
-                        last = f"Section {ch}.{sec}"
-                elif m.group(3):
-                    fig += 1
-                    last = f"Figure {ch}.{fig}"
-                    if m.group(3) == "utpfig":     # its label is an argument, not a \label
-                        args, _ = read_args(text[m.end():m.end() + 4000], 0, "omm")
-                        if args[2]:
-                            labels[args[2]] = last
-                elif m.group(4):
-                    tab += 1
-                    last = f"Table {ch}.{tab}"
-                elif m.group(5):
-                    labels.setdefault(m.group(5), last)
+    def labels(self):
+        labels={}
+        for lecture in self.lectures:
+            for label in re.findall(r'<([\w:.-]+)>',lecture.source.read_text(encoding='utf-8')):
+                labels[label]=lecture.label if label.startswith(('ch:','sec:lab')) else lecture.title
         return labels
 
+def all_courses():
+    return [Course(p.parent) for p in sorted(ROOT.glob('*/main.typ')) if not p.parent.name.startswith('.')]
 
-def _group(s: str, i: int) -> tuple[str, int]:
-    from .latex.reader import read_group
-    return read_group(s, i)
-
-
-def all_courses() -> list[Course]:
-    return [Course(p) for p in sorted(ROOT.iterdir())
-            if p.is_dir() and not p.name.startswith(".") and (p / "main.tex").exists()]
-
-
-def find_course(name: str) -> Course | None:
-    for c in all_courses():
-        if name.upper() in (c.code, c.folder.name.upper()) or name.lower() == c.slug:
-            return c
-    return None
+def find_course(name):
+    return next((c for c in all_courses() if name.upper() in (c.code,c.folder.name.upper()) or name.lower()==c.slug),None)

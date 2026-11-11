@@ -1,10 +1,10 @@
 # Figure overrides
 
-By default a figure is the book's own TikZ, compiled and drawn on screen part by part. When a figure
-deserves a hand-made animation, put a Python file here named after its LaTeX label, in the course's folder:
+By default a figure is the book's own SVG, drawn on screen part by part. When a figure
+deserves a hand-made animation, put a Python file here named after its Typst label, in the course's folder:
 
 ```text
-overrides/algorithms-data-structures/fig-linear-shape.py      for \label{fig:linear-shape}
+overrides/algorithms-data-structures/fig-linear-shape.py      for <fig:linear-shape>
 ```
 
 (`:` and other punctuation in the label become `-`.) The file can define either function or both:

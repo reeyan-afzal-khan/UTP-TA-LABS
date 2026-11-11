@@ -1,0 +1,38 @@
+{
+  "0.GIT-REPO-SUBMISSION": {
+    "code": "GIT",
+    "slug": "0-git-repo-submission"
+  },
+  "ALGORITHMS & DATA STRUCTURES": {
+    "code": "ADS",
+    "slug": "algorithms-data-structures"
+  },
+  "ARTIFICIAL INTELLIGENCE": {
+    "code": "AI",
+    "slug": "artificial-intelligence"
+  },
+  "DATA COMMUNICATION & NETWORKING": {
+    "code": "DCN",
+    "slug": "data-communication-networking"
+  },
+  "DATA SCIENCE": {
+    "code": "DS",
+    "slug": "data-science"
+  },
+  "ENTERPRISE RESOURCE PLANNING": {
+    "code": "ERP",
+    "slug": "enterprise-resource-planning"
+  },
+  "FINTECH INNOVATION": {
+    "code": "FI",
+    "slug": "fintech-innovation"
+  },
+  "MACHINE LEARNING": {
+    "code": "ML",
+    "slug": "machine-learning"
+  },
+  "OPERATING SYSTEMS": {
+    "code": "OS",
+    "slug": "operating-systems"
+  }
+}

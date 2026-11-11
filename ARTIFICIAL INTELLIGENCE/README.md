@@ -8,9 +8,9 @@ chapter on game search. The search chapters follow one robot through one maze, s
 the same numbers. Every lab sheet is a sequence of questions and worked answers whose code is pasted from the lab's
 notebook. Labs are written in Python.
 
-**[Book (PDF, 152 pages)](../.all_pdfs/artificial-intelligence/AI-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/artificial-intelligence) ·
-[LaTeX source](main.tex) ·
+**[Book (PDF, the complete book)](../.all-pdfs/artificial-intelligence/AI-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/artificial-intelligence) ·
+[Typst source](main.typ) ·
 [All courses](../README.md)
 
 ## Stages
@@ -28,20 +28,20 @@ notebook. Labs are written in Python.
 
 Lab *N* practises Chapter *N* + 1, except that Lab 8 practises Chapters 9 and 10 together. Chapter 11 is a reading
 chapter with a runnable demo and no lab, so it has its own
-[PDF](../.all_pdfs/artificial-intelligence/Adversarial-Search-When-Someone-Fights-Back.pdf). Each lab folder under
-[`.all_pdfs/artificial-intelligence/`](../.all_pdfs/artificial-intelligence) holds the chapters that lab practises
+[PDF](../.all-pdfs/artificial-intelligence/Adversarial-Search-When-Someone-Fights-Back.pdf). Each lab folder under
+[`.all-pdfs/artificial-intelligence/`](../.all-pdfs/artificial-intelligence) holds the chapters that lab practises
 and the lab sheet. Page numbers are the ones printed in the book.
 
-| Lab | Lab sheet | Read first | Pages | Worked notebook | Datasets |
+| Lab | Lab sheet | Read first | Page ranges | Worked notebook | Datasets |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [Search Foundations on an Airline Network](../.all_pdfs/artificial-intelligence/Lab-01/Lab-Activity.pdf) | Ch. 1A–2 | 25–30 | [lab01_search_foundations_worked](all_experiments/lab01_search_foundations_worked.ipynb) | OpenFlights airports and routes |
-| 2 | [Heuristic Search on the Airline Network](../.all_pdfs/artificial-intelligence/Lab-02/Lab-Activity.pdf) | Ch. 3 | 39–45 | [lab02_informed_search_worked](all_experiments/lab02_informed_search_worked.ipynb) | OpenFlights airports and routes |
-| 3 | [Search Engineering: Package, Tests, CLI, and Benchmark](../.all_pdfs/artificial-intelligence/Lab-03/Lab-Activity.pdf) | Ch. 4 | 52–60 | [lab03_search_engineering_worked](all_experiments/lab03_search_engineering_worked.ipynb) | OpenFlights airports and routes |
-| 4 | [Fuzzy Logic and ANFIS with Air-Quality Data](../.all_pdfs/artificial-intelligence/Lab-04/Lab-Activity.pdf) | Ch. 5 | 71–78 | [lab04_fuzzy_anfis_worked](all_experiments/lab04_fuzzy_anfis_worked.ipynb) | UCI Air Quality |
-| 5 | [Robotics: Sensor-to-Action Control](../.all_pdfs/artificial-intelligence/Lab-05/Lab-Activity.pdf) | Ch. 6 | 85–92 | [lab05_robotics_sensor_control_worked](all_experiments/lab05_robotics_sensor_control_worked.ipynb) | wall-following robot sensor readings |
-| 6 | [NLP Foundations: Handwriting OCR Evaluation](../.all_pdfs/artificial-intelligence/Lab-06/Lab-Activity.pdf) | Ch. 7 | 99–107 | [lab06_handwriting_ocr_worked](all_experiments/lab06_handwriting_ocr_worked.ipynb) | handwritten prescriptions (zip) |
-| 7 | [NLP Evaluation: Airline Tweet Sentiment Classification](../.all_pdfs/artificial-intelligence/Lab-07/Lab-Activity.pdf) | Ch. 8 | 113–120 | [lab07_airline_sentiment_worked](all_experiments/lab07_airline_sentiment_worked.ipynb) | airline tweets |
-| 8 | [Genetic Algorithms: Regression and Reproducibility](../.all_pdfs/artificial-intelligence/Lab-08/Lab-Activity.pdf) | Ch. 9–10 | 135–142 | [lab08_genetic_algorithm_regression_worked](all_experiments/lab08_genetic_algorithm_regression_worked.ipynb) | medical insurance costs |
+| 1 | [Search Foundations on an Airline Network](../.all-pdfs/artificial-intelligence/Lab-01/Lab-Activity.pdf) | Ch. 1A–2 | See manifest | [lab01_search_foundations_worked](all_experiments/lab01_search_foundations_worked.ipynb) | OpenFlights airports and routes |
+| 2 | [Heuristic Search on the Airline Network](../.all-pdfs/artificial-intelligence/Lab-02/Lab-Activity.pdf) | Ch. 3 | See manifest | [lab02_informed_search_worked](all_experiments/lab02_informed_search_worked.ipynb) | OpenFlights airports and routes |
+| 3 | [Search Engineering: Package, Tests, CLI, and Benchmark](../.all-pdfs/artificial-intelligence/Lab-03/Lab-Activity.pdf) | Ch. 4 | See manifest | [lab03_search_engineering_worked](all_experiments/lab03_search_engineering_worked.ipynb) | OpenFlights airports and routes |
+| 4 | [Fuzzy Logic and ANFIS with Air-Quality Data](../.all-pdfs/artificial-intelligence/Lab-04/Lab-Activity.pdf) | Ch. 5 | See manifest | [lab04_fuzzy_anfis_worked](all_experiments/lab04_fuzzy_anfis_worked.ipynb) | UCI Air Quality |
+| 5 | [Robotics: Sensor-to-Action Control](../.all-pdfs/artificial-intelligence/Lab-05/Lab-Activity.pdf) | Ch. 6 | See manifest | [lab05_robotics_sensor_control_worked](all_experiments/lab05_robotics_sensor_control_worked.ipynb) | wall-following robot sensor readings |
+| 6 | [NLP Foundations: Handwriting OCR Evaluation](../.all-pdfs/artificial-intelligence/Lab-06/Lab-Activity.pdf) | Ch. 7 | See manifest | [lab06_handwriting_ocr_worked](all_experiments/lab06_handwriting_ocr_worked.ipynb) | handwritten prescriptions (zip) |
+| 7 | [NLP Evaluation: Airline Tweet Sentiment Classification](../.all-pdfs/artificial-intelligence/Lab-07/Lab-Activity.pdf) | Ch. 8 | See manifest | [lab07_airline_sentiment_worked](all_experiments/lab07_airline_sentiment_worked.ipynb) | airline tweets |
+| 8 | [Genetic Algorithms: Regression and Reproducibility](../.all-pdfs/artificial-intelligence/Lab-08/Lab-Activity.pdf) | Ch. 9–10 | See manifest | [lab08_genetic_algorithm_regression_worked](all_experiments/lab08_genetic_algorithm_regression_worked.ipynb) | medical insurance costs |
 
 The dataset files in [`all_datasets/`](all_datasets) are named for the labs that read them
 (`lab01-03_airports.csv`, `lab04-AirQuality.csv`, ...).
@@ -93,7 +93,7 @@ Open a notebook and choose **Restart Kernel and Run All Cells**. Notebooks write
 
 ```text
 ARTIFICIAL INTELLIGENCE/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           11 chapters, the course map and the shared maze figures
   labs/               8 lab sheets, each input at the end of the chapter it follows
   all_datasets/       the data each lab reads, named by lab
@@ -103,20 +103,19 @@ ARTIFICIAL INTELLIGENCE/
   requirements.txt    Python packages for the notebooks
 ```
 
-Files in `chapters/` are numbered differently from the book: `01-uninformed-search.tex` prints as Chapter 2. The Git
+Files in `chapters/` are numbered differently from the book: `01-uninformed-search.typ` prints as Chapter 2. The Git
 chapter (1B) comes from [`.shared/`](../.shared).
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py AI            # rebuild the book and its lab PDFs in .all_pdfs/artificial-intelligence/
-python .shared/build.py AI --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py AI
+python .typst-setup/scripts/publish.py AI
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.
 
 ## Lab sheets and what has been checked
 
@@ -132,5 +131,5 @@ as shipped), the four demos, the `utils` test suite, and the your-turn results q
 recomputed from saved predictions, and the third, which needs live OCR, has no fixed answer in the sheet. ANFIS results
 in Lab 4 can differ in the third decimal across SciPy versions, and the sheet says so.
 
-**Building on a MiKTeX machine:** `main.tex` registers the Source Sans font map, because some MiKTeX installs otherwise
-stop at the cover. A comment in `main.tex` explains it.
+**Building on a Typst machine:** `main.typ` registers the Source Sans font map, because some Typst installs otherwise
+stop at the cover. A comment in `main.typ` explains it.

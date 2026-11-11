@@ -72,6 +72,9 @@ env/
 # Local VS Code course builds (never published PDFs).
 # =========================
 /.build/
+/.typst-setup/bin/
+/.typst-setup/.venv/
+/.all_lectures/
 
 # ERP Course
 /tools/runtime/

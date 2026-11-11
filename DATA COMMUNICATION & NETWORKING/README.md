@@ -9,9 +9,9 @@ chapter on layers and addresses opens the book; nine chapters in five stages fol
 which asks for a working configuration and the evidence that it works. A group project and a command reference
 close the book.
 
-**[Book (PDF, 91 pages)](../.all_pdfs/data-communication-networking/DCN-Book.pdf)** ·
-[Lab bundles](../.all_pdfs/data-communication-networking) ·
-[LaTeX source](main.tex) ·
+**[Book (PDF, the complete book)](../.all-pdfs/data-communication-networking/DCN-Book.pdf)** ·
+[Lab bundles](../.all-pdfs/data-communication-networking) ·
+[Typst source](main.typ) ·
 [Lecturer materials](0.from_lecturer) ·
 [All courses](../README.md)
 
@@ -31,22 +31,22 @@ close the book.
 
 Lab *N* practises Chapter *N*; every lab also assumes the Foundations chapter, which sits in the Lab 1 folder as
 `Chapter-00.pdf`. Each lab's folder under
-[`.all_pdfs/data-communication-networking/`](../.all_pdfs/data-communication-networking) holds its chapter and
+[`.all-pdfs/data-communication-networking/`](../.all-pdfs/data-communication-networking) holds its chapter and
 the lab sheet. Page numbers are the ones printed in the book.
 
-| Lab | Lab sheet | Read first | Pages | Lecturer source |
+| Lab | Lab sheet | Read first | Page ranges | Lecturer source |
 | --- | --- | --- | --- | --- |
-| 1 | [Capture, filter, and read a live conversation](../.all_pdfs/data-communication-networking/Lab-01/Lab-Activity.pdf) | Foundations, Ch. 1 | 10–12 | Lab 1 - Wireshark |
-| 2 | [Build a topology and survive the VRP command line](../.all_pdfs/data-communication-networking/Lab-02/Lab-Activity.pdf) | Ch. 2 | 19–21 | Lab 2A, 2B - eNSP Introduction |
-| 3 | [Static routing and the backup route](../.all_pdfs/data-communication-networking/Lab-03/Lab-Activity.pdf) | Ch. 3 | 28–30 | Lab 3 - Static Routing |
-| 4 | [OSPF: let the network work it out](../.all_pdfs/data-communication-networking/Lab-04/Lab-Activity.pdf) | Ch. 4 | 36–38 | Lab 4 - Dynamic Routing |
-| 5 | [FTP: a service on top of a working network](../.all_pdfs/data-communication-networking/Lab-05/Lab-Activity.pdf) | Ch. 5 | 44–46 | Lab 5 - FTP |
-| 6 | [DHCP: addresses without a spreadsheet](../.all_pdfs/data-communication-networking/Lab-06/Lab-Activity.pdf) | Ch. 6 | 52–54 | Lab 6 - DHCP server |
-| 7 | [Link aggregation: several cables, one link](../.all_pdfs/data-communication-networking/Lab-07/Lab-Activity.pdf) | Ch. 7 | 61–63 | Lab 7 - LACP |
-| 8 | [VLANs: one switch, several networks](../.all_pdfs/data-communication-networking/Lab-08/Lab-Activity.pdf) | Ch. 8 | 70–72 | Lab 8 - VLAN Configuration |
-| 9 | [WAN links: HDLC, PPP, and authentication](../.all_pdfs/data-communication-networking/Lab-09/Lab-Activity.pdf) | Ch. 9 | 80–82 | Lab 9 - WAN |
-| | [Group project: integrated eNSP network](../.all_pdfs/data-communication-networking/Capstone-Project.pdf) | all | 83–84 | Group Project - Template DCN |
-| | [Command quick reference](../.all_pdfs/data-communication-networking/Command-Quick-Reference.pdf) | | 85–87 | |
+| 1 | [Capture, filter, and read a live conversation](../.all-pdfs/data-communication-networking/Lab-01/Lab-Activity.pdf) | Foundations, Ch. 1 | See manifest | Lab 1 - Wireshark |
+| 2 | [Build a topology and survive the VRP command line](../.all-pdfs/data-communication-networking/Lab-02/Lab-Activity.pdf) | Ch. 2 | See manifest | Lab 2A, 2B - eNSP Introduction |
+| 3 | [Static routing and the backup route](../.all-pdfs/data-communication-networking/Lab-03/Lab-Activity.pdf) | Ch. 3 | See manifest | Lab 3 - Static Routing |
+| 4 | [OSPF: let the network work it out](../.all-pdfs/data-communication-networking/Lab-04/Lab-Activity.pdf) | Ch. 4 | See manifest | Lab 4 - Dynamic Routing |
+| 5 | [FTP: a service on top of a working network](../.all-pdfs/data-communication-networking/Lab-05/Lab-Activity.pdf) | Ch. 5 | See manifest | Lab 5 - FTP |
+| 6 | [DHCP: addresses without a spreadsheet](../.all-pdfs/data-communication-networking/Lab-06/Lab-Activity.pdf) | Ch. 6 | See manifest | Lab 6 - DHCP server |
+| 7 | [Link aggregation: several cables, one link](../.all-pdfs/data-communication-networking/Lab-07/Lab-Activity.pdf) | Ch. 7 | See manifest | Lab 7 - LACP |
+| 8 | [VLANs: one switch, several networks](../.all-pdfs/data-communication-networking/Lab-08/Lab-Activity.pdf) | Ch. 8 | See manifest | Lab 8 - VLAN Configuration |
+| 9 | [WAN links: HDLC, PPP, and authentication](../.all-pdfs/data-communication-networking/Lab-09/Lab-Activity.pdf) | Ch. 9 | See manifest | Lab 9 - WAN |
+| | [Group project: integrated eNSP network](../.all-pdfs/data-communication-networking/Capstone-Project.pdf) | all | See manifest | Group Project - Template DCN |
+| | [Command quick reference](../.all-pdfs/data-communication-networking/Command-Quick-Reference.pdf) | | See manifest | |
 
 ## Running the labs
 
@@ -62,7 +62,7 @@ Each lab ends with a *Verification evidence* box: the `display` commands and cap
 
 ```text
 DATA COMMUNICATION & NETWORKING/
-  main.tex            the book: configuration and chapter list
+  main.typ            the book: configuration and chapter list
   chapters/           foundations, Chapters 1-9, the course map, the group project and the command reference
   labs/               9 lab sheets, each input at the end of its chapter
   figures/            topology screenshots and slide images the chapters include
@@ -70,19 +70,18 @@ DATA COMMUNICATION & NETWORKING/
 ```
 
 The network diagrams (devices, packet headers, sequence diagrams, VRP transcripts) are drawn with the shared
-[network diagram library](../.shared/diagrams/network.tex).
+[network diagram library](../.shared/typst/utp.typ).
 
-## Building the book
+## Building and live preview
 
-From the repository root:
+Open the repository root in VS Code, install the recommended Tinymist extension, and open `main.typ`. Pin this file as the main document and start the preview. See the [portable setup guide](../.typst-setup/README.md).
 
-```bash
-python .shared/build.py DCN            # rebuild the book and its lab PDFs in .all_pdfs/data-communication-networking/
-python .shared/build.py DCN --check    # build only, to check a change; writes nothing
+```sh
+python .typst-setup/scripts/build.py DCN
+python .typst-setup/scripts/publish.py DCN
 ```
 
-The build runs in a temporary folder, so nothing is written to this course folder. See [`.shared/`](../.shared)
-for the shared styles every book uses.
+Run these commands from the repository root. Local builds go to `.build/`; publishing updates `.all-pdfs/`.
 
 ## Refined lab walkthroughs
 
@@ -91,7 +90,5 @@ for the shared styles every book uses.
 Worked command sequences and per-device configurations are in `labs/configs/`. Match interface names to the actual classic eNSP VRP image. The static-routing example keeps a direct R3 return path while testing R1 forward-path failover.
 
 **Validation:** Configuration text and topology addressing were reviewed. Live eNSP/Wireshark verification remains to be performed on the classroom images.
-
-The PDF was compiled and its lab figure pages rendered for review. Preview builds used an isolated copy of the shared template with its existing unescaped `# For` prose corrected; the repository’s `.shared`, `.engine`, and `.all_pdfs` were not edited.
 
 Command-family references: [Huawei DHCP configuration](https://info.support.huawei.com/network/ptmngsys/Web/tsrev_wlan/en/content/wlan/24_edesk_sta_ip_failure/edesk_sta_ip_failure_edesk003.html), [Huawei LACP troubleshooting](https://info.support.huawei.com/network/ptmngsys/Web/tsrev_ce/en/content/ce/02_edesk_dc_trunk_down/edesk_dc_trunk_down_edesk004.html), and [Huawei routing fundamentals](https://info.support.huawei.com/info-finder/encyclopedia/en/detail?action=queryEntityDetail&keyword=IP+routing). Confirm commands against the selected eNSP image.

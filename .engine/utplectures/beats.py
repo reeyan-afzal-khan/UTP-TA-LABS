@@ -18,7 +18,7 @@ from __future__ import annotations
 import html
 import re
 
-from .latex.inline import InlineContext, Run, parse_inline, runs_to_markup, runs_to_plain
+from .typst.inline import InlineContext, Run, parse_inline, runs_to_markup, runs_to_plain
 
 HEADLINE_WORDS = 13
 STOP_LEAD = {"list", "lists", "include", "includes", "including", "give", "gives", "are", "is", "be", "as", "such",
@@ -111,9 +111,9 @@ def _list_items(plain: str) -> tuple[str, list[str]]:
     return prefix, items
 
 
-def sentence_show(tex: str, ctx: InlineContext, colors: dict, mono: str):
-    """The on-screen entry for one sentence of LaTeX."""
-    runs = parse_inline(tex, ctx)
+def sentence_show(markup: str, ctx: InlineContext, colors: dict, mono: str):
+    """The on-screen entry for one sentence of Typst."""
+    runs = parse_inline(markup, ctx)
     plain = runs_to_plain(runs)
     label, marked = _marked_phrases(runs)
     words = len(re.findall(r"\w+", plain))
@@ -143,9 +143,9 @@ def paragraph_show(sentences: list[str], ctx: InlineContext, colors: dict, mono:
     return shows
 
 
-def item_show(tex: str, ctx: InlineContext, colors: dict, mono: str) -> str:
+def item_show(markup: str, ctx: InlineContext, colors: dict, mono: str) -> str:
     """A list item on screen: itself when short, else its gist."""
-    runs = parse_inline(tex, ctx)
+    runs = parse_inline(markup, ctx)
     plain = runs_to_plain(runs)
     if len(plain.split()) <= 16:
         return runs_to_markup(runs, colors, mono).rstrip(".;")
