@@ -17,7 +17,7 @@
 
 Production planning coordinates demand, inventory, materials, capacity, and time. The planner works down a hierarchy in which each level fixes a decision the level below must respect, and each level covers a shorter horizon in finer detail.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/a73ed11710c904c6.svg")], caption: [The planning hierarchy read as a pyramid. Moving down, the horizon shortens and the detail sharpens: a yearly forecast for a product family becomes a daily instruction for one product.]) <fig:planning-hierarchy>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/a73ed11710c904c6.cetz.json")], caption: [The planning hierarchy read as a pyramid. Moving down, the horizon shortens and the detail sharpens: a yearly forecast for a product family becomes a daily instruction for one product.]) <fig:planning-hierarchy>
 
 
 #heading(level: 2)[Production approaches]
@@ -25,7 +25,7 @@ Production planning coordinates demand, inventory, materials, capacity, and time
 
 The most useful distinction is #emph[when] production happens relative to the customer order. The point where the customer's order first touches the process is called the decoupling point: everything upstream of it is driven by forecast, everything downstream by a real order.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f962543d2e9aa133.svg")], caption: [The same four activities, three strategies. The orange marker is the decoupling point: work to its left is driven by forecast, work to its right by a real order. Moving it left cuts inventory risk and lengthens the customer's wait.]) <fig:decoupling-point>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f962543d2e9aa133.cetz.json")], caption: [The same four activities, three strategies. The orange marker is the decoupling point: work to its left is driven by forecast, work to its right by a real order. Moving it left cuts inventory risk and lengthens the customer's wait.]) <fig:decoupling-point>
 
 #figure(
   align(center)[#table(
@@ -48,7 +48,7 @@ A #strong[sales forecast] estimates future demand. It is neither a promise nor a
 
 The textbook's approach starts from last year's demand, removes the unusual effect of last year's promotion, applies expected underlying growth, then adds this year's planned promotion.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/195a4fc2b330c0ec.svg")], caption: [The four-step adjustment for a single month. Skipping the first step would treat a one-off promotion as permanent base demand and inflate every later number.]) <fig:forecast-build>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/195a4fc2b330c0ec.cetz.json")], caption: [The four-step adjustment for a single month. Skipping the first step would treat a one-off promotion as permanent base demand and inflate every later number.]) <fig:forecast-build>
 
 For month $t$, with expected growth rate $g$:
 
@@ -62,7 +62,7 @@ $ upright("Base")_t = upright("Prev. sales")_t - upright("Prev. promo")_t \, #h(
 
 #strong[Sales and Operations Planning (S&OP)] turns the forecast into a feasible aggregate production plan. Inventory is the buffer that lets production differ from demand in any single month.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/cff5ce1d4e5bc786.svg")], caption: [S&OP as a tank. Production fills it, demand drains it, and the level at the end of the month is the level at the start of the next. Capacity limits how fast the inlet can run.]) <fig:sop-balance>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/cff5ce1d4e5bc786.cetz.json")], caption: [S&OP as a tank. Production fills it, demand drains it, and the level at the end of the month is the level at the start of the next. Capacity limits how fast the inlet can run.]) <fig:sop-balance>
 
 A feasible plan must respect capacity:
 
@@ -84,7 +84,7 @@ S&OP is deliberately aggregate. #strong[Demand management] breaks the aggregate 
 
 A #strong[bill of materials (BOM)] is the product recipe: the components and quantities needed to make one finished unit. It is what converts a production quantity into a purchasing requirement.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/93c842dccc4173af.svg")], caption: [The supplied BOM, drawn as the tree it actually is. The right-hand column shows the same structure multiplied out for the manufacturing order of 5 bikes used throughout the practicals.]) <fig:road-bike-bom>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/93c842dccc4173af.cetz.json")], caption: [The supplied BOM, drawn as the tree it actually is. The right-hand column shows the same structure multiplied out for the manufacturing order of 5 bikes used throughout the practicals.]) <fig:road-bike-bom>
 
 MRP later extends this multiplication by considering inventory, scheduled receipts, lot sizes, and lead times.
 
@@ -94,7 +94,7 @@ MRP later extends this multiplication by considering inventory, scheduled receip
 
 A plan says what should happen. A #strong[manufacturing order (MO)] is the instruction to produce a specific quantity. In an integrated system, completing the MO is a stock event, not just a status change.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/1c71a8747d624d5f.svg")], caption: [Before and after the Manufacturing Order for 5 Road Bikes, starting from the components bought in Lab 7. This before/after pair is the evidence the labs ask you to capture, and the quickest way to prove the manufacturing event reached the shared inventory data.]) <fig:mo-stock-change>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/1c71a8747d624d5f.cetz.json")], caption: [Before and after the Manufacturing Order for 5 Road Bikes, starting from the components bought in Lab 7. This before/after pair is the evidence the labs ask you to capture, and the quickest way to prove the manufacturing event reached the shared inventory data.]) <fig:mo-stock-change>
 
 #callout("applicationbox", title: [Application walkthrough])[In the West End Bicycles guide: create a Road Bike BOM for one unit; create a Manufacturing Order for 5; assign the Production Planner as responsible; confirm and check component availability; produce and mark the MO Done; then verify that component stock fell and Road Bike on-hand stock rose to 5.]
 
@@ -104,7 +104,7 @@ A plan says what should happen. A #strong[manufacturing order (MO)] is the instr
 
 #strong[Safety stock] is extra inventory held to reduce the risk of a stockout when demand or supply is uncertain. More safety stock buys service protection and costs holding expense and tied-up cash --- and the exchange rate between the two is not linear.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/91c6f9304751d3f8.svg")], caption: [Service level against safety stock for a representative demand distribution. The first units of buffer are cheap protection; the last few percent of service are very expensive, which is why 100% service is almost never the target.]) <fig:safety-stock-curve>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/91c6f9304751d3f8.cetz.json")], caption: [Service level against safety stock for a representative demand distribution. The first units of buffer are cheap protection; the last few percent of service are very expensive, which is why 100% service is almost never the target.]) <fig:safety-stock-curve>
 
 Forecast accuracy matters because a worse forecast needs a bigger buffer for the same service level. ERP does not remove uncertainty; it improves the information used to manage it.
 

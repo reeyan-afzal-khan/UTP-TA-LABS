@@ -11,7 +11,7 @@
 #heading(level: 2)[The picture to remember]
  A #strong[program] is code stored in a file. A #strong[process] is a running instance of that code with its own PID, memory, open resources, and execution state.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/4c8063afacd6a941.svg")], caption: [A program is code in a file; a process is a running instance of it, with a PID, and the kernel keeps its state, PID, and PPID in the process table.]) <fig:program-process>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/4c8063afacd6a941.cetz.json")], caption: [A program is code in a file; a process is a running instance of it, with a PID, and the kernel keeps its state, PID, and PPID in the process table.]) <fig:program-process>
 
 
 #heading(level: 2)[PID and PPID: the minimum process identity]
@@ -25,7 +25,7 @@ The exact numbers are temporary. The relationship matters more than the number i
 #heading(level: 2)[What `fork()` changes]
  `fork()` asks the kernel to create a child process. Both parent and child continue after the call, but the return value tells them which role they are in.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/3bc065c93c1573de.svg")], caption: [What `fork()` creates. One running process becomes two; parent and child both continue after the call, and its return value tells each which role it has.]) <fig:fork>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/3bc065c93c1573de.cetz.json")], caption: [What `fork()` creates. One running process becomes two; parent and child both continue after the call, and its return value tells each which role it has.]) <fig:fork>
 
 #callout("keyidea", title: [Key idea])[After a successful `fork()`, there are two independently scheduled processes. Output order can change from run to run unless the program adds synchronization.]
 
@@ -39,7 +39,7 @@ The exact numbers are temporary. The relationship matters more than the number i
 #heading(level: 2)[Directories are part of the Linux namespace]
  A directory is not just a graphical folder. It is a file-system object that maps names to underlying objects. C programs can inspect directory entries with `opendir()`, `readdir()`, and `closedir()`.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/9069b9011d63bdb5.svg")], caption: [A directory maps names to underlying file-system objects. Creating, renaming, or deleting a file changes these names, which is what Lab~1 observes.]) <fig:directory-names>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/9069b9011d63bdb5.cetz.json")], caption: [A directory maps names to underlying file-system objects. Creating, renaming, or deleting a file changes these names, which is what Lab~1 observes.]) <fig:directory-names>
 
 Creating, renaming, or deleting a file changes these names. That is exactly what Lab 1 will observe.
 

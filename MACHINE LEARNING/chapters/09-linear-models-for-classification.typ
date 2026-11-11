@@ -25,7 +25,7 @@ Look at the lectures column against who passed. Students who attended 3 and 5 le
 
 That dimmer is the #strong[sigmoid], a name that just means S-shaped: $ sigma \( z \) = frac(1, 1 + e^(- z)) \, #h(2em) z = w thin x + b . $ Here $e approx 2.72$ is a fixed number. A score of 0 gives exactly 0.5, because $e^0 = 1$. A score of 2 gives 0.881 and a score of $- 2$ gives 0.119. The sign of the score picks the side, and its size sets the confidence. The combined model is called #strong[logistic regression]. The name is confusing, since it does classification, but it is the old name and everyone uses it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/8c6d4e2f1bde7e4d.svg")], caption: [Pass or fail against lectures attended. The straight line leaves the possible range at both ends, shown in red. The fitted S-curve stays between 0 and 1 and crosses 0.5 at 6.30 lectures. Student A failed with 8 lectures, and student B passed with 6.]) <fig:s-curve>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/8c6d4e2f1bde7e4d.cetz.json")], caption: [Pass or fail against lectures attended. The straight line leaves the possible range at both ends, shown in red. The fitted S-curve stays between 0 and 1 and crosses 0.5 at 6.30 lectures. Student A failed with 8 lectures, and student B passed with 6.]) <fig:s-curve>
 
 
 #heading(level: 2)[From probabilities to odds to a linear model]
@@ -48,7 +48,7 @@ The sigmoid has a neat reverse reading, which explains what the slope means. #st
 
 $ log frac(p, 1 - p) = beta_0 + bold(beta)^(sans(T)) bold(x) \, #h(2em) upright("equivalently") #h(2em) P \( Y = 1 divides bold(x) \) = sigma \( beta_0 + bold(beta)^(sans(T)) bold(x) \) . $
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/90e37ac2acbe8e76.svg")], caption: [The sigmoid maps an unrestricted score to a probability. Scores near zero give probabilities near $0.5$; large positive or negative scores give confident answers.]) <fig:sigmoid>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/90e37ac2acbe8e76.cetz.json")], caption: [The sigmoid maps an unrestricted score to a probability. Scores near zero give probabilities near $0.5$; large positive or negative scores give confident answers.]) <fig:sigmoid>
 
 A unit increase in $x_j$ multiplies the odds by $e^(beta_j)$, holding other features fixed. So $beta_j = 0.7$ roughly doubles the odds and $- 0.7$ roughly halves them. The effect on the probability depends on where you start, because the curve is steep in the middle and flat at the ends.
 
@@ -77,7 +77,7 @@ Squared error cannot pass 1, so being certain and wrong costs 0.98, barely more 
 
 The better score is #strong[log loss], also called #strong[cross-entropy]: the fee is minus the logarithm of the probability the model gave to what actually happened. $ cal(L) \( y \, p \) = - \[ y log p + \( 1 - y \) log \( 1 - p \) \] . $ A probability is below 1, so its logarithm is negative, and the minus sign turns that into a positive fee. A sure right answer is almost free. A sure wrong answer is ruinous. A model that says 50% pays 0.693 whichever way the case goes (#ref(label("fig:fees"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/2a64660650d7e876.svg")], caption: [The log-loss fee against the chance given to "pass", for a student who passed and a student who failed. The two curves cross at 0.5, where the fee is 0.693, and each climbs without limit as the model grows confident and wrong. Squared error for a failing student is shown for comparison.]) <fig:fees>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/2a64660650d7e876.cetz.json")], caption: [The log-loss fee against the chance given to "pass", for a student who passed and a student who failed. The two curves cross at 0.5, where the fee is 0.693, and each climbs without limit as the model grows confident and wrong. Squared error for a failing student is shown for comparison.]) <fig:fees>
 
 
 #heading(level: 2)[The optimizer: walking down]
@@ -179,7 +179,7 @@ For $K$ classes, each class $k$ receives its own weight vector, and the #strong[
 
 #strong[One-vs-rest] trains $K$ binary classifiers, one class against all others, and predicts the highest-scoring class.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/096175a048ec7e37.svg")], caption: [Softmax turns class scores into probabilities. Scores 1.2, 3.4 and 2.0 become 0.08, 0.74 and 0.18: the order is preserved and the probabilities add to one.]) <fig:softmax>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/096175a048ec7e37.cetz.json")], caption: [Softmax turns class scores into probabilities. Scores 1.2, 3.4 and 2.0 become 0.08, 0.74 and 0.18: the order is preserved and the probabilities add to one.]) <fig:softmax>
 
 #callout("workedexample", title: [Worked example])[For scores $1.2 \, med 3.4 \, med 2.0$, the exponentials are $3.32 \, med 29.96 \, med 7.39$, which add to $40.67$. Dividing gives $0.082 \, med 0.737 \, med 0.182$.]
 

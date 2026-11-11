@@ -49,7 +49,7 @@ The Week 8 deck emphasizes several advantages.
 
 - #strong[Platform infrastructure.] Cloud, identity, payments, devices, advertising, and commerce capabilities can be reused.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/14ed130018d8fffc.svg")], caption: [The assets a Big Tech platform brings into financial services: existing users, behavioral data, technology and talent, capital, daily engagement, and ecosystem distribution.]) <fig:bigtech-assets>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/14ed130018d8fffc.cetz.json")], caption: [The assets a Big Tech platform brings into financial services: existing users, behavioral data, technology and talent, capital, daily engagement, and ecosystem distribution.]) <fig:bigtech-assets>
 
 A technology company can therefore enter financial services with a stronger starting distribution position than a typical neobank.
 
@@ -153,7 +153,7 @@ Alipay began as an online-payment solution supporting Alibaba's e-commerce activ
 
 WeChat began as a messaging platform and evolved toward payments and a broad lifestyle ecosystem. The lecture emphasizes the power of beginning with a very large, highly engaged user base and then converting part of that engagement into financial activity.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/8ae4992cced3a989.svg")], caption: [The super-app model. Messaging, payments, lending, wealth, and commerce share one app, and the data and identity they generate feed back into every service.]) <fig:super-app>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/8ae4992cced3a989.cetz.json")], caption: [The super-app model. Messaging, payments, lending, wealth, and commerce share one app, and the data and identity they generate feed back into every service.]) <fig:super-app>
 
 The strategic power comes from the feedback loop: more services create more reasons to stay in the app; more activity creates more data; more data improves targeting and product design; better products create more activity.
 

@@ -1,0 +1,53 @@
+\chapter{Your Toolkit and Environment Setup}
+\label{ch:toolkit}
+
+\chapterguide%
+  {Prepare the Windows environment for Wireshark and Huawei eNSP.}%
+  {Install Wireshark for Lab~1, set up eNSP and VirtualBox, and verify that a virtual router reaches the VRP prompt.}
+
+\textbf{\href{https://www.wireshark.org/download.html}{Wireshark}} captures and decodes traffic that reaches a selected network interface; use it for packet observations in Lab~1. Huawei eNSP is the simulator used to build and run topologies in Labs~2--9. It starts virtual routers and switches through Oracle VirtualBox, so an installation is ready only after a device boots to its VRP prompt. Follow the versions specified by your instructor to avoid compatibility problems.
+
+\section{Follow the course installation sequence}
+
+The course walkthrough follows three steps: prepare a Windows~10 virtual
+machine in VirtualBox, install Wireshark for Lab~1, then install eNSP inside
+that Windows environment. Complete them in order.
+
+\begin{tcolorbox}[
+  enhanced,
+  breakable,
+  colback=white,
+  colframe=UTPBlue!55,
+  colbacktitle=UTPNavy,
+  boxrule=0.75pt,
+  arc=2mm,
+  title={Follow the installation steps in order},
+  fonttitle=\bfseries\color{white},
+  left=3mm,right=3mm,top=2mm,bottom=2mm
+]
+\begingroup
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{0.9em}
+\begin{tabularx}{\linewidth}{@{}>{\columncolor{UTPPaleBlue!55}\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Part 1: Windows &
+  \textbf{\color{UTPBlue}\href{https://www.youtube.com/watch?v=PK8ZYZh7S_w\&t=2s}{Install Windows 10 in VirtualBox}} \\
+\midrule
+Part 2: eNSP &
+  \textbf{\color{UTPBlue}\href{https://youtu.be/YT5YimhyX18?t=5}{Install eNSP in the Windows environment}} \\
+\bottomrule
+\end{tabularx}
+\endgroup
+\end{tcolorbox}
+
+\subsection{Quick troubleshooting}
+\begin{itemize}
+  \item \textbf{Wireshark shows no interfaces:} confirm Npcap was installed,
+    then restart Windows and check that the interface is enabled.
+  \item \textbf{An eNSP device will not start:} verify that VirtualBox is
+    installed and that hardware virtualization is available to the Windows
+    environment; confirm the course-specified versions are being used.
+  \item \textbf{The console has not reached the VRP prompt:} allow the device
+    time to boot. If it remains stuck, record the exact message and ask for
+    help before changing several settings at once.
+\end{itemize}

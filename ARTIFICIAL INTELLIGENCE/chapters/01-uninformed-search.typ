@@ -36,7 +36,7 @@ Five questions organise all the search material in the book. By the last chapter
 
 A small robot is stranded on the far side of a maze and has to reach its charger. Its battery holds 15 units, and every step onto a floor cell uses one (#ref(label("fig:robot-maze"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/46885276f185cc1f.svg")], caption: [The maze seen from above. R is the robot, C its charger, and dark cells are walls. We name a cell by its row and column, counting from zero at the top left, so the robot starts at $\( 5 \, 1 \)$ and the charger sits at $\( 2 \, 9 \)$.]) <fig:robot-maze>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/46885276f185cc1f.cetz.json")], caption: [The maze seen from above. R is the robot, C its charger, and dark cells are walls. We name a cell by its row and column, counting from zero at the top left, so the robot starts at $\( 5 \, 1 \)$ and the charger sits at $\( 2 \, 9 \)$.]) <fig:robot-maze>
 
 We can see the whole maze at once, so the answer looks obvious to us. A planner cannot rely on that. A real maze may have thousands of corridors and a road network has millions of junctions, so we want one method that solves any of them.
 
@@ -50,7 +50,7 @@ Suppose the robot simply wanders, picking a random direction at every cell. Over
 
 Before one method can solve any maze, any maze has to be written down the same way. Start with the idea of a #strong[state]: a snapshot of everything that matters right now. For our robot that is a single fact, which cell it is on, so the maze has 48 states. Draw a dot for each state and a line between any two cells one step apart, and the walls disappear (#ref(label("fig:state-space"), supplement: [Figure])). What remains is the #strong[state space]. Searching means finding a path through those dots, from the robot's dot to the charger's.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/42ccb062f3bf9899.svg")], caption: [The same maze twice. Left: as the robot sees it. Right: as the search sees it, one dot per state and one line per possible step. Nothing about walls survives except which lines are missing.]) <fig:state-space>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/42ccb062f3bf9899.cetz.json")], caption: [The same maze twice. Left: as the robot sees it. Right: as the search sees it, one dot per state and one line per possible step. Nothing about walls survives except which lines are missing.]) <fig:state-space>
 
 Five pieces turn a state space into a #strong[search problem]. Writing them down is called #strong[problem formulation], and it is the first thing to do with any new problem.
 
@@ -103,7 +103,7 @@ Read the last column from top to bottom. The first three problems charge for eve
 
 How does the robot plan? It imagines its moves one at a time. From its cell it can step up, right, down or left, so draw a #strong[search tree] with the start at the top and one branch for each move. Then each branch grows branches of its own. Every path from the top down is one complete plan (#ref(label("fig:search-tree"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c1871ca30837a4be.svg")], caption: [The first three levels of the search tree from the robot's cell, written as row,column. Every path from the top down is one plan. The red nodes are cells some earlier plan has already reached. A tree has no memory, so it grows them all again; a search graph skips them.]) <fig:search-tree>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c1871ca30837a4be.cetz.json")], caption: [The first three levels of the search tree from the robot's cell, written as row,column. Every path from the top down is one plan. The red nodes are cells some earlier plan has already reached. A tree has no memory, so it grows them all again; a search graph skips them.]) <fig:search-tree>
 
 Follow the branch "up, then down". The robot is back where it started, and the tree has no idea. It plans those cells again, and again, and that adds up quickly: planned this way, the robot looks at 43,288 plans before it finds the charger, even though the maze has only 48 cells. Most of those plans just shuffle back and forth.
 
@@ -125,7 +125,7 @@ How does the robot choose which cell to examine first, and which one next? It ke
 
 Repeat until the charger comes off the list. If the list runs empty first, no route exists. We say a cell is #strong[expanded] when step~3 runs on it, and we count those cells for every search; the goal itself is never expanded. #ref(label("fig:search-loop"), supplement: [Figure]) draws the loop.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2240442f06799c6d.svg")], caption: [The search loop. The frontier is the to-do list. BFS, DFS and UCS share every box; only the highlighted choice differs, and it selects the oldest, newest or cheapest entry respectively.]) <fig:search-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2240442f06799c6d.cetz.json")], caption: [The search loop. The frontier is the to-do list. BFS, DFS and UCS share every box; only the highlighted choice differs, and it selects the oldest, newest or cheapest entry respectively.]) <fig:search-loop>
 
 Two bookkeeping choices are shared by every implementation in `utils/core.py`:
 
@@ -173,7 +173,7 @@ Every cell one step from the robot is examined before any cell two steps away. A
 
 #callout("analogy", title: [Analogy])[Drop a stone into a still pond. The ripple spreads outward in a circle and touches every point one step away before any point two steps away. BFS spreads the same way, ring by ring. If you use LinkedIn you have already seen these rings: your first-degree connections are the people you know, second-degree connections are the people they know, and third-degree is the next ring out.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/536969beae95f752.svg")], caption: [Each number is the step at which BFS first reaches that cell, and the tint deepens with distance. The ripple touches the charger on ring 11. Following the parent links back from the charger gives the orange route.]) <fig:bfs-wave>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/536969beae95f752.cetz.json")], caption: [Each number is the step at which BFS first reaches that cell, and the tint deepens with distance. The ripple touches the charger on ring 11. Following the parent links back from the charger gives the orange route.]) <fig:bfs-wave>
 
 BFS finds the 11-step route after expanding 45 of the 48 cells. Only three are spared: the charger, and two cells still waiting in the queue when the charger came off it.
 
@@ -187,17 +187,17 @@ BFS finds the 11-step route after expanding 45 of the 48 cells. Only three are s
 
 BFS explored nearly the whole maze. Another answer is to take the newest cell instead. The list now behaves like a pile of plates: the last plate put on is the first one taken off. That list is a #strong[stack], and the search is #strong[Depth-First Search (DFS)]. #ref(label("fig:queue-stack"), supplement: [Figure]) puts the two lists side by side at the same moment.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4919c3f554d2a95b.svg")], caption: [The same five cells on two kinds of to-do list, just after the robot's cell and $\( 4 \, 1 \)$ have been examined. The queue serves its oldest entry next, $\( 5 \, 2 \)$. The stack serves its newest, $\( 3 \, 1 \)$, right beside the cell just examined. That single difference separates BFS from DFS.]) <fig:queue-stack>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4919c3f554d2a95b.cetz.json")], caption: [The same five cells on two kinds of to-do list, just after the robot's cell and $\( 4 \, 1 \)$ have been examined. The queue serves its oldest entry next, $\( 5 \, 2 \)$. The stack serves its newest, $\( 3 \, 1 \)$, right beside the cell just examined. That single difference separates BFS from DFS.]) <fig:queue-stack>
 
 Because the next pick is always right beside the last one, DFS dives down one corridor as far as it can before it tries another, and it backs up only when it runs out of new cells. On our maze, with neighbours listed up, right, down, left, it runs straight up the left side, along the top and down to the charger (#ref(label("fig:bfs-dfs-routes"), supplement: [Figure])). It expands only 15 cells. But its route also takes 15 steps, so the robot reaches the charger with its battery at exactly zero.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c05904d335e9b6a9.svg")], caption: [Blue cells were expanded. BFS expands 45 cells and returns the shortest route, 11 steps. DFS expands 15 cells and returns a 15-step route. DFS looked at far less of the maze and paid for it in route length.]) <fig:bfs-dfs-routes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c05904d335e9b6a9.cetz.json")], caption: [Blue cells were expanded. BFS expands 45 cells and returns the shortest route, 11 steps. DFS expands 15 cells and returns a 15-step route. DFS looked at far less of the maze and paid for it in route length.]) <fig:bfs-dfs-routes>
 
 That result is partly luck. Reverse the neighbour order to left, down, right, up and DFS expands 36 cells and returns a 33-step route, far beyond the battery. In `utils/core.py` the code differs from BFS in two lines: `frontier.pop()` takes the newest entry, and the successors are pushed in reverse order so that the first listed neighbour is popped first. That second line is why DFS is #strong[order dependent]. It commits to whichever neighbour the graph happens to list first and reconsiders only when that whole branch fails.
 
 #ref(label("fig:bfs-dfs-order"), supplement: [Figure]) shows the same contrast on a tree small enough to read at a glance.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9e5cabb6b91b13e6.svg")], caption: [Numbered visit orders on one tree. BFS completes each level; DFS exhausts B\'s subtree before C. After A and B have been visited, both lists hold the same three states, but in a different order, so each serves a different state next.]) <fig:bfs-dfs-order>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9e5cabb6b91b13e6.cetz.json")], caption: [Numbered visit orders on one tree. BFS completes each level; DFS exhausts B\'s subtree before C. After A and B have been visited, both lists hold the same three states, but in a different order, so each serves a different state next.]) <fig:bfs-dfs-order>
 
 #callout("workedexample", title: [Worked example])[From `KUL`, DFS commits to the alphabetically first neighbour, `ADL` (Adelaide), then to Adelaide's first neighbour, and so on. It reaches Keflavík after 23 legs and 41,768~km, more than the circumference of the Earth, and expands 2,112 airports on the way, far more than the 284 of BFS. Reversing every neighbour list gives a different route of 8 legs. Neither is a meaningful travel plan: DFS answers "is there #emph[a] route?", not "what is a good one?".]
 
@@ -244,7 +244,7 @@ Here $C^star.op$ is the cost of the optimal solution and $epsilon$ the smallest 
 
 #ref(label("fig:branching"), supplement: [Figure]) shows what $O \( b^d \)$ means in practice. At branching factor 3 a goal eight levels down leaves about 9,800 states in memory; at branching factor 5 the same depth needs nearly 500,000. The airline graph has a mean branching factor near 6, but its largest hubs have more than 200 routes each (Frankfurt has 239). That is why the frontier in Lab~1 reaches 1,679 airports for a two-leg BFS answer.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/361f0fecbd19d9b6.svg")], caption: [States a BFS frontier may hold at depth $d$, for three branching factors. The vertical axis is logarithmic, so each straight line is exponential growth. DFS, keeping only its current path, stores $O \( b m \)$, which on these scales is a nearly flat line at the bottom.]) <fig:branching>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/361f0fecbd19d9b6.cetz.json")], caption: [States a BFS frontier may hold at depth $d$, for three branching factors. The vertical axis is logarithmic, so each straight line is exponential growth. DFS, keeping only its current path, stores $O \( b m \)$, which on these scales is a nearly flat line at the bottom.]) <fig:branching>
 
 
 #heading(level: 2)[Bidirectional search: two ripples]
@@ -256,7 +256,7 @@ BFS kept the 11-step route, but its ripple filled 45 of the 48 cells, because it
 
 On our maze the ripples touch at $\( 3 \, 5 \)$ with the route still 11 steps long, after expanding 18 cells on the robot's side and 13 on the charger's: 31 in all, against 45 for BFS. The saving is modest here because the maze's rings are small. On a problem whose rings grow quickly the saving is enormous. The 8-puzzle board traced in `all_experiments/demo_sliding_puzzle.py` needs 22 slides: one ripple expands 89,296 arrangements, and two ripples expand 1,240 (#ref(label("fig:bidirectional"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/1a38fff4b926b476.svg") #diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b4cb9485c702e738.svg")], caption: [Left: the two ripples on the maze, robot side in blue and charger side in teal, touching at the orange cell. Right: how many 8-puzzle arrangements lie in each ring around the traced board. Rings grow by a factor of about 1.56 each, so most of the work sits in the last few. Two ripples that each stop near the halfway line never reach them.]) <fig:bidirectional>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/1a38fff4b926b476.cetz.json") #diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b4cb9485c702e738.cetz.json")], caption: [Left: the two ripples on the maze, robot side in blue and charger side in teal, touching at the orange cell. Right: how many 8-puzzle arrangements lie in each ring around the traced board. Rings grow by a factor of about 1.56 each, so most of the work sits in the last few. Two ripples that each stop near the halfway line never reach them.]) <fig:bidirectional>
 
 #callout("pitfall", title: [Common mistake])[Bidirectional search needs to know exactly where the goal is, so the second ripple has somewhere to start, and it must be able to run backwards. A maze has one charger. A chess game has countless ways to end in checkmate, and nobody can start a ripple from all of them. On the airline network routes are one-way, so a backward ripple has to follow reversed edges, which is how Lab~2 builds its exact cost table.]
 
@@ -276,9 +276,9 @@ So choose by battery: take the cell with the least battery spent so far. That is
 
 The loop stays the same. The big change is the list: UCS keeps its frontier in a #strong[priority queue], which always hands back the cell with the smallest $g$ no matter when it joined. Think of an emergency ward, where patients are seen by urgency and not by arrival time. #ref(label("fig:three-lists"), supplement: [Figure]) shows a real moment from the rainy maze. The puddle cell $\( 3 \, 2 \)$ has already joined the list, but at $g = 7$ it waits behind everything cheaper.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/eac269074d0225c5.svg")], caption: [The UCS frontier just after $\( 3 \, 1 \)$ has been expanded on the rainy maze. Cells are served by the battery spent to reach them, smallest first, and the join order breaks ties. The puddle cell waits behind every cheaper dry cell, including cells that will join later.]) <fig:three-lists>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/eac269074d0225c5.cetz.json")], caption: [The UCS frontier just after $\( 3 \, 1 \)$ has been expanded on the rainy maze. Cells are served by the battery spent to reach them, smallest first, and the join order breaks ties. The puddle cell waits behind every cheaper dry cell, including cells that will join later.]) <fig:three-lists>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c37ac50abc85d47d.svg")], caption: [The rainy maze. Left: the three routes home, with the battery each one costs. Right: the battery UCS spends to reach each cell. Cost climbs sharply across the puddles at $\( 3 \, 2 \)$ and $\( 3 \, 4 \)$, so the wave coming from the bottom reaches $\( 3 \, 7 \)$ with $g = 10$ first.]) <fig:rain-routes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c37ac50abc85d47d.cetz.json")], caption: [The rainy maze. Left: the three routes home, with the battery each one costs. Right: the battery UCS spends to reach each cell. Cost climbs sharply across the puddles at $\( 3 \, 2 \)$ and $\( 3 \, 4 \)$, so the wave coming from the bottom reaches $\( 3 \, 7 \)$ with $g = 10$ first.]) <fig:rain-routes>
 
 UCS needs two small changes to the BFS loop. It adds a table of $g$ values, adding each step's cost as it goes. And it changes the memory check: in the rain, the first way we find to a cell is not always the cheapest, so when a cheaper way turns up we write down the new $g$ and the new parent and put the cell on the list again. In `utils/core.py`, UCS, GBFS and A$""^star.op$ share one function, `best_first`, because they differ only in the priority they attach to a frontier entry. The frontier is a Python `heapq` of tuples `(priority, counter, state, g)`:
 
@@ -290,7 +290,7 @@ Why is the result always the cheapest route? UCS examines cells in order of batt
 
 #ref(label("fig:ucs-vs-bfs"), supplement: [Figure]) shows BFS and UCS disagreeing on a smaller graph. Both routes use three edges, so BFS has no reason to prefer either; UCS adds the weights and finds that one costs twice the other.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ef4aa6020d664efb.svg")], caption: [The same weighted graph solved twice. BFS returns the first three-edge path it meets, costing 8. UCS orders its frontier by accumulated cost $g \( n \)$ and returns the three-edge path costing 4. Neither is wrong; they answer different questions.]) <fig:ucs-vs-bfs>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ef4aa6020d664efb.cetz.json")], caption: [The same weighted graph solved twice. BFS returns the first three-edge path it meets, costing 8. UCS orders its frontier by accumulated cost $g \( n \)$ and returns the three-edge path costing 4. Neither is wrong; they answer different questions.]) <fig:ucs-vs-bfs>
 
 #callout("workedexample", title: [Worked example])[Trace UCS on the graph of #ref(label("fig:ucs-vs-bfs"), supplement: [Figure]). The frontier holds $\( g \, upright("state") \)$ pairs and always pops the smallest $g$. $ upright("expand") & upright("frontier after expansion")\
 A med \( 0 \) & \( 1 \, B \) \, med \( 4 \, C \)\

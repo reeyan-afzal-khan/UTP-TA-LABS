@@ -27,7 +27,7 @@ For $B$ models with error variance $sigma^2$, independent errors give average va
 
 Bagging fits learners to #strong[bootstrap samples]: $n$ draws with replacement from the $n$ rows. Each sample repeats some rows and leaves others out. A given row is missed by one draw with probability $1 - 1 \/ n$, and by all $n$ draws with probability $\( 1 - 1 \/ n \)^n approx e^(- 1)$. So each tree misses about 36.8% of the rows; in a simulation on 1,000 rows the fraction is 0.368. Deep trees are common base learners, and predictions are combined by voting or averaging.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/09b750dfac801a98.svg")], caption: [Bagging. Each tree is fitted to its own bootstrap sample of the training data, and their predictions are combined by voting or averaging.]) <fig:bagging>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/09b750dfac801a98.cetz.json")], caption: [Bagging. Each tree is fitted to its own bootstrap sample of the training data, and their predictions are combined by voting or averaging.]) <fig:bagging>
 
 Each row can be predicted by the trees that never saw it; the resulting #strong[out-of-bag (OOB)] score is a free validation estimate. Use it as a validation signal for choosing settings, not as a replacement for the final test.
 
@@ -131,7 +131,7 @@ Gradient boosting fits $h_m$ to the negative loss gradient at current prediction
 
 Each tree is weak on its own. Together, six of them have nearly memorized four rows, which is exactly why boosting needs early stopping on real data.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/1344e5714bba39c7.svg")], caption: [Gradient boosting on the worked example. Round 0 predicts the mean; one stump with learning rate $nu = 0.5$ shrinks every residual towards zero.]) <fig:boosting-residuals>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/1344e5714bba39c7.cetz.json")], caption: [Gradient boosting on the worked example. Round 0 predicts the mean; one stump with learning rate $nu = 0.5$ shrinks every residual towards zero.]) <fig:boosting-residuals>
 
 #callout("intuition", title: [Plain idea])[Gradient boosting fits corrections; AdaBoost reweights mistakes. Both train sequentially.]
 
@@ -168,7 +168,7 @@ The hyperparameters that matter most, in rough order: number of trees (via early
 
 Bagging fits independently and can run in parallel; boosting fits sequential corrections.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/4371b6c3c6a2a22e.svg")], caption: [Bagging fits trees in parallel on independent samples and reduces variance; boosting fits them in sequence, each correcting the remaining errors, and reduces bias.]) <fig:bagging-boosting>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4371b6c3c6a2a22e.cetz.json")], caption: [Bagging fits trees in parallel on independent samples and reduces variance; boosting fits them in sequence, each correcting the remaining errors, and reduces bias.]) <fig:bagging-boosting>
 
 #callout("keyidea", title: [Key idea])[Bagging often uses deep trees; boosting often uses shallow trees. Validate depth, leaf size, learning rate, and rounds together.]
 

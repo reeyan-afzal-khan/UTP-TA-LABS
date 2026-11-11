@@ -59,7 +59,7 @@ Traditional intermediaries pool savings and loans. The Week 3 slides highlight t
 
 However, lenders have little flexibility to choose their own desired risk/return profile, and a bank that focuses on low-risk lending may exclude higher-risk borrowers.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/a8f6bc5963fb7040.svg")], caption: [Traditional intermediation compared with marketplace funding. In a bank a default is absorbed on the bank's own balance sheet, behind reserves and deposit insurance; on a marketplace platform it falls on the individual lender.]) <fig:p2p-default-risk>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/a8f6bc5963fb7040.cetz.json")], caption: [Traditional intermediation compared with marketplace funding. In a bank a default is absorbed on the bank's own balance sheet, behind reserves and deposit insurance; on a marketplace platform it falls on the individual lender.]) <fig:p2p-default-risk>
 
 
 #heading(level: 3)[Alternative lending platforms]
@@ -95,7 +95,7 @@ Alternative platforms seek to reduce transaction costs and give underserved borr
 
 #strong[Peer-to-peer (P2P) lending] is a lending arrangement in which private investors provide funds to borrowers through an online platform rather than through a traditional bank balance sheet. The platform still performs important functions: it onboards participants, assesses eligibility, presents loan opportunities, handles contracts and payments, and attempts to mitigate risk.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/6ca762ff94f9f0ca.svg")], caption: [Peer-to-peer lending. Investors fund borrowers through an online platform that matches, scores, and services the loans rather than lending from its own balance sheet.]) <fig:p2p-marketplace>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/6ca762ff94f9f0ca.cetz.json")], caption: [Peer-to-peer lending. Investors fund borrowers through an online platform that matches, scores, and services the loans rather than lending from its own balance sheet.]) <fig:p2p-marketplace>
 
 The critical difference is that the platform can operate as a marketplace. It can match money without necessarily taking deposits and funding loans in the same way as a traditional depository institution.
 
@@ -161,7 +161,7 @@ Borrower assessment is often at least partly automated against predefined rules.
 
 The lecture distinguishes four models by what the contributor expects in return.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/05eb2cb8c9c8f1d2.svg")], caption: [The four crowdfunding models, ordered by what the contributor expects in return. Donation and reward crowdfunding offer a non-financial return; P2P lending and equity crowdfunding offer a debt or ownership claim.]) <fig:crowdfunding-models>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/05eb2cb8c9c8f1d2.cetz.json")], caption: [The four crowdfunding models, ordered by what the contributor expects in return. Donation and reward crowdfunding offer a non-financial return; P2P lending and equity crowdfunding offer a debt or ownership claim.]) <fig:crowdfunding-models>
 
 #figure(
   align(center)[#table(

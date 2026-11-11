@@ -1,0 +1,3 @@
+@echo off
+python "%~dp0..\scripts\wsl.py" transcribe %*
+exit /b %errorlevel%

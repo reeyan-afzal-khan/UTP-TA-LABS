@@ -21,7 +21,7 @@
 #heading(level: 3)[What changes compared with Chapter~#ref(label("ch:static-routing"), supplement: none)]
  In the static lab you wrote a route on R1 and a mirror route on R3, then a backup pair on top, and a ping only worked once every one of them was present. Here you tell each router which of #emph[its own] interfaces take part, and reachability follows.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/7a0038105df77532.svg")], caption: [Every router holds the same map, then computes its own routes. OSPF floods link-state information until each router's database is identical; each router then runs Dijkstra from itself.]) <fig:ospf-lsdb>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/7a0038105df77532.cetz.json")], caption: [Every router holds the same map, then computes its own routes. OSPF floods link-state information until each router's database is identical; each router then runs Dijkstra from itself.]) <fig:ospf-lsdb>
 
 #callout("keyidea", title: [Key idea])[A static route states a #emph[conclusion] ("send this network that way"). OSPF distributes the #emph[evidence] --- which links exist and what they cost --- and lets each router reach its own conclusion. That is why a failed link needs no new configuration: the evidence changes, and every router recomputes.]
 
@@ -57,7 +57,7 @@ Once the adjacencies are up, the routes they produced are worth seeing separatel
 #heading(level: 3)[Reading the neighbour state as a diagnosis]
  `Full` is the only state that means success. Every other state names the step that failed, which makes `display ospf peer brief` the most useful single command in this chapter.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/238826d40655588f.svg")], caption: [The adjacency state machine, annotated with what a stall at each point actually means. A neighbour parked in one of these states is a specific fault, not a slow start.]) <fig:ospf-states>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/238826d40655588f.cetz.json")], caption: [The adjacency state machine, annotated with what a stall at each point actually means. A neighbour parked in one of these states is a specific fault, not a slow start.]) <fig:ospf-states>
 
 #callout("pitfall", title: [Common mistake])[Neighbours also refuse to form when the hello or dead intervals differ, when the area IDs differ, or when authentication is set on one side only. None of these produce an error message; they produce a neighbour that never appears.]
 
@@ -65,7 +65,7 @@ Once the adjacencies are up, the routes they produced are worth seeing separatel
 #heading(level: 3)[Why the cost column changes the answer]
  Huawei derives OSPF cost from interface bandwidth, using a reference of 100 Mbit/s. A gigabit link therefore costs 1 and a 64 kbit/s serial link costs 1562, so OSPF prefers the fast path without being told to.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/999fa439ee93ed97.svg")], caption: [Two paths from R1 to R3. The direct serial link is one hop; the route through R2 is two. OSPF picks the two-hop path because it adds costs rather than counting hops.]) <fig:ospf-cost>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/999fa439ee93ed97.cetz.json")], caption: [Two paths from R1 to R3. The direct serial link is one hop; the route through R2 is two. OSPF picks the two-hop path because it adds costs rather than counting hops.]) <fig:ospf-cost>
 
 #callout("verification", title: [Verification checklist])[Require three checks: the expected neighbor is #strong[Full], remote networks appear as OSPF routes, and ping succeeds.]
 

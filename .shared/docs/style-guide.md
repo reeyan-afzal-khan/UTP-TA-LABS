@@ -18,4 +18,17 @@ Use `#lab("1")[Title]` for lab banners. Put a `labproject` callout around the ac
 
 Edit `.shared/typst/cover.typ` for cover geometry and `.shared/typst/palette.typ` for colours. Course cover titles, summaries and book metadata live in each course's `main.typ`. Changing a shared component affects all books; run step 04 and review representative pages before step 05 publishes them.
 
-New diagrams should use the bundled Fletcher functions or `flow`. Keep complex course-specific drawings in the course's `figures/` folder. Do not change vendored drawing algorithms to customize a course.
+New diagrams should use `flow` or the bundled CeTZ package:
+
+```typst
+#import "/.shared/packages/cetz/0.5.3/src/lib.typ" as cetz
+#cetz.canvas({
+  import cetz.draw: *
+  rect((0, 0), (3, 1), radius: .1, stroke: blue)
+  content((1.5, .5), [Start])
+})
+```
+
+Keep course-specific drawings in the course's `figures/` folder. Existing detailed drawings use `diagram-drawing` with `.cetz.json` geometry; see [design-parity.md](design-parity.md) before editing those. Do not change vendored drawing algorithms to customize a course.
+
+All fenced code and terminal blocks use Codly through `typst/code.typ`. Use `source-code` for excerpts of real files, and set the fence language for syntax highlighting. Listings intentionally omit line numbers and language badges to preserve the reference design. DCN selects the bundled Inconsolatazi4 font in its `book.with` configuration; other courses use Source Code Pro.

@@ -27,7 +27,7 @@ At time $t$:
 
 + The agent updates what it believes about the action.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/2f5d23b167bec40a.svg")], caption: [The agent-environment loop. The agent chooses an action; the environment changes state and returns a reward and the new state.]) <fig:agent-environment>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/2f5d23b167bec40a.cetz.json")], caption: [The agent-environment loop. The agent chooses an action; the environment changes state and returns a reward and the new state.]) <fig:agent-environment>
 
 #callout("workedexample", title: [Worked example])[A warehouse robot tracks location and battery, chooses movement or charging, and balances time and collision costs against delivery rewards.]
 
@@ -158,7 +158,7 @@ In episode 1 only the cell beside the goal learns anything. In episode 2 its val
 
 The diagram separates a Q-update into its current estimate, backup value, and step size.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/7577c1060ba4f3d2.svg")], caption: [One Q-learning update. The new estimate moves the old one a step of size $alpha$ towards the backup value: what actually happened nudges what you believed.]) <fig:q-update>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/7577c1060ba4f3d2.cetz.json")], caption: [One Q-learning update. The new estimate moves the old one a step of size $alpha$ towards the backup value: what actually happened nudges what you believed.]) <fig:q-update>
 
 
 #heading(level: 2)[Lab~6's grid, solved]
@@ -168,7 +168,7 @@ Lab~6 trains on a $4 times 4$ grid: start top-left, goal bottom-right worth $+ 1
 
 We can compute the best possible value of every cell directly, by repeating the Bellman idea until nothing changes. #ref(label("fig:grid-values"), supplement: [Figure]) shows the result. Lab~6's table, trained only from its own trial and error, reaches these same values to three decimals.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/4b9fb98eb4940c8e.svg")], caption: [Best possible values on Lab~6's grid, with the policy the lab's agent learns. Values rise towards the goal. The cell above the trap is worth only 0.666, less than its left neighbor's 0.743, because it has to step back left to get round the trap.]) <fig:grid-values>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4b9fb98eb4940c8e.cetz.json")], caption: [Best possible values on Lab~6's grid, with the policy the lab's agent learns. Values rise towards the goal. The cell above the trap is worth only 0.666, less than its left neighbor's 0.743, because it has to step back left to get round the trap.]) <fig:grid-values>
 
 #callout("modelcard", title: [The recipe: Q-learning])[*1. Model* A table with one number for each pair of state and action.
 
@@ -228,7 +228,7 @@ ll Best when & Actions affect future states and rewards, and interaction or a re
 #heading(level: 2)[Exploration schedules]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/a855db3222bd43a6.svg")], caption: [Exploration schedules for $epsilon$ over training episodes: a constant rate of $0.1$, and linear and exponential decays that level off at $0.05$.]) <fig:epsilon-schedules>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/a855db3222bd43a6.cetz.json")], caption: [Exploration schedules for $epsilon$ over training episodes: a constant rate of $0.1$, and linear and exponential decays that level off at $0.05$.]) <fig:epsilon-schedules>
 
 Lab~6 multiplies $epsilon$ by 0.9985 per episode from a start of 1, so it reaches its floor of 0.05 after 1,996 of the 5,000 episodes.
 

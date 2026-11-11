@@ -1,0 +1,111 @@
+\chapter{How Unsupervised Learning Works}
+\label{ch:unsupervised}
+
+\chapterguide%
+  {The shared foundations in Stages 1--2 and the supervised workflow in Stage 3A for comparison.}
+  {define unsupervised objectives and evaluate structure using internal, external, and downstream evidence.}
+
+Given features $X$ without labels, unsupervised learning finds groups, representations, or unusual cases.
+
+\begin{utpfig}[Supervised and unsupervised learning]{Supervised learning uses features $X$ and labels $y$ to predict $y$; unsupervised learning has only $X$ and looks for structure in it.}{fig:sup-vs-unsup}
+\begin{tikzpicture}[
+  bx/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=4.4cm,minimum height=1.2cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2.2mm]},thick,draw=UTPTeal}
+]
+\node[bx] (s) at (-4.3,0) {Supervised\\$X+y \longrightarrow$ predict $y$};
+\node[bx] (u) at (4.3,0) {Unsupervised\\$X \longrightarrow$ discover structure};
+\draw[arr] (s.east) -- node[above,font=\scriptsize\color{UTPMuted}]{remove the supplied label} (u.west);
+\end{tikzpicture}
+\end{utpfig}
+
+\section{The unsupervised-learning map}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.27\linewidth}m{0.27\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Question} & \utpth{First framing} & \utpth{Main output} \\
+\midrule
+Do observations form groups? & Clustering & Cluster assignments, centers, hierarchy, or soft memberships \\
+Can the data be represented with fewer dimensions? & Dimensionality reduction / representation & Components or lower-dimensional coordinates \\
+Which observations are unusual? & Anomaly / novelty detection & Anomaly score or ranked suspicious cases \\
+Where is the data concentrated? & Density estimation & Estimated probability density or mixture components \\
+Which items occur together? & Association / pattern mining \textit{(beyond core)} & Frequent itemsets and rules \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{keyidea}
+Evaluation follows the objective: variance for PCA, separation for clustering, reviewed-alert precision for anomalies.
+\end{keyidea}
+
+\section{What does fitting mean without labels?}
+
+An unsupervised method still has an objective; it simply does not compare predictions with a supplied label during fitting.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}m{0.34\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Method family} & \utpth{What fitting tries to do} & \utpth{What is learned} \\
+\midrule
+$K$-means & Reduce squared distance from points to assigned centers & Cluster centers and assignments \\
+PCA & Preserve as much variance as possible in a lower-dimensional linear representation & Principal directions and projected coordinates \\
+Density / mixture models & Assign high likelihood to the observed feature distribution under a chosen family & Distribution parameters and soft memberships \\
+Isolation / local methods & Make unusual observations easy to isolate or locally sparse & Anomaly scores / rankings \\
+Association mining \textit{(beyond core)} & Find item combinations that occur often enough to be interesting & Frequent itemsets and conditional rules \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{How do we evaluate when there is no answer key?}
+
+There is no universal ``unsupervised accuracy.'' Use evidence that matches the task.
+
+\subsection{Internal evidence}
+Assess compactness, separation, reconstruction, retained variance, and stability under resampling or perturbation.
+
+\subsection{External evidence}
+Compare with independent reference labels when available, using measures such as adjusted Rand index. Disagreement may reflect a different valid structure.
+
+\subsection{Practical or downstream evidence}
+Test usefulness: interpretable clusters, retained downstream signal, or anomalies that merit review.
+
+\begin{pitfall}
+Do not invent labels after fitting and treat them as ground truth. Known classes and visual groupings need not match the structure the method preserves.
+\end{pitfall}
+
+\section{The unsupervised workflow}
+
+\begin{utpfig}[The unsupervised workflow]{The unsupervised workflow, from defining the structure sought to using it on new or downstream data. Checking stability and meaning is the step a label would otherwise have done.}{fig:unsup-workflow}
+\begin{tikzpicture}[
+  bx/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=1.5mm,text width=2.0cm,inner xsep=2pt,minimum height=0.9cm,align=center,font=\scriptsize\bfseries\color{UTPNavy}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[bx] (a) at (-6.5,0) {1. Define the\\structure sought};
+\node[bx] (b) at (-3.9,0) {2. Choose the\\unit and features};
+\node[bx] (c) at (-1.3,0) {3. Prepare and\\scale appropriately};
+\node[bx] (d) at (1.3,0) {4. Fit candidate\\structures};
+\node[bx] (e) at (3.9,0) {5. Check stability\\and meaning};
+\node[bx] (f) at (6.5,0) {6. Use on new or\\downstream data};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e); \draw[arr] (e)--(f);
+\end{tikzpicture}
+\end{utpfig}
+
+Describing a fixed dataset need not require a split. Claims about new data or downstream prediction do: fit on training rows and evaluate held-out cases, as in Labs~4--5.
+
+\section{Scaling and representation matter even more here}
+
+Scaling, weighting, encoding, and distance define geometry. Lab~4 standardizes age, income, and spending score before $K$-means.
+
+\begin{keyidea}
+There is no label to reveal a poor representation, so justify the scaling and distance choices before interpreting the result.
+\end{keyidea}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why is there no universal unsupervised-learning accuracy score?
+  \item Give one internal, one external, and one downstream form of evidence that could support an unsupervised result.
+  \item When does an unsupervised project need a held-out split even though no label is used during fitting?
+\end{enumerate}
+\end{quickcheck}

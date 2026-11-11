@@ -19,7 +19,7 @@ Business computing did not begin with an integrated platform. Early systems were
 
 The manufacturing lineage matters most. #strong[Material Requirements Planning (MRP)] calculated what materials were needed and when. Later systems added capacity, then extended past the factory into sales, purchasing, finance, HR, and logistics.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/69368464ec823861.svg")], caption: [Each generation kept the previous scope and added a question it could not previously answer. ERP is the point at which the question stops being about the factory and starts being about the company.]) <fig:erp-evolution>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/69368464ec823861.cetz.json")], caption: [Each generation kept the previous scope and added a question it could not previously answer. ERP is the point at which the question stops being about the factory and starts being about the company.]) <fig:erp-evolution>
 
 
 #heading(level: 2)[The core architectural idea: modules around shared data]
@@ -27,11 +27,11 @@ The manufacturing lineage matters most. #strong[Material Requirements Planning (
 
 ERP products are modular because businesses perform different kinds of work. Sales needs quotations; manufacturing needs bills of materials; finance needs invoices and payments. Modularity lets specialised workflows exist while still drawing on the same underlying records.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/2056a824d848aa52.svg")], caption: [The architecture in three layers. Users see specialised modules, but every module reads and writes the same master and transaction data underneath. Integration lives in the bottom layer, not in the screens.]) <fig:erp-layers>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/2056a824d848aa52.cetz.json")], caption: [The architecture in three layers. Users see specialised modules, but every module reads and writes the same master and transaction data underneath. Integration lives in the bottom layer, not in the screens.]) <fig:erp-layers>
 
 Two kinds of data are worth separating, because they behave differently and fail differently.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/7490300cf239e3a0.svg")], caption: [Master data is written rarely and read constantly; transaction data is written constantly and refers back to the master records. One bad master record therefore contaminates every transaction that points at it. The payment is RM 5,500 because Odoo adds its default 10% tax for Malaysia to the RM 5,000 order.]) <fig:master-vs-transaction>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/7490300cf239e3a0.cetz.json")], caption: [Master data is written rarely and read constantly; transaction data is written constantly and refers back to the master records. One bad master record therefore contaminates every transaction that points at it. The payment is RM 5,500 because Odoo adds its default 10% tax for Malaysia to the RM 5,000 order.]) <fig:master-vs-transaction>
 
 #callout("keyidea", title: [Key idea])[ERP integration is not achieved by putting every task on one giant screen. It is achieved by letting specialised modules share master data and create linked transaction records from the same business events.]
 
@@ -49,7 +49,7 @@ This does not mean every metric updates instantly. The useful operational meanin
 
 The benefits described in the source all run through one of four mechanisms. Naming the mechanism is what turns "ERP improves efficiency" into an argument.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/d250ec325f2273cf.svg")], caption: [Benefits are consequences, not features. Each chain runs from a structural change, through a change in what people actually do, to something that can be measured.]) <fig:benefit-chain>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/d250ec325f2273cf.cetz.json")], caption: [Benefits are consequences, not features. Each chain runs from a structural change, through a change in what people actually do, to something that can be measured.]) <fig:benefit-chain>
 
 Better customer service, lower inventory, shorter cycle times, and stronger control are downstream consequences of these four.
 
@@ -61,7 +61,7 @@ Better customer service, lower inventory, shorter cycle times, and stronger cont
 
 ERP affects many departments at once, so implementation is an organisational change project as much as a technology project. Licence and hardware costs are the visible part; the costs that sink projects are mostly below the surface.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/438836cbf1b61021.svg")], caption: [Software licences are the part budgeted first and the part that matters least to whether the project succeeds. Everything below the line is process and people work.]) <fig:cost-iceberg>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/438836cbf1b61021.cetz.json")], caption: [Software licences are the part budgeted first and the part that matters least to whether the project succeeds. Everything below the line is process and people work.]) <fig:cost-iceberg>
 
 Failed implementations are usually traced to process and people problems: assuming software will repair a bad process, thin planning before configuration, inadequate training, treating the work as IT-only, weak executive sponsorship, poor change management, uncontrolled scope or customisation, and difficult migration of legacy data.
 
@@ -73,7 +73,7 @@ Failed implementations are usually traced to process and people problems: assumi
 
 ERP packages embody a particular way of doing business. Every gap between the package and the company forces a decision, and the cheapest answer is not always the right one.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/8c86bba17c2ff632.svg")], caption: [Work down the questions before writing code. Custom features are not forbidden, but each one is paid for again at every future upgrade.]) <fig:customisation-decision>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/8c86bba17c2ff632.cetz.json")], caption: [Work down the questions before writing code. Custom features are not forbidden, but each one is paid for again at every future upgrade.]) <fig:customisation-decision>
 
 
 #heading(level: 2)[How to judge ERP success]

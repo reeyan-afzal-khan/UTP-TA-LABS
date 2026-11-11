@@ -31,7 +31,7 @@ a graphical analyzer for inspecting and troubleshooting packet traffic.
 #heading(level: 2)[Where you capture decides what you see]
  A sniffer records only what physically reaches its interface. On a switched network that is much less than beginners expect, because a switch forwards a frame to one port rather than all of them.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/cdc22af6d3b0318e.svg")], caption: [The same two-host conversation, watched from three places. Only the first and third see it; the middle case is the one that produces an empty capture and an hour of confusion.]) <fig:capture-placement>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/cdc22af6d3b0318e.cetz.json")], caption: [The same two-host conversation, watched from three places. Only the first and third see it; the middle case is the one that produces an empty capture and an hour of confusion.]) <fig:capture-placement>
 
 #callout("keyidea", title: [Key idea])[In eNSP you start Wireshark by right-clicking a specific device interface, which puts you in the first case automatically. On real hardware you have to arrange the third case deliberately, with a port mirror or a network tap.]
 
@@ -80,7 +80,7 @@ a graphical analyzer for inspecting and troubleshooting packet traffic.
 
 #callout("workedexample", title: [Worked configuration])[`ping 10.0.13.3` from R1 produces five request/reply pairs. In the packet list each pair shares an ICMP identifier and sequence number, and the source and destination columns swap between the two rows. Matching those two rows is the whole skill: it proves the request left and the reply came back.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/dea35fab9f7ae95b.svg")], caption: [One `ping` as it appears in a capture. The reply reverses both addresses and repeats the sequence number, which is how you pair the rows. A missing row on the right means the request arrived and was not answered; a missing row on the left means it never left.]) <fig:icmp-trace>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/dea35fab9f7ae95b.cetz.json")], caption: [One `ping` as it appears in a capture. The reply reverses both addresses and repeats the sequence number, which is how you pair the rows. A missing row on the right means the request arrived and was not answered; a missing row on the left means it never left.]) <fig:icmp-trace>
 
 
 #heading(level: 2)[What to record in a lab submission]

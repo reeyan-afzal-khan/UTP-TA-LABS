@@ -75,7 +75,7 @@ Absolute loss calls them equal. Squared loss says being badly wrong once is four
 
 For classification, the natural loss simply counts mistakes, the #strong[0--1 loss]. It is useless to an optimizer: a small change in the numbers usually changes no decision, so its slope is zero almost everywhere. Smooth stand-ins replace it, such as #strong[cross-entropy] (#ref(label("ch:classification"), supplement: [Chapter])) and #strong[hinge loss] (#ref(label("ch:svm"), supplement: [Chapter])). The model then reports with whatever metric suits the task.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/0a98d6d526a4c718.svg") #diagram-image("/MACHINE LEARNING/figures/diagrams/6d4a845038659da1.svg")], caption: [Loss functions compared. Squared loss grows quadratically, absolute loss linearly, and Huber loss is quadratic near zero and linear beyond it; cross-entropy grows without bound as a confident prediction turns out wrong.]) <fig:losses>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/0a98d6d526a4c718.cetz.json") #diagram-drawing("/MACHINE LEARNING/figures/diagrams/6d4a845038659da1.cetz.json")], caption: [Loss functions compared. Squared loss grows quadratically, absolute loss linearly, and Huber loss is quadratic near zero and linear beyond it; cross-entropy grows without bound as a confident prediction turns out wrong.]) <fig:losses>
 
 #callout("intuition", title: [Plain idea])[Doubling an error quadruples squared loss, so large errors pull hard on the fit. Absolute loss grows steadily. Cross-entropy has no upper limit at all: as the probability given to the true class approaches zero, the fee climbs without bound. Being confident and wrong is the most expensive thing a probabilistic model can do.]
 
@@ -132,7 +132,7 @@ Read the bank row closely. Nearly nine customers in ten say no, so always predic
 
 #callout("workedexample", title: [Worked example])[If 950 of 1,000 emails are legitimate, predicting "not spam" gives 95% accuracy and zero spam recall. Report rare-class precision and recall (#ref(label("ch:evaluation"), supplement: [Chapter])).]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/530fc157c181d1ad.svg")], caption: [Climb the ladder one rung at a time: a baseline, a simple model, a stronger model, then a tuned one. Stop at the first rung that is good enough for the task.]) <fig:model-ladder>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/530fc157c181d1ad.cetz.json")], caption: [Climb the ladder one rung at a time: a baseline, a simple model, a stronger model, then a tuned one. Stop at the first rung that is good enough for the task.]) <fig:model-ladder>
 
 #callout("analogy", title: [Analogy])[Climb one rung at a time. Increase complexity only when validation gains justify it, and stop at the simplest model that meets the task's needs.]
 

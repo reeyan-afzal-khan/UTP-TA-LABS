@@ -14,7 +14,7 @@ Git tracks changes on your computer; GitHub hosts an online copy of your project
 
 
 #block[
-#diagram-image("/0.GIT-REPO-SUBMISSION/figures/diagrams/3552e0271aaab9a3.svg")
+#diagram-drawing("/0.GIT-REPO-SUBMISSION/figures/diagrams/3552e0271aaab9a3.cetz.json")
 
 ]
 

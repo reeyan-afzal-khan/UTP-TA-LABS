@@ -1,0 +1,31 @@
+\labsection{8}{Evaluate probabilistic classification}{sec:lab08}
+
+\begin{labproject}{Classification: preserve probabilities and make error trade-offs explicit}
+\textbf{Coverage.} Chapter~\ref{ch:classification}.\\
+\textbf{Goal.} You should be able to create a stratified split, fit logistic regression, evaluate confusion-matrix metrics, compare thresholds, and distinguish binary from multiclass evaluation.\\
+\textbf{Datasets.} \texttt{heart\_failure\_dataset.csv}; Breast Cancer and Optical Digits are used as extensions.\\
+\textbf{Scenario.} You are evaluating a binary risk classifier. The purpose is to understand probabilistic output, threshold-dependent decisions, and asymmetric errors---not to treat a statistical exercise as a clinical diagnostic system.
+
+\textbf{Core workflow.}
+\begin{enumerate}
+  \item \textbf{Define the target and prevalence.} Identify the positive class, report its prevalence, and explain why class balance matters for interpretation of accuracy.
+  \item \textbf{Prepare predictors.} Convert categorical variables to factors and document any exclusions. Use a stratified 80/20 split so class prevalence is comparable across train and test sets.
+  \item \textbf{Fit a probabilistic model.} Train logistic regression on the training set and generate probabilities for the held-out records. Do not convert probabilities to labels prematurely.
+  \item \textbf{Evaluate a reference threshold.} At 0.50, construct the confusion matrix and report accuracy, sensitivity, specificity, precision, and the number of false positives/false negatives.
+  \item \textbf{Change the decision rule.} Evaluate at least one lower threshold and one higher threshold. Describe which error decreases and which error increases.
+  \item \textbf{Inspect score overlap.} Plot or summarise predicted-probability distributions for observed classes. Explain why imperfect separation makes threshold choice unavoidable.
+  \item \textbf{Write a use-limitation statement.} State what additional validation, clinical governance, and data-quality evidence would be required before any medical deployment.
+\end{enumerate}
+
+\begin{tryit}
+\textbf{Extension A---second binary geometry.} In the Breast Cancer dataset, compare \texttt{radius\_mean} and \texttt{texture\_mean} by diagnosis. Identify whether these two features alone visually separate the classes and why visual separation is not a substitute for holdout evaluation.
+
+\textbf{Extension B---multiclass data.} Read the supplied Optical Digits training/test files and reconstruct at least one $8\times8$ digit from its 64 pixel features. Explain how a $10\times10$ confusion matrix, per-class recall, and macro-averaged metrics extend the binary framework.
+\end{tryit}
+
+\tcbbreak
+\lstinputlisting[style=utpr]{all_experiments/lab08_classification.R}
+\begin{verification}
+\textbf{Required evidence.} Submit one holdout confusion matrix, a threshold comparison, one probability-distribution view, and a short decision note explaining which error would be more costly in a stated hypothetical use case.
+\end{verification}
+\end{labproject}

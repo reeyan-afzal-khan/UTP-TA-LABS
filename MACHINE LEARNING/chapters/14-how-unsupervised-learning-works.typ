@@ -13,7 +13,7 @@ Tip a box of old holiday photos onto the table and start sorting them into piles
 
 Back to the map in #ref(label("fig:ml-map"), supplement: [Figure]). Ask of the study log, "what kinds of student are in this group?", and you will find that no column holds the answer. That is the other half of machine learning: given features $X$ without labels, find groups, representations, or unusual cases.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/81b3170ae20f0ba7.svg")], caption: [Supervised learning uses features $X$ and labels $y$ to predict $y$; unsupervised learning has only $X$ and looks for structure in it.]) <fig:sup-vs-unsup>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/81b3170ae20f0ba7.cetz.json")], caption: [Supervised learning uses features $X$ and labels $y$ to predict $y$; unsupervised learning has only $X$ and looks for structure in it.]) <fig:sup-vs-unsup>
 
 
 #heading(level: 2)[The unsupervised-learning map]
@@ -83,7 +83,7 @@ There is no universal "unsupervised accuracy." Use evidence that matches the tas
 #heading(level: 2)[The unsupervised workflow]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/3d175b8c6ceb3302.svg")], caption: [The unsupervised workflow, from defining the structure sought to using it on new or downstream data. Checking stability and meaning is the step a label would otherwise have done.]) <fig:unsup-workflow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/3d175b8c6ceb3302.cetz.json")], caption: [The unsupervised workflow, from defining the structure sought to using it on new or downstream data. Checking stability and meaning is the step a label would otherwise have done.]) <fig:unsup-workflow>
 
 Describing a fixed dataset need not require a split. Claims about new data or downstream prediction do: fit on training rows and evaluate held-out cases, as in Labs~4--5.
 

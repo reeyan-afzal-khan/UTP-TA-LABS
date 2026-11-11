@@ -23,7 +23,7 @@ $k$-NN has no training phase worth the name: it simply #emph[stores] the trainin
 
 + for classification, predict the majority class among the neighbors; for regression, predict the average of their labels.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/c6dbe79a1caeba5f.svg")], caption: [$k$-nearest neighbors classifies a new point by a vote among the $k$ closest training observations.]) <fig:knn>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/c6dbe79a1caeba5f.cetz.json")], caption: [$k$-nearest neighbors classifies a new point by a vote among the $k$ closest training observations.]) <fig:knn>
 
 #callout("workedexample", title: [Worked example])[Training data: $A = \( 1 \, 1 \)$ and $B = \( 2 \, 1 \)$ labeled Red; $C = \( 4 \, 4 \)$ and $D = \( 5 \, 4 \)$ labeled Blue. Classify the new point $\( 2 \, 2 \)$ with $k = 3$ using Euclidean distance: $ d_A = sqrt(1^2 + 1^2) approx 1.41 \, #h(2em) d_B = sqrt(0^2 + 1^2) = 1.00 \,\
 d_C = sqrt(2^2 + 2^2) approx 2.83 \, #h(2em) d_D = sqrt(3^2 + 2^2) approx 3.61 . $ The three nearest are $B$ (Red), $A$ (Red), and $C$ (Blue). The vote is Red 2, Blue 1, so the prediction is Red.]
@@ -74,7 +74,7 @@ Lab~3 shows this on 20,000 personal loans, of which 19% defaulted. Cross-validat
 
 The boundary changes as $k$ changes.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/f8be9456344b9919.svg")], caption: [How $k$ reshapes the boundary. With $k = 1$ the boundary is jagged and forms an island around an isolated point; with $k = 15$ the surrounding votes smooth it away.]) <fig:knn-k>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/f8be9456344b9919.cetz.json")], caption: [How $k$ reshapes the boundary. With $k = 1$ the boundary is jagged and forms an island around an isolated point; with $k = 15$ the surrounding votes smooth it away.]) <fig:knn-k>
 
 #callout("intuition", title: [Plain idea])[At $k = 1$, the boundary forms an island around the isolated orange point. At $k = 15$, surrounding blue votes outweigh it. Smoothing reduces sensitivity to isolated noise.]
 

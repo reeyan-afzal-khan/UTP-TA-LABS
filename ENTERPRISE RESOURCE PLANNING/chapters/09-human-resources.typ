@@ -45,7 +45,7 @@ The ABC Company scenario in Tutorial 8 can be expressed as a sequence of busines
 
 + HR issues the offer with salary, benefits, and start date.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/830bb8d6179eeb1c.svg")], caption: [The eleven events of the ABC Company scenario, each drawn in the lane of whoever performs it. The value of the lane form is in the crossings: every arrow that changes column is a handover, and every handover is a place where a paper process loses a form, stalls a decision, or leaves the candidate without news.]) <fig:hr-swimlane>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/830bb8d6179eeb1c.cetz.json")], caption: [The eleven events of the ABC Company scenario, each drawn in the lane of whoever performs it. The value of the lane form is in the crossings: every arrow that changes column is a handover, and every handover is a place where a paper process loses a form, stalls a decision, or leaves the candidate without news.]) <fig:hr-swimlane>
 
 The textbook's Fitter Snacker example shows how a paper-based version of this process can fail: forms may be inconsistent or lost, applications can be misfiled, reviews happen sequentially because paper copies must circulate, interview scheduling is slow, and promising candidates can accept another offer while the company is still coordinating internally.
 

@@ -1,0 +1,13 @@
+tweet_id,airline,airline_sentiment,prediction,confidence,text,category
+569607124772196352,American,negative,neutral,0.9999998164826023,@AmericanAir I was flying from Ft Lauderdale FL to Seattle WA on the 02/28/2015 until the 03/03/2015 and they don't want to honor my flight.,negation
+569947699471974400,Delta,negative,neutral,0.9999933238387116,I hate you all. RT @JetBlue: Our fleet's on fleek. http://t.co/uTdfqF5WPA,mixed or ambiguous wording
+569925538946551808,Delta,negative,neutral,0.9999908613640675,Why? 😒 RT @JetBlue Our fleet's on fleek. http://t.co/I7Ut2ZvHCO,question or request
+570011533205336064,US Airways,negative,neutral,0.9998897293719118,"@USAirways #686 is delayed due to tail winds and need to jump on #521 to SEA, leaving the same time this arrives. Is there a chance to hold?",question or request
+567733847132229632,Delta,neutral,positive,0.9999999999912177,"@JetBlue Ok great thanks! I had a great flight, FYI. I'm excited to fly again. I just was frustrated I was not able to check in.",negation
+569480220203474944,United,neutral,negative,0.9999999863437807,"@united I tried.   We were hung up on, twice. After speaking with someone, then put on hold for 45 minutes.  No resolution.",negation
+569209051260678144,Southwest,neutral,negative,0.9999991821552858,@SouthwestAir I never got my flight confirmation. I've been on hold for an hour and I can't get info online. What am I to do?,question or request
+569541591586643968,United,neutral,negative,0.9999985979736034,@united.  Pls hold UA2066 for 9 cnx pax frm UA6194.  All runners.  A 5 min hold will save 2 fam frm miscnx.  Pls. Twitter is watching.,mixed or ambiguous wording
+568437415603507200,Virgin America,positive,neutral,0.9999999956610282,"@VirginAmerica For my Grandma Ella's 80th, she would &lt;3 a bday greeting from your flight crew! She was a stewardess for Eastern Airlines.",mixed or ambiguous wording
+569924145380634624,Delta,positive,neutral,0.9999953526926703,LMAO “@JetBlue: Our fleet's on fleek. http://t.co/aIyC9WV5oq”,very short text
+569947151339429889,Delta,positive,neutral,0.9999424035586537,Lmfaooo “@JetBlue: Our fleet's on fleek. http://t.co/1G9RnmYUQe”,very short text
+567893808022568961,United,positive,negative,0.999920292968392,@united big up the pilot of 644 for turning 1hr on the tarmac to just a 20min delayed arrival,mixed or ambiguous wording

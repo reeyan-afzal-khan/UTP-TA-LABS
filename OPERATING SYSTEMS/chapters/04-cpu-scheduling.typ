@@ -61,7 +61,7 @@ $R = 3$, $T = 9$, and $W = 5$. A negative waiting time always signals an error.]
 #heading(level: 3)[First-Come, First-Served]
  #strong[FCFS] is non-preemptive and runs processes in arrival order. Here that is P1, P2, P3.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/145c034c41af3004.svg")], caption: [The FCFS schedule: P1, P2, then P3 in arrival order.]) <fig:gantt-fcfs>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/145c034c41af3004.cetz.json")], caption: [The FCFS schedule: P1, P2, then P3 in arrival order.]) <fig:gantt-fcfs>
 
 #block[
 l \*5l
@@ -81,7 +81,7 @@ P3 needs one unit of CPU and waits eight to get it. That is the #strong[convoy e
 #heading(level: 3)[Shortest Job First]
  #strong[SJF] picks the smallest remaining burst: P3, then P2, then P1.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/bb5f2f4afd62696b.svg")], caption: [The SJF schedule: the shortest burst first, P3, then P2, then P1.]) <fig:gantt-sjf>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/bb5f2f4afd62696b.cetz.json")], caption: [The SJF schedule: the shortest burst first, P3, then P2, then P1.]) <fig:gantt-sjf>
 
 #block[
 l \*5l
@@ -105,7 +105,7 @@ The catch is that $B_i$ is the burst the process is #emph[about to] need, which 
 #heading(level: 3)[Priority scheduling]
  Highest priority first. With the convention that a lower number is more urgent, the order is P2, P3, P1.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/83f99f8a58758410.svg")], caption: [The priority schedule, with a lower number more urgent: P2, P3, then P1.]) <fig:gantt-priority>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/83f99f8a58758410.cetz.json")], caption: [The priority schedule, with a lower number more urgent: P2, P3, then P1.]) <fig:gantt-priority>
 
 Averages: $T = 5.33$, $W = 2.33$. Better than FCFS, worse than SJF --- because priority happens to correlate with burst length here, but is not chosen to optimise it.
 
@@ -119,7 +119,7 @@ Priority scheduling can starve a low-priority process indefinitely if urgent wor
 #heading(level: 3)[Round Robin]
  #strong[Round Robin] is preemptive. Each process gets at most a #strong[time quantum] $q$, then goes to the back of the queue if unfinished. With $q = 2$ and queue order P1, P2, P3:
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/8e7ccd4588c03826.svg")], caption: [The Round Robin schedule with quantum $q = 2$. P3 needs one unit, less than the quantum, so it finishes in its first turn at time~5.]) <fig:gantt-rr>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/8e7ccd4588c03826.cetz.json")], caption: [The Round Robin schedule with quantum $q = 2$. P3 needs one unit, less than the quantum, so it finishes in its first turn at time~5.]) <fig:gantt-rr>
 
 Note that P3 finishes early at time 5 despite only getting the CPU third: it needed one unit, which is less than the quantum, so it ran to completion in its first turn.
 

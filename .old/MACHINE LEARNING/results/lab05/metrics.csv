@@ -1,0 +1,5 @@
+part,dataset,model,prevalence,roc_auc,average_precision,precision_at_100,validation_accuracy,test_accuracy
+A,credit_card_fraud,isolation_forest,0.015,0.9518,0.2249,0.2,,
+B,breast_cancer,self_training (30% labels),,,,,0.9626,
+B,breast_cancer,active (uncertainty),,,,,,0.972
+B,breast_cancer,active (random),,,,,,0.972

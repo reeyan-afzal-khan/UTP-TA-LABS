@@ -1,6 +1,6 @@
 #import "/.shared/typst/utp.typ": *
 #show: book.with(title: [Data Communication & Networking], summary: [Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP, \
-routing, FTP, DHCP, LACP, VLANs, and WAN configuration.], lab-total: 9)
+routing, FTP, DHCP, LACP, VLANs, and WAN configuration.], lab-total: 9, mono-font: "Inconsolatazi4")
 
 #cover(title: [Data Communication & Networking], summary: [Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP, \
 routing, FTP, DHCP, LACP, VLANs, and WAN configuration.])

@@ -69,7 +69,7 @@ The textbook notes that product-cost analysis can use data already maintained in
 
 A useful ERP principle is #strong[document flow]: users should be able to trace a transaction through related records rather than search several disconnected systems.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f88f993a328dbf92.svg")], caption: [The accounting document flow. Each document is created from the one before it, and the invoice and the payment both feed financial and management reporting, so a transaction can be traced end to end.]) <fig:accounting-document-flow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f88f993a328dbf92.cetz.json")], caption: [The accounting document flow. Each document is created from the one before it, and the invoice and the payment both feed financial and management reporting, so a transaction can be traced end to end.]) <fig:accounting-document-flow>
 
 This lineage supports customer service. A salesperson can answer "Has the customer paid?" without asking Finance to search a separate system, assuming the user has appropriate access rights.
 

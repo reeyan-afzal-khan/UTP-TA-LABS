@@ -82,7 +82,7 @@ This is the #strong[double-spending problem]: how can a digital payment system e
 
 Traditional payment systems solve the problem with a central ledger. A bank records Alice's balance and refuses a second payment after the first has consumed the funds. Bitcoin attempts to solve the problem without that central bank by using a shared transaction history, digital signatures, and network consensus.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/96d3403533827cfc.svg")], caption: [The double-spending problem. Alice cannot spend the same coin with both Bob and Charlie, because the shared network validates each payment against the accepted spend history.]) <fig:double-spending>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/96d3403533827cfc.cetz.json")], caption: [The double-spending problem. Alice cannot spend the same coin with both Bob and Charlie, because the shared network validates each payment against the accepted spend history.]) <fig:double-spending>
 
 The key is that the network does not treat each file copy as independent money. It evaluates transactions against the accepted ledger state.
 
@@ -170,7 +170,7 @@ The Week 9 slides connect mining to three functions:
 
 A miner constructs a candidate block and repeatedly changes a value such as the #strong[nonce]. Each attempt produces a different block hash. The goal is to find a hash below the difficulty target.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/370efaf2d5b5f1c6.svg")], caption: [The proof-of-work loop. A miner changes the nonce and recomputes the block hash until the hash meets the difficulty target, then broadcasts the valid block.]) <fig:proof-of-work>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/370efaf2d5b5f1c6.cetz.json")], caption: [The proof-of-work loop. A miner changes the nonce and recomputes the block hash until the hash meets the difficulty target, then broadcasts the valid block.]) <fig:proof-of-work>
 
 The difficulty is adjusted so blocks are found at an approximate target rate in the Bitcoin model used by the lecture. The deck repeatedly uses roughly ten minutes per block as the key intuition.
 
@@ -226,7 +226,7 @@ A non-backward-compatible rule change requiring participating nodes to upgrade; 
 
 The Week 9 deck uses the 2017 Bitcoin Cash split as a hard-fork case. It identifies block-size policy as a central difference and explains that balances before the split are represented on both post-fork chains because both histories share the same pre-fork ledger.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/1009e18cfccf1dd0.svg")], caption: [A hard fork. Both chains share the history up to the fork, then follow incompatible rule sets, which is why balances before the split appear on both chains.]) <fig:hard-fork>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/1009e18cfccf1dd0.cetz.json")], caption: [A hard fork. Both chains share the history up to the fork, then follow incompatible rule sets, which is why balances before the split appear on both chains.]) <fig:hard-fork>
 
 A hard fork can split mining power, users, applications, and liquidity across two networks, which is why the lecture describes it as potentially undesirable unless there is sufficient coordination.
 

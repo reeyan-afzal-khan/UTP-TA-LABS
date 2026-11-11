@@ -17,7 +17,7 @@
 #heading(level: 3)[FTP uses two connections, not one]
  This is the detail that makes FTP behave oddly through firewalls and the reason a transfer can stall while the session still responds. Commands travel on one TCP connection; file data travels on a second one opened per transfer.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/470141fef5b2148f.svg")], caption: [The control channel stays open for the whole session. A separate data channel opens for each `dir`, `get` or `put`, and closes when that transfer ends.]) <fig:ftp-channels>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/470141fef5b2148f.cetz.json")], caption: [The control channel stays open for the whole session. A separate data channel opens for each `dir`, `get` or `put`, and closes when that transfer ends.]) <fig:ftp-channels>
 
 #callout("keyidea", title: [Key idea])[A login that succeeds but a `dir` that hangs is the signature of a blocked data channel: the control connection is clearly working, since the login was answered.]
 

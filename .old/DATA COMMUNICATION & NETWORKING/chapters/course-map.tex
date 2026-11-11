@@ -1,0 +1,87 @@
+\chapter*{Course Map}
+\phantomsection%
+\addcontentsline{toc}{chapter}{Course Map}
+\markboth{Course Map}{}
+
+The labs progress from packet observation to device configuration, routing, services, Layer-2 switching, and WAN protocols. Five stages build on the \emph{Foundations} reference chapter that opens the book; the group project integrates them.
+
+\begin{utpfigure}
+\newcommand{\coursemapcard}[3]{%
+  \parbox[c][1.52cm][t]{3.35cm}{\raggedright
+    {\scriptsize\bfseries\color{UTPTeal}\strut #1}\par
+    \vspace{0.02em}%
+    {\bfseries\strut #2}\par
+    \vspace{0.08em}%
+    {\scriptsize\color{UTPMuted!80!UTPNavy}\strut #3\strut}%
+  }%
+}
+\begin{tikzpicture}[
+  node distance=0.58cm and 0.66cm,
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,
+    minimum width=3.99cm,minimum height=1.88cm,align=left,
+    inner xsep=3.2mm,inner ysep=1.6mm,font=\small\color{UTPNavy}},
+  finalcard/.style={card,draw=UTPTeal,fill=UTPPaleTeal},
+  arr/.style={-{Stealth[length=2.25mm,width=1.55mm]},line width=0.9pt,
+    draw=UTPTeal,shorten >=0.8pt,shorten <=0.8pt}
+]
+\node[card] (a) {\coursemapcard{STAGE 01}{Observe}{Wireshark, eNSP, and VRP basics}};
+\node[card,right=of a] (b) {\coursemapcard{STAGE 02}{Reachability}{Static routing and OSPF}};
+\node[card,right=of b] (c) {\coursemapcard{STAGE 03}{Services}{FTP and DHCP}};
+\node[card,below=of c] (d) {\coursemapcard{STAGE 04}{Switched LAN}{Link aggregation and VLANs}};
+\node[card,left=of d] (e) {\coursemapcard{STAGE 05}{WAN}{HDLC, PPP, PAP, and CHAP}};
+\node[finalcard,left=of e] (f) {\coursemapcard{STAGE 06}{Group project}{An integrated eNSP network}};
+\draw[arr] (a) -- (b);
+\draw[arr] (b) -- (c);
+\draw[arr] (c) -- (d);
+\draw[arr] (d) -- (e);
+\draw[arr] (e) -- (f);
+\end{tikzpicture}
+\end{utpfigure}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}m{0.31\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Focus} & \utpth{Key question} \\
+\midrule
+1 & Packet capture and device configuration & How do you see, and change, what a network is doing? \\
+2 & Static routing and OSPF & How does a router learn where to send a packet? \\
+3 & FTP and DHCP & How do services run on top of a working IP network? \\
+4 & Link aggregation and VLANs & How are Layer-2 links bundled together and kept apart? \\
+5 & Serial WAN links & How do distant sites join one routing domain securely? \\
+6 & Group project & How do you prove a network works, layer by layer? \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section*{What each stage configures}
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}\centering\arraybackslash}m{0.08\linewidth}>{\centering\arraybackslash}m{0.09\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Stage} & \utpth{Labs} & \utpth{Configuration and evidence} \\
+\midrule
+--- & --- & Reference: layers, encapsulation, the three kinds of address, and the Ethernet and IPv4 header maps. Read once, then return to it whenever a later lab names a layer. \\
+1 & 1--2 & Wireshark captures, eNSP topology building, VRP navigation, interface addressing, verification, and saving. \\
+2 & 3--4 & Static and backup routes, single-area OSPF, routing tables, neighbours, and connectivity tests. \\
+3 & 5--6 & FTP with AAA authorization; DHCP global and interface pools, leases, and DNS options. \\
+4 & 7--8 & Manual aggregation, LACP priorities, VLAN port types, PVIDs, and isolation tests. \\
+5 & 9 & HDLC, PPP, DCE clocking, OSPF, PAP/CHAP authentication, and debugging. \\
+6 & --- & Build and demonstrate an eNSP network, justify protocol choices, explain forwarding, and report the evidence. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section*{How to use these notes}
+Each chapter presents the source material in four forms:
+\begin{itemize}
+\item \textbf{Numbered figures} show protocol header maps, message sequences, and state machines drawn for these notes, and the key topologies and screens from the course slides, each captioned with the slide it comes from.
+\item \textbf{Command blocks} preserve the Huawei VRP configuration sequence.
+\item \textbf{Verification evidence} identifies the state, capture, or test that proves success.
+\item \textbf{Troubleshooting order} provides a repeatable diagnostic workflow.
+\end{itemize}
+
+\begin{keyidea}
+Use the same loop in every lab: \textbf{build $\rightarrow$ configure $\rightarrow$ inspect $\rightarrow$ test $\rightarrow$ explain}. Only the protocol changes.
+\end{keyidea}

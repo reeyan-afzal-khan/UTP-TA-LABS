@@ -11,7 +11,7 @@
 #heading(level: 2)[Two views of a file]
  A regular file has #strong[contents] and #strong[metadata]. The contents are bytes. Metadata describes the object: size, permissions, timestamps, inode number, and link count.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/5d79b5474c9e8b35.svg")], caption: [Two views of a file: its contents are the bytes read with `read()` or `fread()`; its metadata, such as size, mode, inode, and link count, is read with `stat()`.]) <fig:contents-metadata>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/5d79b5474c9e8b35.cetz.json")], caption: [Two views of a file: its contents are the bytes read with `read()` or `fread()`; its metadata, such as size, mode, inode, and link count, is read with `stat()`.]) <fig:contents-metadata>
 
 
 #heading(level: 2)[The file-I/O ladder]
@@ -34,7 +34,7 @@
 #heading(level: 2)[The acquire-use-release pattern]
  Reliable systems code repeatedly follows the same shape:
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/094395bcf0b1e5a1.svg")], caption: [The acquire-use-release pattern. A resource is opened, used, and then closed, and each step has its own failure to check.]) <fig:acquire-use-release>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/094395bcf0b1e5a1.cetz.json")], caption: [The acquire-use-release pattern. A resource is opened, used, and then closed, and each step has its own failure to check.]) <fig:acquire-use-release>
 
 Every acquire step can fail, every loop needs a clear stopping rule, and every successfully acquired resource should eventually be released.
 

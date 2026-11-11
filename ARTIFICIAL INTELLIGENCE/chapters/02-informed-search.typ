@@ -21,7 +21,7 @@ Give the robot a simple guess. For any cell, count the steps across plus the ste
 
 #source-code("/ARTIFICIAL INTELLIGENCE/all_experiments/demo_robot_maze.py", first: 56, last: 58, lang: "python")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/de8097de85d15bbc.svg")], caption: [The guess for every cell: rows apart plus columns apart, ignoring what is in the way. The robot's cell guesses 11, but the cheapest real route in the rain costs 13, because the guess cannot see walls or puddles.]) <fig:manhattan>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/de8097de85d15bbc.cetz.json")], caption: [The guess for every cell: rows apart plus columns apart, ignoring what is in the way. The robot's cell guesses 11, but the cheapest real route in the rain costs 13, because the guess cannot see walls or puddles.]) <fig:manhattan>
 
 A guess like this is written $h \( n \)$. It is quick to work out and it is only an estimate. A search that uses one is called #strong[informed]; BFS and UCS, which have no guess, are #strong[uninformed], or blind.
 
@@ -48,7 +48,7 @@ Every informed method reasons about a frontier state $n$ using up to three numbe
 
 #ref(label("fig:fgh"), supplement: [Figure]) separates known cost from estimated remaining cost. UCS uses the former, GBFS the latter, and A$""^star.op$ both.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/87c0851dd20a7a3f.svg")], caption: [$f \( n \) = g \( n \) + h \( n \)$ combines known cost with estimated remaining cost. UCS prioritises $g$, GBFS $h$, and A$""^star.op$ their sum.]) <fig:fgh>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/87c0851dd20a7a3f.cetz.json")], caption: [$f \( n \) = g \( n \) + h \( n \)$ combines known cost with estimated remaining cost. UCS prioritises $g$, GBFS $h$, and A$""^star.op$ their sum.]) <fig:fgh>
 
 
 #heading(level: 2)[Greedy best-first search: go where it looks closest]
@@ -74,7 +74,7 @@ Neither search does both jobs. UCS gets the robot home but looks at every cell. 
 
 #ref(label("fig:astar-cells"), supplement: [Figure]) shows how to read the three numbers on a cell. Follow the first few picks on the rainy maze, keeping an eye on $\( 3 \, 2 \)$.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ceb36e4051f1ed62.svg")], caption: [Four cells from the first picks of A$""^star.op$ on the rainy maze. The big number is $f$, the sum of $g$ (top left) and $h$ (top right). Stepping into the puddle at $\( 3 \, 2 \)$ costs 5, so its $f$ jumps to 15 and it waits behind every cell with $f = 13$.]) <fig:astar-cells>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ceb36e4051f1ed62.cetz.json")], caption: [Four cells from the first picks of A$""^star.op$ on the rainy maze. The big number is $f$, the sum of $g$ (top left) and $h$ (top right). Stepping into the puddle at $\( 3 \, 2 \)$ costs 5, so its $f$ jumps to 15 and it waits behind every cell with $f = 13$.]) <fig:astar-cells>
 
 #callout("workedexample", title: [Worked example])[The first five picks of A$""^star.op$. Each cell added to the frontier is shown with its $f$.
 
@@ -97,11 +97,11 @@ The frontier now holds several cells with $f = 13$ and one with $f = 15$. A$""^s
 
 A$""^star.op$ reaches the charger with $g = 13$. That is the route UCS found, but A$""^star.op$ expanded only 28 cells instead of 47 (#ref(label("fig:expansion"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d6c470ee72a402cd.svg")], caption: [The rainy maze solved three ways, with the same battery of 15. Blue cells were expanded. UCS spreads everywhere and finds the 13-unit route. GBFS barely explores, but its route costs 19 and the robot runs dry. A$""^star.op$ finds the 13-unit route and leaves the top and the corridor alone.]) <fig:expansion>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d6c470ee72a402cd.cetz.json")], caption: [The rainy maze solved three ways, with the same battery of 15. Blue cells were expanded. UCS spreads everywhere and finds the 13-unit route. GBFS barely explores, but its route costs 19 and the robot runs dry. A$""^star.op$ finds the 13-unit route and leaves the top and the corridor alone.]) <fig:expansion>
 
 Why did A$""^star.op$ get to skip so much? Colour every cell by the best $f$ it can have, using the cheapest way to reach it (#ref(label("fig:fmap"), supplement: [Figure])). A$""^star.op$ expanded exactly the cells with $f lt.eq 13$, and every cell it skipped has $f gt.eq 15$. The guess never exceeds the real remaining cost, because walls can only make a route longer and puddles can only make it dearer. So any route through a skipped cell costs at least 15, more than the 13 already in hand, and there was never a reason to look.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/a33a5386c43590a8.svg")], caption: [Each cell shows the best possible $f = g + h$ on the rainy maze. Blue cells have $f lt.eq 13$ and are exactly the ones A$""^star.op$ expanded. Grey cells have $f gt.eq 15$: any route through them must cost at least that, so with a 13-unit route in hand they can be ignored.]) <fig:fmap>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/a33a5386c43590a8.cetz.json")], caption: [Each cell shows the best possible $f = g + h$ on the rainy maze. Blue cells have $f lt.eq 13$ and are exactly the ones A$""^star.op$ expanded. Grey cells have $f gt.eq 15$: any route through them must cost at least that, so with a 13-unit route in hand they can be ignored.]) <fig:fmap>
 
 #callout("keyidea", title: [Key idea])[GBFS asks which frontier state #emph[looks] closest to the goal. A$""^star.op$ also accounts for the cost already paid and, with a suitable heuristic, guarantees the cheapest path.]
 
@@ -115,7 +115,7 @@ Why did A$""^star.op$ get to skip so much? Colour every cell by the best $f$ it 
 
 The guess made A$""^star.op$ faster, so why not trust it even more? Multiply every guess by three. On the robot's cell the guess of 11 becomes 33, far above the real cost of 13, and from every cell A$""^star.op$ now believes the charger is much further away than it is. The tripled guess is so much bigger than the battery spent that it decides almost every pick. A$""^star.op$ heads straight for the charger like GBFS, expands only 16 cells, and returns the 19-unit corridor. The robot runs dry again (#ref(label("fig:triple"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d977e21a1169f7cd.svg")], caption: [A$""^star.op$ on the rainy maze with the honest guess and with the guess multiplied by three. Trusting the guess too much saves 12 expansions and loses the cheapest route.]) <fig:triple>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d977e21a1169f7cd.cetz.json")], caption: [A$""^star.op$ on the rainy maze with the honest guess and with the guess multiplied by three. Trusting the guess too much saves 12 expansions and loses the cheapest route.]) <fig:triple>
 
 
 #heading(level: 3)[Admissibility and consistency]
@@ -125,7 +125,7 @@ So there is one rule. A heuristic is #strong[admissible] when it never overestim
 
 A stronger and more convenient condition is #strong[consistency]: for every edge $n arrow.r n'$ of cost $c$, $h \( n \) lt.eq c + h \( n' \)$. In words, one step cannot make the guess drop by more than the step cost. Consistency implies admissibility and guarantees that the first time A$""^star.op$ pops a state, it has found the cheapest path to it, which is what allows the closed-set implementation in `utils` to skip re-expansions. Its picture is the triangle inequality (#ref(label("fig:triangle"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/69ea9bec8895264d.svg")], caption: [The direct line from $n$ to the goal can never be longer than going via $n'$ first. The same is true on a sphere, which is why the great-circle distance is a consistent heuristic for airline routes: no sequence of flights can beat flying straight there.]) <fig:triangle>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/69ea9bec8895264d.cetz.json")], caption: [The direct line from $n$ to the goal can never be longer than going via $n'$ first. The same is true on a sphere, which is why the great-circle distance is a consistent heuristic for airline routes: no sequence of flights can beat flying straight there.]) <fig:triangle>
 
 #callout("intuition", title: [Conceptual intuition])[An inadmissible heuristic makes A$""^star.op$ behave like GBFS: it trusts the estimate too much and commits to a branch before the cost evidence justifies it. Admissibility keeps the $g$ term in charge whenever the two disagree.]
 
@@ -141,7 +141,7 @@ Any heuristic should be cheap to compute and use the same units as the path cost
 
 Theory says Haversine is safe. Lab~2 checks it anyway: it runs Dijkstra backwards from each goal to get the exact cost $h^star.op$, samples ten airports across the range for each of three goals, and confirms $h lt.eq h^star.op$. In #ref(label("fig:admissible"), supplement: [Figure]), every sampled point must lie on or below the diagonal.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c4e9ed7ab258e2a6.svg")], caption: [A heuristic plotted against the true remaining cost, with illustrative points. Admissibility requires every point to lie on or below the dashed line. The red points overestimate and void the A$""^star.op$ guarantee. The Haversine heuristic in Lab~2 produces only green points, with slack from 0 up to about 26,000~km.]) <fig:admissible>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c4e9ed7ab258e2a6.cetz.json")], caption: [A heuristic plotted against the true remaining cost, with illustrative points. Admissibility requires every point to lie on or below the dashed line. The red points overestimate and void the A$""^star.op$ guarantee. The Haversine heuristic in Lab~2 produces only green points, with slack from 0 up to about 26,000~km.]) <fig:admissible>
 
 
 #heading(level: 3)[Weighted A\*: trading the guarantee for speed]
@@ -163,7 +163,7 @@ Count the tiles not on their home square. Every misplaced tile needs at least on
 Add up each tile's Manhattan distance from its home square. Every tile needs at least that many slides.
 ]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ec7fc1a68d147f06.svg")], caption: [The board traced by `demo_sliding_puzzle.py`, next to the goal. Seven tiles are misplaced, so the weak guess is 7. The small orange number on each tile is its distance from home, and these add up to the sharper guess of 16. The true answer is 22 slides.]) <fig:puzzle-guess>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/ec7fc1a68d147f06.cetz.json")], caption: [The board traced by `demo_sliding_puzzle.py`, next to the goal. Seven tiles are misplaced, so the weak guess is 7. The small orange number on each tile is its distance from home, and these add up to the sharper guess of 16. The true answer is 22 slides.]) <fig:puzzle-guess>
 
 #figure(
   align(center)[#table(

@@ -17,7 +17,7 @@ A #strong[tree] is a non-linear data structure in which data is stored hierarchi
 
 The slide example uses root $A$ with the following structure.
 
-#callout("utpfigure", title: [])[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/610e3140510de703.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/610e3140510de703.cetz.json")]
 
 The Trees I slide explicitly identifies the subtree rooted at $B$ as one subtree of $A$, and similarly identifies the $C$ and $D$ branches as other subtrees.
 
@@ -74,7 +74,7 @@ These traversal rules are most naturally applied to binary trees, because each n
 
 The three orders differ in one respect only: #emph[when the root is visited] relative to its subtrees. #ref(label("fig:traversals"), supplement: [Figure]) applies all three to the same tree, numbering each node with its position in the output sequence.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/dde0d4a2f7a243ed.svg")], caption: [The same binary tree under all three depth-first traversals. The shape of the walk is identical in every case --- down the left, down the right, back up --- and only the moment at which a node is #emph[recorded] moves. Inorder on a search tree yields sorted output, which is why it is the one used most often.]) <fig:traversals>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/dde0d4a2f7a243ed.cetz.json")], caption: [The same binary tree under all three depth-first traversals. The shape of the walk is identical in every case --- down the left, down the right, back up --- and only the moment at which a node is #emph[recorded] moves. Inorder on a search tree yields sorted output, which is why it is the one used most often.]) <fig:traversals>
 
 
 #heading(level: 2)[Binary trees]
@@ -102,7 +102,7 @@ The Trees I slide states that if a root is stored at array index $I$, then the l
 
 #ref(label("fig:tree-array"), supplement: [Figure]) shows the mapping directly. Reading the tree level by level, left to right, and writing the values into consecutive array slots is all the representation does --- the parent-child links are then recoverable by arithmetic, with no pointers stored at all.
 
-#strong[#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/cd8192bb28335fc9.svg")], caption: [A complete binary tree stored in an array, zero-based. Level-order position becomes array index, so the children of index $i$ sit at $2 i + 1$ and $2 i + 2$. This is the same layout the heap in #ref(label("ch:trees-ii"), supplement: [Chapter]) relies on.]) <fig:tree-array>]
+#strong[#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/cd8192bb28335fc9.cetz.json")], caption: [A complete binary tree stored in an array, zero-based. Level-order position becomes array index, so the children of index $i$ sit at $2 i + 1$ and $2 i + 2$. This is the same layout the heap in #ref(label("ch:trees-ii"), supplement: [Chapter]) relies on.]) <fig:tree-array>]
 
 
 #heading(level: 2)[Linked representation of a binary tree]
@@ -110,6 +110,6 @@ The Trees I slide states that if a root is stored at array index $I$, then the l
 
 A linked representation stores data plus two pointers: one to the left child and one to the right child. A missing child is represented by a null pointer.
 
-#callout("utpfigure", title: [])[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/69d26c13d495ac9c.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/69d26c13d495ac9c.cetz.json")]
 
 #callout("quickcheck", title: [Check your understanding])[State the inorder, preorder, and postorder rules without looking back. What indexing assumption is required for the slide formula $2 I$ and $2 I + 1$?]

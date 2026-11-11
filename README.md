@@ -89,6 +89,10 @@ Every course folder uses the same names, and holds only that course's content:
 
 See the [setup guide](.typst-setup/README.md) for live preview, numbered scripts, and portability. To add a course, start with [course template](.shared/templates/course/main.typ) and the [checklist](.shared/docs/adding-a-course.md).
 
+## Video subtitles
+
+See the [CrisperWhisper setup](.subtitle-setup/README.md) for an isolated CUDA environment, numbered scripts, and resumable SRT generation beside media in `.courses/`.
+
 ## Disclaimer
 
 These materials support teaching and independent study. They are not official university publications and do not replace the current course outline, assessment brief, or institutional policies.

@@ -15,7 +15,7 @@ A circular linked list changes one crucial link: the last node points back to th
 #heading(level: 2)[The circular structure]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/a159198906283280.svg")], caption: [A circular linked list drawn as the ring it actually is. The single change from #ref(label("fig:sll-anatomy"), supplement: [Figure]) is the last node's `next` field: instead of `NULL` it stores the address of the head, so there is no end to stop at.]) <fig:cll-ring>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/a159198906283280.cetz.json")], caption: [A circular linked list drawn as the ring it actually is. The single change from #ref(label("fig:sll-anatomy"), supplement: [Figure]) is the last node's `next` field: instead of `NULL` it stores the address of the head, so there is no end to stop at.]) <fig:cll-ring>
 
 The Week IV slides emphasize four consequences:
 
@@ -39,7 +39,7 @@ A normal singly linked list often uses `current != nullptr` as the loop conditio
 
 That invariant explains the unusual loop shape. The test `current != head` is #emph[already false] on the first iteration, because `current` starts at the head. A plain `while` loop would therefore print nothing at all. The `do` -- `while` form checks the condition only after the body has run once, which is exactly what a ring needs (#ref(label("fig:cll-traverse"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/1ca038eb8115ac3e.svg")], caption: [Why circular traversal uses `do` -- `while`. The pointer starts on the head and returns to it, so the stopping condition is true at both the beginning and the end of the walk; only the second occurrence should end the loop.]) <fig:cll-traverse>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/1ca038eb8115ac3e.cetz.json")], caption: [Why circular traversal uses `do` -- `while`. The pointer starts on the head and returns to it, so the stopping condition is true at both the beginning and the end of the walk; only the second occurrence should end the loop.]) <fig:cll-traverse>
 
 
 #heading(level: 2)[Singly vs doubly vs circular]

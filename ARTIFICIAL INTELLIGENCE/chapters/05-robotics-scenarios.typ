@@ -17,7 +17,7 @@ The maze robot of Chapter~#ref(label("ch:uninformed"), supplement: none) had a p
 
 Every robot runs some version of the same cycle. Sensors measure the world, a controller selects a command, and actuators change what the sensors will see next (#ref(label("fig:sta-loop"), supplement: [Figure])). The "think" box can be simple rules, a lookup table, a classifier, or a planner such as A$""^star.op$ (#ref(label("ch:informed"), supplement: [Chapter])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/e3c3dd6fd4566794.svg")], caption: [Lab~5 learns the "think" stage from sensor--action pairs. The dashed feedback arrow, actions changing future readings, is not tested offline.]) <fig:sta-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/e3c3dd6fd4566794.cetz.json")], caption: [Lab~5 learns the "think" stage from sensor--action pairs. The dashed feedback arrow, actions changing future readings, is not tested offline.]) <fig:sta-loop>
 
 #callout("intuition", title: [Conceptual intuition])[Offline control looks like classification: 24 readings in, one of four actions out. On a real robot, however, a wrong action can lead to situations the training data never contained.]
 
@@ -29,7 +29,7 @@ Every robot runs some version of the same cycle. Sensors measure the world, a co
 
 #callout("analogy", title: [Analogy])[Walk down a dark corridor with one hand on the wall. You need no map and no memory of how far you have come. If your hand presses hard, you edge away; if it loses contact, you edge back. That is a #strong[reactive] controller: every decision comes from the current reading alone.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/75932f12a73910ac.svg")], caption: [The SCITOS robot from above, moving to the right with the wall on its left. Its 24 sensors are numbered clockwise from US00 at the front. The four that Lab~5 selects (orange) sit on the rear-left arc, where they measure the wall from slightly different angles.]) <fig:sensor-ring>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/75932f12a73910ac.cetz.json")], caption: [The SCITOS robot from above, moving to the right with the wall on its left. Its 24 sensors are numbered clockwise from US00 at the front. The four that Lab~5 selects (orange) sit on the rear-left arc, where they measure the wall from slightly different angles.]) <fig:sensor-ring>
 
 Written as rules, the natural controller for this task is short:
 
@@ -75,7 +75,7 @@ Not all 24 sensors matter equally. Rank them by #strong[mutual information] with
 
 A #strong[decision tree] applies feature thresholds one at a time until it reaches a class, like a game of twenty questions. Each path from the root to a leaf reads as one if--then rule learned from the demonstrations (#ref(label("fig:tree-rules"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/3c8b0107747430ee.svg")], caption: [The learned tree\'s top three levels and three example rules. Nodes test sensor thresholds; leaves select actions. Limiting depth keeps the rules readable.]) <fig:tree-rules>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/3c8b0107747430ee.cetz.json")], caption: [The learned tree\'s top three levels and three example rules. Nodes test sensor thresholds; leaves select actions. Limiting depth keeps the rules readable.]) <fig:tree-rules>
 
 The first split is the wall-following reflex itself: #emph[if the wall-side sensor reads less than 0.9 m, turn sharply right, away from the wall]. Nobody typed that threshold. It was found in the demonstrations.
 
@@ -113,7 +113,7 @@ The readable controller sacrifices seven percentage points of accuracy and ten o
 
 A headline score does not tell you which mistakes a controller makes, and on a robot some mistakes are worse than others. #ref(label("fig:confusion-rule"), supplement: [Figure]) gives the rule tree's test results. Read along a row to see what happened to one true action, and down a column to see what one predicted action really was.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/8c5c8363c5139539.svg")], caption: [The rule tree on 1,637 test rows. Rows are the true action and columns the prediction, so the diagonal counts correct decisions. Recall reads along a row and precision down a column.]) <fig:confusion-rule>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/8c5c8363c5139539.cetz.json")], caption: [The rule tree on 1,637 test rows. Rows are the true action and columns the prediction, so the diagonal counts correct decisions. Recall reads along a row and precision down a column.]) <fig:confusion-rule>
 
 Three things stand out. Slight-Right-Turn has the lowest recall, $0.89$, and 22 of its 27 misses were called Move-Forward: the line between "keep going" and "nudge right" sits on thresholds such as US17 at 0.79 m and 0.90 m, and a reading a few centimetres away flips the action. Slight-Left-Turn has the lowest precision, $0.70$, because balanced class weights push the tree towards this rare action, so 39 of its 131 predictions were wrong. And the red cell deserves the most attention. In 36 test rows the robot should have turned sharply away from the wall and was told to carry on forward. Accuracy counts that the same as any other miss, but an engineer would not.
 
@@ -160,7 +160,7 @@ Sensor failures or sound-absorbing walls can produce unfamiliar readings that th
 Minimum distances, speed caps and emergency stops must constrain the learned policy. Accuracy does not measure them.
 ]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c782cd9c3ef77eb1.svg")], caption: [The shaded band is what the demonstrations covered. The learned controller makes a small mistake, drifts to the edge of that band, and then meets readings it was never trained on, so its next mistakes grow. A table of logged rows cannot show this, because the table never changes in response to a prediction.]) <fig:drift>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c782cd9c3ef77eb1.cetz.json")], caption: [The shaded band is what the demonstrations covered. The learned controller makes a small mistake, drifts to the edge of that band, and then meets readings it was never trained on, so its next mistakes grow. A table of logged rows cannot show this, because the table never changes in response to a prediction.]) <fig:drift>
 
 The rule tree is an offline #emph[perception-to-action prototype], not a validated robot controller. Its readability is what supports the closed-loop testing it would need next.
 

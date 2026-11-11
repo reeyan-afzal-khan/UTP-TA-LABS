@@ -53,7 +53,7 @@ Precision is especially sensitive to prevalence. A classifier can have similar s
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/classification_score_overlap.svg", width: 90%)], caption: [Predicted-score distributions for the two classes overlap. Moving the threshold changes which part of the overlap becomes false positive or false negative.]) <fig:classification-overlap>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/2a1b2e5ff995d5b0.svg")], caption: [The probability model and the decision rule are separate. Changing the threshold can change false-negative and false-positive rates without refitting the model.]) <fig:threshold-tradeoff>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/2a1b2e5ff995d5b0.cetz.json")], caption: [The probability model and the decision rule are separate. Changing the threshold can change false-negative and false-positive rates without refitting the model.]) <fig:threshold-tradeoff>
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/classification_threshold_metrics.svg", width: 90%)], caption: [Sensitivity, specificity, and precision move differently as the same fitted model is evaluated at different decision thresholds. The choice must be connected to real error costs.]) <fig:classification-threshold-metrics>
 

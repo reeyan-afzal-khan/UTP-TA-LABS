@@ -79,7 +79,7 @@ Connect similar observations with weighted edges, and let labels spread through 
 
 #callout("workedexample", title: [Worked example])[A chain of six nodes, with the left end labeled 1 and the right end labeled 0. The unlabeled nodes start at 0.5 and are updated left to right, using the newest values. After one sweep they read $0.75 \, med 0.5 \, med 0.5 \, med 0.25$. After two: $0.75 \, med 0.625 \, med 0.375 \, med 0.25$. They settle at $0.8 \, med 0.6 \, med 0.4 \, med 0.2$, a smooth slope between the two labels, because each value is the mean of its two neighbors.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/68365b5505d3b5b0.svg")], caption: [Graph-based label propagation. Similar observations are joined by edges, and the two known labels spread through their own connected groups to the unlabeled points.]) <fig:label-propagation>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/68365b5505d3b5b0.cetz.json")], caption: [Graph-based label propagation. Similar observations are joined by edges, and the two known labels spread through their own connected groups to the unlabeled points.]) <fig:label-propagation>
 
 This works well when similarity is meaningful and clusters line up with classes. It can fail when the graph connects unlike observations or when feature scaling is poor.
 
@@ -115,11 +115,11 @@ Common selection strategies include:
 
 #callout("workedexample", title: [Worked example])[A model gives these unlabeled rows a chance of class 1: $0.97 \, med 0.52 \, med 0.10 \, med 0.61 \, med 0.48 \, med 0.88$. With budget for two labels, uncertainty sampling asks about the 0.52 and the 0.48, which are nearest to a coin flip. A label on the 0.97 row would probably just confirm what the model already believes.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/1831a5400a7d6a4d.svg")], caption: [The active-learning loop. The model selects useful unlabeled cases, a human labels them, and the labeled set grows before the model is trained again.]) <fig:active-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/1831a5400a7d6a4d.cetz.json")], caption: [The active-learning loop. The model selects useful unlabeled cases, a human labels them, and the labeled set grows before the model is trained again.]) <fig:active-loop>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/c93c7b31f5b1a654.svg")], caption: [Uncertainty sampling, step by step: train on the labels you have, score every unlabeled example, select the most uncertain ones, ask a human to label them, and repeat until the labeling budget runs out.]) <fig:uncertainty-sampling>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/c93c7b31f5b1a654.cetz.json")], caption: [Uncertainty sampling, step by step: train on the labels you have, score every unlabeled example, select the most uncertain ones, ask a human to label them, and repeat until the labeling budget runs out.]) <fig:uncertainty-sampling>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/8bd5e52d8c8348c0.svg")], caption: [Lab~5's support-message simulation: validation accuracy on 2,000 messages against labels bought, from 154 labels (2 per intent), buying 100 per round. The two policies are level for two rounds; from then on uncertainty sampling leads.]) <fig:active-curve>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/8bd5e52d8c8348c0.cetz.json")], caption: [Lab~5's support-message simulation: validation accuracy on 2,000 messages against labels bought, from 154 labels (2 per intent), buying 100 per round. The two policies are level for two rounds; from then on uncertainty sampling leads.]) <fig:active-curve>
 
 On the official test messages the lead holds, 0.725 against 0.682 with 1,054 labels each. Seventy-seven intents with many near neighbors make many hard boundaries, which is when active learning earns its keep. A model that knows too little cannot tell which questions are informative, so start from a sample of every class before letting uncertainty choose.
 

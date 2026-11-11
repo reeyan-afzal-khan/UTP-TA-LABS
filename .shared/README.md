@@ -9,6 +9,9 @@ Reusable presentation belongs here; course content and course-specific figures s
     utp.typ              public import: layout, headings, callouts, labs and flows
     cover.typ            shared cover layout
     palette.typ          shared colour definitions
+    diagrams.typ         editable CeTZ flows and cover workflow
+    vector-diagrams.typ  CeTZ renderer for preserved geometry
+    code.typ             Codly code and terminal listings
   templates/
     course/              starter main.typ for a new course
   assets/
@@ -22,8 +25,10 @@ Reusable presentation belongs here; course content and course-specific figures s
 
 | Change | File or folder |
 | --- | --- |
-| Book layout, headings, lab banners, code excerpts or Fletcher flows | [typst/utp.typ](typst/utp.typ) |
+| Book layout, headings and lab banners | [typst/utp.typ](typst/utp.typ) |
 | Cover geometry, author block or cover diagram | [typst/cover.typ](typst/cover.typ) |
+| Code and terminal listings | [typst/code.typ](typst/code.typ) |
+| CeTZ flows and cover workflow | [typst/diagrams.typ](typst/diagrams.typ) |
 | Colours across every book | [typst/palette.typ](typst/palette.typ) |
 | A single course's cover title or summary | That course's `main.typ` |
 | Starter files for a new course | [templates/course/](templates/course/) |
@@ -34,6 +39,7 @@ Content files import `/.shared/typst/utp.typ`. Each course calls `cover(...)` di
 ## Guides
 
 - [Style and reusable components](docs/style-guide.md)
+- [Reference design and fidelity](docs/design-parity.md)
 - [Adding a course](docs/adding-a-course.md)
 - [Build and preview performance](docs/performance.md)
 - [Installation, preview and numbered scripts](../.typst-setup/README.md)

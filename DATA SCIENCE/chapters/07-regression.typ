@@ -25,7 +25,7 @@ In multiple regression, the geometry lives in higher-dimensional feature space, 
 #heading(level: 2)[Training error is not enough]
  A flexible model can fit patterns specific to the observed sample. To evaluate generalisation, split the data so some observations are not used to fit the model.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/414a3566bf7ad485.svg")], caption: [Model parameters are learned from the training set. The test set is touched only after the model and preprocessing choices are fixed.]) <fig:train-test-regression>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/414a3566bf7ad485.cetz.json")], caption: [Model parameters are learned from the training set. The test set is touched only after the model and preprocessing choices are fixed.]) <fig:train-test-regression>
 
 
 #heading(level: 2)[Coefficient interpretation is conditional]

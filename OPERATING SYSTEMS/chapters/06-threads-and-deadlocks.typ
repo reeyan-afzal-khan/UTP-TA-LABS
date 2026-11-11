@@ -19,7 +19,7 @@
 #heading(level: 2)[Mutexes]
  A #strong[mutex] protects a critical section so only one thread owns the lock at a time. The normal lifecycle is initialize, lock, access shared state, unlock, then destroy after all users are finished.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/27e67442bf1fa9a5.svg")], caption: [What the threads of one process share. Code, globals, and the heap exist once and are seen by every thread; each thread has its own stack and registers, which need no synchronization.]) <fig:thread-memory>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/27e67442bf1fa9a5.cetz.json")], caption: [What the threads of one process share. Code, globals, and the heap exist once and are seen by every thread; each thread has its own stack and registers, which need no synchronization.]) <fig:thread-memory>
 
 
 #heading(level: 2)[What deadlock means]
@@ -37,7 +37,7 @@ Four Coffman conditions must hold simultaneously for resource deadlock:
 
 Breaking any one condition prevents this class of deadlock.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/7e08644ea28e49f4.svg")], caption: [A circular wait. P1 holds R1 and requests R2, while P2 holds R2 and requests R1, so neither can proceed.]) <fig:circular-wait>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/7e08644ea28e49f4.cetz.json")], caption: [A circular wait. P1 holds R1 and requests R2, while P2 holds R2 and requests R1, so neither can proceed.]) <fig:circular-wait>
 
 
 #heading(level: 2)[Prevention, avoidance, and detection]
@@ -60,7 +60,7 @@ Breaking any one condition prevents this class of deadlock.
 
 #callout("workedexample", title: [Worked example])[Suppose Available is $\( 1 \, 1 \)$, P1 has Need $\( 1 \, 0 \)$ and Allocation $\( 1 \, 1 \)$, while P2 has Need $\( 2 \, 1 \)$ and Allocation $\( 1 \, 0 \)$. P1 can finish first because $\( 1 \, 0 \) lt.eq \( 1 \, 1 \)$. Work becomes $\( 2 \, 2 \)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/78e9420fdf7451b4.svg")], caption: [The Banker's safety check for the worked example. P1's need fits within Work, so it can finish and release its allocation; the larger Work then lets P2 finish, so P1, P2 is a safe sequence.]) <fig:bankers>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/78e9420fdf7451b4.cetz.json")], caption: [The Banker's safety check for the worked example. P1's need fits within Work, so it can finish and release its allocation; the larger Work then lets P2 finish, so P1, P2 is a safe sequence.]) <fig:bankers>
 
 #callout("pitfall", title: [Common mistake])[An #strong[unsafe state] is not identical to an already existing deadlock. Unsafe means the OS can no longer guarantee that every future maximum claim can be satisfied in some order. Deadlock is an actual circular waiting condition.]
 

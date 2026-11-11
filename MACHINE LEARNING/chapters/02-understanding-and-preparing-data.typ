@@ -35,7 +35,7 @@ Before any model, answer five questions about the table itself. None of them nee
 
 Some preparation is a fixed rule: a date format, a unit conversion, a typo in a label. It would be done the same way whatever the data said, so it can happen before the split. Other preparation learns something from the data: a median to fill gaps, a mean to scale by. Those steps look at numbers, and they may look only at training rows.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/34d95e99597b0511.svg")], caption: [A safe order of operations: define what the data mean, apply fixed rules, split honestly, and only then learn any preparation from the training rows.]) <fig:safe-order>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/34d95e99597b0511.cetz.json")], caption: [A safe order of operations: define what the data mean, apply fixed rules, split honestly, and only then learn any preparation from the training rows.]) <fig:safe-order>
 
 #figure(
   align(center)[#table(
@@ -153,7 +153,7 @@ Log each rule's reason, columns, affected row count and action: correction, miss
 
 #callout("analogy", title: [Analogy])[Think of how a student prepares for a final. Worked past papers are for learning. A mock exam tells you which study method works best, and you may sit it more than once, which is why it slowly stops being a fair test. The final is sat once, and its score is the one that counts. Those are the training, validation and test sets.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/185eaadb9d6f3f21.svg")], caption: [The three splits and their jobs: the training set learns parameters, the validation set chooses settings, and the test set gives the final check.]) <fig:three-splits>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/185eaadb9d6f3f21.cetz.json")], caption: [The three splits and their jobs: the training set learns parameters, the validation set chooses settings, and the test set gives the final check.]) <fig:three-splits>
 
 / Training set: #block[
 Used to fit model parameters and data-dependent preprocessing steps.
@@ -223,7 +223,7 @@ The safe rule is simple: fit every data-dependent choice on training data only, 
 
 The diagram contrasts fitting the preprocessing before and after the split. Only the training rows should decide what a fitted transformation does.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/1dc6e61fb40d0b90.svg")], caption: [Leakage through preprocessing. Fitting the preparation on all the data lets the test rows influence the scaler; splitting first and fitting on the training rows only keeps the test honest.]) <fig:prep-leakage>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/1dc6e61fb40d0b90.cetz.json")], caption: [Leakage through preprocessing. Fitting the preparation on all the data lets the test rows influence the scaler; splitting first and fitting on the training rows only keeps the test honest.]) <fig:prep-leakage>
 
 #callout("workedexample", title: [Worked example])[How much can leakage inflate a score? Build a table with no signal in it at all: 100 rows, 1,000 columns of random noise, and labels from coin flips. Honest accuracy has to be near 0.5. The listing below picks the 20 columns that look most related to the labels, then cross-validates. It runs the same experiment twice, and only the place where the columns are picked differs.
 
@@ -333,7 +333,7 @@ A $log \( 1 + x \)$ or power transform changes the shape of a distribution, whil
 #heading(level: 3)[Scaling changes the geometry, drawn]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/36a72217c5399dd5.svg")], caption: [Scaling changes the geometry. Before scaling, raw Euclidean distance is almost entirely the income column; after standardization both features contribute on comparable measuring sticks.]) <fig:scaling-geometry>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/36a72217c5399dd5.cetz.json")], caption: [Scaling changes the geometry. Before scaling, raw Euclidean distance is almost entirely the income column; after standardization both features contribute on comparable measuring sticks.]) <fig:scaling-geometry>
 
 #callout("keyidea", title: [Key idea])[Changing units can change neighbors, margins, and clusters without changing observations or labels.]
 
@@ -407,7 +407,7 @@ A #strong[pipeline] joins the preparation steps and the model into one object. W
 
 #source-code("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 92, last: 102, lang: "python")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/cf241a713984eb00.svg")], caption: [A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.]) <fig:prep-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/cf241a713984eb00.cetz.json")], caption: [A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.]) <fig:prep-pipeline>
 
 Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias and privacy limits.
 

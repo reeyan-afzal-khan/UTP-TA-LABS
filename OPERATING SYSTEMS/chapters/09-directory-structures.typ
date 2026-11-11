@@ -27,7 +27,7 @@ A directory is part of that namespace. In a Unix-like file system, directory ent
 
 Modern general-purpose systems use hierarchical trees with linking mechanisms.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/3c0f2ac884633337.svg")], caption: [A tree-structured directory: directories contain files and further directories below a single root.]) <fig:directory-tree>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/3c0f2ac884633337.cetz.json")], caption: [A tree-structured directory: directories contain files and further directories below a single root.]) <fig:directory-tree>
 
 
 #heading(level: 2)[Absolute and relative paths]

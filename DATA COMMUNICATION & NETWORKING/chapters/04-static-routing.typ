@@ -11,7 +11,7 @@
 #heading(level: 2)[The topology: three routers and three transit networks]
  Three routers form a triangle, and each has a loopback network. Routers learn directly connected networks automatically; remote networks require a route.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/4a1b64646d3bf31d.svg")], caption: [The triangle: every router has two ways to reach the third. The third octet of each transit network names its two routers, so `10.0.12.0` joins R1 and R2; a router's own address ends in its number, so R2 is `10.0.12.2` and `10.0.23.2`.]) <fig:static-triangle>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/4a1b64646d3bf31d.cetz.json")], caption: [The triangle: every router has two ways to reach the third. The third octet of each transit network names its two routers, so `10.0.12.0` joins R1 and R2; a router's own address ends in its number, so R2 is `10.0.12.2` and `10.0.23.2`.]) <fig:static-triangle>
 
 #figure(
   align(center)[#table(
@@ -45,7 +45,7 @@
 #heading(level: 3)[How the match is chosen]
  Several entries can match one destination. The router does not take the first, or the cheapest: it takes the one with the longest prefix, which means the most specific. Preference only breaks ties between routes of #emph[equal] prefix length.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/60d34c63eb143e8e.svg")], caption: [Forwarding `10.0.3.3`. Three entries match; the `/24` wins because it is the most specific. The default route is the fallback that matches everything and therefore always loses.]) <fig:lpm>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/60d34c63eb143e8e.cetz.json")], caption: [Forwarding `10.0.3.3`. Three entries match; the `/24` wins because it is the most specific. The default route is the fallback that matches everything and therefore always loses.]) <fig:lpm>
 
 
 #heading(level: 2)[Static-route syntax in this lab]
@@ -67,11 +67,11 @@ A static route says: #emph[send this destination network to this next hop].
 #heading(level: 2)[Backup static routes and route preference]
  The alternate path through R1 uses a higher, less-preferred value, so it remains a backup. #code-block("[R2] ip route-static 10.0.13.0 255.255.255.0 10.0.12.1 preference 80\n[R2] ip route-static 10.0.3.0 24 10.0.12.1 preference 80", lang: "text") The route through R3 (preference 60) wins over the backup through R1 (80) until the primary path fails.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/71316cae21f53f4b.svg")], caption: [Huawei default route preferences. Lower wins. The lab's backup route sits at 80 purely because it is above the static default of 60 --- any value above 60 would work.]) <fig:preference>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/71316cae21f53f4b.cetz.json")], caption: [Huawei default route preferences. Lower wins. The lab's backup route sits at 80 purely because it is above the static default of 60 --- any value above 60 would work.]) <fig:preference>
 
 #callout("keyidea", title: [Key idea])[Preference decides which #emph[protocol] to believe when two of them offer a route to the same prefix. It is compared only after longest-prefix match has already narrowed the field, which is why a `/24` static route still beats a `/8` OSPF route despite the worse preference.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b57bffbd2e08c69a.svg")], caption: [Only one route is installed at a time; the other waits. Lower preference wins: both routes stay configured, but the routing table shows only the better one. The backup is not a second path carrying traffic --- it is a replacement that appears when the first is withdrawn.]) <fig:static-backup>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b57bffbd2e08c69a.cetz.json")], caption: [Only one route is installed at a time; the other waits. Lower preference wins: both routes stay configured, but the routing table shows only the better one. The backup is not a second path carrying traffic --- it is a replacement that appears when the first is withdrawn.]) <fig:static-backup>
 
 #callout("pitfall", title: [Common mistake])[Failover is not instant. The router must first decide the next hop is unreachable, and only then install the backup. Expect to lose several pings during the switch --- that gap is the cost of detection, and it is why fast-converging protocols like OSPF (Chapter~#ref(label("ch:ospf"), supplement: none)) exist.]
 

@@ -62,7 +62,7 @@
 
 A synchronous serial link has no separate clock wire, so one end must generate the timing the other end samples against. That end is the DCE. The DTE takes whatever rate it is given, which is why `baudrate` is rejected or ignored on that side.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/3f2ae32ff793de6d.svg")], caption: [Clocking on a synchronous serial link. In eNSP the DCE is the end the cable was dragged #emph[from], and `display interface Serial1/0/0` names it explicitly.]) <fig:dte-dce>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/3f2ae32ff793de6d.cetz.json")], caption: [Clocking on a synchronous serial link. In eNSP the DCE is the end the cable was dragged #emph[from], and `display interface Serial1/0/0` names it explicitly.]) <fig:dte-dce>
 
 #code-block("[R1] interface Serial 1/0/0\n[R1-Serial1/0/0] baudrate 128000", lang: "text")
 
@@ -74,7 +74,7 @@ A synchronous serial link has no separate clock wire, so one end must generate t
 
 PPP brings a link up in stages, and each stage must finish before the next begins. The verification order used throughout this chapter is simply this diagram read left to right.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/51c7e6e757ed47ef.svg")], caption: [How a PPP link comes up. Authentication sits between link establishment and IP, which is why enabling PAP or CHAP can take down a link whose cabling and addressing never changed.]) <fig:ppp-phases>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/51c7e6e757ed47ef.cetz.json")], caption: [How a PPP link comes up. Authentication sits between link establishment and IP, which is why enabling PAP or CHAP can take down a link whose cabling and addressing never changed.]) <fig:ppp-phases>
 
 Change both ends of each serial link to PPP. #code-block("[R1] interface Serial 1/0/0\n[R1-Serial1/0/0] link-protocol ppp\n[R2] interface Serial 1/0/0\n[R2-Serial1/0/0] link-protocol ppp\n[R2] interface Serial 2/0/0\n[R2-Serial2/0/0] link-protocol ppp\n[R3] interface Serial 2/0/0\n[R3-Serial2/0/0] link-protocol ppp", lang: "text") An encapsulation mismatch leaves the line protocol down; configure both ends before testing.
 
@@ -94,7 +94,7 @@ Change both ends of each serial link to PPP. #code-block("[R1] interface Serial 
 
 The two schemes differ in a way the debug output makes visible. PAP sends the password across the link; CHAP never does, sending instead a hash of a challenge the authenticator chose. That is why the CHAP debug shows a Challenge/Response/Success triple rather than a single request.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b7f1278015097f26.svg")], caption: [PAP's two messages against CHAP's three. The password crosses the link in the left-hand exchange and never crosses it in the right-hand one.]) <fig:pap-chap>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b7f1278015097f26.cetz.json")], caption: [PAP's two messages against CHAP's three. The password crosses the link in the left-hand exchange and never crosses it in the right-hand one.]) <fig:pap-chap>
 
 #callout("keyidea", title: [Key idea])[The direction of the first message tells you which router is the authenticator. In PAP the peer speaks first; in CHAP the authenticator does. Reading that from a debug trace identifies immediately which end holds the wrong configuration.]
 

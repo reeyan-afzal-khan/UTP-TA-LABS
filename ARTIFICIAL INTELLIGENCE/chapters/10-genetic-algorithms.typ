@@ -23,7 +23,7 @@ Start with the puzzle from #ref(label("ch:localsearch"), supplement: [Chapter]).
 
 Two more steps make a child. In #strong[crossover] we cut both parents at a random column and join the pieces. In #strong[mutation], now and then, one queen in the child jumps to a random row, which can create a row neither parent had (#ref(label("fig:breeding"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/60aaebd845837474.svg")], caption: [A lucky pairing, chosen to show both operators. Each digit gives the row of one column's queen. Crossover cuts both parents after the same column and joins the left of one to the right of the other, and the child has only one attacking pair. Mutation then changes one digit to a row neither parent had in that column, and this board is solved.]) <fig:breeding>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/60aaebd845837474.cetz.json")], caption: [A lucky pairing, chosen to show both operators. Each digit gives the row of one column's queen. Crossover cuts both parents after the same column and joins the left of one to the right of the other, and the child has only one attacking pair. Mutation then changes one digit to a row neither parent had in that column, and this board is solved.]) <fig:breeding>
 
 Repeat this to fill a new generation and let the children replace the population. Good pieces from two parents can then meet in one child, in a single step that a hill climber could not take. Here is that loop in Python, as the demo runs it:
 
@@ -64,7 +64,7 @@ GAs still earn their keep elsewhere. NASA used an evolutionary algorithm, a cous
 
 #ref(label("fig:ga-loop"), supplement: [Figure]) combines selection pressure, recombination, mutation and preservation of the best candidates.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/13b8832decf49deb.svg")], caption: [Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.]) <fig:ga-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/13b8832decf49deb.cetz.json")], caption: [Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.]) <fig:ga-loop>
 
 The lab uses the same loop for a single number $x$ and for a five-gene vector. The single-number version, which minimises $\( x - 3 \)^2$, shows all the moving parts in a few lines:
 
@@ -108,7 +108,7 @@ Evaluating 100 five-gene chromosomes on 1,070 training rows produces a $100 time
 
 #strong[Tournament selection] samples $k$ chromosomes and keeps the fittest, like picking the winner of a small heat; Lab~8 uses $k = 3$. Unlike #strong[roulette-wheel] selection (#ref(label("fig:roulette"), supplement: [Figure])), which is the raffle from eight queens, it does not depend on the scale of the fitness values and needs no conversion when lower is better. The tournament size sets the selection pressure. With $k = 1$ there is no selection at all, and on Lab~8 the seed-to-seed spread jumps from $0.002$ to about 11.5.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/66f6691301f0158a.svg")], caption: [Arc widths are proportional to fitness: B is selected four times as often as D. Tournament selection favours fitter candidates without depending on fitness scale.]) <fig:roulette>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/66f6691301f0158a.cetz.json")], caption: [Arc widths are proportional to fitness: B is selected four times as often as D. Tournament selection favours fitter candidates without depending on fitness scale.]) <fig:roulette>
 
 
 #heading(level: 3)[Crossover and mutation]
@@ -116,7 +116,7 @@ Evaluating 100 five-gene chromosomes on 1,070 training rows produces a $100 time
 
 Cutting a list of real coefficients and joining the pieces would work poorly, because a good value of one gene is not tied to a position. #strong[Blend crossover] forms $alpha thin a + \( 1 - alpha \) thin b$ from two parents instead. With $alpha in \[ 0 \, 1 \]$, children lie between them. The regression GA uses $alpha in \[ - 0.1 \, 1.1 \]$, which allows a child to land just beyond a parent (#ref(label("fig:crossover"), supplement: [Figure])). #strong[Gaussian mutation] adds noise to a random 15 % of genes using per-gene step sizes. Without it the population can only contract: with the mutation rate set to zero, Lab~8's median test RMSE stays stuck at about 6,534 instead of reaching 5,829.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9dfe22e406161bbb.svg")], caption: [Left: blend crossover places children between parents or slightly beyond them. Right: Gaussian mutation perturbs a child by a random step.]) <fig:crossover>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9dfe22e406161bbb.cetz.json")], caption: [Left: blend crossover places children between parents or slightly beyond them. Right: Gaussian mutation perturbs a child by a random step.]) <fig:crossover>
 
 
 #heading(level: 3)[Elitism]

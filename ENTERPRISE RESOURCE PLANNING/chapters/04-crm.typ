@@ -17,7 +17,7 @@
 
 #strong[Customer Relationship Management (CRM)] is a set of processes and systems for managing interactions with prospects and customers across the whole relationship. A contact database answers "Who is this customer?" A CRM system must also answer what happens next, and who owns it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/b87c4889d894c060.svg")], caption: [The same customer record, two levels of ambition. Everything in the right-hand column is a question about action; a contact list cannot answer any of them.]) <fig:contact-vs-crm>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/b87c4889d894c060.cetz.json")], caption: [The same customer record, two levels of ambition. Everything in the right-hand column is a question about action; a contact list cannot answer any of them.]) <fig:contact-vs-crm>
 
 #callout("intuition", title: [Plain idea])[CRM gives the organisation a "single face to the customer." The customer should not receive three contradictory prices from Sales, Marketing, and an executive simply because those people do not share interaction history.]
 
@@ -46,7 +46,7 @@
 
 A common beginner mistake is to treat every prospect as a sales order. CRM exists partly because sales work begins long before a customer commits --- and because most prospects never do.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/81ce3144163cb464.svg")], caption: [Each stage is a smaller, better-qualified set. The illustrative counts show why a pipeline cannot be read as revenue: only the last two stages are commitments.]) <fig:sales-funnel>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/81ce3144163cb464.cetz.json")], caption: [Each stage is a smaller, better-qualified set. The illustrative counts show why a pipeline cannot be read as revenue: only the last two stages are commitments.]) <fig:sales-funnel>
 
 A #strong[lead] is a potential contact. An #strong[opportunity] is a deal being actively pursued. A #strong[quotation] is a commercial offer. A #strong[sales order] is a confirmed commitment. After the sale, service and marketing continue the relationship.
 
@@ -56,7 +56,7 @@ A #strong[lead] is a potential contact. An #strong[opportunity] is a deal being 
 
 CRM holds customer-facing information; ERP holds operational and financial information. Connected, the salesperson never has to guess whether a customer was delivered, invoiced, or paid.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/368bcb8dc0ddcefe.svg")], caption: [What a salesperson can see when CRM and ERP share master data. The left column is relationship history; the right column is operational truth that would otherwise require a phone call to another department.]) <fig:customer-360>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/368bcb8dc0ddcefe.cetz.json")], caption: [What a salesperson can see when CRM and ERP share master data. The left column is relationship history; the right column is operational truth that would otherwise require a phone call to another department.]) <fig:customer-360>
 
 This supports better decisions: which customers to prioritise, which products to cross-sell, which accounts need service attention, and whether a discount is commercially sensible.
 
@@ -90,7 +90,7 @@ CRM is only useful if staff record interactions consistently. The common failure
 
 The consequence is a pipeline that looks convincing and forecasts badly.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/cf56198f166bc661.svg")], caption: [One pipeline, two readings. The disciplined forecast weights each stage by a realistic win probability and lands close to actual; reading the raw value as if every open deal will close over-forecasts by more than double.]) <fig:pipeline-quality>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/cf56198f166bc661.cetz.json")], caption: [One pipeline, two readings. The disciplined forecast weights each stage by a realistic win probability and lands close to actual; reading the raw value as if every open deal will close over-forecasts by more than double.]) <fig:pipeline-quality>
 
 A good CRM process therefore defines what counts as a lead and an opportunity, when a stage should change, who owns the record, which fields are mandatory, how duplicates are prevented, what "won" and "lost" mean, and how lost reasons are recorded.
 
@@ -100,7 +100,7 @@ A good CRM process therefore defines what counts as a lead and an opportunity, w
 #heading(level: 2)[CRM in the West End Bicycles Odoo flow]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/def72ae583e14cfc.svg")], caption: [The opportunity from the supplied guide moving across the pipeline, and the point at which it becomes an operational document. Expected revenue exists from the first stage; committed revenue does not exist until the Sales Order is confirmed.]) <fig:odoo-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/def72ae583e14cfc.cetz.json")], caption: [The opportunity from the supplied guide moving across the pipeline, and the point at which it becomes an operational document. Expected revenue exists from the first stage; committed revenue does not exist until the Sales Order is confirmed.]) <fig:odoo-pipeline>
 
 #callout("applicationbox", title: [Application walkthrough])[The supplied guide creates an opportunity called #strong[Road Bike Order --- Seri Iskandar Cycling Club] with expected revenue of RM 5,000, assigns the Sales Manager, moves it through the pipeline, and then creates the quotation for 5 Road Bikes. Three CRM principles are on display: the deal is owned by a named person, expected revenue exists before the sale is confirmed, and the opportunity creates the quotation so relationship history survives the hand-off.]
 

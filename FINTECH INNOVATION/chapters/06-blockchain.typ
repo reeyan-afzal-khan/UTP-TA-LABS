@@ -27,7 +27,7 @@ The lecture emphasizes three properties:
 
 + the current state is determined through a #strong[consensus process] rather than by one authoritative copy.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/ca56b6c6cdff52d5.svg")], caption: [From a central ledger to a distributed ledger. One organization's authoritative copy is replaced by many copies held by peers, with consensus rules deciding which records belong in the accepted state.]) <fig:central-vs-distributed>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/ca56b6c6cdff52d5.cetz.json")], caption: [From a central ledger to a distributed ledger. One organization's authoritative copy is replaced by many copies held by peers, with consensus rules deciding which records belong in the accepted state.]) <fig:central-vs-distributed>
 
 The advantage is that anyone with appropriate access can obtain a copy and there is no single authoritative copy whose compromise automatically defines the ledger. The disadvantage is that integrity is harder: the network must coordinate agreement across peers.
 
@@ -206,7 +206,7 @@ The lecture describes a blockchain as ordered units called #strong[blocks]. Each
 
 A #strong[Merkle tree] combines hashes of individual transactions into higher-level hashes until one top value remains: the #strong[Merkle root]. The root acts as a compact commitment to the set of transactions in that block.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/8f59a80fa479eb61.svg")], caption: [A Merkle tree. Transaction hashes are combined pairwise until one value remains, the Merkle root, which commits to every transaction in the block.]) <fig:merkle-tree>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/8f59a80fa479eb61.cetz.json")], caption: [A Merkle tree. Transaction hashes are combined pairwise until one value remains, the Merkle root, which commits to every transaction in the block.]) <fig:merkle-tree>
 
 If any transaction changes, its leaf hash changes, which changes higher-level hashes and ultimately the Merkle root.
 
@@ -248,7 +248,7 @@ Not every distributed ledger uses proof-of-work or the same header structure. Th
 
 Each block header contains the hash of the previous block header. This creates a sequence of dependencies.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/8b5861a7af039457.svg")], caption: [How blocks form a chain. Each block header holds the hash of the previous header, so changing an old block breaks every link after it.]) <fig:block-chain>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/8b5861a7af039457.cetz.json")], caption: [How blocks form a chain. Each block header holds the hash of the previous header, so changing an old block breaks every link after it.]) <fig:block-chain>
 
 Changing old block data changes its hash. The next block still contains the old hash reference, creating an inconsistency. A successful historical rewrite would therefore need to update the affected block and all dependent blocks after it, while also satisfying the network's consensus rules.
 

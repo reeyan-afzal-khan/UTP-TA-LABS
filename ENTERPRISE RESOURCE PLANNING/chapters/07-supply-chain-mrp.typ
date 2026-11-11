@@ -17,7 +17,7 @@
 
 #strong[Supply Chain Management (SCM)] coordinates the organisations and activities that move materials, information, and products from suppliers through production and distribution to the customer. Three different things flow along the same chain, and they do not all flow the same way.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/3263be0ecbeea17e.svg")], caption: [Materials move downstream, money moves upstream, and information must move both ways. A chain that passes only goods and invoices --- with no demand signal --- forces every party to guess and hold its own buffer.]) <fig:three-flows>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/3263be0ecbeea17e.cetz.json")], caption: [Materials move downstream, money moves upstream, and information must move both ways. A chain that passes only goods and invoices --- with no demand signal --- forces every party to guess and hold its own buffer.]) <fig:three-flows>
 
 A traditional view treats each company as an isolated optimiser: the buyer pressures the supplier, the supplier withholds information, and everyone carries inventory to protect itself. An integrated view recognises that poor coordination creates cost for all parties.
 
@@ -37,7 +37,7 @@ That is a #strong[gross requirement] --- the amount needed before considering wh
 
 #strong[Material Requirements Planning (MRP)] determines the quantity #emph[and] timing of supply. It takes the gross requirement and reduces it by what already exists or is already coming, then adjusts what remains to a purchasable quantity.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/08a4c90ba87c691e.svg")], caption: [The three adjustments between what production needs and what Purchasing actually orders. Skipping any of them produces either a stockout or excess stock, and the order quantity usually matches the net requirement only by coincidence.]) <fig:gross-to-net>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/08a4c90ba87c691e.cetz.json")], caption: [The three adjustments between what production needs and what Purchasing actually orders. Skipping any of them produces either a stockout or excess stock, and the order quantity usually matches the net requirement only by coincidence.]) <fig:gross-to-net>
 
 $ upright("Net Requirement") = max #scale(x: 120%, y: 120%)[\(] 0 \, #h(0em) upright("Gross") + upright("Desired Ending Stock") - upright("Available Supply") #scale(x: 120%, y: 120%)[\)] . $
 
@@ -47,7 +47,7 @@ $ upright("Net Requirement") = max #scale(x: 120%, y: 120%)[\(] 0 \, #h(0em) upr
 
 Availability in one week cannot satisfy a requirement in an earlier week. MRP is therefore a grid: rows for each quantity, columns for each period.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/6d0c892d5b11c2dc.svg")], caption: [The standard MRP record for Rubber Tires: 12 on hand, a scheduled receipt of 10 in Week 2, requirements of 20 in Weeks 3 and 5, a two-week purchasing lead time, and boxes of 10. Note the two diagonals --- the net requirement of 18 is rounded up to a receipt of 20, and that receipt must be released two weeks earlier.]) <fig:mrp-record>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/6d0c892d5b11c2dc.cetz.json")], caption: [The standard MRP record for Rubber Tires: 12 on hand, a scheduled receipt of 10 in Week 2, requirements of 20 in Weeks 3 and 5, a two-week purchasing lead time, and boxes of 10. Note the two diagonals --- the net requirement of 18 is rounded up to a receipt of 20, and that receipt must be released two weeks earlier.]) <fig:mrp-record>
 
 #strong[Lead time] is the elapsed time between initiating supply and having the material usable. If a component is needed in Week 5 with a two-week lead time, the order must be released in Week 3. MRP therefore answers both #emph[how much] and #emph[when].
 
@@ -65,7 +65,7 @@ Suppliers sell in fixed packs, pallets, minimum quantities, or economic batches.
 
 A purchase order records a commitment to buy. A receipt records what physically arrived. They can differ in date and in quantity, and only one of them creates usable stock.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/084350be53e66d98.svg")], caption: [The two events and what each proves. The gap between them is where supplier performance is measured --- and where a planner who treats an open order as available inventory releases production that cannot start.]) <fig:po-vs-receipt>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/084350be53e66d98.cetz.json")], caption: [The two events and what each proves. The gap between them is where supplier performance is measured --- and where a planner who treats an open order as available inventory releases production that cannot start.]) <fig:po-vs-receipt>
 
 
 #heading(level: 2)[Supplier integration]
@@ -94,7 +94,7 @@ Sharing realistic forecasts and status data helps suppliers prepare capacity and
 
 The cash-to-cash cycle is the one worth drawing, because it is the metric that connects supply-chain decisions to the finance chapter.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/54752d3b1a3c4a0d.svg")], caption: [Cash leaves when the supplier is paid and returns when the customer pays. The gap is financed by the company. Shortening inventory days or collection days shrinks it; paying suppliers later shrinks it too, but at the cost of the supplier relationship.]) <fig:cash-to-cash>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/54752d3b1a3c4a0d.cetz.json")], caption: [Cash leaves when the supplier is paid and returns when the customer pays. The gap is financed by the company. Shortening inventory days or collection days shrinks it; paying suppliers later shrinks it too, but at the cost of the supplier relationship.]) <fig:cash-to-cash>
 
 Metrics must be read together. A supplier can post high on-time performance and a poor fill rate by delivering punctually but short every time.
 
@@ -117,7 +117,7 @@ Metrics must be read together. A supplier can post high on-time performance and 
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/b78b74f560c0716f.svg")], caption: [The two halves of the enterprise face opposite directions and touch at exactly two points: the demand signal going upstream, and the availability answer coming back. Those two arrows are what integration buys.]) <fig:crm-vs-scm>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/b78b74f560c0716f.cetz.json")], caption: [The two halves of the enterprise face opposite directions and touch at exactly two points: the demand signal going upstream, and the availability answer coming back. Those two arrows are what integration buys.]) <fig:crm-vs-scm>
 
 
 #heading(level: 2)[SCM in Odoo 19 Community]

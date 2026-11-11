@@ -11,7 +11,7 @@
 #heading(level: 2)[One split is one random experiment]
  A single train/test split can produce an optimistic or pessimistic estimate depending on which rows happen to land in the test set. #strong[Cross-validation] repeats the evaluation across several held-out folds.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/ea3b58c02684491a.svg")], caption: [Each fold acts as validation once while the remaining folds train the model. The final performance summary combines the held-out results.]) <fig:five-fold>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/ea3b58c02684491a.cetz.json")], caption: [Each fold acts as validation once while the remaining folds train the model. The final performance summary combines the held-out results.]) <fig:five-fold>
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/validation_fold_variation.svg", width: 90%)], caption: [Each bar is held-out accuracy from a different fold of the same five-fold procedure. The variation is part of the uncertainty in generalisation performance.]) <fig:validation-fold-variation>
 
@@ -35,7 +35,7 @@ Correct order:
 
 + Fit the model on processed training data and evaluate on processed held-out data.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/d1ec1d0f24d72422.svg")], caption: [Any step that estimates information from data must be fitted inside the training portion of each fold. The validation rows receive parameters learned elsewhere; they do not help create them.]) <fig:validation-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/d1ec1d0f24d72422.cetz.json")], caption: [Any step that estimates information from data must be fitted inside the training portion of each fold. The validation rows receive parameters learned elsewhere; they do not help create them.]) <fig:validation-pipeline>
 
 #callout("pitfall", title: [Analytical pitfall])[Scaling the full dataset before cross-validation lets each validation fold influence its own preprocessing. The leakage may be small in some datasets, but the evaluation principle is still broken.]
 

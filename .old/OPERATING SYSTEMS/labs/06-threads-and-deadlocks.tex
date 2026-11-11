@@ -1,0 +1,73 @@
+\labsection{6}{Threads, mutexes, and resource safety}{sec:lab06}
+\begin{labproject}{See a race condition, protect it, then trace a safe-state test}
+
+\textbf{Coverage.} Chapter~\ref{ch:deadlock}: threads, critical sections, mutexes, safe resource states.\\
+\textbf{Goal.} Run the same increment loop with and without a lock, then inspect a Banker trace.\\
+\textbf{Explain.} Explain why a race is timing-dependent and why ``unsafe'' is not identical to ``deadlocked now''.
+
+\section*{Source code}
+\labsourcecard{\texttt{threads\_demo.c}}{Two threads increment one shared counter.}{The read-increment-write sequence is protected only when the mutex is enabled.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab06/threads_demo.c}
+
+\labsourcecard{\texttt{banker.c}}{Compute \texttt{Need = Maximum - Allocation} and search for a safe sequence.}{A process may finish only when every resource in its Need vector is no larger than current Work.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab06/banker.c}
+
+\section*{Task 1 --- Repeat the race, do not trust one run}
+\begin{lstlisting}[style=utpbash]
+cd all_experiments/Lab06
+gcc -Wall -Wextra -std=c11 -pthread threads_demo.c -o threads_demo
+for i in 1 2 3 4 5; do ./threads_demo --no-lock; done
+\end{lstlisting}
+Record all five Actual values. A race condition means the result is not protected by a correctness guarantee; it does \emph{not} mean every run must fail differently.
+
+\section*{Task 2 --- Enable the mutex}
+\begin{lstlisting}[style=utpbash]
+for i in 1 2 3; do ./threads_demo; done
+\end{lstlisting}
+The locked runs should reach the Expected count. On paper, mark the critical section: read counter $\rightarrow$ increment $\rightarrow$ write counter.
+
+\section*{Task 3 --- Safe and unsafe resource states}
+\begin{lstlisting}[style=utpbash]
+gcc -Wall -Wextra -std=c11 banker.c -o banker
+./banker
+./banker --unsafe
+\end{lstlisting}
+For the safe run, copy the sequence and verify the first selected process by comparing its Need with the initial Work vector. For the unsafe run, identify the first point at which no unfinished process can satisfy \texttt{Need <= Work}.
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.38\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Observation} & \utpth{Interpretation} \\
+\midrule
+Unlocked counter loses updates & timing allowed two threads to overlap a non-atomic update \\
+Locked counter reaches expected value & one thread at a time enters the protected update \\
+Banker finds full sequence & there exists an order in which all declared needs can complete \\
+Banker cannot find full sequence & the state is unsafe for the declared maximum claims \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item What memory do threads in one process share?
+  \item What does a mutex guarantee when used correctly around a critical section?
+  \item What is the difference between a deadlocked state and an unsafe state?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item Five unlocked runs are recorded, not one.
+  \item All three locked runs reach the Expected count.
+  \item The critical section is marked as read, increment, write.
+  \item The Banker's check identifies one safe and one unsafe state, and an unsafe state is distinguished from an actual deadlock.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the five unlocked values, three locked values, one marked critical-section sketch, and safe/unsafe Banker evidence. Include a short distinction between \textbf{unsafe state} and \textbf{actual deadlock}.
+\end{labdeliverable}
+\end{labproject}

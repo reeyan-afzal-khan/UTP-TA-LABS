@@ -1,0 +1,5 @@
+Operating systems manage resources and provide useful abstractions.
+A process can request kernel services through system calls.
+Files are byte streams with names and metadata.
+The kernel protects memory, devices, and process boundaries.
+Good command-line tools report failures using messages and exit status.

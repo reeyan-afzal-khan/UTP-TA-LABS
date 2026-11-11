@@ -1,0 +1,33 @@
+\labsection{10}{Discover structure with clustering and PCA}{sec:lab10}
+
+\begin{labproject}{Unsupervised learning: discover structure without inventing meaning}
+\textbf{Coverage.} Chapter~\ref{ch:unsupervised}.\\
+\textbf{Goal.} You should be able to standardise features for distance-based methods, assess cluster stability and choice of $k$, profile clusters in original units, fit PCA without label leakage, and interpret explained variance and loadings.\\
+\textbf{Datasets.} \texttt{mall\_customers\_dataset.csv} and \texttt{wine\_recognition\_dataset.csv}.\\
+\textbf{Scenario.} You have two unsupervised tasks: identify potentially useful customer groupings and compress correlated chemical measurements. In both cases, the algorithm returns mathematical structure; interpretation must be earned through diagnostics and domain context.
+
+\textbf{Part A---k-means clustering.}
+\begin{enumerate}
+  \item Select age, annual income, and spending score; exclude identifiers. Standardise the features and explain why scale matters for Euclidean distance.
+  \item Fit k-means for several candidate values of $k$ using multiple random starts. Record total within-cluster sum of squares and inspect whether an elbow is visible.
+  \item Choose one $k$ as a working solution and rerun it with a large \texttt{nstart}. Report cluster sizes and centroids in the \emph{original units}.
+  \item Plot income against spending score by cluster and explain what information is omitted because age is the third clustering dimension.
+  \item Test stability by repeating the fit with different random seeds. Distinguish stable broad structure from assignments that change easily.
+\end{enumerate}
+
+\textbf{Part B---principal component analysis.}
+\begin{enumerate}
+  \item Exclude \texttt{sample\_id} and \texttt{cultivar} before PCA. Standardise all 13 chemical measurements.
+  \item Report explained variance for the leading components and determine how many components are needed to capture a substantial proportion of total variance.
+  \item Inspect the largest absolute loadings on PC1 and PC2 and describe which original chemical measurements drive those directions.
+  \item Plot PC1 against PC2 without using cultivar labels during fitting. Introduce cultivar only afterward to assess whether known classes align with the unsupervised representation.
+\end{enumerate}
+
+\tcbbreak
+\lstinputlisting[style=utpr]{all_experiments/lab10_unsupervised.R}
+\begin{verification}
+\textbf{Required evidence.} Submit one cluster-selection diagnostic, one cluster profile, one PCA explained-variance summary, and one score plot. For each task, write a two-sentence interpretation that separates the algorithmic result from the substantive meaning you are assigning to it.
+
+\textbf{Professional standard.} Do not name clusters as customer ``types'' unless the labels are supported by stable feature profiles and a real decision context. Do not describe a principal component as a latent concept unless its loading pattern and domain meaning justify that interpretation.
+\end{verification}
+\end{labproject}

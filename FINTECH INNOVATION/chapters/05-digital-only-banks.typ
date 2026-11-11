@@ -75,7 +75,7 @@ The lecture lists Revolut, Monzo, Starling, Tandem, N26/Number26, Nubank, and An
 
 The Week 5 deck identifies three general strengths: modern platforms and apps, scalable models, and strong online communities. These are best understood as a chain.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/2ed73be21548cf27.svg")], caption: [The structural strengths of digital-only banks as a chain. Modern modular technology lowers servicing cost and speeds product iteration, which together build scale and customer engagement.]) <fig:neobank-strengths>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/2ed73be21548cf27.cetz.json")], caption: [The structural strengths of digital-only banks as a chain. Modern modular technology lowers servicing cost and speeds product iteration, which together build scale and customer engagement.]) <fig:neobank-strengths>
 
 Modern infrastructure matters because a bank is not a single application. It is a collection of onboarding, payment, savings, lending, risk, data, compliance, reporting, and support capabilities. Modular architecture makes it easier to change one component or connect a partner without rebuilding everything else.
 
@@ -151,7 +151,7 @@ Week 5 explicitly warns against confusing a polished interface with a complete c
 
 These operational questions often matter more than visual design when something goes wrong.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/edc70fc3f0b841ba.svg")], caption: [Customer experience is more than the interface. It also covers how quickly money moves, how stable the service is, the friction of risk and compliance controls, access to live support, and the security of data and money.]) <fig:cx-beyond-ux>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/edc70fc3f0b841ba.cetz.json")], caption: [Customer experience is more than the interface. It also covers how quickly money moves, how stable the service is, the friction of risk and compliance controls, access to live support, and the security of data and money.]) <fig:cx-beyond-ux>
 
 
 #heading(level: 2)[Digital-only banking and financial inclusion]
@@ -290,7 +290,7 @@ Why?
 
 The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate the industry's shift from "growth at all costs" toward profitability.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/91d53299cea666d9.svg")], caption: [Unit economics. When the cost to serve one active customer exceeds the revenue that customer brings, a million customers have the same shape of loss; only lowering the cost to serve or raising revenue per customer changes it.]) <fig:unit-economics>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/91d53299cea666d9.cetz.json")], caption: [Unit economics. When the cost to serve one active customer exceeds the revenue that customer brings, a million customers have the same shape of loss; only lowering the cost to serve or raising revenue per customer changes it.]) <fig:unit-economics>
 
 
 #heading(level: 3)[Paths toward better economics]
@@ -424,7 +424,7 @@ The lecture argues that the clean-slate approach gives the parent institution a 
 
 The incumbent provides licenses, core systems, KYC, trust, or distribution while a technology partner supplies digital product capabilities. The VPBank/Timo example is used to illustrate this collaborative model.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/85fc18ca134e5267.svg")], caption: [Three ways an incumbent can respond to digital-only banks: acquire or invest to buy capabilities, build a parallel brand to learn, or partner to combine strengths.]) <fig:incumbent-strategies>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/85fc18ca134e5267.cetz.json")], caption: [Three ways an incumbent can respond to digital-only banks: acquire or invest to buy capabilities, build a parallel brand to learn, or partner to combine strengths.]) <fig:incumbent-strategies>
 
 
 #heading(level: 2)[Regulation and suitability of digital banks]

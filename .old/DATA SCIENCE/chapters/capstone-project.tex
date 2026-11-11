@@ -1,0 +1,123 @@
+\chapter{Capstone: An End-to-End Data-Science Analysis}
+\label{ch:capstone}
+\chapterguide
+  {You should have completed the ten labs and be able to audit, explore, model, validate, and communicate tabular data.}
+  {produce a compact, reproducible analysis in which every technical choice is connected to a question and every conclusion is connected to evidence.}
+
+\section{The capstone is a workflow, not a bigger coding exercise}
+Choose one bundled dataset or an instructor-approved external dataset. The goal is to demonstrate analytical judgment across the full lifecycle.
+
+\begin{utpfig}[Capstone evidence chain]{A professional analysis keeps a visible line from the original question to the final limitations.}{fig:capstone-chain}
+\begin{tikzpicture}[x=\linewidth,y=1cm,
+  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.6pt,text width=0.155\linewidth,minimum height=1.55cm,
+    inner xsep=1.8mm,inner ysep=2mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  flow/.style={-{Stealth[length=2mm,width=1.5mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[stage] (q) at (0,0) {\textbf{Question}\\[4pt]
+  Define the goal\\and population};
+\node[stage] (d) at (0.205,0) {\textbf{Data audit}\\[4pt]
+  Check quality\\and provenance};
+\node[stage] (e) at (0.410,0) {\textbf{EDA}\\[4pt]
+  Explore patterns\\and relationships};
+\node[stage] (m) at (0.615,0) {\textbf{Method}\\[4pt]
+  Model or infer\\with justification};
+\node[stage,draw=UTPTeal!80,fill=UTPPaleTeal] (v) at (0.820,0)
+  {\textbf{Validation}\\[4pt]
+   Assess evidence\\and state limits};
+\draw[flow] (q.east) -- (d.west);
+\draw[flow] (d.east) -- (e.west);
+\draw[flow] (e.east) -- (m.west);
+\draw[flow] (m.east) -- (v.west);
+\end{tikzpicture}
+\end{utpfig}
+
+
+\section{Build the report around an evidence chain}
+A capstone becomes easier to follow when every section answers one question. The introduction defines the target population and analytical goal. The data section establishes whether the observations are fit for purpose. EDA develops evidence and candidate explanations. The method section describes how uncertainty or generalisation is quantified. The conclusion states only what the design and validation support.
+
+\begin{utpfig}[Recommended capstone report architecture]{The figure or table in each stage should answer a specific analytical question rather than exist merely to demonstrate a technique.}{fig:capstone-report-architecture}
+\begin{tikzpicture}[node distance=0.24cm,
+  stage/.style={draw=UTPBlue!70,fill=UTPPaleBlue,rounded corners=1.5mm,
+    line width=0.6pt,text width=0.68\linewidth,minimum height=0.90cm,
+    inner xsep=3mm,inner ysep=1.5mm,align=center,
+    font=\scriptsize\color{UTPNavy}},
+  endpoint/.style={stage,draw=UTPTeal!80,fill=UTPPaleTeal},
+  flow/.style={-{Stealth[length=1.6mm,width=1.3mm]},
+    line width=0.8pt,draw=UTPTeal}]
+\node[endpoint] (q) {\textbf{1. Question and scope}\\[2pt]
+  Target population and unit of observation};
+\node[stage,below=of q] (audit) {\textbf{2. Data audit}\\[2pt]
+  Data dictionary, quality checks, and exclusions};
+\node[stage,below=of audit] (eda) {\textbf{3. Exploratory analysis}\\[2pt]
+  3--5 purposeful figures with evidence sentences};
+\node[stage,below=of eda] (method) {\textbf{4. Method and justification}\\[2pt]
+  Inference, prediction, or structure discovery};
+\node[stage,below=of method] (val) {\textbf{5. Validation}\\[2pt]
+  Error analysis and sensitivity checks};
+\node[endpoint,below=of val] (claim) {\textbf{6. Finding and implications}\\[2pt]
+  Practical meaning, limitations, and next evidence};
+\draw[flow] (q.south) -- (audit.north);
+\draw[flow] (audit.south) -- (eda.north);
+\draw[flow] (eda.south) -- (method.north);
+\draw[flow] (method.south) -- (val.north);
+\draw[flow] (val.south) -- (claim.north);
+\end{tikzpicture}
+\end{utpfig}
+
+\section{Required components}
+\begin{utpsteps}
+  \item \textbf{Problem framing.} State the analytical question, target population, unit of observation, and why the answer would matter.
+  \item \textbf{Data understanding.} Provide a data dictionary for variables used, source/provenance, shape, missingness, and quality constraints.
+  \item \textbf{Preparation.} Show filters, cleaning rules, transformations, and feature engineering with counts of affected records.
+  \item \textbf{EDA.} Include at least three purposeful visualisations and concise evidence sentences.
+  \item \textbf{Method.} Use an appropriate inferential, supervised, or unsupervised method and justify why it matches the question.
+  \item \textbf{Validation.} Use held-out data, cross-validation, uncertainty intervals, or stability checks appropriate to the method.
+  \item \textbf{Communication.} State the main result, practical meaning, limitations, and a next step without overclaiming causality.
+\end{utpsteps}
+
+
+\section{Minimum visual standard}
+Use at least three analytical figures, not including decorative diagrams. A strong submission normally includes one distribution or group-comparison view, one relationship or multivariate view, and one method-specific diagnostic such as a residual plot, confusion matrix, validation-fold chart, cluster view, or PCA projection.
+
+Every figure should have a title or caption that answers: \emph{what should the reader notice, and why does it matter for the question?} Figures with no analytical interpretation do not strengthen the report.
+
+
+\section{Suggested capstone directions}
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{3.2cm}YD{5.0cm}@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Dataset} & \utpth{Possible question} & \utpth{Suitable methods} \\
+\midrule
+Iris & Which measurements separate species and how does unsupervised structure compare? & EDA, PCA, k-means, classification extension \\
+Wine recognition & Which chemical measurements are most associated with cultivar or alcohol? & EDA, inference, regression, multiclass extension \\
+Breast cancer diagnostic & How do selected measurements separate diagnostic labels? & EDA, logistic classification, cross-validation \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{pitfall}
+Do not choose a model first and then invent a question that fits it. The capstone is assessed on coherence of the evidence chain, not algorithm complexity.
+\end{pitfall}
+
+
+\section{Recommended checks before submission}
+\begin{utpsteps}
+  \item Restart R and run the analysis script from top to bottom using relative paths.
+  \item Confirm that raw data files are not modified by the script.
+  \item Compare row counts before and after every major filter or join.
+  \item Verify that test or validation data do not influence learned preprocessing.
+  \item Check that every reported number and figure can be reproduced from code.
+  \item Read every claim and ask whether it is descriptive, predictive, or causal; revise wording that exceeds the design.
+  \item State at least two limitations that could materially change the conclusion.
+\end{utpsteps}
+
+
+\section{Submission structure}
+Submit one analysis script, one concise report, and any generated figures or derived data required to reproduce the result. The script should run from a clean session with local relative paths. The report should be readable without executing code.
+
+\begin{keyidea}
+A strong capstone makes uncertainty and limitations easy to find. Professional data science is credible because it exposes what could be wrong as clearly as what appears to be true.
+\end{keyidea}

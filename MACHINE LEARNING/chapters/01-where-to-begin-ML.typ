@@ -78,7 +78,7 @@ Machine learning builds systems that learn useful patterns from examples instead
 
 Here is the idea this whole book rests on. Choosing a method means filling in three blanks.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/0c45b58dfb04caff.svg")], caption: [The recipe. A model makes a guess, a loss scores how wrong the guess is, and an optimizer improves the numbers inside the model. When you meet a new method name, ask which of the three steps it changes.]) <fig:recipe>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/0c45b58dfb04caff.cetz.json")], caption: [The recipe. A model makes a guess, a loss scores how wrong the guess is, and an optimizer improves the numbers inside the model. When you meet a new method name, ask which of the three steps it changes.]) <fig:recipe>
 
 #callout("workedexample", title: [Worked example])[Take the first six students and the guess $upright("mark") = 2 times upright("hours") + 47$.
 
@@ -110,7 +110,7 @@ Parameter & Learned from training data & A regression coefficient or a tree spli
 
 Before picking a method, ask one question about your data. Look back at the study log. If you want to predict the mark, the answers are sitting in a column: every past student shows what happened, so a model can learn from them. If you want to know what kinds of student there are, no column holds the answer, and nobody can mark a guess right or wrong. That single difference splits the map of machine learning in two (#ref(label("fig:ml-map"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/33a5bfead437ec0f.svg")], caption: [The map. One question splits the field, and a second question names the job. Every method in Stages 3 and 4 of this book lives in one of these four corners.]) <fig:ml-map>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/33a5bfead437ec0f.cetz.json")], caption: [The map. One question splits the field, and a second question names the job. Every method in Stages 3 and 4 of this book lives in one of these four corners.]) <fig:ml-map>
 
 Two settings sit beside this map, because their feedback is different. In #strong[semi-supervised learning] only a few rows have answers, so unlabeled rows must help (#ref(label("ch:semi-supervised"), supplement: [Chapter])). In #strong[reinforcement learning] no answers exist at all, only a score that arrives after the learner acts (#ref(label("ch:rl"), supplement: [Chapter])). Neural networks (#ref(label("ch:deep"), supplement: [Chapter])) do not get their own corner: they are a richer kind of model that can be used in any of them.
 
@@ -128,7 +128,7 @@ Two settings sit beside this map, because their feedback is different. In #stron
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/4c05dd224a043b3c.svg")], caption: [The field map: four learning settings, told apart by the feedback available. Supervised learning has an answer for every example, semi-supervised for some, unsupervised for none, and reinforcement learning receives a score after it acts.]) <fig:field-map>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4c05dd224a043b3c.cetz.json")], caption: [The field map: four learning settings, told apart by the feedback available. Supervised learning has an answer for every example, semi-supervised for some, unsupervised for none, and reinforcement learning receives a score after it acts.]) <fig:field-map>
 
 #callout("intuition", title: [Plain idea])[#strong[Self-supervised learning] creates targets from the data itself, such as hidden words or image regions, to learn representations. #strong[Active learning] chooses which examples to send to a person for labeling. Both change where the feedback comes from, which is why this map is drawn around feedback and not around algorithms.]
 
@@ -138,7 +138,7 @@ Two settings sit beside this map, because their feedback is different. In #stron
 
 The recipe describes how one model learns. A real project wraps it in a longer routine, because a model is only as good as the question and the data around it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/4f979068b9464280.svg")], caption: [The complete workflow, from defining the problem to explaining and monitoring the model. The steps are described in the list that follows.]) <fig:ml-workflow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4f979068b9464280.cetz.json")], caption: [The complete workflow, from defining the problem to explaining and monitoring the model. The steps are described in the list that follows.]) <fig:ml-workflow>
 
 + #strong[Define the decision.] State what must be predicted, who will use the result, and what a wrong prediction costs.
 

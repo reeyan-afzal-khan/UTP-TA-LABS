@@ -1,0 +1,85 @@
+\labsection{4}{CPU scheduling: compare policies on one workload}{sec:lab04}
+\begin{labproject}{Make scheduling policy visible through order, response, and waiting time}
+
+\textbf{Coverage.} Chapter~\ref{ch:scheduling}: scheduling metrics and policy rules.\\
+\textbf{Goal.} Run four policies on the same bursts so only the policy changes.\\
+\textbf{Explain.} Use the trace to explain why order or time quantum changes a metric.
+
+\section*{Source code}
+\labsourcecard{\texttt{fcfs.c}}{Run processes in the supplied order.}{Waiting time is the accumulated burst time of earlier processes.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/fcfs.c}
+
+\labsourcecard{\texttt{sjf.c}}{Sort the same workload by shortest burst first.}{The sorting step changes execution order; the metric loop is otherwise very similar to FCFS.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/sjf.c}
+
+\labsourcecard{\texttt{priority.c}}{Sort by priority, where a smaller number means higher priority.}{The code uses PID only as a tie-breaker so equal priorities are deterministic.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/priority.c}
+
+\labsourcecard{\texttt{round\_robin.c}}{Give each unfinished process a bounded time slice.}{\texttt{remaining[]} tracks work left; \texttt{first\_run[]} gives response time when all arrivals are 0.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab04/round_robin.c}
+
+\section*{Task 1 --- Compile all policies}
+\begin{lstlisting}[style=utpbash]
+cd all_experiments/Lab04
+for f in fcfs sjf priority round_robin; do
+  gcc -Wall -Wextra -std=c11 "$f.c" -o "$f"
+done
+\end{lstlisting}
+
+\section*{Task 2 --- Baseline comparison}
+\begin{lstlisting}[style=utpbash]
+./fcfs
+./sjf
+./priority
+./round_robin 2
+\end{lstlisting}
+Complete a table with execution order, first process to finish, average waiting time when printed, and one observation about responsiveness.
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.18\linewidth}
+  *{3}{>{\raggedright\arraybackslash}X}@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Policy} & \utpth{First execution order} & \utpth{Waiting/response evidence} & \utpth{What the rule favours} \\
+\midrule
+FCFS & & & \\
+SJF & & & \\
+Priority & & & \\
+RR, $q=2$ & & & \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section*{Task 3 --- Verify one result by hand}
+For FCFS, draw a one-line Gantt chart for bursts 8, 4, 2, 1. Compute the waiting time of each process before comparing your arithmetic with the program.
+
+\section*{Task 4 --- Change only the Round Robin quantum}
+\begin{lstlisting}[style=utpbash]
+./round_robin 1
+./round_robin 2
+./round_robin 4
+\end{lstlisting}
+Record the first response time of each process for each quantum. Explain the trade-off visible in the Gantt output: smaller turns provide earlier rotation but create more slices.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which scheduling metric measures time spent waiting in the ready queue?
+  \item Why can Round Robin improve response time while increasing the number of context switches?
+  \item Why must all policies be compared using the same workload?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item All four policies run on the same bursts, so only the policy differs.
+  \item The FCFS Gantt chart and its waiting times are checked by hand against the program.
+  \item The Round Robin first-response times are recorded for $q=1,2,4$.
+  \item Each explanation names the policy rule first and the metric consequence second.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit the four-policy comparison table, your hand-checked FCFS Gantt chart, and a small $q=1,2,4$ response-time table. Your explanation should identify a policy rule first and a metric consequence second.
+\end{labdeliverable}
+\end{labproject}

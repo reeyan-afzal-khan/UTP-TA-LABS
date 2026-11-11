@@ -39,9 +39,9 @@ The model captures useful patterns and achieves similar, acceptable performance 
 
 Here is the same thing on the study log. Fit polynomials of growing degree to predict the mark from hours. To score each curve on students it has not seen, use #strong[leave-one-out] validation: hide one student, fit on the other nine, predict the hidden one, and repeat for all ten.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/dbaab08c0995545f.svg")], caption: [Three curves through the same ten students. A straight line misses the arch, a quadratic captures it, and a degree-7 polynomial threads between the students it can see. Its weakness appears when a student is hidden: fitted without student J it predicts $- 149$ for J, whose mark was 38. MSE is on the rows the curve saw; left-out MSE is on the student it did not see.]) <fig:three-fits>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/dbaab08c0995545f.cetz.json")], caption: [Three curves through the same ten students. A straight line misses the arch, a quadratic captures it, and a degree-7 polynomial threads between the students it can see. Its weakness appears when a student is hidden: fitted without student J it predicts $- 149$ for J, whose mark was 38. MSE is on the rows the curve saw; left-out MSE is on the student it did not see.]) <fig:three-fits>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/5c6905f48e21484b.svg")], caption: [Training and left-out error on the study log as the polynomial degree grows. The vertical axis is logarithmic. Training error only falls. Left-out error falls, zigzags, then explodes.]) <fig:capacity-curve>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/5c6905f48e21484b.cetz.json")], caption: [Training and left-out error on the study log as the polynomial degree grows. The vertical axis is logarithmic. Training error only falls. Left-out error falls, zigzags, then explodes.]) <fig:capacity-curve>
 
 Real curves are not the smooth U of textbooks. With ten rows the left-out error zigzags, and degrees 2 and 4 both look reasonable. The large shape is what to read: both errors are high at the left, training error keeps falling to the right, and the gap between them eventually dominates.
 
@@ -144,7 +144,7 @@ A #strong[learning curve] plots training and validation error against the number
 
 - Highly unstable curves suggest sensitivity to the split, seed, or a small validation sample.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/019e812e6d68dde1.svg")], caption: [Real learning curves on Lab~2's 7,043 telecom customers, five-fold validation. The unrestricted tree has a persistent gap: it memorizes every training row, and more rows narrow the gap only slowly. Logistic regression's two curves meet near 0.19, so more of the same rows will not help it; it needs better features or a more flexible model.]) <fig:learning-curves>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/019e812e6d68dde1.cetz.json")], caption: [Real learning curves on Lab~2's 7,043 telecom customers, five-fold validation. The unrestricted tree has a persistent gap: it memorizes every training row, and more rows narrow the gap only slowly. Logistic regression's two curves meet near 0.19, so more of the same rows will not help it; it needs better features or a more flexible model.]) <fig:learning-curves>
 
 #callout("keyidea", title: [Key idea])[A persistent gap suggests variance: try more representative data or stronger regularization. Both curves poor suggest limited signal, underfitting, or optimization failure; investigate features and fitting.]
 

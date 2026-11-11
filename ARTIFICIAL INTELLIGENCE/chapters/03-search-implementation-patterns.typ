@@ -19,7 +19,7 @@ The graph supplies states and successors, and the query supplies the goal test. 
 
 #callout("analogy", title: [Analogy])[Think of a battery drill. The motor, the handle and the trigger stay the same, and you change what it does by swapping the bit. The search loop is the drill. The frontier policy is the bit.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4be97ef8fea7ab16.svg")], caption: [States, successors and the goal test come from the problem. The frontier policy determines the search algorithm.]) <fig:pluggable>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4be97ef8fea7ab16.cetz.json")], caption: [States, successors and the goal test come from the problem. The frontier policy determines the search algorithm.]) <fig:pluggable>
 
 In `utils/core.py`, BFS and DFS use `popleft` and `pop`, respectively. UCS, GBFS and A$""^star.op$ wrap `best_first`, whose `mode` selects the priority. Weighted A$""^star.op$ reuses it with the heuristic multiplied by 1.5.
 
@@ -83,7 +83,7 @@ An unreachable goal returns `found=False`, an empty path, `hops=-1` and infinite
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c7c9985ea129a61d.svg")], caption: [Graph-specific loaders below the dashed line produce `{state: [(neighbour, cost)]}` dictionaries for shared search code above it. Every search number in Chapters~#ref(label("ch:uninformed"), supplement: none) to~#ref(label("ch:searchpatterns"), supplement: none) came through this one boundary.]) <fig:domains>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/c7c9985ea129a61d.cetz.json")], caption: [Graph-specific loaders below the dashed line produce `{state: [(neighbour, cost)]}` dictionaries for shared search code above it. Every search number in Chapters~#ref(label("ch:uninformed"), supplement: none) to~#ref(label("ch:searchpatterns"), supplement: none) came through this one boundary.]) <fig:domains>
 
 A road network would need a new loader, not new search code or tests. A new algorithm changes `core.py`, not the loader, CLI or benchmark. Lab~3 asks you to identify this boundary.
 
@@ -93,7 +93,7 @@ A road network would need a new loader, not new search code or tests. A new algo
 
 Python's `heapq` pops the smallest tuple, comparing element by element from the left. The frontier entries in `best_first` are `(priority, counter, state, g)`, and the `counter` is there for a reason (#ref(label("fig:tuple"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2fa9f29a7d70264d.svg")], caption: [Heap tuples compare left to right. A unique counter breaks priority ties by insertion order, avoiding comparisons between states.]) <fig:tuple>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2fa9f29a7d70264d.cetz.json")], caption: [Heap tuples compare left to right. A unique counter breaks priority ties by insertion order, avoiding comparisons between states.]) <fig:tuple>
 
 #callout("pitfall", title: [Common mistake])[Placing a payload directly after the priority makes ties depend on payload comparisons, and possibly on state names. Insert a unique increasing counter to resolve ties by insertion order without comparing payloads.]
 

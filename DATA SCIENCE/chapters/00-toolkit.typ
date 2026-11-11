@@ -15,7 +15,7 @@
 
 The course uses #strong[R] as the statistical computing engine and #strong[RStudio] as the main integrated development environment (IDE). These are related but separate pieces of software. R performs the computation; RStudio provides an editor, console, data viewer, plotting pane, help system, project management, and an integrated terminal.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/6880d31edbc01d76.svg")], caption: [R computes, RStudio provides the working environment, and the operating system supports both. Git records changes to course code; pushing shares committed changes with the GitHub repository.]) <fig:r-stack>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/6880d31edbc01d76.cetz.json")], caption: [R computes, RStudio provides the working environment, and the operating system supports both. Git records changes to course code; pushing shares committed changes with the GitHub repository.]) <fig:r-stack>
 
 #callout("keyidea", title: [Key idea])[Install #strong[R first], then install #strong[RStudio]. RStudio does not replace R; it discovers and launches an installed R version.]
 
@@ -101,7 +101,7 @@ Download the stable `.dmg`, open it, and drag RStudio to #strong[Applications].
 Download the package matching the supported distribution, such as `.deb` for Ubuntu/Debian or `.rpm` for Fedora/RHEL-family systems, then install it with the system package manager.
 ]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/0ee24921a3d4c714.svg")], caption: [The exact pane arrangement can be changed, but the distinction between source code and the console should remain clear. Saved scripts are the reproducible record; console commands are temporary unless copied into a script.]) <fig:rstudio-layout>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/0ee24921a3d4c714.cetz.json")], caption: [The exact pane arrangement can be changed, but the distinction between source code and the console should remain clear. Saved scripts are the reproducible record; console commands are temporary unless copied into a script.]) <fig:rstudio-layout>
 
 
 #heading(level: 3)[Verify that RStudio is using R]
@@ -123,7 +123,7 @@ Packages from CRAN are installed once and loaded in each new R session when need
 
 #code-block("install.packages(c(\"ggplot2\", \"dplyr\", \"tidyr\", \"readr\", \"broom\"))\n\nlibrary(ggplot2)\nlibrary(dplyr)", lang: "r")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/2d22286b58f37caa.svg")], caption: [Package installation writes software to an R library on the computer. `library()` attaches an installed package to the current R session.]) <fig:r-packages>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/2d22286b58f37caa.cetz.json")], caption: [Package installation writes software to an R library on the computer. `library()` attaches an installed package to the current R session.]) <fig:r-packages>
 
 
 #heading(level: 2)[Route B---optional: Anaconda or Miniconda with R]

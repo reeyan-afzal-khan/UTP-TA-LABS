@@ -29,7 +29,7 @@ A way to organize, store, and relate data in memory.
 
 The slides divide data structures into two broad categories: #strong[primitive] and #strong[non-primitive].
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/e0c981ab16a734e6.svg")], caption: [The course classification of data structures. Primitive types hold single values; non-primitive structures organise collections, and split further by whether the elements form a single sequence or a branching relationship.]) <fig:ds-classification>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/e0c981ab16a734e6.cetz.json")], caption: [The course classification of data structures. Primitive types hold single values; non-primitive structures organise collections, and split further by whether the elements form a single sequence or a branching relationship.]) <fig:ds-classification>
 
 
 #heading(level: 3)[Primitive data structures]
@@ -61,7 +61,7 @@ Non-primitive structures are described as structures derived from primitive data
 
 In a linear structure, elements form a sequence or linear series. The slides give stacks, queues, and linked lists as common examples. Arrays, introduced in the next chapter, are another central linear structure in the course.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4bf67fd205bd9116.svg")], caption: [In a linear structure every element has at most one predecessor and one successor, so there is exactly one path through the data.]) <fig:linear-shape>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4bf67fd205bd9116.cetz.json")], caption: [In a linear structure every element has at most one predecessor and one successor, so there is exactly one path through the data.]) <fig:linear-shape>
 
 
 #heading(level: 3)[Non-linear data structures]
@@ -69,17 +69,17 @@ In a linear structure, elements form a sequence or linear series. The slides giv
 
 A non-linear structure allows one item to connect to several other items. The slides emphasize hierarchical or parent-child relationships and give #strong[trees] and #strong[graphs] as the main examples.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f011cdd609308bfb.svg")], caption: [Two non-linear shapes. A tree imposes a strict hierarchy with one path between any two nodes; a graph allows cycles and several competing paths, which is why graph traversal must remember what it has already visited.]) <fig:nonlinear-shape>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f011cdd609308bfb.cetz.json")], caption: [Two non-linear shapes. A tree imposes a strict hierarchy with one path between any two nodes; a graph allows cycles and several competing paths, which is why graph traversal must remember what it has already visited.]) <fig:nonlinear-shape>
 
 #callout("intuition", title: [Plain idea])[Five student ages are data. Storing them as an array is a structural choice. Storing each student's ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.]
 
 Figures~#ref(label("fig:same-data-array"), supplement: none)--#ref(label("fig:same-data-tree"), supplement: none) make the point concrete. The five values never change, but each layout answers a different question cheaply and a different question expensively. Choosing the structure #emph[is] choosing which operations will be fast.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f5c5c5983ef4ce7c.svg")], caption: [The values occupy indexed positions. Reaching a known index is constant time, while inserting in the middle requires shifting later values.]) <fig:same-data-array>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f5c5c5983ef4ce7c.cetz.json")], caption: [The values occupy indexed positions. Reaching a known index is constant time, while inserting in the middle requires shifting later values.]) <fig:same-data-array>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/139b09521e99d71f.svg")], caption: [The values are connected by links rather than indices. Reaching item 4 requires traversal, but insertion is constant time once the location is known.]) <fig:same-data-list>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/139b09521e99d71f.cetz.json")], caption: [The values are connected by links rather than indices. Reaching item 4 requires traversal, but insertion is constant time once the location is known.]) <fig:same-data-list>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6e96e781fe05a6df.svg")], caption: [The same values form an ordered hierarchy. A balanced tree supports logarithmic search while an ordered traversal still visits every value.]) <fig:same-data-tree>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6e96e781fe05a6df.cetz.json")], caption: [The same values form an ordered hierarchy. A balanced tree supports logarithmic search while an ordered traversal still visits every value.]) <fig:same-data-tree>
 
 
 #heading(level: 2)[Common operations]

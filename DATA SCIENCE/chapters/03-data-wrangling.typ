@@ -11,13 +11,13 @@
 #heading(level: 2)[Wrangling changes representation, not the question]
  Data wrangling prepares the evidence needed for analysis. Common operations are selecting variables, filtering observations, ordering records, grouping categories, aggregating summaries, joining tables, and constructing derived features.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/3541c936f524b7be.svg")], caption: [Each operation should be explainable as a transformation from one table to another.]) <fig:wrangling-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/3541c936f524b7be.cetz.json")], caption: [Each operation should be explainable as a transformation from one table to another.]) <fig:wrangling-pipeline>
 
 
 #heading(level: 2)[Think in verbs: each step should have one purpose]
  A readable wrangling pipeline is a sequence of simple verbs: #emph[select], #emph[filter], #emph[mutate], #emph[group], #emph[summarise], #emph[join], and #emph[reshape]. Keeping transformations small makes intermediate row counts and assumptions easier to audit.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/6f64ca9463618ca0.svg")], caption: [Each transformation should preserve a clear contract: what one row represents, which variables are retained, and which new values were derived.]) <fig:wrangle-contract>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/6f64ca9463618ca0.cetz.json")], caption: [Each transformation should preserve a clear contract: what one row represents, which variables are retained, and which new values were derived.]) <fig:wrangle-contract>
 
 
 #heading(level: 2)[Select only what the question needs]
@@ -51,7 +51,7 @@
 #heading(level: 2)[Reshaping: wide and long representations]
  The same information can be represented in different table shapes. #strong[Wide] data often place repeated measures in separate columns, while #strong[long] data place the measurement name and value in rows. Long form is often convenient for grouped plotting and repeated-measures analysis; wide form can be convenient for modelling matrices.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/e9a5d6e829adac59.svg")], caption: [Reshaping should change layout, not invent or discard measurements. The key columns must be sufficient to reconstruct the original representation.]) <fig:wide-long>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/e9a5d6e829adac59.cetz.json")], caption: [Reshaping should change layout, not invent or discard measurements. The key columns must be sufficient to reconstruct the original representation.]) <fig:wide-long>
 
 
 #heading(level: 2)[Feature engineering should add meaning]
@@ -78,7 +78,7 @@
 #heading(level: 2)[Join cardinality should be known before the join]
  A join combines rows according to key matches. The expected relationship between keys is called #strong[cardinality]. One-to-one joins should preserve row count; one-to-many joins deliberately repeat the "one" side; many-to-many joins can create a Cartesian multiplication and are frequently accidental.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/ce9e533041ef9e20.svg")], caption: [Knowing the expected key relationship lets row-count changes become a diagnostic rather than a surprise.]) <fig:join-cardinality>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/ce9e533041ef9e20.cetz.json")], caption: [Knowing the expected key relationship lets row-count changes become a diagnostic rather than a surprise.]) <fig:join-cardinality>
 
 
 #heading(level: 2)[Joining tables introduces a new failure mode]

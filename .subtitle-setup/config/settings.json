@@ -1,0 +1,11 @@
+{
+  "model": "nyralabs/CrisperWhisper2.0_large",
+  "revision": "f4334f6e8193f2691212d49b20fa12d370e13896",
+  "backend": "transformers",
+  "compute_type": "float16",
+  "language": "en",
+  "mode": "verbatim",
+  "max_cue_seconds": 6.0,
+  "line_width": 42,
+  "max_lines": 2
+}

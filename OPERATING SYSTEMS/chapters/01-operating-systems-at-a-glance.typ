@@ -29,7 +29,7 @@ Nearly every design decision in this course comes from those two jobs pulling in
 #heading(level: 2, numbering: none)[The layers involved]
  Your program sits at the top. The hardware sits at the bottom. Everything between is the OS's responsibility.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/962128a05f1b066e.svg")], caption: [The layers of a running system, from applications through the system interface and the kernel down to the hardware. Every downward step goes through the interface directly beneath it.]) <fig:os-layers>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/962128a05f1b066e.cetz.json")], caption: [The layers of a running system, from applications through the system interface and the kernel down to the hardware. Every downward step goes through the interface directly beneath it.]) <fig:os-layers>
 
 Read the diagram as a rule about #emph[reach]. An application cannot skip a layer. It cannot address the disk controller, and it cannot read another process's memory. Every downward step goes through the interface directly beneath it.
 
@@ -118,7 +118,7 @@ Running the same program twice gives two processes. They have different process 
 #heading(level: 2, numbering: none)[The process-state model]
  A process is not always running. Most of the time it is waiting for something. The standard five-state model captures that:
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/cf418f32f038ed7f.svg")], caption: [The five-state process model. Running to Ready is preemption; Running to Waiting is blocking.]) <fig:process-states>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/cf418f32f038ed7f.cetz.json")], caption: [The five-state process model. Running to Ready is preemption; Running to Waiting is blocking.]) <fig:process-states>
 
 Two arrows deserve attention, because students routinely confuse them.
 

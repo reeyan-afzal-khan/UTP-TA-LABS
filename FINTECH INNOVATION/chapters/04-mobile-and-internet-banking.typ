@@ -91,7 +91,7 @@ Personalization uses customer data and interaction history to adapt the experien
 
 The progression can be understood as:
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/e6d7e88be85a89ea.svg")], caption: [The progression of personalization, from a reactive app that shows a balance to an assistive one that helps the customer act.]) <fig:personalization>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/e6d7e88be85a89ea.cetz.json")], caption: [The progression of personalization, from a reactive app that shows a balance to an assistive one that helps the customer act.]) <fig:personalization>
 
 The later digital-bank chapter develops this further through budgeting tools, proactive overdraft warnings, and data-driven financial guidance.
 
@@ -159,7 +159,7 @@ Digital agility may involve:
 
 The deck gives a striking historical comparison: approximately \$4.25 for a branch visit versus \$0.10 for mobile access. These figures are lecture snapshots, not universal current unit costs. The structural lesson is that a self-service digital interaction can have a dramatically lower marginal cost than a staffed physical interaction.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/6a6d9c0efc05d846.svg")], caption: [Why mobile banking is cheaper to provide. A staffed physical interaction costs staff, premises, and time on every visit; a digital self-service interaction runs on software and shared infrastructure.]) <fig:service-cost>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/6a6d9c0efc05d846.cetz.json")], caption: [Why mobile banking is cheaper to provide. A staffed physical interaction costs staff, premises, and time on every visit; a digital self-service interaction runs on software and shared infrastructure.]) <fig:service-cost>
 
 
 #heading(level: 3)[Convenience for customers]
@@ -193,7 +193,7 @@ Security is visible to customers; integration is often invisible, but it can be 
 
 A new app running on modern infrastructure does not automatically modernize the systems behind it. The Week 4 lecture therefore describes integration as a technical problem that mirrors the organizational problem: legacy systems are connected to legacy processes and departmental boundaries.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/4154fe90523b1856.svg")], caption: [The integration challenge. A mobile app is only the front end; behind it sit core banking, payments, risk and fraud, reporting and compliance, customer data, and product systems, each of which it must connect to.]) <fig:app-integration>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/4154fe90523b1856.cetz.json")], caption: [The integration challenge. A mobile app is only the front end; behind it sit core banking, payments, risk and fraud, reporting and compliance, customer data, and product systems, each of which it must connect to.]) <fig:app-integration>
 
 This is why an incumbent can build a modern-looking interface yet still struggle to match the speed and flexibility of a digital-native provider.
 

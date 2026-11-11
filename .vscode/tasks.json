@@ -104,6 +104,90 @@
         "reveal": "always",
         "panel": "dedicated"
       }
+    },
+    {
+      "label": "Subtitles: inventory",
+      "type": "process",
+      "command": "${workspaceFolder}/.subtitle-setup/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/.subtitle-setup/.venv/Scripts/python.exe"
+      },
+      "args": [
+        "-u",
+        "${workspaceFolder}/.subtitle-setup/scripts/manage.py",
+        "inventory"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Subtitles: transcribe selected course",
+      "type": "process",
+      "command": "${workspaceFolder}/.subtitle-setup/.venv/bin/python",
+      "windows": {
+        "command": "python",
+        "args": [
+          "${workspaceFolder}/.subtitle-setup/scripts/wsl.py",
+          "transcribe",
+          "--folder",
+          "${input:subtitleCourse}"
+        ]
+      },
+      "args": [
+        "-u",
+        "${workspaceFolder}/.subtitle-setup/scripts/transcribe.py",
+        "--folder",
+        "${input:subtitleCourse}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Subtitles: show progress",
+      "type": "process",
+      "command": "${workspaceFolder}/.subtitle-setup/.venv/bin/python",
+      "windows": {
+        "command": "${workspaceFolder}/.subtitle-setup/.venv/Scripts/python.exe"
+      },
+      "args": [
+        "-u",
+        "${workspaceFolder}/.subtitle-setup/scripts/manage.py",
+        "status"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Subtitles: monitor WSL GPU",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "${workspaceFolder}/.subtitle-setup/scripts/wsl.py",
+        "monitor"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     }
   ],
   "inputs": [
@@ -123,6 +207,19 @@
         "OPERATING SYSTEMS"
       ],
       "default": "0.GIT-REPO-SUBMISSION"
+    },
+    {
+      "id": "subtitleCourse",
+      "type": "pickString",
+      "description": "Choose media under .courses",
+      "options": [
+        "Data Science",
+        "Machine Learning",
+        "Odoo Functional Course",
+        "SQL",
+        "0.GIT-REPO-SUBMISSION.mp3"
+      ],
+      "default": "SQL"
     }
   ]
 }

@@ -111,7 +111,7 @@ Never trust the headline number alone. Lab~5's isolation forest ranks 85,443 hel
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/3c2eac2616312f4d.svg")], caption: [Lab~5's isolation forest on 85,443 held-out transactions. Reviewing more cases finds more fraud at a falling hit rate. The base rate of 0.17% is what reviewing at random would achieve.]) <fig:precision-at-k>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/3c2eac2616312f4d.cetz.json")], caption: [Lab~5's isolation forest on 85,443 held-out transactions. Reviewing more cases finds more fraud at a falling hit rate. The base rate of 0.17% is what reviewing at random would achieve.]) <fig:precision-at-k>
 
 - For distance- and kernel-based detectors, apply the scaling rule from #ref(label("sec:scaling"), supplement: [Section]).
 
@@ -125,7 +125,7 @@ Never trust the headline number alone. Lab~5's isolation forest ranks 85,443 hel
 
 Anomaly detection differs from classification in one important way: you usually cannot see many examples of the thing you are looking for.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/cd1d8d13ff4f6ff2.svg")], caption: [Two views of an anomaly problem. Distance and density place anomalies outside the normal region; a score and a threshold you choose turn that into a list of flagged cases.]) <fig:anomaly-views>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/cd1d8d13ff4f6ff2.cetz.json")], caption: [Two views of an anomaly problem. Distance and density place anomalies outside the normal region; a score and a threshold you choose turn that into a list of flagged cases.]) <fig:anomaly-views>
 
 #callout("keyidea", title: [Key idea])[Choose thresholds or review batches for actual capacity and error costs; a high score is not a verdict.]
 

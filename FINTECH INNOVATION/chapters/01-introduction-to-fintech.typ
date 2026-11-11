@@ -27,7 +27,7 @@ At the simplest level, the lecture frames retail banking around three core funct
 
 The traditional model therefore places the bank between two groups. Savers receive interest; borrowers obtain capital; the bank earns a spread and fees for performing intermediation, risk management, compliance, liquidity management, and payment services.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/5ae52278b043f267.svg")], caption: [The traditional bank sits between savers and borrowers. It takes deposits, makes loans, and earns a spread and fees for intermediation, risk management, and payment services.]) <fig:bank-intermediary>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/5ae52278b043f267.cetz.json")], caption: [The traditional bank sits between savers and borrowers. It takes deposits, makes loans, and earns a spread and fees for intermediation, risk management, and payment services.]) <fig:bank-intermediary>
 
 This integrated model historically enjoyed strong barriers to entry. Large incumbents possessed established brands, branch and payment networks, compliance capability, capital, customer relationships, and institutional knowledge. The lecture's central argument is that digital technology weakens some of these barriers and makes it possible to compete with only one slice of the old bank value chain.
 
@@ -86,7 +86,7 @@ The lecture cites a TransferWise survey in which respondents identified perceive
 
 #strong[Disintermediation] means reducing or removing a traditional intermediary from a transaction. In finance, a digital marketplace can connect users directly while the platform performs matching, information, identity, or risk-assessment functions.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/202e09dfe36f7d09.svg")], caption: [Disintermediation. In the traditional model the bank's balance sheet stands between saver and borrower; a digital marketplace connects them directly while still performing matching, information, and risk-assessment functions.]) <fig:disintermediation>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/202e09dfe36f7d09.cetz.json")], caption: [Disintermediation. In the traditional model the bank's balance sheet stands between saver and borrower; a digital marketplace connects them directly while still performing matching, information, and risk-assessment functions.]) <fig:disintermediation>
 
 The slides emphasize why this can be disruptive:
 
@@ -106,7 +106,7 @@ The slides emphasize why this can be disruptive:
 
 #strong[Unbundling] is the course's other central disruption concept. A traditional bank offers many products under one institution. A FinTech firm can focus intensely on a narrow service and attempt to become the "best of breed" in that niche.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/1619789bbc8b303a.svg")], caption: [Unbundling. A traditional bank offers payments, lending, wealth, insurance, and settlement under one roof; a single-purpose FinTech attacks one slice of that value chain and tries to be the best in that niche.]) <fig:unbundling>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/1619789bbc8b303a.cetz.json")], caption: [Unbundling. A traditional bank offers payments, lending, wealth, insurance, and settlement under one roof; a single-purpose FinTech attacks one slice of that value chain and tries to be the best in that niche.]) <fig:unbundling>
 
 The supplied lecture lists examples across the financial system:
 
@@ -297,7 +297,7 @@ The valuations, ownership percentages, user counts, and listing details in these
 #heading(level: 2)[A single mental model for Week 1]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/078522e8de7e4bc6.svg")], caption: [A single mental model for the course. A customer or institutional friction invites a technology, the technology enables a new business model, and the new model brings competition, access, and new risks.]) <fig:fintech-mental-model>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/078522e8de7e4bc6.cetz.json")], caption: [A single mental model for the course. A customer or institutional friction invites a technology, the technology enables a new business model, and the new model brings competition, access, and new risks.]) <fig:fintech-mental-model>
 
 When you encounter a new FinTech case, ask four questions:
 

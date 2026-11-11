@@ -17,7 +17,7 @@ The tutor wants a formula: type in the hours a student studied, read off the mar
 
 Plot the six students, with hours across the bottom and marks up the side (#ref(label("fig:line-guesses"), supplement: [Figure])). Each extra two hours brings about six more marks, so a straight line is a sensible shape. A straight line has exactly two numbers in it: $ hat(y) = w thin x + b . $ The #strong[slope] $w$ is how many marks one extra hour is worth. The #strong[intercept] $b$ is where the line sits at zero hours. Those two numbers are the model's parameters, and fitting means choosing them. With more features the same idea becomes a weighted sum, $hat(y) = beta_0 + beta_1 x_1 + dots.h.c + beta_p x_p$, where each $beta_j$ is the change in the prediction per unit of $x_j$ with the other features held fixed.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/f14a4338d5a3e8ad.svg")], caption: [The first six students with two guessed lines and the fitted line. Guess A runs too flat and guess B too steep, yet both pass through the average student at (7, 61). The fitted line has an MSE of 2.00, against 13.67 and 48.67.]) <fig:line-guesses>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/f14a4338d5a3e8ad.cetz.json")], caption: [The first six students with two guessed lines and the fitted line. Guess A runs too flat and guess B too steep, yet both pass through the average student at (7, 61). The fitted line has an MSE of 2.00, against 13.67 and 48.67.]) <fig:line-guesses>
 
 
 #heading(level: 2)[The loss: why squared error]
@@ -46,7 +46,7 @@ Two unknowns at once are hard to think about, so let the rubber bands remove one
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/585f716067583a90.svg")], caption: [The loss against the slope. Substituting $b = 61 - 7 w$ turns the loss into a formula whose highest power is $w^2$, so its graph is a bowl with exactly one lowest point, at $w = 3$.]) <fig:bowl>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/585f716067583a90.cetz.json")], caption: [The loss against the slope. Substituting $b = 61 - 7 w$ turns the loss into a formula whose highest power is $w^2$, so its graph is a bowl with exactly one lowest point, at $w = 3$.]) <fig:bowl>
 
 So $w = 3$ and $b = 61 - 7 times 3 = 40$, giving $ upright("mark") = 3 times upright("hours") + 40 . $ The six errors are $1 \, - 2 \, 1 \, 1 \, - 2 \, 1$. They still add to zero, and their squares average to 2.00, so this line misses by about 1.41 marks on a typical row (the RMSE). No other line does better. A bowl is what makes this dependable: one lowest point means there is nothing to get stuck on.
 
@@ -110,7 +110,7 @@ Classical OLS assumptions include linearity in the chosen features, independent 
 
 A #strong[residual] is what the line left unexplained. Plot residuals against predictions and you are asking whether anything is left that the model could have used.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/fe78b2d0d3b823e2.svg") #diagram-image("/MACHINE LEARNING/figures/diagrams/baed8f50d744e678.svg")], caption: [Two residual plots. A healthy fit leaves a formless cloud around zero; an obvious curve is structure the model has missed.]) <fig:residuals>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/fe78b2d0d3b823e2.cetz.json") #diagram-drawing("/MACHINE LEARNING/figures/diagrams/baed8f50d744e678.cetz.json")], caption: [Two residual plots. A healthy fit leaves a formless cloud around zero; an obvious curve is structure the model has missed.]) <fig:residuals>
 
 #callout("workedexample", title: [Worked example])[In Lab~2, the car-price model's residuals form a widening funnel instead of a cloud: their spread grows from \$9,172 on the cheapest quarter of predictions to \$23,079 on the dearest. The model knows a car's age, mileage and make but not which car it is, and two cars of the same make and age can be very different cars. No amount of regularization will fix a missing idea. So add the idea: the car's `model`, one-hot encoded into one column for each of its 1,147 models.
 
@@ -173,7 +173,7 @@ Lab~1 puts the same $L_1$ penalty inside a logistic regression (#ref(label("ch:c
 
 Regularization constrains a coefficient budget. Least-squares contours touch an $L_1$ diamond often at axis corners, where coefficients are zero; an $L_2$ disk has no such corners.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/38aba2c0d1272f6c.svg")], caption: [Why the penalties behave differently. The least-squares contours often first touch the $L_1$ diamond at a corner, where a coefficient is exactly zero; the $L_2$ disk has no corners, so ridge shrinks both coefficients without zeroing either.]) <fig:lasso-ridge>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/38aba2c0d1272f6c.cetz.json")], caption: [Why the penalties behave differently. The least-squares contours often first touch the $L_1$ diamond at a corner, where a coefficient is exactly zero; the $L_2$ disk has no corners, so ridge shrinks both coefficients without zeroing either.]) <fig:lasso-ridge>
 
 #callout("intuition", title: [Plain idea])[Regularization pulls coefficients toward zero: ridge shrinks them smoothly, while lasso can remove them entirely.]
 

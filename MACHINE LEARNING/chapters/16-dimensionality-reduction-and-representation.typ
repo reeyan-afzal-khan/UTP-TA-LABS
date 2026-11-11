@@ -19,7 +19,7 @@ The tutor wants all four columns of the study log on one chart. A chart has two 
 
 What does "keeps the most" mean as a number? In the good shadow, parts of the horse land far apart. In the bad one, everything lands on top of everything else. So we score a shadow by how spread out it is, and we already have a number for spread: the variance. PCA turns "keep as much information as possible" into "keep as much variance as possible."
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/2e54975edc0427a8.svg")], caption: [Principal component analysis finds better axes. The first component points along the direction of most variance; the second is perpendicular to it.]) <fig:pca-axes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/2e54975edc0427a8.cetz.json")], caption: [Principal component analysis finds better axes. The first component points along the direction of most variance; the second is perpendicular to it.]) <fig:pca-axes>
 
 
 #heading(level: 2)[One shadow by hand]
@@ -45,7 +45,7 @@ Now pick a direction, written as weights whose squares add to 1, so that one ste
 
 The two scaled columns hold 2 units of spread in total, and one direction holds 1.965 of them, or 98%. The students barely differ at all along the other. Nothing would be lost by replacing these two columns with one new column, "cramming versus resting."]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/52cf340606a9e796.svg")], caption: [Hours and sleep, both scaled. Along the "study up, sleep down" direction the students spread out, keeping 1.965 of the 2 units of spread. Along the perpendicular direction they crowd together, keeping 0.035.]) <fig:shadow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/52cf340606a9e796.cetz.json")], caption: [Hours and sleep, both scaled. Along the "study up, sleep down" direction the students spread out, keeping 1.965 of the 2 units of spread. Along the perpendicular direction they crowd together, keeping 0.035.]) <fig:shadow>
 
 
 #heading(level: 2)[All four columns at once]
@@ -89,7 +89,7 @@ A big weight means the column matters, and the signs show which columns move tog
 
 Multiplying the scaled table by those two directions gives every student two new coordinates, and the whole group finally fits on one chart (#ref(label("fig:pc-map"), supplement: [Figure])). Far right are D, E and F, who attended, slept and did well. Far left are I and J, the crammers. At the bottom are A and B, who did little work, and at the top are F and G, who did a lot. The three groups $K$-means found from only hours and mark in #ref(label("ch:clustering"), supplement: [Chapter]) land in three separate regions, and this time the map also used lectures and sleep. That is the check we promised: the crammers really are the students who skipped lectures and barely slept.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/cdf0629e1c619939.svg")], caption: [Each student on the first two principal components, keeping 96.5% of the spread of all four columns. Markers show the groups $K$-means found from hours and mark alone.]) <fig:pc-map>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/cdf0629e1c619939.cetz.json")], caption: [Each student on the first two principal components, keeping 96.5% of the spread of all four columns. Markers show the groups $K$-means found from hours and mark alone.]) <fig:pc-map>
 
 #callout("modelcard", title: [The recipe: PCA])[*1. Model* A set of directions to flatten the data onto.
 
@@ -121,7 +121,7 @@ The proportion of variance explained by component $j$ is $ frac(lambda_j, sum_k 
 
 Lab~4 applies this to $32 times 32$ colour photos of wood defects, 3,072 pixel values per image. The first component alone keeps 39.1%, and the first ten keep 83.9%. Keeping 90%, 95% and 99% of the variance needs 21, 51 and 253 components. The first components describe mostly the light and colour of the wood: on Lab~4's test boards, logistic regression scores 0.638 on all 3,072 pixel values and 0.633 on 253 components.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/b76f2a08da7fd0be.svg")], caption: [Real numbers from Lab~4's 12,567 development images. Left: the share of variance per component for the first ten. Right: the cumulative share, on a logarithmic axis, which bends early.]) <fig:cumulative-variance>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/b76f2a08da7fd0be.cetz.json")], caption: [Real numbers from Lab~4's 12,567 development images. Left: the share of variance per component for the first ten. Right: the cumulative share, on a logarithmic axis, which bends early.]) <fig:cumulative-variance>
 
 Choose the count by a variance target, a bend in the curve, or downstream validation on training folds. Discarded eigenvalues add up to the variance you lost: here 1.0% for 253 components.
 

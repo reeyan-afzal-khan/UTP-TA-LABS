@@ -6,7 +6,7 @@
 
 The course moves from searching a graph to learning from data and back to search in new forms. Chapter~#ref(label("ch:toolkit"), supplement: none) sets up the project folders and Python environment. After that, each chapter builds an idea and each lab sheet right after it puts that idea to work, following the same steps: define the task, validate the data, run a controlled experiment, interpret the results, and submit the executed notebook with its generated evidence.
 
-#callout("utpfigure", title: [])[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4a4e1f06a50ba420.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/4a4e1f06a50ba420.cetz.json")]
 
 #figure(
   align(center)[#table(

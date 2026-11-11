@@ -19,7 +19,7 @@ A classifier needs numbers, and a tweet is a string. The simplest bridge is a #s
 
 #callout("analogy", title: [Analogy])[Tip a tweet's words into a bag and shake it. You can still count them, and "cancelled" appearing three times tells you a good deal about the mood. You can no longer tell "not good, very bad" from "not bad, very good". That lost order is the price of this representation, and it is why this chapter ends by asking what to try next.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b016c0ccb3866850.svg")], caption: [One tweet through Lab~7's preprocessing. Placeholders stand in for the handle and the link, and then the tokeniser and the stop-word list do their work. "Again" is on scikit-learn's English stop list, so it disappears, as do "not", "no" and "never" in other tweets.]) <fig:preprocess>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b016c0ccb3866850.cetz.json")], caption: [One tweet through Lab~7's preprocessing. Placeholders stand in for the handle and the link, and then the tokeniser and the stop-word list do their work. "Again" is on scikit-learn's English stop list, so it disappears, as do "not", "no" and "never" in other tweets.]) <fig:preprocess>
 
 Lab~7's `clean` function replaces URLs and handles with the placeholders `URL` and `USER` and then lowercases everything, so they become the single features `url` and `user` rather than thousands of one-off terms. `CountVectorizer` then tokenises, removes English stop words, requires a term to occur in at least two training tweets, and caps the vocabulary at 20,000.
 
@@ -39,7 +39,7 @@ Naive Bayes chooses the class $c$ that makes the document $d$ most probable: $ h
 
 #ref(label("fig:naive-bayes"), supplement: [Figure]) scores two short tweets with the probabilities the fitted Lab~7 model actually learned. Notice the second tweet. Positive tweets are only 16 % of the data, so the model starts sceptical, but "great" and "thanks" are strong enough evidence to overturn that.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d7ce7438997cbe8e.svg")], caption: [Two short messages scored with single-word probabilities from the fitted Lab~7 model. Each class starts from its share of the training set and multiplies in one probability per word. "Flight" contributes much the same to every class; the other words do the deciding. The largest score in each row is the prediction.]) <fig:naive-bayes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d7ce7438997cbe8e.cetz.json")], caption: [Two short messages scored with single-word probabilities from the fitted Lab~7 model. Each class starts from its share of the training set and multiplies in one probability per word. "Flight" contributes much the same to every class; the other words do the deciding. The largest score in each row is the prediction.]) <fig:naive-bayes>
 
 
 #heading(level: 3)[Smoothing]
@@ -68,7 +68,7 @@ Tweets are 63 % negative, 21 % neutral and 16 % positive. A model that alw
 
 #ref(label("fig:nb-confusion"), supplement: [Figure]) shows where these come from on the real test set. #strong[Macro F1] is the plain average of the three class F1 scores, so each class counts equally however rare it is. The majority baseline has recall~1 for negative and~0 otherwise, giving macro F1 $0.26$; Naive Bayes reaches $0.70$.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2da23cc74ce0910a.svg")], caption: [Lab~7's test results on 2,143 tweets. For #emph[neutral]: recall reads along its row, $239 \/ 447 = 0.53$, and precision reads down its column, $239 \/ 400 = 0.60$. Their harmonic mean is F1 $= 0.56$. The largest off-diagonal cell, 158, is neutral tweets called negative.]) <fig:nb-confusion>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2da23cc74ce0910a.cetz.json")], caption: [Lab~7's test results on 2,143 tweets. For #emph[neutral]: recall reads along its row, $239 \/ 447 = 0.53$, and precision reads down its column, $239 \/ 400 = 0.60$. Their harmonic mean is F1 $= 0.56$. The largest off-diagonal cell, 158, is neutral tweets called negative.]) <fig:nb-confusion>
 
 #callout("pitfall", title: [Common mistake])[Compute the majority baseline first. Accuracy rises from 63 % to 77 %, which sounds modest, while macro F1 rises from $0.26$ to $0.70$. Together they show what the model adds.]
 
@@ -78,7 +78,7 @@ Tweets are 63 % negative, 21 % neutral and 16 % positive. A model that alw
 
 #strong[Leakage] occurs when test information influences training or model selection. It is the examination equivalent of seeing the final paper in advance: the score goes up and tells you nothing about what you can do on a new paper. Lab~7 controls leakage at each stage (#ref(label("fig:protocol"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/1e64b983df8b9b1f.svg")], caption: [Deduplicate before splitting, fit vocabulary and model on training data, select settings on validation data, and evaluate once on test data.]) <fig:protocol>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/1e64b983df8b9b1f.cetz.json")], caption: [Deduplicate before splitting, fit vocabulary and model on training data, select settings on validation data, and evaluate once on test data.]) <fig:protocol>
 
 / Duplicates before the split.: #block[
 There are 213 exact duplicates and 355 duplicates after URL and mention replacement. Keep one copy of each normalised text before splitting, or a retweet in the training set could hand the model the answer to its twin in the test set.

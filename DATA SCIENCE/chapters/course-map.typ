@@ -6,7 +6,7 @@
 
 Data science turns questions and data into evidence that others can inspect, reproduce, and challenge. This course emphasises analytical workflow, with R as a tool. Four stages build on Chapter~#ref(label("ch:toolkit"), supplement: none), which introduces R, RStudio, optional conda management, and the required Git/GitHub SSH workflow; the capstone integrates them. The chapters use varied datasets to build transferable skills rather than familiarity with a single dataset.
 
-#callout("utpfigure", title: [])[#diagram-image("/DATA SCIENCE/figures/diagrams/5a922943c594e544.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/DATA SCIENCE/figures/diagrams/5a922943c594e544.cetz.json")]
 
 #figure(
   align(center)[#table(
@@ -27,7 +27,7 @@ Data science turns questions and data into evidence that others can inspect, rep
 #heading(level: 2, numbering: none)[The workflow and the labs]
  Every lab follows the same workflow, revisited at increasing depth, and works on a different dataset.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/f6716af1401165d9.svg")], caption: [The course revisits the same workflow at increasing depth. Each lab sits immediately after the chapter that supplies its concepts.]) <fig:course-workflow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/f6716af1401165d9.cetz.json")], caption: [The course revisits the same workflow at increasing depth. Each lab sits immediately after the chapter that supplies its concepts.]) <fig:course-workflow>
 
 #figure(
   align(center)[#table(

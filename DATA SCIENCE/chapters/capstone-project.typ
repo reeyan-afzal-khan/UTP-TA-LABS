@@ -11,13 +11,13 @@
 #heading(level: 2)[The capstone is a workflow, not a bigger coding exercise]
  Choose one bundled dataset or an instructor-approved external dataset. The goal is to demonstrate analytical judgment across the full lifecycle.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/dda0c6473dc2d895.svg")], caption: [A professional analysis keeps a visible line from the original question to the final limitations.]) <fig:capstone-chain>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/dda0c6473dc2d895.cetz.json")], caption: [A professional analysis keeps a visible line from the original question to the final limitations.]) <fig:capstone-chain>
 
 
 #heading(level: 2)[Build the report around an evidence chain]
  A capstone becomes easier to follow when every section answers one question. The introduction defines the target population and analytical goal. The data section establishes whether the observations are fit for purpose. EDA develops evidence and candidate explanations. The method section describes how uncertainty or generalisation is quantified. The conclusion states only what the design and validation support.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/a599ee75584c29b8.svg")], caption: [The figure or table in each stage should answer a specific analytical question rather than exist merely to demonstrate a technique.]) <fig:capstone-report-architecture>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/a599ee75584c29b8.cetz.json")], caption: [The figure or table in each stage should answer a specific analytical question rather than exist merely to demonstrate a technique.]) <fig:capstone-report-architecture>
 
 
 #heading(level: 2)[Required components]

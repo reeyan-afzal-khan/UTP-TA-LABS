@@ -1,0 +1,255 @@
+\chapter{Search Engineering: One Loop, Five Algorithms, Tested}
+\label{ch:searchpatterns}
+
+\chapterguide%
+  {Know what BFS, DFS, UCS, GBFS and A$^\star$ each optimise (\chapsref{ch:uninformed}{ch:informed}).}
+  {explain why the five algorithms are one loop with a pluggable frontier; read and extend the \texttt{utils} package; write a unit test for a search function; run the toolkit from the command line; and design a benchmark whose numbers can be compared fairly.}
+
+Lab~3 turns the search code from Labs~1--2 into reusable software: a package with a common interface, hand-checkable tests, a command-line interface and a broader benchmark.
+
+\section{The pluggable frontier}
+
+The graph supplies states and successors; the query supplies the goal test. The frontier policy determines the algorithm (\figref{fig:pluggable}).
+
+\begin{utpfig}[The pluggable frontier policy]{States, successors and the goal test come from the problem. The frontier policy determines the search algorithm.}{fig:pluggable}
+\begin{tikzpicture}[
+  box/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=2.7cm,minimum height=0.9cm,align=center,font=\small\bfseries\color{UTPNavy}},
+  policy/.style={draw=UTPOrange!70!black,fill=UTPPaleOrange,rounded corners=1.5mm,minimum width=1.55cm,minimum height=0.65cm,align=center,font=\scriptsize\bfseries\color{UTPOrange!85!black}},
+  arr/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}
+]
+\node[box] (state) {State\\representation};
+\node[box,right=0.7cm of state] (succ) {Successor\\function};
+\node[box,right=0.7cm of succ] (frontier) {Frontier\\policy};
+\node[box,right=0.7cm of frontier] (result) {Goal test\\and result};
+\draw[arr] (state)--(succ);
+\draw[arr] (succ)--(frontier);
+\draw[arr] (frontier)--(result);
+\node[policy,below=0.75cm of frontier,xshift=-3.2cm] (bfs) {BFS: depth};
+\node[policy,right=0.18cm of bfs] (dfs) {DFS: recency};
+\node[policy,right=0.18cm of dfs] (ucs) {UCS: $g$};
+\node[policy,right=0.18cm of ucs] (gbfs) {GBFS: $h$};
+\node[policy,right=0.18cm of gbfs] (astar) {A*: $g+h$};
+\draw[arr] (ucs.north) -- (frontier.south);
+\node[font=\scriptsize\color{UTPMuted}] at (0.55,-2.35) {swap one line $\rightarrow$ different algorithm};
+\end{tikzpicture}
+\end{utpfig}
+
+In \texttt{utils/core.py}, BFS and DFS use \texttt{popleft} and \texttt{pop}, respectively. UCS, GBFS and A$^\star$ wrap \texttt{best\_first}, whose \texttt{mode} selects the priority. Weighted A$^\star$ reuses it with the heuristic multiplied by 1.5.
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.12\linewidth}m{0.30\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Algorithm} & \utpth{Frontier structure} & \utpth{Entry and priority} \\
+\midrule
+BFS & \texttt{collections.deque} & state; oldest first \\
+DFS & Python list as a stack & state; newest first \\
+UCS & \texttt{heapq} min-heap & \texttt{(g, counter, state, g)} \\
+GBFS & \texttt{heapq} min-heap & \texttt{(h(state), counter, state, g)} \\
+A$^\star$ & \texttt{heapq} min-heap & \texttt{(g + h(state), counter, state, g)} \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{One result type for every algorithm}
+
+Every algorithm returns the same frozen dataclass, allowing one benchmark loop to compare them:
+
+\begin{lstlisting}[style=utppython]
+@dataclass(frozen=True)
+class SearchResult:
+    found: bool
+    path: list
+    hops: int
+    path_cost_km: float
+    expanded: int
+    max_frontier: int
+    runtime_ms: float
+
+    def as_dict(self) -> dict:
+        return asdict(self)
+\end{lstlisting}
+
+Three design decisions are hidden in those seven fields.
+
+\begin{description}
+  \item[The cost is recomputed from the path.] A helper sums edge weights after search, rather than using its stored $g$, keeping \texttt{path\_cost\_km} consistent with the returned path.
+  \item[Failure has a shape.] An unreachable goal returns \texttt{found=False}, an empty path, \texttt{hops=-1} and infinite cost. Callers check \texttt{result.found}.
+  \item[Effort is part of the answer.] \texttt{expanded} and \texttt{max\_frontier} are counted inside the loop, so every comparison in Labs 1--3 comes from the same counters.
+\end{description}
+
+\texttt{as\_dict()} converts a result into a pandas row via \texttt{\{**result.as\_dict()\}}, as used in every lab metrics file.
+
+\section{Separating responsibilities}
+
+\texttt{utils} has five modules, and each knows nothing about the others' concerns (\figref{fig:domains}).
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.20\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Module} & \utpth{Responsibility} \\
+\midrule
+\texttt{core.py} & The five algorithms and \texttt{SearchResult}. Works on any \texttt{\{state: [(neighbour, cost)]\}} dictionary; never mentions airports. \\
+\texttt{openflights.py} & Reads the two CSV files, cleans them, computes Haversine distances, returns the graph. Never searches. \\
+\texttt{plotting.py} & Draws routes on longitude/latitude axes. \\
+\texttt{\_\_main\_\_.py} & The command-line interface: parses arguments, loads the graph, calls one algorithm, prints. \\
+\texttt{test\_search.py} & The unit tests, on graphs of four to five states. Imports \texttt{core} only. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\begin{utpfig}[One search loop across four graph sources]{Graph-specific loaders below the dashed line produce \texttt{\{state: [(neighbour, cost)]\}} dictionaries for shared search code above it.}{fig:domains}
+\begin{tikzpicture}[font=\small]
+\node[utpbox,fill=UTPPaleTeal,draw=UTPGreen,minimum width=12.6cm,minimum height=1.0cm]
+  (shared) at (0,1.5) {\textbf{\texttt{core.py}: the shared search loop}\ \ \ frontier $\cdot$ seen set $\cdot$ goal test $\cdot$ path building};
+\draw[dashed,draw=UTPMuted!70] (-6.5,0.72) -- (6.5,0.72);
+\node[utplabel,anchor=east,color=UTPMuted] at (6.45,0.55) {domain boundary};
+\newcommand{\domain}[4]{%
+  \node[utpbox,minimum width=2.85cm,minimum height=1.45cm,align=center,font=\scriptsize\color{UTPNavy}]
+    (#1) at (#2,-0.75) {\textbf{#3}\\[2pt]#4};
+  \draw[utparrow] (#1.north) -- (#1.north |- shared.south);}
+\domain{of}{-4.8}{OpenFlights}{\texttt{openflights.py}\\6,464 airports\\Haversine costs}
+\domain{ty}{-1.6}{Hand-made graph}{\texttt{test\_search.py}\\4--5 states\\costs chosen by hand}
+\domain{rd}{1.6}{Road network}{a future loader\\junctions, roads\\costs in minutes}
+\domain{gd}{4.8}{Grid or maze}{a future loader\\cells, 4 moves\\unit costs}
+\node[utplabel,anchor=north,align=center,color=UTPMuted] at (0,-1.85)
+  {four graph sources, one identical caller};
+\end{tikzpicture}
+\end{utpfig}
+
+A road network needs a new loader, not new search code or tests. A new algorithm changes \texttt{core.py}, not the loader, CLI or benchmark. Lab~3 asks you to identify this boundary (\figref{fig:domains}).
+
+\section{Priority queues and tuple ordering}
+
+Python's \texttt{heapq} pops the smallest tuple, comparing element by element from the left. The frontier entries in \texttt{best\_first} are \texttt{(priority, counter, state, g)}, and the \texttt{counter} is there for a reason (\figref{fig:tuple}).
+
+\begin{utpfig}[How heapq breaks priority ties]{Heap tuples compare left to right. A unique counter breaks priority ties by insertion order, avoiding comparisons between states.}{fig:tuple}
+\begin{tikzpicture}[font=\small]
+\foreach \a/\b/\c/\y in {%
+  {4.0}/{17}/{'LED'}/{0.7},
+  {4.0}/{23}/{'HEL'}/{0.0}}{
+  \node[utphot,minimum width=1.0cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (0,\y) {\a};
+  \node[utpcell,minimum width=1.0cm,minimum height=0.6cm,font=\scriptsize\bfseries] at (1.15,\y) {\b};
+  \node[utpcell,minimum width=2.3cm,minimum height=0.6cm,font=\scriptsize\ttfamily] at (2.9,\y) {\c};
+}
+\node[utplabel,anchor=south] at (0,1.12) {priority};
+\node[utplabel,anchor=south] at (1.15,1.12) {counter};
+\node[utplabel,anchor=south] at (2.9,1.12) {state};
+\draw[decorate,decoration={brace,amplitude=3.5pt,raise=2pt},draw=UTPRed,semithick]
+  (-0.55,-0.36) -- (-0.55,1.06);
+\node[utplabel,anchor=east,color=UTPRed,align=right] at (-0.85,0.35) {tie\\here};
+\draw[utpptr,draw=UTPGreen] (1.15,-0.42) -- (1.15,-0.75);
+\node[utplabel,anchor=north,color=UTPGreen] at (1.15,-0.78) {so the counter decides};
+\node[utplabel,anchor=west,align=left,text width=5.2cm] at (4.4,0.35)
+  {Without the counter the heap would compare the states. Strings compare, so airports
+   happen to work --- but a tuple state or a mixed type raises \texttt{TypeError}, and even
+   when it works the tie is broken by name rather than by the search.};
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{pitfall}
+Placing a payload directly after the priority makes ties depend on payload comparisons and possibly state names. Insert a unique increasing counter to resolve ties by insertion order without comparing payloads.
+\end{pitfall}
+
+\section{Testing search code}
+
+A successful run on 6,464 airports can hide wrong costs, expansion counts or cycle handling. Tiny graphs make these errors hand-checkable. \texttt{utils/test\_search.py} contains eight tests, one per failure mode:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.34\linewidth}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Test} & \utpth{What a failure would mean} \\
+\midrule
+start equals goal & The goal test runs before any expansion; hops and cost are zero. \\
+unreachable goal & Failure is reported as \texttt{found=False}, not an exception or a wrong path. \\
+cycles terminate & The seen-set stops DFS from looping forever. \\
+BFS and UCS optimise different objectives & The two algorithms give different answers on a graph built so that they must. \\
+frontier update finds the cheaper path & A state first reached expensively is later replaced by a cheaper route. \\
+A$^\star$ matches UCS with a consistent heuristic & The optimality guarantee holds on a hand-checked graph. \\
+GBFS is not assumed optimal & The test asserts the \emph{expected} suboptimality rather than pretending it away. \\
+negative cost is rejected & The precondition of UCS is enforced with a clear error. \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+One test in full shows the pattern --- a tiny graph, a hand-derived expectation, one assertion:
+
+\begin{lstlisting}[style=utppython]
+def test_frontier_update_finds_cheaper_path():
+    graph = {"A": [("B", 10.0), ("C", 1.0)], "C": [("B", 1.0)], "B": [("G", 1.0)], "G": []}
+    result = ucs(graph, "A", "G")
+    assert result.path == ["A", "C", "B", "G"]
+    assert result.path_cost_km == pytest.approx(3.0)
+\end{lstlisting}
+
+These dataset-free tests import only \texttt{core}, run in under a second, and can run on any machine or continuous-integration server.
+
+\begin{keyidea}
+Test the algorithm on the smallest graph that can expose the bug, and test the dataset loader separately. A test that needs real data to run tests both at once and diagnoses neither.
+\end{keyidea}
+
+\section{A command-line interface}
+
+\texttt{utils/\_\_main\_\_.py} makes the package runnable outside a notebook:
+
+\begin{lstlisting}[style=utpterminal]
+cd all_experiments
+python -m utils --algorithm astar --start KUL --goal KEF
+ASTAR: found=True, hops=4, cost_km=11461.3, expanded=69, runtime_ms=4.20
+KUL -> HKT -> LED -> HEL -> KEF
+\end{lstlisting}
+
+The thirty-line module parses three options, loads the graph, selects an algorithm and prints its result. It calls existing search and cleaning code, reproducing Lab~2\textquotesingle s answer. Lab~3 runs it as a subprocess and checks exit status~0.
+
+\section{Benchmarking fairly}
+
+Lab~3 benchmarks BFS, UCS, GBFS and A$^\star$ on ten route pairs in \texttt{utils/search\_queries.csv}:
+
+\begin{utptable}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.12\linewidth}>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X>{\centering\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Algorithm} & \utpth{Success rate} & \utpth{Mean cost (km)} & \utpth{Mean hops} & \utpth{Mean expanded} \\
+\midrule
+BFS & 1.0 & 16,469 & 1.8 & 324 \\
+UCS & 1.0 & 14,321 & 2.2 & 2,700 \\
+GBFS & 1.0 & 15,087 & 2.1 & 2.1 \\
+A$^\star$ & 1.0 & 14,321 & 2.2 & 63 \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+The notebook enforces four conditions for a fair comparison:
+
+\begin{itemize}
+  \item \textbf{Same graph, same queries, same machine.} Every algorithm sees the identical cleaned graph and the identical ten pairs.
+  \item \textbf{Success rate before averages.} Averaging only solved queries hides failures on hard cases. All four methods solve all ten queries here.
+  \item \textbf{Effort in expansions, not milliseconds.} The runtime column is kept but is not the basis for conclusions.
+  \item \textbf{Every path validated.} The notebook checks that A$^\star$'s cost equals UCS's on all ten queries and counts the queries on which GBFS is costlier (seven of ten).
+\end{itemize}
+
+For these kilometre-based queries, A$^\star$ matches UCS at 2\,\% of its effort. Choose BFS for fewest legs and GBFS when reduced effort matters more than optimal cost.
+
+\input{labs/03-search-consolidation}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which \emph{one} line differs between UCS and A$^\star$ in \texttt{best\_first}, and which module would you edit to add a fourth mode?
+  \item Why is \texttt{path\_cost\_km} recomputed from the returned path instead of taken from the search's $g$ value?
+  \item What is the \texttt{counter} in the heap tuple for, and what goes wrong without it when states are tuples?
+  \item Why do the tests use a five-state graph rather than the airline network?
+  \item The benchmark reports GBFS as costlier than UCS on seven of ten queries. Why is ``seven of ten'' more informative than the mean cost gap alone?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{checkanswers}
+\begin{enumerate}
+  \item The \texttt{priority} function: it returns \texttt{g} for UCS and \texttt{g + h(state)} for A$^\star$. A fourth mode would be added in \texttt{core.py} only.
+  \item So that the reported cost and the reported path can never disagree: the cost is derived from the path that is actually returned.
+  \item It breaks priority ties. Without it, \texttt{heapq} compares the states themselves, which raises \texttt{TypeError} for tuples of mixed types and, even when it works, orders equal-priority entries by name rather than by the search.
+  \item The correct answer can be worked out by hand, a failure is easy to diagnose, and the test needs no data and runs in milliseconds --- so it will actually be run.
+  \item A mean gap can be dominated by one bad query. ``Seven of ten'' says how \emph{often} GBFS is worse, which is what someone choosing an algorithm needs to know.
+\end{enumerate}
+\end{checkanswers}

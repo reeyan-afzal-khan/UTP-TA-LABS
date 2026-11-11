@@ -19,7 +19,7 @@ NLP systems acquire text, normalise it, build a representation, apply a task mod
 
 #callout("analogy", title: [Analogy])[Think of an assembly line. A part that falls off at the first station is simply missing at every station after it, however good those later stations are. Early errors in NLP work the same way: no downstream model can use a word that OCR never saw.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/8a940596f9a6501e.svg")], caption: [Lab~6 covers acquisition, normalisation and OCR measurement. Lab~7 starts with clean text and builds a representation and classifier.]) <fig:nlp-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/8a940596f9a6501e.cetz.json")], caption: [Lab~6 covers acquisition, normalisation and OCR measurement. Lab~7 starts with clean text and builds a representation and classifier.]) <fig:nlp-pipeline>
 
 
 #heading(level: 2)[Optical character recognition as text acquisition]
@@ -51,7 +51,7 @@ This rule excludes case, spacing and punctuation from the error count. A task th
 
 #strong[Levenshtein distance] gives one: the minimum number of single-character insertions, deletions and substitutions needed to turn one string into the other. Imagine a proofreader correcting the OCR output with a red pen and charging one unit per mark. The distance is the smallest possible bill (#ref(label("fig:levenshtein"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/29afe019e892c853.svg")], caption: [The table for turning the reference `nims` into the OCR output `nidu`, as Lab~6's baseline actually read it. Cell $\( i \, j \)$ holds the cost of matching the first $i$ characters of the reference with the first $j$ of the prediction: one more than the cell above (delete), one more than the cell to the left (insert), or the diagonal plus one if the characters differ (substitute). The answer, 2, is in the bottom-right corner: substitute `m`$arrow.r$`d` and `s`$arrow.r$`u`.]) <fig:levenshtein>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/29afe019e892c853.cetz.json")], caption: [The table for turning the reference `nims` into the OCR output `nidu`, as Lab~6's baseline actually read it. Cell $\( i \, j \)$ holds the cost of matching the first $i$ characters of the reference with the first $j$ of the prediction: one more than the cell above (delete), one more than the cell to the left (insert), or the diagonal plus one if the characters differ (substitute). The answer, 2, is in the bottom-right corner: substitute `m`$arrow.r$`d` and `s`$arrow.r$`u`.]) <fig:levenshtein>
 
 The lab's implementation computes that table one row at a time, keeping only the previous row:
 

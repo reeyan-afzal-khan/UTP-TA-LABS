@@ -61,7 +61,7 @@ The most important rule is semantic clarity: every activity should use a verb an
 
 A #strong[swimlane] or deployment flowchart adds lanes for actors, departments, or roles. This makes cross-functional hand-offs explicit.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/1a367f4a5b602c93.svg")], caption: [A swimlane diagram for recruitment. Each lane is an actor, so every arrow that crosses a lane boundary is a hand-off of responsibility.]) <fig:swimlane-recruitment>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/1a367f4a5b602c93.cetz.json")], caption: [A swimlane diagram for recruitment. Each lane is an actor, so every arrow that crosses a lane boundary is a hand-off of responsibility.]) <fig:swimlane-recruitment>
 
 A normal flowchart answers "What happens next?" A swimlane also answers "Who is responsible when it happens?"
 
@@ -111,7 +111,7 @@ This prevents #emph[automating waste].
 
 The textbook presents a five-phase implementation roadmap associated with SAP Solution Manager. The names are useful even when another ERP product is used because they describe general project logic.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/5a33aaa082dce0dd.svg")], caption: [The five-phase ERP implementation roadmap the textbook associates with SAP Solution Manager. The phase names describe general project logic and apply to other ERP products too.]) <fig:implementation-roadmap>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/5a33aaa082dce0dd.cetz.json")], caption: [The five-phase ERP implementation roadmap the textbook associates with SAP Solution Manager. The phase names describe general project logic and apply to other ERP products too.]) <fig:implementation-roadmap>
 
 
 #heading(level: 3)[Project Preparation]

@@ -17,7 +17,7 @@ A #strong[stack] is an abstract data type in which access occurs at one end call
 
 If 10 is inserted first, then 20, then 30, the top is 30. Removing an item removes 30 before 20 or 10.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/9a75a8719f9b1ea8.svg")], caption: [A stack under a sequence of operations. Only the top ever changes, and `pop` always returns the most recent survivor --- 30 leaves before 20, which leaves before 10.]) <fig:stack-trace>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/9a75a8719f9b1ea8.cetz.json")], caption: [A stack under a sequence of operations. Only the top ever changes, and `pop` always returns the most recent survivor --- 30 leaves before 20, which leaves before 10.]) <fig:stack-trace>
 
 The slide deck names the main operations:
 
@@ -104,7 +104,7 @@ A linked-list stack uses the head node as the top. Pushing inserts at the head; 
 
 The same discipline runs underneath every C++ program. Each function call pushes a frame holding that call's parameters and local variables; each `return` pops one (#ref(label("fig:call-stack"), supplement: [Figure])). This is why a runaway recursion produces a #emph[stack overflow], and why the recursive tree traversals in #ref(label("ch:trees-i"), supplement: [Chapter]) return to the correct parent without storing one explicitly.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f702f0ad05dc5808.svg")], caption: [The call stack during `factorial(3)`. Calls pile up until the base case is reached, then unwind in reverse order, each frame resuming exactly where it paused. The stack is what remembers the half-finished multiplications.]) <fig:call-stack>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f702f0ad05dc5808.cetz.json")], caption: [The call stack during `factorial(3)`. Calls pile up until the base case is reached, then unwind in reverse order, each frame resuming exactly where it paused. The stack is what remembers the half-finished multiplications.]) <fig:call-stack>
 
 
 #heading(level: 2)[Lab-manual application: infix to postfix]
@@ -130,6 +130,6 @@ For example, the infix expression $ A + B * C $ becomes $ A #h(0em) B #h(0em) C 
 
 #ref(label("fig:infix-trace"), supplement: [Figure]) traces the whole conversion for a slightly larger expression. Read it as a table of states: the stack column is the operator stack from bottom to top, and the output column only ever grows.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/e956ea0aabb372b2.svg")], caption: [Converting `A + B * C - D` to postfix. When `-` arrives, the stack holds `+` and `*`; both have precedence at least as high as `-`, so both are emitted before `-` is pushed. That single rule is what encodes operator precedence.]) <fig:infix-trace>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/e956ea0aabb372b2.cetz.json")], caption: [Converting `A + B * C - D` to postfix. When `-` arrives, the stack holds `+` and `*`; both have precedence at least as high as `-`, so both are emitted before `-` is pushed. That single rule is what encodes operator precedence.]) <fig:infix-trace>
 
 #callout("quickcheck", title: [Check your understanding])[After `push(10)`, `push(20)`, `push(30)`, `pop()`, and `peek()`, what value is returned by `peek()`? What condition causes underflow?]

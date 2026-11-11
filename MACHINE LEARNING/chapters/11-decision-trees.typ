@@ -11,7 +11,7 @@
 
 In the game of Twenty Questions you never ask "is it a giraffe?" first. You ask a question that splits the possibilities well, such as "is it alive?", and then ask the next one depending on the answer. A decision tree plays that game with a table. It routes each row through questions such as "age below 30?" until it reaches a #strong[leaf], which holds the prediction. Small trees can be read aloud, and forests and boosting combine many of them into stronger models (#ref(label("ch:ensembles"), supplement: [Chapter])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/2db08ad6e51e40e6.svg")], caption: [A small decision tree. Each internal node asks one question about one feature, and each leaf makes a prediction.]) <fig:tree-example>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/2db08ad6e51e40e6.cetz.json")], caption: [A small decision tree. Each internal node asks one question about one feature, and each leaf makes a prediction.]) <fig:tree-example>
 
 
 #heading(level: 2)[How a tree is grown]
@@ -75,7 +75,7 @@ Check the first row: 3,875 customers on month-to-month contracts and 3,168 on lo
 
 Because every question compares one feature to one threshold, a tree carves feature space into axis-aligned rectangles, one per leaf, and predicts a constant inside each.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/b59cdd26bd83011a.svg")], caption: [A tree carves feature space into axis-aligned rectangles. The first split is $x_1 < 3$, the second splits only the left side at $x_2 < 2$, and each region predicts a constant.]) <fig:tree-rectangles>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/b59cdd26bd83011a.cetz.json")], caption: [A tree carves feature space into axis-aligned rectangles. The first split is $x_1 < 3$, the second splits only the left side at $x_2 < 2$, and each region predicts a constant.]) <fig:tree-rectangles>
 
 Axis-aligned rules fit naturally; diagonal boundaries require staircases of splits.
 
@@ -115,7 +115,7 @@ Unrestricted growth can produce pure leaves and memorize observations. Use two c
 
 Tree depth controls the bias--variance trade-off from #ref(label("sec:bias-variance"), supplement: [Section]). #ref(label("fig:tree-depth"), supplement: [Figure]) measures it on Lab~2's telecom customers; Lab~3 measures the same trade-off on loan defaults.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/432300e1cd3ea283.svg")], caption: [Accuracy of churn trees by depth, on the rows they trained on and on 1,761 validation customers. Training accuracy climbs with every level, while validation accuracy peaks at depth 4 (0.793) and then drifts down to 0.750.]) <fig:tree-depth>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/432300e1cd3ea283.cetz.json")], caption: [Accuracy of churn trees by depth, on the rows they trained on and on 1,761 validation customers. Training accuracy climbs with every level, while validation accuracy peaks at depth 4 (0.793) and then drifts down to 0.750.]) <fig:tree-depth>
 
 Left to grow without limit, the same tree reaches depth 25 with 1,004 leaves. It scores 0.998 on its training rows and 0.741 on validation: it has started describing individual customers instead of patterns.
 

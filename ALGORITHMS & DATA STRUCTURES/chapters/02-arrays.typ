@@ -19,7 +19,7 @@ An #strong[array] stores a collection of similar data items of the same type. Th
 
 Consider the one-dimensional array $ \[ 12 \, med 25 \, med 18 \, med 30 \, med 22 \] . $ Its indexes are $0 \, 1 \, 2 \, 3 \, 4$ in normal C++ indexing.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/86c7a68d587db810.svg")], caption: [A one-dimensional array. The index is a position, not a value: index 3 and the value 30 are different things stored in different places.]) <fig:array-1d>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/86c7a68d587db810.cetz.json")], caption: [A one-dimensional array. The index is a position, not a value: index 3 and the value 30 are different things stored in different places.]) <fig:array-1d>
 
 
 #heading(level: 3)[Array properties from the slides]
@@ -43,7 +43,7 @@ The slides state that the address of an array element can be calculated from the
 
 #ref(label("fig:array-memory"), supplement: [Figure]) shows why that single multiplication is the whole story. The machine never looks at `A[0]`, `A[1]`, or `A[2]` on the way to `A[3]`; it computes one address and reads it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/85dcecd81ed51663.svg")], caption: [Contiguous storage turns indexing into arithmetic. Because every element is the same size, the address of any element is one multiply-and-add away from the base address --- so reaching `A[3]` costs the same as reaching `A[0]`.]) <fig:array-memory>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/85dcecd81ed51663.cetz.json")], caption: [Contiguous storage turns indexing into arithmetic. Because every element is the same size, the address of any element is one multiply-and-add away from the base address --- so reaching `A[3]` costs the same as reaching `A[0]`.]) <fig:array-memory>
 
 #callout("clarification", title: [Clarification])[The formula above is an explanatory expansion of the slide statement about base address and element size. The slides themselves do not provide a numeric address formula.]
 
@@ -53,11 +53,11 @@ The slides state that the address of an array element can be calculated from the
 
 A 1D array forms a single indexed sequence. A 2D array stores values in rows and columns and is commonly used for tables, grids, and matrices.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/5bd9e18391ea58ca.svg")], caption: [A $3 times 3$ array. The first index selects the row, the second selects the column, so `matrix[1][2]` is row~1, column~2 --- the value~6.]) <fig:array-2d>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/5bd9e18391ea58ca.cetz.json")], caption: [A $3 times 3$ array. The first index selects the row, the second selects the column, so `matrix[1][2]` is row~1, column~2 --- the value~6.]) <fig:array-2d>
 
 #callout("clarification", title: [Clarification])[A 2D array is a convenient #emph[notation]; memory itself is still one flat sequence of bytes. C++ stores the rows one after another, an arrangement called #strong[row-major order] (#ref(label("fig:row-major"), supplement: [Figure])). This is why `matrix[r][c]` can still be resolved with arithmetic, and why walking a matrix row by row is friendlier to the cache than walking it column by column.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/28e1ed11cb8c633e.svg")], caption: [Row-major order: the rows of a two-dimensional array are laid end to end in linear memory. The element `matrix[r][c]` sits at flat offset $r times 3 + c$, which is how two indices collapse back into one address.]) <fig:row-major>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/28e1ed11cb8c633e.cetz.json")], caption: [Row-major order: the rows of a two-dimensional array are laid end to end in linear memory. The element `matrix[r][c]` sits at flat offset $r times 3 + c$, which is how two indices collapse back into one address.]) <fig:row-major>
 
 In C++:
 
@@ -97,7 +97,7 @@ Arrays are especially useful when the number of elements is known and direct ind
 
 Contiguity is what makes access cheap, and it is also what makes insertion expensive. To place a value in the middle of a full-to-the-left array, every element from that position onwards must move up one slot to open a gap (#ref(label("fig:array-insert"), supplement: [Figure])). Deletion is the mirror image: the survivors must close the gap.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/7a140d4e4a516857.svg")], caption: [Inserting 99 at index 2. Because the elements must stay contiguous, the tail of the array shifts right one position before the new value can be written. Insertion near the front of a large array therefore costs $O \( n \)$ moves, even though #emph[finding] index 2 costs nothing.]) <fig:array-insert>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/7a140d4e4a516857.cetz.json")], caption: [Inserting 99 at index 2. Because the elements must stay contiguous, the tail of the array shifts right one position before the new value can be written. Insertion near the front of a large array therefore costs $O \( n \)$ moves, even though #emph[finding] index 2 costs nothing.]) <fig:array-insert>
 
 
 #heading(level: 2)[Array access vs later pointer-based access]

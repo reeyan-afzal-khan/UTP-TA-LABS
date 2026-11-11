@@ -6,7 +6,7 @@
 
 Start with the command-line environment, then follow the operating system from #strong[processes] to #strong[CPU time], #strong[shared resources], #strong[memory], and finally #strong[persistent storage]. Each numbered chapter is followed by the lab that puts that chapter's ideas into practice, and the capstone brings the five stages together.
 
-#callout("utpfigure", title: [])[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/23aba8e807a7cf4c.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/23aba8e807a7cf4c.cetz.json")]
 
 #figure(
   align(center)[#table(

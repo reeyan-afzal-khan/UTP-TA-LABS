@@ -15,7 +15,7 @@
 #heading(level: 2)[Address translation]
  Divide the virtual address by the page size. The quotient is the page number; the remainder is the offset. The page table replaces the page number with a frame number, while the offset stays unchanged. In compact form: `physical address = frame `$times$` page size + offset`.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/1f8a2f86733bb5d7.svg")
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/1f8a2f86733bb5d7.cetz.json")
 
 Only the #emph[page number] is translated. The offset passes through untouched, which is why the page size fixes how many bits each part uses --- and why page size is always a power of two.], caption: [Translating virtual address 9000 with 4096-byte pages: page 2, offset 808. The page table maps page 2 to frame 5, so the physical address is $5 times 4096 + 808 = 21 thin 288$.]) <fig:address-translation>
 

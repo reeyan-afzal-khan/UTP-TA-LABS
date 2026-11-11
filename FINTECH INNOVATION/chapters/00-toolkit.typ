@@ -77,11 +77,11 @@ The supporting scripts and CSV files are supplied separately by the instructor o
 
 #code-block("python unbundling_scorecard.py value_chain.csv", lang: "text")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/e00d9d099ecde45d.svg")], caption: [Create the course environment and install pandas and NumPy once. For each practical session, activate it before running a lab script or working through the code in the lab sheet.]) <fig:venv-routine>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/e00d9d099ecde45d.cetz.json")], caption: [Create the course environment and install pandas and NumPy once. For each practical session, activate it before running a lab script or working through the code in the lab sheet.]) <fig:venv-routine>
 
 #callout("keyidea", title: [Key idea])[#strong[Activate first, then install.] Run the course scripts with the same Python environment that contains `pandas` and `NumPy`.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/9dd228e108ae9094.svg")], caption: [Keep the FinTech lab packages isolated from the operating system and from other projects. This environment needs only `pandas` and `NumPy`; built-in modules such as `hashlib` are already included with Python.]) <fig:venv-separate>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/9dd228e108ae9094.cetz.json")], caption: [Keep the FinTech lab packages isolated from the operating system and from other projects. This environment needs only `pandas` and `NumPy`; built-in modules such as `hashlib` are already included with Python.]) <fig:venv-separate>
 
 
 #heading(level: 2)[Route B: Anaconda or Miniconda]

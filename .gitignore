@@ -68,6 +68,10 @@ env/
 # =========================
 /.courses/
 
+# Local subtitle inference environment, models and progress
+/.subtitle-setup/.venv/
+/.subtitle-setup/runtime/
+
 # =========================
 # Local VS Code course builds (never published PDFs).
 # =========================

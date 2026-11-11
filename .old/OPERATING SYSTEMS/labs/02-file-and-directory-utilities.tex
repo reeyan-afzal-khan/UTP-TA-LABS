@@ -1,0 +1,73 @@
+\labsection{2}{Files, metadata, and reliable CLI utilities}{sec:lab02}
+\begin{labproject}{Read file metadata, copy bytes safely, and report search status}
+
+\textbf{Coverage.} Chapter~\ref{ch:files-cli}: contents vs. metadata, file descriptors, exit status.\\
+\textbf{Goal.} Run three small utilities and verify them with standard Linux commands.\\
+\textbf{Explain.} Explain what each utility promises to the user and how it reports failure.
+
+\section*{Source code}
+\labsourcecard{\texttt{file\_info.c}}{Read metadata with \texttt{stat()}.}{The program does not read the file's contents; it reads information \emph{about} the file.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/file_info.c}
+
+\labsourcecard{\texttt{file\_copy.c}}{Copy bytes using POSIX file descriptors.}{The outer loop reads chunks; the inner loop handles a write that may complete only part of a chunk.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/file_copy.c}
+
+\labsourcecard{\texttt{mini\_grep.c}}{Search a text file and return a useful exit status.}{\texttt{0}=match, \texttt{1}=no match, \texttt{2}=usage/file error.}
+\lstinputlisting[style=utpcnumbered]{all_experiments/Lab02/mini_grep.c}
+
+\section*{Task 1 --- Build and inspect metadata}
+\begin{lstlisting}[style=utpbash]
+cd all_experiments/Lab02
+gcc -Wall -Wextra -std=c11 file_info.c -o file_info
+gcc -Wall -Wextra -std=c11 file_copy.c -o file_copy
+gcc -Wall -Wextra -std=c11 mini_grep.c -o mini_grep
+./file_info sample.txt
+stat sample.txt
+\end{lstlisting}
+Match at least three fields between the program and \texttt{stat}: size, inode, link count, or permissions.
+
+\section*{Task 2 --- Verify the copy, not just the message}
+\begin{lstlisting}[style=utpbash]
+./file_copy sample.txt copy.txt
+cmp sample.txt copy.txt
+echo $?
+ls -l sample.txt copy.txt
+\end{lstlisting}
+A \texttt{cmp} status of 0 is independent evidence that the byte contents are equal.
+
+\section*{Task 3 --- Treat exit status as part of the interface}
+\begin{lstlisting}[style=utpbash]
+./mini_grep kernel sample.txt; echo "status=$?"
+./mini_grep pineapple sample.txt; echo "status=$?"
+./mini_grep kernel missing.txt; echo "status=$?"
+\end{lstlisting}
+Create a three-row table: command, visible output, exit status, meaning.
+
+\section*{Task 4 --- Controlled edit in Vim}
+Open \texttt{mini\_grep.c}. Change the match output from \texttt{FILE:LINE: text} to begin with \texttt{MATCH }. Save, recompile, and confirm that the exit status rules did not change.
+
+\begin{keyidea}
+A professional CLI tool has two audiences: a person reads its output; another program can read its exit status.
+\end{keyidea}
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Which information belongs to file metadata rather than file contents?
+  \item Why must a copy program check the return value from \texttt{read()} and \texttt{write()}?
+  \item Why is exit status useful even when a command already prints a message?
+\end{enumerate}
+\end{quickcheck}
+
+\begin{verification}
+\begin{itemize}
+  \item At least three metadata fields from \texttt{file\_info} match \texttt{stat}.
+  \item \texttt{cmp} returns status~0 for the original and the copy.
+  \item \texttt{mini\_grep} returns 0 for a match, 1 for no match, and 2 for a missing file.
+  \item After the Vim edit the output begins with \texttt{MATCH} and the exit-status rules are unchanged.
+\end{itemize}
+\end{verification}
+
+\begin{labdeliverable}
+Submit: metadata comparison, copy verification, the three-case exit-status table, and one screenshot or terminal capture showing the modified \texttt{MATCH} output.
+\end{labdeliverable}
+\end{labproject}

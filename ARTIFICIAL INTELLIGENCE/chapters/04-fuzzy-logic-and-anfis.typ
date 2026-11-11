@@ -21,7 +21,7 @@ Classical logic has two answers, true and false. Fuzzy logic allows a #strong[de
 
 #callout("analogy", title: [Analogy])[An ordinary light switch is either off or on. A dimmer sweeps smoothly from dark to full brightness and cannot go past either end. Crisp logic is the switch. Fuzzy logic is the dimmer: "hot" can be 0.47 on, and the fan responds in proportion.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/a0216e77a314759a.svg")], caption: ["Hot" as a crisp set and as a fuzzy set, the second using the set from Lab~4. The crisp version forces a decision at one point. The fuzzy version reports a degree, so $35^compose$C is hot to degree $0.47$.]) <fig:crisp-fuzzy>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/a0216e77a314759a.cetz.json")], caption: ["Hot" as a crisp set and as a fuzzy set, the second using the set from Lab~4. The crisp version forces a decision at one point. The fuzzy version reports a degree, so $35^compose$C is hot to degree $0.47$.]) <fig:crisp-fuzzy>
 
 #callout("pitfall", title: [Common mistake])[A membership of 0.47 is not a 47 % chance that it is hot. The temperature is known exactly, and nothing about it is uncertain. The word "hot" is what has edges that fade. Fuzzy logic models vague words; probability models unknown facts.]
 
@@ -33,7 +33,7 @@ Classical logic has two answers, true and false. Fuzzy logic allows a #strong[de
 
 A #strong[membership function] maps a crisp value to a degree. The lab uses triangles, the simplest shape that rises to 1 and falls back to 0, defined by three points $a lt.eq b lt.eq c$: $ mu \( x \) = max #h(-1em) #scale(x: 180%, y: 180%)[\(] 0 \, #h(0em) min #h(-1em) #scale(x: 180%, y: 180%)[\(] frac(x - a, b - a) \, #h(0em) frac(c - x, c - b) #scale(x: 180%, y: 180%)[\)] #scale(x: 180%, y: 180%)[\)] . $ The outer sets are #strong[shoulders]: $a = b$ gives membership~1 below the peak, and $b = c$ gives membership~1 above it, so extreme readings still activate rules. The temperature sets are cold $\( 0 \, 0 \, 18 \)$, mild $\( 12 \, 22 \, 32 \)$ and hot $\( 26 \, 45 \, 45 \)$ (#ref(label("fig:membership"), supplement: [Figure])). They overlap on purpose. At $15^compose$C the reading is partly cold and partly mild at the same time, and that overlap is what makes the output change smoothly.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/383d8c10333d972b.svg")], caption: [Cold and hot are shoulders; mild is triangular. At $15^compose$C, cold membership is $\( 18 - 15 \) \/ 18 = 0.17$ and mild membership is $\( 15 - 12 \) \/ 10 = 0.30$, so rules for both will fire.]) <fig:membership>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/383d8c10333d972b.cetz.json")], caption: [Cold and hot are shoulders; mild is triangular. At $15^compose$C, cold membership is $\( 18 - 15 \) \/ 18 = 0.17$ and mild membership is $\( 15 - 12 \) \/ 10 = 0.30$, so rules for both will fire.]) <fig:membership>
 
 The lab implements the triangle in a few lines, with the shoulder cases written out explicitly:
 
@@ -47,7 +47,7 @@ The lab implements the triangle in a few lines, with the shoulder cases written 
 
 A #strong[fuzzy inference system] (FIS) turns crisp inputs into a crisp output by passing through words in between (#ref(label("fig:fis-pipeline"), supplement: [Figure])). The numbers go in, become degrees of "cold" and "comfortable", meet the rules, and come back out as one number for the fan.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2c9b553bc4aeb4bb.svg")], caption: [Inputs of $15^compose$C and 45 % become membership degrees, activate rules and yield one crisp ventilation demand.]) <fig:fis-pipeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2c9b553bc4aeb4bb.cetz.json")], caption: [Inputs of $15^compose$C and 45 % become membership degrees, activate rules and yield one crisp ventilation demand.]) <fig:fis-pipeline>
 
 #figure(
   align(center)[#table(
@@ -94,7 +94,7 @@ Two small choices make this work. AND takes the `min`, because a chain is only a
 
 The rules produce a fuzzy output set, but the fan needs a number. At $15^compose$C and 45 %, clip the "low" output set at $0.17$ and the "medium" set at $0.30$, combine them, and report the centroid (#ref(label("fig:defuzz"), supplement: [Figure])). If you cut that shape out of cardboard, the centroid is the point where it would balance on a fingertip. A stronger rule adds weight to its side and pulls the balance point towards it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b452663a95406fc8.svg")], caption: [Defuzzifying the $15^compose$C, 45 % reading. Low is clipped at $0.17$ and medium at $0.30$; high does not fire. The centre of area of their union is $40.4 thin %$. A stronger medium rule would pull the centroid to the right.]) <fig:defuzz>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b452663a95406fc8.cetz.json")], caption: [Defuzzifying the $15^compose$C, 45 % reading. Low is clipped at $0.17$ and medium at $0.30$; high does not fire. The centre of area of their union is $40.4 thin %$. A stronger medium rule would pull the centroid to the right.]) <fig:defuzz>
 
 #callout("workedexample", title: [Worked example])[At $15^compose$C and 45 % relative humidity the memberships are cold $0.17$, mild $0.30$, comfortable $\( 45 - 30 \) \/ 20 = 0.75$, and all others~$0$. The rule strengths follow: $ upright("low") = min \( 0.17 \, 0.75 \) = 0.17 \, #h(2em) upright("medium") = min \( 0.30 \, 0.75 \) = 0.30 \, #h(2em) upright("high") = 0 . $ Clipping the low and medium output sets at those strengths and taking the centroid of their union gives a ventilation demand of $40.4 thin %$: a little below "medium", pulled down by the cold rule.]
 
@@ -126,9 +126,9 @@ A surface also exposes gaps in coverage. Every reading must fire at least one ru
 
 The controller above is a #strong[Mamdani] system: each rule outputs a fuzzy #emph[set], and those sets are combined and defuzzified. A #strong[Sugeno] rule instead outputs a formula, such as $0.6 thin x_1 + 0.2 thin x_2 + 1.3$, and the final output is the firing-strength-weighted average of those formulas (#ref(label("fig:mamdani-sugeno"), supplement: [Figure])). One way to picture it: each Sugeno rule is a small straight-line model that is valid in its own neighbourhood, and the memberships decide how much each one gets to say at any given input (#ref(label("fig:sugeno-blend"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d14febfc5500a361.svg")], caption: [Mamdani combines fuzzy output sets and defuzzifies them. Sugeno averages numeric rule outputs by firing strength, enabling ANFIS training.]) <fig:mamdani-sugeno>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/d14febfc5500a361.cetz.json")], caption: [Mamdani combines fuzzy output sets and defuzzifies them. Sugeno averages numeric rule outputs by firing strength, enabling ANFIS training.]) <fig:mamdani-sugeno>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9a516d3d93cf2ce9.svg")], caption: [An illustrative one-input Sugeno system with two rules. Bottom: the two memberships say which rule applies where. Top: the two dashed straight lines are the rule outputs, and the solid curve is their weighted average. It follows one line on the left, the other on the right, and bends smoothly between them. Blending straight lines is how ANFIS fits a curved response.]) <fig:sugeno-blend>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/9a516d3d93cf2ce9.cetz.json")], caption: [An illustrative one-input Sugeno system with two rules. Bottom: the two memberships say which rule applies where. Top: the two dashed straight lines are the rule outputs, and the solid curve is their weighted average. It follows one line on the left, the other on the right, and bends smoothly between them. Blending straight lines is how ANFIS fits a curved response.]) <fig:sugeno-blend>
 
 #figure(
   align(center)[#table(
@@ -152,7 +152,7 @@ The Sugeno form is what makes learning possible. Once the firing strengths are f
 
 Writing rules by hand works when an expert knows the numbers. What if nobody knows exactly where "high sensor reading" begins? An #strong[Adaptive Neuro-Fuzzy Inference System] (ANFIS) expresses a Sugeno FIS as a five-layer network with learnable parameters (#ref(label("fig:anfis"), supplement: [Figure])). The inference structure stays the same, and data determine the parameters.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/29338b16e8af3a53.svg")], caption: [ANFIS with two inputs and two memberships each. Layers 1 and 4 contain trainable parameters; layers 2, 3 and 5 perform fixed arithmetic.]) <fig:anfis>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/29338b16e8af3a53.cetz.json")], caption: [ANFIS with two inputs and two memberships each. Layers 1 and 4 contain trainable parameters; layers 2, 3 and 5 perform fixed arithmetic.]) <fig:anfis>
 
 The lab's `SugenoANFIS` class is this diagram in code. With $m$ Gaussian memberships per input and two inputs there are $m^2$ rules, one for every combination of an $A$ set with a $B$ set:
 

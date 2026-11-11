@@ -30,7 +30,7 @@
 #heading(level: 2)[Position is usually the strongest encoding]
  Humans compare positions along a common axis more accurately than angles, areas, or 3D volumes. That is why a bar chart is often easier to read than a pie chart and why decorative 3D effects are rarely useful.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/1da056e97304bc68.svg")], caption: [Prefer encodings that support precise comparison when the analytical goal depends on small differences.]) <fig:encoding-hierarchy>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/1da056e97304bc68.cetz.json")], caption: [Prefer encodings that support precise comparison when the analytical goal depends on small differences.]) <fig:encoding-hierarchy>
 
 
 #heading(level: 2)[Every visual encoding consumes attention]

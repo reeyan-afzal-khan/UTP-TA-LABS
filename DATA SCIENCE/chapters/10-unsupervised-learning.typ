@@ -15,7 +15,7 @@
 #heading(level: 2)[K-means searches for compact groups]
  K-means chooses $k$ cluster centres and assigns each observation to the nearest centre, repeating assignment and centre updates to reduce within-cluster squared distance.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/9a0ddcec2a2873c6.svg")], caption: [K-means alternates between assigning observations and recomputing centres until assignments stabilise or improvement becomes negligible.]) <fig:kmeans-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/9a0ddcec2a2873c6.cetz.json")], caption: [K-means alternates between assigning observations and recomputing centres until assignments stabilise or improvement becomes negligible.]) <fig:kmeans-loop>
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/unsupervised_kmeans_clusters.svg", width: 90%)], caption: [The algorithm partitions observations according to distance from learned centres. The labels "cluster 1" etc. are arbitrary; only the geometry matters during fitting.]) <fig:unsup-kmeans-example>
 

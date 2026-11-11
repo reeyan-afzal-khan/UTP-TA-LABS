@@ -75,7 +75,7 @@ For asymmetric real-world costs, a custom loss or quantile loss may be more appr
 
 Almost every classification metric is a different way of reading the same four boxes.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/e84bf1ede7cd4a51.svg")], caption: [The confusion matrix. Almost every classification metric is a different way of reading these four boxes.]) <fig:confusion-matrix>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/e84bf1ede7cd4a51.cetz.json")], caption: [The confusion matrix. Almost every classification metric is a different way of reading these four boxes.]) <fig:confusion-matrix>
 
 #callout("analogy", title: [Analogy])[Back to the alarm. #strong[Precision] asks: when it rings, is there really a fire? An alarm that rings at every piece of toast has poor precision. #strong[Recall] asks: when there is a fire, does it ring? An alarm with a dead battery has zero recall, and its precision is undefined because it never rang. Turning the sensitivity up or down trades one against the other.]
 
@@ -143,7 +143,7 @@ A probability model becomes a yes-or-no classifier only after someone picks a th
 
 Recall can only rise as the threshold falls. Precision wanders, because each new flag may be right or wrong. Nothing about the model changed between these rows.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/bb820b6cf6fe2068.svg")], caption: [Thresholds move the operating point. The eight scores stay fixed. Lowering the threshold from 0.65 to 0.35 catches the two remaining positives, at the cost of one more false alarm.]) <fig:threshold-shift>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/bb820b6cf6fe2068.cetz.json")], caption: [Thresholds move the operating point. The eight scores stay fixed. Lowering the threshold from 0.65 to 0.35 catches the two remaining positives, at the cost of one more false alarm.]) <fig:threshold-shift>
 
 #callout("keyidea", title: [Key idea])[Lower thresholds increase positive decisions and can never reduce recall. Higher thresholds reduce alerts and may miss positives. Choose the threshold on validation data from costs or capacity, and lock it before test evaluation (Lab~2, Part~C).]
 
@@ -177,7 +177,7 @@ The bar marks the capacity cutoff at $k = 5$. There are $4$ churners in the batc
 
 #ref(label("fig:pr-curves"), supplement: [Figure]) shows two logistic models from the labs: Lab~2's hotel cancellations, scored on the bookings of 2017, and Lab~3's loan defaults. The hotel model ranks well, with a ROC AUC of 0.824; the loan model is harder pressed, at 0.731. Their positive rates differ, 0.387 and 0.192, so each precision--recall curve has its own baseline: a model that guesses scores its positive rate, not 0.5.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/5c72a3dbedb4ec79.svg")], caption: [ROC and precision-recall curves for two logistic models on their validation rows, Lab~2's hotel cancellations and Lab~3's loan defaults, read at 21 thresholds. The ROC baseline is the diagonal; each precision-recall baseline is that table's positive rate, 0.39 for the hotel and 0.19 for the loans.]) <fig:pr-curves>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/5c72a3dbedb4ec79.cetz.json")], caption: [ROC and precision-recall curves for two logistic models on their validation rows, Lab~2's hotel cancellations and Lab~3's loan defaults, read at 21 thresholds. The ROC baseline is the diagonal; each precision-recall baseline is that table's positive rate, 0.39 for the hotel and 0.19 for the loans.]) <fig:pr-curves>
 
 Rarity changes the story. Lab~5's fraud ranking has a ROC AUC of 0.95, which sounds excellent. Fraud is 0.17% of those 85,443 transactions, so among the top 100 flagged ones only 39 are fraud, and its average precision is 0.22. Most of the ROC credit comes from correctly ranking tens of thousands of ordinary transactions below a few hundred unusual ones.
 
@@ -189,7 +189,7 @@ Rarity changes the story. Lab~5's fraud ranking has a ROC AUC of 0.95, which sou
 
 #callout("analogy", title: [Analogy])[One mock exam can be easy or hard by chance. Set five, each covering a different part of the syllabus, and the average tells you far more. #strong[$k$-fold cross-validation] does this with your data: train on $k - 1$ folds, validate on the remaining one, and rotate until every fold has been held out.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/f3e8c85a5dc7299c.svg")], caption: [Five-fold cross-validation stays inside the development data. Each round validates on one fold and trains on the other four; the untouched test set is not a sixth fold and is never used for tuning.]) <fig:cv-folds>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/f3e8c85a5dc7299c.cetz.json")], caption: [Five-fold cross-validation stays inside the development data. Each round validates on one fold and trains on the other four; the untouched test set is not a sixth fold and is never used for tuning.]) <fig:cv-folds>
 
 #callout("workedexample", title: [Worked example])[Lab~2's churn model, five folds of the training rows: ROC AUC 0.860, 0.863, 0.824, 0.835, 0.841. The mean is 0.844 and the standard deviation 0.015. Any claim that one model beats this one by 0.01 should be met with suspicion, since the folds themselves disagree by more than that.]
 

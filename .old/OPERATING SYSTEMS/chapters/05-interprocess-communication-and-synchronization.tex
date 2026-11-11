@@ -1,0 +1,107 @@
+\chapter{Interprocess Communication and Synchronization}\label{ch:ipc}
+\chapterguide{Chapter 1: processes and Chapter 3: standard input/output and pipelines.}{compare pipes and shared memory, identify a critical section and race condition, and explain why shared state requires synchronization before Lab 5.}
+
+\section{Concurrency creates more than one valid execution order}
+When two activities can make progress at the same time, their individual instructions may interleave in several valid ways. The operating system may preempt one process or thread, run another, and later return to the first.
+
+If the activities touch only private state, this may not matter. If they both read and update the same state, the exact interleaving can change the result.
+
+\section{Race conditions and critical sections}
+A \term{race condition} occurs when correctness depends on timing that the program has not controlled. Suppose two workers both execute ``read counter, add one, write counter.'' If both read the same old value before either writes, one increment is lost.
+
+The code that must behave as one indivisible logical action is called a \term{critical section}. A synchronization mechanism prevents unsafe overlap.
+
+\begin{keyidea}
+Synchronization is not about forcing the whole program to run one step at a time. It protects only the state transition that must not be interleaved incorrectly.
+\end{keyidea}
+
+\section{Mutexes and semaphores in plain language}
+A \term{mutex} is commonly used to give one thread at a time exclusive access to a critical section. A \term{semaphore} maintains a count that can represent available units of a resource or coordinate producer-consumer conditions.
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}
+  >{\raggedright\arraybackslash}m{0.32\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Mechanism} & \utpth{Think of it as} & \utpth{Typical use} \\
+\midrule
+Mutex & one key to a protected region & protect a shared counter or data structure \\
+Counting semaphore & a controlled count of available units & free slots, queued items, limited resources \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{Producer-consumer and the bounded buffer}
+A bounded buffer with capacity $N$ can be reasoned about using two counts:
+\[
+\texttt{empty} + \texttt{full} = N.
+\]
+A producer requires an empty slot before adding an item. A consumer requires a full slot before removing one. In a real concurrent implementation, checking and changing these synchronization values must itself be performed safely.
+
+\begin{workedexample}
+For capacity 3, the initial state may be \texttt{empty=3, full=0}. After one successful production it becomes \texttt{empty=2, full=1}. A fourth production without any intervening consumption must wait because no empty slot remains.
+\end{workedexample}
+
+\section{Communication and synchronization are different questions}
+Processes have separate address spaces, so they need an interprocess communication (IPC) mechanism to exchange data. Common models include:
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.19\linewidth}
+  >{\raggedright\arraybackslash}m{0.35\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{IPC model} & \utpth{Main idea} & \utpth{Introductory trade-off} \\
+\midrule
+Pipe & ordered byte stream between endpoints & simple flow, usually directional \\
+Message queue & discrete messages managed by the kernel & message boundaries are preserved \\
+Shared memory & multiple processes map the same memory region & fast sharing, but concurrent writers need coordination \\
+Socket & endpoint-based communication & works locally or across networks \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{A pipe moves data; shared memory exposes common data}
+With a pipe, one process writes bytes and another reads them. Data conceptually travels through a kernel-managed channel.
+
+With shared memory, processes attach the same kernel-managed memory object into their separate address spaces. The bytes do not need to be copied through a read/write stream each time, but the processes must agree on when data is ready and who may modify it.
+
+\begin{pitfall}
+Shared memory solves the ``where can both processes see the data?'' problem. It does not by itself solve the ``who may update it now?'' problem.
+\end{pitfall}
+
+\section{System V shared-memory lifecycle}
+The lab uses System V shared memory because its lifecycle is visible:
+\begin{enumerate}
+  \item create or locate a key;
+  \item create/find a segment with \texttt{shmget};
+  \item attach it with \texttt{shmat};
+  \item read or write the shared bytes;
+  \item detach with \texttt{shmdt};
+  \item remove the segment with \texttt{shmctl(..., IPC\_RMID, ...)}.
+\end{enumerate}
+
+The \texttt{ipcs -m} command lets students observe these kernel-managed objects while they exist.
+
+\section{How to reason about synchronization problems}
+For an introductory problem, ask four questions:
+\begin{enumerate}
+  \item What state is shared?
+  \item What invariant should always remain true?
+  \item Which operation changes that state?
+  \item What must wait when the required condition is not available?
+\end{enumerate}
+This approach is more reliable than memorising a sequence of \texttt{wait()} and \texttt{signal()} calls without understanding the state they protect.
+
+\begin{quickcheck}
+\begin{enumerate}
+  \item Why can shared memory require synchronization even after both processes attach successfully?
+  \item What invariant holds for \texttt{empty} and \texttt{full} in a fixed-capacity buffer?
+  \item What is one conceptual difference between a pipe and shared memory?
+\end{enumerate}
+\end{quickcheck}
+
+\input{labs/05-synchronization-and-shared-memory}

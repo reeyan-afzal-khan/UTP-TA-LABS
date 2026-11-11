@@ -6,7 +6,7 @@
 
 This course is easiest to understand as one connected story: technology changes how financial services are delivered, which expands access, creates new intermediaries, reshapes banks, and finally enables new infrastructure and platform competitors. Three stages tell that story; the final revision map compresses it.
 
-#callout("utpfigure", title: [])[#diagram-image("/FINTECH INNOVATION/figures/diagrams/4ff3129e0075b985.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/4ff3129e0075b985.cetz.json")]
 
 #figure(
   align(center)[#table(

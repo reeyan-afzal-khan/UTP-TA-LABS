@@ -6,7 +6,7 @@
 
 ERP becomes much easier once you stop treating each module as an isolated topic. The course follows the same logic as a real business: understand the organisation, capture demand, plan and obtain resources, fulfil the order, record the financial consequences, and improve the process. Each stage consumes what the previous one produced, which is also the order in which information moves through a real company.
 
-#callout("utpfigure", title: [])[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/aca39af66f39ad1f.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/aca39af66f39ad1f.cetz.json")]
 
 #figure(
   align(center)[#table(
@@ -48,4 +48,4 @@ ERP becomes much easier once you stop treating each module as an isolated topic.
 
 One business event --- a customer confirming an order --- has to reach four different desks, each of which needs a different part of it.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/96aaf54ae3de1a9c.svg")], caption: [The recurring pattern of the course. A single business event is written once and read four ways. Chapters 1--10 work through the areas clockwise; the labs rebuild the whole loop in Odoo.]) <fig:one-event-four-readings>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/96aaf54ae3de1a9c.cetz.json")], caption: [The recurring pattern of the course. A single business event is written once and read four ways. Chapters 1--10 work through the areas clockwise; the labs rebuild the whole loop in Odoo.]) <fig:one-event-four-readings>

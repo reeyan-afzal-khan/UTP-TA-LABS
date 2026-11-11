@@ -58,7 +58,7 @@ In the study log the sorted marks run 38, 43, 47, 50, 52, 59, 62, 65, 68, 77. Th
 
 The mean and median agree on symmetric data and disagree sharply on skewed data. That disagreement is itself a useful diagnostic.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/95b1e08bd741e0bc.svg") #diagram-image("/MACHINE LEARNING/figures/diagrams/38b96451de4b35cb.svg")], caption: [Mean and median on two distributions of 50 values each. On symmetric data they coincide at 4; on right-skewed data the mean, 2.44, is pulled towards the long tail while the median stays at 2 with the bulk of the values.]) <fig:mean-median>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/95b1e08bd741e0bc.cetz.json") #diagram-drawing("/MACHINE LEARNING/figures/diagrams/38b96451de4b35cb.cetz.json")], caption: [Mean and median on two distributions of 50 values each. On symmetric data they coincide at 4; on right-skewed data the mean, 2.44, is pulled towards the long tail while the median stays at 2 with the bulk of the values.]) <fig:mean-median>
 
 #callout("keyidea", title: [Key idea])[A mean far above the median suggests right skew. Consider a log transform or robust scaler; extreme errors also affect RMSE more than MAE (#ref(label("ch:evaluation"), supplement: [Chapter])).]
 
@@ -68,7 +68,7 @@ The mean and median agree on symmetric data and disagree sharply on skewed data.
 
 The normal distribution is the familiar bell-shaped curve. It is controlled by a mean $mu$ and standard deviation $sigma$: $ f \( x \) = frac(1, sigma sqrt(2 pi)) exp #h(-1em) [- 1 / 2 (frac(x - mu, sigma))^2] . $
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/04c8182fc6debb50.svg")], caption: [The standard normal distribution. About 68% of values lie within one standard deviation of the mean.]) <fig:normal>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/04c8182fc6debb50.cetz.json")], caption: [The standard normal distribution. About 68% of values lie within one standard deviation of the mean.]) <fig:normal>
 
 Many measurement errors and averages are approximately normal, but real data should not be assumed normal without inspection.
 
@@ -211,7 +211,7 @@ After scaling, every column has the same spread, so spread can no longer tell co
 
 Covariance describes whether two variables tend to move together: $ "Cov" \( X \, Y \) = bb(E) \[ \( X - mu_X \) \( Y - mu_Y \) \] . $ Pearson correlation standardizes covariance: $ rho_(X \, Y) = frac("Cov" \( X \, Y \), sigma_X sigma_Y) . $ It lies between $- 1$ and $1$ and measures linear association.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/226b8367254ca56b.svg")], caption: [Three pairs of columns from the study log. Left: hours and sleep are mirror twins, nearly one story told twice. Middle: lectures and mark rise together. Right: hours and mark have a correlation close to zero even though they are strongly related, because a straight line through an arch comes out almost flat.]) <fig:three-correlations>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/226b8367254ca56b.cetz.json")], caption: [Three pairs of columns from the study log. Left: hours and sleep are mirror twins, nearly one story told twice. Middle: lectures and mark rise together. Right: hours and mark have a correlation close to zero even though they are strongly related, because a straight line through an arch comes out almost flat.]) <fig:three-correlations>
 
 #callout("keyidea", title: [Key idea])[Correlation near $plus.minus 1$ finds twins: two columns telling one story, so one could nearly be dropped. Correlation near 0 means no #emph[straight-line] connection, and it does not mean no connection. Always plot the pair.]
 
@@ -267,7 +267,7 @@ For matrix multiplication, inner dimensions must match; outer dimensions determi
 
 #callout("workedexample", title: [Worked example])[A matrix times a vector is one dot product per row. Put the line $upright("mark") = 3 times upright("hours") + 40$ into this form, with a column of ones to carry the 40: $ mat(delim: "[", 1, 2; 1, 4; 1, 6) mat(delim: "[", 40; 3) = mat(delim: "[", 1 \( 40 \) + 2 \( 3 \); 1 \( 40 \) + 4 \( 3 \); 1 \( 40 \) + 6 \( 3 \)) = mat(delim: "[", 46; 52; 58) . $ Shapes: $\( 3 times 2 \)$ times $\( 2 times 1 \)$ gives $\( 3 times 1 \)$. Three students go in, and three predictions come out in one multiplication.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/f49e6c0efb936910.svg")], caption: [Matrix shapes in a product. The inner dimensions must match and the outer dimensions survive into the answer: an $\( n times p \)$ matrix times a $\( p times 1 \)$ vector gives an $\( n times 1 \)$ result.]) <fig:matrix-shapes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/f49e6c0efb936910.cetz.json")], caption: [Matrix shapes in a product. The inner dimensions must match and the outer dimensions survive into the answer: an $\( n times p \)$ matrix times a $\( p times 1 \)$ vector gives an $\( n times 1 \)$ result.]) <fig:matrix-shapes>
 
 
 #heading(level: 2)[Vector arithmetic]
@@ -321,7 +321,7 @@ The #strong[Minkowski distance] unifies both: $ d_p \( bold(x) \, bold(z) \) = (
 
 Cosine similarity depends on the angle $theta$ between two vectors: $ cos \( theta \) = frac(bold(x)^(sans(T)) bold(z), parallel bold(x) parallel_2 parallel bold(z) parallel_2) . $
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/26d92c0514c13939.svg")], caption: [Cosine similarity depends only on the angle $theta$ between two vectors, not on their lengths.]) <fig:cosine>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/26d92c0514c13939.cetz.json")], caption: [Cosine similarity depends only on the angle $theta$ between two vectors, not on their lengths.]) <fig:cosine>
 
 A cosine similarity near 1 means similar direction, near 0 means roughly perpendicular, and near $- 1$ means opposite direction.
 

@@ -13,7 +13,7 @@ The supplied Odoo guide is designed as one connected storyline. The strongest fi
 #heading(level: 2, numbering: none)[The two connected business cycles]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f83eee897d908f0b.svg")], caption: [The two connected business cycles of the capstone. The buying cycle fills the warehouse and the selling cycle empties it; manufacturing turns received materials into the finished bikes that are delivered and invoiced.]) <fig:capstone-two-cycles>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/f83eee897d908f0b.cetz.json")], caption: [The two connected business cycles of the capstone. The buying cycle fills the warehouse and the selling cycle empties it; manufacturing turns received materials into the finished bikes that are delivered and invoiced.]) <fig:capstone-two-cycles>
 
 The buying cycle fills the warehouse; the selling cycle empties it. Manufacturing connects raw materials to finished goods. Finance closes the loop when money is received.
 

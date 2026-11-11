@@ -15,7 +15,7 @@ A #strong[queue] is a linear data structure that follows #strong[FIFO]: First In
 #heading(level: 2)[Front and rear]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/502f919da6cdfea2.svg")], caption: [A queue has two active ends. Items join at the rear and leave from the front, so the order of departure matches the order of arrival --- the opposite discipline to a stack.]) <fig:queue-fifo>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/502f919da6cdfea2.cetz.json")], caption: [A queue has two active ends. Items join at the rear and leave from the front, so the order of departure matches the order of arrival --- the opposite discipline to a stack.]) <fig:queue-fifo>
 
 The Week VI slides use the terms #strong[Create Q], #strong[Enqueue(Q,item)], and #strong[Dequeue(Q)]. The enqueue operation is stated as $O \( 1 \)$ in the slide implementation model.
 
@@ -59,7 +59,7 @@ This model exposes the limitation described by the slides: after repeated dequeu
 
 #ref(label("fig:queue-falsefull"), supplement: [Figure]) shows the failure. Both `front` and `rear` only ever move right, so the queue drifts up the array and eventually reports itself full while sitting on empty slots. Shifting everything back down would fix it, but that costs $O \( n \)$ on every dequeue and throws away the whole point of the structure.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/704d057639110d8e.svg")], caption: [The "false full" problem in a linear array queue. After three enqueues and two dequeues, `rear` has reached the last index and further enqueues are rejected --- even though indices 0 and 1 are free. The array is not full; the queue has merely walked off the end of it.]) <fig:queue-falsefull>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/704d057639110d8e.cetz.json")], caption: [The "false full" problem in a linear array queue. After three enqueues and two dequeues, `rear` has reached the last index and further enqueues are rejected --- even though indices 0 and 1 are free. The array is not full; the queue has merely walked off the end of it.]) <fig:queue-falsefull>
 
 
 #heading(level: 2)[Circular queue: reusing array space]
@@ -67,7 +67,7 @@ This model exposes the limitation described by the slides: after repeated dequeu
 
 The circular queue addresses that limitation by connecting the logical last position back to the first. The slides call this a #strong[ring buffer] and state that modular arithmetic is used for enqueue and dequeue.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4bb9eb5b20f10027.svg")], caption: [The same five slots viewed as a ring. Advancing with $\( upright("index") + 1 \) med mod med N$ sends `rear` from index 4 back to index 0, so the free space at the front of the array is reclaimed instead of stranded.]) <fig:queue-circular>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4bb9eb5b20f10027.cetz.json")], caption: [The same five slots viewed as a ring. Advancing with $\( upright("index") + 1 \) med mod med N$ sends `rear` from index 4 back to index 0, so the free space at the front of the array is reclaimed instead of stranded.]) <fig:queue-circular>
 
 For capacity $N$, moving to the next slot uses $ upright("next") = \( upright("index") + 1 \) med mod med N . $
 

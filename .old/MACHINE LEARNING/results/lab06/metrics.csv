@@ -1,0 +1,2 @@
+environment,algorithm,episodes,success_rate,mean_greedy_return,start_action
+gridworld_4x4,tabular_q_learning,5000,1.0,0.8,down

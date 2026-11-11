@@ -11,7 +11,7 @@
 #heading(level: 2)[EDA asks what the data are trying to tell you]
  #strong[Exploratory data analysis (EDA)] is a systematic search for distribution shape, unusual records, group differences, and relationships worth investigating. It is not a licence to report every pattern as a finding.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/bb54160ff1338926.svg")], caption: [Move from one variable to pairs and then to conditional or multivariate structure.]) <fig:eda-lenses>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/bb54160ff1338926.cetz.json")], caption: [Move from one variable to pairs and then to conditional or multivariate structure.]) <fig:eda-lenses>
 
 
 #heading(level: 2)[Start with shape before choosing a summary]

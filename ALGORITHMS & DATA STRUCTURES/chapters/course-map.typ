@@ -6,7 +6,7 @@
 
 The course progresses from data organization to algorithm selection. Five stages build core skills; the final project compares algorithms with evidence.
 
-#callout("utpfigure", title: [])[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/fcb9b86b5d63f2ff.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/fcb9b86b5d63f2ff.cetz.json")]
 
 #figure(
   align(center)[#table(

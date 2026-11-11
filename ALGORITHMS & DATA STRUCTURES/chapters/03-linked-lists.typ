@@ -17,7 +17,7 @@ A linked list is a linear data structure made of a sequence of #strong[nodes]. E
 
 The Week III slides describe a node as having two conceptual parts: a data field and an address field. The address field stores where an adjacent node can be found.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/754b129577204b3d.svg")], caption: [Anatomy of a singly linked list. Each node is split into a data field and a `next` field holding the address of its successor. Note the addresses: the nodes are scattered across memory, and the list holds together only because each one records where the next lives.]) <fig:sll-anatomy>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/754b129577204b3d.cetz.json")], caption: [Anatomy of a singly linked list. Each node is split into a data field and a `next` field holding the address of its successor. Note the addresses: the nodes are scattered across memory, and the list holds together only because each one records where the next lives.]) <fig:sll-anatomy>
 
 The #strong[head] identifies the first node. From the head, the remaining nodes are reached by repeatedly following the stored links.
 
@@ -55,7 +55,7 @@ The slide deck also emphasizes three disadvantages:
 
 - #strong[Extra memory is required.] Every node stores one or more pointer fields.
 
-#callout("utpfigure", title: [])[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/59635f388c0e5be8.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/59635f388c0e5be8.cetz.json")]
 
 
 #heading(level: 2)[Singly linked lists]
@@ -89,7 +89,7 @@ Every visited node advances the pointer one link. If the desired element is near
 
 #ref(label("fig:sll-insert-head"), supplement: [Figure]) shows why the order of those two assignments matters. The new node must be told about the old first node #emph[before] `head` is moved. Reversing the steps overwrites the only reference to the rest of the list.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/38c7d6d82ae1decc.svg")], caption: [Inserting 5 at the front. Step~2 must happen before step~3: once `head` has been reassigned, nothing else points at node 10, and the remainder of the list is unreachable.]) <fig:sll-insert-head>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/38c7d6d82ae1decc.cetz.json")], caption: [Inserting 5 at the front. Step~2 must happen before step~3: once `head` has been reassigned, nothing else points at node 10, and the remainder of the list is unreachable.]) <fig:sll-insert-head>
 
 
 #heading(level: 3)[Delete by value]
@@ -99,7 +99,7 @@ The Week III lab asks for deletion by value. A singly linked list must preserve 
 
 #ref(label("fig:sll-delete"), supplement: [Figure]) shows the reason. Deleting node 20 means node 10 must be made to point at node 30 --- but from node 20 there is no way back to node 10. The traversal must therefore stop one node #emph[early], which is why the loop above tests `current->next->data` rather than `current->data`.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6ffc62ba979b5982.svg")], caption: [Deleting the node holding 20. The predecessor is redirected past the target, and only then is the target freed. Deleting before relinking would leave `current->next` pointing into released memory.]) <fig:sll-delete>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6ffc62ba979b5982.cetz.json")], caption: [Deleting the node holding 20. The predecessor is redirected past the target, and only then is the target freed. Deleting before relinking would leave `current->next` pointing into released memory.]) <fig:sll-delete>
 
 #code-block("bool deleteValue(Node*& head, int value) {\n    if (head == nullptr) return false;\n\n    if (head->data == value) {\n        Node* old = head;\n        head = head->next;\n        delete old;\n        return true;\n    }\n\n    Node* current = head;\n    while (current->next != nullptr &&\n           current->next->data != value) {\n        current = current->next;\n    }\n\n    if (current->next == nullptr) return false;\n\n    Node* old = current->next;\n    current->next = old->next;\n    delete old;\n    return true;\n}", lang: "text")
 
@@ -109,7 +109,7 @@ The Week III lab asks for deletion by value. A singly linked list must preserve 
 
 A doubly linked list stores two links in every node: `prev` and `next`. This supports both forward and backward traversal.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/276302861f2a0d41.svg")], caption: [A doubly linked list. Every node carries a backward link as well as a forward one, so the list can be walked from either end and a node can be removed without first locating its predecessor. The price is one extra pointer per node.]) <fig:dll>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/276302861f2a0d41.cetz.json")], caption: [A doubly linked list. Every node carries a backward link as well as a forward one, so the list can be walked from either end and a node can be removed without first locating its predecessor. The price is one extra pointer per node.]) <fig:dll>
 
 #code-block("struct DNode {\n    int data;\n    DNode* prev;\n    DNode* next;\n};", lang: "text")
 

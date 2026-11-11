@@ -38,7 +38,7 @@ The practicals use a #strong[command-line workflow]. Linux is the reference envi
 
 Open #strong[PowerShell or Windows Terminal as Administrator]: #code-block("wsl --install", lang: "bash") Restart if Windows asks. Open #strong[Ubuntu], create a Linux username and password, then verify from PowerShell: #code-block("wsl --status\nwsl --list --verbose", lang: "bash")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/817cb86f377ef656.svg")], caption: [PowerShell launches the Linux environment; the lab work itself (`gcc`, `vim`, `ps`, `bash`) happens in the Ubuntu/WSL shell.]) <fig:wsl-shells>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/817cb86f377ef656.cetz.json")], caption: [PowerShell launches the Linux environment; the lab work itself (`gcc`, `vim`, `ps`, `bash`) happens in the Ubuntu/WSL shell.]) <fig:wsl-shells>
 
 #callout("pitfall", title: [Common mistake])[Do not type Linux package, compiler, or lab commands into PowerShell. After WSL is installed, run the practical work inside Ubuntu/WSL unless the guide explicitly says #strong[PowerShell].]
 
@@ -71,7 +71,7 @@ For WSL, keep Linux course work in the Linux home directory rather than under `/
 #heading(level: 2, numbering: none)[Vim: the editor used in this course]
  Vim is a terminal editor. You do not need advanced Vim knowledge; the course uses a small, repeatable set of commands.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/54dbb08495e31429.svg")], caption: [Vim's three modes. Normal mode is home: `i` enters Insert mode and `:` enters Command-line mode, and `Esc` or `Enter` returns to Normal mode.]) <fig:vim-modes>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/54dbb08495e31429.cetz.json")], caption: [Vim's three modes. Normal mode is home: `i` enters Insert mode and `:` enters Command-line mode, and `Esc` or `Enter` returns to Normal mode.]) <fig:vim-modes>
 
 Open a file from the shell: #code-block("vim hello.c", lang: "bash")
 
@@ -101,4 +101,4 @@ For guided practice, run `vimtutor` once before Lab 1.
 #heading(level: 2, numbering: none)[The edit-compile-run cycle]
  Create a first program with `vim hello.c`: #code-block("#include <stdio.h>\n\nint main(void) {\n    printf(\"My OS lab environment is ready.\\n\");\n    return 0;\n}", lang: "c") Compile and run: #code-block("gcc -Wall -Wextra -std=c11 hello.c -o hello\n./hello", lang: "bash")
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/1b5c4517b31a0ac5.svg")], caption: [The edit-compile-run cycle: edit the source, save, compile, then run and inspect the result. Revise one thing at a time and repeat.]) <fig:edit-compile-run>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/1b5c4517b31a0ac5.cetz.json")], caption: [The edit-compile-run cycle: edit the source, save, compile, then run and inspect the result. Revise one thing at a time and repeat.]) <fig:edit-compile-run>

@@ -29,7 +29,7 @@ Call fewer attacks higher ground, so that every better board is a step uphill. A
 
 #callout("analogy", title: [Analogy])[Picture yourself on a hillside in thick fog. You can only feel the ground right next to your feet, so you never plan ahead and you never look back. You take the steepest step up and repeat. When every step would go down, you stop and declare that you have reached the top. That may be a small foothill, with a far taller peak hidden across the valley.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/22f7cbb9d54874f0.svg")], caption: [Left: a random board, written below it as the row of each column's queen, counting rows from zero at the top. Red lines join the 6 attacking pairs. Middle: hill climbing scores all 56 neighbours and moves to the best, which here has 3 attacking pairs. Right: the algorithm in plain words. Between moves it keeps only one board.]) <fig:queens-board>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/22f7cbb9d54874f0.cetz.json")], caption: [Left: a random board, written below it as the row of each column's queen, counting rows from zero at the top. Red lines join the 6 attacking pairs. Middle: hill climbing scores all 56 neighbours and moves to the best, which here has 3 attacking pairs. Right: the algorithm in plain words. Between moves it keeps only one board.]) <fig:queens-board>
 
 The memory saving is dramatic. Hill climbing holds at most 56 boards at any moment, and only one between moves. On one random board with 5 attacking pairs, the breadth-first loop expands 67,836 boards and its to-do list peaks at 456,001. Here is the whole of hill climbing in Python:
 
@@ -67,7 +67,7 @@ In 1983 Kirkpatrick, Gelatt and Vecchi, then at IBM, turned this into a search a
 
 #ref(label("fig:annealing"), supplement: [Figure]) shows what that formula does. At $T = 1$ a move adding one attack gets through 37 times in 100, and a move adding three gets through about 5 times in 100. At $T = 0.1$, one extra attack counts as heavily as ten did before, so it gets through only about 5 times in 100,000. While the search is hot it wanders freely; as it cools it behaves more and more like plain hill climbing.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/96afa7014b3a8087.svg")], caption: [The chance of accepting a move that adds $Delta$ attacks, as the temperature falls. Hot searches accept even bad moves often, which lets them walk off a local maximum. Cold searches almost never do. A move that is no worse ($Delta lt.eq 0$) is always accepted.]) <fig:annealing>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/96afa7014b3a8087.cetz.json")], caption: [The chance of accepting a move that adds $Delta$ attacks, as the temperature falls. Hot searches accept even bad moves often, which lets them walk off a local maximum. Cold searches almost never do. A move that is no worse ($Delta lt.eq 0$) is always accepted.]) <fig:annealing>
 
 #source-code("/ARTIFICIAL INTELLIGENCE/all_experiments/demo_local_search.py", first: 63, last: 76, lang: "python")
 
@@ -83,7 +83,7 @@ Local search with one board has a blind spot. Suppose a phone keyboard wants the
 
 Keeping one option means taking the single best word each time: "is" at 0.5, then "late" at 0.45, for a message scoring $0.5 times 0.45 = 0.225$. But look at what got thrown away. "Was" scored only 0.4 at the first word, yet "cancelled" follows it with 0.8, for a message scoring $0.4 times 0.8 = 0.32$. The best complete message started with a word that looked second best.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b68b6ff32aa7ad7e.svg")], caption: [A hand-written table of next-word chances. With width 1 the search commits to "is" at the first word and can never recover. With width 2 it keeps both "is" and "was", scores every continuation, and finds the better message. Numbers on the right are whole-message chances.]) <fig:beam>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/b68b6ff32aa7ad7e.cetz.json")], caption: [A hand-written table of next-word chances. With width 1 the search commits to "is" at the first word and can never recover. With width 2 it keeps both "is" and "was", scores every continuation, and finds the better message. Numbers on the right are whole-message chances.]) <fig:beam>
 
 #strong[Beam search] fixes this by keeping the best $k$ options. At every step it grows every option it is holding, scores them all, keeps the best $k$ and drops the rest. The number $k$ is the #strong[beam width], and $k = 1$ is hill climbing.
 

@@ -1,0 +1,83 @@
+\chapter{Files, Metadata, and Reliable Command-Line Utilities}\label{ch:files-cli}
+\chapterguide{Chapter 1: processes, system calls, and the Linux command line.}{separate file contents from metadata, interpret file descriptors and exit status, and explain the read/write pattern used by the utilities in Lab 2.}
+
+\section{Two views of a file}
+A regular file has \textbf{contents} and \textbf{metadata}. The contents are bytes. Metadata describes the object: size, permissions, timestamps, inode number, and link count.
+
+\begin{utpfig}[Contents and metadata]{Two views of a file: its contents are the bytes read with \texttt{read()} or \texttt{fread()}; its metadata, such as size, mode, inode, and link count, is read with \texttt{stat()}.}{fig:contents-metadata}
+\begin{tikzpicture}[
+  card/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,text width=5.0cm,minimum height=2.0cm,align=center,font=\small\color{UTPNavy}},
+  meta/.style={card,draw=UTPOrange,fill=UTPPaleOrange}]
+\node[card] at (-3.0,0) {\textbf{CONTENTS}\\bytes read with \texttt{read()} or \texttt{fread()}\\e.g. text, source code, records};
+\node[meta] at (3.0,0) {\textbf{METADATA}\\size, mode, inode, links\\read with \texttt{stat()}};
+\end{tikzpicture}
+\end{utpfig}
+
+\section{The file-I/O ladder}
+The C standard library adds buffering and formatting; POSIX uses integer file descriptors closer to the OS interface.
+
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.22\linewidth}
+  >{\raggedright\arraybackslash}m{0.34\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Layer} & \utpth{Typical functions} & \utpth{Use in this chapter} \\
+\midrule
+C streams & \texttt{fopen}, \texttt{fgets}, \texttt{fclose} & line-oriented text search \\
+POSIX file descriptors & \texttt{open}, \texttt{read}, \texttt{write}, \texttt{close} & explicit file copy loop \\
+Metadata & \texttt{stat} & inspect size, inode, links, permissions \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\section{The acquire-use-release pattern}
+Reliable systems code repeatedly follows the same shape:
+
+\begin{utpfig}[Acquire, use, release]{The acquire-use-release pattern. A resource is opened, used, and then closed, and each step has its own failure to check.}{fig:acquire-use-release}
+\begin{tikzpicture}[
+  s/.style={draw=UTPBlue,fill=UTPPaleBlue,rounded corners=2mm,minimum width=3.0cm,minimum height=0.85cm,align=center,font=\small\color{UTPNavy}},
+  ar/.style={-{Stealth[length=2mm]},thick,draw=UTPTeal}]
+\node[s] (a) at (-4,0) {Acquire\\\texttt{open}/\texttt{fopen}};
+\node[s] (b) at (0,0) {Use\\\texttt{read}/\texttt{fgets}};
+\node[s] (c) at (4,0) {Release\\\texttt{close}/\texttt{fclose}};
+\draw[ar] (a) -- (b); \draw[ar] (b) -- (c);
+\end{tikzpicture}
+\end{utpfig}
+
+Every acquire step can fail, every loop needs a clear stopping rule, and every successfully acquired resource should eventually be released.
+
+\section{A correct read/write loop}
+\texttt{read()} can return fewer bytes than requested. Similarly, \texttt{write()} may write fewer bytes than supplied. A robust copy therefore checks return values rather than assuming one call completes the whole job.
+
+\begin{keyidea}
+For systems programming, the return value is part of the data. Do not discard it: it tells you whether an operation succeeded, reached end-of-file, or failed.
+\end{keyidea}
+
+\section{Exit status makes a CLI tool composable}
+A command-line utility should communicate to both humans and other programs. The normal convention is:
+\begin{itemize}
+  \item \texttt{0}: success or requested condition found;
+  \item non-zero: a different outcome or an error.
+\end{itemize}
+The supplied \texttt{mini\_grep.c} uses 0 for a match, 1 for no match, and 2 for incorrect use or a file error. This is why a shell script can make decisions without parsing sentences.
+
+\section{Chapter-to-lab bridge}
+\begin{utptable}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries\leavevmode\color{UTPNavy}}m{0.24\linewidth}
+  >{\raggedright\arraybackslash}m{0.22\linewidth}
+  >{\raggedright\arraybackslash}X@{}}
+\toprule
+\rowcolor{UTPPaleBlue!92}
+\utpth{Concept} & \utpth{Source file} & \utpth{What you will explain} \\
+\midrule
+Metadata & \texttt{file\_info.c} & content is different from inode/permissions/links \\
+Low-level file I/O & \texttt{file\_copy.c} & why loops check \texttt{read()} and \texttt{write()} \\
+CLI contract & \texttt{mini\_grep.c} & output + exit status make a reliable tool \\
+\bottomrule
+\end{tabularx}
+\end{utptable}
+
+\input{labs/02-file-and-directory-utilities}

@@ -21,7 +21,7 @@
 #heading(level: 3)[Two 1 Gbit/s links do not make one 2 Gbit/s link]
  Aggregation adds capacity, not speed. The switch hashes each conversation onto one member and keeps it there, so a single file transfer is still capped at the rate of one physical link. Frames must stay in order, and splitting one flow across two links would reorder them.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/064b0f419ae8c715.svg")], caption: [Four conversations spread across two members. Any one of them uses a single link; the aggregate benefit only appears once there are several flows.]) <fig:lacp-hash>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/064b0f419ae8c715.cetz.json")], caption: [Four conversations spread across two members. Any one of them uses a single link; the aggregate benefit only appears once there are several flows.]) <fig:lacp-hash>
 
 
 #heading(level: 2)[Priority concepts used by the source]
@@ -65,7 +65,7 @@
 #heading(level: 3)[How the two priorities combine]
  The election happens twice, in order. First the two switches decide which of them is in charge; only then does that switch rank the individual links. Interface priority on the losing switch is ignored entirely, which is why changing it there appears to do nothing.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/84baec52b7cf4c04.svg")], caption: [The two-stage election. Lower values win at both stages, and a tie falls back to the MAC address or the interface number.]) <fig:lacp-election>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/84baec52b7cf4c04.cetz.json")], caption: [The two-stage election. Lower values win at both stages, and a tie falls back to the MAC address or the interface number.]) <fig:lacp-election>
 
 
 #heading(level: 2)[Verify the Eth-Trunk]

@@ -21,7 +21,7 @@ The robot plays X and its opponent plays O. When a game ends, it gets a score: $
 
 Here is a game halfway through, with X to move and three squares empty: top left, top right and centre (#ref(label("fig:game-tree"), supplement: [Figure])). To choose, the robot plays out every possible future. That picture is a #strong[game tree]: a search tree whose levels take turns.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/994af2d476a27cca.svg")], caption: [Every future from the halfway board. Levels alternate: X moves, then O, then X. Scores on the leaves are for X. Passing them up, O takes the smallest and X the largest. Only the top-right move is worth $+ 1$, because it makes two lines X can finish and O can block only one.]) <fig:game-tree>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/994af2d476a27cca.cetz.json")], caption: [Every future from the halfway board. Levels alternate: X moves, then O, then X. Scores on the leaves are for X. Passing them up, O takes the smallest and X the largest. Only the top-right move is worth $+ 1$, because it makes two lines X can finish and O can block only one.]) <fig:game-tree>
 
 Now the tempting mistake. There is a $+ 1$ under the top-left move, so why not play it? Because a maze wall is not trying to stop you, and O is. If X takes the top left, O simply blocks at the top right and the game is drawn. The $+ 1$ only exists if O makes a mistake, and a robot cannot plan on mistakes. It has to assume O makes its best reply.
 
@@ -67,7 +67,7 @@ Play lots of random games and count who wins. Judging a position by averaging ra
 
 Spending the same number of games on every move is wasteful, though, and with 250 moves each turn it adds up quickly. #strong[Monte Carlo Tree Search] (MCTS) spends its games more wisely by growing a tree as it plays (#ref(label("fig:mcts"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2453e3c6ebd84a8a.svg")], caption: [One game of MCTS. Walk down the tree, mostly towards moves that have won so far; add one new move; play a random game from there; and pass the result back up. After many games, play the move that was visited most.]) <fig:mcts>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ARTIFICIAL INTELLIGENCE/figures/diagrams/2453e3c6ebd84a8a.cetz.json")], caption: [One game of MCTS. Walk down the tree, mostly towards moves that have won so far; add one new move; play a random game from there; and pass the result back up. After many games, play the move that was visited most.]) <fig:mcts>
 
 Each game starts at the top and walks down. Mostly it heads for the moves that have won the most so far for whoever's turn it is, which is called #strong[exploitation]. On the opponent's turns that means the opponent's best replies, so the more it plays, the less it counts on mistakes. Now and then it tries a move it has barely tried, which is called #strong[exploration]. When the walk reaches a move never tried, MCTS adds it to the tree, plays one random game from there, and adds the result to every move on the way back up.
 

@@ -11,7 +11,7 @@ Use this section after completing all eight chapters. It compresses the course i
 #heading(level: 2, numbering: none)[The complete course in one chain]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/b12dc9b29a0fe354.svg")], caption: [The complete course in one chain. Customer friction and digital technology drive unbundling and new platforms, and each branch of the course follows from one link in that chain.]) <fig:revision-chain>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/b12dc9b29a0fe354.cetz.json")], caption: [The complete course in one chain. Customer friction and digital technology drive unbundling and new platforms, and each branch of the course follows from one link in that chain.]) <fig:revision-chain>
 
 
 #heading(level: 2, numbering: none)[Eight concepts you must distinguish]

@@ -1,0 +1,5 @@
+feature_set,validation_mae
+all 30 features,2.181
+"SelectKBest, k=10",2.139
+lasso (selects itself),2.077
+all 30 + G2 (leakage),0.762

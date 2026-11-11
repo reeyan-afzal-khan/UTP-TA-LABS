@@ -86,7 +86,7 @@ The lecture presents multiple causes. Some come from the customer side; others c
 
 - #strong[Limited competition and innovation.] When barriers to entry are high, incumbents may face less pressure to redesign products for underserved segments.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/e27986260883b4a2.svg")], caption: [Financial exclusion has two sides. Demand-side circumstances such as small or volatile income and missing documents meet supply-side constraints such as branch cost, legacy IT, and standardized products.]) <fig:exclusion-two-sides>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/e27986260883b4a2.cetz.json")], caption: [Financial exclusion has two sides. Demand-side circumstances such as small or volatile income and missing documents meet supply-side constraints such as branch cost, legacy IT, and standardized products.]) <fig:exclusion-two-sides>
 
 #callout("keyidea", title: [Key idea])[Financial exclusion is not explained only by a customer's income. It can be produced by a mismatch between the customer's circumstances and the cost structure, documentation requirements, product design, and risk methods of the provider.]
 
@@ -175,7 +175,7 @@ Digital records can make transactions easier to track than cash, improve the man
 
 Apps can provide visibility, reminders, budgeting tools, and other resources that help users understand and manage their money.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/FINTECH INNOVATION/figures/diagrams/8bd0b0d73cdaad29.svg")], caption: [How digital finance can widen inclusion. Lower digital cost, remote reach, data-driven decisions, and smaller tailored products together make it economic to serve customers that branch-based models could not.]) <fig:inclusion-mechanisms>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/FINTECH INNOVATION/figures/diagrams/8bd0b0d73cdaad29.cetz.json")], caption: [How digital finance can widen inclusion. Lower digital cost, remote reach, data-driven decisions, and smaller tailored products together make it economic to serve customers that branch-based models could not.]) <fig:inclusion-mechanisms>
 
 
 #heading(level: 2)[Information innovation and communication innovation]

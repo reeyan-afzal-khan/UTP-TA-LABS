@@ -37,7 +37,7 @@ The slides give binary search time complexity as $O \( log n \)$.
 
 #ref(label("fig:binary-search"), supplement: [Figure]) traces the collapse of the search window. Each comparison removes half of what remains, so a 16-element array needs at most 4 comparisons and a million-element array at most 20. That is the whole difference between $O \( n \)$ and $O \( log n \)$.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/fd2b418e295d41e2.svg")], caption: [Binary search for 23 in a sorted 10-element array. Greyed cells have been eliminated without ever being examined --- three comparisons rule out nine of the ten positions.]) <fig:binary-search>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/fd2b418e295d41e2.cetz.json")], caption: [Binary search for 23 in a sorted 10-element array. Greyed cells have been eliminated without ever being examined --- three comparisons rule out nine of the ten positions.]) <fig:binary-search>
 
 
 #heading(level: 2)[Sorting categories]
@@ -67,7 +67,7 @@ The slide states $O \( n^2 \)$ time and notes that bubble sort is not suitable f
 
 The name describes the motion: on each pass the largest remaining value is carried to the right-hand end, the way a bubble rises (#ref(label("fig:bubble"), supplement: [Figure])). After pass $k$ the last $k$ positions are finished, which is why the inner loop shrinks each time.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/c08bfca4b3982114.svg")], caption: [One full pass of bubble sort over $\[ 5 \, 1 \, 4 \, 2 \]$. Each adjacent pair is compared and swapped when out of order; by the end of the pass the maximum, 5, has been pushed into its final position. Three more passes finish the array.]) <fig:bubble>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/c08bfca4b3982114.cetz.json")], caption: [One full pass of bubble sort over $\[ 5 \, 1 \, 4 \, 2 \]$. Each adjacent pair is compared and swapped when out of order; by the end of the pass the maximum, 5, has been pushed into its final position. Three more passes finish the array.]) <fig:bubble>
 
 
 #heading(level: 2)[Insertion sort]
@@ -79,7 +79,7 @@ Insertion sort maintains a sorted subarray and inserts the next element into its
 
 The slides state worst-case $O \( n^2 \)$ and give $O \( n \)$ comparisons in the best case versus $O \( n^2 \)$ in the worst case.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/d6ec59eab732ba3d.svg")], caption: [Insertion sort on $\[ 5 \, 1 \, 4 \, 2 \]$. The green region on the left is always sorted; each step lifts the next value out and slides it back until it lands in order. The lifted value is shown above the array while the gap it left is being shifted.]) <fig:insertion>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/d6ec59eab732ba3d.cetz.json")], caption: [Insertion sort on $\[ 5 \, 1 \, 4 \, 2 \]$. The green region on the left is always sorted; each step lifts the next value out and slides it back until it lands in order. The lifted value is shown above the array while the gap it left is being shifted.]) <fig:insertion>
 
 #ref(label("fig:insertion"), supplement: [Figure]) shows why the best case is so much better than the worst. The inner `while` loop stops as soon as it meets a smaller value, so on already-sorted input it never executes at all and the algorithm makes a single sweep. This is the same reason insertion sort is the method of choice for small or nearly-sorted arrays.
 
@@ -95,7 +95,7 @@ The slide gives average and worst-case complexity $O \( n^2 \)$ and says the met
 
 Insertion and selection sort both grow a sorted region on the left, but they pay for it differently (#ref(label("fig:selection"), supplement: [Figure])). Selection sort scans the whole unsorted region to find the minimum, then performs exactly one swap; insertion sort takes whatever value comes next and pays with shifts. Selection sort therefore always makes $n - 1$ swaps regardless of the input, which matters when a swap is expensive.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/086aa461ad861387.svg")], caption: [Selection sort on $\[ 5 \, 1 \, 4 \, 2 \]$. Each pass scans the unsorted region for its smallest value and swaps it into the boundary position. Unlike insertion sort, the number of comparisons is the same whether the input is sorted or reversed.]) <fig:selection>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/086aa461ad861387.cetz.json")], caption: [Selection sort on $\[ 5 \, 1 \, 4 \, 2 \]$. Each pass scans the unsorted region for its smallest value and swaps it into the boundary position. Unlike insertion sort, the number of comparisons is the same whether the input is sorted or reversed.]) <fig:selection>
 
 
 #heading(level: 2)[Merge sort]
@@ -103,7 +103,7 @@ Insertion and selection sort both grow a sorted region on the left, but they pay
 
 Merge sort follows divide and conquer. The slide description repeatedly divides the array into two halves until subarrays contain one element, then merges sorted subarrays to build the complete sorted array.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/0dbba20feae54e31.svg")], caption: [Merge sort on $\[ 8 \, 3 \, 6 \, 2 \, 7 \, 1 \, 5 \, 4 \]$. The array is halved until every piece has one element --- which is trivially sorted --- and the pieces are then merged back in order. The tree has $log n$ levels and each level does $O \( n \)$ work merging, which is where $O \( n log n \)$ comes from.]) <fig:merge-sort>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/0dbba20feae54e31.cetz.json")], caption: [Merge sort on $\[ 8 \, 3 \, 6 \, 2 \, 7 \, 1 \, 5 \, 4 \]$. The array is halved until every piece has one element --- which is trivially sorted --- and the pieces are then merged back in order. The tree has $log n$ levels and each level does $O \( n \)$ work merging, which is where $O \( n log n \)$ comes from.]) <fig:merge-sort>
 
 #callout("clarification", title: [Clarification])[The supplied merge-sort slide explains the divide-and-conquer process but does not state a time complexity. Standard analysis gives $O \( n log n \)$ time; that value is additional context rather than text copied from the slide.]
 
@@ -117,7 +117,7 @@ Quick sort also follows divide and conquer. The deck describes partitioning the 
 
 #ref(label("fig:quick-partition"), supplement: [Figure]) traces one partition step. The pivot ends up at the index that splits the array into "everything smaller" and "everything larger", so the pivot is placed correctly and never moves again. Quick sort then recurses on the two sides.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/03e2a81b8f3b5de0.svg")], caption: [Partitioning $\[ 7 \, 2 \, 9 \, 4 \, 6 \]$ around the pivot 6. The pointer `i` marks the end of the "smaller than pivot" region; each value at `j` that is smaller is swapped up into it. The final swap drops the pivot into the boundary, at which point index~2 holds its permanently correct value.]) <fig:quick-partition>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/03e2a81b8f3b5de0.cetz.json")], caption: [Partitioning $\[ 7 \, 2 \, 9 \, 4 \, 6 \]$ around the pivot 6. The pointer `i` marks the end of the "smaller than pivot" region; each value at `j` that is smaller is swapped up into it. The final swap drops the pivot into the boundary, at which point index~2 holds its permanently correct value.]) <fig:quick-partition>
 
 #callout("clarification", title: [Clarification])[The quick-sort slide says its "average and worst-case complexities are $O \( n^2 \)$, respectively," and gives best-case $O \( n log n \)$. Standard algorithm analysis is: best $O \( n log n \)$, average $O \( n log n \)$, and worst $O \( n^2 \)$. The discrepancy is surfaced explicitly here rather than silently changing the source.]
 
@@ -137,7 +137,7 @@ The slide states that heap sort is in-place and has time complexity $O \( n log 
 
 Complexity classes are easy to treat as labels attached to algorithms. #ref(label("fig:bigo"), supplement: [Figure]) shows what they actually claim. For a handful of items the difference is invisible --- at $n = 10$ every one of these curves is small. The classes separate as $n$ grows, and they separate violently.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/59b6a7154433c414.svg")], caption: [Operation counts for the complexity classes in this chapter. At $n = 100$ a quadratic algorithm already does roughly 15 times the work of an $n log n$ one; at $n = 1000$ it does about 100 times as much. This is why bubble sort and merge sort are not interchangeable even though both sort correctly.]) <fig:bigo>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/59b6a7154433c414.cetz.json")], caption: [Operation counts for the complexity classes in this chapter. At $n = 100$ a quadratic algorithm already does roughly 15 times the work of an $n log n$ one; at $n = 1000$ it does about 100 times as much. This is why bubble sort and merge sort are not interchangeable even though both sort correctly.]) <fig:bigo>
 
 #callout("keyidea", title: [Key idea])[Constant factors and hardware speed shift these curves up or down; they do not change their shape. A faster computer running an $O \( n^2 \)$ sort still loses to a slower computer running an $O \( n log n \)$ sort once $n$ is large enough --- and "large enough" arrives sooner than most people expect.]
 

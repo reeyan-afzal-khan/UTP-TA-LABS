@@ -57,7 +57,7 @@ Larger systems introduce indexes so a key can point more directly to the needed 
 #heading(level: 2)[Indexed allocation]
  A separate index block stores references to the file's data blocks. Logical block 0 can be found through the first index entry, logical block 1 through the second, and so on. The data blocks themselves do not need to be adjacent.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/OPERATING SYSTEMS/figures/diagrams/5f04aac101996799.svg")], caption: [Indexed allocation. Index block 7 lists the file's data blocks in logical order, so the blocks themselves need not be adjacent.]) <fig:indexed-allocation>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/OPERATING SYSTEMS/figures/diagrams/5f04aac101996799.cetz.json")], caption: [Indexed allocation. Index block 7 lists the file's data blocks in logical order, so the blocks themselves need not be adjacent.]) <fig:indexed-allocation>
 
 #figure(
   align(center)[#table(

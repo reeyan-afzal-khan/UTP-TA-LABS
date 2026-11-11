@@ -6,7 +6,7 @@
 
 The labs progress from packet observation to device configuration, routing, services, Layer-2 switching, and WAN protocols. Five stages build on the #emph[Foundations] reference chapter that opens the book; the group project integrates them.
 
-#callout("utpfigure", title: [])[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/04e9f29bd3c71801.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/04e9f29bd3c71801.cetz.json")]
 
 #figure(
   align(center)[#table(

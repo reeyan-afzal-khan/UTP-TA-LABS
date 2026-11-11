@@ -11,7 +11,7 @@
 #heading(level: 2)[A sample is one possible view of a population]
  A #strong[population] is the set of cases the question concerns. A #strong[sample] is the observed subset. Statistics computed from a sample vary from sample to sample, even when the underlying population is unchanged.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/40fec61e58b6753b.svg")], caption: [Different random samples produce different estimates. Statistical inference quantifies that uncertainty rather than pretending the observed sample is exact.]) <fig:sampling-variability>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/40fec61e58b6753b.cetz.json")], caption: [Different random samples produce different estimates. Statistical inference quantifies that uncertainty rather than pretending the observed sample is exact.]) <fig:sampling-variability>
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/inference_sampling_distribution.svg", width: 90%)], caption: [Each simulated point in the histogram is a mean from a sample of 30 wine observations. The means vary from sample to sample but are more concentrated than individual measurements.]) <fig:inference-sampling-dist>
 

@@ -132,9 +132,9 @@ The root-level #strong[`requirements.txt`] lists dependencies, including PyTorch
 
 #strong[Install once; activate every session.] Reuse #strong[`.venv`] without reinstalling unchanged requirements.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/c3e80d148ffb5274.svg")], caption: [The environment routine. Creating `.venv` and installing the requirements happen once; every later session starts by activating the environment and goes straight back to the notebooks.]) <fig:venv-routine>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/c3e80d148ffb5274.cetz.json")], caption: [The environment routine. Creating `.venv` and installing the requirements happen once; every later session starts by activating the environment and goes straight back to the notebooks.]) <fig:venv-routine>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/abd9aac9d5348c96.svg")], caption: [Separate environments, separate packages. Each project's `.venv` holds its own copies of the libraries, and the system Python is left alone; activate the intended project environment before running `pip install`.]) <fig:venv-separate>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/abd9aac9d5348c96.cetz.json")], caption: [Separate environments, separate packages. Each project's `.venv` holds its own copies of the libraries, and the system Python is left alone; activate the intended project environment before running `pip install`.]) <fig:venv-separate>
 
 
 #heading(level: 2)[Route B: Anaconda or Miniconda]

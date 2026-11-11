@@ -17,7 +17,7 @@ Logistic regression is one dimmer switch: a weighted sum, then a squash. A neura
 
 A #strong[layer] computes weighted sums, passes each through a nonlinear #strong[activation], and hands the results onward. The last layer has a sigmoid or softmax for classification, and a plain linear output for regression.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/9d7c7ce97783783e.svg")], caption: [A feed-forward network. Each hidden unit computes a weighted sum of the previous layer and passes it through a ReLU; the output layer produces the prediction.]) <fig:mlp>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/9d7c7ce97783783e.cetz.json")], caption: [A feed-forward network. Each hidden unit computes a weighted sum of the previous layer and passes it through a ReLU; the output layer produces the prediction.]) <fig:mlp>
 
 #strong[ReLU], $max \( 0 \, z \)$, keeps positive inputs and zeroes negative ones. Think of it as a one-way valve. It is a very small amount of nonlinearity, and it is enough.
 
@@ -122,11 +122,11 @@ Each dense layer has one weight per input per unit, plus one bias per unit. Lab~
 
 #callout("workedexample", title: [Worked example])[A $5 times 5$ image, dark on the left and bright on the right, and a $3 times 3$ vertical-edge filter. Each output is the sum of the filter times the patch beneath it.
 
-#diagram-image("/MACHINE LEARNING/figures/diagrams/ab7cd7aed8a62816.svg")
+#diagram-drawing("/MACHINE LEARNING/figures/diagrams/ab7cd7aed8a62816.cetz.json")
 
 The top-left output covers columns 0 to 2: left column $- 1 times \( 0 + 0 + 0 \)$, right column $+ 1 times \( 0 + 0 + 0 \)$, so 0. One position to the right, the patch's right column is $9 \, 9 \, 9$, so the output is 27. The map is bright exactly where the edge lies. A horizontal-edge filter gives all zeros on this image, because it has no horizontal edge.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/475d917ec1575a05.svg")], caption: [One $3 times 3$ filter slides across an $8 times 8$ image of a vertical stroke. With padding, the feature map is $8 times 8$ too. It is positive (teal) where the stroke begins, negative (orange) where it ends, and strongest where the filter's whole height lies along the stroke. The blue square marks the filter's current position and the output it produces.]) <fig:conv-filter>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/475d917ec1575a05.cetz.json")], caption: [One $3 times 3$ filter slides across an $8 times 8$ image of a vertical stroke. With padding, the feature map is $8 times 8$ too. It is positive (teal) where the stroke begins, negative (orange) where it ends, and strongest where the filter's whole height lies along the stroke. The blue square marks the filter's current position and the output it produces.]) <fig:conv-filter>
 
 Filters share weights across locations: the same few numbers slide everywhere, so a stroke found in one corner is found in every corner, and the layer needs far fewer weights than a dense one. #strong[Max pooling] keeps the largest value in each block, which shrinks the map while keeping what fired. Pooling the $4 times 4$ map with rows $1 \, 3 \, 2 \, 0$; $4 \, 2 \, 0 \, 1$; $0 \, 0 \, 5 \, 6$; $1 \, 2 \, 3 \, 0$ into $2 times 2$ blocks gives $4 \, 2$ and $2 \, 6$. A small CNN repeats convolution, ReLU and pooling, then flattens the maps into a dense classifier.
 
@@ -161,7 +161,7 @@ Filters share weights across locations: the same few numbers slide everywhere, s
 
 That fading is also the weakness. At 0.5 per step, an input's weight after 8 steps is 0.0039, and after 24 steps it is about 0.00000006. A plain network has trouble remembering yesterday by the time it reaches today.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/9910d6acc597e0ed.svg")], caption: [An LSTM unrolled over a 24-hour window. Each step combines the new input with the state passed from the previous step, and the final state supports the prediction.]) <fig:lstm-unrolled>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/9910d6acc597e0ed.cetz.json")], caption: [An LSTM unrolled over a 24-hour window. Each step combines the new input with the state passed from the previous step, and the final state supports the prediction.]) <fig:lstm-unrolled>
 
 An #strong[LSTM] adds a second notepad, the memory cell, and three learned gates that control it: what to erase, what to write, and what to read out. Because the cell is updated by adding rather than repeatedly shrinking, information can survive many steps. With a keep gate of 0.8 on a note of 10, and a write gate of 0.5 on a new value of 4, the note becomes $0.8 times 10 + 0.5 times 4 = 10$. The gates' values come from small learned networks, so the model decides for itself what is worth keeping.
 

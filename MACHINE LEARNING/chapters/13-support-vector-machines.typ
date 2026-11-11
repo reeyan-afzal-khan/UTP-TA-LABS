@@ -15,13 +15,13 @@ Two neighborhoods sit on either side of open ground, and the council wants to bu
 #heading(level: 2)[The widest street]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/b8152e4a2a784f31.svg")], caption: [The widest street. A hard-margin SVM places the boundary in the middle of the widest margin between the classes; the circled support vectors on its edges determine it.]) <fig:svm-margin>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/b8152e4a2a784f31.cetz.json")], caption: [The widest street. A hard-margin SVM places the boundary in the middle of the widest margin between the classes; the circled support vectors on its edges determine it.]) <fig:svm-margin>
 
 #callout("workedexample", title: [Worked example])[Six points: $\( 1 \, 1 \)$, $\( 2 \, 1 \)$, $\( 1 \, 2 \)$ are class $- 1$, and $\( 3 \, 3 \)$, $\( 4 \, 3 \)$, $\( 3 \, 4 \)$ are class $+ 1$ (#ref(label("fig:svm-toy"), supplement: [Figure])). The SVM's answer is $bold(w) = \( 2 / 3 \, 2 / 3 \)$ and $b = - 3$. Check the score $y \( bold(w)^(sans(T)) bold(x) + b \)$ at each point: for $\( 2 \, 1 \)$ it is $- 1 times \( 2 / 3 dot.op 3 - 3 \) = 1$, and for $\( 1 \, 2 \)$ and $\( 3 \, 3 \)$ it is also exactly 1. These three are the #strong[support vectors]. The other three score 1.67, so they sit beyond the curb and do not affect the street at all. Delete them and the answer stays the same.
 
 The street's width is $2 \/ parallel bold(w) parallel_2 = 2 \/ \( 2 / 3 sqrt(2) \) = 2.12$.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/d0192f268768345c.svg")], caption: [The fitted boundary and its two curbs on six points. The three circled support vectors sit exactly on the curbs. The street is 2.12 wide.]) <fig:svm-toy>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/d0192f268768345c.cetz.json")], caption: [The fitted boundary and its two curbs on six points. The three circled support vectors sit exactly on the curbs. The street is 2.12 wide.]) <fig:svm-toy>
 
 
 #heading(level: 2)[The hard-margin objective]
@@ -129,7 +129,7 @@ At $gamma = 10$ a training point has almost no influence even one unit away, so 
 
 A feature map can make a nonlinear separation linear in the transformed space.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/2d2953c035b492e0.svg")], caption: [Linear versus RBF boundaries. One straight line cannot put a central region in its own class; an RBF kernel draws a smooth curved boundary that isolates it.]) <fig:svm-kernels>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/2d2953c035b492e0.cetz.json")], caption: [Linear versus RBF boundaries. One straight line cannot put a central region in its own class; an RBF kernel draws a smooth curved boundary that isolates it.]) <fig:svm-kernels>
 
 #callout("keyidea", title: [Key idea])[A kernel changes the representation during fitting; it does not bend an already-trained line afterward.]
 
@@ -137,7 +137,7 @@ A feature map can make a nonlinear separation linear in the transformed space.
 #heading(level: 2)[What $C$ and $gamma$ actually do]
  <sec:svm-controls>
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/57141d719038066b.svg")], caption: [What $C$ does. A small $C$ keeps a wide street and tolerates a stray point; a large $C$ narrows the street and bends to capture it, at the risk of overfitting.]) <fig:svm-c>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/57141d719038066b.cetz.json")], caption: [What $C$ does. A small $C$ keeps a wide street and tolerates a stray point; a large $C$ narrows the street and bends to capture it, at the risk of overfitting.]) <fig:svm-c>
 
 #figure(
   align(center)[#table(

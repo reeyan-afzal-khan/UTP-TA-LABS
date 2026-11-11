@@ -58,7 +58,7 @@ That loop is #strong[Lloyd's algorithm], and it is the whole of $K$-means. "Near
 
 Check round 1 for student A: the squared distances to the three landmarks are 360, 1,000 and 405, so A joins the first. Then the move step: the first group's average is $\( 2 + 4 + 6 + 8 + 10 + 14 \) \/ 6 = 7.33$ hours and $\( 47 + 50 + 59 + 65 + 68 + 62 \) \/ 6 = 58.5$ marks. The landmark moves there, and that is why E switches in round 2.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/d37b81b0fe450699.svg")], caption: [Four rounds of $K$-means on hours and mark. Crosses mark the landmarks in use at each round's assignment; students take the marker of their group. One student changes group per round, until nothing changes.]) <fig:kmeans-rounds>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/d37b81b0fe450699.cetz.json")], caption: [Four rounds of $K$-means on hours and mark. Crosses mark the landmarks in use at each round's assignment; students take the marker of their group. One student changes group per round, until nothing changes.]) <fig:kmeans-rounds>
 
 Here are the three groups, with their final landmarks. The names are ours: the method only sorted dots.
 
@@ -95,7 +95,7 @@ Draw a line from every student to their own landmark. A good grouping has short 
 
 Initialize centers, assign points, update centers, and repeat.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/b8128467b90b0ecc.svg")], caption: [$K$-means as a loop: initialize the centers, assign each point to its nearest center, move each center to the mean of its points, and repeat until nothing changes.]) <fig:kmeans-loop>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/b8128467b90b0ecc.cetz.json")], caption: [$K$-means as a loop: initialize the centers, assign each point to its nearest center, move each center to the mean of its points, and repeat until nothing changes.]) <fig:kmeans-loop>
 
 #callout("workedexample", title: [Worked example])[Cluster the one-dimensional points ${ 1 \, 2 \, 3 \, 10 \, 11 \, 12 }$ with $K = 2$, starting from centers $c_1 = 1$ and $c_2 = 12$. #emph[Assign:] points $1 \, 2 \, 3$ are nearer $c_1$; points $10 \, 11 \, 12$ are nearer $c_2$. #emph[Update:] $c_1 = \( 1 + 2 + 3 \) \/ 3 = 2$ and $c_2 = \( 10 + 11 + 12 \) \/ 3 = 11$. #emph[Assign again:] nothing moves, so the algorithm stops. The objective is $\( 1 + 0 + 1 \) + \( 1 + 0 + 1 \) = 4$, and the two obvious groups have been found in one round.]
 
@@ -141,7 +141,7 @@ The #strong[silhouette] scores each row on how much closer it is to its own grou
 
 #callout("workedexample", title: [Worked example])[For ${ 1 \, 2 \, 3 }$ and ${ 10 \, 11 \, 12 }$, take the point 3. Its mean distance to its own group is $a = \( 2 + 1 \) \/ 2 = 1.5$, and to the other group it is $b = \( 7 + 8 + 9 \) \/ 3 = 8$. So $s = \( 8 - 1.5 \) \/ 8 = 0.8125$. The mean over all six points is 0.850, which says these groups are very clear.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/47260f50b2663381.svg")], caption: [Choosing $K$ for Lab~4's 5,878 customers. Inertia always falls as $K$ grows, so look for the bend, here gentle and around 4. The silhouette peaks at $K = 2$ with 0.439, and among richer splits $K = 4$ (0.365) beats its neighbors.]) <fig:elbow-silhouette>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/47260f50b2663381.cetz.json")], caption: [Choosing $K$ for Lab~4's 5,878 customers. Inertia always falls as $K$ grows, so look for the bend, here gentle and around 4. The silhouette peaks at $K = 2$ with 0.439, and among richer splits $K = 4$ (0.365) beats its neighbors.]) <fig:elbow-silhouette>
 
 #callout("intuition", title: [Plain idea])[Inertia decreases as $K$ increases, reaching zero with one cluster per point, so look for diminishing gains rather than its minimum. Silhouette favors compact, separated groups. Neither alone establishes that a grouping is useful: in Lab~4 they narrow the choice to two or four, and what the segments are for picks four.]
 
@@ -209,7 +209,7 @@ Divisive clustering instead recursively splits clusters, sometimes starting from
 
 #callout("workedexample", title: [Worked example])[For ${ 1 \, 2 \, 4 \, 8 }$, single linkage merges 1 and 2 at distance 1, adds 4 at distance 2, then adds 8 at distance 4:]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/877d5fe357236473.svg")], caption: [The single-linkage dendrogram for ${ 1 \, 2 \, 4 \, 8 }$. Cutting it at a chosen merge distance gives the clusters; the cut shown gives two.]) <fig:dendrogram>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/877d5fe357236473.cetz.json")], caption: [The single-linkage dendrogram for ${ 1 \, 2 \, 4 \, 8 }$. Cutting it at a chosen merge distance gives the clusters; the cut shown gives two.]) <fig:dendrogram>
 
 Cut the dendrogram at a chosen height to obtain clusters. The #strong[linkage] rule defines distance between clusters:
 
@@ -243,7 +243,7 @@ Is within $epsilon$ of a core point but is not dense enough itself --- the edge 
 Neither --- it belongs to no cluster at all.
 ]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/c02e901276ccb989.svg")], caption: [DBSCAN's three roles. A core point has at least minPts neighbors within $epsilon$; a border point is sparse itself but near a core point; a noise point is neither.]) <fig:dbscan-roles>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/c02e901276ccb989.cetz.json")], caption: [DBSCAN's three roles. A core point has at least minPts neighbors within $epsilon$; a border point is sparse itself but near a core point; a noise point is neither.]) <fig:dbscan-roles>
 
 #callout("workedexample", title: [Worked example])[Eight points with $epsilon = 1.5$ and minPts $= 4$, counting the point itself:
 

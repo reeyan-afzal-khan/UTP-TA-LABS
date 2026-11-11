@@ -28,7 +28,7 @@
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/4cd173e20ab4954d.svg")], caption: [Where the VLAN tag is added, carried, and removed. The tag exists only between the switches. Hosts never see it, which is why a VLAN needs no configuration on the PC --- and why the switch, not the host, decides which VLAN a frame belongs to.]) <fig:vlan-tag>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/4cd173e20ab4954d.cetz.json")], caption: [Where the VLAN tag is added, carried, and removed. The tag exists only between the switches. Hosts never see it, which is why a VLAN needs no configuration on the PC --- and why the switch, not the host, decides which VLAN a frame belongs to.]) <fig:vlan-tag>
 
 #callout("keyidea", title: [Key idea])[A VLAN is enforced by the switch, not by the host's IP address. Two PCs can share a subnet and still be unable to reach each other if they sit in different VLANs --- changing the PC's address cannot bypass the separation.]
 
@@ -36,7 +36,7 @@
 #heading(level: 3)[What the tag actually is]
  The tag is four bytes pushed into the Ethernet header between the source address and the type field. Twelve of its bits carry the VLAN ID, which is why the usable range stops at 4094.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/5ef84a3bedc6144f.svg")], caption: [An 802.1Q tag inserted into the Ethernet II frame from #ref(label("fig:eth-frame"), supplement: [Figure]). The frame grows by four bytes, which is why a trunk port needs an MTU four bytes larger than its access ports.]) <fig:dot1q>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/5ef84a3bedc6144f.cetz.json")], caption: [An 802.1Q tag inserted into the Ethernet II frame from #ref(label("fig:eth-frame"), supplement: [Figure]). The frame grows by four bytes, which is why a trunk port needs an MTU four bytes larger than its access ports.]) <fig:dot1q>
 
 
 #heading(level: 2)[Step 1: build the inter-switch Eth-Trunk]
@@ -84,7 +84,7 @@ Then test both outcomes on the hosts: a ping inside one VLAN, and a ping across 
 
 Retest reachability: the selected VLAN-2 and VLAN-4 hosts should communicate, while the VLAN-3 host remains isolated.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/f5aeed7ffaed41e5.svg")], caption: [The same two questions asked of all three port types. Access and trunk are special cases of hybrid, which is why hybrid is the only one that needs two separate commands.]) <fig:port-types>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/f5aeed7ffaed41e5.cetz.json")], caption: [The same two questions asked of all three port types. Access and trunk are special cases of hybrid, which is why hybrid is the only one that needs two separate commands.]) <fig:port-types>
 
 #callout("keyidea", title: [Key idea])[The two hybrid commands answer the two different questions above. `port hybrid pvid vlan <id>` answers the ingress question; `port hybrid untagged vlan 2 4` answers the egress one. Setting one without the other is the usual cause of a hybrid port that half works.]
 
@@ -92,7 +92,7 @@ Retest reachability: the selected VLAN-2 and VLAN-4 hosts should communicate, wh
 #heading(level: 2)[The native-VLAN mismatch: a leak that reports no error]
  A trunk sends exactly one VLAN #emph[untagged] --- the native VLAN, taken from the port's PVID. If the two ends disagree about which VLAN that is, each switch files the untagged frames into a different VLAN, and two supposedly isolated VLANs are joined.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/6015fd15f94274a8.svg")], caption: [A mismatched native VLAN silently merges two VLANs. Each switch files untagged frames into its own PVID, so VLAN~10 traffic arrives in VLAN~20 while both configurations look correct.]) <fig:vlan-native-mismatch>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/6015fd15f94274a8.cetz.json")], caption: [A mismatched native VLAN silently merges two VLANs. Each switch files untagged frames into its own PVID, so VLAN~10 traffic arrives in VLAN~20 while both configurations look correct.]) <fig:vlan-native-mismatch>
 
 #callout("pitfall", title: [Common mistake])[If a cross-VLAN ping unexpectedly #emph[succeeds], that is not a success --- it is this bug. Set the native VLAN explicitly, to an unused VLAN carrying no user data (999 in the lab files), on #emph[both] ends. Confirm with `display port vlan` rather than assuming, because nothing else will tell you.]
 

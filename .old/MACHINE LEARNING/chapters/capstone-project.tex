@@ -1,0 +1,28 @@
+\chapter*{Capstone Project: From Raw Data to Defensible Evidence}
+\phantomsection
+\addcontentsline{toc}{chapter}{Capstone Project}
+\markboth{Capstone Project}{}
+
+Build one reproducible project from raw data to validated conclusions and a reusable model.
+
+\begin{coursechoice}
+Use a public dataset not used as a main lab dataset; Heart Failure is allowed. Keep raw files in \texttt{all\_datasets/} and notebooks in \texttt{all\_experiments/}.
+\end{coursechoice}
+
+\section*{Required capstone sequence}
+
+\begin{enumerate}
+  \item \textbf{Problem.} Specify rows, objective, use moment, population, metric, and error costs.
+  \item \textbf{Data.} Record provenance, schema, units, missingness, duplicates, invalid values, identifiers, and cleaning rules.
+  \item \textbf{Splits.} Match future use with random, stratified, grouped, or chronological splits; reserve a supervised test set.
+  \item \textbf{Baseline.} Evaluate a no-skill or domain rule.
+  \item \textbf{Preprocessing.} Fit learned transformations within training folds.
+  \item \textbf{Models.} Compare at least three families, including one interpretable model.
+  \item \textbf{Development.} Tune, select features, and resample only within validated development pipelines.
+  \item \textbf{Diagnostics.} Plot relevant errors, residuals, thresholds, learning curves, features, clusters, or scores.
+  \item \textbf{Subgroups.} Locate failures beyond aggregate metrics.
+  \item \textbf{Final evidence.} Test once on untouched supervised data, or present complementary unsupervised evidence.
+  \item \textbf{Limits.} Distinguish prediction from causation and state unsupported claims.
+  \item \textbf{Reproducibility.} Record paths, packages, seeds, notebook order, and configuration.
+  \item \textbf{Artifact.} Save the pipeline and model card under \texttt{models/}; demonstrate reloading and prediction.
+\end{enumerate}

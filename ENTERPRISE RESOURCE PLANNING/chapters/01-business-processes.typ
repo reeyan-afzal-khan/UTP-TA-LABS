@@ -19,7 +19,7 @@ An ERP system exists to support how a business works. Before learning menus and 
 
 A #strong[functional area] is a broad part of the organisation responsible for a family of activities. A #strong[business function] is one activity inside such an area --- "taking a sales order." A #strong[business process] is broader: a connected set of activities that turns an input into an output someone values. The three are often confused because they sit at different levels.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/654c6c0c8cf8ef62.svg")], caption: [The three levels. Functional areas are vertical containers of responsibility; business functions are the individual activities inside them; a business process runs horizontally across the containers. The mismatch between the vertical structure and the horizontal flow is the problem ERP exists to solve.]) <fig:area-function-process>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/654c6c0c8cf8ef62.cetz.json")], caption: [The three levels. Functional areas are vertical containers of responsibility; business functions are the individual activities inside them; a business process runs horizontally across the containers. The mismatch between the vertical structure and the horizontal flow is the problem ERP exists to solve.]) <fig:area-function-process>
 
 #figure(
   align(center)[#table(
@@ -43,7 +43,7 @@ A #strong[functional area] is a broad part of the organisation responsible for a
 
 Suppose West End Bicycles receives an order for 1,000 bicycles. A sales employee can capture the request, but Sales alone cannot complete it. Six questions must be answered, and each belongs to a different desk.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/486ebc29a0461535.svg")], caption: [One customer order, six questions, four owners. No single functional area can answer all of them, which is what makes this a cross-functional process rather than a departmental task.]) <fig:cross-functional-order>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/486ebc29a0461535.cetz.json")], caption: [One customer order, six questions, four owners. No single functional area can answer all of them, which is what makes this a cross-functional process rather than a departmental task.]) <fig:cross-functional-order>
 
 HR may not touch an individual order, yet it supports the process by ensuring the company has trained salespeople, buyers, planners, accountants, and warehouse staff.
 
@@ -53,7 +53,7 @@ HR may not touch an individual order, yet it supports the process by ensuring th
 
 A process fails when information moves slowly or inconsistently, even if every department works hard. Each area is simultaneously a producer and a consumer of the others' data.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/c35090dfeab1c4ad.svg")], caption: [What each functional area produces, and what it must receive from the others. Every labelled arrow is a dependency that a silo turns into a delay.]) <fig:info-exchange>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/c35090dfeab1c4ad.cetz.json")], caption: [What each functional area produces, and what it must receive from the others. Every labelled arrow is a dependency that a silo turns into a delay.]) <fig:info-exchange>
 
 #callout("keyidea", title: [Key idea])[The quality of a decision is limited by the quality, timeliness, and consistency of the data available when the decision is made. ERP integration is valuable because it removes the delay and disagreement created by several disconnected copies of the same business fact.]
 
@@ -77,7 +77,7 @@ With a shared database one business event updates several views at once. When a 
 
 The tutorial scenario describes West End Bicycles as a manufacturer of road, mountain, and city bicycles plus accessories. It is useful precisely because it requires all four functional areas at once.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/ae609b78fabb29b0.svg")], caption: [The whole course in one picture. The buying cycle fills the warehouse, the selling cycle empties it, and manufacturing is the hinge between them. Every later chapter deepens one segment of this loop.]) <fig:two-cycles>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/ae609b78fabb29b0.cetz.json")], caption: [The whole course in one picture. The buying cycle fills the warehouse, the selling cycle empties it, and manufacturing is the hinge between them. Every later chapter deepens one segment of this loop.]) <fig:two-cycles>
 
 
 #heading(level: 2)[What Odoo adds to this picture]
@@ -85,7 +85,7 @@ The tutorial scenario describes West End Bicycles as a manufacturer of road, mou
 
 The supplied Odoo 19 Community guide implements the same concepts with eight applications. Reading the app grid as an architecture rather than a menu is the fastest way to see where each chapter lands.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/d18a5eff32428335.svg")], caption: [The eight course applications grouped by the functional area each serves. Contacts sits underneath all of them because customer and vendor identity is shared master data.]) <fig:odoo-app-map>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ENTERPRISE RESOURCE PLANNING/figures/diagrams/d18a5eff32428335.cetz.json")], caption: [The eight course applications grouped by the functional area each serves. Contacts sits underneath all of them because customer and vendor identity is shared master data.]) <fig:odoo-app-map>
 
 #callout("applicationbox", title: [Application walkthrough])[Three ideas recur throughout the practicals:
 

@@ -15,7 +15,7 @@
 #heading(level: 3)[The four-message exchange]
  A client with no address cannot yet be addressed, so the conversation begins as a broadcast. The four steps are remembered as #strong[DORA].
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/71c1ba4a1fe564ac.svg") The #strong[Request] is broadcast rather than sent to the chosen server. That is deliberate: if two servers made offers, the broadcast tells the one that was #emph[not] chosen to release the address it had reserved.], caption: [The four DHCP messages, with the source and destination addresses each one actually carries. Note that the client is still using `0.0.0.0` as its source until the Acknowledge arrives.]) <fig:dora>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/71c1ba4a1fe564ac.cetz.json") The #strong[Request] is broadcast rather than sent to the chosen server. That is deliberate: if two servers made offers, the broadcast tells the one that was #emph[not] chosen to release the address it had reserved.], caption: [The four DHCP messages, with the source and destination addresses each one actually carries. Note that the client is still using `0.0.0.0` as its source until the Acknowledge arrives.]) <fig:dora>
 
 #callout("keyidea", title: [Key idea])[Discover and Request are broadcasts. Routers do not forward broadcasts, so a client and its DHCP server must share a broadcast domain --- or something must carry the request across. That "something" is the relay, in Section~#ref(label("sec:dhcp-relay"), supplement: none).]
 
@@ -80,7 +80,7 @@
 #heading(level: 3)[What a lease actually does]
  The lab sets a lease of 1 day 12 hours. A lease is not a countdown to disconnection: the client starts trying to renew halfway through, so a brief server outage is invisible.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/f64e1b4cf766124f.svg")], caption: [The three moments in a lease. A client that reaches T2 has lost contact with its own server and starts broadcasting to any server that will answer.]) <fig:dhcp-lease>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/f64e1b4cf766124f.cetz.json")], caption: [The three moments in a lease. A client that reaches T2 has lost contact with its own server and starts broadcasting to any server that will answer.]) <fig:dhcp-lease>
 
 #callout("keyidea", title: [Key idea])[`display ip pool` shows how many addresses are used and how many are idle. An exhausted pool and a pool full of stale leases look identical in that output, which is why the lease time is a design decision rather than a default to leave alone.]
 
@@ -98,7 +98,7 @@ Everything above assumes the client and the server share a segment. Real network
 
 A #strong[relay agent] solves this by translating the conversation. The router receives the broadcast on the client side, rewrites it as a #emph[unicast] to the configured server, and inserts the receiving interface's address so the server knows which pool to allocate from.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b3640067e8961e88.svg")], caption: [The relay converts a broadcast into a unicast, and back. It inserts the address of the interface that received the request, so the server picks the pool for the client's own subnet.]) <fig:dhcp-relay>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/b3640067e8961e88.cetz.json")], caption: [The relay converts a broadcast into a unicast, and back. It inserts the address of the interface that received the request, so the server picks the pool for the client's own subnet.]) <fig:dhcp-relay>
 
 #code-block("[R1] dhcp enable\n[R1] interface GigabitEthernet 0/0/2\n[R1-GigabitEthernet0/0/2] ip address 192.168.3.1 24\n[R1-GigabitEthernet0/0/2] dhcp select relay\n[R1-GigabitEthernet0/0/2] dhcp relay server-ip 10.0.12.1", lang: "text")
 

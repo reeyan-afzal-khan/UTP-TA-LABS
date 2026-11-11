@@ -17,7 +17,7 @@ The Trees II slides specialize the general binary-tree idea into structures that
 
 A #strong[binary search tree] is a binary tree with an ordering restriction. In the slide wording, the root value is larger than any value in its left subtree and smaller than any value in its right subtree. The same ordering idea is applied recursively at each node.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/a08174f9360f9aa3.svg")], caption: [The BST ordering rule, and the search path it produces. Every comparison discards an entire subtree, so searching for 6 touches three nodes rather than seven.]) <fig:bst-search>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/a08174f9360f9aa3.cetz.json")], caption: [The BST ordering rule, and the search path it produces. Every comparison discards an entire subtree, so searching for 6 touches three nodes rather than seven.]) <fig:bst-search>
 
 Searching compares the target with the current node and chooses one subtree.
 
@@ -27,7 +27,7 @@ Searching compares the target with the current node and chooses one subtree.
 
 #ref(label("fig:bst-degenerate"), supplement: [Figure]) makes that failure concrete. Inserting the same seven keys in sorted order produces a tree that is really a linked list: every node has one child, the height grows with $N$ rather than $log N$, and the search advantage disappears entirely.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6dc82e3179c079ab.svg")], caption: [The same seven keys, two insertion orders. Balanced insertion gives height~2 and at most three comparisons; sorted insertion gives height~6 and up to seven. The BST ordering rule is satisfied in both cases --- only the shape differs, and the shape is what determines the cost.]) <fig:bst-degenerate>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/6dc82e3179c079ab.cetz.json")], caption: [The same seven keys, two insertion orders. Balanced insertion gives height~2 and at most three comparisons; sorted insertion gives height~6 and up to seven. The BST ordering rule is satisfied in both cases --- only the shape differs, and the shape is what determines the cost.]) <fig:bst-degenerate>
 
 
 #heading(level: 2)[BST insertion]
@@ -45,7 +45,7 @@ The slide deck does not specify how duplicate keys should be handled, so the exa
 
 Deletion is the one BST operation with genuinely distinct cases, because removing a node must leave the ordering rule intact for everything below it (#ref(label("fig:bst-delete"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/eca75e350e17e8b5.svg")], caption: [The three deletion cases. A leaf simply goes. A node with one child is replaced by that child. A node with two children keeps its position in the tree but takes the value of its #emph[inorder successor] --- the smallest key in its right subtree --- which is then deleted from below, where it is guaranteed to have at most one child.]) <fig:bst-delete>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/eca75e350e17e8b5.cetz.json")], caption: [The three deletion cases. A leaf simply goes. A node with one child is replaced by that child. A node with two children keeps its position in the tree but takes the value of its #emph[inorder successor] --- the smallest key in its right subtree --- which is then deleted from below, where it is guaranteed to have at most one child.]) <fig:bst-delete>
 
 #callout("clarification", title: [Clarification])[Deletion is not spelled out in the supplied Trees II material. The three-case treatment above is the standard formulation, included so the operation can be implemented for the lab and the final project.]
 
@@ -75,7 +75,7 @@ A #strong[heap] is a tree-based structure whose shape is a complete/almost-compl
   , kind: table
   )
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/2516650cc2837bd6.svg")], caption: [A max-heap and its array. The heap-order rule constrains each parent against its own children only --- it says nothing about left-to-right order, which is why 50 may sit to the left of 60. Because the shape is almost complete, the tree packs into the array with no gaps.]) <fig:max-heap>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/2516650cc2837bd6.cetz.json")], caption: [A max-heap and its array. The heap-order rule constrains each parent against its own children only --- it says nothing about left-to-right order, which is why 50 may sit to the left of 60. Because the shape is almost complete, the tree packs into the array with no gaps.]) <fig:max-heap>
 
 
 #heading(level: 2)[Array representation of a heap]
@@ -95,7 +95,7 @@ A standard implementation inserts at the next available array position and then 
 
 #ref(label("fig:heap-siftup"), supplement: [Figure]) traces that loop. The new value enters at the only position the shape allows --- the next free array slot --- and then climbs, swapping with its parent until a larger parent stops it. Because the tree's height is $log n$, the climb is bounded by $O \( log n \)$ swaps.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4ac478ca3aa5ca9a.svg")], caption: [Inserting 95 into the max-heap. The value is appended at index 6, then swapped upward past 60 and 90 until the heap-order rule holds again. Only nodes on the path from the insertion point to the root are ever touched.]) <fig:heap-siftup>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4ac478ca3aa5ca9a.cetz.json")], caption: [Inserting 95 into the max-heap. The value is appended at index 6, then swapped upward past 60 and 90 until the heap-order rule holds again. Only nodes on the path from the insertion point to the root are ever touched.]) <fig:heap-siftup>
 
 
 #heading(level: 2)[Height-balancing trees]
@@ -103,7 +103,7 @@ A standard implementation inserts at the next available array position and then 
 
 The slides define a height-balancing tree by requiring the height difference between a node's left and right subtrees to be no more than 1. If insertion makes that difference exceed 1, an appropriate balancing action is taken immediately.
 
-#callout("utpfigure", title: [])[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/becb737a11a954d9.svg")]
+#callout("utpfigure", title: [])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/becb737a11a954d9.cetz.json")]
 
 The slide deck names AVL trees and B-trees as examples associated with height balancing and states that the advantage is $O \( log N \)$ worst-case searching when height is controlled.
 

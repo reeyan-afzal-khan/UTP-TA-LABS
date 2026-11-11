@@ -17,7 +17,7 @@
 #heading(level: 2)[The eNSP workspace]
  Four regions of the window do all the work. Everything in this book is reached from one of them.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/7a1611026105b713.svg")], caption: [Where things are in eNSP. The right-click menu on a device is the one worth memorising: it is how you open a console, start a capture, and add an interface card.]) <fig:ensp-workspace>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/7a1611026105b713.cetz.json")], caption: [Where things are in eNSP. The right-click menu on a device is the one worth memorising: it is how you open a console, start a capture, and add an interface card.]) <fig:ensp-workspace>
 
 
 #heading(level: 2)[Which device to drag]
@@ -97,7 +97,7 @@
 
 The table says which view you are in. The diagram says how to get to the next one, which is the part that trips people up: `quit` goes up one level, `return` goes all the way to user view.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/5bbd9057e26eb9f8.svg")], caption: [Moving between VRP views. Every configuration command in this book is entered somewhere on this tree, and the prompt always tells you where you are.]) <fig:vrp-views>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/5bbd9057e26eb9f8.cetz.json")], caption: [Moving between VRP views. Every configuration command in this book is entered somewhere on this tree, and the prompt always tells you where you are.]) <fig:vrp-views>
 
 #callout("pitfall", title: [Common mistake])[A command rejected as unrecognised is usually a command typed in the wrong view rather than a command that does not exist. `ip route-static` only works in system view; `ip address` only works in interface view. Read the prompt before re-typing.]
 
@@ -105,7 +105,7 @@ The table says which view you are in. The diagram says how to get to the next on
 #heading(level: 3)[Reading an interface name]
  Huawei interface names look verbose but are positional, and the labs abbreviate them constantly.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA COMMUNICATION & NETWORKING/figures/diagrams/39fabcdc25f3b9b0.svg")], caption: [`GigabitEthernet0/0/0` decomposed. On the eNSP AR-series routers used here the first two numbers are almost always 0, so `g0/0/1` and `g0/0/2` are the names you will actually type.]) <fig:iface-naming>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA COMMUNICATION & NETWORKING/figures/diagrams/39fabcdc25f3b9b0.cetz.json")], caption: [`GigabitEthernet0/0/0` decomposed. On the eNSP AR-series routers used here the first two numbers are almost always 0, so `g0/0/1` and `g0/0/2` are the names you will actually type.]) <fig:iface-naming>
 
 
 #heading(level: 2)[Direct-link practice]

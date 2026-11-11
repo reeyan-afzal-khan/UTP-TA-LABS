@@ -104,7 +104,7 @@ A practical screen flow is:
 
 + Show a comparison table and one plain-language interpretation.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f0d807f825deea83.svg")], caption: [Screen flow for the comparison application. The two algorithms must receive equivalent copies of the same input, or the measured difference reflects the data rather than the algorithms.]) <fig:app-flow>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f0d807f825deea83.cetz.json")], caption: [Screen flow for the comparison application. The two algorithms must receive equivalent copies of the same input, or the measured difference reflects the data rather than the algorithms.]) <fig:app-flow>
 
 
 #heading(level: 2)[Report structure required by the guideline]

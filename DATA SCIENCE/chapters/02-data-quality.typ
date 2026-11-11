@@ -32,11 +32,11 @@
 #heading(level: 2)[Quality is fitness for a specific purpose]
  There is no dataset that is simply "clean" in the abstract. Quality means that the data are sufficiently accurate, complete, consistent, timely, and appropriately sampled for a particular question. A missing measurement may be harmless for one summary and fatal for another model. A duplicated transaction may be legitimate if the unit of analysis is a transaction, but a serious error if the table is supposed to contain one row per customer.
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/46e4041f7c9ce993.svg")], caption: [The same table can be adequate for one task and inadequate for another because different questions depend on different fields and assumptions.]) <fig:quality-purpose>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/46e4041f7c9ce993.cetz.json")], caption: [The same table can be adequate for one task and inadequate for another because different questions depend on different fields and assumptions.]) <fig:quality-purpose>
 
 
 #heading(level: 2)[Four dimensions of a practical data audit]
- #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/01b8f47935e364b5.svg")], caption: [A quality audit asks whether the data are complete enough, internally valid, consistently represented, and uniquely recorded for the intended analysis.]) <fig:quality-audit>
+ #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/01b8f47935e364b5.cetz.json")], caption: [A quality audit asks whether the data are complete enough, internally valid, consistently represented, and uniquely recorded for the intended analysis.]) <fig:quality-audit>
 
 #figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#image("/DATA SCIENCE/figures/quality_missingness_map.svg", width: 90%)], caption: [The deliberately corrupted Iris dataset contains missing and invalid values. A map makes concentration and co-occurrence visible, which a single missing-value count cannot show.]) <fig:quality-map>
 
@@ -110,7 +110,7 @@ For supervised learning, target quality is especially important. If diagnosis la
 
 #callout("keyidea", title: [Key idea])[Cleaning is an analytical decision. A good report states what changed, why it changed, how many records were affected, and what uncertainty the change creates.]
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/DATA SCIENCE/figures/diagrams/4cc8fded9d138c84.svg")], caption: [A modelling feature is legitimate only if it would be available at the moment a real prediction must be made. Post-outcome information can make validation look excellent while making deployment impossible.]) <fig:leakage-timeline>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/DATA SCIENCE/figures/diagrams/4cc8fded9d138c84.cetz.json")], caption: [A modelling feature is legitimate only if it would be available at the moment a real prediction must be made. Post-outcome information can make validation look excellent while making deployment impossible.]) <fig:leakage-timeline>
 
 #callout("quickcheck", title: [Check your understanding])[+ Why should identifiers usually be excluded from averages and predictive features?
 

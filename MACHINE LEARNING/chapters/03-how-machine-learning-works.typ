@@ -17,7 +17,7 @@
 #heading(level: 2)[Start with the learning signal]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/a47c9d6ebf2dad93.svg")], caption: [The learning signal decides the setting: labels for every example, only some labels, no external label, or rewards after actions.]) <fig:learning-signal>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/a47c9d6ebf2dad93.cetz.json")], caption: [The learning signal decides the setting: labels for every example, only some labels, no external label, or rewards after actions.]) <fig:learning-signal>
 
 #figure(
   align(center)[#table(
@@ -37,7 +37,7 @@
 #heading(level: 2)[The common skeleton]
 
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/4a1b13d979776e88.svg")], caption: [The skeleton every machine-learning workflow shares: define the question, prepare the data, fit the learning rule, evaluate the result, then use and monitor it.]) <fig:common-skeleton>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4a1b13d979776e88.cetz.json")], caption: [The skeleton every machine-learning workflow shares: define the question, prepare the data, fit the learning rule, evaluate the result, then use and monitor it.]) <fig:common-skeleton>
 
 Supervised learning compares predictions with labels. Unsupervised learning needs evidence beyond an answer key. Reinforcement learning evaluates behavior across whole sequences of actions.
 
@@ -124,7 +124,7 @@ With many parameters, $v$ becomes a whole vector $bold(theta)$ and the slope bec
 
 The learning rate is a hyperparameter: nothing in the data sets it, and it decides whether the walk works at all (#ref(label("fig:learning-rates"), supplement: [Figure])).
 
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-image("/MACHINE LEARNING/figures/diagrams/6103d81d28b37f6c.svg")], caption: [Five steps from $v = 0$ on the bowl $J \( v \) = \( v - 4 \)^2$, with three learning rates. Too small crawls, a sensible rate arrives, and too large leaps across the bowl and climbs the far side. The rate of 1.1 leaps to 8.80, then to $- 1.76$, and its next step, 10.91, is off the chart.]) <fig:learning-rates>
+#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/6103d81d28b37f6c.cetz.json")], caption: [Five steps from $v = 0$ on the bowl $J \( v \) = \( v - 4 \)^2$, with three learning rates. Too small crawls, a sensible rate arrives, and too large leaps across the bowl and climbs the far side. The rate of 1.1 leaps to 8.80, then to $- 1.76$, and its next step, 10.91, is off the chart.]) <fig:learning-rates>
 
 #callout("workedexample", title: [Worked example])[Five steps from $v = 0$ with three learning rates:
 

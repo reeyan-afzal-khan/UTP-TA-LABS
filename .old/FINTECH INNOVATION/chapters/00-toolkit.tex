@@ -1,0 +1,234 @@
+\chapter{Tools for the FinTech Practicals}
+\label{ch:toolkit}
+
+\chapterguide%
+  {Set up Python and the supporting tools used throughout the practicals.}%
+  {Install the required libraries, prepare the lab files, and run the examples on your computer.}
+
+\section{Two ways to set up: plain Python or Anaconda}
+
+\begin{keyidea}
+Choose one installation route and keep the FinTech lab packages in its course environment.
+\end{keyidea}
+
+\section{Route A: install and verify Python}
+
+Download a supported Python release from the
+\href{https://www.python.org/downloads/}{\textbf{official downloads page}}.
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Windows] Install Python and keep the Python launcher selected. Use
+    \textbf{\texttt{py}} to run it; a manual PATH change is usually unnecessary.
+  \item[macOS] Use the official installer or your approved package manager.
+    Run Python with \textbf{\texttt{python3}} and leave the system Python unchanged.
+  \item[Linux] Install Python~3 with your distribution's package manager.
+    Include \texttt{python3-venv} and \texttt{python3-pip} if using Route~A;
+    do not replace the system Python.
+\end{description}
+
+\textbf{Windows command check.} If \texttt{py} is not recognised, reopen the
+terminal and check that the Python launcher was installed. Use the official
+installer to repair the installation rather than adding a guessed folder to PATH:
+
+\begin{lstlisting}[style=utpterminal]
+py --version
+py -0p
+\end{lstlisting}
+
+\textbf{macOS command check.} After installing, reopen Terminal. If
+\texttt{python3} is still unavailable, consult the installer instructions
+instead of adding a hard-coded directory to your shell configuration:
+
+\begin{lstlisting}[style=utpterminal]
+python3 --version
+command -v python3
+\end{lstlisting}
+
+For \textbf{Debian or Ubuntu}:
+
+\begin{lstlisting}[style=utpterminal]
+sudo apt update
+sudo apt install python3 python3-venv python3-pip
+\end{lstlisting}
+
+\textbf{Verify} the installation and executable location:
+
+\begin{lstlisting}[style=utpterminal]
+# Windows
+py --version
+py -m pip --version
+where py
+
+# macOS or Linux
+python3 --version
+python3 -m pip --version
+which -a python3
+\end{lstlisting}
+
+\section{Route A: create an isolated lab environment}
+
+\textbf{\texttt{venv}} keeps course packages separate from other Python
+projects. See the \href{https://docs.python.org/3/library/venv.html}{\textbf{venv documentation}}.
+
+The FinTech labs need only these third-party Python packages; Lab~6 and the
+other standard-library exercises require no additional packages:
+
+\begin{lstlisting}[style=utpterminal]
+pandas
+numpy
+\end{lstlisting}
+
+Create the environment in the folder where you will keep the course scripts
+and data files:
+
+\begin{lstlisting}[style=utpterminal]
+# Windows
+py -m venv .venv
+
+# macOS or Linux
+python3 -m venv .venv
+\end{lstlisting}
+
+\textbf{Activate} it from that folder:
+
+\begin{lstlisting}[style=utpterminal]
+# Windows (PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# macOS or Linux
+source .venv/bin/activate
+\end{lstlisting}
+
+\textbf{Install dependencies} after activation:
+
+\begin{lstlisting}[style=utpterminal]
+python -m pip install --upgrade pip
+python -m pip install pandas numpy
+\end{lstlisting}
+
+\textbf{Install once; activate every session.} Reuse \textbf{\texttt{.venv}}
+without reinstalling packages that have not changed. No course-specific
+\texttt{requirements.txt} is included in the current repository.
+
+The supporting scripts and CSV files are supplied separately by the
+instructor or course bundle. Keep each script beside its input data and run it
+from that folder. For example:
+
+\begin{lstlisting}[style=utpterminal]
+python unbundling_scorecard.py value_chain.csv
+\end{lstlisting}
+
+\begin{utpfig}[The environment routine]{Create the course environment and install pandas and NumPy once. For each practical session, activate it before running a lab script or working through the code in the lab sheet.}{fig:venv-routine}
+\begin{tikzpicture}[
+  font=\small,
+  pystep/.style={draw=UTPBlue, fill=white, rounded corners=2pt, align=center,
+               inner sep=4pt, minimum width=3.3cm, minimum height=1.05cm,
+               font=\scriptsize\ttfamily\color{UTPNavy}},
+  pyonce/.style={pystep, fill=UTPPaleBlue},
+  pyevery/.style={pystep, fill=UTPPaleTeal, draw=UTPTeal},
+  pycap/.style={font=\scriptsize\bfseries\color{UTPMuted}},
+  pynote/.style={font=\scriptsize\color{UTPMuted}, align=center},
+  pygo/.style={-{Stealth[length=2.2mm]}, thick, draw=UTPTeal}]
+
+\node[pyonce]  (venv) at (0,0)     {create .venv};
+\node[pyevery] (act)  at (4.05,0)  {activate};
+\node[pyonce]  (inst) at (8.10,0)  {install pandas\\and NumPy};
+\node[pyevery] (work) at (12.15,0) {run lab scripts\\and exercises};
+
+\draw[pygo] (venv) -- (act);
+\draw[pygo] (act)  -- (inst);
+\draw[pygo] (inst) -- (work);
+
+\node[pycap] at (0,0.92)     {once per project};
+\node[pycap] at (4.05,0.92)  {every session};
+\node[pycap] at (8.10,0.92)  {once};
+\node[pycap] at (12.15,0.92) {every session};
+
+% the return path: a later session rejoins at activation, not at install
+\draw[pygo, draw=UTPOrange]
+  (work.south) -- ++(0,-0.85) -| (act.south);
+\node[pynote, text=UTPOrange] at (8.10,-1.15)
+  {next session: \textbf{reactivate}, do not reinstall};
+
+\end{tikzpicture}
+\end{utpfig}
+
+\begin{keyidea}
+\textbf{Activate first, then install.} Run the course scripts with the same
+Python environment that contains \texttt{pandas} and \texttt{NumPy}.
+\end{keyidea}
+
+\begin{utpfig}[One environment per project]{Keep the FinTech lab packages isolated from the operating system and from other projects. This environment needs only \texttt{pandas} and \texttt{NumPy}; built-in modules such as \texttt{hashlib} are already included with Python.}{fig:venv-separate}
+\begin{tikzpicture}[
+  font=\small,
+  envbox/.style={draw=UTPBlue, fill=UTPPaleBlue, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  sysbox/.style={draw=UTPMuted, fill=UTPPaleGray, rounded corners=2pt,
+                 align=center, inner sep=4pt, minimum width=4.3cm},
+  pkg/.style={font=\scriptsize\ttfamily, align=center},
+  lbl/.style={font=\scriptsize\color{UTPMuted}, align=center},
+  hit/.style={-{Stealth[length=2.2mm]}, thick, draw=UTPTeal}]
+
+\node[sysbox] (sys) at (0,2.45) {system Python};
+\node[pkg,text=UTPMuted,anchor=west] at (2.35,2.45) {leave this alone};
+
+\node[envbox] (a) at (-2.80,0) {\texttt{FinTech labs/.venv}};
+\node[pkg,anchor=north] at (-2.80,-0.52) {pandas\\NumPy};
+
+\node[envbox] (b) at (2.80,0) {\texttt{another project/.venv}};
+\node[pkg,anchor=north] at (2.80,-0.52) {its own versions\\of the same names};
+
+\draw[hit] (sys) -- (a);
+\draw[hit] (sys) -- (b);
+
+\end{tikzpicture}
+\end{utpfig}
+
+\section{Route B: Anaconda or Miniconda}
+
+Anaconda or Miniconda is an alternative way to install Python and manage the
+course packages; it is not required by the labs. Download
+\href{https://docs.anaconda.com/miniconda/}{\textbf{Miniconda}} or
+\href{https://www.anaconda.com/download}{\textbf{Anaconda}}.
+
+\begin{description}[leftmargin=1.15in,style=nextline]
+  \item[Windows] Use the installer defaults and open Anaconda Prompt from
+    Start when installation is complete.
+  \item[macOS / Linux] Follow the installer instructions, reopen the
+    terminal, and confirm that \texttt{conda} is available.
+\end{description}
+
+\textbf{Create} one environment for the course, then \textbf{activate} it:
+
+\begin{lstlisting}[style=utpterminal]
+conda create -n fintech python=3.12
+conda activate fintech
+\end{lstlisting}
+
+\textbf{Install the course packages} into the active environment:
+
+\begin{lstlisting}[style=utpterminal]
+conda install pandas numpy
+\end{lstlisting}
+
+Create the environment once and activate it for each session. Check the
+active environment and confirm the libraries are available:
+
+\begin{lstlisting}[style=utpterminal]
+conda env list
+python -c "import sys; print(sys.executable)"
+python -c "import pandas, numpy; print('Packages ready')"
+\end{lstlisting}
+
+\begin{pitfall}
+Install packages into the \texttt{fintech} environment, not \texttt{(base)}.
+For this route, use \texttt{conda install} rather than mixing package
+managers. If the environment is unusable, remove \texttt{fintech} with
+\texttt{conda env remove -n fintech} and recreate it.
+\end{pitfall}
+
+\begin{troubleshoot}
+\textbf{Conda not found on Windows:} open Anaconda Prompt and check the
+installation there. \textbf{A lab cannot import pandas or NumPy:} activate
+\texttt{fintech}, check that the active Python belongs to that environment, then install the packages there.
+\end{troubleshoot}

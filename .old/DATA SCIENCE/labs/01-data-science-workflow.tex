@@ -1,0 +1,29 @@
+\labsection{1}{Frame a question and build a reproducible data profile}{sec:lab01}
+
+\begin{labproject}{Guided workflow: from question to evidence}
+\textbf{Coverage.} Chapter~\ref{ch:workflow}.\\
+\textbf{Goal.} By the end of the lab, you should be able to frame an estimable question, distinguish analytical roles of variables, construct a compact data profile, and document the computational environment that produced the result.\\
+\textbf{Dataset.} \texttt{bike\_sharing\_dataset\_day.csv}.\\
+\textbf{Scenario.} A bike-sharing operator wants a concise first assessment of daily demand. Before modelling anything, the analyst must define what one row means, identify the variables that can support the question, and produce an analysis another person can reproduce.
+
+\textbf{Core workflow.}
+\begin{enumerate}
+  \item \textbf{Define the observational unit.} State precisely what one row represents. Classify \texttt{instant}, \texttt{dteday}, weather/context variables, \texttt{casual}, \texttt{registered}, and \texttt{cnt} as identifiers, context, predictors, component measures, or outcomes.
+  \item \textbf{Audit before analysing.} Parse \texttt{dteday} as a date; report row/column counts, variable classes, missing values, and the date range. Confirm that \texttt{cnt = casual + registered} for every row.
+  \item \textbf{Write three questions first.} Formulate one descriptive question, one comparative question, and one relational question. For each, name the quantity you will estimate before computing it.
+  \item \textbf{Establish a baseline.} Summarise daily rental demand with center, spread, and range. Explain why a single mean is not an adequate description of a two-year time series.
+  \item \textbf{Compare groups.} Contrast working and non-working days using both mean and median demand. Report group sizes so the comparison is interpretable.
+  \item \textbf{Examine a relationship.} Quantify the association between normalised temperature and total rentals, then identify at least two variables that could partly explain that association.
+  \item \textbf{Inspect time structure.} Plot demand over time and add a simple moving average. Identify trend, seasonal structure, abrupt changes, or periods that deserve further investigation.
+  \item \textbf{Record reproducibility evidence.} Save the input path, analysis script, random seed if used, and \cmd{sessionInfo()} output. The result should be reproducible from a clean R session.
+\end{enumerate}
+
+\tcbbreak
+\textbf{Executable experiment.} Run the file below from a clean R session, then modify it so your submitted questions and evidence are your own.
+\lstinputlisting[style=utpr]{all_experiments/lab01_workflow.R}
+\begin{verification}
+\textbf{Required evidence.} Submit a one-page analysis note containing: the observational unit; the three questions; a compact data-profile summary; one time-series figure; two numerical findings; and one limitation. Every finding must be written as a complete evidence statement, not as raw console output.
+
+\textbf{Decision checkpoint.} End with one recommendation for the \emph{next analysis step}. Examples include modelling seasonality, separating casual from registered users, or investigating weather effects. State what additional evidence would be needed before making an operational decision.
+\end{verification}
+\end{labproject}
