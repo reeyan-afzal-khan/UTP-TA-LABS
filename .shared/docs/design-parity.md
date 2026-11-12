@@ -1,6 +1,6 @@
 # Reference design and fidelity
 
-The LaTeX books in `.old` are the reference: the Typst books are a one-to-one port of them, chapter for chapter, and every measurement below was taken from their PDFs. `.old` is not a build dependency.
+The LaTeX books at commit `2903f28` (10 Nov 2026, the last LaTeX version) are the reference: the Typst books are a one-to-one port of them, chapter for chapter, and every measurement below was taken from their PDFs. The LaTeX lives only in git history (`git show 2903f28:<path>`); nothing in the build depends on it.
 
 ## Page and text
 

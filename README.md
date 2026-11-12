@@ -23,7 +23,7 @@ To edit and preview the Typst books locally, open this repository root in VS Cod
 | [Operating Systems](<OPERATING SYSTEMS/README.md>) | **ready** | 10 | C and Bash on Linux/WSL | [PDF](.all-pdfs/operating-systems/OS-Book.pdf) | processes, scheduling, concurrency, memory, file systems |
 
 Each course name opens that course's guide: its lab table, what to read before each lab, how to run the code, and
-its folder map. Book PDFs are generated on demand with steps 03–04 into `.all-pdfs/<course>/<CODE>-Book.pdf`; step 05 adds chapter/lab PDFs and manifests. **Ready** courses are complete; courses **in development** are usable
+its folder map. Book PDFs are generated on demand with steps 03â€“04 into `.all-pdfs/<course>/<CODE>-Book.pdf`; step 05 adds chapter/lab PDFs and manifests. **Ready** courses are complete; courses **in development** are usable
 but still being reviewed, and their guide lists anything that remains.
 
 ## Working through a lab

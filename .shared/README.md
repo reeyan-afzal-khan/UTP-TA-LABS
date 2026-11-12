@@ -1,6 +1,6 @@
 # Shared course resources
 
-Reusable presentation belongs here; course content and course-specific figures stay in each course folder. The Typst design is a one-to-one port of the LaTeX style files kept in `.old/.shared`: one module per style file.
+Reusable presentation belongs here; course content and course-specific figures stay in each course folder. The Typst design is a one-to-one port of the LaTeX style files in `.shared/style` at commit `2903f28` (10 Nov 2026, the last LaTeX version): one module per style file. Read one with `git show 2903f28:.shared/style/theme.tex`.
 
 ```text
 .shared/
