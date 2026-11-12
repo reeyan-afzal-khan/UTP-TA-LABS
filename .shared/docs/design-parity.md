@@ -1,15 +1,28 @@
 # Reference design and fidelity
 
-The archived `.old` sources are the visual reference, not a build dependency. Active books compile with Typst alone. Current course content is newer than that archive, so identical page counts and page breaks are not expected.
+The LaTeX books in `.old` are the reference: the Typst books are a one-to-one port of them, chapter for chapter, and every measurement below was taken from their PDFs. `.old` is not a build dependency.
 
-The shared design uses A4 pages with 21 mm margins, Source Sans 3 at 10.91 PDF points, Source Code Pro listings at 7.01 points, and Inconsolatazi4 for DCN. Fonts and licenses are bundled. Chapter titles use 24.79 points; section and subsection titles use 14.35 and 11.96 points. Paragraph spacing, heading gaps, tinted callouts, listing frames, cover geometry, and running headers follow reference measurements. Typst and the reference typesetter still differ in line breaking and vertical layout; this is not a pixel-identical reproduction.
+## Page and text
 
-## Diagram editing
+A4 pages with 21 mm margins; Source Sans 3 at 10.91pt with a 13.55pt baselineskip and 6pt between paragraphs; Source Code Pro listings at 7.01pt (Inconsolatazi4 for DCN). A line's box runs from the ascenders (0.712em) to a typical descender (0.2em), so Typst's leading gives LaTeX's fixed baselineskip (`typst/theme.typ`). Headings, boxes, tables, listings, figure frames and captions follow the LaTeX spacing to within a fraction of a point, including:
 
-Reusable flows and the cover workflow are editable CeTZ nodes, text, and paths in `typst/diagrams.typ`. The 410 detailed course drawings preserve existing geometry through native CeTZ paths in `.cetz.json` files. Their labels are vector outlines: changing the document font does not change those labels, and the data is not a semantic node-based rewrite. This preserves the original letter shapes and connector positions.
+- a box after text 10.84pt below its baseline, the next baseline 16.26pt below a box, and two boxes back to back 6.8pt apart (12pt next to a numbered figure);
+- figure frames, whose caption sits 12.65pt above the frame's bottom;
+- tables that never break across pages, since a LaTeX tabular is one box.
 
-For substantial diagram changes, replace that drawing with a small, readable course-local CeTZ source using real text and named nodes. For geometry regeneration, edit the source SVG and run `.typst-setup/scripts/import_diagram_vectors.py`. SVG siblings remain available to the optional lecture exporter. They are not embedded by normal book builds.
+## Drawings and charts
+
+Every TikZ picture and pgfplots chart is CeTZ code in the chapter or lab that shows it; no drawing is stored as an image. The vocabulary (`typst/diagrams.typ`, `typst/plots.typ`) reproduces TikZ's node sizes from the glyphs, its anchors, arrow tips and line widths, and pgfplots' axis sizing, tick choice and label positions. Of the 394 numbered figures, 362 have frames within 3pt of LaTeX's height and the rest within about 13pt.
+
+## Known differences
+
+- Page breaks: line breaking differs slightly between the typesetters, so a book can run one to four pages longer or shorter than its LaTeX version.
+- TeX measures the depth of the last line before a numbered figure; a figure after a line without descenders sits about 2pt lower in Typst.
+- In node text that mixes font sizes, TeX takes each line's spacing from the size in force where the line ends; Typst uses one spacing per paragraph, so such lines can differ by a point or two.
+- Maths in a node label is centred on Typst's formula box, which can sit a point or two lower than TeX's.
+- A box that breaks across a page is closed with a border on both parts; LaTeX left the edges at the break open.
+- `Lab~\ref{...}` printed the chapter number in LaTeX; Typst prints the lab's own number.
 
 ## Checking changes
 
-Build all nine entry points after shared edits using step 04. PDFs belong in `.all-pdfs/<course-slug>/<CODE>-Book.pdf`. Inspect a cover, chapter opening, long listing, and detailed diagram before publishing with step 05. Temporary reference renders belong under `.build/design-reference` and are disposable.
+Build all nine books after a shared edit and compare representative pages: a chapter opening, a figure, a chart, a long listing and a lab. Temporary renders belong under `.build/` and are disposable.

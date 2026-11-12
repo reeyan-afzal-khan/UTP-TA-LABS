@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the supplied goal-specific heuristic])[#flow([*\1. Input / state*
-
-heuristic\_to(goal) closes over the goal coordinates and defaults to weight 1.0.], [*\2. Operation*
-
-For each airport, compute its Haversine distance to that goal; A-star combines this h with travelled cost g.], [*\3. Check*
-
-Compare A-star cost with UCS; check h against true costs obtained using the reversed graph.])]
+#courselabtrace([Trace the supplied goal-specific heuristic], [1\. Input / state], [heuristic\_to(goal) closes over the goal coordinates and defaults to weight 1.0.], [2\. Operation], [For each airport, compute its Haversine distance to that goal; A-star combines this h with travelled cost g.], [3\. Check], [Compare A-star cost with UCS; check h against true costs obtained using the reversed graph.])

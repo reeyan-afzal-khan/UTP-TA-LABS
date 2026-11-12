@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the order-to-cash document chain])[#flow([*\1. Input / state*
-
-Confirm the cycling-club order for five Road Bikes.], [*\2. Operation*
-
-Validate the actual delivery, create and post the invoice, then register the payment as instructed.], [*\3. Check*
-
-Record order, delivery, invoice and payment references; inspect the final reconciliation/payment status.])]
+#courselabtrace([Trace the order-to-cash document chain], [1\. Input / state], [Confirm the cycling-club order for five Road Bikes.], [2\. Operation], [Validate the actual delivery, create and post the invoice, then register the payment as instructed.], [3\. Check], [Record order, delivery, invoice and payment references; inspect the final reconciliation/payment status.])

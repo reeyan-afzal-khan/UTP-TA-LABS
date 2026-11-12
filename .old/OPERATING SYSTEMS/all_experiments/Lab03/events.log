@@ -1,9 +1,0 @@
-INFO scheduler started
-INFO process 421 admitted
-WARN process 421 waiting for I/O
-INFO process 309 admitted
-ERROR disk read failed for block 91
-INFO process 421 ready
-WARN memory pressure increasing
-ERROR process 309 terminated unexpectedly
-INFO scheduler stopped

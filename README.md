@@ -80,7 +80,7 @@ Every course folder uses the same names, and holds only that course's content:
   typst/          shared book components, cover and palette
   templates/      starter files for new courses
   assets/         bundled fonts, licenses and logos
-  packages/       pinned diagram dependencies and licenses
+  packages/       pinned CeTZ and its dependency, with licenses
   docs/           style, authoring and maintenance guides
 .all-pdfs/        published books, lab PDFs and page manifests
 .engine/          optional Typst-based lecture-video tooling

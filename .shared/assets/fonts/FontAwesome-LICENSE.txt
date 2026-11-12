@@ -1,0 +1,7 @@
+Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com
+License - https://fontawesome.com/license/free
+(Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+
+Bundled files: FontAwesome5Brands-Regular-400.otf and FontAwesome5Free-Solid-900.otf,
+copied from the fontawesome5 package of a TeX distribution. The LaTeX books used
+these icons through \usepackage{fontawesome5}; the Typst books use the same fonts.

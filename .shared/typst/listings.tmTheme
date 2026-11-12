@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- The colours of the LaTeX listings styles in .shared/style/listings.tex:
+     keywords bold UTPBlue, comments italic UTPMuted, strings UTPGreen!70!black,
+     everything else in the surrounding text colour. -->
+<plist version="1.0">
+<dict>
+  <key>name</key>
+  <string>UTP listings</string>
+  <key>settings</key>
+  <array>
+    <dict>
+      <key>settings</key>
+      <dict>
+        <key>background</key>
+        <string>#F7F9F9</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>Keywords</string>
+      <key>scope</key>
+      <string>keyword.control, keyword.operator.logical, keyword.operator.word, keyword.other, storage.type, storage.modifier, keyword.declaration, keyword.import, keyword.operator.new, constant.language.python, support.function.builtin.print, support.type.builtin, keyword.operator.in, keyword.operator.is, keyword.operator.not, keyword.operator.and, keyword.operator.or</string>
+      <key>settings</key>
+      <dict>
+        <key>fontStyle</key>
+        <string>bold</string>
+        <key>foreground</key>
+        <string>#246B9E</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>Comments</string>
+      <key>scope</key>
+      <string>comment, punctuation.definition.comment</string>
+      <key>settings</key>
+      <dict>
+        <key>fontStyle</key>
+        <string>italic</string>
+        <key>foreground</key>
+        <string>#60717C</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>Strings</string>
+      <key>scope</key>
+      <string>string, punctuation.definition.string</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key>
+        <string>#205831</string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>Header names after #include are plain in LaTeX listings</string>
+      <key>scope</key>
+      <string>string.quoted.other.lt-gt.include, meta.preprocessor.include string.quoted.other</string>
+      <key>settings</key>
+      <dict>
+        <key>fontStyle</key>
+        <string></string>
+      </dict>
+    </dict>
+    <dict>
+      <key>name</key>
+      <string>Escapes inside strings</string>
+      <key>scope</key>
+      <string>constant.character.escape</string>
+      <key>settings</key>
+      <dict>
+        <key>foreground</key>
+        <string>#205831</string>
+      </dict>
+    </dict>
+  </array>
+</dict>
+</plist>

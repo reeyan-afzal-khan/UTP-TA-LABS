@@ -1,20 +1,17 @@
 #import "/.shared/typst/utp.typ": *
 #unit("chapters", "command-reference")
 
-
-#heading(level: 1, numbering: none)[Command Quick Reference]
-
+#chapter-star[Command Quick Reference]
 
 This appendix is a lookup aid. Confirm the required VRP view before entering a command.
 
+#heading(depth: 2, numbering: none)[Core VRP and interface commands]
 
-#heading(level: 2, numbering: none)[Core VRP and interface commands]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose in the labs],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (42%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose in the labs]),
     [system-view], [Enter system configuration view.],
     [sysname R1], [Rename the device.],
     [interface GigabitEthernet 0/0/0], [Enter an Ethernet interface view.],
@@ -26,18 +23,16 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [ping \<address\>], [Test IP reachability.],
     [save], [Save the current configuration.],
     [display saved-configuration], [Display the stored configuration.],
-  )]
-  , kind: table
   )
+]
 
+#heading(depth: 2, numbering: none)[Static routing and OSPF]
 
-#heading(level: 2, numbering: none)[Static routing and OSPF]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (48%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose]),
     [ip route-static 10.0.3.0 24 10.0.23.3], [Add a next-hop static route.],
     [ip route-static ... preference 80], [Add a less-preferred backup static route.],
     [display ip routing-table], [Inspect direct, static, and dynamic routes.],
@@ -46,18 +41,16 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [network 10.0.12.0 0.0.0.255], [Enable matching interfaces for OSPF.],
     [display ospf peer], [Detailed OSPF neighbor state.],
     [display ospf peer brief], [Condensed OSPF neighbor summary.],
-  )]
-  , kind: table
   )
+]
 
+#heading(depth: 2, numbering: none)[FTP]
 
-#heading(level: 2, numbering: none)[FTP]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (46%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose]),
     [ftp server enable], [Enable the FTP server.],
     [set default ftp-directory flash:/], [Set default server directory.],
     [local-user huawei ...], [Create/configure the local FTP/PPP user under AAA.],
@@ -68,18 +61,16 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [get \<remote\> \<local\>], [Download from server to client.],
     [put \<local\> \<remote\>], [Upload from client to server.],
     [bye], [Close the FTP session.],
-  )]
-  , kind: table
   )
+]
 
+#heading(depth: 2, numbering: none)[DHCP]
 
-#heading(level: 2, numbering: none)[DHCP]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (48%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose]),
     [dhcp enable], [Enable DHCP functionality.],
     [ip pool pool1], [Create a named global pool.],
     [network 10.0.12.0 mask 24], [Define pool network.],
@@ -91,18 +82,16 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [dhcp server dns-list \<IP\>], [Offer a DNS server value.],
     [ip address dhcp-alloc], [Make a switch Vlanif request an address dynamically.],
     [display ip pool name \<name\>], [Inspect pool state and lease counters.],
-  )]
-  , kind: table
   )
+]
 
+#heading(depth: 2, numbering: none)[Eth-Trunk, LACP, and VLAN]
 
-#heading(level: 2, numbering: none)[Eth-Trunk, LACP, and VLAN]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (51%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose]),
     [undo negotiation auto], [Disable Ethernet auto-negotiation.],
     [speed 100], [Force the lab member-link speed.],
     [interface Eth-Trunk 1], [Enter/create the logical bundle.],
@@ -116,18 +105,16 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [port link-type hybrid], [Configure a hybrid port.],
     [port hybrid untagged vlan 2 4], [Send listed VLANs untagged on egress.],
     [port hybrid pvid vlan 4], [Classify untagged ingress using VLAN 4 as PVID.],
-  )]
-  , kind: table
   )
+]
 
+#heading(depth: 2, numbering: none)[WAN, PPP, PAP, and CHAP]
 
-#heading(level: 2, numbering: none)[WAN, PPP, PAP, and CHAP]
- #figure(
-  align(center)[#table(
-    columns: 2,
-    align: (left,left,),
-    table.header([Command], [Purpose],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (51%, 1fr),
+    styles: ((font: "Source Code Pro", size: 0.88em),),
+    header: ([Command], [Purpose]),
     [interface Serial 1/0/0], [Enter a serial interface.],
     [link-protocol hdlc], [Use HDLC encapsulation.],
     [baudrate 128000], [Change DCE clock rate in the lab.],
@@ -137,8 +124,9 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
     [ppp authentication-mode chap], [Require CHAP authentication.],
     [ppp chap user huawei], [Configure CHAP username.],
     [ppp chap password cipher ...], [Configure CHAP password.],
-  )]
-  , kind: table
   )
+]
 
-#callout("pitfall", title: [Common mistake])[If a command is rejected, check the prompt and required view before changing its syntax.]
+#pitfall[
+  If a command is rejected, check the prompt and required view before changing its syntax.
+]

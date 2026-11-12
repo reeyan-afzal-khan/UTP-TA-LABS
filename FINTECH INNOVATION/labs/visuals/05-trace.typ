@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Profitable contribution does not mean positive cash])[#flow([*Contribution*
-
-4.20 - 1.80 = 2.40 per customer-month], [*Acquisition*
-
-CAC 45 is paid when each new customer arrives], [*Payback*
-
-45 / 2.40 = 18.75 months before churn or fixed costs])]
+#courselabtrace([Profitable contribution does not mean positive cash], [Contribution], [4.20 - 1.80 = 2.40 per customer-month], [Acquisition], [CAC 45 is paid when each new customer arrives], [Payback], [45 / 2.40 = 18.75 months before churn or fixed costs])

@@ -1,94 +1,125 @@
 #import "/.shared/typst/utp.typ": *
 #unit("labs", "04-cpu-scheduling")
 
-#lab("4")[CPU scheduling: compare policies on one workload] <sec:lab04> #callout("labproject", title: [Make scheduling policy visible through order, response, and waiting time])[#strong[Coverage.] Chapter~#ref(label("ch:scheduling"), supplement: none): scheduling metrics and policy rules. \
-#strong[Goal.] Run four policies on the same bursts so only the policy changes. \
-#strong[Explain.] Use the trace to explain why order or time quantum changes a metric.
+#labsection(4, label: <sec:lab04>)[CPU scheduling: compare policies on one workload]
 
+#labproject[Make scheduling policy visible through order, response, and waiting time][
+  #strong[Coverage.] Chapter~#ref(<ch:scheduling>): scheduling metrics and policy rules. \
 
-#include "/OPERATING SYSTEMS/labs/visuals/04-flow.typ"
+  #strong[Goal.] Run four policies on the same bursts so only the policy changes. \
 
+  #strong[Explain.] Use the trace to explain why order or time quantum changes a metric.
 
+  #include "visuals/04-flow.typ"
 
-#heading(level: 2, numbering: none)[Source code]
- #strong[`fcfs.c` --- Run processes in the supplied order.]
+  #heading(depth: 2, numbering: none)[Source code]
 
-#strong[Inspect.] Waiting time is the accumulated burst time of earlier processes. #strong[Start the file.] `fcfs.c`, lines 1--26. 
-#include "/OPERATING SYSTEMS/labs/visuals/04-trace.typ"
+  #labsourcecard[`fcfs.c`][Run processes in the supplied order.][Waiting time is the accumulated burst time of earlier processes.]
 
+  #strong[Start the file.] `fcfs.c`, lines 1--26.
 
-#strong[Use the chapter while coding.] Revisit #link(label("ch:scheduling"))[the earlier chapter explanation]; match its operation to the variables and state changes below.
+  #include "visuals/04-trace.typ"
 
-#strong[Follow the supplied implementation.] All processes arrive at zero in this program. The printed PID starts at 1 while the array index starts at 0. Check each row against the accumulators before comparing this scheduler with the other supplied policies. 
-#include "/OPERATING SYSTEMS/labs/visuals/04-worked-case.typ"
+  #strong[Use the chapter while coding.] Revisit #link(<ch:scheduling>)[the earlier chapter explanation]; match its operation to the variables and state changes below.
 
+  #strong[Follow the supplied implementation.] All processes arrive at zero in this program. The printed PID starts at 1 while the array index starts at 0. Check each row against the accumulators before comparing this scheduler with the other supplied policies.
 
-#source-code("/OPERATING SYSTEMS/all_experiments/Lab04/fcfs.c", first: 1, last: 26, lang: "c")
+  #include "visuals/04-worked-case.typ"
 
-#strong[`sjf.c` --- Sort the same workload by shortest burst first.]
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/fcfs.c", first: 1, last: 26, lang: "c")]
 
-#strong[Inspect.] The sorting step changes execution order; the metric loop is otherwise very similar to FCFS. #strong[Start the file.] `sjf.c`, lines 1--33. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/sjf.c", first: 1, last: 33, lang: "c")
+  #labsourcecard[`sjf.c`][Sort the same workload by shortest burst first.][The sorting step changes execution order; the metric loop is otherwise very similar to FCFS.]
 
-#strong[Continue the same file.] `sjf.c`, lines 34--43. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/sjf.c", first: 34, last: 43, lang: "c")
+  #strong[Start the file.] `sjf.c`, lines 1--33.
 
-#strong[`priority.c` --- Sort by priority, where a smaller number means higher priority.]
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/sjf.c", first: 1, last: 33, lang: "c")]
 
-#strong[Inspect.] The code uses PID only as a tie-breaker so equal priorities are deterministic. #strong[Start the file.] `priority.c`, lines 1--30. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/priority.c", first: 1, last: 30, lang: "c")
+  #strong[Continue the same file.] `sjf.c`, lines 34--43.
 
-#strong[Continue the same file.] `priority.c`, lines 31--49. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/priority.c", first: 31, last: 49, lang: "c")
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/sjf.c", first: 34, last: 43, lang: "c")]
 
-#strong[`round_robin.c` --- Give each unfinished process a bounded time slice.]
+  #labsourcecard[`priority.c`][Sort by priority, where a smaller number means higher priority.][The code uses PID only as a tie-breaker so equal priorities are deterministic.]
 
-#strong[Inspect.] `remaining[]` tracks work left; `first_run[]` gives response time when all arrivals are 0. #strong[Start the file.] `round_robin.c`, lines 1--30. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/round_robin.c", first: 1, last: 30, lang: "c")
+  #strong[Start the file.] `priority.c`, lines 1--30.
 
-#strong[Continue the same file.] `round_robin.c`, lines 31--53. #source-code("/OPERATING SYSTEMS/all_experiments/Lab04/round_robin.c", first: 31, last: 53, lang: "c")
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/priority.c", first: 1, last: 30, lang: "c")]
 
+  #strong[Continue the same file.] `priority.c`, lines 31--49.
 
-#heading(level: 2, numbering: none)[Task 1 --- Compile all policies]
- #code-block("cd all_experiments/Lab04\nfor f in fcfs sjf priority round_robin; do\n  gcc -Wall -Wextra -std=c11 \"$f.c\" -o \"$f\"\ndone", lang: "bash")
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/priority.c", first: 31, last: 49, lang: "c")]
 
+  #labsourcecard[`round_robin.c`][Give each unfinished process a bounded time slice.][`remaining[]` tracks work left; `first_run[]` gives response time when all arrivals are 0.]
 
-#heading(level: 2, numbering: none)[Task 2 --- Baseline comparison]
- #code-block("./fcfs\n./sjf\n./priority\n./round_robin 2", lang: "bash") Complete a table with execution order, first process to finish, average waiting time when printed, and one observation about responsiveness.
+  #strong[Start the file.] `round_robin.c`, lines 1--30.
 
-#figure(
-  align(center)[#table(
-    columns: 4,
-    align: (left,left,left,left,),
-    table.header([Policy], [First execution order], [Waiting/response evidence], [What the rule favours],),
-    table.hline(),
-    [FCFS], [], [], [],
-    [SJF], [], [], [],
-    [Priority], [], [], [],
-    [RR, $q = 2$], [], [], [],
-  )]
-  , kind: table
-  )
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/round_robin.c", first: 1, last: 30, lang: "c")]
 
+  #strong[Continue the same file.] `round_robin.c`, lines 31--53.
 
-#heading(level: 2, numbering: none)[Task 3 --- Verify one result by hand]
- For FCFS, draw a one-line Gantt chart for bursts 8, 4, 2, 1. Compute the waiting time of each process before comparing your arithmetic with the program.
+  #numbered[#lstinput("/OPERATING SYSTEMS/all_experiments/Lab04/round_robin.c", first: 31, last: 53, lang: "c")]
 
+  #heading(depth: 2, numbering: none)[Task 1 --- Compile all policies]
 
-#heading(level: 2, numbering: none)[Task 4 --- Change only the Round Robin quantum]
- #code-block("./round_robin 1\n./round_robin 2\n./round_robin 4", lang: "bash") Record the first response time of each process for each quantum. Explain the trade-off visible in the Gantt output: smaller turns provide earlier rotation but create more slices.
+  ```bash
+  cd all_experiments/Lab04
+  for f in fcfs sjf priority round_robin; do
+    gcc -Wall -Wextra -std=c11 "$f.c" -o "$f"
+  done
+  ```
 
-#callout("quickcheck", title: [Check your understanding])[+ Which scheduling metric measures time spent waiting in the ready queue?
+  #heading(depth: 2, numbering: none)[Task 2 --- Baseline comparison]
 
-+ Why can Round Robin improve response time while increasing the number of context switches?
+  ```bash
+  ./fcfs
+  ./sjf
+  ./priority
+  ./round_robin 2
+  ```
 
-+ Why must all policies be compared using the same workload?]
+  Complete a table with execution order, first process to finish, average waiting time when printed, and one observation about responsiveness.
 
-#strong[Chapter connection.] Revisit #link(label("ch:scheduling"))[the chapter explanation] and map its states to the steps below. 
-#include "/OPERATING SYSTEMS/labs/visuals/04-cpu-scheduling-chapter.typ"
+  #utptable[
+    #tabularx(
+      columns: (18%, 1fr, 1fr, 1fr),
+      styles: (navy-bold,),
+      header: ([Policy], [First execution order], [Waiting/response evidence], [What the rule favours]),
+      [FCFS], [], [], [],
+      [SJF], [], [], [],
+      [Priority], [], [], [],
+      [RR, $q=2$], [], [], [],
+    )
+  ]
 
+  #heading(depth: 2, numbering: none)[Task 3 --- Verify one result by hand]
 
-#callout("verification", title: [Verification checklist])[#strong[Explain and extend your result.] Check every row of one scheduler trace using these identities. Change the round-robin quantum and explain both the response-time effect and the resulting context switches.
+  For FCFS, draw a one-line Gantt chart for bursts 8, 4, 2, 1. Compute the waiting time of each process before comparing your arithmetic with the program.
 
-- All four policies run on the same bursts, so only the policy differs.
+  #heading(depth: 2, numbering: none)[Task 4 --- Change only the Round Robin quantum]
 
-- The FCFS Gantt chart and its waiting times are checked by hand against the program.
+  ```bash
+  ./round_robin 1
+  ./round_robin 2
+  ./round_robin 4
+  ```
 
-- The Round Robin first-response times are recorded for $q = 1 \, 2 \, 4$.
+  Record the first response time of each process for each quantum. Explain the trade-off visible in the Gantt output: smaller turns provide earlier rotation but create more slices.
 
-- Each explanation names the policy rule first and the metric consequence second.]]
+  #quickcheck[
+    + Which scheduling metric measures time spent waiting in the ready queue?
+    + Why can Round Robin improve response time while increasing the number of context switches?
+    + Why must all policies be compared using the same workload?
+  ]
+
+  #strong[Chapter connection.] Revisit #link(<ch:scheduling>)[the chapter explanation] and map its states to the steps below.
+
+  #include "visuals/04-cpu-scheduling-chapter.typ"
+
+  #verification[
+    #strong[Explain and extend your result.] Check every row of one scheduler trace using these identities. Change the round-robin quantum and explain both the response-time effect and the resulting context switches.
+
+    - All four policies run on the same bursts, so only the policy differs.
+    - The FCFS Gantt chart and its waiting times are checked by hand against the program.
+    - The Round Robin first-response times are recorded for $q=1,2,4$.
+    - Each explanation names the policy rule first and the metric consequence second.
+  ]
+]

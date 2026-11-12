@@ -1,3 +1,56 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("utpcompactlabfigure", title: [Descending partition: trace the entire first call])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/4d69a95af06dfe9f.cetz.json")]
+#utpcompactlabfigure[Descending partition: trace the entire first call][
+  #labgraphic[
+    #canvas(compact: true, {
+      node((0, 0), [29], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0, 0.6), [0], font: font("small"), ..utplabel)
+      node((0.92, 0), [10], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0.92, 0.6), [1], font: font("small"), ..utplabel)
+      node((1.84, 0), [14], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((1.84, 0.6), [2], font: font("small"), ..utplabel)
+      node((2.76, 0), [37], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((2.76, 0.6), [3], font: font("small"), ..utplabel)
+      node((3.68, 0), [13], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((3.68, 0.6), [4], font: font("small"), ..utplabel)
+      node((4.8, 0), [Middle index 2: pivot is 14], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+      connect((-0.85, -0.35), (-0.85, -0.7), ..utparrow)
+      node((0, -1.05), [29], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0.92, -1.05), [10], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((1.84, -1.05), [13], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((2.76, -1.05), [37], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((3.68, -1.05), [14], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((4.8, -1.05), [`swap(a[mid],a[high])`; set i=-1], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+      connect((-0.85, -1.4), (-0.85, -1.75), ..utparrow)
+      node((0, -2.1), [29], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((0.92, -2.1), [10], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((1.84, -2.1), [13], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((2.76, -2.1), [37], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((3.68, -2.1), [14], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((4.8, -2.1), [j=0: 29 $>=$ 14; increment i to 0], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+      connect((-0.85, -2.45), (-0.85, -2.8), ..utparrow)
+      node((0, -3.15), [29], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0.92, -3.15), [10], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((1.84, -3.15), [13], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((2.76, -3.15), [37], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((3.68, -3.15), [14], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((4.8, -3.15), [j=1,2: 10 and 13 are smaller; skip both], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+      connect((-0.85, -3.5), (-0.85, -3.85), ..utparrow)
+      node((0, -4.2), [29], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0.92, -4.2), [37], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((1.84, -4.2), [13], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((2.76, -4.2), [10], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((3.68, -4.2), [14], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((4.8, -4.2), [j=3: 37 $>=$ 14; increment i to 1 \
+    Swap indexes 1 and 3], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+      connect((-0.85, -4.55), (-0.85, -4.9), ..utparrow)
+      node((0, -5.25), [29], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((0.92, -5.25), [37], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((1.84, -5.25), [14], font: font("small"), ..utphot, min-width: 0.88, min-height: 0.65)
+      node((2.76, -5.25), [10], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((3.68, -5.25), [13], font: font("small"), ..utpcell, min-width: 0.88, min-height: 0.65)
+      node((4.8, -5.25), [Swap pivot with a\[i+1\]; return p=2 \
+    Recurse on indexes 0--1 and 3--4], font: font("small"), ..utplabel, anchor: "west", align: left, text-width: 5.2)
+    })
+  ]
+]

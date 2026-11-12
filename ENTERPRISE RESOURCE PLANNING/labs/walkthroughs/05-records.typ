@@ -1,5 +1,17 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labquestion", title: [Question 1 --- Record the state transitions])[From the confirmed order, open Delivery; verify actual quantity 5 and validate. Return to the order to create the invoice, check its lines, then post it.] #callout("labanswer", title: [Worked answer])[#strong[Inspect the result.] Delivery is Done and stock has decreased by five; invoice is Posted. Record the linked order, delivery and invoice IDs.]
+#labquestion(1)[Record the state transitions][
+  From the confirmed order, open Delivery; verify actual quantity 5 and validate. Return to the order to create the invoice, check its lines, then post it.
+]
 
-#callout("labquestion", title: [Question 2 --- Close the payment loop])[Register the full amount due using the tutor-configured journal. Inspect the invoice payment state. Where the journal uses outstanding accounts, match the payment to the bank transaction through the supplied reconciliation workflow.] #callout("labanswer", title: [Worked answer])[#strong[Inspect the result.] Paid and In Payment are different states. Report the state actually shown and whether reconciliation is still pending; do not assume that registering payment always completes reconciliation.]
+#labanswer[
+  #strong[Inspect the result.] Delivery is Done and stock has decreased by five; invoice is Posted. Record the linked order, delivery and invoice IDs.
+]
+
+#labquestion(2)[Close the payment loop][
+  Register the full amount due using the tutor-configured journal. Inspect the invoice payment state. Where the journal uses outstanding accounts, match the payment to the bank transaction through the supplied reconciliation workflow.
+]
+
+#labanswer[
+  #strong[Inspect the result.] Paid and In Payment are different states. Report the state actually shown and whether reconciliation is still pending; do not assume that registering payment always completes reconciliation.
+]

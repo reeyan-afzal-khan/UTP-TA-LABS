@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Compare algorithms fairly])[#flow([*Same rows*
-
-Reuse the split and target definition], [*Same metric*
-
-Judge each candidate on the same loss or score], [*Different model*
-
-Change one model family or setting at a time])]
+#courselabtrace([Compare algorithms fairly], [Same rows], [Reuse the split and target definition], [Same metric], [Judge each candidate on the same loss or score], [Different model], [Change one model family or setting at a time])

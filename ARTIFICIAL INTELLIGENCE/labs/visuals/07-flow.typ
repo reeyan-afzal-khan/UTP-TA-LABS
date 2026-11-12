@@ -1,3 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#flow([Clean tweets], [Split data], [Tune pipeline], [Test once])
+#courselabflow([Clean tweets], [Split data], [Tune pipeline], [Test once])

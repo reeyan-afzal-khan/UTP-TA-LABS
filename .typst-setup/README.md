@@ -38,7 +38,7 @@ Tinymist is configured with the repository root, bundled fonts, original preview
 
 `config/toolchain.json` pins **Typst 0.15.1** from [the official typst/typst repository](https://github.com/typst/typst/releases/tag/v0.15.1). Installation verifies GitHub's SHA-256 release asset digest. Windows, macOS and Linux are supported where an official x86-64 or ARM64 release exists. Installation is local: no administrator rights or persistent PATH changes.
 
-The compiler and optional Python packages live in ignored `bin/`. Fonts, logos and pinned diagram dependencies are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
+The compiler and optional Python packages live in ignored `bin/`. Fonts, logos and the pinned CeTZ drawing package are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
 
 ```text
 .typst-setup/

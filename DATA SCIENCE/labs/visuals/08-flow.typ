@@ -1,3 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#flow([Stratify split], [Fit logistic], [Choose threshold], [Inspect confusion])
+#courselabflow([Stratify split], [Fit logistic], [Choose threshold], [Inspect confusion])

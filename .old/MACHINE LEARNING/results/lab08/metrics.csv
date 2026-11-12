@@ -1,4 +1,0 @@
-model,validation_mae_rentals
-persistence (last hour),85.22
-same hour yesterday,80.55
-"LSTM (hidden=32, lookback=24)",41.86

@@ -1,3 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#flow([Inspect metadata], [Copy bytes], [Search text], [Check status])
+#courselabflow([Inspect metadata], [Copy bytes], [Search text], [Check status])

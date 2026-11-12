@@ -1,18 +1,15 @@
 #import "/.shared/typst/utp.typ": *
 #unit("appendices", "source-map")
 
-
-#heading(level: 1, numbering: none)[Appendix B: Course Source and Tutorial Map]
-
+#chapter-star[Appendix B: Course Source and Tutorial Map]
 
 These notes were built from the supplied tutorial documents, the Odoo West End Bicycles build guide, the supplied forecast/S&OP spreadsheet, and the provided third edition of #emph[Concepts in Enterprise Resource Planning]. The table below shows how the materials were aligned.
 
-#figure(
-  align(center)[#table(
-    columns: 3,
-    align: (left,left,left,),
-    table.header([Tutorial], [Main activity], [Notes / textbook support],),
-    table.hline(),
+#utptable[
+  #tabularx(
+    columns: (15%, 31%, 1fr),
+    styles: (navy-bold,),
+    header: ([Tutorial], [Main activity], [Notes / textbook support]),
     [T1], [Business functions, information flows, process design], [Chapter 1 of the textbook; Odoo guide provides West End Bicycles organisation and the full integrated process.],
     [T2], [ERP benefit and implementation challenge], [Chapter 2 plus implementation/change-management concepts from Chapter 7.],
     [T3], [Production approach, forecast, S&OP], [Chapter 4 production-planning hierarchy; Odoo BOM and Manufacturing Order steps.],
@@ -21,22 +18,18 @@ These notes were built from the supplied tutorial documents, the Odoo West End B
     [T6], [Footloose forecast and S&OP spreadsheet], [Chapter 4 forecasting and S&OP formulas; supplied spreadsheet values.],
     [T7], [SCM research and CRM-vs-SCM comparison], [Chapter 4 traditional/integrated supply chain and SCM measures of success; Odoo Purchase/Inventory flow.],
     [T8], [HR recruitment and process modelling], [Chapter 6 recruiting/hiring problems + Chapter 7 flowcharts/swimlanes; Odoo Employees organisation records.],
-  )]
-  , kind: table
   )
+]
 
-
-#heading(level: 2, numbering: none)[Source discrepancies preserved in the notes]
-
+#heading(depth: 2, numbering: none)[Source discrepancies preserved in the notes]
 
 The materials contain a few inconsistencies that students should recognise rather than have silently corrected for them:
 
 - The Tutorial 6 Word file asks students to forecast 2023 from 2022 sales, while the supplied spreadsheet headings still refer to 2022.
-
 - Tutorial 6 states safety stock = 100; the spreadsheet pre-fills 500 in the initial December inventory cell.
-
 - Tutorial 6 describes sales in pairs of shoes but production capacity as 40 shoes per hour, creating a unit-of-measure ambiguity.
-
 - Tutorial numbering in some source documents is inconsistent (for example, a page header may use a different tutorial number from the title). The notes organise topics by subject rather than reproducing those numbering mismatches.
 
-#callout("keyidea", title: [Key idea])[When a source file and a spreadsheet disagree, do not hide the conflict. State the assumption used, keep units explicit, and confirm assessment expectations with the tutor.]
+#keyidea[
+  When a source file and a spreadsheet disagree, do not hide the conflict. State the assumption used, keep units explicit, and confirm assessment expectations with the tutor.
+]

@@ -1,3 +1,56 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("utpcompactlabfigure", title: [Green joins components; dashed red would create a cycle])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/f6800a6df3df7c7a.cetz.json")]
+#utpcompactlabfigure[Green joins components; dashed red would create a cycle][
+  #labgraphic[
+    #canvas(compact: true, {
+      draw.scope({
+        draw.translate((0, 0))
+        node((0, 1), [A], name: "A", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, 1), [B], name: "B", font: font("small"), ..utpnode, min-size: 0.6)
+        node((0, -0.5), [C], name: "C", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, -0.5), [D], name: "D", font: font("small"), ..utpnode, min-size: 0.6)
+        node((2.8, 0.25), [E], name: "E", font: font("small"), ..utpnode, min-size: 0.6)
+        connect("A", "B", ..utpedge, draw: mix(muted, 35%))
+        connect("A", "C", ..utpedge, draw: mix(muted, 35%))
+        connect("A", "D", ..utpedge, draw: mix(muted, 35%))
+        connect("B", "D", ..utpedge, draw: mix(muted, 35%))
+        connect("B", "E", ..utpedge, draw: mix(muted, 35%))
+        connect("C", "D", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("D", "E", ..utpedge, draw: mix(muted, 35%))
+        node((1.3, -1.3), [1\. CD(1): join C and D], font: font("small"), ..utplabel, align: center, text-width: 4)
+      })
+      draw.scope({
+        draw.translate((4.6, 0))
+        node((0, 1), [A], name: "A", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, 1), [B], name: "B", font: font("small"), ..utpnode, min-size: 0.6)
+        node((0, -0.5), [C], name: "C", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, -0.5), [D], name: "D", font: font("small"), ..utpnode, min-size: 0.6)
+        node((2.8, 0.25), [E], name: "E", font: font("small"), ..utpnode, min-size: 0.6)
+        connect("A", "B", ..utpedge, draw: mix(muted, 35%))
+        connect("A", "C", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("A", "D", ..utpedge, draw: mix(muted, 35%))
+        connect("B", "D", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("B", "E", ..utpedge, draw: mix(muted, 35%))
+        connect("C", "D", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("D", "E", ..utpedge, draw: mix(muted, 35%))
+        node((1.3, -1.3), [2\. Add AC(2), BD(3)], font: font("small"), ..utplabel, align: center, text-width: 4)
+      })
+      draw.scope({
+        draw.translate((9.2, 0))
+        node((0, 1), [A], name: "A", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, 1), [B], name: "B", font: font("small"), ..utpnode, min-size: 0.6)
+        node((0, -0.5), [C], name: "C", font: font("small"), ..utpnode, min-size: 0.6)
+        node((1.5, -0.5), [D], name: "D", font: font("small"), ..utpnode, min-size: 0.6)
+        node((2.8, 0.25), [E], name: "E", font: font("small"), ..utpnode, min-size: 0.6)
+        connect("A", "B", ..utpedge, draw: red, dash: "dashed")
+        connect("A", "C", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("A", "D", ..utpedge, draw: red, dash: "dashed")
+        connect("B", "D", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("B", "E", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("C", "D", ..utpedge, draw: green, line-width: 1.0959pt)
+        connect("D", "E", ..utpedge, draw: mix(muted, 35%))
+        node((1.3, -1.3), [3\. Reject AB, AD; accept BE(6)], font: font("small"), ..utplabel, align: center, text-width: 4)
+      })
+    })
+  ]
+]

@@ -8,66 +8,110 @@
 
 Reuse the chapter comparison rule for both insertion and search. Deletion returns the replacement subtree, so callers must assign its result. main covers leaf, one-child, and two-child deletion, then contrasts a chain with a shorter tree.
 
+#include "../visuals/program-bst.typ"
 
-#include "/ALGORITHMS & DATA STRUCTURES/labs/visuals/program-bst.typ"
-
-
-+ #strong[Headers and initial definitions.]
+#utpsteps[
+  1. #strong[Headers and initial definitions.]
+]
 
 `bst.cpp` --- lines 14--30.
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 14, last: 30, lang: "text")
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 14, last: 30, lang: "cpp")
 
-+ #strong[Implement insertBST, contains, deleteBST.]
+#colbreak()
+
+#utpsteps[
+  2. #strong[Implement insertBST, contains, deleteBST.]
+]
 
 `bst.cpp` --- lines 31--65.
 
+#include "../visuals/walk-bst.typ"
 
-#include "/ALGORITHMS & DATA STRUCTURES/labs/visuals/walk-bst.typ"
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 31, last: 65, lang: "cpp")
 
+#colbreak()
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 31, last: 65, lang: "text")
-
-+ #strong[Implement inorder, height, isBST and helpers.]
+#utpsteps[
+  3. #strong[Implement inorder, height, isBST and helpers.]
+]
 
 `bst.cpp` --- lines 66--97.
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 66, last: 97, lang: "text")
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 66, last: 97, lang: "cpp")
 
-+ #strong[Implement draw, destroy, join and helpers.]
+#colbreak()
+
+#utpsteps[
+  4. #strong[Implement draw, destroy, join and helpers.]
+]
 
 `bst.cpp` --- lines 98--131.
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 98, last: 131, lang: "text")
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 98, last: 131, lang: "cpp")
 
-+ #strong[Connect the test cases in main.]
+#colbreak()
+
+#utpsteps[
+  5. #strong[Connect the test cases in main.]
+]
 
 `bst.cpp` --- lines 132--164.
 
-
-#include "/ALGORITHMS & DATA STRUCTURES/labs/visuals/walk-bst-case.typ"
-
+#include "../visuals/walk-bst-case.typ"
 
 #strong[Trace checkpoint for the supplied main.] Follow the three deletion cases in order: remove leaf 20; replace 30 by its only child 40; replace two-child root 50 by successor 60 and remove the successor from its former position. Assign the returned root after each call. Inorder must remain sorted, root must hold 60, and four live nodes must remain before destroy.
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 132, last: 164, lang: "text")
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 132, last: 164, lang: "cpp")
 
-+ #strong[Connect the test cases in main.]
+#colbreak()
+
+#utpsteps[
+  6. #strong[Connect the test cases in main.]
+]
 
 `bst.cpp` --- lines 165--181. Continue in the same file; do not add another header or opening brace.
 
-#source-code("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 165, last: 181, lang: "text")
+#lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab08/bst.cpp", first: 165, last: 181, lang: "cpp")
+
+#colbreak()
 
 #strong[Build, run, and inspect bst.]
 
 From this program\'s folder, run these commands in PowerShell:
 
-#code-block("g++ -std=c++17 -Wall -Wextra bst.cpp -o bst.exe\n\n.\\bst.exe", lang: "text")
+```terminal
+
+g++ -std=c++17 -Wall -Wextra bst.cpp -o bst.exe
+
+.\bst.exe
+
+```
 
 #strong[Expected output excerpt.] Compare values, order, and pass/fail messages; spacing need not match.
 
-#code-block("== Insert 50, 30, 70, 20, 40, 60, 80 ==\n            80\n        70\n            60\n    50\n            40\n        30\n            20\nafter insertion\n  inorder: 20 30 40 50 60 70 80   height: 2\n  [ok]   inorder output is sorted\n  [ok]   every node respects the BST rule\n\n== Search ==\n  contains(60): yes   contains(65): no", lang: "text")
+```terminal
+
+== Insert 50, 30, 70, 20, 40, 60, 80 ==
+            80
+        70
+            60
+    50
+            40
+        30
+            20
+after insertion
+  inorder: 20 30 40 50 60 70 80   height: 2
+  [ok]   inorder output is sorted
+  [ok]   every node respects the BST rule
+
+== Search ==
+  contains(60): yes   contains(65): no
+
+```
 
 The complete captured run is in `labs/outputs/bst.txt`.
 
-#callout("tryit", title: [Try it yourself])[Insert a duplicate key and verify that the inorder output is unchanged. Delete the root from a one-node tree; assign the returned pointer and confirm it is null.]
+#tryit[
+  Insert a duplicate key and verify that the inorder output is unchanged. Delete the root from a one-node tree; assign the returned pointer and confirm it is null.
+]

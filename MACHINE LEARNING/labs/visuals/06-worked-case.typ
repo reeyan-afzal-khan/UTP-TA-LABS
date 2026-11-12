@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the Q-table and terminal update])[#flow([*\1. Input / state*
-
-Q has shape (4, 4, 4): row, column, action. Actions are up, down, left, right.], [*\2. Operation*
-
-The update uses alpha 0.15 and gamma 0.95; ordinary reward is -0.04.], [*\3. Check*
-
-At the goal or trap, target equals reward alone. Otherwise add gamma times max next-state Q.])]
+#courselabtrace([Trace the Q-table and terminal update], [1\. Input / state], [Q has shape (4, 4, 4): row, column, action. Actions are up, down, left, right.], [2\. Operation], [The update uses alpha 0.15 and gamma 0.95; ordinary reward is -0.04.], [3\. Check], [At the goal or trap, target equals reward alone. Otherwise add gamma times max next-state Q.])

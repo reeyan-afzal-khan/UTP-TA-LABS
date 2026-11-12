@@ -1,3 +1,19 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("utpcompactlabfigure", title: [How this program runs])[#diagram-drawing("/ALGORITHMS & DATA STRUCTURES/figures/diagrams/b6e6be4d96fd2d3a.cetz.json")]
+#utpcompactlabfigure[How this program runs][
+  #labgraphic[
+    #canvas(compact: true, {
+      node((0, 0), [#strong[1] \
+    Weighted edges], name: "s0", font: font("small"), ..utpstep, text-width: 2.5, min-height: 1.15)
+      node((2.95, 0), [#strong[2] \
+    Sort by weight], name: "s1", font: font("small"), ..utpstep, text-width: 2.5, min-height: 1.15)
+      node((5.9, 0), [#strong[3] \
+    Join different components], name: "s2", font: font("small"), ..utpstep, text-width: 2.5, min-height: 1.15)
+      node((8.85, 0), [#strong[4] \
+    Validate weight 12], name: "s3", font: font("small"), ..utpstep, text-width: 2.5, min-height: 1.15)
+      connect("s0.east", "s1.west", ..utparrow)
+      connect("s1.east", "s2.west", ..utparrow)
+      connect("s2.east", "s3.west", ..utparrow)
+    })
+  ]
+]

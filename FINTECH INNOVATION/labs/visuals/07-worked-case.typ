@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the actual asset-by-asset comparison])[#flow([*\1. Input / state*
-
-customer\_access rates Platform P 5 and Bank B 3; brand\_trust rates them 3 and 5.], [*\2. Operation*
-
-difference = platform - bank gives +2 for customer access and -2 for brand trust.], [*\3. Check*
-
-The printed label is platform, bank or tie. capital\_talent is 4 versus 4, so it is a tie.])]
+#courselabtrace([Trace the actual asset-by-asset comparison], [1\. Input / state], [customer\_access rates Platform P 5 and Bank B 3; brand\_trust rates them 3 and 5.], [2\. Operation], [difference = platform - bank gives +2 for customer access and -2 for brand trust.], [3\. Check], [The printed label is platform, bank or tie. capital\_talent is 4 versus 4, so it is a tie.])

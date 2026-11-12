@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the FIFO pointer in fifo.c])[#flow([*\1. Input / state*
-
-frames starts \[-1, -1, -1\], next = 0. References 7, 0, 1 fill the three slots.], [*\2. Operation*
-
-Reference 2 replaces slot 0 and advances next to 1; the following 0 is a hit.], [*\3. Check*
-
-That hit leaves next at 1. Reference 3 then replaces slot 1, evicting 0.])]
+#courselabtrace([Trace the FIFO pointer in fifo.c], [1\. Input / state], [frames starts \[-1, -1, -1\], next = 0. References 7, 0, 1 fill the three slots.], [2\. Operation], [Reference 2 replaces slot 0 and advances next to 1; the following 0 is a hit.], [3\. Check], [That hit leaves next at 1. Reference 3 then replaces slot 1, evicting 0.])

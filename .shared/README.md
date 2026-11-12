@@ -1,17 +1,26 @@
 # Shared course resources
 
-Reusable presentation belongs here; course content and course-specific figures stay in each course folder.
+Reusable presentation belongs here; course content and course-specific figures stay in each course folder. The Typst design is a one-to-one port of the LaTeX style files kept in `.old/.shared`: one module per style file.
 
 ```text
 .shared/
   README.md
   typst/                 reusable book design
-    utp.typ              public import: layout, headings, callouts, labs and flows
-    cover.typ            shared cover layout
-    palette.typ          shared colour definitions
-    diagrams.typ         editable CeTZ flows and cover workflow
-    vector-diagrams.typ  CeTZ renderer for preserved geometry
-    code.typ             Codly code and terminal listings
+    utp.typ              the public import: everything below
+    palette.typ          colours (theme.tex)
+    theme.typ            sizes, baselineskips and line metrics
+    state.typ            book settings (configuration.tex)
+    layout.typ           pages, headings, contents, parts
+    boxes.typ            the learning boxes (boxes.tex)
+    figures.typ          figure and table frames, images (figures.tex)
+    tables.typ           the tabularx house style
+    listings.typ         code and terminal listings (listings.tex)
+    listings.tmTheme     listing syntax colours
+    labs.typ             lab banners, cards and checklists (labs/*.tex)
+    commands.typ         inline commands (commands.tex)
+    cover.typ            the cover (cover.tex)
+    diagrams.typ         TikZ in CeTZ: node, connect, the house drawing styles
+    plots.typ            pgfplots in CeTZ: axis, addplot, groupplot
   templates/
     course/              starter main.typ for a new course
   assets/
@@ -25,16 +34,22 @@ Reusable presentation belongs here; course content and course-specific figures s
 
 | Change | File or folder |
 | --- | --- |
-| Book layout, headings and lab banners | [typst/utp.typ](typst/utp.typ) |
-| Cover geometry, author block or cover diagram | [typst/cover.typ](typst/cover.typ) |
-| Code and terminal listings | [typst/code.typ](typst/code.typ) |
-| CeTZ flows and cover workflow | [typst/diagrams.typ](typst/diagrams.typ) |
 | Colours across every book | [typst/palette.typ](typst/palette.typ) |
-| A single course's cover title or summary | That course's `main.typ` |
+| Font sizes, line spacing | [typst/theme.typ](typst/theme.typ) |
+| Page layout, headings, contents | [typst/layout.typ](typst/layout.typ) |
+| A learning box | [typst/boxes.typ](typst/boxes.typ) |
+| Figure frames and captions | [typst/figures.typ](typst/figures.typ) |
+| Tables | [typst/tables.typ](typst/tables.typ) |
+| Code and terminal listings | [typst/listings.typ](typst/listings.typ) |
+| Lab banners and lab components | [typst/labs.typ](typst/labs.typ) |
+| Drawings: node and path styles | [typst/diagrams.typ](typst/diagrams.typ) |
+| Charts | [typst/plots.typ](typst/plots.typ) |
+| Cover geometry or the cover diagram | [typst/cover.typ](typst/cover.typ) |
+| A single course's title, summary or settings | That course's `main.typ` |
 | Starter files for a new course | [templates/course/](templates/course/) |
 | Fonts and logos | `assets/` |
 
-Content files import `/.shared/typst/utp.typ`. Each course calls `cover(...)` directly in `main.typ`; the layout is shared in `typst/cover.typ`. Keep third-party code in `packages/` separate from project-owned components; its versions and licenses are documented in [packages/NOTICE.md](packages/NOTICE.md).
+Content files import `/.shared/typst/utp.typ`. Drawings and charts are CeTZ code inside the chapter or lab that shows them; a course with drawing macros of its own keeps them in one Typst file beside its chapters. Keep third-party code in `packages/` separate from project-owned components; its versions and licenses are documented in [packages/NOTICE.md](packages/NOTICE.md).
 
 ## Guides
 

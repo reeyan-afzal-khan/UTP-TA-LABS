@@ -1,7 +1,45 @@
 #import "/.shared/typst/utp.typ": *
 
+#chapter-star[Course Map]
 
-#heading(level: 1, numbering: none)[Course Map]
-
-
-#figure(block(width: 100%, inset: 7pt, stroke: blue.lighten(70%), radius: 2mm)[#diagram-drawing("/MACHINE LEARNING/figures/diagrams/4bd0eb8fa2848920.cetz.json")], caption: [How the stages connect. After the shared foundations, labeled data leads to the supervised branch and unlabeled data to the unsupervised branch; both feed the advanced concepts and the capstone. Each stage names its chapters, its labs, and the checkpoint to reach before moving on.]) <fig:course-stages>
+#utpfig([How the stages connect. After the shared foundations, labeled data leads to the supervised branch and unlabeled data to the unsupervised branch; both feed the advanced concepts and the capstone. Each stage names its chapters, its labs, and the checkpoint to reach before moving on.], label: <fig:course-stages>)[
+  #canvas(y: 1.17cm, {
+    let stage = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 12.75, min-height: 1.38, align: left, inner-xsep: 4mm, inner-ysep: 2.4mm, font: font("script", fill: navy))
+    let gate = (draw: navy, fill: navy, text: white, rounded: 2mm, text-width: 6.8, min-height: 0.78, align: center, font: font("small", weight: "bold"))
+    let branch = (rounded: 2mm, text-width: 5.9, min-height: 2.35, align: left, inner-xsep: 3.4mm, inner-ysep: 2.5mm, font: font("script", fill: navy))
+    let sup = (..branch, draw: blue, fill: pale-blue)
+    let unsup = (..branch, draw: teal, fill: pale-teal)
+    let other = (draw: orange, fill: pale-orange, rounded: 2mm, text-width: 12.75, min-height: 2.35, align: left, inner-xsep: 4mm, inner-ysep: 2.4mm, font: font("script", fill: navy))
+    let finish = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 12.75, min-height: 1.65, align: left, inner-xsep: 4mm, inner-ysep: 2.4mm, font: font("script", fill: navy))
+    let branchlabel = (fill: white, inner-xsep: 1.9925pt, inner-ysep: 0.9963pt, font: font("script", weight: "bold", fill: muted))
+    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let flow = (line-width: widths.thick, draw: teal)
+    let junction = (shape: "circle", fill: teal, inner-sep: 1.1955pt)
+    node((0, 8.65), [#fsize("normal")[#strong[#text(fill: blue)[Stage 1: Orientation and tools]]]#h(1fr)#fsize("footnote")[#strong[Chapters #ref(<ch:toolkit>)--@ch:orientation]] #parbreak() #v(3pt)Meet the study log and the three-step recipe, follow the workflow, and set up Python. #parbreak() #strong[Checkpoint:] run the environment and name the model, loss, and optimizer of a method.], name: "a", ..stage)
+    node((0, 6.75), [#fsize("normal")[#strong[#text(fill: blue)[Stage 2: Shared foundations]]]#h(1fr)#fsize("footnote")[#strong[Chapters #ref(<ch:data>)--@ch:foundations]] #parbreak() #v(3pt)Data quality, safe splits, preprocessing; gradient descent, statistics, probability, and geometry. #parbreak() #strong[Lab 1:] feature engineering and selection. #strong[Checkpoint:] separate fixed rules from training-fitted choices.], name: "b", ..stage)
+    node((0, 5.05), [Does your log hold the answers?], name: "g", ..gate)
+    node((-3.45, 2.75), [#align(center)[#strong[#text(fill: blue)[Stage 3A: Supervised workflow #parbreak() ]]]#align(center)[#strong[Chapters #ref(<ch:supervised>)--@ch:training #parbreak() ]]#v(3pt)Losses and baselines; metrics, validation, regularization, and tuning. #parbreak() #strong[Checkpoint:] choose models without using the final test set.], name: "s1", ..sup)
+    node((-3.45, 0), [#align(center)[#strong[#text(fill: blue)[Stage 3B: Supervised models #parbreak() ]]]#align(center)[#strong[Chapters #ref(<ch:regression>)--@ch:svm #parbreak() ]]#v(3pt)Linear/logistic models, KNN, naive Bayes, trees, ensembles, and SVMs. #parbreak() #strong[Labs 2--3:] apply the workflow, compare families, and save a fitted model.], name: "s2", ..sup)
+    node((3.45, 2.75), [#align(center)[#strong[#text(fill: teal)[Stage 4A: Unsupervised workflow #parbreak() ]]]#align(center)[#strong[Chapter @ch:unsupervised #parbreak() ]]#v(3pt)Define structure and assess stability, geometry, reconstruction, and domain evidence. #parbreak() #strong[Checkpoint:] evaluate without assuming a single correct answer.], name: "u1", ..unsup)
+    node(below-of("u1", distance-y("s2.north", "s1.south")), [#align(center)[#strong[#text(fill: teal)[Stage 4B: Unsupervised models #parbreak() ]]]#align(center)[#strong[Chapters #ref(<ch:clustering>)--@ch:anomaly #parbreak() ]]#v(3pt)Clustering, dimensionality reduction, and anomaly detection. #parbreak() #strong[Lab 4:] clustering and PCA. #parbreak() #strong[Checkpoint:] defend a structure with evidence.], name: "u2", ..unsup)
+    node((0, -3), [#fsize("normal")[#strong[#text(fill: orange)[Stage 5: Advanced concepts]]]#h(1fr)#fsize("footnote")[#strong[Chapters #ref(<ch:semi-supervised>)--@ch:deep]] #parbreak() #v(3pt)#strong[Ch.~@ch:semi-supervised / Lab 5:] semi-supervised and active learning --- use or request scarce labels; Lab 5 also ranks anomalies from Ch.~#ref(<ch:anomaly>). #parbreak() #strong[Ch.~@ch:rl / Lab 6:] reinforcement learning --- learn policies from actions and rewards. #parbreak() #strong[Ch.~@ch:deep / Labs 7--8:] dense networks and CNNs for images; RNNs and LSTMs for sequences. #parbreak() #v(3pt)#strong[Distinction:] limited labels and rewards change the feedback; neural networks change the model.], name: "c", ..other)
+    node((0, -5.5), [#fsize("normal")[#strong[#text(fill: green)[Capstone: integrate and defend]]] #parbreak() #v(3pt)#strong[Capstone:] compare at least three model families, add one extension, evaluate fairly, and save the model with its card. #parbreak() #strong[Checkpoint:] explain the model choice, reproduce the results, and state the limitations.], name: "d", ..finish)
+    connect("a.south", "b.north", ..arr)
+    connect("b.south", "g.north", ..arr)
+    coordinate("split", (rel: (0, -0.4), to: "g.south"))
+    connect("g.south", "split", ..flow)
+    node("split", [], ..junction)
+    connect("split", "-|", "s1.north", ..arr)
+    node(along("split", ("split", "-|", "s1.north"), t: 100%), [labeled data], ..branchlabel, anchor: "south")
+    connect("split", "-|", "u1.north", ..arr)
+    node(along("split", ("split", "-|", "u1.north"), t: 100%), [unlabeled data], ..branchlabel, anchor: "south")
+    connect("s1.south", "s2.north", ..arr)
+    connect("u1.south", "u2.north", ..arr)
+    coordinate("merge", (rel: (0, 0.6), to: "c.north"))
+    connect("s2.south", "|-", "merge", ..flow)
+    connect("u2.south", "|-", "merge", ..flow)
+    node("merge", [], ..junction)
+    connect("merge", "c.north", ..arr, shorten-end: 1.4944pt)
+    connect("c.south", "d.north", ..arr)
+  })
+]

@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace the cycling-club opportunity and quotation])[#flow([*\1. Input / state*
-
-Use Seri Iskandar Cycling Club and the Road Bike opportunity from the walkthrough.], [*\2. Operation*
-
-Quote five Road Bikes at RM1,000 each: untaxed amount RM5,000.], [*\3. Check*
-
-Reopen the linked quotation and confirm the customer, product, quantity and amount.])]
+#courselabtrace([Trace the cycling-club opportunity and quotation], [1\. Input / state], [Use Seri Iskandar Cycling Club and the Road Bike opportunity from the walkthrough.], [2\. Operation], [Quote five Road Bikes at RM1,000 each: untaxed amount RM5,000.], [3\. Check], [Reopen the linked quotation and confirm the customer, product, quantity and amount.])

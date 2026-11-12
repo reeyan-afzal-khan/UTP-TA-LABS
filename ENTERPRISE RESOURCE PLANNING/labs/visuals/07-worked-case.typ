@@ -1,9 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#callout("labvisual", title: [Trace a partial supplier receipt])[#flow([*\1. Input / state*
-
-Use the product's specified supplier and a purchase order with the intended unit of measure.], [*\2. Operation*
-
-Validate only the quantity actually received; preserve a backorder if the remainder is still expected.], [*\3. Check*
-
-Compare ordered, received and billed quantities and follow the outstanding receipt reference.])]
+#courselabtrace([Trace a partial supplier receipt], [1\. Input / state], [Use the product’s specified supplier and a purchase order with the intended unit of measure.], [2\. Operation], [Validate only the quantity actually received; preserve a backorder if the remainder is still expected.], [3\. Check], [Compare ordered, received and billed quantities and follow the outstanding receipt reference.])

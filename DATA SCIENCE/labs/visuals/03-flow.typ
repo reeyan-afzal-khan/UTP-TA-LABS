@@ -1,3 +1,3 @@
 #import "/.shared/typst/utp.typ": *
 
-#flow([Parse time], [Derive features], [Group records], [Plot summaries])
+#courselabflow([Parse time], [Derive features], [Group records], [Plot summaries])
