@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/../.." && pwd)
-TYPST_ENV="$ROOT/.venv-typst"
+SETUP=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+TYPST_ENV="$SETUP/.venv-typst"
 TYPST_CONDA=${CONDA_EXE:-}
 if [ ! -x "$TYPST_CONDA" ]; then
     TYPST_CONDA=$(command -v conda || true)

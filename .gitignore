@@ -40,6 +40,7 @@ anaconda_projects/
 
 # Virtual environments
 /.venv-typst/
+/.typst-setup/.venv-typst/
 .venv/
 venv/
 env/

@@ -1,7 +1,7 @@
 @echo off
 setlocal DisableDelayedExpansion
-for %%I in ("%~dp0..\..") do set "TYPST_ROOT=%%~fI"
-set "TYPST_ENV=%TYPST_ROOT%\.venv-typst"
+for %%I in ("%~dp0..") do set "TYPST_SETUP=%%~fI"
+set "TYPST_ENV=%TYPST_SETUP%\.venv-typst"
 set "TYPST_CONDA="
 if defined CONDA_EXE if exist "%CONDA_EXE%" set "TYPST_CONDA=%CONDA_EXE%"
 if not defined TYPST_CONDA for /f "delims=" %%I in ('where conda 2^>nul') do if not defined TYPST_CONDA set "TYPST_CONDA=%%I"

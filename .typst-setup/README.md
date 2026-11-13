@@ -1,6 +1,6 @@
 # Typst: install, preview, build, publish
 
-Open this repository root in VS Code. Install Anaconda and VS Code on a new machine. Step 01 creates a Conda environment with Python 3.12 and pip at `UTP-TA-LABS/.venv-typst`, using the actual repository location. No separate Python installation is needed.
+Open this repository root in VS Code. Install Anaconda and VS Code on a new machine. Step 01 creates a Conda environment with Python 3.12 and pip at `UTP-TA-LABS/.typst-setup/.venv-typst`, using the actual repository location. No separate Python installation is needed.
 
 ## Numbered steps
 
@@ -23,12 +23,14 @@ Paths in the table are relative to `.typst-setup`. From the repository root, pre
 
 The scripts discover Conda through `CONDA_EXE`, PATH, or common Anaconda/Miniconda installation locations. For a custom installation, run from Anaconda Prompt (Windows), initialize Conda in your terminal (macOS/Linux), or set `CONDA_EXE` to its executable path. Every step runs through `conda run --prefix` with the repository-local environment, so manual activation is unnecessary. The optional `--editors` flag needs the VS Code `code` command on PATH. Without the flag, use VS Code's workspace extension recommendations instead.
 
-Step 01 reuses an existing Conda environment. It stops if `.venv-typst` already contains a regular Python virtual environment or an incomplete installation; rename that folder and rerun step 01. Steps 02–06 require step 01 to have completed. On a different machine, recreate the environment with step 01 rather than copying it. An internet connection is required for initial package and compiler downloads.
+Step 01 reuses an existing Conda environment. It stops if `.typst-setup/.venv-typst` already contains a regular Python virtual environment or an incomplete installation; rename that folder and rerun step 01. Steps 02â€“06 require step 01 to have completed. On a different machine, recreate the environment with step 01 rather than copying it. An internet connection is required for initial package and compiler downloads.
+
+If you previously installed the environment at the repository root, rerun step 01 to create it at the new location. After checking the new setup, you can remove the old root-level `.venv-typst` environment. Do not simply move the environment folder, because installed tools can retain absolute paths.
 
 To activate it manually from the repository root:
 
 ```sh
-conda activate ./.venv-typst
+conda activate ./.typst-setup/.venv-typst
 ```
 
 The VS Code Typst tasks use these same numbered scripts, including environment creation during installation.
@@ -48,7 +50,7 @@ Tinymist is configured with the repository root, bundled fonts, original preview
 
 `config/toolchain.json` pins **Typst 0.15.1** from [the official typst/typst repository](https://github.com/typst/typst/releases/tag/v0.15.1). Installation verifies GitHub's SHA-256 release asset digest. Windows, macOS and Linux are supported where an official x86-64 or ARM64 release exists. Installation is local: no administrator rights or persistent PATH changes.
 
-The compiler lives in ignored `.typst-setup/bin/`. Python and optional publishing packages live in ignored `.venv-typst/` at the repository root, created using `conda create --prefix` rather than a named environment in Anaconda’s `envs` directory. Fonts, logos and the pinned CeTZ drawing package are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
+The compiler lives in ignored `.typst-setup/bin/`. Python and optional publishing packages live in ignored `.typst-setup/.venv-typst/` inside the setup folder, created using `conda create --prefix` rather than a named environment in Anacondaâ€™s `envs` directory. Fonts, logos and the pinned CeTZ drawing package are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
 
 ```text
 .typst-setup/
@@ -57,7 +59,8 @@ The compiler lives in ignored `.typst-setup/bin/`. Python and optional publishin
   unix/         matching .sh entry points
   scripts/      shared cross-platform Python implementations
   config/       compiler pin, course registry, lab coverage, dependencies
-  bin/          ignored local installation; created by step 01
+  bin/          ignored local compiler installation; created by step 01
+  .venv-typst/   ignored local Conda environment; created by step 01
 ```
 
 `Ctrl+Shift+B` selects and builds a course. Other VS Code tasks expose setup checks, installation, watching, and all-course builds. Builds and watch mode write `.all-pdfs/<course>/<CODE>-Book.pdf`, for example `.all-pdfs/data-science/DS-Book.pdf`. Step 05 adds chapter/lab PDFs and page-range manifests in that same course folder. No PDFs are written beside course sources.
