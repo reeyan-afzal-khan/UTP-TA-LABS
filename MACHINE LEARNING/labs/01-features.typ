@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "01-features")
 
 #labsection(1, label: <sec:lab01-features>)[Feature engineering and feature selection]
@@ -67,7 +68,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 11, last: 33, lang: "python")
+  #labcode("lab01_features", 1)
 
   #refoutput[
     ```terminal
@@ -84,7 +85,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 35, last: 38, lang: "python")
+  #labcode("lab01_features", 2)
 
   #refoutput[
     ```terminal
@@ -103,7 +104,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 40, last: 57, lang: "python")
+  #labcode("lab01_features", 3)
 
   #refoutput[
     ```terminal
@@ -135,7 +136,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 59, last: 78, lang: "python")
+  #labcode("lab01_features", 4)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/01-notebook-reference.png", width: 80%, height: 4cm)
@@ -181,7 +182,7 @@
 #labanswer[
   #include "visuals/01-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 80, last: 100, lang: "python")
+  #labcode("lab01_features", 5)
 
   #refoutput[
     ```terminal
@@ -210,7 +211,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 102, last: 123, lang: "python")
+  #labcode("lab01_features", 6)
 
   #refoutput[
     ```terminal
@@ -233,7 +234,7 @@
 #labanswer[
   #include "visuals/01-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 125, last: 158, lang: "python")
+  #labcode("lab01_features", 7)
 
   #refoutput[
     ```terminal
@@ -264,7 +265,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 160, last: 171, lang: "python")
+  #labcode("lab01_features", 8)
 
   #refoutput[
     ```terminal
@@ -284,7 +285,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 173, last: 205, lang: "python")
+  #labcode("lab01_features", 9)
 
   #refoutput[
     ```terminal
@@ -315,7 +316,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 207, last: 225, lang: "python")
+  #labcode("lab01_features", 10)
 
   #refoutput[
     ```terminal
@@ -333,7 +334,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 227, last: 267, lang: "python")
+  #labcode("lab01_features", 11)
 
   #refoutput[
     ```terminal
@@ -352,7 +353,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 269, last: 287, lang: "python")
+  #labcode("lab01_features", 12)
 
   #refoutput[
     ```terminal
@@ -383,7 +384,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 289, last: 304, lang: "python")
+  #labcode("lab01_features", 13)
 
   #refoutput[
     ```terminal
@@ -405,7 +406,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab01_features/lab01_features_worked.py", first: 308, last: 332, lang: "python")
+  #labcode("lab01_features", 15)
 
   #refoutput[
     ```terminal

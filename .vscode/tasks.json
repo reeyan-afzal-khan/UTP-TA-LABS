@@ -4,12 +4,18 @@
     {
       "label": "Typst: build selected course",
       "type": "process",
-      "command": "python3",
+      "command": "sh",
       "windows": {
-        "command": "python"
+        "command": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "${workspaceFolder}/.typst-setup/windows/step03-build.bat",
+          "${input:course}"
+        ]
       },
       "args": [
-        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "${workspaceFolder}/.typst-setup/unix/step03-build.sh",
         "${input:course}"
       ],
       "options": {
@@ -28,12 +34,19 @@
     {
       "label": "Typst: watch selected course",
       "type": "process",
-      "command": "python3",
+      "command": "sh",
       "windows": {
-        "command": "python"
+        "command": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "${workspaceFolder}/.typst-setup/windows/step03-build.bat",
+          "${input:course}",
+          "--watch"
+        ]
       },
       "args": [
-        "${workspaceFolder}/.typst-setup/scripts/build.py",
+        "${workspaceFolder}/.typst-setup/unix/step03-build.sh",
         "${input:course}",
         "--watch"
       ],
@@ -49,13 +62,17 @@
     {
       "label": "Typst: build all courses",
       "type": "process",
-      "command": "python3",
+      "command": "sh",
       "windows": {
-        "command": "python"
+        "command": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "${workspaceFolder}/.typst-setup/windows/step04-build-all.bat"
+        ]
       },
       "args": [
-        "${workspaceFolder}/.typst-setup/scripts/build.py",
-        "--all"
+        "${workspaceFolder}/.typst-setup/unix/step04-build-all.sh"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -69,13 +86,17 @@
     {
       "label": "Typst: check setup",
       "type": "process",
-      "command": "python3",
+      "command": "sh",
       "windows": {
-        "command": "python"
+        "command": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "${workspaceFolder}/.typst-setup/windows/step02-check.bat"
+        ]
       },
       "args": [
-        "${workspaceFolder}/.typst-setup/scripts/build.py",
-        "--check"
+        "${workspaceFolder}/.typst-setup/unix/step02-check.sh"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -89,12 +110,17 @@
     {
       "label": "Typst: install compiler",
       "type": "process",
-      "command": "python3",
+      "command": "sh",
       "windows": {
-        "command": "python"
+        "command": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "${workspaceFolder}/.typst-setup/windows/step01-install.bat"
+        ]
       },
       "args": [
-        "${workspaceFolder}/.typst-setup/scripts/install.py"
+        "${workspaceFolder}/.typst-setup/unix/step01-install.sh"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -29,6 +30,7 @@ from sklearn.preprocessing import StandardScaler
 # 3. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab04")
 
+# %% Question 2 - Build one row per customer
 # Every invoice line of the shop. Invoice and StockCode are read as text: some codes carry letters.
 lines = pd.read_csv(DATA / "unsupervised/online_retail_ii/online_retail_ii.zip",
                     dtype={"Invoice": str, "StockCode": str}, parse_dates=["InvoiceDate"])
@@ -58,6 +60,7 @@ print(customers.describe().loc[["50%", "mean", "max"]].round(1).to_string())
 features = ["recency_days", "orders", "spend"]
 X = StandardScaler().fit_transform(np.log1p(customers[features]))
 
+# %% Question 3 - Score k from 2 to 8
 # Fit K-means for k = 2 to 8, and score each split two ways.
 ks, inertias, silhouettes = [], [], []
 for k in range(2, 9):
@@ -81,6 +84,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "elbow_and_silhouette.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 4 - Compare K-means with DBSCAN
 # K-means with four segments: every customer is placed in one of them.
 kmeans = KMeans(n_clusters=4, n_init=20, random_state=42)
 k_labels = kmeans.fit_predict(X)
@@ -96,6 +100,7 @@ print("DBSCAN clusters:", len(set(d_labels[~is_noise])), " noise customers:", in
 print("noise customers' median orders and spend:",
       customers.loc[is_noise, ["orders", "spend"]].median().round(0).to_dict())
 
+# %% Question 5 - Describe the segments
 # Describe each K-means segment by its typical customer, and its share of all revenue.
 segments = customers.assign(kmeans_cluster=k_labels, dbscan_cluster=d_labels)
 profile = segments.groupby("kmeans_cluster").agg(
@@ -108,6 +113,7 @@ profile = segments.groupby("kmeans_cluster").agg(
 profile["revenue_share"] = (profile.pop("revenue") / customers["spend"].sum()).round(3)
 print(profile.round({"recency_days": 0, "orders": 0, "spend": 0, "revenue_share": 3}).to_string())
 
+# %% Question 6 - Plot both clusterings
 fig, axes = plt.subplots(1, 2, figsize=(10, 3.9))
 clusterings = [(axes[0], k_labels, "K-means, k = 4"),
                (axes[1], d_labels, "DBSCAN, eps = 0.5 (noise = -1)")]
@@ -123,6 +129,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "kmeans_and_dbscan_segments.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 7 - Load the images
 wood = np.load(DATA / "unsupervised/wood_surface_defects/wood_defects.npz")
 images, labels, boards = wood["x"], wood["y"], wood["board"]
 class_names = [str(name) for name in wood["classes"]]
@@ -149,6 +156,7 @@ plt.suptitle("One image of each defect type (32 x 32 colour pixels)", y=1.08)
 plt.savefig(RESULTS / "one_image_of_each_defect_type.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 8 - Choose a PCA budget on validation
 # Choose the budget on a split of the development images, again board by board.
 fit_rows, valid_rows = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42).split(X_dev, y_dev, b_dev))
 X_fit, y_fit = X_dev[fit_rows], y_dev[fit_rows]
@@ -169,6 +177,7 @@ for retained_variance in [0.90, 0.95, 0.99]:
     accuracy = accuracy_score(y_valid, candidate.predict(X_valid))
     print(f"{retained_variance:.0%} variance: {n_kept:3d} components, validation accuracy = {accuracy:.4f}")
 
+# %% Question 9 - Open the test images once
 # The chosen budget, 99%, refitted on all the development images; the plain model too, for comparison.
 final_model = Pipeline([
     ("pca", PCA(n_components=0.99, svd_solver="full")),
@@ -185,6 +194,7 @@ print("PCA components kept:", pca.n_components_, " variance retained:", round(pc
 print("PCA -> logistic accuracy:", round(accuracy_score(y_test, final_model.predict(X_test)), 4))
 print("recall per defect type:", dict(zip(class_names, recall_score(y_test, final_model.predict(X_test), average=None).round(2).tolist())))
 
+# %% Question 10 - See what 99% looks like
 # Compress eight test images to a few components and to the kept ones, then expand them back to 3,072 numbers.
 few = PCA(n_components=0.90, svd_solver="full").fit(X_dev)
 rows = [("original", X_test[:8]),
@@ -219,6 +229,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "cumulative_explained_variance.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 11 - Save and reload the model
 # Save the PCA and the classifier together, load them back, and predict five test images.
 model_path = MODELS / "wood_pca_logistic.joblib"
 joblib.dump(final_model, model_path)
@@ -228,6 +239,7 @@ print("file size (MB):", round(model_path.stat().st_size / 1e6, 2))
 print("predicted:", [class_names[i] for i in loaded.predict(X_test[:5])])
 print("actual:   ", [class_names[i] for i in y_test[:5]])
 
+# %% Question 12 - Save the evidence
 diagnostics = pd.DataFrame({"k": ks, "inertia": inertias, "silhouette": silhouettes})
 diagnostics.round(4).to_csv(RESULTS / "kmeans_diagnostics.csv", index=False)
 profile.to_csv(RESULTS / "customer_segments.csv")
@@ -242,8 +254,10 @@ metrics = pd.DataFrame([
 metrics.round(4).to_csv(RESULTS / "metrics.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 13 - Try it yourself
 # Your work here
 
+# %% Question 14 - One solution
 # Cluster the development images without their labels, then ask what the clusters contain.
 codes = PCA(n_components=50, random_state=42).fit_transform(X_fit)          # 50 numbers per image
 image_clusters = KMeans(n_clusters=7, n_init=10, random_state=42).fit_predict(codes)

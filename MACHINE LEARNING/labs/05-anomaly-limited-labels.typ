@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "05-anomaly-limited-labels")
 
 #labsection(5, label: <sec:lab05-anomaly-limited-labels>)[Unsupervised learning II: anomaly detection and limited labels]
@@ -58,7 +59,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 11, last: 28, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 1)
 
   #refoutput[
     ```terminal
@@ -77,7 +78,7 @@
 #labanswer[
   #include "visuals/05-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 30, last: 44, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 2)
 
   #refoutput[
     ```terminal
@@ -95,7 +96,7 @@
 #labanswer[
   #include "visuals/05-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 46, last: 62, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 3)
 
   #refoutput[
     ```terminal
@@ -122,7 +123,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 64, last: 85, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 4)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/05-notebook-reference.png", width: 88%, height: 5cm)
@@ -145,7 +146,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 87, last: 110, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 5)
 
   #refoutput[
     ```terminal
@@ -166,7 +167,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 112, last: 130, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 6)
 
   #refoutput[
     ```terminal
@@ -189,7 +190,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 132, last: 159, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 7)
 
   #refoutput[
     ```terminal
@@ -211,7 +212,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 161, last: 170, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 8)
 ]
 
 #labquestion(9)[Open the test set once for each policy][
@@ -219,7 +220,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 172, last: 178, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 9)
 
   #refoutput[
     ```terminal
@@ -245,7 +246,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 180, last: 197, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 10)
 ]
 
 #labsubhead[Try it yourself]
@@ -259,7 +260,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab05_anomaly_limited_labels/lab05_anomaly_limited_labels_worked.py", first: 201, last: 215, lang: "python")
+  #labcode("lab05_anomaly_limited_labels", 12)
 
   #refoutput[
     ```terminal

@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -38,6 +39,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 # 3. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab03")
 
+# %% Question 2 - Read the loans and split them
 loans = pd.read_csv(DATA / "supervised/lending_club/lending_club_2014_2015.zip", low_memory=False)
 print("shape:", loans.shape)
 print(loans["loan_status"].value_counts().to_string())
@@ -74,6 +76,7 @@ print(len(X_train), "training and", len(X_valid), "validation loans;", int(y_val
 def prepare():
     return [("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]
 
+# %% Question 3 - Choose k by cross-validation
 # Score each k with five-fold cross-validation on the training loans only.
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 k_values = [1, 5, 25, 101, 201, 401, 801, 1601, 3201]
@@ -98,6 +101,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "choosing_k_on_training_data_only.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 4 - Compare KNN with naive Bayes
 models = {
     "KNN": Pipeline(prepare() + [("model", KNeighborsClassifier(n_neighbors=best_k))]),
     "GaussianNB": Pipeline(prepare() + [("model", GaussianNB())]),
@@ -113,6 +117,7 @@ for name, model in models.items():
     ap = average_precision_score(y_valid, prob)
     print(f"{name:10s} accuracy={accuracy:.3f} roc_auc={auc:.3f} average_precision={ap:.3f}")
 
+# %% Question 5 - Draw the boundaries on two columns
 # Three model families on just two columns, so their decision boundaries can be drawn.
 two = ["int_rate", "dti"]
 families = {
@@ -141,6 +146,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "three_boundaries_on_rate_and_dti.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 6 - Fit a readable tree
 # Trees need no scaling, but scikit-learn's trees need every gap filled: the training median again.
 filler = SimpleImputer(strategy="median").set_output(transform="pandas").fit(X_train)
 Xt_train, Xt_valid = filler.transform(X_train), filler.transform(X_valid)
@@ -154,6 +160,7 @@ print("loans flagged at 0.5:", int((prob_tree >= 0.5).sum()))
 leaf_rates = np.unique(prob_tree.round(3))
 print("default rate in each leaf:", leaf_rates.tolist())
 
+# %% Question 7 - Read the tree's rules
 # The fitted tree as if-then rules; weights are the training loans in each leaf: [repaid, defaulted].
 feature_names = list(Xt_train.columns)
 rules = export_text(tree, feature_names=feature_names, show_weights=True, decimals=1)
@@ -167,6 +174,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "the_fitted_loan_tree.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 8 - Grow the tree and watch it overfit
 # Grow the same tree deeper and deeper; None means "no limit".
 depths = [1, 2, 3, 4, 5, 6, 8, 10, 15, None]
 train_ap, valid_ap = [], []
@@ -191,6 +199,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "deeper_trees_memorize_validation_peaks_and_falls.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 9 - Compare forest and boosting on car prices
 cars = pd.read_csv(DATA / "supervised/used_cars/used_cars.zip", low_memory=False)
 
 # Lab 2's fixed rules: used cars, a believable price, a real odometer reading, tidy spellings.
@@ -243,6 +252,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "fold_by_fold_is_the_gap_bigger_than_the_spread.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 10 - See what the boosted trees used
 Xc_train, Xc_valid, yc_train, yc_valid = train_test_split(X_c, y_c, test_size=0.25, random_state=42)
 booster = ensembles["gradient_boosting"].fit(Xc_train, yc_train)
 
@@ -275,6 +285,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "what_the_boosted_trees_used.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 11 - Tune an SVM
 # Parts A and B compared models on the validation loans, so the test set must be loans no part has seen:
 # 20,000 of the 80,000 loans outside the sample. The SVM trains on Part A's training loans.
 outside = X_all.drop(X.index)
@@ -305,6 +316,7 @@ print("test ROC AUC:", round(roc_auc_score(y_test, score), 3),
 print("at the default boundary: precision", round(precision_score(y_test, pred), 3),
       " recall", round(recall_score(y_test, pred), 3))
 
+# %% Question 12 - Map the two dials
 # The RBF rows of the search, as a table of C against gamma.
 results = pd.DataFrame(search.cv_results_)
 rbf = results[results["param_model__kernel"] == "rbf"].copy()
@@ -345,6 +357,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "two_dials_and_two_kernels.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 13 - Save and verify the model
 # Save the tuned pipeline (imputer, scaler and SVM together), load it back, and check it predicts the same.
 model_path = MODELS / "loan_default_svm.joblib"
 joblib.dump(search.best_estimator_, model_path)
@@ -353,6 +366,7 @@ same = np.array_equal(loaded.predict(X_test), pred)
 print("file size (KB):", round(model_path.stat().st_size / 1024, 1))
 print("reloaded model reproduces the test predictions:", same)
 
+# %% Question 14 - Save the evidence
 pd.Series(cv_scores, name="cv_roc_auc").rename_axis("k").round(4).to_csv(RESULTS / "knn_selection.csv")
 (RESULTS / "loan_tree_rules.txt").write_text(rules)
 pd.DataFrame(cv_rmse).round(4).to_csv(RESULTS / "car_price_fold_scores.csv", index=False)
@@ -375,8 +389,10 @@ rows.append({"part": "D", "dataset": "lending_club", "model": f"svc {search.best
 pd.DataFrame(rows).round(4).to_csv(RESULTS / "metrics.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 15 - Try it yourself
 # Your work here
 
+# %% Question 16 - One solution
 sms = pd.read_csv(DATA / "supervised/sms_spam/sms_spam.csv")
 y_s = (sms["label"] == "spam").astype(int)
 print("messages:", len(sms), " spam share:", round(y_s.mean(), 3),

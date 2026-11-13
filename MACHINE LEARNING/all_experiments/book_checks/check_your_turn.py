@@ -1,4 +1,4 @@
-"""The Your-turn tasks of all eight lab sheets, solved, so their expected findings can be checked.
+"""The Your-turn tasks of every lab sheet, solved, so their expected findings can be checked.
 
 Try each task yourself first. The lab sheets ask for these in new notebook cells; this file is
 the record of how the numbers under "Expected findings" were produced.
@@ -53,6 +53,87 @@ def make_preprocess(num_cols, cat_cols):
         ("cat", Pipeline([("impute", SimpleImputer(strategy="most_frequent")),
                           ("onehot", OneHotEncoder(handle_unknown="ignore"))]), cat_cols),
     ])
+
+
+def lab00():
+    print("Lab 0")
+    heart = pd.read_csv(DATA / "supervised/heart_disease/heart_disease.csv")
+    for column in ["RestingBP", "Cholesterol"]:
+        heart[column] = heart[column].replace(0, np.nan)
+    target = "HeartDisease"
+    numbers = ["Age", "RestingBP", "Cholesterol", "MaxHR", "Oldpeak"]
+    categories = ["Sex", "ChestPainType", "FastingBS", "RestingECG", "ExerciseAngina", "ST_Slope"]
+    features = numbers + categories
+    train, test = train_test_split(heart, test_size=0.2, random_state=42, stratify=heart[target])
+    y = train[target]
+    folds = StratifiedKFold(5, shuffle=True, random_state=42)
+
+    def make_model(flag_missing):
+        number_steps = Pipeline([("impute", SimpleImputer(strategy="median", add_indicator=flag_missing)),
+                                 ("scale", StandardScaler())])
+        prepare = ColumnTransformer([("num", number_steps, numbers),
+                                     ("cat", OneHotEncoder(handle_unknown="ignore"), categories)])
+        return Pipeline([("prepare", prepare), ("model", LogisticRegression(max_iter=2000))])
+
+    # Task 1: drop the patients with no cholesterol reading instead of flagging them.
+    kept = train.dropna(subset=["Cholesterol"])
+    lost = int(y.sum() - kept[target].sum())
+    cv_kept = cross_val_score(make_model(False), kept[features], kept[target], cv=folds, scoring="accuracy").mean()
+    dropped = make_model(False).fit(kept[features], kept[target])
+    flagged = make_model(True).fit(train[features], y)
+    unmeasured = test["Cholesterol"].isna()
+    scores = {name: (accuracy_score(test[target], model.predict(test[features])),
+                     accuracy_score(test.loc[unmeasured, target], model.predict(test.loc[unmeasured, features])))
+              for name, model in [("dropped", dropped), ("flagged", flagged)]}
+    print(f"  drop the gaps: {len(kept)} patients left, disease rate {kept[target].mean():.3f}, "
+          f"{lost} of {int(y.sum())} patients with the disease discarded; cross-validation {cv_kept:.3f}")
+    print(f"  on the test set: dropped {scores['dropped'][0]:.3f}, flagged {scores['flagged'][0]:.3f}; on its "
+          f"{int(unmeasured.sum())} unmeasured patients: dropped {scores['dropped'][1]:.3f}, flagged {scores['flagged'][1]:.3f}")
+    expect("patients kept", len(kept), 605, 0)
+    expect("disease rate of the kept", kept[target].mean(), 0.479, 0.0005)
+    expect("disease cases discarded", lost, 116, 0)
+    expect("cross-validation on the kept", cv_kept, 0.853, 0.0005)
+    expect("test, dropped", scores["dropped"][0], 0.864, 0.0005)
+    expect("test, flagged", scores["flagged"][0], 0.897, 0.0005)
+    expect("unmeasured test patients, dropped", scores["dropped"][1], 0.721, 0.0005)
+    expect("unmeasured test patients, flagged", scores["flagged"][1], 0.860, 0.0005)
+
+    # Task 2: cap blood pressure and cholesterol at their fences.
+    capped = train.assign(Cholesterol=train["Cholesterol"].clip(109.5, 377.5), RestingBP=train["RestingBP"].clip(88.5, 172.5))
+    as_is = cross_val_score(make_model(True), train[features], y, cv=folds, scoring="accuracy").mean()
+    with_caps = cross_val_score(make_model(True), capped[features], y, cv=folds, scoring="accuracy").mean()
+    print(f"  cap at the fences: cholesterol skew {train['Cholesterol'].skew():.2f} -> {capped['Cholesterol'].skew():.2f}, "
+          f"blood pressure {train['RestingBP'].skew():.2f} -> {capped['RestingBP'].skew():.2f}; accuracy {as_is:.3f} -> {with_caps:.3f}")
+    expect("capped cholesterol skew", capped["Cholesterol"].skew(), 0.31, 0.005)
+    expect("capped blood pressure skew", capped["RestingBP"].skew(), 0.33, 0.005)
+    expect("accuracy as is", as_is, 0.857, 0.0005)
+    expect("accuracy capped", with_caps, 0.858, 0.0005)
+
+    # Task 3: the disease rate by age band.
+    bands = pd.cut(train["Age"], [0, 44, 54, 64, 100], labels=["under 45", "45-54", "55-64", "65 and over"])
+    by_age = train.groupby(bands, observed=True)[target].agg(["size", "mean"])
+    print("  by age band:", by_age.round(3).to_dict("index"))
+    for band, (size, rate) in {"under 45": (138, 0.362), "45-54": (224, 0.469), "55-64": (287, 0.676),
+                               "65 and over": (85, 0.671)}.items():
+        expect(f"{band}: patients", by_age.loc[band, "size"], size, 0)
+        expect(f"{band}: rate", by_age.loc[band, "mean"], rate, 0.0005)
+
+    # Task 4: the five largest weights of the final model.
+    weights = pd.Series(flagged.named_steps["model"].coef_[0], index=flagged.named_steps["prepare"].get_feature_names_out())
+    largest = weights.reindex(weights.abs().sort_values(ascending=False).index).head(5).round(2)
+    print("  largest weights:", largest.to_dict())
+    assert largest.to_dict() == {"cat__ST_Slope_Up": -1.29, "cat__ChestPainType_ASY": 1.16, "cat__ST_Slope_Flat": 1.08,
+                                 "num__missingindicator_Cholesterol": 0.71, "cat__Sex_F": -0.65}
+
+    # Task 5: ten different splits of the same table.
+    accuracies = []
+    for seed in range(10):
+        tr, te = train_test_split(heart, test_size=0.2, random_state=seed, stratify=heart[target])
+        accuracies.append(accuracy_score(te[target], make_model(True).fit(tr[features], tr[target]).predict(te[features])))
+    print(f"  ten splits: test accuracy from {min(accuracies):.3f} to {max(accuracies):.3f}, mean {np.mean(accuracies):.3f}")
+    expect("lowest of ten splits", min(accuracies), 0.842, 0.0005)
+    expect("highest of ten splits", max(accuracies), 0.886, 0.0005)
+    expect("mean of ten splits", float(np.mean(accuracies)), 0.866, 0.0005)
 
 
 def lab01():
@@ -697,7 +778,7 @@ def lab08():
 
 
 if __name__ == "__main__":
-    labs = {f"lab0{i}": globals()[f"lab0{i}"] for i in range(1, 9)}
+    labs = {name: function for name, function in sorted(globals().items()) if name.startswith("lab") and name[3:].isdigit()}
     for name in sys.argv[1:] or labs:
         labs[name]()
     print("\nEvery number above matches the book.")

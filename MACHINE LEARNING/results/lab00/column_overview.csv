@@ -1,0 +1,13 @@
+,type,blank,distinct
+Age,int64,0,50
+Sex,object,0,2
+ChestPainType,object,0,4
+RestingBP,int64,0,67
+Cholesterol,int64,0,222
+FastingBS,int64,0,2
+RestingECG,object,0,3
+MaxHR,int64,0,119
+ExerciseAngina,object,0,2
+Oldpeak,float64,0,53
+ST_Slope,object,0,3
+HeartDisease,int64,0,2

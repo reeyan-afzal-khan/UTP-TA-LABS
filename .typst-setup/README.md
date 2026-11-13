@@ -1,6 +1,6 @@
 # Typst: install, preview, build, publish
 
-Open this repository root in VS Code. Install Python 3.12+ and VS Code on a new machine.
+Open this repository root in VS Code. Install Anaconda and VS Code on a new machine. Step 01 creates a Conda environment with Python 3.12 and pip at `UTP-TA-LABS/.venv-typst`, using the actual repository location. No separate Python installation is needed.
 
 ## Numbered steps
 
@@ -8,7 +8,7 @@ Run the Windows `.bat` files from `windows/`, or the matching `.sh` files from `
 
 | Step | Windows | macOS / Linux | Purpose |
 | --- | --- | --- | --- |
-| 01 | `windows/step01-install.bat --editors --publishing` | `sh unix/step01-install.sh --editors --publishing` | Install the official compiler, both editor extensions, and the optional PDF splitter |
+| 01 | `windows/step01-install.bat --editors --publishing` | `sh unix/step01-install.sh --editors --publishing` | Create the local Conda environment and install the compiler, editor extensions, and optional PDF splitter |
 | 02 | `windows/step02-check.bat` | `sh unix/step02-check.sh` | Check the pinned compiler and course entry points |
 | 03 | `windows/step03-build.bat DS` | `sh unix/step03-build.sh DS` | Build one course; add `--watch` for disk-change watching |
 | 04 | `windows/step04-build-all.bat` | `sh unix/step04-build-all.sh` | Compile all nine books |
@@ -21,7 +21,17 @@ Paths in the table are relative to `.typst-setup`. From the repository root, pre
 .typst-setup\windows\step03-build.bat "MACHINE LEARNING" --watch
 ```
 
-On Windows `python` must be on PATH; on macOS/Linux `python3` must be on PATH. The optional `--editors` flag needs the VS Code `code` command on PATH. Without the flag, use VS Code's workspace extension recommendations instead.
+The scripts discover Conda through `CONDA_EXE`, PATH, or common Anaconda/Miniconda installation locations. For a custom installation, run from Anaconda Prompt (Windows), initialize Conda in your terminal (macOS/Linux), or set `CONDA_EXE` to its executable path. Every step runs through `conda run --prefix` with the repository-local environment, so manual activation is unnecessary. The optional `--editors` flag needs the VS Code `code` command on PATH. Without the flag, use VS Code's workspace extension recommendations instead.
+
+Step 01 reuses an existing Conda environment. It stops if `.venv-typst` already contains a regular Python virtual environment or an incomplete installation; rename that folder and rerun step 01. Steps 02–06 require step 01 to have completed. On a different machine, recreate the environment with step 01 rather than copying it. An internet connection is required for initial package and compiler downloads.
+
+To activate it manually from the repository root:
+
+```sh
+conda activate ./.venv-typst
+```
+
+The VS Code Typst tasks use these same numbered scripts, including environment creation during installation.
 
 ## Live preview
 
@@ -38,7 +48,7 @@ Tinymist is configured with the repository root, bundled fonts, original preview
 
 `config/toolchain.json` pins **Typst 0.15.1** from [the official typst/typst repository](https://github.com/typst/typst/releases/tag/v0.15.1). Installation verifies GitHub's SHA-256 release asset digest. Windows, macOS and Linux are supported where an official x86-64 or ARM64 release exists. Installation is local: no administrator rights or persistent PATH changes.
 
-The compiler and optional Python packages live in ignored `bin/`. Fonts, logos and the pinned CeTZ drawing package are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
+The compiler lives in ignored `.typst-setup/bin/`. Python and optional publishing packages live in ignored `.venv-typst/` at the repository root, created using `conda create --prefix` rather than a named environment in Anaconda’s `envs` directory. Fonts, logos and the pinned CeTZ drawing package are committed under `.shared/`, so normal CLI builds work offline after setup. PDF publication requires the optional splitter installed with `--publishing`; ordinary book builds do not.
 
 ```text
 .typst-setup/

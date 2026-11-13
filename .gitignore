@@ -39,6 +39,7 @@ anaconda_projects/
 *.so
 
 # Virtual environments
+/.venv-typst/
 .venv/
 venv/
 env/
@@ -67,10 +68,6 @@ env/
 # Courses
 # =========================
 /.courses/
-
-# Local subtitle inference environment, models and progress
-/.subtitle-setup/.venv/
-/.subtitle-setup/runtime/
 
 # =========================
 # Local VS Code course builds (never published PDFs).

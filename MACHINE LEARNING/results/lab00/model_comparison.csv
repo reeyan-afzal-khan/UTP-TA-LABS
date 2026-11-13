@@ -1,0 +1,4 @@
+version,accuracy,spread,roc_auc
+zeros left in,0.853,0.041,0.925
+zeros as missing,0.847,0.03,0.922
+zeros as missing + flag,0.857,0.039,0.928

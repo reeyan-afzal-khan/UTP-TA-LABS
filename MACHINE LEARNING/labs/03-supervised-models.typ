@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "03-supervised-models")
 
 #labsection(3, label: <sec:lab03-supervised-models>)[Supervised learning II: model families]
@@ -65,7 +66,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 11, last: 39, lang: "python")
+  #labcode("lab03_supervised_models", 1)
 
   #refoutput[
     ```terminal
@@ -84,7 +85,7 @@
 #labanswer[
   #include "visuals/03-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 41, last: 75, lang: "python")
+  #labcode("lab03_supervised_models", 2)
 
   #refoutput[
     ```terminal
@@ -107,7 +108,7 @@
 #labanswer[
   #include "visuals/03-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 77, last: 99, lang: "python")
+  #labcode("lab03_supervised_models", 3)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/03-notebook-reference.png", width: 60%, height: 4.5cm)
@@ -136,7 +137,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 101, last: 114, lang: "python")
+  #labcode("lab03_supervised_models", 4)
 
   #refoutput[
     ```terminal
@@ -155,7 +156,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 116, last: 142, lang: "python")
+  #labcode("lab03_supervised_models", 5)
 
   #refoutput[
     ```terminal
@@ -182,7 +183,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 144, last: 155, lang: "python")
+  #labcode("lab03_supervised_models", 6)
 
   #refoutput[
     ```terminal
@@ -200,7 +201,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 157, last: 168, lang: "python")
+  #labcode("lab03_supervised_models", 7)
 
   #refoutput[
     ```terminal
@@ -234,7 +235,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 170, last: 192, lang: "python")
+  #labcode("lab03_supervised_models", 8)
 
   #refoutput[
     ```terminal
@@ -270,7 +271,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 194, last: 244, lang: "python")
+  #labcode("lab03_supervised_models", 9)
 
   #refoutput[
     ```terminal
@@ -287,7 +288,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 246, last: 276, lang: "python")
+  #labcode("lab03_supervised_models", 10)
 
   #refoutput[
     ```terminal
@@ -320,7 +321,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 278, last: 306, lang: "python")
+  #labcode("lab03_supervised_models", 11)
 
   #refoutput[
     ```terminal
@@ -339,7 +340,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 308, last: 346, lang: "python")
+  #labcode("lab03_supervised_models", 12)
 
   #refoutput[
     ```terminal
@@ -359,7 +360,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 348, last: 354, lang: "python")
+  #labcode("lab03_supervised_models", 13)
 
   #refoutput[
     ```terminal
@@ -385,7 +386,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 356, last: 376, lang: "python")
+  #labcode("lab03_supervised_models", 14)
 
   #refoutput[
     ```terminal
@@ -408,7 +409,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab03_supervised_models/lab03_supervised_models_worked.py", first: 380, last: 410, lang: "python")
+  #labcode("lab03_supervised_models", 16)
 
   #refoutput[
     ```terminal

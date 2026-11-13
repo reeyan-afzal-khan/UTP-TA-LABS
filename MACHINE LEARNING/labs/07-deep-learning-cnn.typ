@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "07-deep-learning-cnn")
 
 #labsection(7, label: <sec:lab07-cnn>)[Deep learning I: a first neural network and a CNN for images]
@@ -67,7 +68,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 11, last: 31, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 1)
 
   #refoutput[
     ```terminal
@@ -90,7 +91,7 @@
 #labanswer[
   #include "visuals/07-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 33, last: 60, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 2)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/07-notebook-reference.png", width: 95%, height: 3cm)
@@ -118,7 +119,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 62, last: 72, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 3)
 
   #refoutput[
     ```terminal
@@ -140,7 +141,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 74, last: 105, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 4)
 
   #refoutput[
     ```terminal
@@ -157,7 +158,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 107, last: 122, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 5)
 
   #strong[What it means.] The two curves move together and zigzag: up to 0.596, down to 0.485, never apart. This is not overfitting, which would open a gap between them; it looks like an optimizer whose steps are too large for nearly 400,000 weights fed with raw pixels, so each epoch lands somewhere new. A dense network must learn every pattern separately at every position, and 9,357 images are few for that.
 ]
@@ -178,7 +179,7 @@
 #labanswer[
   #include "visuals/07-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 124, last: 143, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 6)
 
   #refoutput[
     ```terminal
@@ -201,7 +202,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 145, last: 148, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 7)
 
   #refoutput[
     ```terminal
@@ -222,7 +223,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 150, last: 166, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 8)
 
   #refoutput[
     ```terminal
@@ -240,7 +241,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 168, last: 192, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 9)
 
   #refoutput[
     ```terminal
@@ -263,7 +264,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 194, last: 214, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 10)
 
   #strong[What it means.] Several filters have a warm side and a cool side: they respond to a change of brightness in one direction, an edge, like the filter you worked by hand in Chapter~#ref(<ch:deep>). The maps of a test knot with a crack show the division of labour: some light up the dark knot, some the bright wood around it, some only the outline of the knot or the edges of the photo, and one stays almost blank for this image. Nobody told the network to look for edges or knots; they are what reduces the loss.
 ]
@@ -283,7 +284,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 216, last: 238, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 11)
 
   #refoutput[
     ```terminal
@@ -307,7 +308,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 240, last: 247, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 12)
 
   #refoutput[
     ```terminal
@@ -331,7 +332,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab07_deep_learning_cnn/lab07_deep_learning_cnn_worked.py", first: 251, last: 275, lang: "python")
+  #labcode("lab07_deep_learning_cnn", 14)
 
   #refoutput[
     ```terminal

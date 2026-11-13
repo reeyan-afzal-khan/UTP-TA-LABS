@@ -1,6 +1,4 @@
 @echo off
-setlocal
-where python >nul 2>nul
-if errorlevel 1 (echo Install Python 3.12 or newer and add it to PATH. & exit /b 1)
-python "%~dp0..\scripts\install.py"  %*
+setlocal DisableDelayedExpansion
+call "%~dp0run.bat" "%~dp0..\scripts\install.py"  %*
 exit /b %errorlevel%

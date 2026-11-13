@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "02-supervised-workflow")
 
 #labsection(2, label: <sec:lab02-supervised-workflow>)[Supervised learning I: regression, classification, and the workflow]
@@ -66,7 +67,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 11, last: 51, lang: "python")
+  #labcode("lab02_supervised_workflow", 1)
 
   #refoutput[
     ```terminal
@@ -83,7 +84,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 53, last: 87, lang: "python")
+  #labcode("lab02_supervised_workflow", 2)
 
   #refoutput[
     ```terminal
@@ -108,7 +109,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 89, last: 107, lang: "python")
+  #labcode("lab02_supervised_workflow", 3)
 
   #refoutput[
     ```terminal
@@ -129,7 +130,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 109, last: 132, lang: "python")
+  #labcode("lab02_supervised_workflow", 4)
 
   #refoutput[
     ```terminal
@@ -157,7 +158,7 @@
 #labanswer[
   #include "visuals/02-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 134, last: 158, lang: "python")
+  #labcode("lab02_supervised_workflow", 5)
 
   #refoutput[
     ```terminal
@@ -187,7 +188,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 160, last: 187, lang: "python")
+  #labcode("lab02_supervised_workflow", 6)
 
   #refoutput[
     ```terminal
@@ -204,7 +205,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 189, last: 200, lang: "python")
+  #labcode("lab02_supervised_workflow", 7)
 
   #refoutput[
     ```terminal
@@ -221,7 +222,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 202, last: 218, lang: "python")
+  #labcode("lab02_supervised_workflow", 8)
 
   #refoutput[
     ```terminal
@@ -248,7 +249,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 220, last: 249, lang: "python")
+  #labcode("lab02_supervised_workflow", 9)
 
   #refoutput[
     ```terminal
@@ -269,7 +270,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 251, last: 266, lang: "python")
+  #labcode("lab02_supervised_workflow", 10)
 
   #refoutput[
     ```terminal
@@ -285,7 +286,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 268, last: 277, lang: "python")
+  #labcode("lab02_supervised_workflow", 11)
 
   #refoutput[
     ```terminal
@@ -308,7 +309,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 279, last: 310, lang: "python")
+  #labcode("lab02_supervised_workflow", 12)
 
   #refoutput[
     ```terminal
@@ -339,7 +340,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 312, last: 353, lang: "python")
+  #labcode("lab02_supervised_workflow", 13)
 
   #refoutput[
     ```terminal
@@ -356,7 +357,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 355, last: 361, lang: "python")
+  #labcode("lab02_supervised_workflow", 14)
 
   #refoutput[
     ```terminal
@@ -385,7 +386,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 363, last: 384, lang: "python")
+  #labcode("lab02_supervised_workflow", 15)
 
   #refoutput[
     ```terminal
@@ -399,7 +400,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 386, last: 405, lang: "python")
+  #labcode("lab02_supervised_workflow", 16)
 
   #refoutput[
     ```terminal
@@ -434,7 +435,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 407, last: 424, lang: "python")
+  #labcode("lab02_supervised_workflow", 17)
 
   #strong[What it means.] `results/lab02/` now holds `metrics.csv`, `monthly_cancellations.csv` and the figures, and `models/` holds the churn model with its card and `used_car_prices.joblib`.
 ]
@@ -452,7 +453,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab02_supervised_workflow/lab02_supervised_workflow_worked.py", first: 428, last: 444, lang: "python")
+  #labcode("lab02_supervised_workflow", 19)
 
   #refoutput[
     ```terminal

@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -22,6 +23,7 @@ import pandas as pd
 # 3. Where this lab reads and writes (it reads no data file).
 DATA, RESULTS, MODELS = start_lab("lab06")
 
+# %% Question 2 - Define the world
 rng = np.random.default_rng(42)              # one random generator, so every run explores the same way
 
 # The world: a 4 x 4 grid. Cells are (row, column), with (0, 0) at the top left.
@@ -43,6 +45,7 @@ def step(state, action):
         return next_state, -1.0, True
     return next_state, -0.04, False          # every ordinary move costs a little, so shorter routes are better
 
+# %% Question 3 - Train the Q-table
 Q = np.zeros((ROWS, COLS, len(ACTIONS)))     # Q[row, col, action]: the value of each move from each cell
 alpha, gamma = 0.15, 0.95                    # learning rate, and how much a later reward is worth
 epsilon, min_epsilon = 1.0, 0.05             # chance of a random move: starts at 1, shrinks to 0.05
@@ -69,6 +72,7 @@ for episode in range(5000):
     training_returns.append(episode_return)
     epsilon = max(min_epsilon, epsilon * 0.9985)     # explore a little less after every episode
 
+# %% Question 4 - Read the training curve
 # The return of a single episode is noisy, so plot the mean over a sliding window of 100 episodes.
 window = 100
 moving = np.convolve(training_returns, np.ones(window) / window, mode="valid")
@@ -83,6 +87,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "q_learning_training_curve.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 5 - Evaluate the greedy policy
 # Run the learned policy 200 times without exploring: always the best known move.
 successes, returns = 0, []
 for _ in range(200):
@@ -99,6 +104,7 @@ print("success rate:", successes / 200)
 print("mean return:", round(float(np.mean(returns)), 3))
 print("learned action at start:", ACTION_NAMES[choose_action(START, explore=False)])
 
+# %% Question 6 - Save the table and read the policy
 # The Q-table is the whole model: save it, load it back, and read the best move in every cell.
 q_path = MODELS / "gridworld_q_table.npy"
 np.save(q_path, Q)
@@ -120,6 +126,7 @@ def greedy_policy(Q_table, trap=TRAP):
 policy = greedy_policy(Q_loaded)
 print(policy)
 
+# %% Question 7 - Draw the policy and the values
 def plot_policy(Q_table, title, trap=TRAP):
     """Color each cell by its best value, and draw an arrow for its best move."""
     values = Q_table.max(axis=2)
@@ -145,6 +152,7 @@ def plot_policy(Q_table, title, trap=TRAP):
 
 plot_policy(Q_loaded, "Greedy policy and state values")
 
+# %% Question 8 - Save the evidence
 policy_table = pd.DataFrame(policy, index=[f"row{r}" for r in range(ROWS)], columns=[f"col{c}" for c in range(COLS)])
 policy_table.to_csv(RESULTS / "greedy_policy.csv")
 returns_table = pd.DataFrame({"episode": np.arange(1, len(training_returns) + 1), "return": training_returns})
@@ -157,8 +165,10 @@ metrics = pd.DataFrame([{
 metrics.round(4).to_csv(RESULTS / "metrics.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 9 - Try it yourself
 # Your work here
 
+# %% Question 10 - One solution
 def train_q(trap, step_cost=-0.04, gamma_=0.95, episodes=5000, seed=42):
     """Retrain from scratch on a grid with the given trap position and step cost; returns the new Q-table."""
     r = np.random.default_rng(seed)

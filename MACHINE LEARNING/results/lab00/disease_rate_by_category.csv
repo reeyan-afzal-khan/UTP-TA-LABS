@@ -1,0 +1,17 @@
+column,value,patients,disease_rate,give_or_take
+Sex,F,155,0.284,0.071
+Sex,M,579,0.625,0.039
+ChestPainType,ASY,403,0.787,0.04
+ChestPainType,ATA,136,0.14,0.058
+ChestPainType,NAP,155,0.335,0.074
+ChestPainType,TA,40,0.45,0.154
+FastingBS,0,566,0.482,0.041
+FastingBS,1,168,0.792,0.061
+RestingECG,LVH,146,0.575,0.08
+RestingECG,Normal,447,0.512,0.046
+RestingECG,ST,141,0.66,0.078
+ExerciseAngina,N,434,0.35,0.045
+ExerciseAngina,Y,300,0.847,0.041
+ST_Slope,Down,47,0.83,0.107
+ST_Slope,Flat,374,0.832,0.038
+ST_Slope,Up,313,0.179,0.042

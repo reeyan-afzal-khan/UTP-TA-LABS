@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "06-reinforcement")
 
 #labsection(6, label: <sec:lab06-reinforcement>)[Reinforcement learning]
@@ -60,7 +61,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 11, last: 23, lang: "python")
+  #labcode("lab06_reinforcement", 1)
 
   #refoutput[
     ```terminal
@@ -79,7 +80,7 @@
 #labanswer[
   #include "visuals/06-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 25, last: 44, lang: "python")
+  #labcode("lab06_reinforcement", 2)
 
   #strong[What it means.] There is no dataset, no label and no train/test split. The data the agent sees depends on the policy it is learning.
 ]
@@ -91,7 +92,7 @@
 #labanswer[
   #include "visuals/06-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 46, last: 70, lang: "python")
+  #labcode("lab06_reinforcement", 3)
 
   #strong[What it means.] The line `target = reward if done else ...` is the warm-up’s third question. With a decay of 0.9985, $epsilon$ reaches its floor of 0.05 after 1,996 of the 5,000 episodes.
 ]
@@ -101,7 +102,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 72, last: 84, lang: "python")
+  #labcode("lab06_reinforcement", 4)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/06-notebook-reference.png", width: 88%, height: 5cm)
@@ -115,7 +116,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 86, last: 100, lang: "python")
+  #labcode("lab06_reinforcement", 5)
 
   #refoutput[
     ```terminal
@@ -146,7 +147,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 102, last: 121, lang: "python")
+  #labcode("lab06_reinforcement", 6)
 
   #refoutput[
     ```terminal
@@ -165,7 +166,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 123, last: 146, lang: "python")
+  #labcode("lab06_reinforcement", 7)
 
   #refoutput[
     ```terminal
@@ -194,7 +195,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 148, last: 158, lang: "python")
+  #labcode("lab06_reinforcement", 8)
 
   #refoutput[
     ```terminal
@@ -215,7 +216,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab06_reinforcement/lab06_reinforcement_worked.py", first: 162, last: 199, lang: "python")
+  #labcode("lab06_reinforcement", 10)
 
   #refoutput[
     ```terminal

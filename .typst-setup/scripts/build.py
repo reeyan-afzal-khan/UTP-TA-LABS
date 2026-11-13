@@ -16,11 +16,11 @@ def compiler():
     local = SETUP / "bin" / binary
     found = str(local) if local.is_file() else shutil.which("typst")
     if not found:
-        raise RuntimeError("Typst is missing. Run: python .typst-setup/scripts/install.py")
+        raise RuntimeError("Typst is missing. Run step01-install in .typst-setup/windows or .typst-setup/unix.")
     expected = json.loads((SETUP / "config" / "toolchain.json").read_text())["version"]
     actual = subprocess.check_output([found, "--version"], text=True).split()[1]
     if actual != expected:
-        raise RuntimeError(f"Expected Typst {expected}, found {actual}. Run .typst-setup/scripts/install.py.")
+        raise RuntimeError(f"Expected Typst {expected}, found {actual}. Rerun step01-install in .typst-setup/windows or .typst-setup/unix.")
     return found
 
 def courses():

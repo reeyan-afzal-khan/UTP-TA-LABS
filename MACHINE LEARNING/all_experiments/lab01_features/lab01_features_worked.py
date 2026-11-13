@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -32,11 +33,13 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 # 3. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab01")
 
+# %% Question 2 - Print the package versions
 print("NumPy:", np.__version__)
 print("pandas:", pd.__version__)
 print("Matplotlib:", matplotlib.__version__)
 print("scikit-learn:", sklearn.__version__)
 
+# %% Question 3 - Read the data card, then the bookings
 # The data card beside the data says what each column means. Its column table starts at "| `hotel`".
 card = (DATA / "supervised/hotel_bookings/README.md").read_text(encoding="utf-8")
 for row in card[card.index("| `hotel`"):].splitlines():
@@ -56,6 +59,7 @@ print("arrivals from", hotels["arrival_date"].min().date(), "to", hotels["arriva
 
 print("\nCancellation rate:\n", hotels["is_canceled"].value_counts(normalize=True).round(3))
 
+# %% Question 4 - Chart the missing values, and date the columns
 # Share of bookings missing each column, largest first; columns with no gaps are left out.
 missing = hotels.isna().mean().sort_values(ascending=False)
 missing = missing[missing > 0]
@@ -77,6 +81,7 @@ status_date = pd.to_datetime(hotels["reservation_status_date"])
 written_on_or_after_arrival = (status_date >= hotels["arrival_date"]).rename("status written on or after arrival")
 print("\n", pd.crosstab(written_on_or_after_arrival, hotels["is_canceled"]))
 
+# %% Question 5 - Engineer five new columns
 # 1. Length of stay: weekend nights plus week nights.
 hotels["total_nights"] = hotels["stays_in_weekend_nights"] + hotels["stays_in_week_nights"]
 
@@ -99,6 +104,7 @@ inputs = ["lead_time", "stays_in_weekend_nights", "stays_in_week_nights", "adult
 two_bookings = [14876, 40060]                # a family at the resort hotel; the first city-hotel booking
 print(hotels.loc[two_bookings, ["hotel"] + inputs + new].round(3).T.to_string())
 
+# %% Question 6 - Check the new columns for signal
 # Cancellation rate by how far ahead the booking was made, and by the length of the stay.
 lead_band = pd.cut(hotels["lead_time"], [-1, 7, 30, 90, 180, 365, 800],
                    labels=["0-7", "8-30", "31-90", "91-180", "181-365", "366+"])
@@ -122,6 +128,7 @@ print("by nights:        ", by_nights.round(3).to_dict())
 print("with children:    ", hotels.groupby("with_children")["is_canceled"].mean().round(3).to_dict())
 print("cancelled before: ", hotels.groupby("cancelled_before")["is_canceled"].mean().round(3).to_dict())
 
+# %% Question 7 - Test the new columns on a model
 def make_preprocess(num_cols, cat_cols):
     """Prepare a table for a model: fill and scale the number columns, fill and one-hot encode the text columns."""
     numbers = Pipeline([
@@ -157,6 +164,7 @@ for name, (num_cols, cat_cols) in feature_sets.items():
     print(f"{name:18s} validation ROC AUC = {auc:.3f}")
 print("validation bookings:", len(y_valid))
 
+# %% Question 8 - Fix the types, then see the units
 churn = pd.read_csv(DATA / "supervised/telco_customer_churn/telco_customer_churn.csv")
 print("shape:", churn.shape, " TotalCharges is stored as:", churn["TotalCharges"].dtype)
 
@@ -170,6 +178,7 @@ churn["TotalCharges"] = total.fillna(0)      # brand-new customers: nothing bill
 money = ["tenure", "MonthlyCharges", "TotalCharges"]
 print(churn[money].describe().loc[["mean", "std"]].round(2))
 
+# %% Question 9 - Compare neighbors before and after scaling
 X_raw = churn[money].to_numpy()
 X_std = StandardScaler().fit_transform(X_raw)          # every column now has mean 0 and standard deviation 1
 
@@ -204,6 +213,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "one_customer_two_sets_of_neighbors.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 10 - Define the bank-call task
 bank = pd.read_csv(DATA / "supervised/bank_marketing/bank_marketing.csv", sep=";")     # this file separates with ;
 print("shape:", bank.shape, " missing:", bank.isna().sum().sum(), " duplicates:", bank.duplicated().sum())
 bank = bank.drop_duplicates().reset_index(drop=True)
@@ -224,6 +234,7 @@ print(len(b_num), "numeric and", len(b_cat), "text features known before the cal
 
 Xb_train, Xb_valid, yb_train, yb_valid = train_test_split(X_b, y_b, test_size=0.25, random_state=42, stratify=y_b)
 
+# %% Question 11 - Compare feature sets, and see leakage
 def evaluate(pipeline, X_train, X_valid, label):
     """Fit on the training calls, score the validation calls, print both metrics, and return the ROC AUC."""
     pipeline.fit(X_train, yb_train)
@@ -266,6 +277,7 @@ with_duration = Pipeline([
 ])
 results["all 19 + duration (leakage)"] = evaluate(with_duration, leaky_train, leaky_valid, "all 19 + duration (leakage)")
 
+# %% Question 12 - Read what the L1 penalty kept
 # One weight per encoded column; the L1 penalty set most of them to zero.
 column_names = l1.named_steps["preprocess"].get_feature_names_out()
 coefs = pd.Series(l1.named_steps["model"].coef_[0], index=column_names)
@@ -286,6 +298,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "what_the_l1_penalty_kept.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 13 - Save the evidence
 environment = pd.DataFrame({
     "package": ["numpy", "pandas", "matplotlib", "scikit-learn"],
     "version": [np.__version__, pd.__version__, matplotlib.__version__, sklearn.__version__],
@@ -303,8 +316,10 @@ neighbor_table["neighbors"] = ["the customer"] + ["raw units"] * 10 + ["standard
 neighbor_table.to_csv(RESULTS / "neighbors_raw_and_scaled.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 14 - Try it yourself
 # Your work here
 
+# %% Question 15 - One solution
 # Part 1: the weekday of arrival, from the date built in Question 3.
 hotels["arrival_weekday"] = hotels["arrival_date"].dt.day_name()
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]

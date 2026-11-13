@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -28,6 +29,7 @@ import pandas as pd
 # 4. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab08")
 
+# %% Question 2 - Read the meters and add them up
 # One row per hour, one column per customer, in kWh. hour_start becomes the row index.
 loads = pd.read_csv(DATA / "advanced/electricity_load/electricity_load_hourly.zip",
                     parse_dates=["hour_start"], index_col="hour_start")
@@ -53,6 +55,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "two_weeks_and_the_average_day.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 3 - Split by date and scale
 # Label every hour with its period: three years to train, then two half-years.
 period = pd.Series("train", index=demand.index)
 period[demand.index >= "2014-01-01"] = "validation"
@@ -66,6 +69,7 @@ scale = float(demand[period == "train"].max())
 scaled = (demand / scale).to_numpy(dtype=np.float32)
 print(f"scale: {scale:.1f} MWh, the highest training hour")
 
+# %% Question 4 - Build the windows
 LOOKBACK = 24
 
 def make_windows(values, lookback):
@@ -92,6 +96,7 @@ print("windows:", windows.shape, " train:", tuple(X_train.shape), " validation:"
 print("first window (MWh):", np.round(windows[0, :6] * scale, 1), "...")
 print("its label, the next hour:", round(float(targets[0] * scale), 1), "MWh at", demand.index[target_hours[0]])
 
+# %% Question 5 - Compute three free forecasts
 def mae(forecast, name):
     """Mean absolute error in MWh over the hours of one period."""
     hours = period == name
@@ -103,6 +108,7 @@ baselines = {name: mae(forecast, "validation") for name, forecast in free.items(
 for name, value in baselines.items():
     print(f"{name:20s} validation MAE = {value:.2f} MWh")
 
+# %% Question 6 - Build and train the LSTM
 class LSTMForecaster(nn.Module):
     """An LSTM reads the window one step at a time; a linear layer turns its final state into one forecast."""
 
@@ -149,6 +155,7 @@ history = train_forecaster(model, X_train, y_train, X_valid, y_valid)
 best_epoch = int(np.argmin(history)) + 1
 print(f"kept epoch {best_epoch}: validation MAE = {min(history):.2f} MWh")
 
+# %% Question 7 - Read the validation curve
 plt.figure(figsize=(6, 3.6))
 plt.plot(range(1, len(history) + 1), history, marker="o", color="black", label="LSTM")
 line_colors = {"last hour": "C1", "same hour yesterday": "C2", "same hour last week": "C3"}
@@ -162,6 +169,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "the_lstm_has_to_beat_three_free_forecasts.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 8 - Open the test period once
 # The LSTM's forecasts for every test hour, in MWh, as a series indexed by hour.
 model.eval()
 with torch.no_grad():
@@ -173,6 +181,7 @@ mean_test = demand[period == "test"].mean()
 for name, value in test_scores.items():
     print(f"{name:20s} test MAE = {value:.2f} MWh ({100 * value / mean_test:.1f}% of the average hour)")
 
+# %% Question 9 - Find the hours it gets wrong
 actual = demand[period == "test"]
 errors = (lstm_test - actual).rename("error")
 print("largest LSTM errors in the test period (MWh):")
@@ -198,6 +207,7 @@ plt.savefig(RESULTS / "one_hour_ahead_forecasts_and_errors.png", dpi=160, bbox_i
 plt.show()
 print("hours of day with the largest MAE:", by_hour.sort_values(ascending=False).head(3).round(2).to_dict())
 
+# %% Question 10 - Save the weights and the scale
 # The weights go to one file; the card records everything needed to use them, the scale above all.
 weights_path = MODELS / "electricity_lstm.pt"
 torch.save(model.state_dict(), weights_path)
@@ -227,6 +237,7 @@ with torch.no_grad():
 print(f"saved {weights_path.name}; reload reproduces the test forecasts: {same}")
 print(f"forecast for {demand.index[-1] + pd.Timedelta(hours=1)}: {next_hour:.1f} MWh")
 
+# %% Question 11 - Save the evidence
 pd.DataFrame({"epoch": range(1, len(history) + 1), "validation_mae_mwh": history}).round(3).to_csv(
     RESULTS / "validation_curve.csv", index=False)
 metrics = pd.DataFrame([
@@ -239,8 +250,10 @@ first_week = pd.DataFrame({"actual_mwh": actual[week], "lstm_forecast_mwh": lstm
 first_week.round(2).to_csv(RESULTS / "first_test_week.csv")
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 12 - Try it yourself
 # Your work here
 
+# %% Question 13 - One solution
 def try_setting(lookback, hidden_size):
     """Train one LSTM exactly like Question 6; return its best validation MAE and its number of weights."""
     (X_t, y_t), (X_v, y_v), _ = split_by_period(*make_windows(scaled, lookback))

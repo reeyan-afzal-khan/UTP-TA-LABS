@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -50,6 +51,7 @@ def make_preprocess(num_cols, cat_cols):
     ])
     return ColumnTransformer([("num", numbers, num_cols), ("cat", categories, cat_cols)])
 
+# %% Question 2 - Read the car listings, tidy them, and split
 cars = pd.read_csv(DATA / "supervised/used_cars/used_cars.zip", low_memory=False)
 print("shape:", cars.shape)
 print(cars["stock_type"].value_counts().to_string())
@@ -86,6 +88,7 @@ y = used["price_usd"]
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.20, random_state=42)
 print(len(X_train), "listings to train on and", len(X_valid), "to validate")
 
+# %% Question 3 - Fit OLS and ridge
 # The baseline any model must beat: predict the average training price for every car.
 baseline = np.full(len(y_valid), y_train.mean())
 print("always the training mean: MAE", round(mean_absolute_error(y_valid, baseline)))
@@ -106,6 +109,7 @@ for name, estimator in estimators.items():
     print("RMSE:", round(np.sqrt(mean_squared_error(y_valid, pred))))
     print("R2:", round(r2_score(y_valid, pred), 3))
 
+# %% Question 4 - Read the coefficients
 # One coefficient per prepared column: the change in predicted price for a one-unit change in that column
 # (one standard deviation, for the scaled number columns).
 linear = fitted["linear regression"]
@@ -131,6 +135,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "what_the_linear_model_learned.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 5 - Plot the residuals
 ridge_pred = predictions["ridge"]
 residual = y_valid.to_numpy() - ridge_pred           # positive: the car is listed for more than predicted
 
@@ -157,6 +162,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "ridge_residual_plot.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 6 - Split the bookings in date order
 hotels = pd.read_csv(DATA / "supervised/hotel_bookings/hotel_bookings.zip")
 text_date = (hotels["arrival_date_year"].astype(str) + "-" + hotels["arrival_date_month"]
              + "-" + hotels["arrival_date_day_of_month"].astype(str))
@@ -186,6 +192,7 @@ for label, part in [("train", hotels[in_train]), ("valid", hotels[~in_train])]:
     print(f"{label}: {part['arrival_date'].min().date()} to {part['arrival_date'].max().date()}, "
           f"{len(part):,} bookings, {part['is_canceled'].mean():.1%} cancelled")
 
+# %% Question 7 - Score one model on two splits
 def cancellation_model():
     """Lab 1's model: the preparation and a logistic regression, in one pipeline."""
     return Pipeline([("preprocess", make_preprocess(h_num, h_cat)), ("model", LogisticRegression(max_iter=3000))])
@@ -199,6 +206,7 @@ dated = cancellation_model().fit(Xh_train, yh_train)
 prob_h = dated.predict_proba(Xh_valid)[:, 1]          # each 2017 booking's predicted chance of cancelling
 print("date split (2017), ROC AUC: ", round(roc_auc_score(yh_valid, prob_h), 3))
 
+# %% Question 8 - Compare the months
 # Month by month: the share of bookings that cancelled, and the share the model expected.
 month = hotels["arrival_date"].dt.to_period("M")
 monthly = pd.DataFrame({
@@ -217,6 +225,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "trained_on_the_past_scored_on_2017.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 9 - Set a baseline and compare classifiers on 2017
 print("majority-class baseline accuracy:", round(1 - yh_valid.mean(), 3))
 
 # Two classifiers with the same preparation, trained on 2015-2016 and scored on 2017, two ways.
@@ -248,6 +257,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "two_models_two_metrics_one_date_split.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 10 - Plot the cancellation probabilities
 # The logistic model's probabilities for the 2017 bookings, drawn separately for kept and cancelled ones.
 uncertain = (prob_h > 0.3) & (prob_h < 0.7)
 print("share of 2017 bookings scored between 0.3 and 0.7:", round(uncertain.mean(), 3))
@@ -265,6 +275,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "a_threshold_is_a_vertical_line_through_this_picture.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 11 - Count errors at two thresholds
 for threshold in [0.50, 0.70]:
     flagged = (prob_h >= threshold).astype(int)                   # 1 = treat the booking as a likely cancellation
     print(f"\nthreshold = {threshold:.2f}")
@@ -276,6 +287,7 @@ for threshold in [0.50, 0.70]:
     plt.savefig(RESULTS / f"confusion_matrix_at_threshold_{threshold:.2f}.png", dpi=160, bbox_inches="tight")
     plt.show()
 
+# %% Question 12 - Summarize the ranking: ROC and PR
 # Precision and recall at 19 thresholds from 0.05 to 0.95.
 thresholds = np.linspace(0.05, 0.95, 19)
 precisions, recalls = [], []
@@ -309,6 +321,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "precision_recall_curve.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 13 - Tune with cross-validation
 churn = pd.read_csv(DATA / "supervised/telco_customer_churn/telco_customer_churn.csv")
 churn["TotalCharges"] = pd.to_numeric(churn["TotalCharges"], errors="coerce").fillna(0)   # the Lab 1 repair
 X_c = churn.drop(columns=["customerID", "Churn"])
@@ -352,6 +365,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "what_the_grid_search_saw.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 14 - Open the test set once
 # search now holds the best setting, refitted on all the training rows. The test set is used once.
 test_prob = search.predict_proba(Xc_test)[:, 1]
 test_auc = roc_auc_score(yc_test, test_prob)
@@ -360,6 +374,7 @@ print("best parameters:", search.best_params_)
 print("cross-validated ROC AUC:", round(search.best_score_, 3))
 print("final test ROC AUC:", round(test_auc, 3), "on", len(yc_test), "customers")
 
+# %% Question 15 - Save the churn model with a card
 # The fitted pipeline (preparation and model together) goes to one file ...
 final_model = search.best_estimator_
 model_path = MODELS / "customer_churn.joblib"
@@ -383,6 +398,7 @@ card = {
 size_kb = model_path.stat().st_size / 1024
 print(f"saved: {model_path.name} ({size_kb:.1f} KB) and customer_churn_card.json")
 
+# %% Question 16 - Reload the models and use them
 # Load the saved model and ask it about two customers. A real customer's row is the template,
 # so every column the model expects is there; only the columns that differ are changed.
 loaded = joblib.load(model_path)
@@ -404,6 +420,7 @@ new_cars = pd.DataFrame([{**car, "mileage_miles": 30_000}, {**car, "mileage_mile
 new_cars["predicted_price"] = pricing.predict(new_cars).round(-2)
 print(new_cars[["make", "body_type", "age", "mileage_miles", "predicted_price"]].to_string())
 
+# %% Question 17 - Save the evidence
 # One row per model and dataset, collected from the parts above.
 rows = []
 for name, pred in predictions.items():
@@ -423,8 +440,10 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 model_files = [p.name for p in MODELS.iterdir() if p.name.startswith(("customer_churn", "used_car_prices"))]
 print("Model files:", sorted(model_files))
 
+# %% Question 18 - Try it yourself, and a decision memo
 # Your work here
 
+# %% Question 19 - One solution
 # Part A's linear regression, trained on the logarithm of the price; exp turns its predictions back into dollars.
 log_model = Pipeline([("preprocess", make_preprocess(num_cols, cat_cols)), ("model", LinearRegression())])
 log_model.fit(X_train, np.log(y_train))

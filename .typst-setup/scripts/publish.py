@@ -9,13 +9,12 @@ import subprocess
 import tempfile
 import sys
 from build import ROOT, SETUP, build, compiler, flags, courses, select
-sys.path.insert(0, str(SETUP / 'bin/python'))
 
 def publish(main):
     try:
         from pypdf import PdfReader, PdfWriter
     except ImportError:
-        raise RuntimeError('Install publishing dependencies: python -m pip install -r .typst-setup/config/requirements.txt')
+        raise RuntimeError('Run .typst-setup/windows/step01-install.bat --publishing (Windows) or sh .typst-setup/unix/step01-install.sh --publishing (macOS/Linux)')
     source = build(main)
     config = json.loads((SETUP/'config'/'courses.json').read_text())[main.parent.name]
     expression = '(units: query(<unit>).map(u => u.value), headings: query(heading.where(level: 1)).map(h => (page: h.location().page(), number: if h.numbering != none { counter(heading).at(h.location()).first() } else { none })))'

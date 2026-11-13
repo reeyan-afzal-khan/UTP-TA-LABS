@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "04-clustering-pca")
 
 #labsection(4, label: <sec:lab04-clustering-pca>)[Unsupervised learning I: clustering and PCA]
@@ -58,7 +59,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 11, last: 30, lang: "python")
+  #labcode("lab04_clustering_pca", 1)
 
   #refoutput[
     ```terminal
@@ -77,7 +78,7 @@
 #labanswer[
   #include "visuals/04-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 32, last: 59, lang: "python")
+  #labcode("lab04_clustering_pca", 2)
 
   #refoutput[
     ```terminal
@@ -101,7 +102,7 @@
 #labanswer[
   #include "visuals/04-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 61, last: 82, lang: "python")
+  #labcode("lab04_clustering_pca", 3)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/04-notebook-reference.png", width: 88%, height: 5cm)
@@ -126,7 +127,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 84, last: 97, lang: "python")
+  #labcode("lab04_clustering_pca", 4)
 
   #refoutput[
     ```terminal
@@ -144,7 +145,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 99, last: 109, lang: "python")
+  #labcode("lab04_clustering_pca", 5)
 
   #refoutput[
     ```terminal
@@ -165,7 +166,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 111, last: 124, lang: "python")
+  #labcode("lab04_clustering_pca", 6)
 
   #strong[What it means.] K-means cuts the cloud into four slices, because it always splits the space. DBSCAN draws a different line: its two dense clusters are simply the customers who ordered once and those who came back. Its noise points are the outliers, mostly at the top right, where a few customers have many orders and very large bills, plus a scattering of single unusually large orders.
 ]
@@ -185,7 +186,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 126, last: 150, lang: "python")
+  #labcode("lab04_clustering_pca", 7)
 
   #refoutput[
     ```terminal
@@ -208,7 +209,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 152, last: 170, lang: "python")
+  #labcode("lab04_clustering_pca", 8)
 
   #refoutput[
     ```terminal
@@ -227,7 +228,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 172, last: 186, lang: "python")
+  #labcode("lab04_clustering_pca", 9)
 
   #refoutput[
     ```terminal
@@ -248,7 +249,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 188, last: 220, lang: "python")
+  #labcode("lab04_clustering_pca", 10)
 
   #refoutput[
     ```terminal
@@ -265,7 +266,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 222, last: 229, lang: "python")
+  #labcode("lab04_clustering_pca", 11)
 
   #refoutput[
     ```terminal
@@ -292,7 +293,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 231, last: 243, lang: "python")
+  #labcode("lab04_clustering_pca", 12)
 ]
 
 #labsubhead[Try it yourself]
@@ -306,7 +307,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab04_clustering_pca/lab04_clustering_pca_worked.py", first: 247, last: 269, lang: "python")
+  #labcode("lab04_clustering_pca", 14)
 
   #refoutput[
     ```terminal

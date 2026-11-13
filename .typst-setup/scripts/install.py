@@ -22,7 +22,7 @@ def download(url):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--editors', action='store_true', help='Install the recommended VS Code extensions')
-    parser.add_argument('--publishing', action='store_true', help='Install the PDF splitter in this setup directory')
+    parser.add_argument('--publishing', action='store_true', help='Install the PDF splitter in the active Typst Conda environment')
     options = parser.parse_args()
     version = json.loads((SETUP / "config" / "toolchain.json").read_text())["version"]
     arch = {"amd64": "x86_64", "x86_64": "x86_64", "arm64": "aarch64", "aarch64": "aarch64"}.get(platform.machine().lower())
@@ -63,7 +63,7 @@ def main():
             shutil.copy2(license_file, destination.parent / license_file.name)
     print(f"Installed official Typst {version}: {destination}")
     if options.publishing:
-        subprocess.run([sys.executable, '-m', 'pip', 'install', '--target', str(SETUP/'bin/python'), '-r', str(SETUP/'config/requirements.txt')], check=True)
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '-r', str(SETUP/'config/requirements.txt')], check=True)
     if options.editors:
         editor = shutil.which('code')
         if editor is None:

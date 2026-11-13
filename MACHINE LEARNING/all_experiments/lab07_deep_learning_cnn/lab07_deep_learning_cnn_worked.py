@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -30,6 +31,7 @@ from sklearn.model_selection import GroupShuffleSplit      # keep each board on 
 # 4. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab07")
 
+# %% Question 2 - Turn images into tensors
 wood = np.load(DATA / "unsupervised/wood_surface_defects/wood_defects.npz")
 class_names = [str(name) for name in wood["classes"]]
 labels, boards = wood["y"], wood["board"]
@@ -59,6 +61,7 @@ plt.suptitle("One training image of each type, as the network sees it", y=1.08)
 plt.savefig(RESULTS / "one_training_image_of_each_type.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 3 - Build a dense network
 def make_mlp():
     """A dense network: 3,072 pixel values -> 128 hidden units with ReLU -> 7 class scores."""
     return nn.Sequential(
@@ -71,6 +74,7 @@ mlp = make_mlp().to(DEVICE)
 print(mlp)
 print("trainable weights:", sum(p.numel() for p in mlp.parameters()))
 
+# %% Question 4 - Write the training loop and train
 def predict(model, X, batch_size=2000):
     """Class predictions in chunks, so a big test set never has to fit in memory at once."""
     model.eval()                                     # evaluation mode: dropout off
@@ -104,6 +108,7 @@ torch.manual_seed(42)
 mlp_history = train_classifier(mlp, X_fit, y_fit, X_val, y_val)
 print("dense network: validation accuracy by epoch =", [round(a, 3) for a in mlp_history["validation"]])
 
+# %% Question 5 - Read the accuracy curves
 def plot_history(history, title):
     """Training and validation accuracy against the epoch; the title doubles as the file name."""
     epochs = range(1, len(history["train"]) + 1)
@@ -121,6 +126,7 @@ def plot_history(history, title):
 
 plot_history(mlp_history, "Dense network: accuracy per epoch")
 
+# %% Question 6 - Build a CNN and trace its shapes
 def make_cnn():
     """Two blocks of convolution, ReLU and pooling, then a small dense classifier."""
     return nn.Sequential(
@@ -142,11 +148,13 @@ for layer in cnn:
     if isinstance(layer, (nn.Conv2d, nn.MaxPool2d, nn.Flatten, nn.Linear)):
         print(f"{layer.__class__.__name__:10s} -> {tuple(sample.shape[1:])}")
 
+# %% Question 7 - Train the CNN
 torch.manual_seed(42)
 cnn_history = train_classifier(cnn, X_fit, y_fit, X_val, y_val)
 print("CNN: validation accuracy by epoch =", [round(a, 3) for a in cnn_history["validation"]])
 plot_history(cnn_history, "CNN: accuracy per epoch")
 
+# %% Question 8 - Open the test images once
 # The test boards, opened once for each model. The first number is Lab 4's result on the same images.
 test_scores = {
     "PCA + logistic (Lab 4)": 0.6331,
@@ -165,6 +173,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "three_models_one_set_of_test_boards.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 9 - Inspect the CNN's mistakes
 test_pred = predict(cnn, X_test)
 truth, guess = y_test.cpu().numpy(), test_pred.cpu().numpy()
 
@@ -191,6 +200,7 @@ plt.suptitle("Ten of the CNN's mistakes", y=1.25)
 plt.savefig(RESULTS / "ten_of_the_cnn_s_mistakes.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 10 - Look at the learned filters
 # The first layer's sixteen 3 x 3 filters, with their three colour layers added together
 # (blue negative, red positive), so each one can be drawn as a small grid of weights.
 filters = cnn[0].weight.detach().cpu().sum(dim=1)                  # 16 x 3 x 3
@@ -213,6 +223,7 @@ plt.suptitle(f"The first layer's sixteen views of a test {class_names[int(y_test
 plt.savefig(RESULTS / "the_first_layer_s_sixteen_views.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 11 - Save the weights with a card
 # The weights (the "state dict") go to one file ...
 weights_path = MODELS / "wood_cnn.pt"
 torch.save(cnn.state_dict(), weights_path)
@@ -237,6 +248,7 @@ same = torch.equal(predict(restored, X_test), test_pred)
 size_kb = weights_path.stat().st_size / 1024
 print(f"saved {weights_path.name} ({size_kb:.0f} KB); reload reproduces predictions: {same}")
 
+# %% Question 12 - Save the evidence
 curves = pd.DataFrame({
     "epoch": range(1, len(mlp_history["train"]) + 1),
     "mlp_train": mlp_history["train"], "mlp_validation": mlp_history["validation"],
@@ -246,8 +258,10 @@ curves.round(4).to_csv(RESULTS / "training_curves.csv", index=False)
 pd.Series(test_scores, name="test_accuracy").rename_axis("model").round(4).to_csv(RESULTS / "metrics.csv")
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 13 - Try it yourself
 # Your work here
 
+# %% Question 14 - One solution
 # Part 1: the same CNN, trained for 25 epochs.
 torch.manual_seed(42)
 long_run = make_cnn().to(DEVICE)

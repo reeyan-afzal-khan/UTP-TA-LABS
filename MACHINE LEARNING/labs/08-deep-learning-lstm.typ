@@ -1,4 +1,5 @@
 #import "/.shared/typst/utp.typ": *
+#import "/MACHINE LEARNING/course-tools.typ": *
 #unit("labs", "08-deep-learning-lstm")
 
 #labsection(8, label: <sec:lab08-lstm>)[Deep learning II: an LSTM for time series]
@@ -65,7 +66,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 11, last: 29, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 1)
 
   #refoutput[
     ```terminal
@@ -86,7 +87,7 @@
 #labanswer[
   #include "visuals/08-trace.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 31, last: 54, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 2)
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/08-notebook-reference.png", width: 95%, height: 4.2cm)
@@ -108,7 +109,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 56, last: 67, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 3)
 
   #refoutput[
     ```terminal
@@ -129,7 +130,7 @@
 #labanswer[
   #include "visuals/08-worked-case.typ"
 
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 69, last: 93, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 4)
 
   #refoutput[
     ```terminal
@@ -158,7 +159,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 95, last: 104, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 5)
 
   #refoutput[
     ```terminal
@@ -184,7 +185,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 106, last: 150, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 6)
 
   #refoutput[
     ```terminal
@@ -217,7 +218,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 152, last: 163, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 7)
 
   #strong[What it means.] The curve crosses below the best dashed line at epoch 5 and stays between 2.16 and 2.29 after epoch 6, apart from one jump at epoch 9. Whether it has really finished is Your-turn task~1. The validation half-year chose the epoch, so its 2.16 is now a little optimistic. That is why the test period stays closed until Question~8.
 ]
@@ -227,7 +228,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 165, last: 174, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 8)
 
   #refoutput[
     ```terminal
@@ -246,7 +247,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 176, last: 199, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 9)
 
   #refoutput[
     ```terminal
@@ -280,7 +281,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 201, last: 228, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 10)
 
   #refoutput[
     ```terminal
@@ -305,7 +306,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 230, last: 240, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 11)
 
   #refoutput[
     ```terminal
@@ -327,7 +328,7 @@
 ]
 
 #labanswer[
-  #lstinput("/MACHINE LEARNING/all_experiments/lab08_deep_learning_lstm/lab08_deep_learning_lstm_worked.py", first: 244, last: 256, lang: "python")
+  #labcode("lab08_deep_learning_lstm", 13)
 
   #refoutput[
     ```terminal

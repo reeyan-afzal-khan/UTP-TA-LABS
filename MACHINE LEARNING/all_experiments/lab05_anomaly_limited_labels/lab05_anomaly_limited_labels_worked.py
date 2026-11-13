@@ -8,6 +8,7 @@ from pathlib import Path
 import os
 os.chdir(Path(__file__).resolve().parent)
 
+# %% Question 1 - Setup
 # 1. The course helper: finds the course folder and prepares the output folders.
 import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
@@ -27,6 +28,7 @@ from sklearn.semi_supervised import SelfTrainingClassifier         # learns from
 # 3. Where this lab reads and writes.
 DATA, RESULTS, MODELS = start_lab("lab05")
 
+# %% Question 2 - Fit an Isolation Forest without labels
 cards = pd.read_csv(DATA / "unsupervised/creditcard_fraud_ulb/creditcard_fraud_ulb.zip")
 hours = cards["Time"].max() / 3600                                 # Time is in seconds
 print("transactions:", len(cards), " over", round(hours), "hours;", int(cards["Class"].sum()), "frauds")
@@ -43,6 +45,7 @@ forest = IsolationForest(n_estimators=300, random_state=42, n_jobs=-1)
 forest.fit(X_train)                                   # no labels passed
 anomaly_score = -forest.decision_function(X_test)     # higher = more unusual
 
+# %% Question 3 - Score the ranking
 prevalence = y_test.mean()                            # the fraud rate: what random guessing would achieve
 ap = average_precision_score(y_test, anomaly_score)
 print("test transactions:", len(y_test), " frauds:", int(y_test.sum()), " prevalence:", round(prevalence, 5))
@@ -61,6 +64,7 @@ found = int(ranked.head(review_budget)["fraud_label"].sum())
 print(f"frauds in the top {review_budget} alerts: {found}")
 print(ranked.head(10).round(3).to_string(index=False))
 
+# %% Question 4 - Plot the scores and precision at k
 # Precision at k: the fraud rate among the k most unusual transactions, for k = 10, 20, ..., 2000.
 hits = ranked["fraud_label"].to_numpy()
 k_values = np.arange(10, 2001, 10)
@@ -84,6 +88,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "precision_falls_as_the_review_budget_grows.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 5 - Split the messages three ways
 messages = pd.read_csv(DATA / "advanced/banking77/banking77.csv")
 intents = messages.drop_duplicates("label").sort_values("label")["intent"].tolist()      # label 0 to 76
 
@@ -109,6 +114,7 @@ def make_model():
     """The one classifier used throughout Part B, so only the labels differ between methods."""
     return LogisticRegression(max_iter=2000, C=10)
 
+# %% Question 6 - Self-train from 1,000 labels
 # 1. The baseline: a model trained on 1,000 randomly chosen labeled messages, an eighth of the pool.
 rng = np.random.default_rng(42)
 labeled = rng.choice(len(y_pool), 1000, replace=False)
@@ -129,6 +135,7 @@ print("self-training: validation accuracy", round(accuracy_score(y_val, semi.pre
 ceiling = make_model().fit(X_pool, y_pool)
 print(f"all {len(y_pool):,} labels (the ceiling):", round(accuracy_score(y_val, ceiling.predict(X_val)), 3))
 
+# %% Question 7 - Simulate active learning
 # Both policies start from the same 154 labels, 2 per intent, and buy 100 more labels in each round.
 start = np.concatenate([rng.choice(np.where(y_pool == c)[0], 2, replace=False) for c in range(len(intents))])
 active_set, random_set = list(start), list(start)
@@ -158,6 +165,7 @@ for round_no in range(rounds):
     unlabeled = np.setdiff1d(np.arange(len(y_pool)), random_set)
     random_set += rng_random.choice(unlabeled, query_batch, replace=False).tolist()
 
+# %% Question 8 - Plot label efficiency
 plt.figure(figsize=(6, 3.6))
 plt.plot(label_counts, active_scores, marker="o", label="uncertainty sampling")
 plt.plot(label_counts, random_scores, marker="o", label="random querying")
@@ -169,6 +177,7 @@ plt.tight_layout()
 plt.savefig(RESULTS / "label_efficiency_during_development.png", dpi=160, bbox_inches="tight")
 plt.show()
 
+# %% Question 9 - Open the test set once for each policy
 # One final model per policy, on all the labels it bought, scored once on the official test messages.
 active_final = make_model().fit(X_pool[active_set], y_pool[active_set])
 random_final = make_model().fit(X_pool[random_set], y_pool[random_set])
@@ -177,6 +186,7 @@ print(f"final test accuracy with {len(active_set)} labels, uncertainty sampling:
 print(f"final test accuracy with {len(random_set)} labels, random querying:    ",
       round(accuracy_score(y_msg_test, random_final.predict(X_msg_test)), 3))
 
+# %% Question 10 - Save the evidence
 metrics = pd.DataFrame([
     {"part": "A", "dataset": "creditcard_fraud_ulb", "model": "isolation_forest",
      "prevalence": prevalence, "roc_auc": roc_auc_score(y_test, anomaly_score),
@@ -196,8 +206,10 @@ curve = pd.DataFrame({"labels": label_counts, "uncertainty_sampling": active_sco
 curve.round(4).to_csv(RESULTS / "active_learning_curve.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
+# %% Question 11 - Try it yourself
 # Your work here
 
+# %% Question 12 - One solution
 # Part 1: what each review budget finds, from the ranked list of Question 3.
 for budget in [50, 100, 300, 1000]:
     print(f"top {budget:4d} reviewed: fraud rate = {hits[:budget].mean():.1%}  ({int(hits[:budget].sum())} frauds found)")

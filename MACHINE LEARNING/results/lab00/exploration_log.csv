@@ -1,0 +1,8 @@
+observation,decision,where
+two columns hold zeros that mean 'not measured',mark as missing,before the split
+the cholesterol gap goes with the disease,"fill with the median, add a flag",pipeline
+FastingBS is 0/1,treat as a category,pipeline
+"cholesterol and Oldpeak are right-skewed, with extremes","keep every patient, scale",pipeline
+categories separate the patients better than numbers,one-hot encode all six,pipeline
+typical angina has only 40 training patients,"keep it, read its effect with caution",report
+men are four patients in five,report results for women separately,evaluation
