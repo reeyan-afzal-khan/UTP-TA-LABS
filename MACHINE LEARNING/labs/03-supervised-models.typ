@@ -68,6 +68,12 @@
 #labanswer[
   #labcode("lab03_supervised_models", 1)
 
+  #readcode[
+    - The setup has the same three steps as before. What is new is the list of model families: nearest neighbors, naive Bayes, a decision tree, two ensembles of trees, and a support vector machine.
+    - `DecisionBoundaryDisplay` colours a plane by a model's prediction, and `permutation_importance` measures how much a model relies on each column.
+    - `OrdinalEncoder` turns categories into codes for the tree models, and the two vectorizers turn text into word columns for the Try-it.
+  ]
+
   #refoutput[
     ```terminal
     course folder: MACHINE LEARNING
@@ -86,6 +92,16 @@
   #include "visuals/03-trace.typ"
 
   #labcode("lab03_supervised_models", 2)
+
+  #readcode[
+    - `pd.to_datetime(..., format="%b-%Y")` reads dates written as `Dec-2014`; `%b` stands for the month as a three-letter word.
+    - `X_all` is built column by column from one dictionary. `str.extract(r"(\d+)")[0]` pulls the first run of digits out of text such as `36 months`. Before that, `replace({"< 1 year": "0 years"})` rewrites the one answer whose digit would mislead.
+    - `(issued - first_credit).dt.days / 365.25` is the length of the credit history in years: subtracting one date column from another gives a duration.
+    - `(loans["loan_status"] == "Charged Off").astype(int)` is the label: 1 for a loan that was written off.
+    - `X_all.isna().sum()[lambda s: s > 0]` counts the gaps in each column and keeps the columns that have any. A function placed inside the brackets is applied to the Series itself.
+    - `X_all.sample(20_000, random_state=42)` draws the working sample, and `y_all.loc[X.index]` fetches the labels of the same loans by their row labels.
+    - `prepare()` returns the first two steps of every pipeline as a list, so `prepare() + [("model", ...)]` is a complete list of steps.
+  ]
 
   #refoutput[
     ```terminal
@@ -109,6 +125,13 @@
   #include "visuals/03-worked-case.typ"
 
   #labcode("lab03_supervised_models", 3)
+
+  #readcode[
+    - `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` cuts the training loans into five folds with the same default rate in each.
+    - For each `k`, `cross_val_score` fits the whole pipeline five times, each time on four folds, and scores it on the fifth. The validation loans are not touched.
+    - `max(cv_scores, key=cv_scores.get)` returns the key with the largest value: the best `k`.
+    - `plt.xscale("log")` spaces the values of `k` evenly, although each is several times the one before.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/03-notebook-reference.png", width: 60%, height: 4.5cm)
@@ -139,6 +162,13 @@
 #labanswer[
   #labcode("lab03_supervised_models", 4)
 
+  #readcode[
+    - The dictionary holds three pipelines that share `prepare()` and differ only in their last step.
+    - `max_iter=2000` gives the logistic regression's solver more passes to finish.
+    - `prob >= 0.5` turns the probabilities into decisions for the accuracy. The other two scores use the probabilities themselves.
+    - `average_precision_score` sums up the precision-recall curve in one number. A model that ranks at random scores about the share of defaults, so that share is the level to beat.
+  ]
+
   #refoutput[
     ```terminal
     always 'repaid' would be 0.808 accurate
@@ -157,6 +187,13 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 5)
+
+  #readcode[
+    - `X_train[two]` keeps just two columns, so each model is refitted on a problem that can be drawn.
+    - `zip(axes, families.items())` pairs each chart with one model.
+    - `DecisionBoundaryDisplay.from_estimator(...)` evaluates the fitted model on a fine grid over the plane and colours every point by `predict_proba`. `vmin=0, vmax=0.6` fix the colour scale, so the three charts can be compared.
+    - `shown.loc[repaid, two[0]]` selects the interest rate of the loans that were repaid, and `~repaid` selects the others. The two `scatter` calls draw them with different markers.
+  ]
 
   #refoutput[
     ```terminal
@@ -185,6 +222,13 @@
 #labanswer[
   #labcode("lab03_supervised_models", 6)
 
+  #readcode[
+    - `SimpleImputer(strategy="median").set_output(transform="pandas")` makes the imputer return a table with column names instead of a bare array, so the tree's rules can name the columns.
+    - `.fit(X_train)` learns the medians from the training loans, and `transform` applies them to both parts.
+    - `DecisionTreeClassifier(max_depth=3)` allows at most three questions in a row, and so at most eight leaves.
+    - A tree's `predict_proba` is the default rate of the training loans in the leaf where a loan lands, so `np.unique(prob_tree.round(3))` lists one value per leaf.
+  ]
+
   #refoutput[
     ```terminal
     validation ROC AUC: 0.715  average precision: 0.338
@@ -202,6 +246,11 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 7)
+
+  #readcode[
+    - `export_text` prints the tree as nested if-then rules. `show_weights=True` adds the number of training loans of each class in every leaf.
+    - `plot_tree` draws the same tree. `proportion=True` shows shares instead of counts, and `filled=True` colours each box by its majority class.
+  ]
 
   #refoutput[
     ```terminal
@@ -236,6 +285,14 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 8)
+
+  #readcode[
+    - The loop fits one tree per depth. `max_depth=None` lets a tree grow until every leaf is pure.
+    - Each tree is scored twice: on the loans it was trained on, and on the validation loans. `train_ap[-1]` is the value just added to the list.
+    - `t.get_n_leaves()` counts the leaves, which shows how fast a tree grows.
+    - `str(d) if d else "none"` writes each depth as text, with `none` for no limit, so the depths are evenly spaced on the axis.
+    - `plt.axhline(y_valid.mean(), ...)` draws the score of guessing: the share of defaults.
+  ]
 
   #refoutput[
     ```terminal
@@ -273,6 +330,15 @@
 #labanswer[
   #labcode("lab03_supervised_models", 9)
 
+  #readcode[
+    - The first lines repeat Lab~2’s filter and its `tidy` helper for the used-car listings.
+    - `OrdinalEncoder` gives each category a whole-number code. `unknown_value=-1` and `encoded_missing_value=-1` give the code -1 to a category it has not seen and to a gap.
+    - `pd.concat([...], axis=1)` puts the number columns and the coded columns side by side. `reset_index(drop=True)` renumbers the rows from 0, so the two pieces line up.
+    - `RandomForestRegressor(n_estimators=150, max_features=0.5, ...)` grows 150 trees, and each split chooses among a random half of the columns. `HistGradientBoostingRegressor(max_iter=300, learning_rate=0.1)` adds up to 300 small trees one after another, each fitted to the errors that remain and added at a tenth of its size.
+    - `cross_val_score(..., scoring="neg_mean_squared_error")` returns minus the squared error of each fold, because scikit-learn always treats a higher score as better. `np.sqrt(-neg_mse)` turns it into an RMSE.
+    - The chart draws each fold's score as a dot and each model's mean as a short line.
+  ]
+
   #refoutput[
     ```terminal
     random_forest      CV log-RMSE = 0.2083 +/- 0.0014   folds [0.2086 0.21   0.2065]
@@ -289,6 +355,14 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 10)
+
+  #readcode[
+    - `ensembles["gradient_boosting"].fit(...)` fits the boosted model on one training split.
+    - `np.exp` turns log prices back into dollars, for the predictions and for the truth.
+    - The next three lines compute R2 by hand: one minus the sum of the squared misses divided by the sum of the squared distances from the mean price.
+    - `permutation_importance` shuffles one column of the validation listings at a time, five times each (`n_repeats=5`), and records how much the model's score drops. With no `scoring` given, a regressor's score is its $R^2$, here on the log price, which is what the chart's axis shows. `importances_mean` is the average of the five drops.
+    - `sort_values()` orders the columns from the smallest drop to the largest, so the largest bar is drawn at the top of the chart.
+  ]
 
   #refoutput[
     ```terminal
@@ -323,6 +397,14 @@
 #labanswer[
   #labcode("lab03_supervised_models", 11)
 
+  #readcode[
+    - `X_all.drop(X.index)` is every loan outside the 20,000 used so far. The test loans are drawn from those, with a different seed.
+    - `SVC(class_weight="balanced")` makes a mistake on a default cost more than a mistake on a repaid loan, in proportion to how rare defaults are.
+    - `param_grid` is a list of two dictionaries. The linear kernel is tried with two values of `C`, and the RBF kernel with nine combinations of `C` and `gamma`: 11 candidates in all.
+    - `search.decision_function(X_test)` is each loan's signed distance from the boundary. An SVM gives no probabilities by default, and a score that ranks the loans is all that ROC AUC and average precision need.
+    - `search.predict(X_test)` is the decision at distance 0.
+  ]
+
   #refoutput[
     ```terminal
     best parameters: {'model__C': 0.1, 'model__gamma': 0.01, 'model__kernel': 'rbf'}
@@ -341,6 +423,14 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 12)
+
+  #readcode[
+    - `pd.DataFrame(search.cv_results_)` is the search's log, one row per candidate.
+    - `rbf.pivot(index=..., columns=..., values=...)` reshapes the nine RBF rows into a grid of `C` against `gamma`. `astype(str)` comes first because the gamma column mixes text (`scale`) with numbers.
+    - `imshow` draws the grid as coloured cells, and the double loop writes each score inside its cell.
+    - The two small SVMs are fitted on two columns, as in Question~5, with `response_method="predict"`, so the plane is coloured by the decision and the boundary is visible.
+    - `.iloc[:4000]` keeps the first 4,000 test loans for the scatter.
+  ]
 
   #refoutput[
     ```terminal
@@ -361,6 +451,11 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 13)
+
+  #readcode[
+    - `search.best_estimator_` is the winning pipeline, refitted on all the training loans. `joblib.dump` saves the imputer, the scaler and the SVM in one file.
+    - `np.array_equal(loaded.predict(X_test), pred)` checks that the reloaded model gives exactly the predictions made before saving.
+  ]
 
   #refoutput[
     ```terminal
@@ -388,6 +483,12 @@
 #labanswer[
   #labcode("lab03_supervised_models", 14)
 
+  #readcode[
+    - Each of the first lines writes one piece of evidence: the score of each `k`, the tree's rules as text, the fold scores, and the SVM search sorted by rank.
+    - `rows` collects one dictionary per model, and `pd.DataFrame(rows)` turns the list into the metrics table.
+    - `f"svc {search.best_params_}"` writes the winning settings into the model's name.
+  ]
+
   #refoutput[
     ```terminal
     Saved: ['car_price_fold_scores.csv', 'choosing_k_on_training_data_only.png',
@@ -410,6 +511,14 @@
 
 #labanswer[
   #labcode("lab03_supervised_models", 16)
+
+  #readcode[
+    - `sms["message"].duplicated().sum()` counts the messages that repeat an earlier one.
+    - The features are a single column of text, so each pipeline starts with a vectorizer. `CountVectorizer` makes one column per word and counts how often the word occurs in each message. `TfidfVectorizer` does the same and then lowers the weight of words that occur in many messages.
+    - `MultinomialNB` is the naive Bayes model for counts. `KNeighborsClassifier(5, metric="cosine")` compares messages by the angle between their word vectors, which ignores how long a message is.
+    - `feature_log_prob_` holds the log probability of every word in each class. Subtracting the ham row from the spam row gives a log ratio: the larger it is, the more the word points to spam.
+    - `np.argsort(log_ratio)[-10:][::-1]` gives the positions of the ten largest values, largest first.
+  ]
 
   #refoutput[
     ```terminal
@@ -436,7 +545,7 @@
 ]
 
 #expectedfindings[
-  #strong[Warm-up.] Always saying “repaid” scores $4(,)041\/5(,)000=80.8 %$, and the models below differ far more in how they rank risky loans than in accuracy. In raw units the amounts differ by 5,000 and the scores by 20, so the loan amount decides the distance alone; after scaling the gaps are $5(,)000\/8(,)487=0.59$ and $20\/30.3=0.66$, and the credit score counts slightly more.
+  #strong[Warm-up.] Always saying “repaid” scores $4","041\/5","000=80.8 %$, and the models below differ far more in how they rank risky loans than in accuracy. In raw units the amounts differ by 5,000 and the scores by 20, so the loan amount decides the distance alone; after scaling the gaps are $5","000\/8","487=0.59$ and $20\/30.3=0.66$, and the credit score counts slightly more.
 
   + Cross-validated ROC AUC falls from 0.719 to 0.571, and validation ROC AUC from 0.723 to 0.586. The loan amount has a standard deviation of \$8,487, against 30.3 for the FICO score, 23.7 for revolving utilization and 4.3 for the interest rate, so in raw units the neighbors are simply loans of a similar size, and the size of a loan says little about its risk.
   + Log-RMSE is 0.2836 with 1 tree, 0.2135 with 10, 0.2067 with 50, 0.2055 with 150 and 0.2053 with 400. It stops improving much after about 50 trees: more trees steady the average, but they cannot go below the error the trees share. Always guessing the mean scores 0.6553.

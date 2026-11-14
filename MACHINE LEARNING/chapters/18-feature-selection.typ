@@ -7,7 +7,7 @@
 
 = Feature Selection <ch:feature-selection>
 
-#chapterguide[The first look at selection in #chapref(<ch:feature-engineering>); the $F$ score of #chapref(<ch:inference>); cross-validation and regularization from #chapsref(<ch:evaluation>, <ch:training>); the L1 penalty of #chapref(<ch:regression>); and tree importances from #chapsref(<ch:decision-trees>, <ch:ensembles>).][say what an extra column costs; remove leaks, constants and twins before anything else; score columns one at a time and know what that misses; run a forward selection and stop it in time; read an L1 path; tell a forest's built-in importance from importance by shuffling; check whether a selection is stable; and keep the whole procedure inside validation.]
+#chapterguide[The first look at selection in #chapref(<ch:feature-engineering>)\; the $F$ score of #chapref(<ch:inference>)\; cross-validation and regularization from #chapsref(<ch:evaluation>, <ch:training>)\; the L1 penalty of #chapref(<ch:regression>)\; and tree importances from #chapsref(<ch:decision-trees>, <ch:ensembles>).][say what an extra column costs; remove leaks, constants and twins before anything else; score columns one at a time and know what that misses; run a forward selection and stop it in time; read an L1 path; tell a forest's built-in importance from importance by shuffling; check whether a selection is stable; and keep the whole procedure inside validation.]
 
 A carpenter does not carry every tool they own to every job. Each tool in the bag is weight on the shoulder, and a blunt chisel in the bag is a chisel that might get picked up by mistake. Columns are the same. Every feature a model uses has to be collected, checked and explained for as long as the model lives, and a useless one is something the model can fit by accident.
 
@@ -179,7 +179,7 @@ Three lessons come out of this one run.
 
 / Company matters.: The third column chosen is `renter`, which ranked eighth on its own. It adds something the grade and the term do not already say. And `int_rate`, the second-best column alone, is chosen only ninth, because its twin `sub_grade` got there first. This is what a filter cannot see.
 / The search does not know when to stop.: At step ten it adds `noise_1`, and it would have kept going. The gain at that step is 0.0004. The five folds of the cross-validation disagree with each other by 0.0153. Every gain after about the sixth column is smaller than a tenth of that spread, so the search has been ranking noise for half its length. Stop when a step gains less than the folds differ: here, six columns at 0.7237 against 0.7265 for all 28.
-/ The cost is the fits.: Twelve steps fitted 1,350 models. Trying every possible subset of 28 columns would mean $2^(28) - 1 = 268(,)435(,)455$ subsets, each cross-validated. A wrapper is for tens of columns, after a filter has removed the hopeless ones.
+/ The cost is the fits.: Twelve steps fitted 1,350 models. Trying every possible subset of 28 columns would mean $2^(28) - 1 = 268","435","455$ subsets, each cross-validated. A wrapper is for tens of columns, after a filter has removed the hopeless ones.
 
 #term[Backward elimination] runs the other way: start with every column and remove, at each step, the one whose removal hurts least. scikit-learn offers both as `SequentialFeatureSelector(model, direction="forward")` or `"backward"`.
 

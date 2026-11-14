@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
 from course_setup import start_lab
 
-# 2. The libraries this lab uses. Reinforcement learning here needs only NumPy: no dataset, no scikit-learn.
+# 2. The libraries this lab uses. The learning itself needs only NumPy: no dataset, no scikit-learn.
 import re
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,7 +43,7 @@ def step(state, action):
         return next_state, 1.0, True
     if next_state == TRAP:
         return next_state, -1.0, True
-    return next_state, -0.04, False          # every ordinary move costs a little, so shorter routes are better
+    return next_state, -0.04, False  # every ordinary move costs a little, so shorter routes are better
 
 # %% Question 3 - Train the Q-table
 Q = np.zeros((ROWS, COLS, len(ACTIONS)))     # Q[row, col, action]: the value of each move from each cell
@@ -153,9 +153,11 @@ def plot_policy(Q_table, title, trap=TRAP):
 plot_policy(Q_loaded, "Greedy policy and state values")
 
 # %% Question 8 - Save the evidence
-policy_table = pd.DataFrame(policy, index=[f"row{r}" for r in range(ROWS)], columns=[f"col{c}" for c in range(COLS)])
+policy_table = pd.DataFrame(policy, index=[f"row{r}" for r in range(ROWS)],
+                            columns=[f"col{c}" for c in range(COLS)])
 policy_table.to_csv(RESULTS / "greedy_policy.csv")
-returns_table = pd.DataFrame({"episode": np.arange(1, len(training_returns) + 1), "return": training_returns})
+returns_table = pd.DataFrame({"episode": np.arange(1, len(training_returns) + 1),
+                              "return": training_returns})
 returns_table.to_csv(RESULTS / "training_returns.csv", index=False)
 metrics = pd.DataFrame([{
     "environment": "gridworld_4x4", "algorithm": "tabular_q_learning", "episodes": len(training_returns),
@@ -170,7 +172,7 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
 # %% Question 10 - One solution
 def train_q(trap, step_cost=-0.04, gamma_=0.95, episodes=5000, seed=42):
-    """Retrain from scratch on a grid with the given trap position and step cost; returns the new Q-table."""
+    """Retrain from scratch on a grid with this trap position and step cost; return the new Q-table."""
     r = np.random.default_rng(seed)
     Q_new = np.zeros((ROWS, COLS, len(ACTIONS)))
     eps = 1.0

@@ -2,7 +2,7 @@
 
 100,000 personal loans issued by Lending Club, a US peer-to-peer lender, in 2014 and 2015, each either paid in full or charged off (`loan_status`), with 40 columns: what the borrower declared, their credit file, the loan's terms, and eight columns written after the loan was issued. One CSV inside the ZIP.
 
-**Used in:** Lab 3 (nearest neighbors, naive Bayes, trees and SVMs on loan defaults).
+**Used in:** Lab 3 (nearest neighbors, naive Bayes, trees and SVMs on loan defaults) and the chapter *Feature Selection* (filters, wrappers and embedded methods on 20,000 of the loans).
 
 **Source and licence:** Lending Club's public loan data, 2007 to 2018, via [Hugging Face](https://huggingface.co/datasets/codesignal/lending-club-loan-accepted); CC0.
 

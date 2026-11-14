@@ -18,7 +18,7 @@ from course_setup import start_lab
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import IsolationForest                       # an anomaly detector that needs no labels
+from sklearn.ensemble import IsolationForest                       # a detector that needs no labels
 from sklearn.feature_extraction.text import TfidfVectorizer        # messages -> word weights
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, average_precision_score, roc_auc_score
@@ -48,7 +48,8 @@ anomaly_score = -forest.decision_function(X_test)     # higher = more unusual
 # %% Question 3 - Score the ranking
 prevalence = y_test.mean()                            # the fraud rate: what random guessing would achieve
 ap = average_precision_score(y_test, anomaly_score)
-print("test transactions:", len(y_test), " frauds:", int(y_test.sum()), " prevalence:", round(prevalence, 5))
+print("test transactions:", len(y_test), " frauds:", int(y_test.sum()),
+      " prevalence:", round(prevalence, 5))
 print("ROC AUC:", round(roc_auc_score(y_test, anomaly_score), 3))
 print("average precision:", round(ap, 3), " (", round(ap / prevalence), "x prevalence)")
 
@@ -119,7 +120,8 @@ def make_model():
 rng = np.random.default_rng(42)
 labeled = rng.choice(len(y_pool), 1000, replace=False)
 labels_only = make_model().fit(X_pool[labeled], y_pool[labeled])
-print("labels only (1,000 messages): validation accuracy", round(accuracy_score(y_val, labels_only.predict(X_val)), 3))
+print("labels only (1,000 messages): validation accuracy",
+      round(accuracy_score(y_val, labels_only.predict(X_val)), 3))
 
 # 2. Self-training: the same 1,000 labels, plus its own guesses on the rest when it is at least 80% sure.
 y_partial = np.full(len(y_pool), -1)                                    # -1 means unlabeled
@@ -133,11 +135,13 @@ print("self-training: validation accuracy", round(accuracy_score(y_val, semi.pre
 
 # 3. The ceiling: every one of the pool's labels.
 ceiling = make_model().fit(X_pool, y_pool)
-print(f"all {len(y_pool):,} labels (the ceiling):", round(accuracy_score(y_val, ceiling.predict(X_val)), 3))
+print(f"all {len(y_pool):,} labels (the ceiling):",
+      round(accuracy_score(y_val, ceiling.predict(X_val)), 3))
 
 # %% Question 7 - Simulate active learning
 # Both policies start from the same 154 labels, 2 per intent, and buy 100 more labels in each round.
-start = np.concatenate([rng.choice(np.where(y_pool == c)[0], 2, replace=False) for c in range(len(intents))])
+start = np.concatenate([rng.choice(np.where(y_pool == c)[0], 2, replace=False)
+                        for c in range(len(intents))])
 active_set, random_set = list(start), list(start)
 rng_random = np.random.default_rng(123)
 
@@ -202,7 +206,8 @@ metrics = pd.DataFrame([
 ])
 metrics.round(4).to_csv(RESULTS / "metrics.csv", index=False)
 ranked.head(review_budget).to_csv(RESULTS / "top_ranked_transactions.csv", index=False)
-curve = pd.DataFrame({"labels": label_counts, "uncertainty_sampling": active_scores, "random_querying": random_scores})
+curve = pd.DataFrame({"labels": label_counts,
+                      "uncertainty_sampling": active_scores, "random_querying": random_scores})
 curve.round(4).to_csv(RESULTS / "active_learning_curve.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
@@ -212,7 +217,8 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 # %% Question 12 - One solution
 # Part 1: what each review budget finds, from the ranked list of Question 3.
 for budget in [50, 100, 300, 1000]:
-    print(f"top {budget:4d} reviewed: fraud rate = {hits[:budget].mean():.1%}  ({int(hits[:budget].sum())} frauds found)")
+    print(f"top {budget:4d} reviewed: fraud rate = {hits[:budget].mean():.1%}  "
+          f"({int(hits[:budget].sum())} frauds found)")
 
 # Part 2: what did the active learner ask about? The messages its final model is least sure of.
 unlabeled = np.setdiff1d(np.arange(len(y_pool)), active_set)

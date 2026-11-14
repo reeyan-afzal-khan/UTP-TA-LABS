@@ -1,0 +1,7 @@
+# The exact versions this project was trained and tested with.
+# A model saved by one version of scikit-learn is not guaranteed to load in another.
+numpy==2.3.5
+pandas==2.3.3
+scikit-learn==1.7.2
+joblib==1.5.2
+flask==3.1.2

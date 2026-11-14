@@ -5,7 +5,7 @@
 #labsection(8, label: <sec:lab08-lstm>)[Deep learning II: an LSTM for time series]
 
 #labproject[Forecast the next hour of electricity demand from the previous twenty-four][
-  #strong[Read first.] Chapter~@ch:deep, and the time-split rule in Chapter~#ref(<ch:data>). \
+  #strong[Read first.] Chapter~#ref(<ch:sequence>), with Chapter~#ref(<ch:deep-training>) on early stopping, and the time-split rule in Chapter~#ref(<ch:data>). \
 
   #strong[Goal.] Add up four years of meter readings into one demand series, split it by date, turn it into supervised windows, set three free forecasts any model must beat, train an LSTM that keeps its best epoch, open the test half-year once, find the hours it gets most wrong, and save the weights with the scaling they depend on. \
 
@@ -58,7 +58,7 @@
 
   + How many windows do you get, and what are the first two with their targets? (Five: $[60,58,57] arrow.r 70$, and $[58,57,70] arrow.r 95$.)
   + Compute the MAE of #emph[last hour], which predicts each target as the last value in its window. (Errors 13, 25, 25, 5, 7, so 15.0.)
-  + An LSTM layer with one input and $h$ hidden units has $4 times (h+h times h+h+h)$ weights. How many does the whole model have with $h=64$ and a linear output layer? ($17(,)152+65=17(,)217$.)
+  + An LSTM layer with one input and $h$ hidden units has $4 times (h+h times h+h+h)$ weights. How many does the whole model have with $h=64$ and a linear output layer? ($17","152+65=17","217$.)
 ]
 
 #labquestion(1)[Setup][
@@ -67,6 +67,10 @@
 
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 1)
+
+  #readcode[
+    - The setup is Lab~7’s. `copy` is new: it makes an independent copy of a model's weights, which the training loop uses to remember its best epoch.
+  ]
 
   #refoutput[
     ```terminal
@@ -88,6 +92,15 @@
   #include "visuals/08-trace.typ"
 
   #labcode("lab08_deep_learning_lstm", 2)
+
+  #readcode[
+    - `parse_dates=["hour_start"], index_col="hour_start"` makes the hour the index of the table, so rows can be selected by date.
+    - `loads.sum(axis=1)` adds up the customers of each hour: `axis=1` sums across the columns. Dividing by 1,000 turns kWh into MWh.
+    - `demand.idxmin()` and `demand.idxmax()` return the hour of the lowest value and of the highest.
+    - `demand["2014-01-06":"2014-01-19"]` selects two weeks by their dates. With a date index, both ends are included.
+    - `demand.index.dayofweek >= 5` marks Saturdays and Sundays, because Monday is 0.
+    - `demand[~weekend].groupby(demand.index[~weekend].hour).mean()` is the average weekday: the mean demand at each of the 24 hours.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/08-notebook-reference.png", width: 95%, height: 4.2cm)
@@ -111,6 +124,13 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 3)
 
+  #readcode[
+    - `pd.Series("train", index=demand.index)` labels every hour `train`. The next two lines overwrite the label from 1 January 2014 and again from 1 July 2014.
+    - `f"{hours[0]:%d %b %Y}"` prints a date in the form `01 Jan 2011`.
+    - `scale` is the highest hour of the training period only. Dividing by it puts the training values between 0 and 1, and later values close to that range.
+    - `.to_numpy(dtype=np.float32)` stores the series as the 32-bit numbers that PyTorch uses by default.
+  ]
+
   #refoutput[
     ```terminal
     train       26304 hours, 01 Jan 2011 to 31 Dec 2013
@@ -131,6 +151,13 @@
   #include "visuals/08-worked-case.typ"
 
   #labcode("lab08_deep_learning_lstm", 4)
+
+  #readcode[
+    - `make_windows` builds one row per hour `t`: `values[t - lookback:t]` is the 24 hours before `t`, and `values[t]` is the label. `np.stack` piles the windows into one array of shape (rows, 24).
+    - `period.to_numpy()[hours]` looks up the period of each hour being predicted, so a row goes to the period of its label.
+    - `torch.tensor(...).unsqueeze(-1)` adds a last dimension of size 1. An LSTM expects the shape (rows, steps, values per step), and here each step has one value.
+    - The last lines multiply by `scale` to print the first window and its label in MWh.
+  ]
 
   #refoutput[
     ```terminal
@@ -161,6 +188,12 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 5)
 
+  #readcode[
+    - `demand.shift(1)` moves every value one row down, so each hour is paired with the hour before it. `shift(24)` pairs it with the same hour yesterday, and `shift(168)` with the same hour last week.
+    - `mae` subtracts a forecast from the demand over the hours of one period and averages the absolute misses. The index lines the two series up hour by hour.
+    - The dictionary comprehension scores all three forecasts on the validation period.
+  ]
+
   #refoutput[
     ```terminal
     last hour            validation MAE = 5.77 MWh
@@ -187,6 +220,15 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 6)
 
+  #readcode[
+    - `LSTMForecaster` is a class that inherits from `nn.Module`. `__init__` creates the layers, and `forward` says how an input passes through them.
+    - `nn.LSTM(input_size=1, hidden_size=32, batch_first=True)` reads one value per step and keeps a state of 32 numbers. `batch_first=True` means the input has the shape (rows, steps, values).
+    - `self.lstm(x)` returns the state after every step. `states[:, -1, :]` keeps the last one, `self.head` turns its 32 numbers into one forecast, and `.squeeze(-1)` drops the leftover dimension of size 1.
+    - `train_forecaster` is Lab~7’s loop with a different loss: `nn.MSELoss()`, the squared error.
+    - After each epoch it measures the validation MAE. When that is the lowest so far, `copy.deepcopy(model.state_dict())` saves a copy of the weights, and at the end `load_state_dict(best_weights)` puts the best copy back.
+    - `np.argmin(history) + 1` is the number of the epoch that was kept.
+  ]
+
   #refoutput[
     ```terminal
     trainable weights: 4513
@@ -206,7 +248,7 @@
     ```
   ]
 
-  #strong[What it means.] The weight count is $4(,)480$ in the LSTM plus 33 in the output layer. The first four epochs are worse than same hour yesterday; from epoch 5 the network beats all three free forecasts. The curve is not smooth: epoch 9 is worse than epoch 8, and epochs 11 and 12 are worse than epoch 10. Keeping the best epoch protects you from stopping on an unlucky one.
+  #strong[What it means.] The weight count is $4","480$ in the LSTM plus 33 in the output layer. The first four epochs are worse than same hour yesterday; from epoch 5 the network beats all three free forecasts. The curve is not smooth: epoch 9 is worse than epoch 8, and epochs 11 and 12 are worse than epoch 10. Keeping the best epoch protects you from stopping on an unlucky one.
 ]
 
 #strong[Connect it to the chapter.] The same cell, with the same weights, is applied at every one of the 24 steps.
@@ -220,6 +262,11 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 7)
 
+  #readcode[
+    - `plt.plot` draws the LSTM's validation error per epoch, and one `axhline` per free forecast draws the level it has to get under.
+    - The dictionary `line_colors` gives each baseline a fixed colour: `C1`, `C2` and `C3` are matplotlib's second, third and fourth default colours.
+  ]
+
   #strong[What it means.] The curve crosses below the best dashed line at epoch 5 and stays between 2.16 and 2.29 after epoch 6, apart from one jump at epoch 9. Whether it has really finished is Your-turn task~1. The validation half-year chose the epoch, so its 2.16 is now a little optimistic. That is why the test period stays closed until Question~8.
 ]
 
@@ -229,6 +276,12 @@
 
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 8)
+
+  #readcode[
+    - `model(X_test).cpu().numpy() * scale` turns the forecasts into MWh, and `pd.Series(..., index=demand.index[period == "test"])` attaches the hour to each one.
+    - `lstm_test.reindex(demand.index)` stretches the series over all the hours, with gaps outside the test period, so the same `mae` function can score it.
+    - `100 * value / mean_test` expresses each error as a percentage of the average test hour.
+  ]
 
   #refoutput[
     ```terminal
@@ -248,6 +301,13 @@
 
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 9)
+
+  #readcode[
+    - `errors` is the forecast minus the truth for every test hour. `.abs().sort_values(ascending=False).head(6)` lists the six largest misses with their dates.
+    - `slice("2014-07-07", "2014-07-13")` stores a date range, so the same week can be cut from three series.
+    - `errors.abs().groupby(errors.index.hour).mean()` is the average miss at each hour of the day.
+    - `gridspec_kw={"width_ratios": [2, 1]}` makes the left chart twice as wide as the right one.
+  ]
 
   #refoutput[
     ```terminal
@@ -283,6 +343,13 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 10)
 
+  #readcode[
+    - The weights go into one file and the card into another. The card stores `scale`, without which the saved model's outputs cannot be turned back into MWh.
+    - `LSTMForecaster()` builds the same empty network, and `load_state_dict` fills in the weights.
+    - `torch.tensor(scaled[-LOOKBACK:]).reshape(1, LOOKBACK, 1)` shapes the last 24 hours as one window: one row, 24 steps, one value per step.
+    - `restored(last_day).item() * card["scale"]` is the forecast for the next hour in MWh, and `demand.index[-1] + pd.Timedelta(hours=1)` is the hour it belongs to.
+  ]
+
   #refoutput[
     ```terminal
     saved electricity_lstm.pt; reload reproduces the test forecasts: True
@@ -308,6 +375,11 @@
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 11)
 
+  #readcode[
+    - `baselines.get(name, min(history))` returns a baseline's validation error. For the name `LSTM`, which is not in that dictionary, it falls back to the LSTM's own best.
+    - The third table keeps the actual and the forecast values of the first test week, so the chart of Question~9 can be redrawn.
+  ]
+
   #refoutput[
     ```terminal
     Saved: ['first_test_week.csv', 'metrics.csv', 'one_hour_ahead_forecasts_and_errors.png',
@@ -329,6 +401,12 @@
 
 #labanswer[
   #labcode("lab08_deep_learning_lstm", 13)
+
+  #readcode[
+    - `try_setting` repeats Question~6 for one pair of settings: it builds the windows with the given lookback, seeds PyTorch, trains, and returns the best validation error and the number of weights.
+    - In `split_by_period(*make_windows(scaled, lookback))`, the `*` passes the three arrays returned by `make_windows` as three arguments. The `_` on the left discards the test tensors, which this comparison must not touch.
+    - `verbose=False` silences the line printed after every epoch.
+  ]
 
   #refoutput[
     ```terminal

@@ -307,9 +307,9 @@ Define how the pipeline handles unseen categories, because a new programme will 
 Distances, margins, penalties and gradient steps all let large numerical units dominate smaller ones. The change can alter the answer, not just the arithmetic.
 
 #workedexample[
-  Three customers, written as (age, income): $A=(30, med 50(,)000)$, $B=(40, med 90(,)000)$ and $C=(60, med 52(,)000)$. Who is nearest to $A$?
+  Three customers, written as (age, income): $A=(30, med 50","000)$, $B=(40, med 90","000)$ and $C=(60, med 52","000)$. Who is nearest to $A$?
 
-  $ d(A,B)=sqrt(10^2+40(,)000^2)=40(,)000.00, wide d(A,C)=sqrt(30^2+2(,)000^2)=2(,)000.22. $
+  $ d(A,B)=sqrt(10^2+40","000^2)=40","000.00, wide d(A,C)=sqrt(30^2+2","000^2)=2","000.22. $
 
   In raw units $C$ wins, and age barely counts. Now divide each column by its standard deviation, 20 years and 100,000 dollars:
 
@@ -371,7 +371,7 @@ A $log(1+x)$ or power transform changes the shape of a distribution, while scali
       node((3.07, 2.3), [$10$ years], font: font("script"), anchor: "west", text: blue)
       node((0.35, 1.48), [income gap], font: font("script"), anchor: "west", text: muted)
       connect((2.05, 1.48), (5.5, 1.48), line-width: 4.9813pt, draw: orange)
-      node((5.75, 1.8), [$40(,)000$ dollars], font: font("script"), anchor: "east", text: orange)
+      node((5.75, 1.8), [$40","000$ dollars], font: font("script"), anchor: "east", text: orange)
       node((3.125, 0.55), [Raw Euclidean distance is almost entirely the income column.], font: font("script"), align: center, text-width: 5.35, text: red)
     })
     draw.scope({

@@ -1,0 +1,8 @@
+,,bookings,cancelled,predicted,auc
+deposit_type,No Deposit,11521.0,0.2587,0.2418,0.7929
+deposit_type,Non Refund,1307.0,0.9946,0.9898,0.9958
+market_segment,Corporate,783.0,0.2273,0.1909,0.8772
+market_segment,Direct,1594.0,0.1142,0.1095,0.7674
+market_segment,Groups,2507.0,0.493,0.5036,0.881
+market_segment,Offline TA/TO,1302.0,0.2773,0.2765,0.9115
+market_segment,Online TA,6545.0,0.3531,0.3244,0.8007

@@ -1,0 +1,4 @@
+vectorizer,columns,cv_accuracy
+single words,2320.0,0.876
+"single words, stop words removed",2097.0,0.829
+words and pairs,10292.0,0.867

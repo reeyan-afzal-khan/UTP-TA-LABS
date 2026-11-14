@@ -5,7 +5,7 @@
 #labsection(7, label: <sec:lab07-cnn>)[Deep learning I: a first neural network and a CNN for images]
 
 #labproject[Train a dense network and a convolutional network on photos of wood defects][
-  #strong[Read first.] Chapter~#ref(<ch:deep>). \
+  #strong[Read first.] #chapsref(<ch:deep>, <ch:cnn>): neural networks, how to train them, and convolutional networks. \
 
   #strong[Goal.] Turn images into tensors, write one training loop and read its curves, compare a dense network and a CNN with Lab~4’s classical baseline, look at what the CNN learned and where it fails, and save the weights with a model card. \
 
@@ -41,7 +41,7 @@
 
 #labmode[
   + Activate your course environment. PyTorch comes with `requirements.txt`; if it is missing, the Setup cell installs the CPU build once.
-  + Check the small worked numbers of Chapter~@ch:deep, which run on NumPy alone. The last line must read `Every number above matches the book.`
+  + Check the small worked numbers of Chapters~@ch:deep and~@ch:cnn, which run on NumPy alone. The last line must read `Every number above matches the book.` The CNN chapter's own experiments are in `demo_cnn.py`, which takes about a minute and a half.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It took under two minutes on the laptop CPU behind this sheet, most of it the 25-epoch run in the solution. No GPU is needed.
   + To reproduce the sheet’s numbers on a machine with a GPU, hide the GPU first, as Chapter~@ch:toolkit shows. A GPU run is just as valid, and its numbers differ a little.
 
@@ -58,9 +58,9 @@
 #yourturn[
   #strong[Warm-up on paper.] Do these before opening the notebook; Questions~3 and~6 will check you.
 
-  + A colour image of $32 times 32$ pixels holds how many numbers? How many weights has a dense network from those inputs through 128 hidden units to 7 outputs, counting one bias per unit? ($3(,)072$; $393(,)344+903=394(,)247$.)
+  + A colour image of $32 times 32$ pixels holds how many numbers? How many weights has a dense network from those inputs through 128 hidden units to 7 outputs, counting one bias per unit? ($3","072$; $393","344+903=394","247$.)
   + That image passes through a padded $3 times 3$ convolution with 16 filters and a $2 times 2$ max pool. Give the output shape, and the number of weights in the convolution; each filter reads all three colours. ($16 times 16 times 16$; $3 times 16 times 9+16=448$.)
-  + After a second such block with 32 filters, how many numbers go into the first dense layer, and how many weights does that layer need for 64 units? ($32 times 8 times 8=2(,)048$; $2(,)048 times 64+64=131(,)136$.)
+  + After a second such block with 32 filters, how many numbers go into the first dense layer, and how many weights does that layer need for 64 units? ($32 times 8 times 8=2","048$; $2","048 times 64+64=131","136$.)
 ]
 
 #labquestion(1)[Setup][
@@ -69,6 +69,12 @@
 
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 1)
+
+  #readcode[
+    - `start_pytorch()` installs PyTorch if it is missing, seeds it, and returns the device to compute on: a GPU when one is visible, the CPU otherwise.
+    - `torch` holds tensors and the training machinery, and `torch.nn` holds the layers.
+    - The rest of the setup is as before.
+  ]
 
   #refoutput[
     ```terminal
@@ -92,6 +98,15 @@
   #include "visuals/07-trace.typ"
 
   #labcode("lab07_deep_learning_cnn", 2)
+
+  #readcode[
+    - `GroupShuffleSplit(...).split(labels, labels, boards)` is called with Lab~4’s seeds, so the same boards land in the test set. The first argument only has to have the right length.
+    - The second split divides the development rows. It returns positions within `dev`, so `dev[fit]` and `dev[val]` turn them back into positions within the whole dataset.
+    - `torch.tensor(..., dtype=torch.float32)` turns the NumPy images into a tensor. `.permute(0, 3, 1, 2)` reorders the axes from (image, height, width, colour) to (image, colour, height, width), the order that PyTorch's image layers expect.
+    - `.to(DEVICE)` moves a tensor to the device the model will run on.
+    - The labels become `torch.long`, whole numbers, as the loss function requires.
+    - For drawing, `.permute(1, 2, 0).cpu()` puts the colour axis last again and brings the image back to ordinary memory.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/07-notebook-reference.png", width: 95%, height: 3cm)
@@ -121,6 +136,14 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 3)
 
+  #readcode[
+    - `nn.Sequential(...)` chains layers: the output of each is the input of the next.
+    - `nn.Flatten()` turns each 3 x 32 x 32 image into one row of 3,072 numbers.
+    - `nn.Linear(3 * 32 * 32, 128)` is a dense layer of 128 units, each with a weight for every input and one bias. `nn.ReLU()` replaces negative values by 0.
+    - The last layer gives seven scores, one per defect type. They are not probabilities; the loss function deals with that.
+    - `sum(p.numel() for p in mlp.parameters())` counts the weights: 3,072 x 128 + 128 in the first layer, and 128 x 7 + 7 in the second.
+  ]
+
   #refoutput[
     ```terminal
     Sequential(
@@ -143,6 +166,15 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 4)
 
+  #readcode[
+    - `predict` runs the model on 2,000 images at a time. `model.eval()` switches dropout off, `torch.no_grad()` skips the bookkeeping that only training needs, and `argmax(dim=1)` picks the class with the highest score.
+    - `accuracy` compares predictions with labels: `.float().mean()` is the share that match, and `.item()` turns a one-number tensor into a Python number.
+    - In `train_classifier`, `torch.optim.Adam(model.parameters(), lr=lr)` is the rule that updates the weights, and `nn.CrossEntropyLoss()` is the loss for classes.
+    - `torch.randperm(len(X))` shuffles the row positions at the start of every epoch, and `order[start:start + batch_size]` takes the next 128 of them.
+    - Each batch takes four steps. `optimizer.zero_grad()` clears the old gradients, `loss_fn(model(X[batch]), y[batch])` measures the loss, `loss.backward()` computes the gradient of the loss for every weight, and `optimizer.step()` moves the weights.
+    - `torch.manual_seed(42)` fixes the shuffles, so a rerun on the same machine trains in the same way.
+  ]
+
   #refoutput[
     ```terminal
     dense network: validation accuracy by epoch = [0.408, 0.48, 0.552, 0.554, 0.536, 0.485,
@@ -159,6 +191,12 @@
 
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 5)
+
+  #readcode[
+    - `plot_history` draws the two lists kept by the training loop against the epoch number.
+    - `range(1, len(history["train"]) + 1)` numbers the epochs from 1.
+    - The file name is built from the title, as in Lab~6.
+  ]
 
   #strong[What it means.] The two curves move together and zigzag: up to 0.596, down to 0.485, never apart. This is not overfitting, which would open a gap between them; it looks like an optimizer whose steps are too large for nearly 400,000 weights fed with raw pixels, so each epoch lands somewhere new. A dense network must learn every pattern separately at every position, and 9,357 images are few for that.
 ]
@@ -180,6 +218,14 @@
   #include "visuals/07-worked-case.typ"
 
   #labcode("lab07_deep_learning_cnn", 6)
+
+  #readcode[
+    - `nn.Conv2d(3, 16, kernel_size=3, padding=1)` slides 16 filters of 3 x 3 over the three colour layers. `padding=1` adds a border of zeros, so the output keeps the 32 x 32 size.
+    - `nn.MaxPool2d(2)` keeps the largest value in each 2 x 2 square, which halves the height and the width.
+    - After two blocks the image has become 32 maps of 8 x 8. `nn.Flatten()` makes them one row of 2,048 numbers for the dense layers.
+    - `nn.Dropout(0.2)` sets a random fifth of the 64 values to zero during training, which makes the network harder to overfit.
+    - The loop passes one image through the layers one at a time. `isinstance(layer, (...))` picks the layers whose output shape is worth printing, and `sample.shape[1:]` leaves out the batch dimension.
+  ]
 
   #refoutput[
     ```terminal
@@ -204,6 +250,11 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 7)
 
+  #readcode[
+    - The same `train_classifier` trains the CNN: the loop does not care what is inside the model.
+    - `torch.manual_seed(42)` before building the network and again before training makes the starting weights and the shuffles repeatable.
+  ]
+
   #refoutput[
     ```terminal
     CNN: validation accuracy by epoch = [0.503, 0.593, 0.62, 0.657, 0.656, 0.676, 0.683,
@@ -225,6 +276,12 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 8)
 
+  #readcode[
+    - `test_scores` holds three test accuracies. The first is typed in from Lab~4, which used the same test boards.
+    - `accuracy(mlp, X_test, y_test)` and `accuracy(cnn, X_test, y_test)` are the first and only use of the test images.
+    - `plt.ylim(0.5, 0.9)` zooms the bar chart in on the range where the three models differ.
+  ]
+
   #refoutput[
     ```terminal
     PCA + logistic (Lab 4)   test accuracy = 0.6331
@@ -242,6 +299,13 @@
 
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 9)
+
+  #readcode[
+    - `.cpu().numpy()` brings the tensors back as NumPy arrays, for scikit-learn and pandas.
+    - `(guess[truth == c] == c).mean()` is the recall of type `c`: among the images that truly are `c`, the share predicted as `c`.
+    - `ConfusionMatrixDisplay.from_predictions(...)` draws the 7 x 7 table of truth against prediction, and `xticks_rotation=45` tilts the labels so that they fit.
+    - `torch.nonzero(test_pred != y_test).flatten()[:10]` gives the positions of the first ten mistakes.
+  ]
 
   #refoutput[
     ```terminal
@@ -266,7 +330,15 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 10)
 
-  #strong[What it means.] Several filters have a warm side and a cool side: they respond to a change of brightness in one direction, an edge, like the filter you worked by hand in Chapter~#ref(<ch:deep>). The maps of a test knot with a crack show the division of labour: some light up the dark knot, some the bright wood around it, some only the outline of the knot or the edges of the photo, and one stays almost blank for this image. Nobody told the network to look for edges or knots; they are what reduces the loss.
+  #readcode[
+    - `cnn[0]` is the first layer of the `Sequential`, and `cnn[0].weight` is its filters: a tensor of shape 16 x 3 x 3 x 3.
+    - `.detach()` separates the values from the training machinery, and `.sum(dim=1)` adds the three colour layers of each filter, which leaves sixteen 3 x 3 grids.
+    - `vmin=-limit, vmax=limit` centres the colour scale on zero, so blue is negative and red is positive in every panel.
+    - `cnn[1](cnn[0](X_test[:1]))` applies the first convolution and its ReLU to one image. The result is sixteen feature maps of 32 x 32.
+    - `axes.flat` walks through the 2 x 8 grid of panels one at a time.
+  ]
+
+  #strong[What it means.] Several filters have a warm side and a cool side: they respond to a change of brightness in one direction, an edge, like the filter you worked by hand in Chapter~#ref(<ch:cnn>). The maps of a test knot with a crack show the division of labour: some light up the dark knot, some the bright wood around it, some only the outline of the knot or the edges of the photo, and one stays almost blank for this image. Nobody told the network to look for edges or knots; they are what reduces the loss.
 ]
 
 #labcheckpoint[
@@ -285,6 +357,13 @@
 
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 11)
+
+  #readcode[
+    - `cnn.state_dict()` is a dictionary of every weight tensor, by layer name, and `torch.save` writes it to a file. The file holds numbers only, not the code of the network.
+    - The card records what the file cannot: the classes, the input format, the architecture and the training settings.
+    - To load, `make_cnn()` builds an untrained network of the same shape, and `load_state_dict(torch.load(...))` fills in the saved weights. `map_location=DEVICE` loads them onto this machine's device, and `weights_only=True` refuses to load anything other than tensors.
+    - `torch.equal(predict(restored, X_test), test_pred)` checks that the restored network predicts exactly as before.
+  ]
 
   #refoutput[
     ```terminal
@@ -310,6 +389,11 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 12)
 
+  #readcode[
+    - `curves` puts the four accuracy lists side by side, one row per epoch.
+    - `pd.Series(test_scores, name="test_accuracy").rename_axis("model")` turns the dictionary of test scores into a two-column table.
+  ]
+
   #refoutput[
     ```terminal
     Saved: ['cnn_accuracy_per_epoch.png', 'cnn_confusion_matrix_on_the_test_boards.png',
@@ -334,6 +418,12 @@
 #labanswer[
   #labcode("lab07_deep_learning_cnn", 14)
 
+  #readcode[
+    - Part 1 rebuilds the CNN with the same seed and trains it for 25 epochs. `np.argmax(long_history["validation"]) + 1` is the epoch with the best validation accuracy; 1 is added because positions start at 0.
+    - Part 2 defines a CNN with one block only. After one pooling the maps are 16 x 16, so the flattened row has 16 x 16 x 16 = 4,096 numbers, and the first dense layer is sized to match.
+    - The last two lines print the number of weights and the test accuracy of both CNNs, one under the other.
+  ]
+
   #refoutput[
     ```terminal
     25 epochs: best validation 0.7408 at epoch 24; last epoch: training 0.7490, validation 0.7361
@@ -342,7 +432,7 @@
     ```
   ]
 
-  #strong[What it means.] Validation keeps climbing to 0.741 at epoch 24, and training, at 0.749, is barely ahead of it: after 25 epochs this small CNN is still learning and has hardly begun to overfit, so more epochs would pay. Early stopping would keep the best epoch, which here is almost the last. The one-block CNN has almost twice the weights, 263,111, because its flattened vector is $16 times 16 times 16=4(,)096$ long, and it scores lower, 0.681 against 0.700. The second block earns its keep twice: its pooling shrinks the map before the expensive dense layer, and its filters can combine the first layer’s edges into larger shapes, such as the ring of a knot.
+  #strong[What it means.] Validation keeps climbing to 0.741 at epoch 24, and training, at 0.749, is barely ahead of it: after 25 epochs this small CNN is still learning and has hardly begun to overfit, so more epochs would pay. Early stopping would keep the best epoch, which here is almost the last. The one-block CNN has almost twice the weights, 263,111, because its flattened vector is $16 times 16 times 16=4","096$ long, and it scores lower, 0.681 against 0.700. The second block earns its keep twice: its pooling shrinks the map before the expensive dense layer, and its filters can combine the first layer’s edges into larger shapes, such as the ring of a knot.
 ]
 
 #labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
@@ -356,7 +446,7 @@
 ]
 
 #expectedfindings[
-  #strong[Warm-up.] $32 times 32 times 3=3(,)072$ numbers; $3(,)072 times 128+128=393(,)344$ and $128 times 7+7=903$, so 394,247 weights. The first block gives $16 times 16 times 16$, with $3 times 16 times 9+16=448$ weights; after the second, $32 times 8 times 8=2(,)048$ numbers reach a dense layer of $2(,)048 times 64+64=131(,)136$ weights.
+  #strong[Warm-up.] $32 times 32 times 3=3","072$ numbers; $3","072 times 128+128=393","344$ and $128 times 7+7=903$, so 394,247 weights. The first block gives $16 times 16 times 16$, with $3 times 16 times 9+16=448$ weights; after the second, $32 times 8 times 8=2","048$ numbers reach a dense layer of $2","048 times 64+64=131","136$ weights.
 
   + About 0.45 (0.450 in the check script), against 0.557 with ReLU trained the same way, and 0.638 for Lab~4’s logistic regression on all 3,072 pixels. Without an activation the two layers collapse into one linear map, so it is logistic regression with extra steps, and after only 10 epochs it has not even reached what Lab~4’s fully trained version scored.
   + Test accuracy is about 0.571, 0.686, 0.690 and 0.197. The smallest rate is simply slow: still climbing after 10 epochs. The largest makes the network call every image a live knot, so it scores the share of live knots among the test images, 19.7%: the overshoot from the practice bowl of Chapter~#ref(<ch:learning>).

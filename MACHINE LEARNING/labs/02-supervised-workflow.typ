@@ -5,7 +5,7 @@
 #labsection(2, label: <sec:lab02-supervised-workflow>)[Supervised learning I: regression, classification, and the workflow]
 
 #labproject[A regression problem, two classification problems, and saved models at the end][
-  #strong[Read first.] Chapters~#ref(<ch:learning>)--#ref(<ch:classification>). \
+  #strong[Read first.] Chapters~#ref(<ch:supervised>)--#ref(<ch:classification>). \
 
   #strong[Goal.] Fit regression and classification pipelines on messy data, validate in date order where time matters, choose thresholds and hyperparameters on purpose, test once, and save models that can be loaded and used. \
 
@@ -59,7 +59,7 @@
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + True values $10,20,30,40$ and predictions $12,18,30,50$. Compute MAE and RMSE. Why is RMSE larger? (MAE 3.5, RMSE about 5.2.)
-  + Question~9’s logistic model at threshold 0.50 flags 2017 bookings as likely cancellations with $T P=8(,)616$, $F P=2(,)479$, $F N=7(,)129$ and $T N=22(,)463$. Compute precision, recall and accuracy. Then predict: if the threshold rises to 0.70, which of these four counts can only grow, and which can only shrink?
+  + Question~9’s logistic model at threshold 0.50 flags 2017 bookings as likely cancellations with $T P=8","616$, $F P=2","479$, $F N=7","129$ and $T N=22","463$. Compute precision, recall and accuracy. Then predict: if the threshold rises to 0.70, which of these four counts can only grow, and which can only shrink?
 ]
 
 #labquestion(1)[Setup][
@@ -68,6 +68,13 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 1)
+
+  #readcode[
+    - The first three steps are the same in every lab: the course helper, the libraries, and the three folders.
+    - `joblib` saves a fitted model to a file and loads it back, and `json` writes the model card.
+    - The metrics are imported in two groups: those for numbers (regression) and those for classes (classification), together with the tools that draw their curves.
+    - `make_preprocess` is Lab~1’s helper, unchanged: median fill and scaling for number columns, most-frequent fill and one-hot encoding for text columns.
+  ]
 
   #refoutput[
     ```terminal
@@ -85,6 +92,14 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 2)
+
+  #readcode[
+    - `low_memory=False` lets pandas read the whole file before deciding each column's type, which avoids a warning on columns of mixed content.
+    - The filter joins three masks with `&`: used cars, a price from 1,000 to 200,000 dollars (`between` includes both ends), and more than 100 miles on the clock. `.copy()` makes the result an independent table, so that adding columns to it is safe.
+    - `tidy` lower-cases the text and tests it against each pattern with `str.contains`; a `|` inside a pattern means "or". `np.select` then assigns the first group whose pattern matched, and a listing that matches nothing gets a gap.
+    - `(2026 - used["year"]).clip(lower=0)` is the car's age, with next year's models counted as 0.
+    - `train_test_split(X, y, test_size=0.20, random_state=42)` keeps a fifth of the listings for validation.
+  ]
 
   #refoutput[
     ```terminal
@@ -111,6 +126,13 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 3)
 
+  #readcode[
+    - `np.full(len(y_valid), y_train.mean())` is the baseline: the training mean, repeated once for every validation car.
+    - The dictionary `estimators` holds the two models, and the loop gives both the identical preparation.
+    - `model.fit(X_train, y_train)` learns from the training listings, and `model.predict(X_valid)` prices the listings it has not seen.
+    - MAE is the average miss in dollars. RMSE squares the misses before averaging, so large misses count for more, and `np.sqrt` brings the result back to dollars. R2 is the share of the variation in price that the model explains.
+  ]
+
   #refoutput[
     ```terminal
     always the training mean: MAE 15408
@@ -131,6 +153,13 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 4)
+
+  #readcode[
+    - `get_feature_names_out()` names the prepared columns, and `coef_` holds one coefficient for each. Pairing them in a `pd.Series` lets you look a coefficient up by name.
+    - The number columns were scaled, so their coefficients are dollars per standard deviation. The first `print` shows how large one standard deviation is.
+    - `coefs.index.str.startswith("cat__make_")` picks the one-hot columns of `make`, and `removeprefix` strips the prefix to leave the make's name.
+    - `X_train["make"].value_counts()` counts the listings behind each coefficient. A coefficient that rests on a handful of cars is not to be trusted, so `by_make[by_make["listings"] >= 500]` keeps the well-supported ones.
+  ]
 
   #refoutput[
     ```terminal
@@ -159,6 +188,13 @@
   #include "visuals/02-worked-case.typ"
 
   #labcode("lab02_supervised_workflow", 5)
+
+  #readcode[
+    - A residual is the asking price minus the predicted price.
+    - `pd.qcut(ridge_pred, 4, labels=[...])` cuts the predictions into four groups of equal size, from the cheapest to the dearest.
+    - `groupby(quarter).std()` then measures how widely the residuals scatter inside each group.
+    - The left chart plots the prediction against the truth, with a dashed line where the two would be equal. The right chart plots the residual against the prediction: a fan shape means the misses grow with the price.
+  ]
 
   #refoutput[
     ```terminal
@@ -190,6 +226,13 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 6)
 
+  #readcode[
+    - The arrival date is rebuilt from its three columns, as in Lab~1, and `sort_values("arrival_date", kind="stable")` puts the bookings in date order. A stable sort keeps bookings of the same day in their original order, so the result is the same on every machine.
+    - The five engineered columns are Lab~1’s.
+    - `(hotels["arrival_date"] < "2017-01-01").to_numpy()` is a mask for the bookings that arrive before 2017. `X_h[in_train]` takes them for training, and `X_h[~in_train]` takes the rest: `~` flips a mask.
+    - The loop prints the date range, the size and the cancellation rate of each part.
+  ]
+
   #refoutput[
     ```terminal
     train: 2015-07-01 to 2016-12-31, 78,703 bookings, 36.2% cancelled
@@ -207,6 +250,12 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 7)
 
+  #readcode[
+    - `cancellation_model()` returns a fresh, unfitted pipeline every time it is called, so the two fits cannot interfere with each other.
+    - The first fit uses a shuffled, stratified split, as Lab~1 did. The second uses the date split of Question~6.
+    - `predict_proba(...)[:, 1]` is the predicted chance of cancelling, and `roc_auc_score` measures how well it ranks the bookings.
+  ]
+
   #refoutput[
     ```terminal
     shuffled split, ROC AUC:     0.858
@@ -223,6 +272,13 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 8)
+
+  #readcode[
+    - `dt.to_period("M")` turns each arrival date into its month, such as `2017-03`.
+    - `y_h.groupby(month).mean()` is the share actually cancelled in each month. The second column is the mean predicted probability over the same months.
+    - `monthly.loc["2016-12":]` keeps the rows from December 2016 onwards, and `.T` prints the months as columns.
+    - `ax.axvline(...)` marks where the validation months begin.
+  ]
 
   #refoutput[
     ```terminal
@@ -251,6 +307,13 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 9)
 
+  #readcode[
+    - `1 - yh_valid.mean()` is the accuracy of always answering "kept".
+    - The loop fits two classifiers with the same preparation. `n_estimators=300` grows 300 trees, `min_samples_leaf=5` stops a tree from isolating single bookings, and `n_jobs=-1` uses every processor core.
+    - `pipe.predict` answers yes or no at a threshold of 0.5 and feeds the accuracy. `pipe.predict_proba` gives probabilities and feeds the ROC AUC.
+    - The second loop turns the logistic model's probabilities into decisions at three thresholds with `prob_h >= threshold`, and scores each set of decisions with precision and recall.
+  ]
+
   #refoutput[
     ```terminal
     majority-class baseline accuracy: 0.613
@@ -272,6 +335,12 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 10)
 
+  #readcode[
+    - `(prob_h > 0.3) & (prob_h < 0.7)` marks the bookings the model is unsure about, and its mean is their share.
+    - `prob_h[yh_valid == 0]` selects the probabilities of the bookings that were in fact kept, and the second histogram does the same for the cancelled ones. `alpha=0.6` lets the two show through each other.
+    - Each `axvline` draws one threshold.
+  ]
+
   #refoutput[
     ```terminal
     share of 2017 bookings scored between 0.3 and 0.7: 0.374
@@ -287,6 +356,12 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 11)
+
+  #readcode[
+    - `confusion_matrix(truth, decision)` counts the four outcomes. Its rows are the truth and its columns the decision.
+    - `classification_report` prints precision, recall and F1 for each class in one table.
+    - `ConfusionMatrixDisplay.from_predictions` draws the same matrix as a chart, and the f-string inside `savefig` gives each threshold its own file.
+  ]
 
   #refoutput[
     ```terminal
@@ -310,6 +385,12 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 12)
+
+  #readcode[
+    - `np.linspace(0.05, 0.95, 19)` gives 19 thresholds, and the loop records precision and recall at each one. `zero_division=0` covers a threshold at which nothing is flagged.
+    - `roc_auc_score` and `average_precision_score` summarize the ranking without choosing any threshold.
+    - `RocCurveDisplay.from_predictions` and `PrecisionRecallDisplay.from_predictions` draw the two curves from the truth and the probabilities.
+  ]
 
   #refoutput[
     ```terminal
@@ -342,6 +423,14 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 13)
 
+  #readcode[
+    - The Telco table gets Lab~1’s repair of `TotalCharges`, and `drop(columns=["customerID", "Churn"])` removes the identifier and the label from the features.
+    - The test customers are split off first and stay closed until Question~14.
+    - `GridSearchCV` tries every combination in `param_grid`. The name `model__C` means "the setting `C` of the pipeline step called `model`": two underscores join a step's name to one of its settings.
+    - Each combination is scored by five-fold cross-validation on the training customers, with the whole pipeline refitted inside every fold.
+    - `search.cv_results_` holds one row per combination, with the mean and the spread of its five scores.
+  ]
+
   #refoutput[
     ```terminal
     4 numeric and 15 text columns; 26.5% of customers left
@@ -358,6 +447,12 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 14)
+
+  #readcode[
+    - After `fit`, the search object holds the best combination, refitted on all the training customers, so `search.predict_proba` uses that model.
+    - `search.best_params_` is the winning combination and `search.best_score_` its cross-validated score.
+    - The test set is scored here and nowhere else.
+  ]
 
   #refoutput[
     ```terminal
@@ -388,6 +483,13 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 15)
 
+  #readcode[
+    - `search.best_estimator_` is the fitted pipeline, preparation and model in one object, and `joblib.dump` writes it to a file.
+    - `typical` records a typical value for every column: the median of a number column, and the most common value, `mode()[0]`, of a text column.
+    - The card is an ordinary dictionary, written as text with `json.dumps(card, indent=2)`.
+    - `model_path.stat().st_size / 1024` is the size of the file in kilobytes.
+  ]
+
   #refoutput[
     ```terminal
     saved: customer_churn.joblib (8.3 KB) and customer_churn_card.json
@@ -401,6 +503,13 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 16)
+
+  #readcode[
+    - `joblib.load` returns the pipeline exactly as it was saved.
+    - `template = X_c.iloc[0].to_dict()` copies a real customer's row, so that every column the model expects is present. `{**template, "tenure": 2, ...}` makes a copy of it with a few values replaced.
+    - `loaded.predict_proba(new_customers)[:, 1]` runs the whole pipeline on the new rows: filling, scaling, encoding and the model.
+    - The car-price model is saved, reloaded and asked about one car at two mileages in the same way.
+  ]
 
   #refoutput[
     ```terminal
@@ -437,6 +546,12 @@
 #labanswer[
   #labcode("lab02_supervised_workflow", 17)
 
+  #readcode[
+    - `rows` collects one dictionary per result, and `pd.DataFrame(rows)` turns the list into a table. A result with no `test` entry gets a blank there.
+    - `to_csv(..., index=False)` writes the table without row numbers.
+    - The last lines list the files in the results folder and the models this lab saved.
+  ]
+
   #strong[What it means.] `results/lab02/` now holds `metrics.csv`, `monthly_cancellations.csv` and the figures, and `models/` holds the churn model with its card and `used_car_prices.joblib`.
 ]
 
@@ -454,6 +569,13 @@
 
 #labanswer[
   #labcode("lab02_supervised_workflow", 19)
+
+  #readcode[
+    - The pipeline is the one from Question~3, fitted to `np.log(y_train)` instead of `y_train`. `np.exp` turns its predictions back into dollars before any score is computed.
+    - `(log_pred < 0).sum()` counts negative prices. The number e raised to any power is positive, so there are none.
+    - `pd.qcut` and `groupby(...).std()` repeat the residual check of Question~5.
+    - On the log scale a coefficient is a multiplier. Dividing it by the column's standard deviation undoes the scaling, and `np.exp` turns the result into "times this much for one more year".
+  ]
 
   #refoutput[
     ```terminal
@@ -484,11 +606,11 @@
 ]
 
 #expectedfindings[
-  #strong[Warm-up.] MAE 3.5 and RMSE 5.2: the one miss of 10 dominates the squares. Precision $8(,)616\/11(,)095=0.777$, recall $8(,)616\/15(,)745=0.547$, accuracy $31(,)079\/40(,)687=0.764$. Raising the threshold can only remove positive decisions, so $T P$ and $F P$ can only shrink, and $F N$ and $T N$ can only grow.
+  #strong[Warm-up.] MAE 3.5 and RMSE 5.2: the one miss of 10 dominates the squares. Precision $8","616\/11","095=0.777$, recall $8","616\/15","745=0.547$, accuracy $31","079\/40","687=0.764$. Raising the threshold can only remove positive decisions, so $T P$ and $F P$ can only shrink, and $F N$ and $T N$ can only grow.
 
   + $R^2$ rises from 0.575 to 0.792 and MAE falls from \$9,009 to \$5,754, from 1,147 one-hot model columns. Ridge with the model scores 0.772 and \$6,128: the problem was a missing idea, which car it is, not an unstable fit, and the penalty even shrinks the coefficients of rare models that deserved to be large.
   + It jumps to 0.911. 9,366 of the 29,848 shuffled validation bookings have an exact twin among the training bookings, and a forest can recall a twin it has already seen. Report 0.841: the hotel will always be predicting bookings for dates that have not come yet.
-  + 0.65, with 10,065 empty rooms and 611 walked guests, for a cost of 11,287. At 0.50 the cost is $7(,)129+2 times 2(,)479=12(,)087$, and at 0.70 it is $11(,)117+2 times 194=11(,)505$. Change the cost ratio, and the answer changes: the threshold is a statement about costs.
+  + 0.65, with 10,065 empty rooms and 611 walked guests, for a cost of 11,287. At 0.50 the cost is $7","129+2 times 2","479=12","087$, and at 0.70 it is $11","117+2 times 194=11","505$. Change the cost ratio, and the answer changes: the threshold is a statement about costs.
   + The five test scores run from 0.838 to 0.855, and the search picks `C` 1 or 10 without class weights each time. A test set of 1,761 customers pins the score down to about a point either way, so 0.846 is one honest draw from that range, and a gap of a point between two models on such a test set proves nothing.
 ]
 

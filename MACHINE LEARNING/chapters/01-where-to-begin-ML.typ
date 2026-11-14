@@ -104,7 +104,7 @@ The numbers the optimizer changes are the model’s #term[parameters]. Some sett
 
 Before picking a method, ask one question about your data. Look back at the study log. If you want to predict the mark, the answers are sitting in a column: every past student shows what happened, so a model can learn from them. If you want to know what kinds of student there are, no column holds the answer, and nobody can mark a guess right or wrong. That single difference splits the map of machine learning in two (#figref(<fig:ml-map>)).
 
-#utpfig([The map. One question splits the field, and a second question names the job. Every method in Stages 3 and 4 of this book lives in one of these four corners.], label: <fig:ml-map>)[
+#utpfig([The map. One question splits the field, and a second question names the job. Most methods in Stages 3 and 4 of this book live in one of these four corners.], label: <fig:ml-map>)[
   #canvas({
     node((0, 2.65), [Does your log hold the answers?], name: "q", font: font("small"), ..mapgate)
     node((-3.65, 1.45), [#strong[Yes: supervised learning] \
@@ -136,23 +136,7 @@ Before picking a method, ask one question about your data. Look back at the stud
   })
 ]
 
-Two settings sit beside this map, because their feedback is different. In #term[semi-supervised learning] only a few rows have answers, so unlabeled rows must help (#chapref(<ch:semi-supervised>)). In #term[reinforcement learning] no answers exist at all, only a score that arrives after the learner acts (#chapref(<ch:rl>)). Neural networks (#chapref(<ch:deep>)) do not get their own corner: they are a richer kind of model that can be used in any of them.
-
-#utptable[
-  #fsize("small")[
-
-  #tabularx(
-    columns: (29%, 1fr),
-    styles: (navy-bold,),
-    header: ([Learning setting], [How it works]),
-    [Supervised learning], [Learns from labeled examples to predict values or classes.],
-    [Unsupervised learning], [Finds groups, patterns, or unusual cases without labels.],
-    [Semi-supervised learning], [Combines a small labeled set with a larger unlabeled set.],
-    [Reinforcement learning], [Learns actions through interaction and rewards over time.],
-  )
-
-  ]
-]
+Two settings sit beside this map, because their feedback is different. In #term[semi-supervised learning] only a few rows have answers, so unlabeled rows must help (#chapref(<ch:semi-supervised>)). In #term[reinforcement learning] no answers exist at all, only a score that arrives after the learner acts (#chapref(<ch:rl>)). Neural networks (#chapref(<ch:deep>)) do not get their own corner: they are a richer kind of model that can be used in any of them. #figref(<fig:field-map>) puts the four settings side by side.
 
 #utpfig([The field map: four learning settings, told apart by the feedback available. Supervised learning has an answer for every example, semi-supervised for some, unsupervised for none, and reinforcement learning receives a score after it acts.], label: <fig:field-map>)[
   #canvas({
@@ -287,7 +271,7 @@ Error costs determine which metrics matter. #chapref(<ch:evaluation>) develops p
 
 == What to learn first
 
-Follow the course map: tools and foundations first, each workflow before its models, then advanced topics and the capstone. Chapters that follow the study log (#chapsref(<ch:regression>, <ch:classification>), @ch:clustering and~@ch:dimred) can be read as one connected story. To see every step of it run, use `python all_experiments/demo_study_log.py`.
+Follow the course map: tools and foundations first, each workflow before its models, then limited labels and rewards, deep learning, text, a model put to work, and the capstone. Chapters that follow the study log (#chapsref(<ch:regression>, <ch:classification>), @ch:clustering and~@ch:dimred) can be read as one connected story. To see every step of it run, use `python all_experiments/book_checks/demo_study_log.py`.
 
 #chapterrecap[
   - A problem has five parts: observation, features, target, model and metric. Name them first.

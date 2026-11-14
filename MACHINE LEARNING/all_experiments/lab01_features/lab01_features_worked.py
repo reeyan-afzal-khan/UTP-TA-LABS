@@ -20,14 +20,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn
-from sklearn.compose import ColumnTransformer                      # different steps for number and text columns
+from sklearn.compose import ColumnTransformer                      # separate steps for numbers and text
 from sklearn.feature_selection import SelectKBest, f_classif       # keep the k strongest columns
 from sklearn.impute import SimpleImputer                           # fill missing values
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import NearestNeighbors
-from sklearn.pipeline import Pipeline                              # chain preparation and model into one object
+from sklearn.pipeline import Pipeline                              # preparation and model as one object
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 # 3. Where this lab reads and writes.
@@ -78,7 +78,8 @@ print("\n", pd.crosstab(hotels["reservation_status"], hotels["is_canceled"]))
 
 # And when was it written? Compare its date with the arrival date.
 status_date = pd.to_datetime(hotels["reservation_status_date"])
-written_on_or_after_arrival = (status_date >= hotels["arrival_date"]).rename("status written on or after arrival")
+written_on_or_after_arrival = (status_date >= hotels["arrival_date"]).rename(
+    "status written on or after arrival")
 print("\n", pd.crosstab(written_on_or_after_arrival, hotels["is_canceled"]))
 
 # %% Question 5 - Engineer five new columns
@@ -109,7 +110,7 @@ print(hotels.loc[two_bookings, ["hotel"] + inputs + new].round(3).T.to_string())
 lead_band = pd.cut(hotels["lead_time"], [-1, 7, 30, 90, 180, 365, 800],
                    labels=["0-7", "8-30", "31-90", "91-180", "181-365", "366+"])
 by_lead = hotels.groupby(lead_band, observed=True)["is_canceled"].mean()
-by_nights = hotels.groupby(hotels["total_nights"].clip(upper=8))["is_canceled"].mean()   # 8 means 8 or more
+by_nights = hotels.groupby(hotels["total_nights"].clip(upper=8))["is_canceled"].mean()   # 8 = 8 or more
 
 fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.4))
 by_lead.plot.bar(ax=axes[0], rot=0)
@@ -130,7 +131,7 @@ print("cancelled before: ", hotels.groupby("cancelled_before")["is_canceled"].me
 
 # %% Question 7 - Test the new columns on a model
 def make_preprocess(num_cols, cat_cols):
-    """Prepare a table for a model: fill and scale the number columns, fill and one-hot encode the text columns."""
+    """Prepare a table: fill and scale the number columns, fill and one-hot encode the text columns."""
     numbers = Pipeline([
         ("impute", SimpleImputer(strategy="median")),
         ("scale", StandardScaler()),
@@ -154,7 +155,8 @@ feature_sets = {
 # The same split and the same model for both sets, so only the columns differ.
 for name, (num_cols, cat_cols) in feature_sets.items():
     X = hotels[num_cols + cat_cols]
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42,
+                                                          stratify=y)
     model = Pipeline([
         ("preprocess", make_preprocess(num_cols, cat_cols)),
         ("model", LogisticRegression(max_iter=3000)),
@@ -180,7 +182,7 @@ print(churn[money].describe().loc[["mean", "std"]].round(2))
 
 # %% Question 9 - Compare neighbors before and after scaling
 X_raw = churn[money].to_numpy()
-X_std = StandardScaler().fit_transform(X_raw)          # every column now has mean 0 and standard deviation 1
+X_std = StandardScaler().fit_transform(X_raw)          # every column now: mean 0, standard deviation 1
 
 def neighbors(X, row, k=10):
     """The k rows of X closest to `row`, not counting the row itself."""
@@ -202,7 +204,8 @@ fig, ax = plt.subplots(figsize=(6, 4))
 ax.scatter(churn["tenure"], churn["MonthlyCharges"], s=5, color="lightgrey", label="other customers")
 ax.scatter(X_raw[near_raw, 0], X_raw[near_raw, 1], s=45, marker="s", label="10 nearest, raw units")
 ax.scatter(X_raw[near_std, 0], X_raw[near_std, 1], s=45, marker="^", label="10 nearest, standardized")
-ax.scatter(X_raw[customer, 0], X_raw[customer, 1], s=160, marker="*", color="black", label="customer 7795-CFOCW")
+ax.scatter(X_raw[customer, 0], X_raw[customer, 1], s=160, marker="*", color="black",
+           label="customer 7795-CFOCW")
 ax.set_xlim(20, 60)
 ax.set_ylim(30, 70)
 ax.set_xlabel("tenure (months)")
@@ -214,7 +217,7 @@ plt.savefig(RESULTS / "one_customer_two_sets_of_neighbors.png", dpi=160, bbox_in
 plt.show()
 
 # %% Question 10 - Define the bank-call task
-bank = pd.read_csv(DATA / "supervised/bank_marketing/bank_marketing.csv", sep=";")     # this file separates with ;
+bank = pd.read_csv(DATA / "supervised/bank_marketing/bank_marketing.csv", sep=";")  # columns split on ;
 print("shape:", bank.shape, " missing:", bank.isna().sum().sum(), " duplicates:", bank.duplicated().sum())
 bank = bank.drop_duplicates().reset_index(drop=True)
 
@@ -232,11 +235,12 @@ b_num = X_b.select_dtypes(include="number").columns.tolist()
 b_cat = X_b.select_dtypes(exclude="number").columns.tolist()
 print(len(b_num), "numeric and", len(b_cat), "text features known before the call")
 
-Xb_train, Xb_valid, yb_train, yb_valid = train_test_split(X_b, y_b, test_size=0.25, random_state=42, stratify=y_b)
+Xb_train, Xb_valid, yb_train, yb_valid = train_test_split(X_b, y_b, test_size=0.25, random_state=42,
+                                                          stratify=y_b)
 
 # %% Question 11 - Compare feature sets, and see leakage
 def evaluate(pipeline, X_train, X_valid, label):
-    """Fit on the training calls, score the validation calls, print both metrics, and return the ROC AUC."""
+    """Fit on the training calls, score the validation calls, print both metrics, return the ROC AUC."""
     pipeline.fit(X_train, yb_train)
     prob = pipeline.predict_proba(X_valid)[:, 1]
     auc = roc_auc_score(yb_valid, prob)
@@ -275,7 +279,8 @@ with_duration = Pipeline([
     ("preprocess", make_preprocess(b_num + ["duration"], b_cat)),
     ("model", LogisticRegression(max_iter=2000)),
 ])
-results["all 19 + duration (leakage)"] = evaluate(with_duration, leaky_train, leaky_valid, "all 19 + duration (leakage)")
+results["all 19 + duration (leakage)"] = evaluate(with_duration, leaky_train, leaky_valid,
+                                                  "all 19 + duration (leakage)")
 
 # %% Question 12 - Read what the L1 penalty kept
 # One weight per encoded column; the L1 penalty set most of them to zero.
@@ -305,8 +310,10 @@ environment = pd.DataFrame({
 })
 environment.to_csv(RESULTS / "environment.csv", index=False)
 missing.rename("share_missing").round(4).to_csv(RESULTS / "missing_values.csv")
-by_lead.rename("cancellation_rate").round(3).rename_axis("days_ahead").to_csv(RESULTS / "cancellation_by_days_ahead.csv")
-pd.Series(results, name="validation_roc_auc").rename_axis("feature_set").round(3).to_csv(RESULTS / "feature_selection.csv")
+by_lead.rename("cancellation_rate").round(3).rename_axis("days_ahead").to_csv(
+    RESULTS / "cancellation_by_days_ahead.csv")
+pd.Series(results, name="validation_roc_auc").rename_axis("feature_set").round(3).to_csv(
+    RESULTS / "feature_selection.csv")
 kept.rename("l1_coefficient").round(3).to_csv(RESULTS / "l1_coefficients.csv")
 
 # The customer and both neighbor lists, in one table.
@@ -323,12 +330,15 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 # Part 1: the weekday of arrival, from the date built in Question 3.
 hotels["arrival_weekday"] = hotels["arrival_date"].dt.day_name()
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-print("cancellation rate by arrival day:", hotels.groupby("arrival_weekday")["is_canceled"].mean().reindex(days).round(3).to_dict())
+print("cancellation rate by arrival day:",
+      hotels.groupby("arrival_weekday")["is_canceled"].mean().reindex(days).round(3).to_dict())
 
 num_cols, cat_cols = feature_sets["raw + engineered"]
-for label, cats in {"raw + engineered": cat_cols, "raw + engineered + weekday": cat_cols + ["arrival_weekday"]}.items():
+for label, cats in {"raw + engineered": cat_cols,
+                    "raw + engineered + weekday": cat_cols + ["arrival_weekday"]}.items():
     X = hotels[num_cols + cats]
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42,
+                                                          stratify=y)
     model = Pipeline([
         ("preprocess", make_preprocess(num_cols, cats)),
         ("model", LogisticRegression(max_iter=3000)),

@@ -4,7 +4,7 @@
 
 = Decision Trees <ch:decision-trees>
 
-#chapterguide[#chapref(<ch:training>) plus basic probability from #chapref(<ch:foundations>); entropy is helpful but re-explained here.][compute Gini impurity and information gain by hand; choose a split on real counts; read a fitted tree as rules; control depth and pruning; and treat feature importance with care.]
+#chapterguide[#chapref(<ch:training>) plus basic probability from #chapref(<ch:foundations>)\; entropy is helpful but re-explained here.][compute Gini impurity and information gain by hand; choose a split on real counts; read a fitted tree as rules; control depth and pruning; and treat feature importance with care.]
 
 In the game of Twenty Questions you never ask “is it a giraffe?” first. You ask a question that splits the possibilities well, such as “is it alive?”, and then ask the next one depending on the answer. A decision tree plays that game with a table. It routes each row through questions such as “age below 30?” until it reaches a #term[leaf], which holds the prediction. Small trees can be read aloud, and forests and boosting combine many of them into stronger models (#chapref(<ch:ensembles>)).
 
@@ -236,7 +236,7 @@ Inspect paths and leaf counts. Lab~3’s loan tree splits first on the interest 
 #term[Permutation importance] is the safer alternative: shuffle one feature’s values in the validation data and measure how much the score drops. A large drop means this fitted model relied on that column. It is computed on held-out rows, so it also reflects generalization rather than training fit.
 
 #keyidea[
-  Feature importance describes which columns this fitted model used. Apply the general association-versus-causation rule from #secref(<sec:correlation>); importance is not causal evidence.
+  Feature importance describes which columns this fitted model used. Apply the general association-versus-causation rule from #secref(<sec:correlation>)\; importance is not causal evidence.
 ]
 
 #debugtask[

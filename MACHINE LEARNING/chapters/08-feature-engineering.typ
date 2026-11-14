@@ -89,7 +89,7 @@ What does such a transform buy? Less than you might hope for a ranking, and more
   )
 ]
 
-The AUC does not move, and it cannot: a logarithm never changes which of two bookings has the longer lead time, so a model with one input ranks them the same way. The log loss, which scores the probabilities themselves (#chapref(<ch:evaluation>)), improves, because the chance of cancelling rises quickly over the first weeks and slowly after that, which is the shape of a logarithm. With several inputs the better-shaped column changes the ranking too, which is part of why Lab~1's engineered columns lift its AUC from 0.846 to 0.855.
+The AUC does not move, and it cannot: a logarithm never changes which of two bookings has the longer lead time, so a model with one input ranks them the same way. The log loss, which scores the probabilities themselves (#chapref(<ch:evaluation>)), improves, because the chance of cancelling rises quickly over the first weeks and slowly after that, which is the shape of a logarithm. With several inputs the better-shaped column changes the ranking too, which is part of why Lab~1’s engineered columns lift its AUC from 0.846 to 0.855.
 
 === Bands
 
@@ -225,9 +225,9 @@ Here $n$ is the number of training rows with that value and $m$ sets how many ro
 #workedexample[
   The mean price of the training cars is \$32,892, and take $m = 20$.
 
-  A model seen #strong[once], listed at \$150,000: $ frac(1 times 150(,)000 + 20 times 32(,)892, 21) = \$38(,)469. $ One listing moved the estimate only a little above the overall mean.
+  A model seen #strong[once], listed at \$150,000: $ frac(1 times 150","000 + 20 times 32","892, 21) = \$38","469. $ One listing moved the estimate only a little above the overall mean.
 
-  A model seen #strong[500 times], with a mean of \$30,000: $ frac(500 times 30(,)000 + 20 times 32(,)892, 520) = \$30(,)111. $ Five hundred listings are believed almost completely.
+  A model seen #strong[500 times], with a mean of \$30,000: $ frac(500 times 30","000 + 20 times 32","892, 520) = \$30","111. $ Five hundred listings are believed almost completely.
 ]
 
 === The leak inside target encoding
@@ -297,12 +297,12 @@ Engineering adds columns, and more columns are not free. Each one is something t
 Lab~1 uses the two simplest pruning tools. `SelectKBest(f_classif, k=10)` scores each prepared column on its own against the target, with the $F$ of #chapref(<ch:inference>), and keeps the ten with the highest scores. An #term[L1 penalty] does the choosing inside the model itself, by pushing the weights of unhelpful columns to exactly zero (#chapref(<ch:regression>) explains how). Both sit inside the pipeline, for the reason the target encoder does: choosing columns by looking at the label is a way of learning from the label. #chapref(<ch:feature-selection>) returns to this with the full set of tools, once the models they rely on have been introduced.
 
 #tryit[
-  In `demo_exploration.py`, the function `add_car_features` builds three columns. Add a fourth, `high_mileage`, which is 1 when a car has been driven more than 15,000 miles for each year of its age, and add a line to the ledger for it. Before you run it, write down whether you expect the error to fall, and by how much. Then compare.
+  In `demo_exploration.py`, give `add_car_features` a fourth column, `high_mileage`: 1 when a car has done more than 15,000 miles for each year of its age, with a line in the ledger. First write down how much you expect the error to fall; then run it and compare.
 ]
 
 #chapterrecap[
-  - Feature engineering translates what you know into columns a model's arithmetic can use. Ask first what this model cannot see for itself.
-  - A linear model follows a steady rise or fall. Give it bands for a bend, a square for a curve, and a product for an interaction. A tree finds thresholds unaided: the nights column scored 0.519 as a number, 0.582 in bands and 0.581 in a tree.
+  - Feature engineering turns what you know into columns. Ask first what this model cannot see.
+  - A linear model needs bands for a bend, a square for a curve and a product for an interaction; a tree finds thresholds itself. Nights scored 0.519 as a number, 0.582 in bands, 0.581 in a tree.
   - A logarithm is one of a family of powers. For mileage a fitted power of 0.29 removed the skew where the logarithm overshot.
   - Predicting the logarithm of a price cut the error on used cars from \$9,062 to \$7,759 and removed every negative prediction.
   - A cycle belongs on a circle: two columns, a sine and a cosine. With few positions, one-hot may still do better.
@@ -317,5 +317,5 @@ Lab~1 uses the two simplest pruning tools. `SelectKBest(f_classif, k=10)` scores
   + On the month circle, which month is furthest from March? What is the distance between two neighbouring months, to three decimals?
   + With $m = 20$ and an overall mean of \$32,892, what is the smoothed encoding of a car model seen 20 times with a mean price of \$50,000?
   + A colleague target encodes a customer ID column, with one row per customer, and reports an excellent training score. What has the model learned, and what will happen on new customers?
-  + Classify each feature with the safety table: (a) price divided by area; (b) the median income of the customer's postcode, computed from the training rows; (c) the mean of the target for each product category; (d) the number of orders the customer placed in the previous 30 days.
+  + Classify each feature with the safety table: (a) price per area; (b) the median income of the customer's postcode, from the training rows; (c) the mean target of each product category; (d) the customer's orders in the previous 30 days.
 ]

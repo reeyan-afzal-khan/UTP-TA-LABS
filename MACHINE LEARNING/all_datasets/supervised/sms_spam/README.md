@@ -2,7 +2,7 @@
 
 5,572 text messages, each labeled `ham` (ordinary) or `spam`.
 
-**Used in:** Lab 3's Try-it (naive Bayes against nearest neighbors on text).
+**Used in:** Lab 3's Try-it (naive Bayes against nearest neighbors on text), the chapter *Learning from Text*, and Lab 9 (tokens, the table of counts, tf-idf and a spam filter with a chosen threshold).
 
 **Source and licence:** [UCI](https://archive.ics.uci.edu/dataset/228/sms+spam+collection) (Almeida and Hidalgo, 2011), via [Hugging Face](https://huggingface.co/datasets/codesignal/sms-spam-collection); CC BY 4.0.
 
@@ -19,7 +19,8 @@
 ## What to watch for
 
 - 13.4% of messages are spam.
-- 403 messages appear more than once, so a random split can put the same message on both sides.
+- 403 rows repeat an earlier message word for word, so a random split can put the same message on both sides. Lab 9 removes them first, which leaves 5,169 different messages, 12.6% of them spam.
+- Numbers and other details in some ham messages were replaced by placeholders such as `&lt;#&gt;`. No spam message contains one, so a model can learn the placeholder instead of the task.
 
 ## Columns of `sms_spam.csv`
 

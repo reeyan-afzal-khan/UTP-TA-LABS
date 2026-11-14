@@ -2,7 +2,7 @@
 
 Tabular Q-learning on a 4×4 grid with a goal and a trap: the agent learns only from the rewards its own moves earn, its greedy policy is evaluated apart from the exploratory training, and the learned Q-table is saved as the model.
 
-**Lab sheet:** [`Lab-06/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-06/Lab-Activity.pdf), which practises Chapter 20.
+**Lab sheet:** [`Lab-06/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-06/Lab-Activity.pdf), which practises Chapter 26.
 
 ## Parts
 

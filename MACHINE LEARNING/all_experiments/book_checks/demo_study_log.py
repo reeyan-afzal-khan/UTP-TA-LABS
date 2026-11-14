@@ -1,6 +1,6 @@
 """A tutor's study log: the four core methods of the book, on ten students.
 
-Every number the book quotes for the study log (Chapters 2, 4, 9, 10, 16 and 17) is printed
+Every number the book quotes for the study log (Chapters 2, 5, 13, 14, 21 and 22) is printed
 here and checked by an assert, so the text and the code cannot drift apart. To try a log of
 your own, edit LOG and set CHECK_BOOK_NUMBERS to False.
 

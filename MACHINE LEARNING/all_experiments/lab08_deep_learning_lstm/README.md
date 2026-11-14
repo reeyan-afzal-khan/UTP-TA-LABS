@@ -2,7 +2,7 @@
 
 An LSTM written in PyTorch that forecasts the next hour of total electricity demand for 158 Portuguese customers from the previous 24 hours, trained on 2011-2013, tuned on the first half of 2014 and tested once on the second half against three free forecasts. The lab finds the hours it gets wrong and saves the weights with the scale they depend on.
 
-**Lab sheet:** [`Lab-08/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-08/Lab-Activity.pdf), which practises Chapter 21; the time-split rule in Chapter 3.
+**Lab sheet:** [`Lab-08/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-08/Lab-Activity.pdf), which practises Chapter 30, with early stopping from Chapter 28; the time-split rule in Chapter 4.
 
 ## Parts
 

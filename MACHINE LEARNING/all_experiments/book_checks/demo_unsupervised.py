@@ -1,4 +1,4 @@
-"""The small worked numbers of Chapters 15 to 19: clusters, shadows, anomalies, limited labels.
+"""The small worked numbers of Chapters 20 to 23 and 25: clusters, shadows, anomalies, limited labels.
 
 Each function prints what one chapter quotes, and check_book_numbers() at the end ties the
 printed book to this code. Pieces that need a course dataset read it from all_datasets/.
@@ -55,8 +55,8 @@ def customers_table():
     return CUSTOMERS
 
 
-def chapter15():
-    print("Chapter 15")
+def chapter20():
+    print("Chapter 20")
     customers = customers_table()
     cols = ["recency_days", "orders", "spend"]
     logged = KMeans(4, n_init=20, random_state=42).fit_predict(StandardScaler().fit_transform(np.log1p(customers[cols])))
@@ -73,8 +73,8 @@ def chapter15():
     FOUND["ari_spend"] = by_spend
 
 
-def chapter16():
-    print("\nChapter 16")
+def chapter21():
+    print("\nChapter 21")
     # Silhouette by hand on six numbers in two groups.
     x = np.array([1, 2, 3, 10, 11, 12], dtype=float).reshape(-1, 1)
     labels = np.array([0, 0, 0, 1, 1, 1])
@@ -129,8 +129,8 @@ def chapter16():
     FOUND["moons"] = (km, db)
 
 
-def chapter17():
-    print("\nChapter 17")
+def chapter22():
+    print("\nChapter 22")
     line = np.array([[-2, -2], [-1, -1], [0, 0], [1, 1], [2, 2]], dtype=float)
     pca = PCA().fit(line)
     print(f"Five points on a line: variances {pca.explained_variance_.round(3).tolist()}, scores {np.abs(pca.transform(line)[:, 0]).round(2).tolist()}")
@@ -164,8 +164,8 @@ def chapter17():
     print("Validation accuracy by number of components:", {k: round(v, 4) for k, v in scores.items()})
     FOUND["components"] = scores
 
-def chapter18():
-    print("\nChapter 18")
+def chapter23():
+    print("\nChapter 23")
     readings = np.array([10, 11, 9, 10, 12, 11, 10, 60], dtype=float)
     mean, sd = readings.mean(), readings.std(ddof=1)
     z = (60 - mean) / sd
@@ -209,8 +209,8 @@ def chapter18():
     FOUND["lof"] = (distances[5, 3], distances[15, 3], distances[20, 3], -lof.negative_outlier_factor_[15], -lof.negative_outlier_factor_[20])
 
 
-def chapter19():
-    print("\nChapter 19")
+def chapter25():
+    print("\nChapter 25")
     # Self-training on one column. Two labels on each side, six rows without one.
     x_l, y_l = [1.0, 2.0, 8.0, 9.0], [0, 0, 1, 1]
     x_u = [3.0, 4.0, 5.0, 6.0, 7.0, 10.0]
@@ -257,9 +257,9 @@ def wood_splits():
     fit, valid = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42).split(X[dev], y[dev], boards[dev]))
     return X[dev][fit], X[dev][valid], y[dev][fit], y[dev][valid], X[dev]
 
-# --------------------------------------------- Lab 5's numbers, as Chapters 18 and 19 quote them
+# --------------------------------------------- Lab 5's numbers, as Chapters 23 and 25 quote them
 def lab5_numbers():
-    print("\nLab 5, as quoted in Chapters 18 and 19")
+    print("\nLab 5, as quoted in Chapters 23 and 25")
     cards = pd.read_csv(DATA / "unsupervised/creditcard_fraud_ulb/creditcard_fraud_ulb.zip")
     X = cards[[f"V{i}" for i in range(1, 29)]].assign(log_amount=np.log1p(cards["Amount"]))
     X_tr, X_te, y_tr, y_te = train_test_split(X, cards["Class"], test_size=0.30, random_state=42, stratify=cards["Class"])
@@ -354,11 +354,11 @@ def check_book_numbers():
 
 
 def main():
-    chapter15()
-    chapter16()
-    chapter17()
-    chapter18()
-    chapter19()
+    chapter20()
+    chapter21()
+    chapter22()
+    chapter23()
+    chapter25()
     lab5_numbers()
 
     if CHECK_BOOK_NUMBERS:

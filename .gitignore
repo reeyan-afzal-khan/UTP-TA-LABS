@@ -69,6 +69,7 @@ env/
 # Courses
 # =========================
 /.courses/
+/.courses-srts/
 
 # =========================
 # Local VS Code course builds (never published PDFs).

@@ -1,4 +1,4 @@
-"""The small worked numbers of Chapters 10 to 14: neighbors, naive Bayes, trees, ensembles, SVMs.
+"""The small worked numbers of Chapters 14 to 18: neighbors, naive Bayes, trees, ensembles, SVMs.
 
 Each function prints what one chapter quotes, and check_book_numbers() at the end ties the
 printed book to this code. Pieces that need a course dataset read it from all_datasets/.
@@ -30,9 +30,9 @@ CHECK_BOOK_NUMBERS = True
 FOUND = {}
 
 
-# ------------------------------------------------------ Chapter 10: linear classifiers
-def chapter10():
-    print("Chapter 10")
+# ------------------------------------------------------ Chapter 14: linear classifiers
+def chapter14():
+    print("Chapter 14")
     scores = np.array([1.2, 3.4, 2.0])
     probabilities = np.exp(scores) / np.exp(scores).sum()
     print("Softmax of 1.2, 3.4, 2.0:", probabilities.round(3).tolist())
@@ -68,9 +68,9 @@ def chapter10():
     FOUND["lda"] = (m1, m0, pooled, boundary)
 
 
-# --------------------------------------------- Chapter 11: neighbors and naive Bayes
-def chapter11():
-    print("\nChapter 11")
+# --------------------------------------------- Chapter 15: neighbors and naive Bayes
+def chapter15():
+    print("\nChapter 15")
     train = {"A": ((1, 1), "Red"), "B": ((2, 1), "Red"), "C": ((4, 4), "Blue"), "D": ((5, 4), "Blue")}
     query = np.array([2, 2])
     ranked = sorted((np.linalg.norm(np.array(p) - query), name, label) for name, (p, label) in train.items())
@@ -115,7 +115,7 @@ def chapter11():
           f"actually {int((group['Churn'] == 'Yes').sum())} of {len(group)} = {actual:.3f}")
     FOUND["nb"] = (counts, score_left, score_stayed, posterior, actual)
 
-# ------------------------------------------------------------- Chapter 12: decision trees
+# ------------------------------------------------------------- Chapter 16: decision trees
 def gini(counts):
     counts = np.asarray(counts, dtype=float)
     return 1 - ((counts / counts.sum()) ** 2).sum()
@@ -144,8 +144,8 @@ def churn_tree_data():
     return churn, X, (churn["Churn"] == "Yes").astype(int), preprocess
 
 
-def chapter12():
-    print("\nChapter 12")
+def chapter16():
+    print("\nChapter 16")
     churn, X, y, preprocess = churn_tree_data()
     print(f"Whole table: stayed {(y == 0).sum()}, left {(y == 1).sum()}, Gini {gini([(y == 0).sum(), (y == 1).sum()]):.3f}")
     candidates = {"Month-to-month": churn["Contract"] == "Month-to-month", "Fibre internet": churn["InternetService"] == "Fiber optic",
@@ -183,9 +183,9 @@ def chapter12():
     print(f"  it predicts {extrapolate:.1f} at 100 hours: a tree cannot leave the range of its labels")
 
 
-# ------------------------------------------------------------------ Chapter 13: ensembles
-def chapter13():
-    print("\nChapter 13")
+# ------------------------------------------------------------------ Chapter 17: ensembles
+def chapter17():
+    print("\nChapter 17")
     rng = np.random.default_rng(21)
     truth = 200
     guesses = truth + rng.normal(0, 40, size=(10_000, 25))               # independent guessers
@@ -240,9 +240,9 @@ def chapter13():
     print(f"Churn five folds: one tree {single.mean():.3f} (sd {single.std():.3f}), forest of 300 {forest.mean():.3f} (sd {forest.std():.3f})")
     FOUND["tree_forest"] = (single.mean(), forest.mean(), single.std(), forest.std())
 
-# ----------------------------------------------------------------------- Chapter 14: SVMs
-def chapter14():
-    print("\nChapter 14")
+# ----------------------------------------------------------------------- Chapter 18: SVMs
+def chapter18():
+    print("\nChapter 18")
     X = np.array([[1, 1], [2, 1], [1, 2], [3, 3], [4, 3], [3, 4]], dtype=float)
     y = np.array([-1, -1, -1, 1, 1, 1])
     model = SVC(kernel="linear", C=1e6).fit(X, y)
@@ -283,7 +283,7 @@ def loan_features():
 
 
 def lab3_numbers():
-    print("\nLab 3, as quoted in Chapters 11 to 14")
+    print("\nLab 3, as quoted in Chapters 15 to 18")
     X_all, y_all = loan_features()
     X = X_all.sample(20_000, random_state=42)
     y = y_all.loc[X.index]
@@ -402,11 +402,11 @@ def check_book_numbers():
 
 
 def main():
-    chapter10()
-    chapter11()
-    chapter12()
-    chapter13()
     chapter14()
+    chapter15()
+    chapter16()
+    chapter17()
+    chapter18()
     lab3_numbers()
 
     if CHECK_BOOK_NUMBERS:

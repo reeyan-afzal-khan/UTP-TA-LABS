@@ -68,7 +68,8 @@ print(heart[numbers].describe().loc[["min", "50%", "max"]].round(1))
 no_pressure = heart["RestingBP"] == 0
 no_cholesterol = heart["Cholesterol"] == 0
 print("\nblood pressure of 0:", no_pressure.sum(), "  cholesterol of 0:", no_cholesterol.sum(),
-      f"({no_cholesterol.mean():.1%} of the patients)", "  negative Oldpeak:", (heart["Oldpeak"] < 0).sum())
+      f"({no_cholesterol.mean():.1%} of the patients)",
+      "  negative Oldpeak:", (heart["Oldpeak"] < 0).sum())
 print(heart.loc[no_pressure, ["Age", "Sex", "RestingBP", "Cholesterol", "MaxHR", "HeartDisease"]])
 
 # %% Question 5 - See the zeros, then mark them as missing
@@ -102,7 +103,7 @@ blanks = heart.isna().sum()
 print("blank cells now:", blanks[blanks > 0].to_dict())
 
 # %% Question 6 - Seal a test set
-# stratify keeps the share of heart disease the same on both sides; random_state makes the split repeatable.
+# stratify keeps the share of heart disease equal on both sides; random_state makes the split repeatable.
 train, test = train_test_split(heart, test_size=0.2, random_state=42, stratify=heart[target])
 raw_train = raw.loc[train.index]             # the same training patients, with the zeros still in
 print("training patients:", len(train), "  test patients:", len(test))
@@ -216,7 +217,8 @@ plt.show()
 # %% Question 12 - A gap against the target
 not_measured = train["Cholesterol"].isna().rename("cholesterol not measured")
 print(pd.crosstab(not_measured, train[target]))
-print("\ndisease rate when cholesterol was not measured:", round(train.loc[not_measured, target].mean(), 3),
+print("\ndisease rate when cholesterol was not measured:",
+      round(train.loc[not_measured, target].mean(), 3),
       "  when it was:", round(train.loc[~not_measured, target].mean(), 3))
 
 # %% Question 13 - Correlations, computed twice

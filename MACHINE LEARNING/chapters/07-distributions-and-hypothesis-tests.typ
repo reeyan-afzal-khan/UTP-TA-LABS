@@ -264,7 +264,7 @@ Does the highest heart rate differ across the #emph[four] chest pain types? Runn
   / Between the groups.: For each group, take the squared distance of its mean from the overall mean, times its size, and add: 60,466. Divide by the number of groups minus one, 3: #strong[20,155.2].
   / Within the groups.: For each patient, take the squared distance from their own group's mean, and add: 428,671. Divide by the number of patients minus the number of groups, 730: #strong[587.2].
 
-  $ F = frac("spread between the group means", "spread within the groups") = frac(20(,)155.2, 587.2) = 34.32. $
+  $ F = frac("spread between the group means", "spread within the groups") = frac(20","155.2, 587.2) = 34.32. $
 
   If chest pain type told us nothing about heart rate, $F$ would be near 1. At 34.32 the p-value is $9 times 10^(-21)$.
 ]
@@ -301,7 +301,7 @@ A p-value of 0.0455 does #emph[not] mean a 4.55% chance that cholesterol is unre
 
 === Significant is not the same as large
 
-With enough rows, any difference becomes significant. Among Lab~1's 119,390 hotel bookings, those that were cancelled had been booked for 2.562 week nights on average, and those that were kept for 2.464. The gap is a tenth of a night, 0.05 of a standard deviation. Its p-value is $7 times 10^(-18)$.
+With enough rows, any difference becomes significant. Among Lab~1’s 119,390 hotel bookings, those that were cancelled had been booked for 2.562 week nights on average, and those that were kept for 2.464. The gap is a tenth of a night, 0.05 of a standard deviation. Its p-value is $7 times 10^(-18)$.
 
 The arrival's day of the month is better still. Cancelled bookings arrived on day 15.73 on average and kept ones on day 15.84, a gap of 0.013 standard deviations, and the p-value is 0.034: "significant". No hotel should plan around it.
 
@@ -328,7 +328,7 @@ The simplest defence is the #term[Bonferroni correction]: when you run $m$ tests
 == Where machine learning uses tests
 
 - #term[Screening features.] `f_classif` and `chi2` score every feature against the target, and `SelectKBest` keeps the top few. The score is a test statistic, so everything above applies: fit the selector on training rows only, and expect some noise columns to score well (#chapref(<ch:feature-selection>)).
-- #term[Comparing two models.] Model A scores 0.857 and model B 0.853. Is A better? Compare them on the same folds and look at the fold-by-fold differences: if their mean is small beside their spread, the models are tied (#chapref(<ch:evaluation>)). Lab~0's three pipelines differed by one point with a spread of four.
+- #term[Comparing two models.] Model A scores 0.857 and model B 0.853. Is A better? Compare them on the same folds and look at the fold-by-fold differences: if their mean is small beside their spread, the models are tied (#chapref(<ch:evaluation>)). Lab~0’s three pipelines differed by one point with a spread of four.
 - #term[Judging a change in production.] An A/B test gives half the customers the old model and half the new one, and tests the difference in the outcome that matters (#chapref(<ch:serving>)).
 - #term[Noticing that the world has moved.] A test that compares this month's incoming data with the training data is an early warning that a model is being asked about customers it never saw (#chapref(<ch:serving>)).
 

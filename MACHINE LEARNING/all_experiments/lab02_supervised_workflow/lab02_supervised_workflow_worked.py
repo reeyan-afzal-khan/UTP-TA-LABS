@@ -31,8 +31,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 # metrics for numbers (regression) ...
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 # ... and for classes (classification), with their plots
-from sklearn.metrics import (accuracy_score, average_precision_score, classification_report, confusion_matrix,
-                             precision_score, recall_score, roc_auc_score)
+from sklearn.metrics import (accuracy_score, average_precision_score, classification_report,
+                             confusion_matrix, precision_score, recall_score, roc_auc_score)
 from sklearn.metrics import ConfusionMatrixDisplay, PrecisionRecallDisplay, RocCurveDisplay
 
 # 3. Where this lab reads and writes.
@@ -40,7 +40,7 @@ DATA, RESULTS, MODELS = start_lab("lab02")
 
 # 4. One helper used in every part, the same as in Lab 1.
 def make_preprocess(num_cols, cat_cols):
-    """Prepare a table for a model: fill and scale the number columns, fill and one-hot encode the text columns."""
+    """Prepare a table: fill and scale the number columns, fill and one-hot encode the text columns."""
     numbers = Pipeline([
         ("impute", SimpleImputer(strategy="median")),
         ("scale", StandardScaler()),
@@ -62,17 +62,21 @@ used = cars[(cars["stock_type"] == "Used")
             & (cars["mileage_miles"] > 100)].copy()
 print(f"used listings kept: {len(used):,} of {(cars['stock_type'] == 'Used').sum():,}")
 
-# Sellers type the same thing many ways ("AWD", "All-wheel Drive", "All Wheel Drive" ...): map them to a few groups.
+# Sellers type the same thing many ways ("AWD", "All-wheel Drive", "All Wheel Drive" ...):
+# map them to a few groups.
 def tidy(column, groups):
-    """Each group is matched by a pattern in the lower-case text; the first match wins, no match becomes a gap."""
+    """Each group is matched by a pattern in the lower-case text; first match wins, no match is a gap."""
     text = column.str.lower()
     matches = [text.str.contains(pattern, na=False) for pattern in groups.values()]
     return pd.Series(np.select(matches, list(groups), default=None), index=column.index)
 
-print("spellings before tidying: drivetrain", used["drivetrain"].nunique(), " fuel", used["fuel"].nunique())
-used["drive"] = tidy(used["drivetrain"], {"AWD": "all|awd", "4WD": "four|4wd|4x4", "FWD": "front|fwd", "RWD": "rear|rwd"})
-used["fuel_type"] = tidy(used["fuel"], {"plug-in hybrid": "plug", "hybrid": "hybrid|mild", "electric": "electric",
-                                        "diesel": "diesel", "flex fuel": "flex|e85", "gasoline": "gas|petrol|unleaded"})
+print("spellings before tidying: drivetrain", used["drivetrain"].nunique(),
+      " fuel", used["fuel"].nunique())
+used["drive"] = tidy(used["drivetrain"], {"AWD": "all|awd", "4WD": "four|4wd|4x4",
+                                          "FWD": "front|fwd", "RWD": "rear|rwd"})
+used["fuel_type"] = tidy(used["fuel"], {"plug-in hybrid": "plug", "hybrid": "hybrid|mild",
+                                        "electric": "electric", "diesel": "diesel",
+                                        "flex fuel": "flex|e85", "gasoline": "gas|petrol|unleaded"})
 print(used["drive"].value_counts(dropna=False).to_dict())
 print(used["fuel_type"].value_counts(dropna=False).to_dict())
 
@@ -120,7 +124,8 @@ print(coefs[["num__age", "num__mileage_miles"]].round(0).to_string())
 
 # One coefficient per make. How many training listings stand behind each one?
 makes = coefs[coefs.index.str.startswith("cat__make_")].rename(lambda c: c.removeprefix("cat__make_"))
-by_make = pd.DataFrame({"coefficient": makes.round(-2), "listings": X_train["make"].value_counts()}).sort_values("coefficient")
+by_make = pd.DataFrame({"coefficient": makes.round(-2),
+                        "listings": X_train["make"].value_counts()}).sort_values("coefficient")
 print("the four largest:\n", by_make.tail(4).to_string())
 common = by_make[by_make["listings"] >= 500]             # makes with enough listings to trust
 print(len(common), "makes have 500 listings or more, for example:",
@@ -195,12 +200,15 @@ for label, part in [("train", hotels[in_train]), ("valid", hotels[~in_train])]:
 # %% Question 7 - Score one model on two splits
 def cancellation_model():
     """Lab 1's model: the preparation and a logistic regression, in one pipeline."""
-    return Pipeline([("preprocess", make_preprocess(h_num, h_cat)), ("model", LogisticRegression(max_iter=3000))])
+    return Pipeline([("preprocess", make_preprocess(h_num, h_cat)),
+                     ("model", LogisticRegression(max_iter=3000))])
 
 # The same model scored two ways: on a shuffled split, as in Lab 1, and on the date split.
-Xr_train, Xr_valid, yr_train, yr_valid = train_test_split(X_h, y_h, test_size=0.25, random_state=42, stratify=y_h)
+Xr_train, Xr_valid, yr_train, yr_valid = train_test_split(X_h, y_h, test_size=0.25, random_state=42,
+                                                          stratify=y_h)
 shuffled = cancellation_model().fit(Xr_train, yr_train)
-print("shuffled split, ROC AUC:    ", round(roc_auc_score(yr_valid, shuffled.predict_proba(Xr_valid)[:, 1]), 3))
+print("shuffled split, ROC AUC:    ",
+      round(roc_auc_score(yr_valid, shuffled.predict_proba(Xr_valid)[:, 1]), 3))
 
 dated = cancellation_model().fit(Xh_train, yh_train)
 prob_h = dated.predict_proba(Xh_valid)[:, 1]          # each 2017 booking's predicted chance of cancelling
@@ -231,7 +239,8 @@ print("majority-class baseline accuracy:", round(1 - yh_valid.mean(), 3))
 # Two classifiers with the same preparation, trained on 2015-2016 and scored on 2017, two ways.
 classifiers = {
     "logistic": LogisticRegression(max_iter=3000),
-    "random_forest": RandomForestClassifier(n_estimators=300, min_samples_leaf=5, random_state=42, n_jobs=-1),
+    "random_forest": RandomForestClassifier(n_estimators=300, min_samples_leaf=5,
+                                            random_state=42, n_jobs=-1),
 }
 scores, fitted_h = {}, {}
 for name, estimator in classifiers.items():
@@ -272,19 +281,21 @@ plt.ylabel("Bookings")
 plt.title("A threshold is a vertical line through this picture")
 plt.legend()
 plt.tight_layout()
-plt.savefig(RESULTS / "a_threshold_is_a_vertical_line_through_this_picture.png", dpi=160, bbox_inches="tight")
+plt.savefig(RESULTS / "a_threshold_is_a_vertical_line_through_this_picture.png",
+            dpi=160, bbox_inches="tight")
 plt.show()
 
 # %% Question 11 - Count errors at two thresholds
 for threshold in [0.50, 0.70]:
-    flagged = (prob_h >= threshold).astype(int)                   # 1 = treat the booking as a likely cancellation
+    flagged = (prob_h >= threshold).astype(int)                   # 1 = treat as a likely cancellation
     print(f"\nthreshold = {threshold:.2f}")
     print(confusion_matrix(yh_valid, flagged))                    # rows: the truth; columns: the decision
     print(classification_report(yh_valid, flagged, digits=3))
     ConfusionMatrixDisplay.from_predictions(yh_valid, flagged, display_labels=["kept", "cancelled"])
     plt.title(f"Confusion matrix at threshold {threshold:.2f}")
     plt.tight_layout()
-    plt.savefig(RESULTS / f"confusion_matrix_at_threshold_{threshold:.2f}.png", dpi=160, bbox_inches="tight")
+    plt.savefig(RESULTS / f"confusion_matrix_at_threshold_{threshold:.2f}.png",
+                dpi=160, bbox_inches="tight")
     plt.show()
 
 # %% Question 12 - Summarize the ranking: ROC and PR
@@ -323,7 +334,7 @@ plt.show()
 
 # %% Question 13 - Tune with cross-validation
 churn = pd.read_csv(DATA / "supervised/telco_customer_churn/telco_customer_churn.csv")
-churn["TotalCharges"] = pd.to_numeric(churn["TotalCharges"], errors="coerce").fillna(0)   # the Lab 1 repair
+churn["TotalCharges"] = pd.to_numeric(churn["TotalCharges"], errors="coerce").fillna(0)  # Lab 1's repair
 X_c = churn.drop(columns=["customerID", "Churn"])
 y_c = (churn["Churn"] == "Yes").astype(int)
 c_num = X_c.select_dtypes(include="number").columns.tolist()
@@ -331,7 +342,8 @@ c_cat = X_c.select_dtypes(exclude="number").columns.tolist()
 print(len(c_num), "numeric and", len(c_cat), "text columns;", f"{y_c.mean():.1%} of customers left")
 
 # The test rows are set aside first, and stay closed until Question 14.
-Xc_train, Xc_test, yc_train, yc_test = train_test_split(X_c, y_c, test_size=0.25, random_state=42, stratify=y_c)
+Xc_train, Xc_test, yc_train, yc_test = train_test_split(X_c, y_c, test_size=0.25, random_state=42,
+                                                        stratify=y_c)
 
 # Try every combination of C and class_weight with five-fold cross-validation on the training rows only.
 search = GridSearchCV(
@@ -380,9 +392,11 @@ final_model = search.best_estimator_
 model_path = MODELS / "customer_churn.joblib"
 joblib.dump(final_model, model_path)
 
-# ... and a model card records what it expects and how well it tested. The typical customer (the median of each
-# number column, the most common value of each text column) lets a script fill in any column it is not given.
-typical = {c: float(Xc_train[c].median()) if c in c_num else str(Xc_train[c].mode()[0]) for c in X_c.columns}
+# ... and a model card records what it expects and how well it tested. The typical customer
+# (the median of each number column, the most common value of each text column) lets a script
+# fill in any column it is not given.
+typical = {c: float(Xc_train[c].median()) if c in c_num else str(Xc_train[c].mode()[0])
+           for c in X_c.columns}
 card = {
     "task": "predict whether a telecom customer leaves (1 = churned) from the IBM Telco table",
     "features": X_c.columns.tolist(),
@@ -410,7 +424,8 @@ new_customers = pd.DataFrame([
      "PaymentMethod": "Bank transfer (automatic)", "MonthlyCharges": 60.0, "TotalCharges": 3600.0},
 ])
 new_customers["churn_probability"] = loaded.predict_proba(new_customers)[:, 1].round(3)
-print(new_customers[["tenure", "Contract", "InternetService", "PaymentMethod", "churn_probability"]].to_string())
+print(new_customers[["tenure", "Contract", "InternetService", "PaymentMethod",
+                     "churn_probability"]].to_string())
 
 # The same for the car-price model: one car, listed at two mileages.
 joblib.dump(fitted["linear regression"], MODELS / "used_car_prices.joblib")
@@ -426,25 +441,28 @@ rows = []
 for name, pred in predictions.items():
     rows.append({"part": "A", "dataset": "used_cars", "model": name, "metric": "mae",
                  "validation": mean_absolute_error(y_valid, pred)})
-rows.append({"part": "B", "dataset": "hotel_bookings", "model": "logistic (shuffled split)", "metric": "roc_auc",
+rows.append({"part": "B", "dataset": "hotel_bookings", "model": "logistic (shuffled split)",
+             "metric": "roc_auc",
              "validation": roc_auc_score(yr_valid, shuffled.predict_proba(Xr_valid)[:, 1])})
 for name, s in scores.items():
-    rows.append({"part": "C", "dataset": "hotel_bookings", "model": f"{name} (date split)", "metric": "roc_auc",
-                 "validation": s["roc_auc"]})
+    rows.append({"part": "C", "dataset": "hotel_bookings", "model": f"{name} (date split)",
+                 "metric": "roc_auc", "validation": s["roc_auc"]})
 rows.append({"part": "D", "dataset": "telco_customer_churn", "model": f"logistic {search.best_params_}",
              "metric": "roc_auc", "validation": search.best_score_, "test": test_auc})
 pd.DataFrame(rows).round(4).to_csv(RESULTS / "metrics.csv", index=False)
 monthly.round(4).to_csv(RESULTS / "monthly_cancellations.csv")
 
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
-model_files = [p.name for p in MODELS.iterdir() if p.name.startswith(("customer_churn", "used_car_prices"))]
+model_files = [p.name for p in MODELS.iterdir()
+               if p.name.startswith(("customer_churn", "used_car_prices"))]
 print("Model files:", sorted(model_files))
 
 # %% Question 18 - Try it yourself, and a decision memo
 # Your work here
 
 # %% Question 19 - One solution
-# Part A's linear regression, trained on the logarithm of the price; exp turns its predictions back into dollars.
+# Part A's linear regression, trained on the logarithm of the price;
+# exp turns its predictions back into dollars.
 log_model = Pipeline([("preprocess", make_preprocess(num_cols, cat_cols)), ("model", LinearRegression())])
 log_model.fit(X_train, np.log(y_train))
 log_pred = np.exp(log_model.predict(X_valid))
@@ -455,7 +473,8 @@ quarter_log = pd.qcut(log_pred, 4, labels=["cheapest", "second", "third", "deare
 print("spread of the residuals by quarter of predicted price:")
 print((y_valid - log_pred).groupby(quarter_log, observed=True).std().round(0).to_string())
 
-# On the log scale a coefficient is a percentage: one more year, or 10,000 more miles, multiplies the price by:
+# On the log scale a coefficient is a percentage:
+# one more year, or 10,000 more miles, multiplies the price by:
 log_coefs = pd.Series(log_model.named_steps["model"].coef_,
                       index=log_model.named_steps["preprocess"].get_feature_names_out())
 per_year = np.exp(log_coefs["num__age"] / X_train["age"].std())

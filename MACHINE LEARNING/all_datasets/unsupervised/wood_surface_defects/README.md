@@ -2,7 +2,7 @@
 
 15,701 photos of defects on sawn wooden boards, cut from 10,358 board photos and shrunk to 32 x 32 colour pixels, each labeled with one of 7 defect types, as NumPy arrays.
 
-**Used in:** Lab 4 (PCA: how few directions describe a defect) and Lab 7 (a CNN against the PCA baseline). Lab 4 never trains on the labels except to measure what PCA kept.
+**Used in:** Lab 4 (PCA: how few directions describe a defect), the chapter *Convolutional Networks* (dense networks against CNNs, shifts, augmentation and random starts) and Lab 7 (a CNN against the PCA baseline). Lab 4 never trains on the labels except to measure what PCA kept.
 
 **Source and licence:** Kodytek, Bodzas and Bilik, *A large-scale image dataset of wood surface defects for automated vision-based quality control processes*, F1000Research, 2022 (doi:10.12688/f1000research.52903.2), via [Hugging Face](https://huggingface.co/datasets/iluvvatar/wood_surface_defects); CC BY 4.0.
 

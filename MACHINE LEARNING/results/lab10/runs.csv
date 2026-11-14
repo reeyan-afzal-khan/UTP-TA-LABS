@@ -1,0 +1,5 @@
+time,model,version,gate_bookings,gate_auc,gate_brier,gate_expected,gate_cancelled
+2026-11-14 09:14:05,booking_cancellation,2017-01-01,14517,0.8549,0.147,4585,5548
+2026-11-14 09:18:51,booking_cancellation,2017-01-01,14517,0.8549,0.147,4585,5548
+2026-11-14 13:05:03,booking_cancellation,2017-01-01,14517,0.8549,0.147,4585,5548
+2026-11-14 18:18:37,booking_cancellation,2017-01-01,14517,0.8549,0.147,4585,5548

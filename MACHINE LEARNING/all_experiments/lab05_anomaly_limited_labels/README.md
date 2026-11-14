@@ -2,7 +2,7 @@
 
 Two ways to learn when labels are missing or scarce, on real data: an Isolation Forest that ranks 284,807 European card transactions for fraud review without ever seeing a fraud label, and self-training and active learning that stretch a small labeling budget for 13,083 messages to a bank's support chat in 77 intents (Banking77).
 
-**Lab sheet:** [`Lab-05/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-05/Lab-Activity.pdf), which practises Chapters 18 and 19.
+**Lab sheet:** [`Lab-05/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-05/Lab-Activity.pdf), which practises Chapters 23 and 25.
 
 ## Parts
 

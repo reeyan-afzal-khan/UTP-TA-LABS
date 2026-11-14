@@ -79,8 +79,10 @@
 
 #part[Language and Products]
 #include "chapters/30-learning-from-text.typ"
+#include "labs/09-learning-from-text.typ"
 
 #include "chapters/31-the-end-to-end-project.typ"
 #include "chapters/32-serving-and-monitoring.typ"
+#include "labs/10-end-to-end-project.typ"
 
 #include "chapters/capstone-project.typ"

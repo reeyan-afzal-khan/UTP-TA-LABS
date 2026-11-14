@@ -72,7 +72,7 @@ Three observations come out of ten lines of output, and each one is a decision.
   )
 ]
 
-That last row is the most useful single habit in this chapter: #emph[read the minimum and the maximum of every number column and ask whether a person, a price or a date could really have that value.] A blank cell announces itself. A zero, a 999, a `-1` or a date in 1900 hides in plain sight and is averaged along with everything else. Lab~1's bank table hides its gaps the same way, as the word `unknown` and the number 999.
+That last row is the most useful single habit in this chapter: #emph[read the minimum and the maximum of every number column and ask whether a person, a price or a date could really have that value.] A blank cell announces itself. A zero, a 999, a `-1` or a date in 1900 hides in plain sight and is averaged along with everything else. Lab~1’s bank table hides its gaps the same way, as the word `unknown` and the number 999.
 
 The repair is a fixed rule that comes from the meaning of the column, not from any statistic, so it may run before the split (#secref(<sec:cleaning>)).
 

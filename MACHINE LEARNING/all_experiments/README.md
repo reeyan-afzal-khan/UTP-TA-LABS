@@ -12,7 +12,8 @@ figures to `results/labNN/`, the lab's Try-it prompt with an empty cell to attem
 ```
 all_experiments/
   course_setup.py                 the setup every lab shares (see below)
-  lab01_features/                 lab01_features_worked.ipynb, .py twin, README.md
+  lab00_data_toolkit_eda/         lab00_data_toolkit_eda_worked.ipynb, .py twin, README.md
+  lab01_features/
   lab02_supervised_workflow/      ... and predict_churn.py
   lab03_supervised_models/
   lab04_clustering_pca/
@@ -20,11 +21,13 @@ all_experiments/
   lab06_reinforcement/
   lab07_deep_learning_cnn/
   lab08_deep_learning_lstm/
+  lab09_learning_from_text/
+  lab10_end_to_end_project/       ... and booking_project/, the project as a package
   book_checks/                    scripts that check every number the book prints
 ```
 
-The listings printed on the lab sheets are pulled from the `.py` twins by line number, so adding
-or removing a line in a twin means updating the sheet's `firstline` and `lastline`.
+The listings printed on the lab sheets are pulled from the `.py` twins by their `# %% Question n`
+markers, so a cell can grow or shrink without touching the sheet. Keep the markers as they are.
 
 ## Run
 
@@ -36,8 +39,8 @@ jupyter lab
 
 Open a lab's notebook and choose **Restart Kernel and Run All Cells**. Each notebook finds the
 course folder by looking upward for `all_datasets/`, so it runs wherever Jupyter was started
-inside the course. Most labs take under a minute on a laptop CPU, Lab 3 about two. Labs 7 and 8
-train neural networks and took about four minutes each on the CPU behind the printed numbers.
+inside the course. Most labs take under a minute on a laptop CPU, Labs 3 and 10 about two. Labs 7
+and 8 train neural networks and took about four minutes each on the CPU behind the printed numbers.
 
 ### The Setup cell
 
@@ -103,14 +106,17 @@ python -m ipykernel install --user --name my_env --display-name "Python (my_env)
 
 | Folder | Lab | Datasets (in `all_datasets/`) | Chapters | Saves a model |
 | --- | --- | --- | --- | --- |
-| `lab01_features/` | 1 Feature engineering and feature selection | hotel_bookings, telco_customer_churn, bank_marketing | 1A–3 | |
-| `lab02_supervised_workflow/` | 2 Supervised learning I: regression, classification, and the workflow | used_cars, hotel_bookings, telco_customer_churn | 4–10 | `customer_churn.joblib` + card, `used_car_prices.joblib` |
-| `lab03_supervised_models/` | 3 Supervised learning II: model families | lending_club, used_cars, sms_spam (Try-it) | 11–14 | `loan_default_svm.joblib` |
-| `lab04_clustering_pca/` | 4 Unsupervised learning I: clustering and PCA | online_retail_ii, wood_surface_defects | 15–17 | `wood_pca_logistic.joblib` |
-| `lab05_anomaly_limited_labels/` | 5 Unsupervised learning II: anomaly detection and limited labels | creditcard_fraud_ulb, banking77 | 18–19 | |
-| `lab06_reinforcement/` | 6 Reinforcement learning | none (GridWorld in the notebook) | 20 | `gridworld_q_table.npy` |
-| `lab07_deep_learning_cnn/` | 7 Deep learning I: a first neural network and a CNN for images | wood_surface_defects | 21 | `wood_cnn.pt` + card |
-| `lab08_deep_learning_lstm/` | 8 Deep learning II: an LSTM for time series | electricity_load_hourly | 21 | `electricity_lstm.pt` + card |
+| `lab00_data_toolkit_eda/` | 0 Python data toolkit and exploratory data analysis | heart_disease | 3, 7 | |
+| `lab01_features/` | 1 Feature engineering and feature selection | hotel_bookings, telco_customer_churn, bank_marketing | 4, 9 | |
+| `lab02_supervised_workflow/` | 2 Supervised learning I: regression, classification, and the workflow | used_cars, hotel_bookings, telco_customer_churn | 10–14 | `customer_churn.joblib` + card, `used_car_prices.joblib` |
+| `lab03_supervised_models/` | 3 Supervised learning II: model families | lending_club, used_cars, sms_spam (Try-it) | 15–18 | `loan_default_svm.joblib` |
+| `lab04_clustering_pca/` | 4 Unsupervised learning I: clustering and PCA | online_retail_ii, wood_surface_defects | 20–22 | `wood_pca_logistic.joblib` |
+| `lab05_anomaly_limited_labels/` | 5 Unsupervised learning II: anomaly detection and limited labels | creditcard_fraud_ulb, banking77 | 23, 25 | |
+| `lab06_reinforcement/` | 6 Reinforcement learning | none (GridWorld in the notebook) | 26 | `gridworld_q_table.npy` |
+| `lab07_deep_learning_cnn/` | 7 Deep learning I: a first neural network and a CNN for images | wood_surface_defects | 27–29 | `wood_cnn.pt` + card |
+| `lab08_deep_learning_lstm/` | 8 Deep learning II: an LSTM for time series | electricity_load | 30 | `electricity_lstm.pt` + card |
+| `lab09_learning_from_text/` | 9 Learning from text | sms_spam, banking77 | 31 | `bank_intent_tfidf_logistic.joblib` + card |
+| `lab10_end_to_end_project/` | 10 The end-to-end project | hotel_bookings | 32, 33 | `booking_cancellation.joblib` + card |
 
 `all_datasets/` groups the datasets by how the course learns from them (`supervised/`,
 `unsupervised/`, `advanced/`), one folder per dataset with a README, its data card: source,
@@ -140,6 +146,12 @@ The PyTorch files (`.pt`) hold weights only; rebuild the architecture with `make
 or `LSTMForecaster()` (Lab 8) and call `load_state_dict`, as the labs' Part D shows. The LSTM
 card also stores the scale the inputs must be divided by.
 
+Lab 10's booking model is served the way a real model is: `booking_project/serve.py` puts it behind
+a small Flask web service, `booking_project/app.py` is a Streamlit page for trying one booking, and
+`booking_project/test_project.py` runs the project's tests, either as a script or with `pytest`. The
+chapter *Serving and Monitoring* shows how each one is started; the folder's `requirements.txt` and
+`Dockerfile` pin what a server needs.
+
 ## Scripts that check the book
 
 Every worked number printed in a chapter comes from one of the scripts in `book_checks/`, which
@@ -147,12 +159,25 @@ assert it and end with `Every number above matches the book.` Run them from the 
 
 | Script | What it checks |
 | --- | --- |
-| `demo_study_log.py` | The ten-student study log that runs through the book |
-| `demo_foundations.py` | Chapters 3 and 5 to 9 |
-| `demo_model_families.py` | Chapters 10 to 14, and Lab 3's printed numbers |
-| `demo_unsupervised.py` | Chapters 15 to 19, and Lab 5's printed numbers |
-| `demo_advanced.py` | Chapters 20 and 21, with NumPy only |
+| `demo_study_log.py` | The ten-student study log that runs through the book (Chapters 2, 5, 13, 14, 21 and 22) |
+| `demo_data_toolkit.py` | Chapter 3: NumPy, pandas and plots |
+| `demo_foundations.py` | Chapters 4, 6 and 10 to 13: data, statistics, losses, metrics, training |
+| `demo_exploration.py` | Chapters 7 to 9: exploring a table, hypothesis tests, features |
+| `demo_model_families.py` | Chapters 14 to 18, and Lab 3's printed numbers |
+| `demo_selection.py` | Chapter 19: feature selection |
+| `demo_unsupervised.py` | Chapters 20 to 23 and 25, and Lab 5's printed numbers |
+| `demo_recommenders.py` | Chapter 24: recommender systems |
+| `demo_advanced.py` | Chapters 26, 27, 29 and 30: the small worked numbers, with NumPy only |
+| `demo_deep_training.py` | Chapter 28: training deep networks |
+| `demo_cnn.py` | Chapter 29: convolutional networks |
+| `demo_sequence.py` | Chapter 30: sequence models and attention |
+| `demo_text.py` | Chapter 31: learning from text |
+| `demo_project.py` | Chapter 32: the end-to-end project |
+| `demo_serving.py` | Chapter 33: serving and monitoring |
 | `check_your_turn.py` | The expected findings of every lab's Your-turn tasks; `python all_experiments/book_checks/check_your_turn.py lab03` runs one lab |
+
+The scripts that train networks (`demo_deep_training.py`, `demo_cnn.py`, `demo_sequence.py`) take one
+to two minutes each and allow for the small differences that another computer's arithmetic can make.
 
 ## Evidence
 

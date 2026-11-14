@@ -2,7 +2,7 @@
 
 Every invoice line of a UK online gift shop from December 2009 to December 2011: 1,067,371 lines, 8 columns, one CSV inside the ZIP.
 
-**Used in:** Lab 4 (customer segments with K-means and DBSCAN).
+**Used in:** Lab 4 (customer segments with K-means and DBSCAN) and the chapter *Recommender Systems* (five recommenders tested on what customers bought next; `all_experiments/book_checks/demo_recommenders.py`).
 
 **Source and licence:** [UCI](https://archive.ics.uci.edu/dataset/502/online+retail+ii) (Chen, 2012), via [Hugging Face](https://huggingface.co/datasets/attik/Online-Retail-II-UCI); CC BY 4.0.
 
@@ -21,6 +21,7 @@ Every invoice line of a UK online gift shop from December 2009 to December 2011:
 - Keep it zipped: pandas reads the CSV inside, and reading the million lines takes a few seconds.
 - 22.8% of lines have no customer ID, 1.8% are cancellations, and 34,335 are exact duplicates; Lab 4's cleaning rules leave 779,425 lines from 5,878 customers.
 - Read `Invoice` and `StockCode` as text: some codes carry letters.
+- Real products have stock codes that begin with five digits. After Lab 4's cleaning, 2,848 lines under 12 other codes remain, almost all postage, carriage, discounts, bank charges, manual adjustments and test entries; the recommender chapter drops them.
 
 ## Columns of `online_retail_ii.zip`
 

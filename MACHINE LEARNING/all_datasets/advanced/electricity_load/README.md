@@ -2,7 +2,7 @@
 
 Hourly electricity use, in kWh, of 158 Portuguese customers from 1 January 2011 to 31 December 2014: 35,064 hours, one column per customer, one CSV inside the ZIP.
 
-**Used in:** Lab 8 (LSTM forecasting).
+**Used in:** the chapter *Sequence Models and Attention* (recurrent networks, GRU, LSTM and attention on the same forecast) and Lab 8 (LSTM forecasting).
 
 **Source and licence:** [UCI](https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014) (Trindade, 2015, doi:10.24432/C58C86), via [Hugging Face](https://huggingface.co/datasets/sxj1024/electricity_load_2011_2014); CC BY 4.0.
 

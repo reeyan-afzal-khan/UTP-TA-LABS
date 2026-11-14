@@ -14,7 +14,8 @@ import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
 from course_setup import start_lab, start_pytorch
 
-# 2. PyTorch: installed once if missing; then the device to train on (a GPU if PyTorch can see one, else the CPU).
+# 2. PyTorch: installed once if missing; then the device to train on
+#    (a GPU if PyTorch can see one, else the CPU).
 DEVICE = start_pytorch()
 import torch
 from torch import nn
@@ -33,11 +34,14 @@ DATA, RESULTS, MODELS = start_lab("lab08")
 # One row per hour, one column per customer, in kWh. hour_start becomes the row index.
 loads = pd.read_csv(DATA / "advanced/electricity_load/electricity_load_hourly.zip",
                     parse_dates=["hour_start"], index_col="hour_start")
-print("hours:", len(loads), " customers:", loads.shape[1], " first hour:", loads.index[0], " last hour:", loads.index[-1])
+print("hours:", len(loads), " customers:", loads.shape[1],
+      " first hour:", loads.index[0], " last hour:", loads.index[-1])
 
-demand = loads.sum(axis=1) / 1000          # add up the customers, kWh -> MWh: what the supplier must buy each hour
+# Add up the customers, kWh -> MWh: what the supplier must buy each hour.
+demand = loads.sum(axis=1) / 1000
 print(f"demand per hour: mean {demand.mean():.1f} MWh")
-print(f"lowest hour: {demand.min():.1f} MWh at {demand.idxmin()}; highest: {demand.max():.1f} MWh at {demand.idxmax()}")
+print(f"lowest hour: {demand.min():.1f} MWh at {demand.idxmin()}; "
+      f"highest: {demand.max():.1f} MWh at {demand.idxmax()}")
 
 fig, axes = plt.subplots(1, 2, figsize=(11, 3.4), gridspec_kw={"width_ratios": [2, 1]})
 axes[0].plot(demand["2014-01-06":"2014-01-19"].to_numpy())         # two weeks, Monday to Sunday
@@ -79,8 +83,9 @@ def make_windows(values, lookback):
     return windows, values[hours], hours
 
 def split_by_period(X, y, hours):
-    """Tensors for the train, validation and test periods; a row belongs to the period of the hour it predicts.
-    Each window gets a last dimension of size 1: one value per step."""
+    """Tensors for the train, validation and test periods.
+    A row belongs to the period of the hour it predicts, and each window gets a last dimension
+    of size 1: one value per step."""
     of_row = period.to_numpy()[hours]
     splits = []
     for p in ["train", "validation", "test"]:
@@ -94,7 +99,8 @@ windows, targets, target_hours = make_windows(scaled, LOOKBACK)
 print("windows:", windows.shape, " train:", tuple(X_train.shape), " validation:", tuple(X_valid.shape),
       " test:", tuple(X_test.shape))
 print("first window (MWh):", np.round(windows[0, :6] * scale, 1), "...")
-print("its label, the next hour:", round(float(targets[0] * scale), 1), "MWh at", demand.index[target_hours[0]])
+print("its label, the next hour:", round(float(targets[0] * scale), 1),
+      "MWh at", demand.index[target_hours[0]])
 
 # %% Question 5 - Compute three free forecasts
 def mae(forecast, name):
@@ -103,14 +109,15 @@ def mae(forecast, name):
     return float((demand[hours] - forecast[hours]).abs().mean())
 
 # Each free forecast is the demand series shifted: by 1 hour, by 24 hours, by 168 hours.
-free = {"last hour": demand.shift(1), "same hour yesterday": demand.shift(24), "same hour last week": demand.shift(168)}
+free = {"last hour": demand.shift(1), "same hour yesterday": demand.shift(24),
+        "same hour last week": demand.shift(168)}
 baselines = {name: mae(forecast, "validation") for name, forecast in free.items()}
 for name, value in baselines.items():
     print(f"{name:20s} validation MAE = {value:.2f} MWh")
 
 # %% Question 6 - Build and train the LSTM
 class LSTMForecaster(nn.Module):
-    """An LSTM reads the window one step at a time; a linear layer turns its final state into one forecast."""
+    """An LSTM reads the window step by step; a linear layer turns its final state into one forecast."""
 
     def __init__(self, hidden_size=32, input_size=1):
         super().__init__()
@@ -118,7 +125,7 @@ class LSTMForecaster(nn.Module):
         self.head = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
-        states, _ = self.lstm(x)                          # (rows, steps, hidden_size): the state after each step
+        states, _ = self.lstm(x)                          # (rows, steps, hidden): state after each step
         return self.head(states[:, -1, :]).squeeze(-1)    # the final state predicts the next hour
 
 def validation_mae(model, X, y):
@@ -141,7 +148,7 @@ def train_forecaster(model, X, y, X_v, y_v, epochs=12, lr=3e-3, batch_size=64, v
             loss_fn(model(X[batch]), y[batch]).backward()
             optimizer.step()
         history.append(validation_mae(model, X_v, y_v))
-        if history[-1] == min(history):                   # the best epoch so far: keep a copy of its weights
+        if history[-1] == min(history):                   # best epoch so far: keep a copy of its weights
             best_weights = copy.deepcopy(model.state_dict())
         if verbose:
             print(f"epoch {epoch + 1:2d}: validation MAE = {history[-1]:.2f} MWh")
@@ -205,15 +212,18 @@ axes[1].set_title("Where the LSTM misses")
 plt.tight_layout()
 plt.savefig(RESULTS / "one_hour_ahead_forecasts_and_errors.png", dpi=160, bbox_inches="tight")
 plt.show()
-print("hours of day with the largest MAE:", by_hour.sort_values(ascending=False).head(3).round(2).to_dict())
+print("hours of day with the largest MAE:",
+      by_hour.sort_values(ascending=False).head(3).round(2).to_dict())
 
 # %% Question 10 - Save the weights and the scale
 # The weights go to one file; the card records everything needed to use them, the scale above all.
 weights_path = MODELS / "electricity_lstm.pt"
 torch.save(model.state_dict(), weights_path)
 card = {
-    "task": "forecast next-hour total electricity demand (MWh) of 158 Portuguese customers from the previous 24 hours",
-    "input": f"tensor of shape (n, {LOOKBACK}, 1): the last {LOOKBACK} hourly totals in MWh divided by scale",
+    "task": ("forecast next-hour total electricity demand (MWh) of 158 Portuguese customers"
+             " from the previous 24 hours"),
+    "input": (f"tensor of shape (n, {LOOKBACK}, 1): the last {LOOKBACK} hourly totals"
+              " in MWh divided by scale"),
     "output": "next-hour demand divided by scale; multiply by scale for MWh",
     "scale": round(scale, 4),
     "architecture": "LSTMForecaster(hidden_size=32) in Lab 8",
@@ -229,7 +239,7 @@ card = {
 # Rebuild the network, load the weights, check it forecasts exactly as before, then forecast the next hour.
 restored = LSTMForecaster().to(DEVICE)
 restored.load_state_dict(torch.load(weights_path, map_location=DEVICE, weights_only=True))
-last_day = torch.tensor(scaled[-LOOKBACK:]).reshape(1, LOOKBACK, 1).to(DEVICE)      # the last 24 hours of 2014
+last_day = torch.tensor(scaled[-LOOKBACK:]).reshape(1, LOOKBACK, 1).to(DEVICE)  # the last 24 hours of 2014
 restored.eval()
 with torch.no_grad():
     same = torch.equal(restored(X_test), model(X_test))

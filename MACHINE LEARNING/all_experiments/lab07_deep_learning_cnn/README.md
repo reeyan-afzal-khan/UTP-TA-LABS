@@ -2,7 +2,7 @@
 
 A dense network and a convolutional network written in PyTorch with one explicit training loop, trained on photos of seven kinds of wood surface defect and tested once on 3,134 images from boards no model has seen, against Lab 4's classical baseline on the same images. The lab inspects the CNN's mistakes and filters and saves its weights with a model card.
 
-**Lab sheet:** [`Lab-07/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-07/Lab-Activity.pdf), which practises Chapter 21.
+**Lab sheet:** [`Lab-07/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-07/Lab-Activity.pdf), which practises Chapters 27 to 29.
 
 ## Parts
 

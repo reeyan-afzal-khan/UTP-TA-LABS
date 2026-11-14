@@ -2,7 +2,7 @@
 
 Feature engineering and feature selection on three real tables: two Portuguese hotels' bookings, a telecom company's customers and a bank's marketing calls. You read a data card before the data, build features that exist when the booking is made, watch scaling change who counts as a neighbor, and select features without letting a column from the future leak in.
 
-**Lab sheet:** [`Lab-01/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-01/Lab-Activity.pdf), which practises Chapters 1A to 3.
+**Lab sheet:** [`Lab-01/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-01/Lab-Activity.pdf), which practises Chapters 4 and 9.
 
 ## Parts
 

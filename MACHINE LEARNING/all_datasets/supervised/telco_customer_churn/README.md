@@ -2,7 +2,7 @@
 
 7,043 customers of a telecom company and whether they left (`Churn`), with 21 columns of account and service details.
 
-**Used in:** Lab 1 (repairing types, scaling and nearest neighbors) and Lab 2 (tuning, and the saved model).
+**Used in:** the chapter *Python for Data* (a first real table), Lab 1 (repairing types, scaling and nearest neighbors), Lab 2 (tuning, and the saved model), and the chapter *Training Deep Networks* (initialization, optimizers, learning rates and regularization on one table).
 
 **Source and licence:** IBM sample data, via [Hugging Face](https://huggingface.co/datasets/scikit-learn/churn-prediction); CC BY 4.0.
 

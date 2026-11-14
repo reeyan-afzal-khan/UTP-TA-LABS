@@ -52,7 +52,7 @@ X_all = pd.DataFrame({
     "loan_amnt": loans["loan_amnt"],
     "term_months": loans["term"].str.extract(r"(\d+)")[0].astype(int),          # " 36 months" -> 36
     "int_rate": loans["int_rate"],
-    "log_income": np.log1p(loans["annual_inc"]),                                # incomes run into the millions
+    "log_income": np.log1p(loans["annual_inc"]),                                # incomes reach millions
     "dti": loans["dti"],
     "fico": (loans["fico_range_low"] + loans["fico_range_high"]) / 2,
     "revol_util": loans["revol_util"],
@@ -60,8 +60,9 @@ X_all = pd.DataFrame({
     "delinq_2y": loans["delinq_2yrs"],
     "open_acc": loans["open_acc"],
     "mort_acc": loans["mort_acc"],
-    "emp_years": loans["emp_length"].replace({"< 1 year": "0 years"}).str.extract(r"(\d+)")[0].astype(float),
-    "credit_years": (issued - first_credit).dt.days / 365.25,                   # length of the credit history
+    "emp_years": loans["emp_length"].replace({"< 1 year": "0 years"})
+                 .str.extract(r"(\d+)")[0].astype(float),
+    "credit_years": (issued - first_credit).dt.days / 365.25,                   # length of credit history
 })
 y_all = (loans["loan_status"] == "Charged Off").astype(int)
 print("missing values:", X_all.isna().sum()[lambda s: s > 0].to_dict())
@@ -70,7 +71,8 @@ print("missing values:", X_all.isna().sum()[lambda s: s > 0].to_dict())
 X = X_all.sample(20_000, random_state=42)
 y = y_all.loc[X.index]
 X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
-print(len(X_train), "training and", len(X_valid), "validation loans;", int(y_valid.sum()), "validation defaults")
+print(len(X_train), "training and", len(X_valid), "validation loans;",
+      int(y_valid.sum()), "validation defaults")
 
 # Every model below fills the few gaps with the training median, then scales: one shared first half.
 def prepare():
@@ -138,7 +140,8 @@ for ax, (name, estimator) in zip(axes, families.items()):
     DecisionBoundaryDisplay.from_estimator(small, shown, ax=ax, response_method="predict_proba",
                                            cmap="coolwarm", alpha=0.6, vmin=0, vmax=0.6)
     ax.scatter(shown.loc[repaid, two[0]], shown.loc[repaid, two[1]], s=2, color="grey", alpha=0.3)
-    ax.scatter(shown.loc[~repaid, two[0]], shown.loc[~repaid, two[1]], s=5, color="black", marker="x", alpha=0.5)
+    ax.scatter(shown.loc[~repaid, two[0]], shown.loc[~repaid, two[1]],
+               s=5, color="black", marker="x", alpha=0.5)
     ax.set_title(f"{name}: ROC AUC {auc:.2f}")
     ax.set_xlabel("interest rate (%)")
     ax.set_ylabel("debt-to-income ratio (%)")
@@ -207,14 +210,16 @@ used = cars[(cars["stock_type"] == "Used") & cars["price_usd"].between(1_000, 20
             & (cars["mileage_miles"] > 100)].copy()
 
 def tidy(column, groups):
-    """Each group is matched by a pattern in the lower-case text; the first match wins, no match becomes a gap."""
+    """Each group is matched by a pattern in the lower-case text; first match wins, no match is a gap."""
     text = column.str.lower()
     matches = [text.str.contains(pattern, na=False) for pattern in groups.values()]
     return pd.Series(np.select(matches, list(groups), default=None), index=column.index)
 
-used["drive"] = tidy(used["drivetrain"], {"AWD": "all|awd", "4WD": "four|4wd|4x4", "FWD": "front|fwd", "RWD": "rear|rwd"})
-used["fuel_type"] = tidy(used["fuel"], {"plug-in hybrid": "plug", "hybrid": "hybrid|mild", "electric": "electric",
-                                        "diesel": "diesel", "flex fuel": "flex|e85", "gasoline": "gas|petrol|unleaded"})
+used["drive"] = tidy(used["drivetrain"], {"AWD": "all|awd", "4WD": "four|4wd|4x4",
+                                          "FWD": "front|fwd", "RWD": "rear|rwd"})
+used["fuel_type"] = tidy(used["fuel"], {"plug-in hybrid": "plug", "hybrid": "hybrid|mild",
+                                        "electric": "electric", "diesel": "diesel",
+                                        "flex fuel": "flex|e85", "gasoline": "gas|petrol|unleaded"})
 used["age"] = (2026 - used["year"]).clip(lower=0)
 
 # Trees split on numbers, so each category becomes a code (Toyota = 68, say); a gap gets the code -1.
@@ -272,7 +277,7 @@ print(ranked.sort_values(ascending=False).round(3).to_string())
 
 fig, axes = plt.subplots(1, 2, figsize=(11, 4.2))
 axes[0].barh(ranked.index, ranked.values)
-axes[0].set_xlabel("Increase in squared log error when the column is shuffled")
+axes[0].set_xlabel("Drop in R2 (log price) when the column is shuffled")
 axes[0].set_title("Permutation importance (gradient boosting)")
 axes[1].scatter(price_true / 1e3, price_pred / 1e3, s=3, alpha=0.3)
 axes[1].plot([0, 200], [0, 200], linestyle="--", color="grey")
@@ -307,7 +312,8 @@ search = GridSearchCV(
 )
 search.fit(X_train, y_train)
 
-score = search.decision_function(X_test)          # distance from the boundary: higher means more likely to default
+# Distance from the boundary: higher means more likely to default.
+score = search.decision_function(X_test)
 pred = search.predict(X_test)                     # the decision at the boundary itself
 print("best parameters:", search.best_params_)
 print("cross-validated ROC AUC:", round(search.best_score_, 3))
@@ -341,15 +347,17 @@ kernels = {
     "RBF kernel (gamma = 1)": SVC(kernel="rbf", C=1, gamma=1.0, class_weight="balanced"),
 }
 defaulted = (y_test == 1).to_numpy()
-drawn = X_test[two].fillna(X_train[two].median()).iloc[:4000]          # 4,000 test loans keep the plot readable
+drawn = X_test[two].fillna(X_train[two].median()).iloc[:4000]   # 4,000 test loans keep the plot readable
 for ax, (title, estimator) in zip(axes[1:], kernels.items()):
     small = Pipeline(prepare() + [("model", estimator)])
     small.fit(X_train[two], y_train)
     auc = roc_auc_score(y_test, small.decision_function(X_test[two]))
-    DecisionBoundaryDisplay.from_estimator(small, drawn, ax=ax, alpha=0.3, response_method="predict", cmap="coolwarm")
-    ax.scatter(drawn.loc[~defaulted[:4000], two[0]], drawn.loc[~defaulted[:4000], two[1]], s=2, color="grey", alpha=0.3)
-    ax.scatter(drawn.loc[defaulted[:4000], two[0]], drawn.loc[defaulted[:4000], two[1]], s=5, color="black",
-               marker="x", alpha=0.5)
+    DecisionBoundaryDisplay.from_estimator(small, drawn, ax=ax, alpha=0.3,
+                                           response_method="predict", cmap="coolwarm")
+    ax.scatter(drawn.loc[~defaulted[:4000], two[0]], drawn.loc[~defaulted[:4000], two[1]],
+               s=2, color="grey", alpha=0.3)
+    ax.scatter(drawn.loc[defaulted[:4000], two[0]], drawn.loc[defaulted[:4000], two[1]],
+               s=5, color="black", marker="x", alpha=0.5)
     ax.set_title(f"{title}: test ROC AUC {auc:.2f}")
     ax.set_xlabel("interest rate (%)")
     ax.set_ylabel("debt-to-income ratio (%)")
@@ -370,22 +378,24 @@ print("reloaded model reproduces the test predictions:", same)
 pd.Series(cv_scores, name="cv_roc_auc").rename_axis("k").round(4).to_csv(RESULTS / "knn_selection.csv")
 (RESULTS / "loan_tree_rules.txt").write_text(rules)
 pd.DataFrame(cv_rmse).round(4).to_csv(RESULTS / "car_price_fold_scores.csv", index=False)
-grid_columns = ["param_model__kernel", "param_model__C", "param_model__gamma", "mean_test_score", "std_test_score",
-                "rank_test_score"]
-results[grid_columns].sort_values("rank_test_score").round(4).to_csv(RESULTS / "svm_grid_search.csv", index=False)
+grid_columns = ["param_model__kernel", "param_model__C", "param_model__gamma", "mean_test_score",
+                "std_test_score", "rank_test_score"]
+results[grid_columns].sort_values("rank_test_score").round(4).to_csv(
+    RESULTS / "svm_grid_search.csv", index=False)
 
 # One row per model, collected from the parts above.
 rows = []
 for name, m in models.items():
     rows.append({"part": "A", "dataset": "lending_club", "model": name, "metric": "roc_auc",
                  "validation": roc_auc_score(y_valid, m.predict_proba(X_valid)[:, 1])})
-rows.append({"part": "B", "dataset": "lending_club", "model": "decision_tree(depth=3)", "metric": "average_precision",
-             "validation": average_precision_score(y_valid, prob_tree)})
+rows.append({"part": "B", "dataset": "lending_club", "model": "decision_tree(depth=3)",
+             "metric": "average_precision", "validation": average_precision_score(y_valid, prob_tree)})
 for name, values in cv_rmse.items():
     rows.append({"part": "C", "dataset": "used_cars", "model": name, "metric": "cv_log_rmse",
                  "validation": values.mean()})
-rows.append({"part": "D", "dataset": "lending_club", "model": f"svc {search.best_params_}", "metric": "roc_auc",
-             "validation": search.best_score_, "test": roc_auc_score(y_test, score)})
+rows.append({"part": "D", "dataset": "lending_club", "model": f"svc {search.best_params_}",
+             "metric": "roc_auc", "validation": search.best_score_,
+             "test": roc_auc_score(y_test, score)})
 pd.DataFrame(rows).round(4).to_csv(RESULTS / "metrics.csv", index=False)
 print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 
@@ -397,8 +407,8 @@ sms = pd.read_csv(DATA / "supervised/sms_spam/sms_spam.csv")
 y_s = (sms["label"] == "spam").astype(int)
 print("messages:", len(sms), " spam share:", round(y_s.mean(), 3),
       " repeated messages:", int(sms["message"].duplicated().sum()))
-Xs_train, Xs_valid, ys_train, ys_valid = train_test_split(sms["message"], y_s, test_size=0.25, random_state=42,
-                                                          stratify=y_s)
+Xs_train, Xs_valid, ys_train, ys_valid = train_test_split(sms["message"], y_s, test_size=0.25,
+                                                          random_state=42, stratify=y_s)
 
 # Each pipeline turns the messages into word columns first, then classifies them.
 text_models = {
@@ -414,7 +424,8 @@ text_models = {
 for name, model in text_models.items():
     model.fit(Xs_train, ys_train)
     p = model.predict_proba(Xs_valid)[:, 1]
-    print(f"{name:28s} ROC AUC={roc_auc_score(ys_valid, p):.3f}  precision={precision_score(ys_valid, p >= 0.5):.3f}  "
+    print(f"{name:28s} ROC AUC={roc_auc_score(ys_valid, p):.3f}  "
+          f"precision={precision_score(ys_valid, p >= 0.5):.3f}  "
           f"recall={recall_score(ys_valid, p >= 0.5):.3f}")
 
 # Which words push a message towards spam? Compare each word's log probability in spam and in ham.

@@ -14,7 +14,8 @@ import sys
 sys.path.insert(0, "..")                     # all_experiments/, where course_setup.py lives
 from course_setup import start_lab, start_pytorch
 
-# 2. PyTorch: installed once if missing; then the device to train on (a GPU if PyTorch can see one, else the CPU).
+# 2. PyTorch: installed once if missing; then the device to train on
+#    (a GPU if PyTorch can see one, else the CPU).
 DEVICE = start_pytorch()
 import torch
 from torch import nn
@@ -37,8 +38,10 @@ class_names = [str(name) for name in wood["classes"]]
 labels, boards = wood["y"], wood["board"]
 
 # Lab 4's board-wise splits, with the same seeds, so the test boards are the ones Lab 4's PCA model saw.
-dev, test = next(GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=42).split(labels, labels, boards))
-fit, val = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42).split(dev, labels[dev], boards[dev]))
+dev, test = next(GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=42)
+                 .split(labels, labels, boards))
+fit, val = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42)
+                .split(dev, labels[dev], boards[dev]))
 fit, val = dev[fit], dev[val]
 
 def to_tensors(rows):
@@ -210,7 +213,8 @@ for ax, kernel in zip(axes.flat, filters):
     ax.imshow(kernel, cmap="coolwarm", vmin=-limit, vmax=limit)
     ax.axis("off")
 plt.suptitle("The sixteen 3x3 filters of the first convolutional layer, colours added", y=1.02)
-plt.savefig(RESULTS / "the_sixteen_3x3_filters_of_the_first_convolutional_layer.png", dpi=160, bbox_inches="tight")
+plt.savefig(RESULTS / "the_sixteen_3x3_filters_of_the_first_convolutional_layer.png",
+            dpi=160, bbox_inches="tight")
 plt.show()
 
 # What the first layer (convolution, then ReLU) makes of one test image: sixteen feature maps.
@@ -268,7 +272,8 @@ long_run = make_cnn().to(DEVICE)
 long_history = train_classifier(long_run, X_fit, y_fit, X_val, y_val, epochs=25)
 best = int(np.argmax(long_history["validation"])) + 1
 print(f"25 epochs: best validation {max(long_history['validation']):.4f} at epoch {best}; "
-      f"last epoch: training {long_history['train'][-1]:.4f}, validation {long_history['validation'][-1]:.4f}")
+      f"last epoch: training {long_history['train'][-1]:.4f}, "
+      f"validation {long_history['validation'][-1]:.4f}")
 plot_history(long_history, "CNN over 25 epochs")
 
 # Part 2: a CNN with only the first block; the flattened vector is now 16 x 16 x 16.

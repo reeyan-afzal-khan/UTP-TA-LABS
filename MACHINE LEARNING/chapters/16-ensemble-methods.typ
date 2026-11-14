@@ -379,19 +379,19 @@ Apply the association-versus-causation distinction from #secref(<sec:correlation
 ]
 
 #tryit[
-  Compare a single tree, a random forest, and a gradient-boosting model with the same cross-validation splits. Record mean validation score, descriptive fold spread, fit time, and prediction time. Decide whether any gain justifies the added cost, then evaluate the locked choice on the test set once.
+  Compare a single tree, a random forest and gradient boosting on the same cross-validation splits: mean score, fold spread, fit time and prediction time. Does any gain justify its cost? Then test the locked choice once.
 ]
 
 #chapterrecap[
   - Averaging cancels errors only if members disagree. Correlation sets a floor that more models cannot get below.
-  - Bagging fits trees independently on bootstrap samples, each of which misses about 36.8% of the rows, giving a free out-of-bag estimate. Forests add random feature subsets to force more disagreement.
+  - Bagging fits trees on bootstrap samples; each misses about 36.8% of the rows, which gives a free out-of-bag estimate. Forests add random feature subsets for more disagreement.
   - Boosting adds shallow trees in sequence. AdaBoost reweights hard rows; gradient boosting fits residuals with a learning rate.
   - Forests are forgiving; boosting is often stronger and needs tuning and early stopping. Neither wins everywhere, as Lab~3’s car prices and loans show.
   - Keep the ensemble only if a validated gain justifies its cost.
 ]
 
 #quickcheck[
-  + How does bagging reduce variance, and how does boosting differ in the way later learners are constructed?
+  + How does bagging reduce variance, and how does boosting build its later learners differently?
   + With $rho =0.25$ and $B=100$, what fraction of one model’s variance does the average keep?
   + Why does a random forest consider only a subset of features at many splits?
   + A weak learner has weighted error 0.1. What is its say $alpha$, and by what factor do misclassified weights grow before renormalizing?

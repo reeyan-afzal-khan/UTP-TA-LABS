@@ -333,7 +333,7 @@ Two year          1695
 One year          1473
 ```
 
-`read_csv` guesses a type for each column, and its guesses are worth checking. It reads a ZIP file directly when the archive holds one CSV, which is why the course keeps its large files zipped. Three arguments solve most loading problems: `sep=";"` for files that separate with semicolons, as Lab~1's bank file does; `encoding="latin-1"` when names with accents fail to load; and `usecols=[...]` to read only the columns you need from a wide file.
+`read_csv` guesses a type for each column, and its guesses are worth checking. It reads a ZIP file directly when the archive holds one CSV, which is why the course keeps its large files zipped. Three arguments solve most loading problems: `sep=";"` for files that separate with semicolons, as Lab~1’s bank file does; `encoding="latin-1"` when names with accents fail to load; and `usecols=[...]` to read only the columns you need from a wide file.
 
 === A column that looks like numbers and is not
 

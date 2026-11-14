@@ -15,36 +15,7 @@
 
 == Start with the learning signal
 
-#utpfig([The learning signal decides the setting: labels for every example, only some labels, no external label, or rewards after actions.], label: <fig:learning-signal>)[
-  #canvas({
-    let q = (draw: navy, fill: navy, text: white, rounded: 2mm, text-width: 3.2, min-height: 0.9, align: center, font: font("small", weight: "bold"))
-    let bx = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3, min-height: 1, align: center, font: font("small", fill: navy))
-    let leaf = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 2.8, min-height: 1.2, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2mm, line: widths.thick))
-    node((0, 3.6), [What feedback do we have?], name: "s", ..q)
-    node((-5.1, 1.8), [Labels for examples], name: "full", ..bx)
-    node((-1.7, 1.8), [Only some labels], name: "few", ..bx)
-    node((1.7, 1.8), [No external label], name: "none", ..bx)
-    node((5.1, 1.8), [Rewards after actions], name: "reward", ..bx)
-    node((-5.1, -0.2), [#strong[Supervised] \
-  learn $X arrow.r y$], name: "sup", ..leaf)
-    node((-1.7, -0.2), [#strong[Limited-label] \
-  combine labeled and unlabeled data], name: "semi", ..leaf)
-    node((1.7, -0.2), [#strong[Unsupervised] \
-  discover structure in $X$], name: "unsup", ..leaf)
-    node((5.1, -0.2), [#strong[Reinforcement] \
-  learn behavior from interaction], name: "rl", ..leaf)
-    connect("s.south", (0, 2.75), ..arr)
-    connect((-5.1, 2.75), (5.1, 2.75), draw: muted, line-width: widths.thick)
-    for x in (-5.1, -1.7, 1.7, 5.1) {
-      connect((x, 2.75), (x, 2.3), ..arr)
-    }
-    connect("full", "sup", ..arr)
-    connect("few", "semi", ..arr)
-    connect("none", "unsup", ..arr)
-    connect("reward", "rl", ..arr)
-  })
-]
+#chapref(<ch:orientation>) sorted the field by the feedback a problem offers (#figref(<fig:field-map>)). The feedback decides what a learner is given, and so what it can learn:
 
 #utptable[
   #tabularx(
@@ -58,27 +29,9 @@
   )
 ]
 
-== The common skeleton
-
-#utpfig([The skeleton every machine-learning workflow shares: define the question, prepare the data, fit the learning rule, evaluate the result, then use and monitor it.], label: <fig:common-skeleton>)[
-  #canvas({
-    let bx = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 2.65, min-height: 0.76, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
-    node((0, 0), [Define the question], name: "a", ..bx)
-    node(right-of("a", 0.3), [Prepare the data], name: "b", ..bx)
-    node(right-of("b", 0.3), [Fit the learning rule], name: "c", ..bx)
-    node(right-of("c", 0.3), [Evaluate the result], name: "d", ..bx)
-    node(right-of("d", 0.3), [Use and monitor], name: "e", ..bx)
-    connect("a", "b", ..arr)
-    connect("b", "c", ..arr)
-    connect("c", "d", ..arr)
-    connect("d", "e", ..arr)
-  })
-]
-
-Supervised learning compares predictions with labels. Unsupervised learning needs evidence beyond an answer key. Reinforcement learning evaluates behavior across whole sequences of actions.
-
 == What changes between supervised and unsupervised learning
+
+Every setting follows the workflow of #figref(<fig:ml-workflow>): define the question, prepare the data, fit, evaluate, then use and monitor the result. What changes most from one setting to the next is the evaluation. Supervised learning compares predictions with labels. Unsupervised learning needs evidence beyond an answer key. Reinforcement learning evaluates behavior across whole sequences of actions.
 
 #utptable[
   #tabularx(

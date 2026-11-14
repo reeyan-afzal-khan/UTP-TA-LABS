@@ -19,7 +19,7 @@ To edit and preview the Typst books locally, open this repository root in VS Cod
 | [Introduction to Data Science](<DATA SCIENCE/README.md>) | **ready** | 10 | R | [PDF](.all-pdfs/data-science/DS-Book.pdf) | data quality, wrangling, EDA, visualization, inference, regression, classification, validation, clustering and PCA |
 | [Enterprise Resource Planning](<ENTERPRISE RESOURCE PLANNING/README.md>) | in development | 8 | Odoo 19 Community | [PDF](.all-pdfs/enterprise-resource-planning/ERP-Book.pdf) | business processes, sales and CRM, production and supply chain, accounting, HR, process modelling |
 | [FinTech Innovation](<FINTECH INNOVATION/README.md>) | in development | 8 | Python | [PDF](.all-pdfs/fintech-innovation/FI-Book.pdf) | inclusion, P2P and crowdfunding, digital banking, blockchain, Big Tech, cryptocurrencies |
-| [Machine Learning](<MACHINE LEARNING/README.md>) | **ready** | 8 | Python, Jupyter, PyTorch | [PDF](.all-pdfs/machine-learning/ML-Book.pdf) | supervised, unsupervised, limited-label and reinforcement learning, neural networks, CNNs and LSTMs |
+| [Machine Learning](<MACHINE LEARNING/README.md>) | **ready** | 11 | Python, Jupyter, PyTorch | [PDF](.all-pdfs/machine-learning/ML-Book.pdf) | data and EDA, supervised and unsupervised learning, recommenders, limited labels and rewards, deep learning with CNNs, LSTMs and attention, text, a model served and monitored |
 | [Operating Systems](<OPERATING SYSTEMS/README.md>) | **ready** | 10 | C and Bash on Linux/WSL | [PDF](.all-pdfs/operating-systems/OS-Book.pdf) | processes, scheduling, concurrency, memory, file systems |
 
 Each course name opens that course's guide: its lab table, what to read before each lab, how to run the code, and

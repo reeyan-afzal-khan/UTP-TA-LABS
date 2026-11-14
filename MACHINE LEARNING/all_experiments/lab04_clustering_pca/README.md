@@ -2,7 +2,7 @@
 
 Unsupervised learning on two real collections: every invoice line of a UK online shop from 2009 to 2011, turned into one row per customer and segmented with K-means and DBSCAN, and 15,701 photos of defects on sawn wooden boards, compressed with PCA under a budget chosen on validation, with whole boards kept on one side of every split.
 
-**Lab sheet:** [`Lab-04/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-04/Lab-Activity.pdf), which practises Chapters 15 to 17.
+**Lab sheet:** [`Lab-04/Lab-Activity.pdf`](../../../.all-pdfs/machine-learning/Lab-04/Lab-Activity.pdf), which practises Chapters 20 to 22.
 
 ## Parts
 

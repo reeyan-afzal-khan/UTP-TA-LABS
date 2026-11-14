@@ -1,4 +1,4 @@
-"""The small worked numbers of Chapters 3 and 5 to 9: data, statistics, metrics, training.
+"""The small worked numbers of Chapters 4, 6 and 10 to 13: data, statistics, losses, metrics, training.
 
 Each function prints what one chapter quotes, and check_book_numbers() at the end ties the
 printed book to this code. Pieces that need a course dataset read it from all_datasets/.
@@ -35,7 +35,7 @@ def make_preprocess(num_cols, cat_cols):
     ])
 
 
-# ---------------------------------------------------------------- Chapter 3: data
+# ---------------------------------------------------------------- Chapter 4: data
 def clean_messy_table():
     """Fixed, label-blind rules that may run before the split, each one logged."""
     raw = pd.DataFrame({
@@ -61,8 +61,8 @@ def clean_messy_table():
     return table, log
 
 
-def chapter03():
-    print("Chapter 3")
+def chapter04():
+    print("Chapter 4")
     table, log = clean_messy_table()
     print(table.to_string(index=False))
     print(log)
@@ -110,9 +110,9 @@ def chapter03():
     FOUND["leaky"], FOUND["honest"] = leaky, honest
 
 
-# ---------------------------------------------------------- Chapter 5: statistics
-def chapter05():
-    print("\nChapter 5")
+# ---------------------------------------------------------- Chapter 6: statistics
+def chapter06():
+    print("\nChapter 6")
     pay = np.array([30, 32, 35, 38, 500], dtype=float)
     print(f"Pay: mean {pay.mean():.0f}, median {np.median(pay):.0f}")
     marks = np.array([47, 50, 59, 65, 68, 77, 62, 52, 43, 38], dtype=float)
@@ -147,9 +147,9 @@ def chapter05():
     FOUND["receipt"], FOUND["cos_ac"], FOUND["dist_ab"], FOUND["dist_ac"] = prices @ basket, cosine(a, c), np.linalg.norm(a - b), np.linalg.norm(a - c)
 
 
-# ---------------------------------------------------------------- Chapter 6: losses
-def chapter06():
-    print("\nChapter 6")
+# ---------------------------------------------------------------- Chapter 10: losses
+def chapter10():
+    print("\nChapter 10")
     one_big, four_small = np.array([8.0]), np.array([2.0, 2, 2, 2])
     print(f"One miss of 8: absolute {one_big.sum():.0f}, squared {(one_big ** 2).sum():.0f}. "
           f"Four misses of 2: absolute {four_small.sum():.0f}, squared {(four_small ** 2).sum():.0f}")
@@ -250,9 +250,9 @@ def loan_sample():
     return train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
 
 
-# ---------------------------------------------------------- Chapter 7: evaluation
-def chapter07():
-    print("\nChapter 7")
+# ---------------------------------------------------------- Chapter 11: evaluation
+def chapter11():
+    print("\nChapter 11")
     scores = np.array([0.95, 0.85, 0.70, 0.60, 0.55, 0.40, 0.30, 0.10])
     labels = np.array([1, 1, 0, 1, 0, 1, 0, 0])
     pos, neg = scores[labels == 1], scores[labels == 0]
@@ -329,9 +329,9 @@ def chapter07():
     FOUND["hotel_table"] = hotel_table
 
 
-# ------------------------------------------------------------ Chapter 8: training
-def chapter08():
-    print("\nChapter 8")
+# ------------------------------------------------------------ Chapter 12: training
+def chapter12():
+    print("\nChapter 12")
     predictions = {"rigid": [2.6, 3.0, 3.4], "balanced": [1.0, 2.0, 3.0], "wild": [-1.0, 2.0, 5.0]}
     for name, p in predictions.items():
         p = np.array(p)
@@ -363,9 +363,9 @@ def chapter08():
         FOUND[f"fraud_{name}"] = (int(pred.sum()), precision_score(yf_va, pred, zero_division=0), recall_score(yf_va, pred))
 
 
-# ---------------------------------------------------- Chapter 9: linear regression
-def chapter09():
-    print("\nChapter 9")
+# ---------------------------------------------------- Chapter 13: linear regression
+def chapter13():
+    print("\nChapter 13")
     cars = used_cars()
     train, valid = train_test_split(cars, test_size=0.20, random_state=42)
     plain = Pipeline([("preprocess", make_preprocess(CAR_NUM, CAR_CAT)), ("model", LinearRegression())])
@@ -465,12 +465,12 @@ def check_book_numbers():
 
 
 def main():
-    chapter03()
-    chapter05()
+    chapter04()
     chapter06()
-    chapter07()
-    chapter08()
-    chapter09()
+    chapter10()
+    chapter11()
+    chapter12()
+    chapter13()
 
     if CHECK_BOOK_NUMBERS:
         check_book_numbers()

@@ -1,0 +1,4 @@
+labels_per_intent,tfidf,word_vectors,vectors_ahead_in_10
+2,0.413,0.443,10
+5,0.595,0.586,1
+10,0.706,0.679,0

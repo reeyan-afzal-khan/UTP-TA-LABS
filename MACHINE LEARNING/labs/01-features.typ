@@ -5,7 +5,7 @@
 #labsection(1, label: <sec:lab01-features>)[Feature engineering and feature selection]
 
 #labproject[Check the tools, understand the data, build features, and choose among them][
-  #strong[Read first.] Chapter~#ref(<ch:data>). Chapter~@ch:toolkit sets up your tools. The lab fits logistic regression, with and without an L1 penalty, before its chapter: treat it as a black box for now, since the point here is what goes into it. \
+  #strong[Read first.] Chapters~#ref(<ch:data>) and~#ref(<ch:feature-engineering>). Chapter~@ch:toolkit sets up your tools. The lab fits logistic regression, with and without an L1 penalty, before its chapter: treat it as a black box for now, since the point here is what goes into it. \
 
   #strong[Goal.] Check the environment, read a data card, engineer features, see scaling change who counts as a neighbor, and select features without leakage. \
 
@@ -70,6 +70,12 @@
 #labanswer[
   #labcode("lab01_features", 1)
 
+  #readcode[
+    - `sys.path.insert(0, "..")` lets Python import `course_setup.py` from the folder above this lab's own.
+    - Each `from sklearn...` line imports one tool, and the comment beside a line says what the tool is for.
+    - `start_lab("lab01")` returns three folders: `DATA` to read from, and `RESULTS` and `MODELS` to write to.
+  ]
+
   #refoutput[
     ```terminal
     course folder: MACHINE LEARNING
@@ -86,6 +92,10 @@
 
 #labanswer[
   #labcode("lab01_features", 2)
+
+  #readcode[
+    - Every package stores its version in `__version__`. Printing it costs one line, and it saves an hour when two runs disagree.
+  ]
 
   #refoutput[
     ```terminal
@@ -105,6 +115,14 @@
 
 #labanswer[
   #labcode("lab01_features", 3)
+
+  #readcode[
+    - `read_text()` loads the card as one long string. `card.index(...)` finds where its column table starts, and the loop splits each row on `" | "` into the column's name and its meaning.
+    - `pd.read_csv` reads the CSV straight out of the ZIP file.
+    - `value_counts()` counts the bookings of each hotel, and `.to_string()` prints the counts without the type line pandas adds at the end.
+    - The three date columns are joined into text such as `2015-July-1`. `pd.to_datetime(..., format="%Y-%B-%d")` turns that text into real dates; `%B` stands for the month written as a word.
+    - `value_counts(normalize=True)` gives shares instead of counts.
+  ]
 
   #refoutput[
     ```terminal
@@ -137,6 +155,14 @@
 
 #labanswer[
   #labcode("lab01_features", 4)
+
+  #readcode[
+    - `hotels.isna().mean()` is the share of blank cells in each column: the mean of a column of `True` and `False`.
+    - `missing[missing > 0]` keeps only the columns that have gaps.
+    - `plt.barh` draws horizontal bars. `savefig` writes the chart to the results folder before `show` displays it.
+    - `pd.crosstab(a, b)` counts the bookings for every combination of two columns: here, how the booking ended against whether it was cancelled.
+    - `status_date >= hotels["arrival_date"]` compares two date columns row by row, and `.rename(...)` gives the result a readable name for the table.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/01-notebook-reference.png", width: 80%, height: 4cm)
@@ -184,6 +210,14 @@
 
   #labcode("lab01_features", 5)
 
+  #readcode[
+    - Adding two columns adds them row by row. No loop is needed.
+    - `fillna(0)` reads a blank children count as none, and `.astype(int)` turns the decimals into whole numbers.
+    - `(children + hotels["babies"]) > 0` is a mask, and `.astype(int)` turns its `True` and `False` into 1 and 0.
+    - `np.log1p(x)` computes ln(1 + x), which is safe when x is 0.
+    - `hotels.loc[two_bookings, columns]` picks two rows by their labels and a list of columns. `.T` turns the result on its side, so that each column prints as a line.
+  ]
+
   #refoutput[
     ```terminal
                                     14876       40060
@@ -213,6 +247,14 @@
 #labanswer[
   #labcode("lab01_features", 6)
 
+  #readcode[
+    - `pd.cut(values, edges, labels=...)` sorts each lead time into a band. The first edge is -1 so that a lead time of 0 days falls in the first band.
+    - `hotels.groupby(lead_band, observed=True)["is_canceled"].mean()` is the cancellation rate in each band. `observed=True` leaves out bands that hold no bookings.
+    - `.clip(upper=8)` replaces every value above 8 by 8, so that long stays share one group.
+    - `plt.subplots(1, 2)` makes two charts side by side, and `ax=axes[0]` tells pandas which one to draw on.
+    - `.to_dict()` prints each result on one line.
+  ]
+
   #refoutput[
     ```terminal
     by days ahead:     {'0-7': 0.096, '8-30': 0.279, '31-90': 0.377, '91-180': 0.447,
@@ -235,6 +277,14 @@
   #include "visuals/01-trace.typ"
 
   #labcode("lab01_features", 7)
+
+  #readcode[
+    - `make_preprocess` builds the preparation. Number columns have their gaps filled with the median and are then scaled. Text columns have their gaps filled with the most frequent value and are then one-hot encoded. `ColumnTransformer` sends each list of columns to its own steps.
+    - `feature_sets` holds the two lists of columns to compare, and the loop runs the identical recipe on each.
+    - `train_test_split(..., random_state=42, stratify=y)` makes the same split both times, with the same share of cancellations on each side.
+    - `Pipeline([...])` chains preparation and model. `model.fit(X_train, y_train)` learns the medians, the scales, the categories and the weights from the training bookings only.
+    - `predict_proba(X_valid)[:, 1]` is each validation booking's predicted chance of being cancelled, and `roc_auc_score` measures how well those chances rank the bookings.
+  ]
 
   #refoutput[
     ```terminal
@@ -267,6 +317,14 @@
 #labanswer[
   #labcode("lab01_features", 8)
 
+  #readcode[
+    - `churn["TotalCharges"].dtype` shows how pandas stored the column; `object` means text.
+    - `pd.to_numeric(..., errors="coerce")` converts what it can and turns the rest into `NaN`, so that the bad cells can be found instead of stopping the cell with an error.
+    - `total.isna()` marks those cells, and `churn.loc[not_numbers, "tenure"].unique()` shows the tenure of the customers they belong to.
+    - `fillna(0)` writes the repair.
+    - `describe().loc[["mean", "std"]]` keeps two rows of the summary.
+  ]
+
   #refoutput[
     ```terminal
     shape: (7043, 21)  TotalCharges is stored as: object
@@ -286,6 +344,14 @@
 
 #labanswer[
   #labcode("lab01_features", 9)
+
+  #readcode[
+    - `to_numpy()` turns the three columns into a plain array, which the distance tools expect.
+    - `StandardScaler().fit_transform(X_raw)` rescales each column to mean 0 and standard deviation 1. It is fitted on all the rows here because nothing is being predicted; in a model it belongs inside the pipeline.
+    - `NearestNeighbors(n_neighbors=k + 1).fit(X)` prepares the search, and `kneighbors` returns the positions of the closest rows. One more than `k` is requested because the row closest to a customer is that customer.
+    - `found[found != row][:k]` drops the customer's own row and keeps `k` neighbors.
+    - `set(near_raw) & set(near_std)` is the set of customers that appear in both lists.
+  ]
 
   #refoutput[
     ```terminal
@@ -318,6 +384,14 @@
 #labanswer[
   #labcode("lab01_features", 10)
 
+  #readcode[
+    - `sep=";"` tells `read_csv` that this file separates its fields with semicolons.
+    - `duplicated().sum()` counts the rows that repeat an earlier row, and `drop_duplicates().reset_index(drop=True)` removes them and renumbers the rows.
+    - `(bank == "unknown").sum().sum()` counts the cells that hold the word `unknown`. The first sum counts within each column and the second adds the columns up.
+    - `bank.drop(columns=["y", "duration"])` removes the label and the one column that is not known before the call.
+    - `select_dtypes(include="number")` picks the number columns, and `exclude="number"` picks the rest.
+  ]
+
   #refoutput[
     ```terminal
     shape: (41188, 21)  missing: 0  duplicates: 12
@@ -335,6 +409,14 @@
 
 #labanswer[
   #labcode("lab01_features", 11)
+
+  #readcode[
+    - `evaluate` fits a pipeline on the training calls, scores the validation calls with two metrics, and returns the ROC AUC. Writing it once keeps the four runs identical.
+    - Run A is the reference: every feature known before the call.
+    - Run B adds a step, `("select", SelectKBest(f_classif, k=10))`, after the preparation. It keeps the ten prepared columns with the highest F scores. Because it sits inside the pipeline, those scores are computed from the training calls only.
+    - Run C replaces selection by an L1 penalty: `penalty="l1"` with `C=0.03`. A smaller `C` is a stronger penalty, and `solver="liblinear"` is a solver that supports it.
+    - Run D puts `duration` back with `assign(duration=...)`, matching rows by their index, to show what a leak does to the scores.
+  ]
 
   #refoutput[
     ```terminal
@@ -354,6 +436,13 @@
 
 #labanswer[
   #labcode("lab01_features", 12)
+
+  #readcode[
+    - `named_steps["preprocess"].get_feature_names_out()` lists the prepared columns, such as `cat__month_may`: the step's name, two underscores, then the column and its category.
+    - `named_steps["model"].coef_[0]` holds one weight per prepared column. Pairing the two in a `pd.Series` gives every weight its name.
+    - `coefs[coefs != 0]` keeps the columns that the penalty did not set to zero.
+    - `kept.reindex(kept.abs().sort_values(ascending=False).index)` reorders the survivors from the largest weight to the smallest, ignoring the sign.
+  ]
 
   #refoutput[
     ```terminal
@@ -386,6 +475,12 @@
 #labanswer[
   #labcode("lab01_features", 13)
 
+  #readcode[
+    - Each `to_csv` writes one table. `rename(...)` and `rename_axis(...)` give the values and the row labels readable names in the file.
+    - `np.r_[customer, near_raw, near_std]` joins one number and two arrays into a single array of row positions.
+    - `sorted(p.name for p in RESULTS.iterdir())` lists what is now in the results folder.
+  ]
+
   #refoutput[
     ```terminal
     Saved: ['cancellation_by_days_ahead.csv', 'environment.csv', 'far_ahead_bookings_cancel_most.png',
@@ -407,6 +502,13 @@
 
 #labanswer[
   #labcode("lab01_features", 15)
+
+  #readcode[
+    - `.dt.day_name()` turns each arrival date into the name of its weekday.
+    - `reindex(days)` puts the weekdays in calendar order instead of alphabetical order.
+    - The first loop reruns the model of Question~7 with and without the new column. Only the list of text columns changes.
+    - The second loop reruns the `SelectKBest` pipeline of Question~11 with three values of `k`.
+  ]
 
   #refoutput[
     ```terminal

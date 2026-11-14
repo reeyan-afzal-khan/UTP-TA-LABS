@@ -63,6 +63,11 @@
 #labanswer[
   #labcode("lab06_reinforcement", 1)
 
+  #readcode[
+    - This lab needs no dataset and no scikit-learn: the agent's world is a few lines of Python, and the learning is NumPy arithmetic.
+    - `re` is used once, to turn a chart's title into a file name.
+  ]
+
   #refoutput[
     ```terminal
     course folder: MACHINE LEARNING
@@ -82,6 +87,13 @@
 
   #labcode("lab06_reinforcement", 2)
 
+  #readcode[
+    - `np.random.default_rng(42)` creates one seeded random generator, so every run explores in the same order.
+    - A state is a tuple `(row, column)`. `ACTIONS` lists how each of the four moves changes the row and the column.
+    - `step` is the whole environment. `min(max(r + dr, 0), ROWS - 1)` keeps the row inside the grid, so a move into a wall leaves the agent where it is.
+    - `step` returns three things: the next state, the reward, and whether the episode is over. The goal pays +1, the trap -1, and any other move -0.04.
+  ]
+
   #strong[What it means.] There is no dataset, no label and no train/test split. The data the agent sees depends on the policy it is learning.
 ]
 
@@ -94,6 +106,15 @@
 
   #labcode("lab06_reinforcement", 3)
 
+  #readcode[
+    - `Q = np.zeros((ROWS, COLS, len(ACTIONS)))` holds one number for each cell and action. `Q[state]`, with a tuple such as `(2, 1)`, picks the four values of that cell.
+    - `choose_action` is epsilon-greedy. `rng.random() < epsilon` is true with probability epsilon, and then the move is random; otherwise `np.argmax(Q[state])` picks the best known move.
+    - The inner loop plays one episode of at most 100 moves.
+    - `target` is the reward plus `gamma` times the best value of the next cell, or the reward alone when the episode has ended.
+    - `Q[state][action] += alpha * (target - Q[state][action])` moves the old value a fraction `alpha` of the way towards the target.
+    - `epsilon = max(min_epsilon, epsilon * 0.9985)` shrinks the exploration a little after every episode, down to a floor of 0.05.
+  ]
+
   #strong[What it means.] The line `target = reward if done else ...` is the warm-up’s third question. With a decay of 0.9985, $epsilon$ reaches its floor of 0.05 after 1,996 of the 5,000 episodes.
 ]
 
@@ -103,6 +124,12 @@
 
 #labanswer[
   #labcode("lab06_reinforcement", 4)
+
+  #readcode[
+    - `np.convolve(training_returns, np.ones(window) / window, mode="valid")` is a moving average: each point is the mean of 100 episodes in a row.
+    - `np.arange(window - 1, len(training_returns))` places each mean at the last episode of its window.
+    - `plt.axhline(0.8, ...)` marks the best possible return. The shortest route takes six moves: five of them cost 0.04 each, and the sixth earns 1.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/06-notebook-reference.png", width: 88%, height: 5cm)
@@ -117,6 +144,12 @@
 
 #labanswer[
   #labcode("lab06_reinforcement", 5)
+
+  #readcode[
+    - `choose_action(state, explore=False)` always returns the best known move, so the 200 runs test what was learned and nothing else.
+    - `successes += int(state == GOAL)` counts an episode only if it ended on the goal.
+    - This world has no randomness of its own, so the 200 runs are identical. The loop is written this way because the same code also evaluates worlds that do have randomness.
+  ]
 
   #refoutput[
     ```terminal
@@ -149,6 +182,13 @@
 #labanswer[
   #labcode("lab06_reinforcement", 6)
 
+  #readcode[
+    - `np.save` writes the table to a `.npy` file, and `np.load` reads it back: the table is the entire model.
+    - `np.full((ROWS, COLS), "", dtype=object)` makes an empty grid of text cells.
+    - `np.argmax(Q_table[r, c])` is the position of the largest of a cell's four values, and `ACTION_NAMES[...]` turns it into a word.
+    - The `trap` argument lets the same function describe a grid whose trap is somewhere else, which the Try-it uses.
+  ]
+
   #refoutput[
     ```terminal
     [['down' 'down' 'down' 'left']
@@ -167,6 +207,13 @@
 
 #labanswer[
   #labcode("lab06_reinforcement", 7)
+
+  #readcode[
+    - `Q_table.max(axis=2)` keeps the best of the four values in each cell: a 4 x 4 grid of state values, which `plt.imshow` colours.
+    - `plt.text(c, r, ...)` writes at column `c`, row `r`: the horizontal coordinate comes first.
+    - `plt.arrow(c, r, 0.3 * dx, -0.3 * dy, ...)` draws the best move. The minus sign is there because `imshow` numbers its rows downwards.
+    - `re.sub(r"[^a-z0-9]+", "_", title.lower())` replaces every run of characters that are not letters or digits by an underscore, which turns the title into a file name.
+  ]
 
   #refoutput[
     ```terminal
@@ -197,6 +244,12 @@
 #labanswer[
   #labcode("lab06_reinforcement", 8)
 
+  #readcode[
+    - `pd.DataFrame(policy, index=..., columns=...)` labels the rows and the columns of the policy grid before saving it.
+    - The second table keeps the return of every training episode, so the curve can be redrawn without retraining.
+    - The metrics table has one row, written as a list that holds one dictionary.
+  ]
+
   #refoutput[
     ```terminal
     Saved: ['greedy_policy.csv', 'greedy_policy_and_state_values.png', 'metrics.csv',
@@ -217,6 +270,13 @@
 
 #labanswer[
   #labcode("lab06_reinforcement", 10)
+
+  #readcode[
+    - `train_q` repeats Questions~2 and 3 inside one function, with the trap, the step cost and the discount as arguments. It has its own random generator, table and epsilon, so calling it does not disturb the first agent.
+    - `step_new` is defined inside `train_q`, so it can read `trap` and `step_cost` from the function around it.
+    - `greedy_policy(Q_moved, trap=moved_trap)` and `plot_policy(..., trap=moved_trap)` reuse the functions of Questions~6 and 7.
+    - `name.ljust(7)` pads each word to seven characters, so the grid prints in aligned columns.
+  ]
 
   #refoutput[
     ```terminal

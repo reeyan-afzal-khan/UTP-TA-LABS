@@ -35,6 +35,16 @@ Write one page answering three questions, and show it to your tutor before model
 + #strong[Reproducibility.] Record paths, packages, seeds, notebook order, and configuration.
 + #strong[Artifact.] Save the pipeline and model card under `models/`; demonstrate reloading and prediction.
 
+#heading(depth: 2, numbering: none)[Choose one extension]
+
+Add one, and keep it only if the evidence says it helps.
+
+- #strong[Limited labels.] Hide most labels; try self-training or active learning (#chapref(<ch:semi-supervised>)).
+- #strong[A neural network.] Beside your best model, with early stopping and several seeds (#chapref(<ch:deep-training>)).
+- #strong[Text or sequences.] A tf-idf text column (#chapref(<ch:text>)), or a forecast (#chapref(<ch:sequence>)).
+- #strong[Ranking.] If the data records who chose what, test a recommender on later choices (#chapref(<ch:recommenders>)).
+- #strong[A model put to work.] A data contract, tests, a service and a drift check (#chapsref(<ch:project>, <ch:serving>)).
+
 #heading(depth: 2, numbering: none)[What to hand in]
 
 - A notebook that runs from top to bottom after #strong[Restart Kernel and Run All Cells].

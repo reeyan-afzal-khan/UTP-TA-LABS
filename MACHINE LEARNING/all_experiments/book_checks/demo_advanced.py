@@ -1,4 +1,4 @@
-"""The small worked numbers of Chapters 20 and 21: rewards, values, weights, filters, memory.
+"""The small worked numbers of Chapters 26, 27, 29 and 30: rewards, values, weights, filters, memory.
 
 Each function prints what one chapter quotes, and check_book_numbers() at the end ties the
 printed book to this code. NumPy is the only package it imports, so it runs without
@@ -15,7 +15,7 @@ CHECK_BOOK_NUMBERS = True
 FOUND = {}
 
 
-# ---------------------------------------------------------- Chapter 20: learning by acting
+# ---------------------------------------------------------- Chapter 26: learning by acting
 def bandit(epsilon, rounds=1000, runs=500, seed=4):
     """Three food stalls with hidden chances of a good meal. Average over many hungry students."""
     rng = np.random.default_rng(seed)
@@ -74,8 +74,8 @@ def gridworld_values(trap=(1, 3), gamma=0.95, cost=-0.04):
     return values
 
 
-def chapter20():
-    print("Chapter 20")
+def chapter26():
+    print("Chapter 26")
     rewards = [5, 4, 3]
     for gamma in (0.0, 0.5, 0.9, 1.0):
         print(f"  return of 5, 4, 3 with gamma {gamma}: {sum(r * gamma ** i for i, r in enumerate(rewards)):.2f}")
@@ -103,7 +103,7 @@ def chapter20():
     print(f"  epsilon reaches 0.05 after {next(i for i in range(10_000) if 0.9985 ** i < 0.05)} episodes of decay 0.9985")
 
 
-# ------------------------------------------------------------- Chapter 21: neural networks
+# ------------------------------------------ Chapters 27, 29 and 30: networks, filters, memory
 def relu(z):
     return np.maximum(0.0, z)
 
@@ -122,8 +122,8 @@ def convolve(image, kernel):
     return out
 
 
-def chapter21():
-    print("\nChapter 21")
+def chapter27():
+    print("\nChapters 27, 29 and 30")
     # XOR: no straight line works, and two ReLU units do.
     inputs = np.array([[0, 0], [1, 0], [0, 1], [1, 1]], dtype=float)
     target = np.array([0.0, 1, 1, 0])
@@ -235,8 +235,8 @@ def check_book_numbers():
 
 
 def main():
-    chapter20()
-    chapter21()
+    chapter26()
+    chapter27()
 
     if CHECK_BOOK_NUMBERS:
         check_book_numbers()

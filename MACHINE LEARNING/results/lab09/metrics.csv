@@ -1,0 +1,4 @@
+part,dataset,model,threshold,test_precision,test_recall,test_average_precision,test_accuracy,test_top_three_accuracy
+B,sms_spam,logistic on character pieces,0.37,0.976,0.931,0.991,,
+C,banking77,tf-idf + logistic,,,,,0.9,0.97
+D,banking77,averaged word vectors + logistic,,,,,0.84,

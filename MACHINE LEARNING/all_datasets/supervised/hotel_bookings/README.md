@@ -2,7 +2,7 @@
 
 119,390 bookings at two hotels in Portugal, a resort hotel in the Algarve and a city hotel in Lisbon, for arrivals from 1 July 2015 to 31 August 2017, with 32 columns. `is_canceled` says whether the booking was cancelled. One CSV inside the ZIP.
 
-**Used in:** Lab 1 (first look, feature engineering, and the column that leaks the outcome) and Lab 2 (validating in date order, and a threshold set by what an empty room and an overbooked guest cost).
+**Used in:** Lab 1 (first look, feature engineering, and the column that leaks the outcome), Lab 2 (validating in date order, and a threshold set by what an empty room and an overbooked guest cost), and the chapters *The End-to-End Project* and *Serving and Monitoring* with Lab 10 (a data contract, a tested training script, a web service, drift checks and retraining).
 
 **Source and licence:** Antonio, de Almeida and Nunes, *Hotel booking demand datasets*, Data in Brief 22 (2019), 41-49, doi:[10.1016/j.dib.2018.11.126](https://doi.org/10.1016/j.dib.2018.11.126); CC BY 4.0. Via [Hugging Face](https://huggingface.co/datasets/gemuchu/hotel_bookings).
 

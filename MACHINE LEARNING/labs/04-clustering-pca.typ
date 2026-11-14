@@ -61,6 +61,12 @@
 #labanswer[
   #labcode("lab04_clustering_pca", 1)
 
+  #readcode[
+    - The setup has the same three steps. The new tools are `KMeans` and `DBSCAN`, which find groups, and `PCA`, which compresses many columns into a few.
+    - `silhouette_score` and `adjusted_rand_score` score a clustering: the first without labels, the second against known ones.
+    - `GroupShuffleSplit` splits rows so that all the rows of one group stay on the same side.
+  ]
+
   #refoutput[
     ```terminal
     course folder: MACHINE LEARNING
@@ -79,6 +85,16 @@
   #include "visuals/04-trace.typ"
 
   #labcode("lab04_clustering_pca", 2)
+
+  #readcode[
+    - `dtype={"Invoice": str, "StockCode": str}` reads the two code columns as text, and `parse_dates=["InvoiceDate"]` turns the date column into real dates while reading.
+    - `lines["Invoice"].str.startswith("C")` marks the cancelled invoices, whose numbers begin with a C. The mean of the mask is their share.
+    - `dropna(subset=["Customer ID"])` drops the lines that name no customer. `real_sale` joins three conditions with `&`; the `~` in front of the first one flips it to "not a cancellation".
+    - `assign(revenue=...)` adds a column: the quantity times the unit price.
+    - `day_after` is midnight after the last sale: `normalize()` sets the time to 00:00, and `pd.Timedelta(days=1)` adds a day.
+    - `groupby("Customer ID").agg(...)` builds one row per customer. Each argument has the form `new_column=(source_column, how)`: the days since the customer's last order, the number of different invoices (`nunique`), and the total revenue.
+    - `np.log1p` pulls in the long tails, and `StandardScaler().fit_transform` puts the three columns on one scale. There is no split, because nothing is being predicted.
+  ]
 
   #refoutput[
     ```terminal
@@ -103,6 +119,13 @@
   #include "visuals/04-worked-case.typ"
 
   #labcode("lab04_clustering_pca", 3)
+
+  #readcode[
+    - The loop fits K-means once for each `k` from 2 to 8. `n_init=20` starts each fit from 20 random sets of centers and keeps the best result.
+    - `fit_predict(X)` fits the model and returns each customer's cluster number.
+    - `kmeans.inertia_` is the total squared distance from every customer to their own center. It always falls as `k` grows, so the bend is what matters, not the lowest value.
+    - `silhouette_score(X, labels)` compares, for each customer, the distance to their own cluster with the distance to the nearest other cluster. Unlike inertia, it has a best value.
+  ]
 
   #labvisual[Reference plot from the supplied notebook][
     #fitted-image("/MACHINE LEARNING/labs/visuals/04-notebook-reference.png", width: 88%, height: 5cm)
@@ -129,6 +152,13 @@
 #labanswer[
   #labcode("lab04_clustering_pca", 4)
 
+  #readcode[
+    - `DBSCAN(eps=0.5, min_samples=10)` grows clusters from dense regions: places where at least 10 customers lie within a distance of 0.5 of one another. A customer who belongs to no dense region gets the label -1, which means noise.
+    - `d_labels == -1` is a mask for the noise customers.
+    - `customers.loc[is_noise, "spend"].sum() / customers["spend"].sum()` is the share of all revenue that comes from the noise customers.
+    - `len(set(d_labels[~is_noise]))` counts the different cluster numbers once the noise is left out.
+  ]
+
   #refoutput[
     ```terminal
     K-means (k=4) silhouette: 0.365
@@ -146,6 +176,13 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 5)
+
+  #readcode[
+    - `customers.assign(kmeans_cluster=k_labels, dbscan_cluster=d_labels)` attaches both sets of labels to the customer table.
+    - `groupby("kmeans_cluster").agg(...)` describes each segment: its size (`"size"`), three medians, and its total spend.
+    - `profile.pop("revenue")` removes that column and hands it back, so it can be divided by the shop's total revenue and stored as a share.
+    - `round({...})` rounds each column to its own number of decimals.
+  ]
 
   #refoutput[
     ```terminal
@@ -168,6 +205,13 @@
 #labanswer[
   #labcode("lab04_clustering_pca", 6)
 
+  #readcode[
+    - The list `clusterings` pairs each chart with a set of labels and a title, and the loop draws both in the same way.
+    - `ax.scatter(..., c=labels, cmap="tab10")` colours each customer by cluster number.
+    - `set_xscale("log")` and `set_yscale("log")` spread out the crowded low end of both axes.
+    - `scatter.legend_elements()` returns one legend entry per colour, and the `*` unpacks them into `ax.legend`.
+  ]
+
   #strong[What it means.] K-means cuts the cloud into four slices, because it always splits the space. DBSCAN draws a different line: its two dense clusters are simply the customers who ordered once and those who came back. Its noise points are the outliers, mostly at the top right, where a few customers have many orders and very large bills, plus a scattering of single unusually large orders.
 ]
 
@@ -188,6 +232,15 @@
 #labanswer[
   #labcode("lab04_clustering_pca", 7)
 
+  #readcode[
+    - `np.load` opens the `.npz` file, which holds several named arrays: the images `x`, the labels `y`, the board each image was cut from, and the class names.
+    - `np.bincount(labels)` counts the images of each type, and `dict(zip(class_names, ...))` pairs the counts with the names.
+    - `images.reshape(len(images), -1)` flattens each image into one row. The `-1` tells NumPy to work out the row length itself: 32 x 32 x 3 = 3,072. Dividing by 255 puts every value between 0 and 1.
+    - `GroupShuffleSplit(...).split(X_all, labels, boards)` yields the row positions of the two sides, with every board wholly on one side. `next(...)` takes the single split that was asked for.
+    - `set(b_dev) & set(boards[test_rows])` is the set of boards that appear on both sides. It must be empty.
+    - `np.flatnonzero(labels == k)[0]` is the position of the first image of type `k`.
+  ]
+
   #refoutput[
     ```terminal
     images: (15701, 32, 32, 3)  boards: 10358
@@ -197,7 +250,7 @@
     ```
   ]
 
-  #strong[What it means.] Each image becomes a row of $32 times 32 times 3=3(,)072$ numbers. Neighboring pixels, and the three colours of one pixel, are strongly correlated: that redundancy is what PCA can remove. The types are not balanced, so the per-type recall in Question~9 matters as much as the accuracy.
+  #strong[What it means.] Each image becomes a row of $32 times 32 times 3=3","072$ numbers. Neighboring pixels, and the three colours of one pixel, are strongly correlated: that redundancy is what PCA can remove. The types are not balanced, so the per-type recall in Question~9 matters as much as the accuracy.
 ]
 
 #strong[Connect it to the chapter.] K-means and PCA both had no answer key, and from here on PCA is judged against one.
@@ -210,6 +263,14 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 8)
+
+  #readcode[
+    - The development images are split once more, again by board, into a part to fit on and a part to validate on.
+    - In `PCA(n_components=0.90, svd_solver="full")`, a fraction in place of a whole number asks PCA to keep as many components as it takes to hold that share of the variance.
+    - Inside the pipeline, PCA is fitted on the fitting images only, and the logistic regression is trained on the compressed rows.
+    - `candidate.named_steps["pca"].n_components_` reports how many components were kept.
+    - `f"{retained_variance:.0%}"` prints 0.9 as 90%.
+  ]
 
   #refoutput[
     ```terminal
@@ -229,6 +290,12 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 9)
+
+  #readcode[
+    - The chosen pipeline and the plain model are refitted on all the development images: once the choice is made, the validation rows can be used for training.
+    - `pca.explained_variance_ratio_.sum()` is the share of the variance that the kept components hold.
+    - `recall_score(..., average=None)` returns one recall per defect type instead of a single average.
+  ]
 
   #refoutput[
     ```terminal
@@ -251,6 +318,13 @@
 #labanswer[
   #labcode("lab04_clustering_pca", 10)
 
+  #readcode[
+    - `few.transform(X_test[:8])` compresses eight images to a few numbers each, and `few.inverse_transform(...)` expands them back to 3,072 numbers: the image as the components remember it.
+    - `batch[j].reshape(32, 32, 3)` turns a row back into a picture, and `np.clip(..., 0, 1)` trims the values that the rebuilding pushed slightly outside the valid range.
+    - `PCA(svd_solver="full").fit(X_dev)` keeps every component, and `np.cumsum(explained_variance_ratio_)` is the running total of the variance.
+    - `np.searchsorted(cumulative, share) + 1` is the number of components needed to reach a share: the position of the first running total that is at least that large, plus one because positions start at 0.
+  ]
+
   #refoutput[
     ```terminal
     components for 50%, 80%, 90%, 95% and 99% of the variance: [2, 8, 21, 51, 253]
@@ -267,6 +341,12 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 11)
+
+  #readcode[
+    - `joblib.dump(final_model, model_path)` saves the PCA and the classifier in one file, so new images are compressed exactly as the training images were.
+    - `loaded.predict(X_test[:5])` returns class numbers, and the list comprehension turns them into names.
+    - Dividing the file size by `1e6` gives megabytes.
+  ]
 
   #refoutput[
     ```terminal
@@ -294,6 +374,12 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 12)
+
+  #readcode[
+    - Each table is built with `pd.DataFrame` from the lists and arrays collected along the way, and written with `to_csv`.
+    - `np.arange(1, len(cumulative) + 1)` numbers the components from 1.
+    - `index=False` leaves out the row numbers. The segment table keeps its index, because the index is the cluster number.
+  ]
 ]
 
 #labsubhead[Try it yourself]
@@ -308,6 +394,14 @@
 
 #labanswer[
   #labcode("lab04_clustering_pca", 14)
+
+  #readcode[
+    - `PCA(n_components=50, random_state=42).fit_transform(X_fit)` compresses each image to 50 numbers, and `KMeans(n_clusters=7, ...)` groups those rows. The labels are not used.
+    - `adjusted_rand_score(y_fit, image_clusters)` compares the clusters with the true types: 1 for a perfect match, about 0 for a random one.
+    - `pd.crosstab(...)` counts the true types inside each cluster. `pd.Categorical.from_codes(y_fit, class_names)` turns the label numbers into names for the column headings.
+    - `table.idxmax(axis=1)` is each cluster's most common type, and `table.max(axis=1) / table.sum(axis=1)` is its purity.
+    - `X_fit[image_clusters == c].mean(axis=0)` averages the images of one cluster pixel by pixel.
+  ]
 
   #refoutput[
     ```terminal

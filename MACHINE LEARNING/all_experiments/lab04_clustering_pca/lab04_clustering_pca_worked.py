@@ -23,7 +23,7 @@ from sklearn.cluster import DBSCAN, KMeans                         # two ways to
 from sklearn.decomposition import PCA                              # compress many columns into a few
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, adjusted_rand_score, recall_score, silhouette_score
-from sklearn.model_selection import GroupShuffleSplit                # keep each board on one side of a split
+from sklearn.model_selection import GroupShuffleSplit                # each board stays on one side
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -34,22 +34,25 @@ DATA, RESULTS, MODELS = start_lab("lab04")
 # Every invoice line of the shop. Invoice and StockCode are read as text: some codes carry letters.
 lines = pd.read_csv(DATA / "unsupervised/online_retail_ii/online_retail_ii.zip",
                     dtype={"Invoice": str, "StockCode": str}, parse_dates=["InvoiceDate"])
-print("invoice lines:", len(lines), " from", lines["InvoiceDate"].min().date(), "to", lines["InvoiceDate"].max().date())
+print("invoice lines:", len(lines),
+      " from", lines["InvoiceDate"].min().date(), "to", lines["InvoiceDate"].max().date())
 print("no customer ID:", round(lines["Customer ID"].isna().mean(), 3),
       " cancellations:", round(lines["Invoice"].str.startswith("C").mean(), 3),
       " exact duplicates:", int(lines.duplicated().sum()))
 
-# Fixed cleaning rules: known customers, real sales (no cancellations, returns or free items), no repeated lines.
+# Fixed cleaning rules: known customers, real sales (no cancellations, returns or free items),
+# no repeated lines.
 sales = lines.dropna(subset=["Customer ID"])
 real_sale = ~sales["Invoice"].str.startswith("C") & (sales["Quantity"] > 0) & (sales["Price"] > 0)
 sales = sales[real_sale].drop_duplicates()
 sales = sales.assign(revenue=sales["Quantity"] * sales["Price"])
 
-# One row per customer: recency, frequency and monetary value (RFM), counted from the day after the last sale.
+# One row per customer: recency, frequency and monetary value (RFM),
+# counted from the day after the last sale.
 day_after = sales["InvoiceDate"].max().normalize() + pd.Timedelta(days=1)
 customers = sales.groupby("Customer ID").agg(
-    recency_days=("InvoiceDate", lambda dates: (day_after - dates.max()).days),   # days since the last order
-    orders=("Invoice", "nunique"),                                                # how many separate orders
+    recency_days=("InvoiceDate", lambda dates: (day_after - dates.max()).days),   # days since last order
+    orders=("Invoice", "nunique"),                                                # separate orders
     spend=("revenue", "sum"),                                                     # total spent, in pounds
 )
 print(len(sales), "clean lines from", len(customers), "customers")
@@ -140,7 +143,8 @@ print("per defect type:", dict(zip(class_names, np.bincount(labels).tolist())))
 X_all = images.reshape(len(images), -1) / 255.0
 
 # Most boards have several defects, so whole boards go to one side of each split: no board is in both.
-dev_rows, test_rows = next(GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=42).split(X_all, labels, boards))
+dev_rows, test_rows = next(GroupShuffleSplit(n_splits=1, test_size=0.20, random_state=42)
+                           .split(X_all, labels, boards))
 X_dev, y_dev, b_dev = X_all[dev_rows], labels[dev_rows], boards[dev_rows]
 X_test, y_test = X_all[test_rows], labels[test_rows]
 print(len(X_dev), "development and", len(X_test), "test images; boards in both:",
@@ -158,13 +162,15 @@ plt.show()
 
 # %% Question 8 - Choose a PCA budget on validation
 # Choose the budget on a split of the development images, again board by board.
-fit_rows, valid_rows = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42).split(X_dev, y_dev, b_dev))
+fit_rows, valid_rows = next(GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42)
+                            .split(X_dev, y_dev, b_dev))
 X_fit, y_fit = X_dev[fit_rows], y_dev[fit_rows]
 X_valid, y_valid = X_dev[valid_rows], y_dev[valid_rows]
 
 baseline = LogisticRegression(max_iter=3000)              # 3,072 inputs need more steps to converge
 baseline.fit(X_fit, y_fit)
-print("all 3,072 pixels: validation accuracy =", round(accuracy_score(y_valid, baseline.predict(X_valid)), 4))
+print("all 3,072 pixels: validation accuracy =",
+      round(accuracy_score(y_valid, baseline.predict(X_valid)), 4))
 
 # PCA keeps as many components as it needs to hold the given share of the variance.
 for retained_variance in [0.90, 0.95, 0.99]:
@@ -175,7 +181,8 @@ for retained_variance in [0.90, 0.95, 0.99]:
     candidate.fit(X_fit, y_fit)
     n_kept = candidate.named_steps["pca"].n_components_
     accuracy = accuracy_score(y_valid, candidate.predict(X_valid))
-    print(f"{retained_variance:.0%} variance: {n_kept:3d} components, validation accuracy = {accuracy:.4f}")
+    print(f"{retained_variance:.0%} variance: {n_kept:3d} components, "
+          f"validation accuracy = {accuracy:.4f}")
 
 # %% Question 9 - Open the test images once
 # The chosen budget, 99%, refitted on all the development images; the plain model too, for comparison.
@@ -190,12 +197,15 @@ pca = final_model.named_steps["pca"]
 
 print(f"FINAL TEST ({len(X_test):,} images from boards never seen in development)")
 print("all 3,072 pixels accuracy:", round(accuracy_score(y_test, full_model.predict(X_test)), 4))
-print("PCA components kept:", pca.n_components_, " variance retained:", round(pca.explained_variance_ratio_.sum(), 4))
+print("PCA components kept:", pca.n_components_,
+      " variance retained:", round(pca.explained_variance_ratio_.sum(), 4))
 print("PCA -> logistic accuracy:", round(accuracy_score(y_test, final_model.predict(X_test)), 4))
-print("recall per defect type:", dict(zip(class_names, recall_score(y_test, final_model.predict(X_test), average=None).round(2).tolist())))
+recall_by_type = recall_score(y_test, final_model.predict(X_test), average=None).round(2).tolist()
+print("recall per defect type:", dict(zip(class_names, recall_by_type)))
 
 # %% Question 10 - See what 99% looks like
-# Compress eight test images to a few components and to the kept ones, then expand them back to 3,072 numbers.
+# Compress eight test images to a few components and to the kept ones,
+# then expand them back to 3,072 numbers.
 few = PCA(n_components=0.90, svd_solver="full").fit(X_dev)
 rows = [("original", X_test[:8]),
         (f"{few.n_components_} components (90%)", few.inverse_transform(few.transform(X_test[:8]))),
@@ -243,7 +253,8 @@ print("actual:   ", [class_names[i] for i in y_test[:5]])
 diagnostics = pd.DataFrame({"k": ks, "inertia": inertias, "silhouette": silhouettes})
 diagnostics.round(4).to_csv(RESULTS / "kmeans_diagnostics.csv", index=False)
 profile.to_csv(RESULTS / "customer_segments.csv")
-variance_table = pd.DataFrame({"component": np.arange(1, len(cumulative) + 1), "cumulative_variance": cumulative})
+variance_table = pd.DataFrame({"component": np.arange(1, len(cumulative) + 1),
+                               "cumulative_variance": cumulative})
 variance_table.round(4).to_csv(RESULTS / "pca_cumulative_variance.csv", index=False)
 metrics = pd.DataFrame([
     {"dataset": "wood_surface_defects (test boards)", "model": "logistic, 3,072 pixels",
@@ -261,10 +272,12 @@ print("Saved:", sorted(p.name for p in RESULTS.iterdir()))
 # Cluster the development images without their labels, then ask what the clusters contain.
 codes = PCA(n_components=50, random_state=42).fit_transform(X_fit)          # 50 numbers per image
 image_clusters = KMeans(n_clusters=7, n_init=10, random_state=42).fit_predict(codes)
-print("adjusted Rand index against the true defect types:", round(adjusted_rand_score(y_fit, image_clusters), 3))
+print("adjusted Rand index against the true defect types:",
+      round(adjusted_rand_score(y_fit, image_clusters), 3))
 
 # Count the true types inside each cluster; purity is the share of its most common type.
-table = pd.crosstab(pd.Series(image_clusters, name="cluster"), pd.Categorical.from_codes(y_fit, class_names))
+table = pd.crosstab(pd.Series(image_clusters, name="cluster"),
+                    pd.Categorical.from_codes(y_fit, class_names))
 summary = pd.DataFrame({
     "images": table.sum(axis=1),
     "most common type": table.idxmax(axis=1),

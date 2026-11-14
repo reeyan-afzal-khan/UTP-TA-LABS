@@ -777,6 +777,229 @@ def lab08():
         expect(f"{horizon} hours ahead: LSTM test", test, {2: 2.98, 24: 3.71}[horizon], 0.4)
 
 
+def lab09():
+    print("Lab 9")
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics import average_precision_score, precision_score, recall_score
+    from sklearn.model_selection import cross_val_predict
+    from sklearn.naive_bayes import MultinomialNB
+    from demo_text import message_vectors, neighbors, word_vectors       # the chapter's script, in this folder
+
+    sms = pd.read_csv(DATA / "supervised/sms_spam/sms_spam.csv")
+    unique = sms.drop_duplicates("message").reset_index(drop=True)
+    is_spam = (unique["label"] == "spam").astype(int)
+    text_train, text_test, y_train, y_test = train_test_split(unique["message"], is_spam, test_size=0.20,
+                                                              random_state=42, stratify=is_spam)
+    y_train, y_test = y_train.to_numpy(), y_test.to_numpy()
+    folds = StratifiedKFold(5, shuffle=True, random_state=42)
+
+    def cross_validated(vectorizer, model, text):
+        pipeline = Pipeline([("words", vectorizer), ("model", model)])
+        return cross_val_predict(pipeline, text, y_train, cv=folds, method="predict_proba")[:, 1]
+
+    def pieces():
+        return TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5), sublinear_tf=True)
+
+    # Task 1: allow one real message in a hundred.
+    cv_prob = cross_validated(pieces(), LogisticRegression(max_iter=2000, C=10), text_train)
+    ham = np.sort(cv_prob[y_train == 0])[::-1]
+    loose = float(ham[int(0.01 * len(ham))]) + 1e-6
+    spam_filter = Pipeline([("words", pieces()), ("model", LogisticRegression(max_iter=2000, C=10))]).fit(text_train, y_train)
+    test_prob = spam_filter.predict_proba(text_test)[:, 1]
+    flagged = test_prob >= loose
+    caught, lost = int((flagged & (y_test == 1)).sum()), int((flagged & (y_test == 0)).sum())
+    cv_recall = recall_score(y_train, cv_prob >= loose)
+    print(f"  one in a hundred: threshold {loose:.2f}, cross-validated recall {cv_recall:.3f}; on the test {caught} of "
+          f"{int(y_test.sum())} spam caught, {lost} of {int((y_test == 0).sum())} real messages flagged")
+    FOUND = {"loose": (round(loose, 2), round(cv_recall, 3), caught, lost)}
+
+    # Task 2: remove the placeholders, then score the word filter again.
+    cleaned = text_train.str.replace(r"&lt;.*?&gt;", " ", regex=True)
+    FOUND["placeholders"] = {}
+    for name, text in [("as collected", text_train), ("placeholders removed", cleaned)]:
+        p = cross_validated(TfidfVectorizer(), LogisticRegression(max_iter=2000, C=10), text)
+        word_filter = Pipeline([("words", TfidfVectorizer()), ("model", LogisticRegression(max_iter=2000, C=10))]).fit(text, y_train)
+        weight = pd.Series(word_filter.named_steps["model"].coef_[0], index=word_filter.named_steps["words"].get_feature_names_out())
+        FOUND["placeholders"][name] = (round(precision_score(y_train, p >= 0.5), 3), round(recall_score(y_train, p >= 0.5), 3),
+                                       round(average_precision_score(y_train, p), 3), weight.sort_values().head(6).index.tolist())
+        print(f"  {name}: precision, recall, average precision, ham words: {FOUND['placeholders'][name]}")
+
+    # Task 3: naive Bayes on single words and on words with pairs.
+    FOUND["pairs"] = {}
+    for name, vectorizer in [("single words", CountVectorizer()), ("words and pairs", CountVectorizer(ngram_range=(1, 2)))]:
+        p = cross_validated(vectorizer, MultinomialNB(), text_train)
+        columns = len(vectorizer.fit(text_train).vocabulary_)
+        FOUND["pairs"][name] = (columns, round(average_precision_score(y_train, p), 3), int(((p >= 0.5) & (y_train == 0)).sum()),
+                                int(((p < 0.5) & (y_train == 1)).sum()))
+        print(f"  naive Bayes on {name}: columns, average precision, real flagged, spam missed: {FOUND['pairs'][name]}")
+
+    # The bank questions, as in the lab.
+    bank = pd.read_csv(DATA / "advanced/banking77/banking77.csv")
+    train, test = bank[bank["split"] == "train"].reset_index(drop=True), bank[bank["split"] == "test"].reset_index(drop=True)
+    i_train, i_test = train["label"].to_numpy(), test["label"].to_numpy()
+    vectorizer = TfidfVectorizer()
+    w_train, w_test = vectorizer.fit_transform(train["text"]), vectorizer.transform(test["text"])
+    model = LogisticRegression(max_iter=3000, C=10).fit(w_train, i_train)
+    order = np.argsort(model.predict_proba(w_test), axis=1)
+
+    # Task 4: the right intent among the top one, three and five.
+    FOUND["top"] = {k: round(float(np.mean([truth in row[-k:] for truth, row in zip(i_test, order)])), 3) for k in (1, 3, 5)}
+    print("  right intent among the top k:", FOUND["top"])
+
+    # Task 5: the intent of the nearest stored question, by tf-idf rows and by averaged word vectors.
+    analyze = vectorizer.build_analyzer()
+    vocabulary, position, vectors = word_vectors([analyze(text) for text in train["text"]])
+    d_train = message_vectors(train["text"], analyze, position, vectors)
+    d_test = message_vectors(test["text"], analyze, position, vectors)
+    by_words = i_train[np.asarray((w_test @ w_train.T).argmax(axis=1)).ravel()]
+    by_vectors = i_train[(d_test @ d_train.T).argmax(axis=1)]
+    FOUND["nearest"] = (round(float((by_words == i_test).mean()), 3), round(float((by_vectors == i_test).mean()), 3))
+    print(f"  nearest stored question: tf-idf {FOUND['nearest'][0]}, averaged word vectors {FOUND['nearest'][1]}")
+
+    # Task 6: a window of two words on each side.
+    vocabulary2, position2, vectors2 = word_vectors([analyze(text) for text in train["text"]], window=2)
+    d2_train = message_vectors(train["text"], analyze, position2, vectors2)
+    d2_test = message_vectors(test["text"], analyze, position2, vectors2)
+    narrow = (LogisticRegression(max_iter=3000, C=10).fit(d2_train, i_train).predict(d2_test) == i_test).mean()
+    FOUND["window"] = (neighbors("pin", vocabulary2, position2, vectors2), neighbors("pin", vocabulary, position, vectors),
+                       round(float(narrow), 3))
+    print(f"  window of two: neighbors of 'pin' {FOUND['window'][0]} (window of four: {FOUND['window'][1]}); "
+          f"averaged vectors classify at {FOUND['window'][2]}")
+
+    assert FOUND["loose"] == (0.13, 0.969, 129, 9), FOUND["loose"]
+    assert FOUND["placeholders"]["as collected"] == (0.98, 0.862, 0.973, ["my", "me", "gt", "can", "lt", "that"])
+    assert FOUND["placeholders"]["placeholders removed"] == (0.98, 0.862, 0.971, ["my", "me", "that", "can", "ok", "da"])
+    assert FOUND["pairs"] == {"single words": (7680, 0.955, 15, 51), "words and pairs": (42642, 0.944, 8, 62)}
+    assert FOUND["top"] == {1: 0.9, 3: 0.97, 5: 0.985}
+    expect("nearest stored question, tf-idf", FOUND["nearest"][0], 0.791, 0.0005)
+    # The word vectors come from a randomized SVD, so results built on them get a small tolerance.
+    expect("nearest stored question, word vectors", FOUND["nearest"][1], 0.769, 0.01)
+    assert {"passcode", "password"} <= set(FOUND["window"][0]) and {"locked", "blocked"} <= set(FOUND["window"][1])
+    expect("window of two, averaged vectors", FOUND["window"][2], 0.830, 0.01)
+
+
+def lab10():
+    print("Lab 10")
+    project_folder = Path(__file__).resolve().parents[1] / "lab10_end_to_end_project" / "booking_project"
+    sys.path.insert(0, str(project_folder))
+    import bookings as project
+    from train import train
+
+    file = DATA / "supervised/hotel_bookings/hotel_bookings.zip"
+    raw = pd.read_csv(file)
+    table = project.read_bookings(file)
+    month = table["arrival_date"].dt.to_period("M")
+    live_months = pd.period_range("2017-04", "2017-08", freq="M")
+    found = {}
+
+    # Task 1: at least one adult in every booking.
+    strict = {**project.CONTRACT, "adults": (1, 10)}
+    adults_line = [line for line in project.validate(raw, strict) if line.startswith("adults")]
+    no_adult = raw[raw["adults"] == 0]
+    with_children = no_adult[(no_adult["children"].fillna(0) + no_adult["babies"]) > 0]
+    found["adults"] = (adults_line, len(no_adult), len(with_children), round(float(with_children["is_canceled"].mean()), 3),
+                       sorted(with_children["market_segment"].value_counts().head(2).index.tolist()))
+    print("  at least one adult:", found["adults"])
+
+    # Models used by several tasks: frozen, and retrained on the first day of each month.
+    champion, _ = train(table, "2017-01-01")
+    challenger, _ = train(table, "2017-01-01", make=project.make_challenger)
+    monthly = {}
+    for name in pd.period_range("2017-03", "2017-08", freq="M"):
+        current = table[month == name]
+        champion_now, _ = train(table, name.start_time)
+        challenger_now, _ = train(table, name.start_time, make=project.make_challenger)
+        monthly[str(name)] = {
+            "cancelled": int(current["is_canceled"].sum()),
+            "retrained_expected": float(champion_now.predict_proba(current[project.FEATURES])[:, 1].sum()),
+            "champion_frozen": roc_auc_score(current["is_canceled"], champion.predict_proba(current[project.FEATURES])[:, 1]),
+            "challenger_frozen": roc_auc_score(current["is_canceled"], challenger.predict_proba(current[project.FEATURES])[:, 1]),
+            "champion_retrained": roc_auc_score(current["is_canceled"], champion_now.predict_proba(current[project.FEATURES])[:, 1]),
+            "challenger_retrained": roc_auc_score(current["is_canceled"],
+                                                  challenger_now.predict_proba(current[project.FEATURES])[:, 1])}
+    monthly = pd.DataFrame(monthly).T
+    live = monthly.loc[[str(name) for name in live_months]]
+
+    # Task 2: a stricter promotion rule, on frozen and on retrained models.
+    def promoted_after(lead):
+        for i in range(1, len(lead)):
+            if lead.iloc[i - 1] > 0.01 and lead.iloc[i] > 0.01:
+                return lead.index[i]
+        return None
+    frozen_lead = (live["challenger_frozen"] - live["champion_frozen"]).round(3)
+    retrained_lead = (live["challenger_retrained"] - live["champion_retrained"]).round(3)
+    found["rule"] = (frozen_lead.tolist(), promoted_after(frozen_lead), retrained_lead.tolist(), promoted_after(retrained_lead))
+    print("  two months ahead by more than 0.01:", found["rule"])
+
+    # Task 3: retrain each quarter (1 April and 1 July) instead of each month.
+    quarterly_expected, quarterly_auc = 0.0, []
+    for name in live_months:
+        start = pd.Timestamp("2017-04-01") if name.month < 7 else pd.Timestamp("2017-07-01")
+        model, _ = train(table, start)
+        current = table[month == name]
+        risk = model.predict_proba(current[project.FEATURES])[:, 1]
+        quarterly_expected += risk.sum()
+        quarterly_auc.append(roc_auc_score(current["is_canceled"], risk))
+    found["quarterly"] = (int(round(quarterly_expected)), round(float(np.mean(quarterly_auc)), 3),
+                          int(round(live["retrained_expected"].sum())), round(float(live["champion_retrained"].mean()), 3),
+                          int(live["cancelled"].sum()))
+    print("  quarterly against monthly retraining (expected, mean AUC, expected, mean AUC, cancelled):", found["quarterly"])
+
+    # Task 4: which hotel drives July? The frozen champion, hotel by hotel.
+    hotels = {}
+    for name in ["2017-04", "2017-07"]:
+        for hotel, group in table[month == name].groupby("hotel"):
+            risk = champion.predict_proba(group[project.FEATURES])[:, 1]
+            hotels[(name, hotel)] = (len(group), round(float(roc_auc_score(group["is_canceled"], risk)), 3),
+                                     round(float(risk.sum() / group["is_canceled"].sum() - 1), 3))
+    found["hotels"] = hotels
+    print("  by hotel (bookings, AUC, count error):", hotels)
+
+    # Task 5: 600 calls a month.
+    hits = {"champion": 0, "challenger": 0, "at_random": 0.0}
+    for name in live_months:
+        current = table[(month == name) & (table["deposit_type"] == "No Deposit")]
+        cancelled = current["is_canceled"].to_numpy()
+        hits["at_random"] += cancelled.mean() * 600
+        for label, model in [("champion", champion), ("challenger", challenger)]:
+            top = np.argsort(model.predict_proba(current[project.FEATURES])[:, 1])[::-1][:600]
+            hits[label] += int(cancelled[top].sum())
+    found["calls"] = {key: int(round(value)) for key, value in hits.items()}
+    print("  600 calls a month, future cancellations reached in five months:", found["calls"])
+
+    # Task 6: last month's ratio applied to the retrained model of each month.
+    corrected = []
+    previous = monthly.index.tolist()
+    for i, name in enumerate(previous[1:], start=1):
+        ratio = monthly.loc[previous[i - 1], "cancelled"] / monthly.loc[previous[i - 1], "retrained_expected"]
+        corrected.append(monthly.loc[name, "retrained_expected"] * ratio)
+    found["both"] = (int(round(sum(corrected))), round(float(sum(corrected) / live["cancelled"].sum() - 1), 3),
+                     int(sum(abs(c / a - 1) < abs(e / a - 1) for c, e, a in zip(corrected, live["retrained_expected"],
+                                                                             live["cancelled"]))))
+    print("  retrained and corrected (expected, error, months better than retrained alone):", found["both"])
+
+    # The warm-up on paper.
+    then, now = np.array([0.5, 0.3, 0.2]), np.array([0.4, 0.3, 0.3])
+    warm_psi = float(((now - then) * np.log(now / then)).sum())
+    folds = np.array([0.830, 0.860, 0.850, 0.844])
+    warm_spread = float(folds.std())
+    warm_corrected = 2500 * 2450 / 2300
+    print(f"  warm-up: PSI {warm_psi:.3f}; spread {warm_spread:.4f} against a gap of {folds.mean() - 0.840:.3f};"
+          f" corrected May {warm_corrected:,.0f}")
+    expect("warm-up PSI", warm_psi, 0.063, 0.0005)
+    expect("warm-up spread", warm_spread, 0.0109, 0.00005)
+    expect("warm-up correction", warm_corrected, 2663, 0.5)
+
+    assert found["adults"] == (["adults: 415 values outside 1 to 10"], 403, 223, 0.377, ["Direct", "Online TA"])
+    assert found["rule"] == ([0.006, 0.008, 0.006, 0.024, 0.006], None, [0.007, 0.008, 0.01, 0.027, 0.015], "2017-08")
+    assert found["quarterly"] == (10741, 0.835, 10876, 0.837, 11464)
+    assert found["hotels"] == {("2017-04", "City Hotel"): (3919, 0.859, -0.025), ("2017-04", "Resort Hotel"): (1742, 0.861, -0.189),
+                               ("2017-07", "City Hotel"): (3559, 0.763, -0.003), ("2017-07", "Resort Hotel"): (1754, 0.818, -0.237)}
+    assert found["calls"] == {"champion": 2240, "challenger": 2186, "at_random": 1034}
+    assert found["both"] == (11284, -0.016, 2)
+    return found
+
+
 if __name__ == "__main__":
     labs = {name: function for name, function in sorted(globals().items()) if name.startswith("lab") and name[3:].isdigit()}
     for name in sys.argv[1:] or labs:

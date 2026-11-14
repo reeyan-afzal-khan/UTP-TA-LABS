@@ -185,13 +185,13 @@ MCC ranges from $-1$ to $1$; near zero indicates little association. Using all f
 
   MCC uses all four cells at once. The numerator is
 
-  $ T P dot.op T N-F P dot.op F N=60(880)-20(40)=52(,)800-800=52(,)000, $
+  $ T P dot.op T N-F P dot.op F N=60(880)-20(40)=52","800-800=52","000, $
 
   and the denominator is
 
-  $ sqrt((80)(100)(900)(920))=sqrt(6(,)624(,)000(,)000) approx 81(,)388, $
+  $ sqrt((80)(100)(900)(920))=sqrt(6","624","000","000) approx 81","388, $
 
-  so $op("MCC") approx 52(,)000\/81(,)388 approx 0.639$.
+  so $op("MCC") approx 52","000\/81","388 approx 0.639$.
 
   Accuracy, balanced accuracy, and MCC answer different questions; do not report accuracy alone under imbalance.
 ]
