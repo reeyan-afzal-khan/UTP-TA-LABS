@@ -92,7 +92,7 @@
 
   Choose one policy. In Vim change the final reference in its array from 2 to 7. Predict whether that final access is a hit or a fault for that policy, recompile, and verify.
 
-  #quickcheck[
+  #questions[
     + What event causes a page fault?
     + What state does LRU need that FIFO does not?
     + Why can two replacement policies choose different victims for the same reference?
@@ -102,7 +102,7 @@
 
   #include "visuals/08-virtual-memory-and-page-replacement-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Use the same reference string for all algorithms. Mark hits, faults and victims at every step and independently total faults before comparing the printed summaries.
 
     - The final hit and fault totals are recorded for all three policies on the same reference string.

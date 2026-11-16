@@ -73,7 +73,7 @@ The learning outcomes explicitly ask students to identify both conditions.
   / Underflow: A pop or peek is attempted on an empty stack.
 ]
 
-#pitfall[
+#warning[
   Always test the relevant state before changing the top index or dereferencing the top node. Underflow bugs often become invalid memory access.
 ]
 
@@ -150,7 +150,7 @@ public:
 };
 ```
 
-#clarification[
+#note[
   The Week V lab lists `isFull()` for both array and linked-list stacks. A linked-list stack normally has no predetermined fixed capacity; it is “full” only if an external capacity rule is imposed or memory allocation fails. This distinction is not stated on the slide, so the notes preserve the lab operation while making the implementation assumption explicit.
 ]
 
@@ -169,7 +169,7 @@ public:
   )
 ]
 
-#intuition[
+#note[
   A physical stack of plates behaves like the ADT: adding a plate changes only the top, and removing a plate takes the most recently added plate first.
 ]
 
@@ -195,7 +195,7 @@ without storing one explicitly.
       node((0, 0.64), [2 \* 1 = 2], ..utpdone, min-width: cw, min-height: 0.6, font: font("script", fill: navy, family: "mono"))
       node((0, 0), [3 \* 2 = 6], ..utpdone, min-width: cw, min-height: 0.6, font: font("script", fill: navy, family: "mono"))
       node((0, -0.42), [frames pop, results flow down], font: font("small"), ..utplabel, anchor: "north", align: center)
-      connect((1.55, 1.28), (1.55, 0.15), line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect((1.55, 1.28), (1.55, 0.15), line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     })
     node((2.85, 0.64), [then], font: font("small"), ..utplabel, anchor: "west", align: center, text: muted)
   })
@@ -224,7 +224,7 @@ Multiplication is emitted before addition because it has higher precedence.
   + At the end, pop all remaining operators.
 ]
 
-#clarification[
+#note[
   The lab manual names infix-to-postfix conversion as practice but does not provide the precedence/associativity algorithm in the supplied material. The procedure above is standard supporting context so the named lab task can be implemented.
 ]
 
@@ -252,6 +252,6 @@ output column only ever grows.
   })
 ]
 
-#quickcheck[
+#questions[
   After `push(10)`, `push(20)`, `push(30)`, `pop()`, and `peek()`, what value is returned by `peek()`? What condition causes underflow?
 ]

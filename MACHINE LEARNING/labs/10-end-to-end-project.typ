@@ -38,11 +38,11 @@
   [Save the evidence; then correct the monthly forecast yourself],
   [22--24],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the checklist],
+  [Exercises, answers, troubleshooting tips and the checklist],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment (Chapter~@ch:toolkit). This lab also needs `flask` and `streamlit`, which are in the course's `requirements.txt`.
   + Warm up on the chapters' scripts. From the course folder, run the first two commands below. Each ends with `Every number above matches the book.`; the first takes about a minute and a half, the second about half a minute.
   + From the course folder, start Jupyter, open `all_experiments/lab10_end_to_end_project/lab10_end_to_end_project_worked.ipynb`, and choose #strong[Restart Kernel and Run All Cells]. It takes about a minute and a half.
@@ -60,7 +60,7 @@
 
 #strong[How each answer is laid out.] Under every question you will find the code of that cell, then #strong[Read the code], which explains its lines in the order they run, then the #strong[Reference output], and last #strong[What it means]. Type the code yourself the first time; reading it is not the same as writing it.
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the lab and its chapters use each of them.
 
   + A text column has three categories with shares of 50%, 30% and 20% in the reference period and 40%, 30% and 30% now. Compute its population stability index with $sum_k (q_k - p_k) ln(q_k \/ p_k)$. In which of the three bands of Chapter~#ref(<ch:serving>) does it fall?
@@ -788,8 +788,6 @@
   #strong[What it means.] Thirteen files: three figures, the tables of this lab, the experiment log, the model card, the prediction log and the run log. `call_list.csv` and `retraining.csv` are the two to show the revenue manager.
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(23)[Try it yourself][
   Every month the forecast of the number of cancellations came out short, and retraining narrowed the gap without closing it. A simpler correction is available on the first day of each month: the previous month's outcomes are known by then. Multiply each month's expected count by the ratio of cancelled to expected in the month before, and compare the corrected forecasts of April to August with the uncorrected ones. Use the frozen champion, and remember that April's correction comes from March, the last month of the test quarter.
 
@@ -825,10 +823,10 @@
   #strong[What it means.] The correction uses only what is known on the first day of each month, and it works. Over the five months the corrected forecast is short by 3.0%, against 8.2% for the model alone and 5.1% for monthly retraining in Question~21, and it is better in four months of five. April is the exception: March's ratio was below one, 0.986, so the correction pushed April the wrong way. A correction like this is a second, very small model on top of the first, and it needs the same care. It is fitted on a single month, so it is noisy, and it should be checked on new months before it is trusted.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklist], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the checklist before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklist], [Extend the lab with the exercises, compare with the answers, and check your work against the checklist before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[At least one adult.] Make a stricter copy of the contract with `strict = {**project.CONTRACT, "adults": (1, 10)}` and run `project.validate(raw, strict)`. How many bookings break it now? Look at the bookings with no adult: how many of them have children, what share of those was cancelled, and through which segments did they come? Would you refuse such bookings, keep them, or ask the hotel?
   + #strong[A stricter promotion rule.] Suppose the rule had been: promote the challenger when it leads the champion by more than 0.01 in two consecutive months. Compute the challenger's monthly AUC beside the champion's, once for the frozen models and once for models retrained on the first day of each month as in Question~21. When, if ever, is the challenger promoted under each?
@@ -838,7 +836,7 @@
   + #strong[Retrain and correct.] Combine Questions~21 and~24: retrain on the first day of each month, and correct each month's count by the previous month's ratio of actual to expected, where the previous month's expected count comes from the model that was in service then. Does the five-month total improve on retraining alone?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] The index is $(0.4 - 0.5) ln(0.8) + 0 + (0.3 - 0.2) ln(1.5) = 0.022 + 0.041 = 0.063$: below 0.1, so the column has hardly moved, although one category gained ten points. The spread of the four scores is 0.0109 and the gap is 0.006, so the rule chooses the simpler model. May's corrected forecast is $2","500 times 2","450 \/ 2","300 = 2","663$.
 
   + 415 bookings break the stricter contract: the 12 with more than ten adults and 403 with none. Of the 403, 180 have no guests at all and 223 have children with no adult, mostly through the direct and online-agent segments, and 37.7% of those were cancelled, close to the average. They do not look like junk, and nothing in the file explains them. Keep them for training, ask the hotel, and let the service accept such a booking with a warning rather than refuse it until the answer comes.
@@ -849,7 +847,7 @@
   + Retraining and correcting together expect 11,284 cancellations, 1.6% short: the best five-month forecast in this lab, against 5.1% for retraining alone. Month by month it is better in only two months of five, so the gain is in the total and the single months stay noisy. Report the total with that warning.
 ]
 
-#troubleshoot[
+#tip[
   / `No module named 'bookings'` or `'course_setup'`: The notebook is not running inside its lab folder, so `"booking_project"` and `".."` point elsewhere. Open it from `all_experiments/lab10_end_to_end_project/` in your copy of the course.
   / `No module named 'flask'` or `'streamlit'`: Install the course's requirements again; both packages are listed there.
   / Question~14 prints a return code other than 0: Read `result.stderr` to the end. The script stops on purpose when the file is missing a column (`stopped: the file breaks the contract`).
@@ -862,7 +860,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The contract check of the raw file gives five findings, each with a written decision, and you can say what the damaged export would have done without the check.
     - The five columns written too late are not among the 26 features, and you can explain why a changed room predicts cancellation so well.
     - You can explain why random folds rated the forest 0.934 and the forward folds 0.855, using the block of 180 identical bookings.

@@ -70,6 +70,6 @@ The complete captured run is in `labs/outputs/union_review.txt`.
 
 Reported byte sizes depend on the platform; compare the storage relationships rather than requiring these exact sizes.
 
-#tryit[
+#exercises[
   Change the last temperature to 28 and recompute the maximum and average by hand. For the union, write grade last and read grade; do not read the older inactive members.
 ]

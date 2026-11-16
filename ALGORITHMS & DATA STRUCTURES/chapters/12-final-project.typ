@@ -7,7 +7,7 @@
 
 The final-project guideline turns the course into a small comparative experiment. The required deliverable is not only a written report: the group must also build an interactive web or mobile application that demonstrates two algorithms from the #emph[same category] side by side.
 
-#projectrequirement[
+#note[
   Choose two related algorithms or operations, explain how both work, and compare their time complexity, space complexity, number of steps or operations, use cases, and practicality. The application must accept sample input, execute both choices, show the results, report steps and measurable time, provide visual output, and present a side-by-side comparison.
 ]
 
@@ -30,7 +30,7 @@ The project guideline explicitly requires algorithms from the same category. It 
 
 The guideline also permits other pairs, provided the two choices are genuinely related. A comparison such as Bubble Sort vs Binary Search is invalid because the algorithms solve different problems.
 
-#recommendedworkflow[
+#tip[
   A strong pair has one shared task and one clear independent variable: the algorithm. Keep the input, hardware, programming language, output requirement, and measurement method the same. That makes the comparison easier to explain and more defensible.
 ]
 
@@ -78,7 +78,7 @@ void bubbleSortMeasured(vector<int>& a, Metrics& m) {
 }
 ```
 
-#keyidea[
+#note[
   Do not force every algorithm into the same notion of a “step.” Define the metric before the experiment. For sorting, comparisons and swaps are natural. For searching, comparisons are natural. For graphs, visited vertices/edges and queue/stack operations may be more meaningful.
 ]
 
@@ -97,7 +97,7 @@ auto elapsed = duration_cast<microseconds>(stop - start).count();
 cout << elapsed << " microseconds\n";
 ```
 
-#recommendedworkflow[
+#tip[
   Run each algorithm multiple times on copied input and report a median or average. For sorting, never let Algorithm 2 receive the already-sorted output produced by Algorithm 1 unless “sorted input” is intentionally the scenario being tested. Preserve an untouched master input and copy it before each run.
 ]
 
@@ -105,7 +105,7 @@ cout << elapsed << " microseconds\n";
 
 The final-project guideline requires a web or mobile application before report submission. The interface should help even a non-computer-science user interpret the comparison.
 
-#projectrequirement[
+#note[
   The app must allow sample-data input, execute both algorithms, display results, show step counts, show time taken when measurable, include visual outputs, and provide a side-by-side comparison. The guideline specifically encourages interactive elements such as dropdowns and buttons.
 ]
 
@@ -124,7 +124,7 @@ A practical screen flow is:
   #canvas({
     let stage = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3, min-height: 1, align: center, font: font("small", weight: "bold", fill: navy), inner-sep: 1.8mm)
     let result = (draw: green, fill: pale-teal, rounded: 2mm, min-width: 7.7, min-height: 1.2, align: center, font: font("small", weight: "bold", fill: navy), inner-sep: 1.8mm)
-    let flow = (line-width: 0.9465pt, draw: teal, rounded: 1.5mm, end: tip("Stealth", length: 2.3mm, line: 0.9465pt))
+    let flow = (line-width: 0.9465pt, draw: teal, rounded: 1.5mm, end: arrow-tip("Stealth", length: 2.3mm, line: 0.9465pt))
     node((1.75, 2.25), [#strong[1\. Input / generate] \ #v(-0.12em)
   #fsize("script")[dataset]], name: "input", font: font("small"), ..stage)
     node((5.75, 2.25), [#strong[2\. Validate input] \ #v(-0.12em)
@@ -166,11 +166,11 @@ The written report is organized into six main parts.
 
 == Team and repository requirements
 
-#projectrequirement[
+#note[
   Teams may contain a maximum of four students. Each group submits one report and one application. The team leader should upload the code to a GitHub repository, give other team members access, reference members there, and include the repository in the report so the code can be accessed.
 ]
 
-#recommendedworkflow[
+#tip[
   Use a simple repository structure such as `/app`, `/algorithm-core`, `/tests`, `/docs`, and a clear `README`. Keep algorithm logic separate from UI code so the same functions can be tested independently and then called by the web/mobile interface.
 ]
 
@@ -195,7 +195,7 @@ The following pairs stay within the same problem category and have useful trade-
 
 == Submission checklist
 
-#verification[
+#checklist[
   Before submission, verify that the package contains:
 
   - project title and complete group details;

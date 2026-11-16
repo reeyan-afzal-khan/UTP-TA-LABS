@@ -33,13 +33,13 @@ Each measures a different delay.
   )
 ]
 
-#keyidea[
+#note[
   Waiting and turnaround are closely related because the burst time is fixed.
   Response time is different: it measures how quickly a process starts, not how
   quickly it finishes.
 ]
 
-#workedexample[
+#example[
   A process arrives at time 2, first receives the CPU at time 5, needs 4 CPU units in total, and finishes at time 11.
 
   $R=3$, $T=9$, and $W=5$. A negative waiting time always signals an error.
@@ -130,7 +130,7 @@ P3 needs one unit of CPU and waits eight to get it. That is the #term[convoy eff
 
 Average waiting fell from 4.33 to 1.67 --- and no work was done faster. The CPU was busy for exactly nine units in both schedules. Only the #emph[order] changed.
 
-#keyidea[
+#note[
   For a fixed set of jobs all available at once, SJF provably minimises average waiting time. Running a short job early delays only that short job’s successors briefly; running a long job early delays everyone behind it.
 
   The catch is that $B_i$ is the burst the process is #emph[about to] need, which the OS cannot know. Real systems estimate it from recent history, and the estimate is often wrong.
@@ -157,7 +157,7 @@ Highest priority first. With the convention that a lower number is more urgent, 
 
 Averages: $T = 5.33$, $W = 2.33$. Better than FCFS, worse than SJF --- because priority happens to correlate with burst length here, but is not chosen to optimise it.
 
-#pitfall[
+#warning[
   State your priority convention before you compute anything. “Priority 1” means #emph[most] urgent in most textbooks and lab manuals, and #emph[least] urgent in some real systems --- Linux `nice` values run from $-20$ (most favourable) to $19$.
 
   Half of all lost marks on scheduling questions come from silently assuming the wrong direction. Write the convention at the top of your answer.
@@ -224,7 +224,7 @@ Round Robin improves first response without making the CPU faster; it changes
 how waiting is shared. SJF performs best here, but it needs future burst lengths
 and can delay long jobs indefinitely.
 
-#intuition[
+#note[
   The quantum controls the trade-off. A large quantum makes Round Robin behave
   like FCFS. A very small quantum improves response but causes more context
   switches.
@@ -242,27 +242,26 @@ Work in this order, every time:
   + Read $S_i$ off the chart for $R_i$ --- the left edge of that process’s #emph[first] block.
 ]
 
-#pitfall[
+#warning[
   The most common Round Robin error is computing waiting time by adding up gaps in the chart. With several preemptions there are several gaps per process, and one is always missed.
 
   Use $W = T - B$. It cannot miss a gap, because it never looks at them.
 ]
 
-#tryit[
+#exercises[
   Redo the same workload with $q = 1$, then with $q = 5$. Confirm that $q = 5$ reproduces the FCFS chart exactly, and explain in one sentence why.
 
   Then change the arrivals to $A_1 = 0$, $A_2 = 1$, $A_3 = 2$ and redo FCFS. The chart now contains idle time if a process has not arrived yet --- make sure your $C$ values account for it.
 ]
 
-#quickcheck[
+#questions[
   + Why can Round Robin have the same average waiting time as FCFS but much better response time?
   + A process has $T = 12$ and $B = 15$. What went wrong?
   + Why does SJF need an estimate rather than a measurement?
   + What does aging fix, and which policy needs it?
+]
 
-  #v(6pt)
-  #strong[Answers.]
-
+#answers[
   + Waiting time depends only on total time queued, which the same total work distributes similarly. Response time depends on the #emph[first] turn, and RR guarantees every process one within $n times q$ of arriving.
   + An arithmetic error. Waiting time would be $-3$, and a process cannot exist for less time than it spent running. Recheck $C$, or check that $B$ is total burst rather than remaining burst.
   + $B_i$ is the burst the process is about to request. It is only measurable after the fact, so schedulers predict it from recent history --- typically an exponential average of previous bursts.

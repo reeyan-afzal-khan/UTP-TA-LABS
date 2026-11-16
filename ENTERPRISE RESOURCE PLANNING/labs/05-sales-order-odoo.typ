@@ -12,7 +12,7 @@
 
   #include "visuals/05-flow.typ"
 
-  #labmode[
+  #note[
     Tutorial 5 focuses on the problems of an unintegrated sales process. This lab deliberately makes the same information move through linked Odoo records so you can point to what ERP integration changes.
   ]
 
@@ -74,7 +74,7 @@
 
 #include "walkthroughs/05-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Trace order, delivery, invoice and payment references for one sale. Reconcile quantities and amounts, and explain any difference between delivery status and invoice payment status.
 
   - The quotation is confirmed and its status is Sales Order.

@@ -54,7 +54,7 @@ A #term[layer] computes weighted sums, passes each through a nonlinear #term[act
   })
 ]
 
-#workedexample[
+#example[
   #strong[One forward pass.] Take inputs $x=(2,1)$, a hidden layer with two units, weights $w_1=(1,-1)$ and $w_2=(0.5,0.5)$, no biases, and the activation ReLU, which keeps a positive sum and replaces a negative one by 0. The two sums are $2-1=1$ and $1+0.5=1.5$, and ReLU leaves both as they are. An output unit with weights $(1,-2)$ then gives $1-3=-2$, which a sigmoid turns into a chance of 0.119. Change $x$ to $(1,2)$: the first sum becomes $-1$, ReLU sets it to 0, and the output becomes $0-3=-3$.
 ]
 
@@ -62,7 +62,7 @@ A #term[layer] computes weighted sums, passes each through a nonlinear #term[act
 
 Without nonlinear activations, stacked linear layers collapse into one linear map, however many there are: a weighted sum of weighted sums is still a weighted sum. Here is the problem that stopped the perceptron.
 
-#workedexample[
+#example[
   XOR is 1 when exactly one of two inputs is 1. The best possible straight-line fit predicts 0.5 for all four cases, so it has learned nothing.
 
   Now use two ReLU units, $h_1=max(0,x_1-x_2)$ and $h_2=max(0,x_2-x_1)$, and output $h_1+h_2$.
@@ -86,7 +86,7 @@ Without nonlinear activations, stacked linear layers collapse into one linear ma
   ]]]
 ]
 
-#intuition[
+#note[
   Hidden units create new features out of the inputs; later layers combine them into richer decision boundaries. This is why a network needs no feature engineering of the kind in #chapref(<ch:feature-engineering>) for images or sound: the early layers do it.
 ]
 
@@ -128,7 +128,7 @@ The activation is the only nonlinear part of a unit, and the choice matters more
 
 The slopes explain the column on the right. At $z = -4, -1, 0, 1, 4$ the sigmoid's slope is 0.018, 0.197, 0.25, 0.197 and 0.018; tanh's is 0.001, 0.42, 1, 0.42 and 0.001; ReLU's is 0, 0, 0, 1 and 1. A signal passed backward through ten sigmoid units is multiplied by at most $0.25^(10)$, about one in a million. #chapref(<ch:deep-training>) watches that happen in a real network.
 
-#workedexample[
+#example[
   #strong[Softmax.] A network that sorts messages into three classes ends with three scores, say 2, 1 and 0.1. Softmax raises $e$ to each score and divides by the total: $e^2 = 7.39$, $e^1 = 2.72$ and $e^(0.1) = 1.11$ add up to 11.21, so the chances are 0.659, 0.242 and 0.099. They are positive, they add up to 1, and the largest score gets the largest chance.
 ]
 
@@ -167,7 +167,7 @@ Each of these steps hides choices, such as which optimizer, how large a step, ho
 
 #term[Backpropagation] sounds grand, and it is the chain rule, used from the output backward so that each weight's slope reuses work already done.
 
-#workedexample[
+#example[
   A two-weight network: input $x=1$, hidden $h=op("ReLU")(a thin x)$, output $hat(y)=b thin h$, target $y=2$, loss $(y-hat(y))^2$. Start with $a=2$ and $b=0.5$.
 
   #emph[Forward:] $h=2$, $hat(y)=1$, loss $=1$.
@@ -187,7 +187,7 @@ Each dense layer has one weight per input per unit, plus one bias per unit. Lab~
 
 #recipecard([Neural network], [Layers of weighted sums and nonlinear activations, with many thousands of weights.], [Cross-entropy for classes; squared error for numbers.], [Gradient descent on minibatches, usually with Adam. Backpropagation computes the slopes.])
 
-#modelcard[Neural Networks - Quick Guide][
+#checklist(title: [Neural Networks - Quick Guide])[
   #tabularx(
     columns: (22%, 1fr),
     valign: (top, horizon),
@@ -201,11 +201,11 @@ Each dense layer has one weight per input per unit, plus one bias per unit. Lab~
   )
 ]
 
-#libnote[
+#note[
   Labs~7--8 use #lib("PyTorch") tensors, `nn.Sequential`, and explicit training loops. #lib("Keras") instead offers a higher-level `model.fit` interface.
 ]
 
-#chapterrecap[
+#summary[
   - A perceptron is one unit and can learn only what a straight line can draw. Hidden layers with nonlinear activations remove that limit: two ReLU units solve XOR.
   - ReLU is the default activation for hidden layers. A sigmoid belongs on a yes/no output, softmax on a several-class output, nothing on a regression output.
   - The sigmoid's slope is at most 0.25, ReLU's is 1 for positive inputs. The slopes multiply on the way back, which matters in deep networks.
@@ -214,7 +214,7 @@ Each dense layer has one weight per input per unit, plus one bias per unit. Lab~
   - A dense layer has one weight per input per unit, plus a bias per unit; on images, the first layer holds most of them.
 ]
 
-#quickcheck[
+#questions[
   + Why does a network with two linear layers and no activation function have no more power than one linear layer?
   + For $x=(3,1)$ and the forward-pass network above, what are the hidden values and the output score?
   + Which activation would you put on the output of a network that predicts a house price, one that predicts whether a loan defaults, and one that sorts photos into seven classes?

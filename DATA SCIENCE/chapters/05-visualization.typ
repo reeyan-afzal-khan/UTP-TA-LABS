@@ -29,7 +29,7 @@ Humans compare positions along a common axis more accurately than angles, areas,
 #utpfig([Prefer encodings that support precise comparison when the analytical goal depends on small differences.], label: <fig:encoding-hierarchy>)[
   #canvas(x: 16.06cm, {
     let encoding = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.14 * 16.06, min-width: 0.18 * 16.06, min-height: 1.7, inner-xsep: 2.5mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
-    let precision = (line-width: 0.9963pt, draw: teal, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.9963pt))
+    let precision = (line-width: 0.9963pt, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.9963pt))
     node((0.1, 0), [#text(fill: teal)[#strong[01]] \ #v(3.9851pt)
    #strong[POSITION] \ #v(4.9813pt)
    Location on a \
@@ -108,7 +108,7 @@ If a figure shows an estimated mean, fitted line, or model prediction, include a
 
 Good chart design places the values that need comparison on a common scale and close enough to compare. Small multiples are effective when several groups or time periods share the same axes. Sorting categories by a meaningful quantity can also reduce the mental work needed to find patterns.
 
-#pitfall[
+#warning[
   Axis limits can exaggerate or conceal differences. Truncating a bar chart away from zero changes the perceived ratio of bar lengths; clipping a scatterplot can hide records that contradict the intended story. State and justify unusual scales.
 ]
 
@@ -116,13 +116,13 @@ Good chart design places the values that need comparison on a common scale and c
 
 Every figure should support a short interpretation that names the variables, describes the visible pattern, and separates observation from explanation.
 
-#workedexample[
+#example[
   Weak: “The graph shows a relationship.”
 
   Better: “Petal length and petal width increase together, and the observations form visible species-level clusters. The plot establishes association and separation, not a biological causal mechanism.”
 ]
 
-#keyidea[
+#note[
   Good visualisation reduces the distance between data and judgment. Remove decoration that does not encode information; keep labels, units, and context that make the evidence interpretable.
 ]
 
@@ -130,7 +130,7 @@ Every figure should support a short interpretation that names the variables, des
 
 Before publishing a chart, ask: Is the analytical question visible? Are units and population clear? Does the geometry match the variable type? Are scales honest and comparable? Is colour necessary and distinguishable? Are missing values or excluded groups acknowledged? Does the caption state the evidence rather than merely repeat the title? Could a reader misinterpret association as causation?
 
-#quickcheck[
+#questions[
   + Why is position on a common axis easier to compare than area?
   + What can a scatterplot reveal that correlation alone cannot?
   + Why should histogram conclusions be checked across reasonable bin widths?
@@ -147,7 +147,7 @@ The Red Wine Quality dataset contains 1,599 wines and an ordered quality score f
 
 The correlation between alcohol and quality is about 0.48, but the boxplots communicate more: the quality groups overlap substantially and sample sizes are very unequal. Scores 5 and 6 dominate the dataset, whereas extreme scores are rare. A regression line alone would hide both facts.
 
-#keyidea[
+#note[
   The best chart is not the chart with the most aesthetics. It is the chart whose visual encoding makes the comparison required by the question easy and honest.
 ]
 

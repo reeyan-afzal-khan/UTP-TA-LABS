@@ -31,7 +31,7 @@ The record of what people did comes in two kinds:
 
 The shop’s data is implicit. It records who bought what, and never who disliked what.
 
-#keyidea[
+#note[
   An empty cell in a purchase matrix is not a no. Most empty cells are products the customer never saw. A recommender therefore learns from what was bought, ranks everything else, and is judged on what the customer buys next.
 ]
 
@@ -105,7 +105,7 @@ Two more numbers say what kind of lists they were: how many different products a
 
 `top_ten` gives every product the customer has already bought a score of minus infinity, so that it can never be chosen, and sorts the rest. A stable sort breaks ties in column order, so the lists are the same on every run. Recall stays low for every method, because a list has ten places and the median customer went on to buy 17 new products.
 
-#pitfall[
+#warning[
   A random split of the purchases would hide some of a customer’s Christmas orders and keep the others in the history. The recommender would then be asked to find the rest of a range it has already seen the customer buy, in a season it has already seen, and it would look better than it can ever be in use. Split by time, the way the shop will use it.
 ]
 
@@ -125,7 +125,7 @@ Two products are similar if the same customers bought them. With 0s and 1s, the 
 
 $ "similarity"(a, b) = frac("customers who bought both", sqrt("buyers of" a times "buyers of" b)) $
 
-#workedexample[
+#example[
   #strong[Similar products by hand.] Teapot and mug: Ann and Ben bought both, and each has three buyers, so the similarity is $2 \/ sqrt(3 times 3) = 0.667$. Teapot and card: only Ann bought both, from three and two buyers, so $1 \/ sqrt(3 times 2) = 0.408$. Teapot and candle: no shared buyer, so 0. Candle and lantern were bought by exactly the same two customers, so 1.000.
 
   #v(4pt)
@@ -161,7 +161,7 @@ The method has two strengths that explain why large shops have used it for decad
 
 Turn the matrix the other way. Two customers are similar if they bought the same products, measured by the same cosine between their rows. A customer’s list is then what their most similar customers bought. This is $k$-nearest neighbours (#secref(<sec:knn>)), with customers as the points, and it is called #term[user-based collaborative filtering].
 
-#workedexample[
+#example[
   #strong[Neighbours by hand.] Eve shares the teapot with Ann, who bought three products, so their similarity is $1 \/ sqrt(1 times 3) = 0.577$. She shares it with Ben, who bought two: $1 \/ sqrt(1 times 2) = 0.707$. She shares nothing with Cara or Dev. With two neighbours, each product scores the similarities of the neighbours who bought it, added up: the mug $0.577 + 0.707 = 1.284$, the card 0.577, from Ann alone. The teapot also scores 1.284, but Eve has it already. The mug wins again.
 ]
 
@@ -196,9 +196,7 @@ User-based filtering is slower to serve than item-based filtering: each new list
 
 == Tastes: matrix factorization
 
-#analogy[
-  A bookseller who knows you well does not remember every book you ever bought. They remember that you like crime novels set abroad and long histories of the sea, and they choose for you from that short description. Matrix factorization learns such a description for every customer, and a matching one for every product, from nothing but who bought what.
-]
+A bookseller who knows you well does not remember every book you ever bought. They remember that you like crime novels set abroad and long histories of the sea, and they choose for you from that short description. Matrix factorization learns such a description for every customer, and a matching one for every product, from nothing but who bought what.
 
 Both neighbour methods compare pairs: two products, or two customers. #term[Matrix factorization] looks at the whole matrix at once. It describes every customer by a few numbers, the customer’s #term[tastes], and every product by the same number of numbers, how much it appeals to each taste. A customer’s score for a product multiplies their matching numbers and adds them up. The tastes are not given to it; they are chosen so that the scores rebuild the purchase matrix as closely as possible (#figref(<fig:rec-factors>)). The SVD of #chapref(<ch:dimred>) finds them, all at once. Elsewhere you will see them called latent factors.
 
@@ -222,7 +220,7 @@ Both neighbour methods compare pairs: two products, or two customers. #term[Matr
   })
 ]
 
-#workedexample[
+#example[
   #strong[Two tastes by hand.] An SVD with two tastes, fitted to the five customers, gives:
 
   #v(6pt)
@@ -362,7 +360,7 @@ One customer makes the differences concrete. Before the cut, customer 12680 had 
 
 The best sellers are the same for everyone, and one of them happened to be bought. The item-based list stays close to the history, with more lunch bags, plasters and snack boxes for children, and two of them were bought. The factorization also offers the alarm clock in other colours, and the customer bought two of them, the green and the ivory, with two of the children’s products: four hits in ten.
 
-#intuition[
+#note[
   Look at what worked: another colour of a clock the customer already had. Many of this shop’s customers are themselves shops, and a shop stocks a product in several colours, so a second colour is a sale. For a household, a second alarm clock is a poor suggestion. Whether a similar product is a welcome companion or a pointless substitute depends on the business, and an offline test can only tell you what this shop’s customers did.
 ]
 
@@ -424,7 +422,7 @@ An offline test rewards a list for predicting what customers bought without it. 
 
 #strong[A list obeys the business.] Hide products that are out of stock, do not offer what a customer has just returned, respect margins, and decide whether near-duplicates belong on the same list. Large systems usually work in two stages: cheap methods such as the ones in this chapter choose a few hundred candidates from millions, and a supervised model ranks those candidates with everything else that is known. Tastes also drift, with seasons and fashions, so the model is refitted on a schedule and watched like any other (#chapref(<ch:serving>)).
 
-#modelcard[Recommender Systems - Quick Guide][
+#checklist(title: [Recommender Systems - Quick Guide])[
   #tabularx(
     columns: (22%, 1fr),
     valign: (top, horizon),
@@ -438,15 +436,11 @@ An offline test rewards a list for predicting what customers bought without it. 
   )
 ]
 
-#libnote[
+#note[
   Everything in this chapter needs only #lib("NumPy"), #lib("SciPy") and #lib("scikit-learn"). #lib("implicit") fits factorizations to purchases and clicks by alternating least squares, #lib("Surprise") is built for star ratings, and #lib("LightFM") mixes collaborative and content information in one model.
 ]
 
-#tryit[
-  In `demo_recommenders.py`, set `CHECK_BOOK_NUMBERS = False`. Change `TOP` from 10 to 3 and run the script; then change it to 30. Which recommender gains the most from a longer list? Why does the hit rate rise while the precision falls? A phone screen shows three products and a page of a catalogue thirty: would you choose the same recommender for both?
-]
-
-#block(breakable: false, width: 100%, chapterrecap[
+#block(breakable: false, width: 100%, summary[
   - A recommender ranks thousands of products for each customer, and only the top of the list counts. Its evidence is usually implicit, and an empty cell is not a no.
   - Test on the future: learn from the sales before a cut and score on what customers bought for the first time after it. Choose settings on an earlier window. Here 39.1% of later buying repeated earlier purchases, a separate job for a "buy again" list.
   - Best sellers reached a hit rate of 0.300 at ten, five times chance (0.058), but showed only 77 different products.
@@ -456,7 +450,11 @@ An offline test rewards a list for predicting what customers bought without it. 
   - An offline test chooses candidates; an experiment decides. Watch the variety of the lists, keep room for new products, and let the business decide what a good suggestion is.
 ])
 
-#quickcheck[
+#exercises[
+  In `demo_recommenders.py`, set `CHECK_BOOK_NUMBERS = False`. Change `TOP` from 10 to 3 and run the script; then change it to 30. Which recommender gains the most from a longer list? Why does the hit rate rise while the precision falls? A phone screen shows three products and a page of a catalogue thirty: would you choose the same recommender for both?
+]
+
+#questions[
   + Why is an empty cell in a purchase matrix not a "no"? Name one consequence for how a recommender is tested.
   + One product has 40 buyers, another has 90, and 12 customers bought both. What is their cosine similarity?
   + Why does the test count only products the customer had never bought? What would a "buy again" list rank by instead?

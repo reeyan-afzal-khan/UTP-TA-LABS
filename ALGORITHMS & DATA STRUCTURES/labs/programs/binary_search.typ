@@ -90,6 +90,6 @@ sorted:         10 13 14 29 37   (indexes 0..4)
 
 The complete captured run is in `labs/outputs/binary_search.txt`.
 
-#tryit[
+#exercises[
   Test 29 at index 3, missing 15, and an array containing repeated 29s. Ordinary binary search may find any matching index; firstOccurrence must return the earliest.
 ]

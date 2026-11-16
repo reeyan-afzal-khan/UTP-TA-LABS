@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas({
       let b = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.4, min-height: 0.9, align: center, font: font("script", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
       node((0, 0), [Population], name: "p", ..b)
       node(right-of("p", 0.35), [Evaluate \
     fitness], name: "fit", ..b)

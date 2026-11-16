@@ -8,9 +8,7 @@
 
 Back to the map question: does your log hold the answers? So far the answer was yes or no. Often it is “some of them.” Photos, scans and messages are cheap to collect, and a person’s time to label them is not.
 
-#analogy[
-  A student has a thick workbook and an answer key for only a few pages. One strategy is to mark the rest yourself, using only the answers you feel very sure about, and study from those too. That is #term[semi-supervised learning], and it works if your confidence is earned. Another strategy is to take the questions you are least sure of to the teacher, who has time for only a few. That is #term[active learning].
-]
+A student has a thick workbook and an answer key for only a few pages. One strategy is to mark the rest yourself, using only the answers you feel very sure about, and study from those too. That is #term[semi-supervised learning], and it works if your confidence is earned. Another strategy is to take the questions you are least sure of to the teacher, who has time for only a few. That is #term[active learning].
 
 == The data setting
 
@@ -48,7 +46,7 @@ Self-training is the simplest semi-supervised approach.
   + Retrain the model and repeat for a limited number of rounds.
 ]
 
-#workedexample[
+#example[
   One column, labels for $x=1,2$ (class 0) and $x=8,9$ (class 1), and six unlabeled rows. Adopt a pseudo-label only when the model’s chance is at least 0.8 or at most 0.2.
 
   #v(6pt)
@@ -68,11 +66,11 @@ Self-training is the simplest semi-supervised approach.
   ]]]
 ]
 
-#pitfall[
+#warning[
   Pseudo-labeling can reinforce confident mistakes. Limit rounds, check class balance, and validate against human labels.
 ]
 
-#workedexample[
+#example[
   Does it help? In Lab~5 a pool holds 8,003 messages to a bank’s support chat in 77 intents, and only 1,000 keep their labels. A plain model on those scores 0.638 on validation; self-training adopts 486 pseudo-labels, 98.8% of them right, and scores 0.632, against 0.882 with every label: no gain, because the model is sure only about messages it already gets right. Lower the confidence threshold to 0.5, and it adopts 3,604 pseudo-labels, only 76.8% of them right, and falls to 0.596: every wrong label is learned as if it were true. Always compute the baseline.
 ]
 
@@ -80,7 +78,7 @@ Self-training is the simplest semi-supervised approach.
 
 Connect similar observations with weighted edges, and let labels spread through the graph like news through a group of friends. Each unlabeled node repeatedly takes the average of its neighbors, while labeled nodes stay fixed.
 
-#workedexample[
+#example[
   A chain of six nodes, with the left end labeled 1 and the right end labeled 0. The unlabeled nodes start at 0.5 and are updated left to right, using the newest values. After one sweep they read $0.75, space 0.5, space 0.5, space 0.25$. After two: $0.75, space 0.625, space 0.375, space 0.25$. They settle at $0.8, space 0.6, space 0.4, space 0.2$, a smooth slope between the two labels, because each value is the mean of its two neighbors.
 ]
 
@@ -133,14 +131,14 @@ Common selection strategies include:
   )
 ]
 
-#workedexample[
+#example[
   A model gives these unlabeled rows a chance of class 1: $0.97, space 0.52, space 0.10, space 0.61, space 0.48, space 0.88$. With budget for two labels, uncertainty sampling asks about the 0.52 and the 0.48, which are nearest to a coin flip. A label on the 0.97 row would probably just confirm what the model already believes.
 ]
 
 #utpfig([The active-learning loop. The model selects useful unlabeled cases, a human labels them, and the labeled set grows before the model is trained again.], label: <fig:active-loop>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.35, min-height: 0.82, align: center, font: font("small", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Train model], name: "train", ..box-style)
     node(right-of("train", 0.55), [Select useful \
   unlabeled cases], name: "select", ..box-style)
@@ -159,7 +157,7 @@ Common selection strategies include:
   #canvas({
     let st = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 5.25, min-height: 1, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
     let hum = (draw: orange, fill: pale-orange, rounded: 2mm, min-width: 5.25, min-height: 1, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 0), [1\. Train using the labels you have], name: "train", ..st)
     node(right-of("train", 1.35), [2\. Score every unlabeled example], name: "score", ..st)
     node(below-of("score", 1.05), [3\. Select the most uncertain examples], name: "pick", ..st)
@@ -197,7 +195,7 @@ On the official test messages the lead holds, 0.725 against 0.682 with 1,054 lab
 
 #recipecard([Self-training], [Any supervised model that outputs probabilities.], [That model’s usual loss, computed on real labels and adopted pseudo-labels.], [Fit, adopt the confident predictions, refit, repeat until nothing new is adopted.])
 
-#modelcard[Semi-Supervised and Active Learning - Quick Guide][
+#checklist(title: [Semi-Supervised and Active Learning - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -210,18 +208,18 @@ On the official test messages the lead holds, 0.725 against 0.682 with 1,054 lab
   )
 ]
 
-#keyidea[
+#note[
   Unlabeled data provides structure, not truth. Human labels remain the source of meaning and the basis of fair evaluation.
 ]
 
-#chapterrecap[
+#summary[
   - Unlabeled rows reveal where data lies, not what it means. They help only if that structure lines up with the label.
   - Self-training adopts confident predictions as labels, and label propagation spreads known labels over a similarity graph. Both can turn mistakes into facts.
   - Active learning spends a labeling budget where the model is least sure.
   - Keep human-labeled validation and test sets, and compare with a labeled-only baseline. In Lab~5 the baseline showed that self-training gained nothing, and that trusting it more made it worse.
 ]
 
-#quickcheck[
+#questions[
   + Why can pseudo-labeling reinforce mistakes even when the model is highly confident?
   + What does an active-learning query strategy try to spend the labeling budget on?
   + Why must final validation and test labels come from a genuine labeling source rather than from the model itself?

@@ -63,7 +63,7 @@ Searching compares the target with the current node and chooses one subtree.
 }
 ```
 
-#clarification[
+#note[
   The slide states that BST searching is reduced to $O(log N)$. That is the expected/balanced-tree behavior. A plain BST can become highly unbalanced (for example, inserting already sorted keys), in which case search can degrade to $O(N)$. The later height-balancing concept explains why keeping height controlled matters.
 ]
 
@@ -157,8 +157,8 @@ must leave the ordering rule intact for everything below it (#figref(<fig:bst-de
       connect("b0", "b1", ..utpedge)
       connect("b0", "b2", ..utpedge)
       connect("b1", "b3", ..utpedge)
-      curve("b3.west", "b1.west", (-2.35, -1.35), (-2.35, -0.35), dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: tip("Stealth", length: 2.7mm, width: 1.9mm, line: 2.9888pt))
-      curve("b3.west", "b1.west", (-2.35, -1.35), (-2.35, -0.35), draw: green, line-width: 1.0461pt, dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: tip("Stealth", length: 2.7mm, width: 1.9mm, line: 1.0461pt))
+      curve("b3.west", "b1.west", (-2.35, -1.35), (-2.35, -0.35), dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: arrow-tip("Stealth", length: 2.7mm, width: 1.9mm, line: 2.9888pt))
+      curve("b3.west", "b1.west", (-2.35, -1.35), (-2.35, -0.35), draw: green, line-width: 1.0461pt, dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: arrow-tip("Stealth", length: 2.7mm, width: 1.9mm, line: 1.0461pt))
       node((0, -2), [promote the child \
   into the gap], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
@@ -174,15 +174,15 @@ must leave the ordering rule intact for everything below it (#figref(<fig:bst-de
       connect("c0", "c2", ..utpedge)
       connect("c2", "c3", ..utpedge)
       connect("c2", "c4", ..utpedge)
-      curve("c3.south-west", "c0.west", (-1.9, -1.75), (-1.9, 0.85), dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: tip("Stealth", length: 2.7mm, width: 1.9mm, line: 2.9888pt))
-      curve("c3.south-west", "c0.west", (-1.9, -1.75), (-1.9, 0.85), draw: green, line-width: 1.0461pt, dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: tip("Stealth", length: 2.7mm, width: 1.9mm, line: 1.0461pt))
+      curve("c3.south-west", "c0.west", (-1.9, -1.75), (-1.9, 0.85), dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: arrow-tip("Stealth", length: 2.7mm, width: 1.9mm, line: 2.9888pt))
+      curve("c3.south-west", "c0.west", (-1.9, -1.75), (-1.9, 0.85), draw: green, line-width: 1.0461pt, dash: (2.9888pt, 1.4944pt), shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: arrow-tip("Stealth", length: 2.7mm, width: 1.9mm, line: 1.0461pt))
       node((0.2, -2), [copy up the inorder successor, \
   then delete it below], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
   })
 ]
 
-#clarification[
+#note[
   Deletion is not spelled out in the supplied Trees II material. The three-case treatment above
   is the standard formulation, included so the operation can be implemented for the lab and the
   final project.
@@ -261,7 +261,7 @@ A standard implementation inserts at the next available array position and then 
 }
 ```
 
-#clarification[
+#note[
   The Trees II slides require heap creation plus insertion and deletion in the lab, but they do not spell out heapify-up/heapify-down algorithms. The code here is an implementation expansion of that lab requirement.
 ]
 
@@ -292,8 +292,8 @@ a larger parent stops it. Because the tree’s height is $log n$, the climb is b
       connect("r2", "l2", ..utpedge)
       connect("r2", "q2", ..utpedge)
       connect("q2", "x2", ..utpedge)
-      curve("x2.east", "q2.east", (3.2, -0.72), (3.05, 0.02), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: tip("Stealth", length: 2.2mm, width: 1.5mm, line: 2.9888pt))
-      curve("x2.east", "q2.east", (3.2, -0.72), (3.05, 0.02), draw: orange, line-width: 1.0461pt, shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: tip("Stealth", length: 2.2mm, width: 1.5mm, line: 1.0461pt))
+      curve("x2.east", "q2.east", (3.2, -0.72), (3.05, 0.02), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.5mm, line: 2.9888pt))
+      curve("x2.east", "q2.east", (3.2, -0.72), (3.05, 0.02), draw: orange, line-width: 1.0461pt, shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.5mm, line: 1.0461pt))
       node((1.05, -1.55), [#strong[2\.] swap with parent \
   $95>90$: still violated], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
@@ -306,8 +306,8 @@ a larger parent stops it. Because the tree’s height is $log n$, the climb is b
       connect("r3", "l3", ..utpedge)
       connect("r3", "q3", ..utpedge)
       connect("q3", "x3", ..utpedge)
-      curve("q3.east", "r3.east", (2.8, 0.28), (2.35, 1.2), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: tip("Stealth", length: 2.2mm, width: 1.5mm, line: 2.9888pt))
-      curve("q3.east", "r3.east", (2.8, 0.28), (2.35, 1.2), draw: green, line-width: 1.0461pt, shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: tip("Stealth", length: 2.2mm, width: 1.5mm, line: 1.0461pt))
+      curve("q3.east", "r3.east", (2.8, 0.28), (2.35, 1.2), shorten-start: 2.4907pt, shorten-end: 2.4907pt, draw: white, line-width: 2.9888pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.5mm, line: 2.9888pt))
+      curve("q3.east", "r3.east", (2.8, 0.28), (2.35, 1.2), draw: green, line-width: 1.0461pt, shorten-start: 2.4907pt, shorten-end: 2.4907pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.5mm, line: 1.0461pt))
       node((1.05, -1.55), [#strong[3\.] swap again \
   root reached: done], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
@@ -339,10 +339,10 @@ The slides define a height-balancing tree by requiring the height difference bet
 
 The slide deck names AVL trees and B-trees as examples associated with height balancing and states that the advantage is $O(log N)$ worst-case searching when height is controlled.
 
-#clarification[
+#note[
   The supplied Trees II deck names AVL and B-tree concepts but does not teach rotations, B-tree node-order rules, split/merge operations, or full B-tree algorithms. The notes therefore keep those structures at the conceptual level and preserve B-tree creation/add/remove as lab-directed practice rather than inventing a detailed lecture that was not present.
 ]
 
-#quickcheck[
+#questions[
   What additional condition turns a binary tree into a BST? What two independent properties define a heap: its shape and its ordering rule?
 ]

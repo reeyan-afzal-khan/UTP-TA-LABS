@@ -33,7 +33,7 @@ MSE strongly penalizes large errors. RMSE is easier to interpret because it uses
 
 #keepspace(176.15pt)
 
-#workedexample[
+#example[
   Five delivery times, in minutes. Four predictions are nearly right; one is badly wrong.
 
   #utptable[
@@ -66,7 +66,7 @@ MSE strongly penalizes large errors. RMSE is easier to interpret because it uses
   MedAE $=1$, MAE $=6.4$, and RMSE $approx 12.55$ describe different aspects of error. One row contributes $784\/788=99.5 %$ of squared error; inspect extremes when RMSE greatly exceeds MAE.
 ]
 
-#pitfall[
+#warning[
   Binning a continuous label changes the task to classification. Do so only when predefined categories match the decision.
 ]
 
@@ -114,18 +114,16 @@ Almost every classification metric is a different way of reading the same four b
     connect((8.67, 2.65), (8.67, 4.15), line-width: widths.thick, draw: orange)
     connect((8.55, 2.65), (8.67, 2.65), line-width: widths.thick, draw: orange)
     connect((8.55, 4.15), (8.67, 4.15), line-width: widths.thick, draw: orange)
-    connect((8.67, 3.4), "recall.west", line-width: widths.thick, draw: orange, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect((8.67, 3.4), "recall.west", line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((10.95, 1.45), [#strong[Precision] reads down the predicted-positive column: $T P+F P$.], name: "precision", font: font("script"), draw: blue, fill: pale-blue, rounded: 1mm, align: left, text-width: 3.25, min-height: 1.15, text: navy)
     connect((2, 0.63), (5.1, 0.63), line-width: widths.thick, draw: blue)
     connect((2, 0.63), (2, 0.75), line-width: widths.thick, draw: blue)
     connect((5.1, 0.63), (5.1, 0.75), line-width: widths.thick, draw: blue)
-    connect((3.55, 0.63), (3.55, 0.42), (8.85, 0.42), (8.85, 1.45), "precision.west", line-width: widths.thick, draw: blue, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect((3.55, 0.63), (3.55, 0.42), (8.85, 0.42), (8.85, 1.45), "precision.west", line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
   })
 ]
 
-#analogy[
-  Back to the alarm. #term[Precision] asks: when it rings, is there really a fire? An alarm that rings at every piece of toast has poor precision. #term[Recall] asks: when there is a fire, does it ring? An alarm with a dead battery has zero recall, and its precision is undefined because it never rang. Turning the sensitivity up or down trades one against the other.
-]
+Back to the alarm. #term[Precision] asks: when it rings, is there really a fire? An alarm that rings at every piece of toast has poor precision. #term[Recall] asks: when there is a fire, does it ring? An alarm with a dead battery has zero recall, and its precision is undefined because it never rang. Turning the sensitivity up or down trades one against the other.
 
 #utptable[
   #tabularx(
@@ -140,11 +138,11 @@ Almost every classification metric is a different way of reading the same four b
   )
 ]
 
-#pitfall[
+#warning[
   Read confusion-matrix axis labels; actual/predicted conventions vary.
 ]
 
-#workedexample[
+#example[
   Of 1,000 emails, 100 are spam. The filter flags 80, of which 60 are spam:
 
   $ T P=60, wide F P=80-60=20, wide F N=100-60=40, wide T N=900-20=880. $
@@ -176,7 +174,7 @@ $ op("MCC") =frac(T P dot.op T N-F P dot.op F N, sqrt((T P+F P)(T P+F N)(T N+F P
 
 MCC ranges from $-1$ to $1$; near zero indicates little association. Using all four cells makes it useful under imbalance.
 
-#workedexample[
+#example[
   Continuing the spam filter ($T P=60$, $F P=20$, $F N=40$, $T N=880$):
 
   $ "Specificity"=frac(880, 900) approx 0.978, wide "Balanced accuracy"=frac(0.600+0.978, 2) approx 0.789. $
@@ -198,7 +196,7 @@ MCC ranges from $-1$ to $1$; near zero indicates little association. Using all f
 
 #term[Multiclass] problems need one more decision: how to combine the classes. #term[Macro averaging] weights classes equally, #term[micro averaging] pools every decision, and #term[weighted averaging] weights classes by frequency.
 
-#workedexample[
+#example[
   Three classes have 100, 10 and 2 rows, and a model gets 90, 5 and 1 of them right. Micro-averaged recall pools them: $96\/112=0.857$. Macro-averaged recall averages the three recalls: $(0.90+0.50+0.50)\/3=0.633$. The large class flatters the first number, and the second shows the small classes are at a coin flip. If small classes matter, report macro.
 ]
 
@@ -206,7 +204,7 @@ MCC ranges from $-1$ to $1$; near zero indicates little association. Using all f
 
 A probability model becomes a yes-or-no classifier only after someone picks a threshold. The model supplies a score, and the threshold is a policy. Lowering it catches more positives and raises more false alarms; raising it does the reverse.
 
-#workedexample[
+#example[
   Eight cases, already ranked by the model. Orange circles are real positives and blue dots are real negatives (#figref(<fig:threshold-shift>)).
 
   #v(6pt)
@@ -231,7 +229,7 @@ A probability model becomes a yes-or-no classifier only after someone picks a th
 
 #utpfig([Thresholds move the operating point. The eight scores stay fixed. Lowering the threshold from 0.65 to 0.35 catches the two remaining positives, at the cost of one more false alarm.], label: <fig:threshold-shift>)[
   #canvas(x: 11cm, {
-    connect((0, 0), (1.03, 0), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+    connect((0, 0), (1.03, 0), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
     node(along((0, 0), (1.03, 0), t: 100%), [score], font: font("script"), anchor: "west")
     for (x, lab-v) in ((0, 0), (0.2, 0.2), (0.4, 0.4), (0.6, 0.6), (0.8, 0.8), (1, 1)) {
       connect((x, 0.06), (x, -0.06), draw: muted)
@@ -249,11 +247,11 @@ A probability model becomes a yes-or-no classifier only after someone picks a th
     node((0.665, 0.98), [threshold 0.65], font: font("script"), align: left, text: navy, anchor: "west")
     connect((0.35, -0.28), (0.35, 1), line-width: widths.very-thick, dash: "dashed", draw: red)
     node((0.335, 0.98), [threshold 0.35], font: font("script"), align: right, text: red, anchor: "east")
-    connect((0.63, -0.2), (0.37, -0.2), line-width: widths.thick, draw: red, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect((0.63, -0.2), (0.37, -0.2), line-width: widths.thick, draw: red, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
   })
 ]
 
-#keyidea[
+#note[
   Lower thresholds increase positive decisions and can never reduce recall. Higher thresholds reduce alerts and may miss positives. Choose the threshold on validation data from costs or capacity, and lock it before test evaluation (Lab~2, Part~C).
 ]
 
@@ -261,7 +259,7 @@ A probability model becomes a yes-or-no classifier only after someone picks a th
 
 The #term[ROC curve] plots true-positive rate against false-positive rate as the threshold sweeps from high to low. The area under it has a plain meaning: it is the chance that a randomly chosen positive gets a higher score than a randomly chosen negative.
 
-#workedexample[
+#example[
   Use the same eight cases. Positives scored 0.95, 0.85, 0.60, 0.40 and negatives scored 0.70, 0.55, 0.30, 0.10, so there are $4 times 4=16$ pairs. The positive at 0.60 loses to the negative at 0.70. The positive at 0.40 loses to the negatives at 0.70 and 0.55. All the rest are ranked correctly: $13\/16$, so ROC AUC is 0.8125. You can check any ROC AUC this way, and it shows that the metric cares only about order, not about any threshold.
 ]
 
@@ -275,7 +273,7 @@ $ op("lift@")k= frac(op("precision@")k, "positive prevalence"). $
 
 Report error costs when defensible. For fixed review capacity, evaluate the ranked batch, as in Lab~5’s top 100 fraud alerts.
 
-#workedexample[
+#example[
   A team can call five of 20 customers. Ranked outcomes follow; $1$ denotes churn:
 
   #align(center)[
@@ -290,7 +288,7 @@ Report error costs when defensible. For fixed review capacity, evaluate the rank
   Randomly calling five customers would reach one churner on average; this ranking reaches three, giving lift~3. The constraint is five calls, not a probability threshold.
 ]
 
-#pitfall[
+#warning[
   Churn risk is not persuadability. Ranking metrics cannot establish that contact causes retention; use a causal design such as randomization.
 ]
 
@@ -318,15 +316,13 @@ Report error costs when defensible. For fixed review capacity, evaluate the rank
 
 Rarity changes the story. Lab~5’s fraud ranking has a ROC AUC of 0.95, which sounds excellent. Fraud is 0.17% of those 85,443 transactions, so among the top 100 flagged ones only 39 are fraud, and its average precision is 0.22. Most of the ROC credit comes from correctly ranking tens of thousands of ordinary transactions below a few hundred unusual ones.
 
-#keyidea[
+#note[
   For rare positives, inspect precision--recall at the intended operating point. Strong ROC AUC can coexist with poor alert precision.
 ]
 
 == Cross-validation <sec:cross-validation>
 
-#analogy[
-  One mock exam can be easy or hard by chance. Set five, each covering a different part of the syllabus, and the average tells you far more. #term[$k$-fold cross-validation] does this with your data: train on $k-1$ folds, validate on the remaining one, and rotate until every fold has been held out.
-]
+One mock exam can be easy or hard by chance. Set five, each covering a different part of the syllabus, and the average tells you far more. #term[$k$-fold cross-validation] does this with your data: train on $k-1$ folds, validate on the remaining one, and rotate until every fold has been held out.
 
 #utpfig([Five-fold cross-validation stays inside the development data. Each round validates on one fold and trains on the other four; the untouched test set is not a sixth fold and is never used for tuning.], label: <fig:cv-folds>)[
   #canvas({
@@ -349,12 +345,12 @@ Rarity changes the story. Lab~5’s fraud ranking has a ROC AUC of 0.95, which s
   test set], align: center, font: font("small", weight: "bold", fill: red))
     node((9.825, 1.15), [not a sixth fold \
   not used for tuning], font: font("script"), align: center, text: muted)
-    connect((7.95, 1.7), (8.32, 1.7), line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((7.95, 1.7), (8.32, 1.7), line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((6.25, 0.05), [average the five validation scores, choose the model, then evaluate the locked choice once], font: font("script"), align: center, text: teal)
   })
 ]
 
-#workedexample[
+#example[
   Lab~2’s churn model, five folds of the training rows: ROC AUC 0.860, 0.863, 0.824, 0.835, 0.841. The mean is 0.844 and the standard deviation 0.015. Any claim that one model beats this one by 0.01 should be met with suspicion, since the folds themselves disagree by more than that.
 ]
 
@@ -383,11 +379,9 @@ After selecting a model and hyperparameters, refit on the allowed training data 
   )
 ]
 
-#keyidea[
+#note[
   Use the same splitter for every candidate so comparisons measure model differences.
-]
 
-#secondpass[
   The core workflow is complete. Return to probability quality, uncertainty, subgroup analysis, and shift when the application requires them.
 ]
 
@@ -401,7 +395,7 @@ The Brier score is the mean squared probability error:
 
 $ op("Brier") =frac(1, n) sum _(i=1)^n((p_i-y_i))^2. $
 
-#workedexample[
+#example[
   Four predictions, with the per-row cost under each score. Log loss charges $-log p$ when $y=1$ and $-log(1-p)$ when $y=0$; Brier charges $((p-y))^2$ either way.
 
   #utptable[
@@ -433,7 +427,7 @@ $ op("Brier") =frac(1, n) sum _(i=1)^n((p_i-y_i))^2. $
 
 A score computed on 1,761 rows has error bars whether you draw them or not. Quantify the uncertainty with confidence intervals, the bootstrap, repeated cross-validation, or several seeds.
 
-#workedexample[
+#example[
   Lab~2’s churn model scores ROC AUC 0.846 on its 1,761 test customers. A bootstrap of those rows gives a 95% interval of 0.826 to 0.866. Refit the same model on five other random splits, and the score comes out as 0.844, 0.838, 0.855, 0.847 and 0.847. So when a rival model scores 0.856 on the same rows, nothing is settled.
 ]
 
@@ -459,11 +453,11 @@ A test set drawn from the same source as the training data may still not look li
 
 Stress-test missing or corrupted inputs, rare groups, seasons, and plausible worst cases. Monitor inputs, predictions, calibration, and delayed outcomes after deployment.
 
-#keyidea[
+#note[
   No single metric proves that a model is useful. Reliable evaluation combines a realistic split, a relevant baseline, task-specific metrics, uncertainty, subgroup analysis, and examination of actual errors.
 ]
 
-#modelcard[Evaluation - Practical Checklist][
+#checklist(title: [Evaluation - Practical Checklist])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -478,7 +472,7 @@ Stress-test missing or corrupted inputs, rare groups, seasons, and plausible wor
   )
 ]
 
-#chapterrecap[
+#summary[
   - Choose metrics from the decision and its error costs, before seeing results. Accuracy alone is misleading when classes are unbalanced.
   - MAE reports a typical miss, RMSE punishes large ones, and $R^2$ compares with guessing the mean.
   - The confusion matrix holds four counts. Precision asks whether a flag is right; recall asks whether positives are found.
@@ -486,7 +480,7 @@ Stress-test missing or corrupted inputs, rare groups, seasons, and plausible wor
   - Cross-validation must respect groups, time and class balance. Scores on small sets carry wide error bars, so report them.
 ]
 
-#quickcheck[
+#questions[
   + Describe one situation where recall should matter more than precision, and one the other way round.
   + A filter flags 50 of 500 emails. Of those 50, 30 are spam; there are 40 spam emails in all. Compute precision, recall and accuracy.
   + What usually happens to recall and false positives when a classification threshold is lowered?

@@ -10,7 +10,7 @@
 
   #include "visuals/07-flow.typ"
 
-  #labmode[
+  #note[
     Choose one Big Tech platform with financial ambitions --- Grab, Apple, Alipay, Amazon, or Gojek --- and the incumbent bank you analysed in Lab~#labref(<sec:lab01-unbundling>). Analysing the same bank throughout the course means Labs 1, 5, and 7 accumulate into one coherent argument.
   ]
 
@@ -31,7 +31,7 @@
     )
   ]
 
-  #keyidea[
+  #note[
     A TechFin competitor can price a financial product at zero margin indefinitely, because the product’s job is to keep users inside an ecosystem that earns elsewhere.
 
     An incumbent bank cannot match that, and neither can a FinTech. This is the single most important asymmetry in the chapter, and every recommendation you make must account for it.
@@ -56,7 +56,7 @@
     )
   ]
 
-  #pitfall[
+  #warning[
     The liability is not a tiebreaker to note at the end. It is frequently decisive.
 
     Big Tech firms have repeatedly retreated from regulated banking while expanding in payments --- Google Plex was cancelled, Facebook’s Libra/Diem collapsed. Payments need light licensing; deposits and credit need a banking licence, capital adequacy, and a regulator willing to grant one to a foreign technology firm. Trace where your platform stops, and identify which rule stopped it.
@@ -116,7 +116,7 @@
   - Regulatory relationships and compliance infrastructure that took years to build.
   - Trust for large, infrequent, consequential transactions. Users will pay for coffee with a phone; they buy a house through a bank.
 
-  #tryit[
+  #exercises[
     The chapter suggests banks and FinTechs may collaborate against a common Big Tech threat. Design one such partnership: which asset does each side contribute, and what does each give up?
 
     Then stress-test it. Partnerships fail when one side can eventually build what the other supplies. Which side is that here, and how long do they need?
@@ -127,7 +127,7 @@
 
 #include "visuals/07-platform-competition-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Choose one asset rating, state what evidence would justify changing it, and recompute that asset’s difference under both plausible values. Identify whether its advantage label changes; do not report an overall ranking that the script does not calculate.
 
   - Every asset score cites evidence --- a user figure, a filing, a survey --- not impression.

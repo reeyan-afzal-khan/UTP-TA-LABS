@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab07/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that the data file is in `all_datasets/`.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
 
@@ -33,7 +33,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] The figures of Chapter~@ch:nlp-methods give two tweets scored by hand. Repeat the idea for the two-word message #emph[delayed thanks], using negative: share 0.635, delayed 0.00393, thanks 0.00259; positive: share 0.156, delayed 0.00062, thanks 0.0203. Which class wins?
 
   #emph[Answer.] Negative: $0.635 times 0.00393 times 0.00259 approx 6.5 times 10^(-6)$. Positive: $0.156 times 0.00062 times 0.0203 approx 2.0 times 10^(-6)$. Negative wins, because “delayed” and the class share together outweigh “thanks”.
@@ -192,7 +192,7 @@
   #strong[What it means.] Neutral is the hardest class, because it has few distinctive words and sits between the other two. The airline table is a diagnostic rather than a ranking: Virgin America’s score rests on 63 tweets. Read the twelve sampled errors yourself. All twelve carry confidence above 0.999, which is why these scores cannot be treated as probabilities of being right.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook. Choose settings on #emph[validation] data only, using the loop from Question~5 as a pattern, and keep the test set out of it.
 
   + #strong[Question a default.] Refit with `stop_words=None`, keeping $alpha =0.3$ and bigrams. What happens to validation macro F1, and why might it? Check whether `not`, `no` and `never` are in `sklearn.feature_extraction.text.ENGLISH_STOP_WORDS`.
@@ -209,19 +209,19 @@
   ```
 ]
 
-#expectedfindings[
+#answers[
   + Validation macro F1 rises from 0.697 to 0.720, and the vocabulary reaches the 20,000 cap. All three words are on the stop list, along with `again`, so removing stop words was erasing negation and frequency words that carry sentiment. A default deserved testing.
   + All three are slightly worse or clearly worse: `min_df=5` gives 0.696, $alpha =0.1$ gives 0.693, and TF-IDF with Multinomial Naive Bayes gives 0.633, because the model expects counts.
   + Negative: `worst`, `ridiculous`, `hung`, `hold hours`, `unacceptable`, `terrible`, `rude`. Positive: `good work`, `guys rock`, `best airline`, `great flight`, `excellent`, `fantastic`. Those look reusable. Neutral: `journal`, `wall street`, `nantucket`, `license`, which are one-off news topics. That helps explain why neutral is the hardest class.
 ]
 
-#troubleshoot[
+#tip[
   / Test metrics change between runs: Something is not seeded, or the test set is influencing a choice. Check `random_state=42` in both splits.
   / Scores suspiciously high: Duplicates may have crept across the split. Confirm that `Tweets kept: 14285` appears before the split.
   / `ValueError` about empty vocabulary: You probably passed the wrong column. The vectoriser reads `model_text`.
 ]
 
-#verification[
+#checklist[
   - Duplicates are removed before the split, leaving 14,285 tweets.
   - The 70/15/15 split is stratified, fixed with seed~42, and saved to `split.csv`.
   - The vectoriser is fitted on training tweets only, and the settings are chosen by validation macro F1.
@@ -229,8 +229,8 @@
   - Per-class and per-airline results and the twelve reviewed errors are saved.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab07/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab07/` folder.
   - Add a short conclusion: explain why macro F1 is the headline metric, name the weakest class, and propose one stronger text representation without changing the evaluation protocol.
 ]

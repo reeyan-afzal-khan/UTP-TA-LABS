@@ -86,11 +86,11 @@
 
   Open `mini_grep.c`. Change the match output from `FILE:LINE: text` to begin with #raw("MATCH "). Save, recompile, and confirm that the exit status rules did not change.
 
-  #keyidea[
+  #note[
     A professional CLI tool has two audiences: a person reads its output; another program can read its exit status.
   ]
 
-  #quickcheck[
+  #questions[
     + Which information belongs to file metadata rather than file contents?
     + Why must a copy program check the return value from `read()` and `write()`?
     + Why is exit status useful even when a command already prints a message?
@@ -100,7 +100,7 @@
 
   #include "visuals/02-file-and-directory-utilities-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Use a small scratch input with repeated and blank lines. Predict each pipeline stage, run it and compare the final counts with a manual tally.
 
     - At least three metadata fields from `file_info` match `stat`.

@@ -3,11 +3,11 @@
 
 #labsection(5, label: <sec:lab05>)[Stack ADT and expression processing]
 
-#sourcealignment[Official Lab Manual --- Lab V][
-  Array stack, linked stack, and infix-to-postfix conversion.
-]
-
 #labproject[Implement the stack ADT twice][
+  #note[
+    #strong[Official Lab Manual --- Lab V.] Array stack, linked stack, and infix-to-postfix conversion.
+  ]
+
   #strong[Goal.] Build two LIFO stacks, then use a stack to convert expressions.
 
   #strong[Recall first.] Review the #link(<ch:stacks>)[Stacks] chapter.
@@ -28,7 +28,7 @@
   #include "programs/infix_to_postfix.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

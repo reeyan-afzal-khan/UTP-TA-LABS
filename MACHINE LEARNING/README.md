@@ -40,8 +40,8 @@ Each lab has its own folder under [`.all-pdfs/machine-learning/`](../.all-pdfs/m
 chapters to read before it and the lab sheet itself. Page numbers are the ones printed in the book. Every sheet opens
 with a map of its parts; each part starts with its goal and data and ends with a checkpoint. Every sheet also has a
 header, setup steps, a warm-up on paper, questions numbered to match the notebook, the code with a *Read the code*
-note, reference outputs with what they mean, Your-turn tasks with expected findings, troubleshooting, and a
-verification checklist.
+note, reference outputs with what they mean, exercises with answers, troubleshooting tips, and a
+checklist.
 
 | Lab | Lab sheet | Read first | Page ranges | Worked notebook | Datasets |
 | --- | --- | --- | --- | --- | --- |

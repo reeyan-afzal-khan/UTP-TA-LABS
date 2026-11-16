@@ -44,9 +44,7 @@ Every informed method reasons about a frontier state $n$ using up to three numbe
   )
 ]
 
-#analogy[
-  On a road trip, the odometer tells you how far you have driven and the map tells you roughly how far is left. The odometer is exact and backward-looking; it is $g$. The map is an estimate and forward-looking; it is $h$. Add them and you have a fair estimate of the whole trip, which is the number you would use to compare two possible routes.
-]
+On a road trip, the odometer tells you how far you have driven and the map tells you roughly how far is left. The odometer is exact and backward-looking; it is $g$. The map is an estimate and forward-looking; it is $h$. Add them and you have a fair estimate of the whole trip, which is the number you would use to compare two possible routes.
 
 #figref(<fig:fgh>) separates known cost from estimated remaining cost. UCS uses the former, GBFS the latter, and A$""^(star.op)$ both.
 
@@ -84,11 +82,11 @@ Walk it on the rainy maze. From the robot, the cells above and to the right both
 
 GBFS reaches the charger after expanding only 13 cells, the least work of anything so far. But its route is the middle corridor at 19 units of battery, and the robot runs dry four cells short. GBFS looks only at what is left. It never counts what it has already spent.
 
-#workedexample[
+#example[
   On the airline network GBFS expands two airports for `KUL -> LHR -> KEF`: 12,500~km, 9 % above the optimum. London looks close to Iceland, but the first leg alone exceeds the optimal route through Phuket, St Petersburg and Helsinki. Its `NRT`$arrow.r$`CPT` route is 6.7 % too long, and its `SIN`$arrow.r$`EZE` route happens to be optimal.
 ]
 
-#pitfall[
+#warning[
   Because GBFS ignores $g$, a small $h$ can conceal an expensive path. How good its route is depends on what the graph looks like around the goal, so one good result proves nothing about the next query.
 ]
 
@@ -130,7 +128,7 @@ Neither search does both jobs. UCS gets the robot home but looks at every cell. 
   })
 ]
 
-#workedexample[
+#example[
   The first five picks of A$""^(star.op)$. Each cell added to the frontier is shown with its $f$.
 
   #v(6pt)
@@ -203,15 +201,15 @@ Why did A$""^(star.op)$ get to skip so much? Colour every cell by the best $f$ i
   })
 ]
 
-#keyidea[
+#note[
   GBFS asks which frontier state #emph[looks] closest to the goal. A$""^(star.op)$ also accounts for the cost already paid and, with a suitable heuristic, guarantees the cheapest path.
 ]
 
-#workedexample[
+#example[
   Suppose frontier state $X$ has $(g,h)=(5,3)$ and $Y$ has $(1,5)$. GBFS chooses $X$ because $3<5$. A$""^(star.op)$ chooses $Y$ because $f(Y)=6<f(X)=8$: the cheaper path so far is worth the extra estimated distance.
 ]
 
-#libnote[
+#note[
   Peter Hart, Nils Nilsson and Bertram Raphael published A$""^(star.op)$ in 1968 at the Stanford Research Institute. They developed it for Shakey, one of the first mobile robots able to plan its own actions. Their example heuristic for cities joined by roads was the airline distance, the same as-the-crow-flies guess you will use in Lab~2. A$""^(star.op)$ with $h=0$ is exactly UCS, so A$""^(star.op)$ is Dijkstra’s algorithm with a guess added.
 ]
 
@@ -264,7 +262,7 @@ A stronger and more convenient condition is #term[consistency]: for every edge $
   })
 ]
 
-#intuition[
+#note[
   An inadmissible heuristic makes A$""^(star.op)$ behave like GBFS: it trusts the estimate too much and commits to a branch before the cost evidence justifies it. Admissibility keeps the $g$ term in charge whenever the two disagree.
 ]
 
@@ -361,7 +359,7 @@ Sixteen is much closer to the truth than seven, so A$""^(star.op)$ wastes far le
   )
 ]
 
-#keyidea[
+#note[
   A$""^(star.op)$ combines low effort with optimality because its heuristic is consistent. UCS explores without guidance; GBFS reduces effort but gives up the guarantee.
 ]
 
@@ -369,14 +367,14 @@ Sixteen is much closer to the truth than seven, so A$""^(star.op)$ wastes far le
 
 `metrics.csv` records cost, hops, expansions, peak frontier, runtime and the #term[optimality gap]: the percentage by which a route costs more than the UCS route. A$""^(star.op)$ has zero gap on every query, and any positive GBFS or weighted A$""^(star.op)$ gap is the measured price of speed. `heuristic_check.csv` compares $h$ with $h^(star.op)$ for thirty sampled airports. A single failed check would invalidate the admissibility claim.
 
-#chapterrecap[
+#summary[
   - A heuristic $h(n)$ is a cheap guess of the cost left. $g(n)$ is what you have spent, and $f(n)=g(n)+h(n)$ estimates the whole trip.
   - UCS, GBFS and A$""^(star.op)$ are one priority queue sorted by $g$, $h$ and $g+h$. GBFS is quick and can be badly wrong; A$""^(star.op)$ is both quick and correct.
   - The one rule: an admissible heuristic never overestimates. Break it, as weighted A$""^(star.op)$ does on purpose, and speed comes at the price of the guarantee.
   - Among admissible heuristics, the one closest to the true cost does the least work.
 ]
 
-#quickcheck[
+#questions[
   + Which quantity does GBFS ignore that A$""^(star.op)$ uses, and which failure in Lab~2 does that explain?
   + Frontier states $X$ and $Y$ have $(g,h)=(8,2)$ and $(3,6)$. Which does UCS expand first? GBFS? A$""^(star.op)$?
   + Why must $h$ be expressed in the same units as the edge costs?

@@ -44,7 +44,7 @@ The slides contrast trees and graphs by noting that a tree is acyclic while a gr
 #utpfigure[
   #canvas({
     let node-style = (shape: "circle", draw: blue, fill: pale-blue, min-size: 0.8, font: font("small", weight: "bold"))
-    let darr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let darr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     let uarr = (line-width: widths.thick, draw: orange)
     node((0, 0), [A], name: "a", ..node-style)
     node(right-of("a", 1.4), [B], name: "b", ..node-style)
@@ -84,7 +84,7 @@ The official lab manual extends the graph classification beyond direction.
   })
 ]
 
-#keyidea[
+#note[
   Direction and weight are separate properties. A graph can be directed and weighted, directed and unweighted, undirected and weighted, or undirected and unweighted.
 ]
 
@@ -114,7 +114,7 @@ For the undirected example above, a simple unweighted 0/1 matrix is
   )
 ]
 
-#clarification[
+#note[
   The slide image appears to show a 1 on the $D,D$ diagonal entry, while the edge set printed on the preceding slide does not list a self-loop $(D,D)$. The matrix above follows the printed edge set. This discrepancy is made explicit rather than silently copied.
 ]
 
@@ -305,7 +305,7 @@ thing that differs: a queue returns the #emph[oldest] discovered vertex, a stack
   })
 ]
 
-#clarification[
+#note[
   BFS and DFS traversal orders are not unique unless the neighbor-visiting order is fixed. The sequences in the slides are valid for a particular ordering of adjacent vertices; different adjacency-list orderings can produce different, equally valid traversals.
 ]
 
@@ -323,9 +323,9 @@ record of that fact the program will circle forever.
     node((0, 0.9), [A], name: "a", font: font("small"), ..utpnodedone)
     node((1.7, 0.9), [B], name: "b", font: font("small"), ..utpnodedone)
     node((0.85, -0.5), [D], name: "d", font: font("small"), ..utpnodedone)
-    connect("a", "b", bend: 18deg, line-width: 0.9963pt, draw: red, end: tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-1")
-    connect("b", "d", bend: 18deg, line-width: 0.9963pt, draw: red, end: tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-2")
-    connect("d", "a", bend: 18deg, line-width: 0.9963pt, draw: red, end: tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-3")
+    connect("a", "b", bend: 18deg, line-width: 0.9963pt, draw: red, end: arrow-tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-1")
+    connect("b", "d", bend: 18deg, line-width: 0.9963pt, draw: red, end: arrow-tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-2")
+    connect("d", "a", bend: 18deg, line-width: 0.9963pt, draw: red, end: arrow-tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-3")
     node((2.7, 0.2), [without `visited`: \
   A, B, D, A, B, D, … \
   the loop never ends], font: font("small"), ..utplabel, anchor: "west", align: left, text: red)
@@ -344,7 +344,7 @@ record of that fact the program will circle forever.
   })
 ]
 
-#keyidea[
+#note[
   The queue or stack determines #emph[which discovered vertex to process next]. The visited structure determines #emph[whether a vertex should be processed again].
 ]
 
@@ -356,10 +356,10 @@ For a connected graph with $|V|$ vertices, a spanning tree has $|V|-1$ edges.
 
 The lab then asks students to find a #term[minimum spanning tree] of an undirected graph using a greedy approach.
 
-#clarification[
+#note[
   The deck requests a greedy minimum-spanning-tree implementation but does not name a specific algorithm. Common textbook choices are Prim’s algorithm and Kruskal’s algorithm; naming them here is additional context, not material explicitly taught in the supplied slides.
 ]
 
-#quickcheck[
+#questions[
   Why is an adjacency matrix often more wasteful for a sparse graph than an adjacency list? Which earlier ADT is directly reused by BFS, and which is reused by DFS?
 ]

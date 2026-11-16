@@ -7,7 +7,6 @@
   lab-total: 8,
   contents: (part: 1.20em, chapter: 0.50em, lab: 0.55em),
   listing: "terminal",
-  titles: (labmode: [How the practical connects to the concept], application: [Odoo 19 Community], application-style: "teal"),
 )
 #cover()
 #contents()

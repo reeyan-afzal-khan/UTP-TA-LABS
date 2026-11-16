@@ -93,13 +93,13 @@
     )
   ]
 
-  #quickcheck[
+  #questions[
     + What is the difference between redirection and a pipeline?
     + Why should shell variables that contain filenames normally be quoted?
     + What does a non-zero exit status tell the script that called a command?
   ]
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Run the script with a valid value, an empty value and a value containing spaces. Record the exit status and explain which validation branch handles each case.
 
     - `bash -n` reports no syntax error before any script is run.

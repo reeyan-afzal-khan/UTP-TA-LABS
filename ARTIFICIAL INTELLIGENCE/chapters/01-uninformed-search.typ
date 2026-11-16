@@ -47,7 +47,7 @@ We can see the whole maze at once, so the answer looks obvious to us. A planner 
 
 Suppose the robot simply wanders, picking a random direction at every cell. Over 10,000 simulated walks it needs 315 steps on average to stumble onto a charger that is only 11 steps away. With 15 units of battery it stops long before that. So the robot should think before it moves: it has the map, so it can work out a whole route in its head and then drive it once. Planning a route ahead of time like this is what AI calls #term[search].
 
-#intuition[
+#note[
   Watch a search program run and nothing looks brilliant. It tries possibilities one after another, very fast. All of the intelligence sits in one decision, repeated over and over: #emph[which possibility do I try next?] That decision is the whole difference between one search algorithm and another.
 ]
 
@@ -99,7 +99,7 @@ graph["KUL"][:3]          # Kuala Lumpur: the first three of its 112 direct rout
 
 The cost definition matters more than it looks. BFS and DFS treat each route as one step, while UCS sums kilometres, so “shortest route” means nothing until the cost is stated. The cleaned OpenFlights graph has 6,464 airports and 37,337 directed routes; distance is an educational stand-in for fares, schedules and connection costs.
 
-#intuition[
+#note[
   The problem supplies successors; the search algorithm chooses which state to examine next. Airport details belong to the first job, and the difference between BFS, DFS and UCS belongs to the second. Keeping those jobs apart is why one search function can serve a maze, an airline network and a sliding puzzle.
 ]
 
@@ -164,7 +164,7 @@ Follow the branch “up, then down”. The robot is back where it started, and t
 
 The fix is a memory. The robot writes down every cell it has reached and skips any cell already on that list. Each cell now appears only once, the tree folds back into the map, and the search looks at no more than 48 cells. That version is called a #term[search graph] (or graph search).
 
-#keyidea[
+#note[
   A search tree forgets where it has been. A search graph remembers.
 ]
 
@@ -218,7 +218,7 @@ Here is the loop in Python, exactly as the labs run it. The `parent` dictionary 
 
 #lstinput("/ARTIFICIAL INTELLIGENCE/all_experiments/utils/core.py", first: 56, last: 72, lang: "python")
 
-#pitfall[
+#warning[
   Mark a state as seen when it is #emph[added] to the frontier, not when it is removed. The `parent` dictionary does this: a state gets a parent the moment it is discovered. Marking on removal lets the same airport be queued many times by different neighbours, which inflates the frontier and, for BFS, can attach a longer path than necessary.
 ]
 
@@ -228,7 +228,7 @@ The rest of this chapter is one question: #emph[which cell do we take off the li
 
 The simplest answer is to take the cell that has waited longest. New cells join the back of the list and the front of the list is served next, like people in a line at a shop. That list is a first-in, first-out #term[queue], and the search is #term[Breadth-First Search (BFS)].
 
-#workedexample[
+#example[
   BFS from the robot’s cell. Each row takes the front of the queue and adds any new neighbours to the back, in the order up, right, down, left.
 
   #v(6pt)
@@ -251,9 +251,7 @@ The simplest answer is to take the cell that has waited longest. New cells join 
   ]]]
 ]
 
-#analogy[
-  Drop a stone into a still pond. The ripple spreads outward in a circle and touches every point one step away before any point two steps away. BFS spreads the same way, ring by ring. If you use LinkedIn you have already seen these rings: your first-degree connections are the people you know, second-degree connections are the people they know, and third-degree is the next ring out.
-]
+Drop a stone into a still pond. The ripple spreads outward in a circle and touches every point one step away before any point two steps away. BFS spreads the same way, ring by ring. If you use LinkedIn you have already seen these rings: your first-degree connections are the people you know, second-degree connections are the people they know, and third-degree is the next ring out.
 
 #utpfig([Each number is the step at which BFS first reaches that cell, and the tint deepens with distance. The ripple touches the charger on ring 11. Following the parent links back from the charger gives the orange route.], label: <fig:bfs-wave>)[
   #canvas({
@@ -269,11 +267,11 @@ The simplest answer is to take the cell that has waited longest. New cells join 
 
 BFS finds the 11-step route after expanding 45 of the 48 cells. Only three are spared: the charger, and two cells still waiting in the queue when the charger came off it.
 
-#keyidea[
+#note[
   Oldest first means nearest first, and nearest first means the fewest steps. That guarantee comes straight from the shape of the list.
 ]
 
-#workedexample[
+#example[
   BFS from `KUL` to `KEF` expands 284 airports and returns `KUL -> AMS -> KEF`: two legs, 12,274~km. This minimises legs, not kilometres. BFS never reads the distances stored in the graph.
 ]
 
@@ -397,11 +395,11 @@ That result is partly luck. Reverse the neighbour order to left, down, right, up
   })
 ]
 
-#workedexample[
+#example[
   From `KUL`, DFS commits to the alphabetically first neighbour, `ADL` (Adelaide), then to Adelaide’s first neighbour, and so on. It reaches Keflavík after 23 legs and 41,768~km, more than the circumference of the Earth, and expands 2,112 airports on the way, far more than the 284 of BFS. Reversing every neighbour list gives a different route of 8 legs. Neither is a meaningful travel plan: DFS answers “is there #emph[a] route?”, not “what is a good one?”.
 ]
 
-#intuition[
+#note[
   BFS expands a ripple; DFS follows one thread. The ripple is expensive to store but arrives by the fewest steps. The thread can be cheap to store but says nothing about how good its path is.
 ]
 
@@ -457,9 +455,7 @@ Here $C^(star.op)$ is the cost of the optimal solution and $epsilon$ the smalles
 
 BFS kept the 11-step route, but its ripple filled 45 of the 48 cells, because it had to grow all the way from the robot to the charger. Can we keep the route and explore less? Start a second ripple from the charger. The two take turns, one ring each, and stop the moment they touch. At the meeting cell we join the robot’s half to the charger’s half. That is #term[bidirectional search].
 
-#analogy[
-  Two tunnelling crews start from opposite sides of a mountain and meet in the middle. Neither crew digs the whole tunnel. Ripples behave the same way, only more so, because a ripple covers more and more ground the further it spreads: two small ripples that each go halfway cover much less ground than one big ripple that goes all the way.
-]
+Two tunnelling crews start from opposite sides of a mountain and meet in the middle. Neither crew digs the whole tunnel. Ripples behave the same way, only more so, because a ripple covers more and more ground the further it spreads: two small ripples that each go halfway cover much less ground than one big ripple that goes all the way.
 
 On our maze the ripples touch at $(3,5)$ with the route still 11 steps long, after expanding 18 cells on the robot’s side and 13 on the charger’s: 31 in all, against 45 for BFS. The saving is modest here because the maze’s rings are small. On a problem whose rings grow quickly the saving is enormous. The 8-puzzle board traced in `all_experiments/demo_sliding_puzzle.py` needs 22 slides: one ripple expands 89,296 arrangements, and two ripples expand 1,240 (#figref(<fig:bidirectional>)).
 
@@ -480,11 +476,11 @@ On our maze the ripples touch at $(3,5)$ with the route still 11 steps long, aft
   }))
 ]
 
-#pitfall[
+#warning[
   Bidirectional search needs to know exactly where the goal is, so the second ripple has somewhere to start, and it must be able to run backwards. A maze has one charger. A chess game has countless ways to end in checkmate, and nobody can start a ripple from all of them. On the airline network routes are one-way, so a backward ripple has to follow reversed edges, which is how Lab~2 builds its exact cost table.
 ]
 
-#tryit[
+#exercises[
   Run `python all_experiments/demo_robot_maze.py` from the course folder and find each number from this chapter in its output. Then copy the file, set `CHECK_BOOK_NUMBERS = False`, turn the floor cell at $(3,3)$ into a wall, and predict before running: what does BFS return now? Its ripple can no longer use the middle corridor, so the answer should be the 13-step route along the bottom.
 ]
 
@@ -494,7 +490,7 @@ So far every step has cost the same, so the fewest steps was also the cheapest r
 
 BFS does not know about battery. It only counts steps, so it still takes its 11-step route through both puddles: nine dry steps plus two puddles, $9+5+5=19$ units. The battery holds 15, so the robot runs dry at $(3,6)$, four cells short of the charger. Yet a better route exists along the bottom: 13 steps, all dry, 13 units, and the robot arrives with 2 to spare.
 
-#keyidea[
+#note[
   Fewest steps does not mean cheapest. To find the cheapest route, a search has to count what it spends.
 ]
 
@@ -618,7 +614,7 @@ Why is the result always the cheapest route? UCS examines cells in order of batt
   })
 ]
 
-#workedexample[
+#example[
   Trace UCS on the graph of #figref(<fig:ucs-vs-bfs>). The frontier holds $(g,"state")$ pairs and always pops the smallest $g$.
 
   $ #table(columns: 2, stroke: none, inset: (x: 5pt, y: 2.6pt), align: (center, left), table.vline(x: 1, stroke: 0.4pt), [$"expand"$], [$"frontier after expansion"$], table.hline(y: 1, stroke: 0.4pt), [$A space (0)$], [$(1,B), space (4,C)$], [$B space (1)$], [$(3,E), space (4,C), space (4,D)$], [$E space (3)$], [$(4,C), space (4,D), space (4,G)$], [$C space (4)$], [$(4,D), space (4,G), space (9,F)$], [$D space (4)$], [$(4,G), space (9,F) wide "(" G " via " D " would cost 8: not pushed)"$], [$G space (4)$], [$"goal popped: return " A arrow.r B arrow.r E arrow.r G " at cost " 4$]) $
@@ -626,13 +622,13 @@ Why is the result always the cheapest route? UCS examines cells in order of batt
   When $D$ is expanded it offers a route to $G$ costing $4+4=8$, which is worse than the known cost of~4, so nothing is pushed. Equal-cost ties ($C$, $D$, $G$ all at 4) are broken by insertion order, which does not affect the minimum cost.
 ]
 
-#libnote[
+#note[
   UCS is a version of #term[Dijkstra’s algorithm]. Edsger Dijkstra, a Dutch computer scientist, worked it out in about twenty minutes on a café terrace in Amsterdam and published it in 1959. Route planners use the same idea on road networks, where the cells become junctions and the battery becomes minutes of driving.
 ]
 
 == Comparing the methods so far
 
-#keyidea[
+#note[
   BFS orders the frontier by discovery time, DFS by recency, UCS by accumulated cost. The graph, the successor function and the goal test never change. Only the frontier policy does, and that single choice is the name of the algorithm.
 ]
 
@@ -653,7 +649,7 @@ In the table below, #emph[Rain] is the battery the returned route costs on the r
 
 #keepspace(4cm)
 
-#pitfall[
+#warning[
   #strong[“BFS is optimal”] requires #emph[equal] step costs. BFS returns `KUL -> AMS -> KEF` at 12,274~km; UCS returns `KUL -> HKT -> LED -> HEL -> KEF` at 11,461~km: more legs, fewer kilometres.
 
   #strong[“DFS is not complete”] concerns infinite spaces or cycles without a seen set. On finite lab graphs, the `parent` dictionary lets DFS terminate and find any reachable goal, though not an optimal path.
@@ -678,7 +674,7 @@ Lab~1 runs each algorithm on three queries and records the following fields.
 
 Validate results independently: Lab~1 checks every returned leg against the graph and recomputes its cost from the edge list, catching impossible paths before reporting them.
 
-#workedexample[
+#example[
   The three queries of Lab~1, as the notebook reports them:
 
   $ #table(columns: 7, stroke: none, inset: (x: 5pt, y: 2.6pt), align: (left, right, right, right, right, right, right), table.vline(x: 1, stroke: 0.4pt), table.vline(x: 3, stroke: 0.4pt), table.vline(x: 5, stroke: 0.4pt), [$$], table.cell(colspan: 2, align: center)[$"BFS"$], table.cell(colspan: 2, align: center)[$"DFS"$], table.cell(colspan: 2, align: center)[$"UCS"$], [$"query"$], [$"hops"$], [$"km"$], [$"hops"$], [$"km"$], [$"hops"$], [$"km"$], table.hline(y: 2, stroke: 0.4pt), [$"KUL" arrow.r "KEF"$], [$2$], [$12(,)274$], [$23$], [$41(,)768$], [$4$], [$11(,)461$], [$"SIN" arrow.r "EZE"$], [$2$], [$21(,)976$], [$39$], [$65(,)214$], [$3$], [$17(,)817$], [$"NRT" arrow.r "CPT"$], [$2$], [$19(,)006$], [$64$], [$91(,)541$], [$3$], [$14(,)813$]) $
@@ -686,7 +682,7 @@ Validate results independently: Lab~1 checks every returned leg against the grap
   BFS minimises hops, UCS kilometres, and DFS neither. UCS uses one or two extra legs to save 800--4,200~km.
 ]
 
-#chapterrecap[
+#summary[
   - A search problem is five pieces: initial state, actions, transition model, goal test and path cost. Search means planning a route through the state space before moving.
   - A search tree forgets where it has been; a search graph remembers, and that memory is what keeps the work bounded.
   - Every search here is one loop around a to-do list called the frontier. Take the oldest and you have BFS, the newest and you have DFS, the cheapest and you have UCS.
@@ -694,7 +690,7 @@ Validate results independently: Lab~1 checks every returned leg against the grap
   - Judge any search on completeness, optimality, time and space, and count expansions rather than milliseconds.
 ]
 
-#quickcheck[
+#questions[
   + Why does BFS ignore the distances stored in the graph even though they are available to it?
   + Which two lines change when `bfs` is turned into `dfs`, and which of them makes DFS order dependent?
   + UCS tests for the goal when a state is popped from the heap. What could go wrong if it tested when the state was first generated?

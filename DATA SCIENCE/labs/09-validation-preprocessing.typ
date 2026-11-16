@@ -52,7 +52,7 @@
 
   #include "visuals/09-validation-preprocessing-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Compare two thresholds at the stated cost ratio, then repeat with a second ratio. Explain whether the best decision threshold changes even when predicted probabilities stay fixed.
 
     #strong[Required evidence.] Submit the majority-class baseline, five-fold metric summary, one variability result, and a threshold recommendation tied to an explicit error-cost assumption. Include one sentence identifying where leakage would occur if global scaling were applied before cross-validation.

@@ -12,7 +12,7 @@
 
   #include "visuals/08-flow.typ"
 
-  #labmode[
+  #note[
     The supplied Odoo build guide uses Employees rather than a full recruitment workflow. Therefore the Odoo component focuses on organisation structure and operational ownership, while the Tutorial 8 recruitment scenario is modelled as a process. If the class deployment provides additional recruitment functionality, it may be demonstrated as an extension, but it is not required by the supplied guide.
   ]
 
@@ -59,7 +59,7 @@
 
   Mark hand-offs and identify at least three places where a shared workflow could reduce waiting.
 
-  #pitfall[
+  #warning[
     A swimlane is not just the same flowchart with decorative horizontal lines. Every activity must sit in the lane of the role responsible for performing it, and arrows crossing lanes should represent real hand-offs.
   ]
 
@@ -78,7 +78,7 @@
 
 #include "walkthroughs/08-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Walk one accepted and one rejected candidate through the process. Identify the owner and evidence at each handoff and revise any ambiguous decision label.
 
   - The four departments, their managers and the operational employee records are checked against Lab~1.

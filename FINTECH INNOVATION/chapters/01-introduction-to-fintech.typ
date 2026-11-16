@@ -7,7 +7,7 @@
 
 FinTech is not simply “finance on a phone.” The course presents it as a broader re-design of financial services in which modern technology changes the #emph[business model], the #emph[customer interface], the #emph[speed of decisions], the #emph[data used], and sometimes the very need for a traditional financial intermediary.
 
-#keyidea[
+#note[
   A useful working definition from the lecture material is: #term[FinTech is technology-enabled innovation in financial services that can create new business models, applications, processes, or products and materially change how financial services are provided.]
 ]
 
@@ -25,7 +25,7 @@ The traditional model therefore places the bank between two groups. Savers recei
   #canvas({
     let p = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3.2, min-height: 1.25, align: center, font: font("small", weight: "bold", fill: navy))
     let bank = (draw: navy, fill: navy, text: white, rounded: 2mm, min-width: 3.5, min-height: 1.55, align: center, font: font("small", weight: "bold"))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 0), [Savers \
   deposits], name: "s", ..p)
     node(right-of("s", 1.1), [Traditional bank \
@@ -64,7 +64,7 @@ The lecture materials describe FinTech companies as firms that combine financial
 
 The lecture uses definitions associated with the IMF/World Bank and the People’s Bank of China to reinforce that FinTech is not one product category. It can appear in deposits, lending and capital raising, insurance, investment management, payments, clearing, and settlement.
 
-#intuition[
+#note[
   A bank is an organization that happens to use technology. A FinTech proposition starts by asking whether technology can redesign a particular financial job from the customer’s point of view. That distinction explains why a small firm can challenge one profitable process without first reproducing an entire bank.
 ]
 
@@ -82,7 +82,7 @@ The lecture also argues that customers became less willing to organize their liv
 
 Millennials and later digital-native users grew up learning, buying, communicating, and sharing online. As a result, they compare a bank not only with another bank but with the best digital experiences they use elsewhere. Amazon, Google, Apple, and other technology leaders become the benchmark for speed, personalization, and usability.
 
-#workedexample[
+#example[
   Suppose a customer can open an e-commerce account in minutes, receive real-time delivery updates, and get personalized recommendations. If a banking product takes days, demands repeated branch visits, and provides little status visibility, the customer experiences the bank’s process as friction even if the underlying financial product is sound. FinTech competition often targets exactly this gap.
 ]
 
@@ -97,7 +97,7 @@ The lecture cites a TransferWise survey in which respondents identified perceive
     let person = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.7, min-height: 1.1, align: center, font: font("small", weight: "bold", fill: navy))
     let old = (draw: muted, fill: pale-gray, rounded: 2mm, min-width: 3, min-height: 1.1, align: center, font: font("small", weight: "bold", fill: navy))
     let new = (draw: teal, fill: pale-teal, rounded: 2mm, min-width: 3, min-height: 1.1, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.1mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.1mm, line: widths.thick))
     node((-5, 1), [Saver / investor], name: "a", ..person)
     node((0, 1), [Bank balance sheet], name: "b", ..old)
     node((5, 1), [Borrower], name: "c", ..person)
@@ -120,7 +120,7 @@ The slides emphasize why this can be disruptive:
 - the platform may not need to maintain the same liquidity structure as a deposit-taking bank;
 - revenue can be volume-based rather than primarily based on taking balance-sheet risk.
 
-#pitfall[
+#warning[
   Disintermediation does #emph[not] mean “no intermediary of any kind.” A P2P or crowdfunding platform is itself an intermediary in matching, information, contracting, servicing, and often risk assessment. The difference is that it does not necessarily perform all of the functions of a conventional bank.
 ]
 
@@ -132,7 +132,7 @@ The slides emphasize why this can be disruptive:
   #canvas({
     let service = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 2.25, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
     let attack = (draw: orange, fill: pale-orange, rounded: 1.5mm, min-width: 2.25, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-5, 0), [Payments], name: "p", ..service)
     node((-2.5, 0), [Lending], name: "l", ..service)
     node((0, 0), [Wealth], name: "w", ..service)
@@ -154,7 +154,7 @@ The supplied lecture lists examples across the financial system:
 - #term[Investment banking:] algorithmic trading and B2B platforms can create more direct links between buyers and sellers.
 - #term[Insurance:] connected devices, data, and new usage patterns can change underwriting, distribution, and claims.
 
-#keyidea[
+#note[
   Disintermediation changes #emph[who sits in the middle]. Unbundling changes #emph[how many services must be bought from the same provider]. The two often occur together, but they answer different questions.
 ]
 
@@ -204,9 +204,7 @@ Across the introductory deck, the value proposition repeatedly reduces to four i
 + #term[Faster decisions.] Automation and data reduce waiting and manual approval layers.
 + #term[Access to underserved segments.] Alternative distribution and data can serve users rejected or ignored by traditional models.
 
-#analogy[
-  Think of a traditional bank as a department store that tries to sell every financial product. An unbundled FinTech is a specialist shop that chooses one category and tries to make the selection, price, and checkout experience dramatically better. The specialist does not need to be better at everything to take meaningful business away from the department store.
-]
+Think of a traditional bank as a department store that tries to sell every financial product. An unbundled FinTech is a specialist shop that chooses one category and tries to make the selection, price, and checkout experience dramatically better. The specialist does not need to be better at everything to take meaningful business away from the department store.
 
 == Opportunities created by FinTech
 
@@ -264,7 +262,7 @@ Financial services products can be expensive to build and launch, particularly w
 
 A digitally native financial provider is an attractive target. The slides emphasize that attackers are increasingly organized and capable, so security is not an optional technical feature; it is part of the firm’s financial and reputational viability.
 
-#pitfall[
+#warning[
   Do not assume that “digital” automatically means “cheap, safe, and scalable.” A FinTech can avoid branches and legacy systems yet still face high customer-acquisition costs, compliance costs, fraud losses, cyber risk, and the need for substantial investment capital.
 ]
 
@@ -296,7 +294,7 @@ The valuations, ownership percentages, user counts, and listing details in these
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3, min-height: 1.35, align: center, font: font("script", weight: "bold", fill: navy))
     let box2 = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 3, min-height: 1.35, align: center, font: font("script", weight: "bold", fill: navy))
     let box3 = (draw: orange, fill: pale-orange, rounded: 2mm, text-width: 3, min-height: 1.35, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.8, 0), [FRICTION \
   cost, delay, poor CX, exclusion], name: "f", ..box-style)
     node((-1.6, 0), [TECHNOLOGY \
@@ -318,11 +316,11 @@ When you encounter a new FinTech case, ask four questions:
 + Which part of the financial value chain is being unbundled or re-intermediated?
 + What new risk, regulation, or sustainability problem appears as a result?
 
-#tryit[
+#exercises[
   Choose one financial app you use or know. Identify: (1) the traditional bank function it replaces or improves, (2) whether it is disintermediating or unbundling, (3) the main source of customer friction it solves, and (4) the new risk created by moving the task online.
 ]
 
-#quickcheck[
+#questions[
   + What are the three basic functions of a retail bank used as the starting point in this course?
   + How is disintermediation different from unbundling?
   + Why can customer experience be a strategic source of disruption rather than merely a design issue?

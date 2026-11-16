@@ -78,6 +78,6 @@ g++ -std=c++17 -Wall -Wextra heap_sort.cpp -o heap_sort.exe
 
 The complete captured run is in `labs/outputs/heap_sort.txt`.
 
-#tryit[
+#exercises[
   Run the same fresh input through heap sort and descending quick sort. Reverse one result before comparing equality. Exclude printing and setup if you measure execution time.
 ]

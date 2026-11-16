@@ -94,7 +94,7 @@ The course folder ships with all twelve datasets, so there is nothing to downloa
   + Run the notebook from inside the course folder: it finds `all_datasets/` by looking upward from where it runs.
 ]
 
-#pitfall[
+#warning[
   For #strong[`FileNotFoundError`], check the working directory and filename. Fix the path rather than moving files into the project root.
 ]
 
@@ -102,7 +102,7 @@ The course folder ships with all twelve datasets, so there is nothing to downloa
 
 An environment is a private shelf of Python packages for one project. Two projects can then use different versions of the same library without knocking each other over. Route~A uses Python’s own `venv`; Route~B uses conda. Either works, so pick one and stick with it. If you do not already have a preference, take Route~A.
 
-#keyidea[
+#note[
   Use one environment per project; activate it before installing or running packages.
 ]
 
@@ -210,7 +210,7 @@ python3 -m pip install -r requirements.txt
     let pyevery = (..pystep, fill: pale-teal, draw: teal)
     let pycap = (font: font("script", weight: "bold", fill: muted),)
     let pynote = (font: font("script", fill: muted), align: center)
-    let pygo = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let pygo = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 0), [py -m venv .venv], name: "venv", font: font("small"), ..pyonce)
     node((4.05, 0), [activate], name: "act", font: font("small"), ..pyevery)
     node((8.1, 0), [pip install -r \
@@ -235,7 +235,7 @@ python3 -m pip install -r requirements.txt
     let sysbox = (draw: muted, fill: pale-gray, rounded: 1.9925pt, align: center, inner-sep: 3.9851pt, min-width: 4.3)
     let pkg = (font: font("script", family: "mono"), align: center)
     let lbl = (font: font("script", fill: muted), align: center)
-    let hit = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let hit = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 1.75), [system Python], name: "sys", font: font("small"), ..sysbox)
     node((2.35, 1.75), [leave this alone], font: font("small"), ..pkg, text: muted, anchor: "west")
     node((-2.8, 0), [`THIS DIRECTORY/.venv`], name: "a", font: font("small"), ..envbox)
@@ -280,7 +280,7 @@ conda env list
 python -c "import sys; print(sys.executable)"
 ```
 
-#pitfall[
+#warning[
   Avoid installing the same package with both conda and pip. Use pip with the course requirements. Recreate a broken environment with `conda env remove -n ml`, then repeat setup.
 ]
 
@@ -339,7 +339,7 @@ $env:CUDA_VISIBLE_DEVICES = "-1"
 export CUDA_VISIBLE_DEVICES=-1
 ```
 
-#troubleshoot[
+#tip[
   / `Activate.ps1` cannot be loaded: Windows blocks scripts by default. Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once in PowerShell, then activate again.
   / Conda not found on Windows: Use Anaconda Prompt, or initialize PowerShell there with `conda init powershell`.
   / A notebook cannot import a package: Jupyter is running from a different environment. Activate the course environment, restart Jupyter, and run `import sys; print(sys.executable)` in a cell to confirm which Python it uses.

@@ -27,7 +27,7 @@
       connect("c", "d", ..procflow)
       node((-0.2, 3.05), [#strong[scope: one store room #h(1em)$arrow.r.long$#h(1em)one factory]], ..proccap, anchor: "west", text-width: 7, align: left)
       node((15.2, 3.05), [#strong[$arrow.r.long$#h(1em)one enterprise]], ..proccap, anchor: "east", text-width: 5, align: right)
-      connect((-0.2, 2.6), (15.2, 2.6), draw: mix(blue, 35%), line-width: 1.9925pt, end: tip("Stealth", length: 3mm, line: 1.9925pt))
+      connect((-0.2, 2.6), (15.2, 2.6), draw: mix(blue, 35%), line-width: 1.9925pt, end: arrow-tip("Stealth", length: 3mm, line: 1.9925pt))
     })
   ]
 ]

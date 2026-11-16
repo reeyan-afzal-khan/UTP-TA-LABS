@@ -3,7 +3,7 @@
 
 #chapter-star[Group Project: Integrated eNSP Network]
 
-#sourcebasis[
+#note[
   Based on #strong[Group Project - Template DCN.ppt].
 ]
 
@@ -81,6 +81,6 @@ Bands are Excellent (90--100), Good (75--89), Satisfactory (60--74), and Needs I
   #fitted-image("/DATA COMMUNICATION & NETWORKING/figures/project-evaluation.png", width: 74%, height: 404.7848pt)
 ]
 
-#keyidea[
+#note[
   Pair each claim with evidence: interface state, a route, a packet trace, an application result, or a connectivity test.
 ]

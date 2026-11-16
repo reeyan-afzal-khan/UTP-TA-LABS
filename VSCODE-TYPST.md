@@ -2,8 +2,10 @@
 
 Follow the [numbered setup steps](.typst-setup/README.md).
 
-Open the repository root and install the recommended **Tinymist Typst** and **Megamist Typst** extensions. For Megamist, open a course's `main.typ`, press **Ctrl+Shift+P**, and select **Typst: Open Preview**. The Command Palette opens the live preview beside the editor.
+Open the repository root and install the recommended **Tinymist Typst** extension. Open a course's `main.typ`, pin it as the main file, and start Tinymist's preview; keep it pinned while you edit chapters. The preview refreshes when you save (**Ctrl+S**), because redrawing a 500-page book on every keystroke kept the preview busy. The preview is separate from the official CLI builds.
 
-For the complete multi-page book, use Tinymist's preview and pin the course's `main.typ` while editing chapters. Megamist's published documentation currently limits its preview to the first page. Both preview workflows are separate from official CLI builds.
+If the whole VS Code window keeps flashing blank, turn off VS Code's hardware acceleration: Command Palette → **Preferences: Configure Runtime Arguments** → `"disable-hardware-acceleration": true`, then quit and reopen VS Code. See the [setup guide](.typst-setup/README.md#live-preview).
+
+Do not also run **Megamist Typst**: it recompiles on every keystroke, cannot resolve the books' imports, and makes the editor flicker. If you installed it from an earlier version of this guide, disable it for this workspace or uninstall it.
 
 Press **Ctrl+Shift+B** to build a selected course. Use **Tasks: Run Task** for installation, checks, watching, and all-course builds.

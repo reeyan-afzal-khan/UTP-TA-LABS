@@ -13,7 +13,7 @@ The course walkthrough follows three steps: prepare a Windows~10 virtual
 machine in VirtualBox, install Wireshark for Lab~1, then install eNSP inside
 that Windows environment. Complete them in order.
 
-#tcolorbox(back: white, frame: mix(blue, 55%), title-back: navy, rule: 0.7472pt, arc: 2mm, title: [Follow the installation steps in order], title-color: white, left: 3mm, right: 3mm, top: 2mm, bottom: 2mm)[
+#utptable[
   #tabularx(
     columns: (27%, 1fr),
     styles: (navy-bold,),

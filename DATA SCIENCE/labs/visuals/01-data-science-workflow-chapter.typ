@@ -5,7 +5,7 @@
     #canvas({
       let laddercard = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.6974pt, text-width: 0.78 * 15.06, min-height: 1.1, inner-xsep: 9mm, inner-ysep: 2.5mm, align: left, font: font("footnote", fill: navy))
       let badge = (shape: "circle", fill: blue, draw: white, line-width: 0.6974pt, min-size: 0.65, inner-sep: 0pt, font: font("script", weight: "bold", fill: white))
-      let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+      let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
       node((0, 0), [#strong[Context and purpose] \ #v(1.9925pt)
      Identify the decision, scientific concern, or operational need.], name: "context", ..laddercard)
       node(below-of("context", 0.28), [#strong[Answerable question] \ #v(1.9925pt)

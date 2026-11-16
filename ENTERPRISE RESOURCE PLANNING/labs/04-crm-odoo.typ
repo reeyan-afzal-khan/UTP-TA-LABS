@@ -12,7 +12,7 @@
 
   #include "visuals/04-flow.typ"
 
-  #labmode[
+  #note[
     Tutorial 4 asks for a CRM proposal for Luna Electronics. The Odoo exercise gives you a working example of pipeline, ownership, expected revenue, stages, and conversion to quotation. Use that hands-on experience when explaining what CRM features actually do.
   ]
 
@@ -62,7 +62,7 @@
   - sales productivity: ownership, stages, expected revenue, and conversion to quotation;
   - management visibility: pipeline and reporting views.
 
-  #pitfall[
+  #warning[
     Do not present expected revenue as money already earned. Pipeline value is a forecast of potential business and depends on stage quality, probability assumptions, and user discipline.
   ]
 ]
@@ -73,7 +73,7 @@
 
 #include "walkthroughs/04-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Follow one opportunity into its quotation. Change quantity and reconcile the quote’s untaxed amount, then explain whether and how the opportunity’s expected value was updated.
 
   - Seri Iskandar Cycling Club exists as a company contact.

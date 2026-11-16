@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand master data, process ownership, and why cross-functional information must be current.][describe an end-to-end recruitment process, identify information problems that harm candidate experience, explain how ERP-supported HR records improve coordination, and distinguish an employee record from an operational system user.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 8 and Chapter 6 of the textbook. The tutorial uses the ABC Company recruitment scenario and asks students to identify information-system problems and draw both a flowchart and a swimlane diagram. The Odoo guide adds department, employee, manager, and user-role setup for West End Bicycles.
 ]
 
@@ -37,7 +37,7 @@ The ABC Company scenario in Tutorial 8 can be expressed as a sequence of busines
     let hr = (..act, fill: pale-teal, draw: teal)
     let cd = (..act, fill: pale-orange, draw: orange)
     let pn = (..act, fill: white, draw: navy)
-    let hand = (line-width: widths.semithick, draw: muted, end: tip("Stealth", length: 2mm, line: widths.semithick))
+    let hand = (line-width: widths.semithick, draw: muted, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
     let num = (font: font("tiny", weight: "bold", fill: muted),)
     for (t, x) in (("Department / manager", 0), ("Human Resources", 4), ("Candidate", 8), ("Selection panel", 12)) {
       rectangle((x - 1.65, 0.42), (x + 1.65, 1.12), rounded: 1.2mm, fill: navy, draw: none)
@@ -86,7 +86,7 @@ Tutorial 8 asks which problems could create a negative candidate impression. Use
   )
 ]
 
-#keyidea[
+#note[
   A candidate experiences the organisation as one process. They do not care that scheduling belongs to HR, technical evaluation belongs to the hiring manager, and approval belongs to senior management. ERP/process integration should hide that internal fragmentation from the candidate.
 ]
 
@@ -122,8 +122,8 @@ That structure turns recruitment into a repeatable business process rather than 
 
 Once someone is hired, HR records become master data reused throughout the organisation: employee identity, department, manager, role, work contact information, and possibly compensation or training information subject to authorisation.
 
-#applicationbox[
-  The West End Bicycles Odoo guide creates four departments:
+#note[
+  #strong[In Odoo 19 Community.] The West End Bicycles Odoo guide creates four departments:
 
   - Sales and Marketing;
   - Accounting and Finance;
@@ -159,7 +159,7 @@ HR information can be sensitive. ERP integration must therefore combine availabi
 
 This is a good example of why “one shared database” does not mean “one unrestricted database.”
 
-#pitfall[
+#warning[
   Do not solve HR integration by giving everyone broad access. A well-designed ERP system shares the right data with the right role while preserving confidentiality and accountability.
 ]
 
@@ -173,11 +173,11 @@ After hiring, HR information supports other processes:
 - payroll and benefit expenses feed financial reporting;
 - access rights connect employee responsibilities to system permissions.
 
-#tryit[
+#exercises[
   Choose one role from the Tutorial 8 “dream job” activity. Create a compact selection matrix with five criteria, the evidence used to judge each criterion, and an importance rating. Then identify which fields belong in long-term employee master data and which belong only in the recruitment transaction.
 ]
 
-#quickcheck[
+#questions[
   + Name three ways a paper-based recruitment process can lose a strong candidate.
   + Why are an Odoo Employee and an Odoo User conceptually different?
   + Give one example of HR information needed by another functional area and one example of information HR needs from that area.

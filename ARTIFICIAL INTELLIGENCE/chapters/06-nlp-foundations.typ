@@ -11,14 +11,12 @@ Natural language processing (NLP) starts before there is any language to process
 
 NLP systems acquire text, normalise it, build a representation, apply a task model and evaluate the output (#figref(<fig:nlp-pipeline>)).
 
-#analogy[
-  Think of an assembly line. A part that falls off at the first station is simply missing at every station after it, however good those later stations are. Early errors in NLP work the same way: no downstream model can use a word that OCR never saw.
-]
+Think of an assembly line. A part that falls off at the first station is simply missing at every station after it, however good those later stations are. Early errors in NLP work the same way: no downstream model can use a word that OCR never saw.
 
 #utpfig([Lab~6 covers acquisition, normalisation and OCR measurement. Lab~7 starts with clean text and builds a representation and classifier.], label: <fig:nlp-pipeline>)[
   #canvas(scale: 0.99, transform-shape: true, {
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.2, min-height: 1, align: center, font: font("small", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Acquire \
   #fsize("script")[photo, audio, keyboard]], name: "acq", ..b)
     node(right-of("acq", 0.26), [Normalise \
@@ -46,7 +44,7 @@ NLP systems acquire text, normalise it, build a representation, apply a task mod
 
 Lab~6 fixes `--oem 1` (neural recognition) and `--psm 7` (treat the image as a single line of text) for every cropped name. Holding these settings constant isolates the effect of preprocessing.
 
-#intuition[
+#note[
   Tesseract was built mainly for print, not for cursive on lined paper. Asking it to read a doctor’s handwriting is like asking someone who learned a language from textbooks to follow a fast regional accent. Downstream processing cannot reliably recover what the recogniser missed.
 ]
 
@@ -58,7 +56,7 @@ Lab~6 fixes `--oem 1` (neural recognition) and `--psm 7` (treat the image as a s
 
 This rule excludes case, spacing and punctuation from the error count. A task that must distinguish “40 mg” from “4 0mg” needs a different rule, and its scores are not directly comparable with these. The choice is visible in the numbers: on the raw baseline the character error rate is 0.88 with this normaliser, 0.88 if spaces are kept, and 0.93 with no normalisation at all.
 
-#keyidea[
+#note[
   Normalise both sides identically, decide in advance which differences count as errors, and write the rule down. A metric is only meaningful relative to the normalisation it was computed under.
 ]
 
@@ -112,7 +110,7 @@ The lab reports three distance-based metrics and a separate blank count:
   )
 ]
 
-#workedexample[
+#example[
   Take two images. Reference `nims` is read as `nidu`: 2 edits on 4 characters. Reference `tabnims100mg` is read as nothing: 12 edits on 12 characters.
 
   $ "mean normalised distance"=frac(2\/4+12\/12, 2)=0.75, wide "CER"=frac(2+12, 4+12)=0.875. $
@@ -120,7 +118,7 @@ The lab reports three distance-based metrics and a separate blank count:
   The mean treats both images equally. CER pools the characters, so the long name counts for more.
 ]
 
-#pitfall[
+#warning[
   CER is a ratio of totals, so long references dominate it. The normalised distance is a mean of per-image ratios, so every image counts equally. The two can move in opposite directions on the same data. Report both, and say which one a decision rests on.
 ]
 
@@ -153,7 +151,7 @@ Lab~6 sorts predictions by normalised edit distance and tags the worst cases. It
 
 Save the six hardest images with their references and predictions, so readers can check the tags for themselves.
 
-#keyidea[
+#note[
   Attribute each failure to the stage that produced it. The fix for “no text found” is different from the fix for “wrong text found”, and an aggregate score cannot tell them apart.
 ]
 
@@ -161,7 +159,7 @@ Save the six hardest images with their references and predictions, so readers ca
 
 The benchmark shows a poor fit between printed-text OCR and cursive handwriting, not evidence for clinical use. Misread medicine names or doses can cause real harm. Clinical transcription would require a handwriting-specific recogniser, representative data, held-out validation, privacy controls and human review of uncertain readings.
 
-#chapterrecap[
+#summary[
   - NLP is a pipeline, and errors made early cannot be repaired later.
   - Normalise references and predictions by one written rule before comparing them. A metric means nothing without it.
   - Levenshtein distance counts the fewest single-character edits, and normalised distance and CER aggregate it in two different ways.
@@ -169,7 +167,7 @@ The benchmark shows a poor fit between printed-text OCR and cursive handwriting,
   - Attribute each failure to segmentation or recognition, because they need different fixes.
 ]
 
-#quickcheck[
+#questions[
   + How do an engine error, a blank prediction, and `nims` being read as `nidu` differ?
   + Compute the Levenshtein distance between `breeky` and `beeky`, and the normalised distance.
   + Why must the OCR configuration stay fixed when the preprocessing pipeline is tested?

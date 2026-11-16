@@ -87,9 +87,9 @@ sitting on empty slots. Shifting everything back down would fix it, but that cos
       node((1.2 * i, -0.68), [#i], font: font("small"), ..utplabel)
     }
     node((2.4, 1.15), [FRONT], name: "fronttag", draw: orange, fill: pale-orange, rounded: 1mm, font: font("script", weight: "bold", fill: mix(orange, 70%, other: black)), inner-xsep: 2.2mm, inner-ysep: 1mm)
-    connect("fronttag.south", (rel: (0, 0.07), to: "z2.north"), line-width: 0.8966pt, draw: orange, end: tip("Stealth", length: 2.1mm, width: 1.45mm, line: 0.8966pt))
+    connect("fronttag.south", (rel: (0, 0.07), to: "z2.north"), line-width: 0.8966pt, draw: orange, end: arrow-tip("Stealth", length: 2.1mm, width: 1.45mm, line: 0.8966pt))
     node((4.8, 1.15), [REAR], name: "reartag", draw: orange, fill: pale-orange, rounded: 1mm, font: font("script", weight: "bold", fill: mix(orange, 70%, other: black)), inner-xsep: 2.2mm, inner-ysep: 1mm)
-    connect("reartag.south", (rel: (0, 0.07), to: "z4.north"), line-width: 0.8966pt, draw: orange, end: tip("Stealth", length: 2.1mm, width: 1.45mm, line: 0.8966pt))
+    connect("reartag.south", (rel: (0, 0.07), to: "z4.north"), line-width: 0.8966pt, draw: orange, end: arrow-tip("Stealth", length: 2.1mm, width: 1.45mm, line: 0.8966pt))
     brace((-0.62, -0.9), (0.62, -0.9), mirror: true, amplitude: 3.9851pt, raise: 2.9888pt, draw: green, line-width: widths.semithick)
     node((0, -1.3), [free, but \
   unreachable], font: font("small"), ..utplabel, anchor: "north", align: center, text: green)
@@ -115,7 +115,7 @@ The circular queue addresses that limitation by connecting the logical last posi
     connect("k1", "k2", bend: 20deg, ..utparrow, name: "curve-2")
     connect("k2", "k3", bend: 20deg, ..utparrow, name: "curve-3")
     connect("k3", "k4", bend: 20deg, ..utparrow, name: "curve-4")
-    connect("k4", "k0", bend: 20deg, line-width: 0.9963pt, draw: orange, end: tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-5")
+    connect("k4", "k0", bend: 20deg, line-width: 0.9963pt, draw: orange, end: arrow-tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-5")
     node((0, 0), [$(4+1) mod 5$ \
   $=0$], font: font("small"), ..utplabel, align: center, text: orange)
     node((angle: (162) * 1deg, radius: 2.5), [rear], font: font("small"), ..utptag, anchor: "east")
@@ -135,7 +135,7 @@ The circular queue addresses that limitation by connecting the logical last posi
         }
         node((1.05 * i, -0.62), [#i], font: font("small"), ..utplabel)
       }
-      connect("w4.east", (4.98, 0), (4.98, -1.3), (-0.98, -1.3), (-0.98, 0), "w0.west", line-width: 0.9963pt, draw: orange, end: tip("Stealth", length: 2.2mm, line: 0.9963pt))
+      connect("w4.east", (4.98, 0), (4.98, -1.3), (-0.98, -1.3), (-0.98, 0), "w0.west", line-width: 0.9963pt, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: 0.9963pt))
       node((2.1, -1.42), [`enqueue(F)` now succeeds: `rear` wraps to index 0], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
   })
@@ -145,7 +145,7 @@ For capacity $N$, moving to the next slot uses
 
 $ "next" = ("index"+1) mod N. $
 
-#workedexample[
+#example[
   With capacity $5$, if the rear is at index $4$, then the next rear position is
 
   $ (4+1) mod 5 = 0. $
@@ -248,10 +248,10 @@ The lab manual states two priority rules:
 
 It also states that priority queues can be implemented using arrays or linked lists.
 
-#sourcealignment[Queue lab manual][
-  The manual supplies the priority-ordering rules and the array/linked-list implementation options, but it does not specify a particular insertion strategy, heap representation, or priority convention such as whether a numerically larger value means higher priority. Any implementation should document that design choice.
+#note[
+  #strong[Queue lab manual.] The manual supplies the priority-ordering rules and the array/linked-list implementation options, but it does not specify a particular insertion strategy, heap representation, or priority convention such as whether a numerically larger value means higher priority. Any implementation should document that design choice.
 ]
 
-#quickcheck[
+#questions[
   Why can a simple linear array queue appear full even when unused slots exist near index 0? How does modulo arithmetic fix that issue in a circular queue?
 ]

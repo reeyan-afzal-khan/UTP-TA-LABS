@@ -13,7 +13,7 @@ A #term[population] is the set of cases the question concerns. A #term[sample] i
   #canvas(x: 16.06cm, {
     let card = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.26 * 16.06, min-height: 1.45, inner-xsep: 2.5mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
     let connector = (line-width: 0.797pt, draw: teal, rounded: 1.5mm)
-    let flow = (..connector, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.4pt))
+    let flow = (..connector, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.4pt))
     node((0, 0), [#strong[Population] \ #v(3.9851pt)
    Cases of interest \
   Unknown parameter], name: "pop", ..card)
@@ -90,7 +90,7 @@ A 95% confidence interval is produced by a procedure designed to cover the targe
 
 A p-value is the probability, under a specified null hypothesis and test assumptions, of obtaining a result at least as incompatible with the null as the observed result. It is not the probability that the null hypothesis is true.
 
-#pitfall[
+#warning[
   “Statistically significant” does not mean “important”, “large”, or “causal”. With enough data, a tiny difference can have a small p-value. Always report the magnitude and practical meaning of the effect.
 ]
 
@@ -104,7 +104,7 @@ For a two-group comparison, also inspect group distributions and report an effec
 
 For a difference in means, report the observed difference in original units and an interval or test that describes uncertainty. Readers can then judge both size and precision.
 
-#workedexample[
+#example[
   Suppose two wine cultivars differ in mean alcohol measurement. The t-test addresses compatibility with a zero-difference model; the actual difference in alcohol units tells the reader whether the magnitude is meaningful in context.
 ]
 
@@ -112,7 +112,7 @@ For a difference in means, report the observed difference in original units and 
 
 If an analyst tests many unrelated hypotheses and reports only those with small p-values, some apparently “significant” results can arise by chance. Pre-specifying primary questions, correcting for multiplicity when appropriate, and validating exploratory findings on new data reduce this risk.
 
-#pitfall[
+#warning[
   A confidence interval or p-value quantifies uncertainty conditional on assumptions. It does not automatically account for selection bias, measurement error, poor operational definitions, unrecorded exclusions, or the fact that the hypothesis was chosen after inspecting the same data.
 ]
 
@@ -120,11 +120,11 @@ If an analyst tests many unrelated hypotheses and reports only those with small 
 
 Randomised experiments can isolate treatment effects when implemented well. Observational data can describe associations and support prediction, but causal interpretation requires stronger assumptions and methods than correlation or regression alone.
 
-#keyidea[
+#note[
   Inference is not a machine for turning samples into certainty. It is a framework for expressing what the data say while keeping sampling and design uncertainty visible.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between sampling variability and selection bias?
   + What does resampling with replacement accomplish in the bootstrap?
   + What does a p-value #emph[not] tell you?

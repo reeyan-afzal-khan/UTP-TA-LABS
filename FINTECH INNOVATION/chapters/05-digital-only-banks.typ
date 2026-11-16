@@ -56,7 +56,7 @@ The Week 5 deck identifies three general strengths: modern platforms and apps, s
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.65, min-height: 1.25, align: center, font: font("script", weight: "bold", fill: navy))
     let g = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 2.65, min-height: 1.25, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.5, 0), [Modern modular \
   technology], name: "a", ..b)
     node((-1.5, 0), [Lower servicing \
@@ -107,7 +107,7 @@ The lecture argues that smaller digital firms can be more willing to experiment,
 
 Digital challengers focus on fast, seamless, personalized interactions. The deck cites satisfaction comparisons in several countries as lecture-era evidence that neobanks can outperform established institutions on perceived experience.
 
-#keyidea[
+#note[
   A neobank’s value proposition is a system: low operating cost funds competitive pricing; modular technology enables fast change; data enables personalization; and mobile delivery makes the experience continuous. Removing one piece weakens the whole proposition.
 ]
 
@@ -226,7 +226,7 @@ Online communities can help. A satisfied digital user can recommend the product 
 
 As more neobanks enter a market, their products can begin to look similar. If every challenger offers a card, instant notifications, budgeting, and free onboarding, those features become the category baseline rather than differentiation.
 
-#intuition[
+#note[
   Early in a market, “digital” is a differentiator. Later, “digital” becomes the minimum expectation. Sustainable differentiation must then come from a target segment, business model, data advantage, service quality, ecosystem, brand, or specialized capability.
 ]
 
@@ -253,14 +253,14 @@ The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate t
     let hd = (font: font("small", weight: "bold", fill: navy),)
     let gap = (font: font("tiny", weight: "bold", fill: red), align: center)
     let lev = (draw: green, fill: white, rounded: 1.5mm, text-width: 3.5, min-height: 0.9, align: center, font: font("script", fill: navy))
-    let go = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let go = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((1.35, 2.55), [One active customer], ..hd)
     rectangle((0.55, 0), (1.15, 0.95), ..rev, fill: auto)
     rectangle((1.55, 0), (2.15, 1.75), ..cst, fill: auto)
     connect((0.35, 0), (2.45, 0), draw: mix(muted, 60%))
     node((0.85, -0.3), [revenue], ..bl)
     node((1.85, -0.3), [cost to serve], ..bl)
-    connect((2.35, 0.95), (2.35, 1.75), draw: red, start: tip("Stealth", length: 1.6mm, line: 0.4pt), end: tip("Stealth", length: 1.6mm, line: 0.4pt))
+    connect((2.35, 0.95), (2.35, 1.75), draw: red, start: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt), end: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt))
     node((2.45, 1.35), [loss], ..gap, anchor: "west")
     node((6.55, 2.55), [One million active customers], ..hd)
     rectangle((5.75, 0), (6.35, 0.95), ..rev, fill: auto)
@@ -268,7 +268,7 @@ The lecture uses Revolut, Monzo, Starling, N26, Varo, and others to illustrate t
     connect((5.55, 0), (7.65, 0), draw: mix(muted, 60%))
     node((6.05, -0.3), [revenue], ..bl)
     node((7.05, -0.3), [cost to serve], ..bl)
-    connect((7.55, 0.95), (7.55, 1.75), draw: red, start: tip("Stealth", length: 1.6mm, line: 0.4pt), end: tip("Stealth", length: 1.6mm, line: 0.4pt))
+    connect((7.55, 0.95), (7.55, 1.75), draw: red, start: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt), end: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt))
     node((7.65, 1.35), [loss $times thin 10^6$], ..gap, anchor: "west")
     connect((3.55, 0.9), (5.05, 0.9), ..go)
     node(along((3.55, 0.9), (5.05, 0.9), t: 50%), [growth], ..bl, anchor: "south")
@@ -291,7 +291,7 @@ The slides describe several responses:
 + #term[Focus geographically] rather than expanding everywhere at once.
 + #term[Build fee-based and interest-based revenue] while preserving lower operating cost.
 
-#workedexample[
+#example[
   A digital bank acquires one million customers with a free account, free international transfers, and high savings rates. User growth looks impressive, but each active customer costs money to serve and produces little revenue. Profitability requires either lowering acquisition/servicing cost, increasing revenue per customer, or moving users into products with sustainable margins. Growth alone is therefore not proof of a viable bank.
 ]
 
@@ -332,7 +332,7 @@ If many digital banks compete primarily by reducing fees, the market can erode v
 
 The lecture notes that profitability may take years and that app downloads or valuation growth do not guarantee a financially sustainable institution.
 
-#pitfall[
+#warning[
   A low-cost model is not the same as a profitable model. Profitability depends on the relationship between revenue per customer, cost to acquire the customer, cost to serve the customer, credit losses, fraud losses, compliance cost, funding cost, and the scale of the customer base.
 ]
 
@@ -378,7 +378,7 @@ The incumbent provides licenses, core systems, KYC, trust, or distribution while
 #utpfig([Three ways an incumbent can respond to digital-only banks: acquire or invest to buy capabilities, build a parallel brand to learn, or partner to combine strengths.], label: <fig:incumbent-strategies>)[
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3.15, min-height: 1.2, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.2, 0), [Acquire / invest \
   buy capabilities], name: "a", ..b)
     node((0, 0), [Parallel brand \
@@ -446,7 +446,7 @@ A product that merely makes the old process slightly easier may not create enoug
 
 Feature count is not the objective. A bank can waste resources building sophisticated visualizations or integrations that the target customer rarely uses while neglecting core functions such as reliable and fast money movement.
 
-#keyidea[
+#note[
   Digital differentiation should be measured by the customer’s job-to-be-done, not by the number of screens, integrations, or AI features in the app.
 ]
 
@@ -469,11 +469,11 @@ The desired experience is summarized by the lecture’s phrase: support should b
   + #term[Support model.] What happens when the automated journey fails?
 ]
 
-#tryit[
+#exercises[
   Design a digital-only bank for Malaysian university students or micro-businesses. Define the target need, onboarding model, three core features, one partner integration, one revenue source, and the most serious risk. Then explain why the proposition is more than “a traditional bank with a new app.”
 ]
 
-#quickcheck[
+#questions[
   + How does the Week 5 lecture distinguish a neobank from a challenger bank?
   + Why can digital-only banks operate at lower servicing cost?
   + Name four ways a digital bank can differentiate beyond interface design.

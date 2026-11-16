@@ -44,7 +44,7 @@
     )
   ]
 
-  #keyidea[
+  #note[
     DISCOVER is broadcast because the client has no address and no server to aim at. It fills the source field with `0.0.0.0` and the destination with `255.255.255.255`.
 
     REQUEST is also broadcast, and this is the part students find odd. The client already knows which server it wants --- but if two servers made offers, the broadcast tells the #emph[declined] server to release the address it had reserved. Unicasting the request would leave that address stranded until its offer timed out.
@@ -79,7 +79,7 @@
   quit
   ```
 
-  #pitfall[
+  #warning[
     `dhcp enable` is required globally before any pool works, and forgetting it is the most common failure in this lab. Pools configure without complaint and simply never respond.
 
     `excluded-ip-address` matters too. Reserve addresses used by statically configured hosts; do not rely on conflict detection to protect those assignments.
@@ -113,7 +113,7 @@
   quit
   ```
 
-  #keyidea[
+  #note[
     The relay receives the broadcast DISCOVER, converts it to a unicast addressed to the server, and --- critically --- records the receiving interface’s address in the packet’s `giaddr` field.
 
     That field is how the server knows which pool to draw from. Without it the server would see a request arriving from a router and have no idea which subnet the client is actually on.
@@ -134,7 +134,7 @@
     )
   ]
 
-  #troubleshoot[
+  #tip[
     #strong[Client gets no address.] Check `dhcp enable` first --- then that the interface has `dhcp select` applied at all.
 
     #strong[Client gets an address from the wrong pool.] On a relayed request, the `giaddr` does not match any pool network. Confirm the relay interface’s address falls inside the intended pool.
@@ -144,7 +144,7 @@
     #strong[Works on the local segment, fails across the router.] Relay not configured, or pointing at an address the relay itself cannot reach. Ping the server from the relay router.
   ]
 
-  #tryit[
+  #exercises[
     Capture the exchange in Wireshark with the display filter `dhcp` (older Wireshark versions may use `bootp`).
 
     Find the DISCOVER and read its source address. Then explain, in one sentence, how the server’s OFFER reaches a client that does not yet have an address to send it to.
@@ -155,7 +155,7 @@
 
 #include "visuals/06-dhcp-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Inspect the assigned address, mask, gateway and lease. Test the gateway first, then a remote destination, and identify the first failed checkpoint if access is incomplete.
 
   - `dhcp enable` present before any pool configuration.

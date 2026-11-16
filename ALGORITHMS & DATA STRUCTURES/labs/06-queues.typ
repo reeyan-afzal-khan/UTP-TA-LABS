@@ -3,11 +3,11 @@
 
 #labsection(6, label: <sec:lab06>)[Linear, linked, circular, and priority queues]
 
-#sourcealignment[Official Lab Manual --- Lab VI][
-  Linear, linked, circular, and priority queues.
-]
-
 #labproject[Implement queues and demonstrate wrap-around][
+  #note[
+    #strong[Official Lab Manual --- Lab VI.] Linear, linked, circular, and priority queues.
+  ]
+
   #strong[Goal.] Preserve FIFO order across array wrap-around.
 
   #strong[Recall first.] Review the #link(<ch:queues>)[Queues] chapter.
@@ -32,7 +32,7 @@
   #include "programs/priority_queue.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

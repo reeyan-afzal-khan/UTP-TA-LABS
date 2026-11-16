@@ -35,11 +35,11 @@
   [Save the model and the evidence; then test repeats and character pieces yourself],
   [19--22],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the checklist],
+  [Exercises, answers, troubleshooting tips and the checklist],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment (Chapter~@ch:toolkit) and confirm that both data files are in place.
   + Warm up on the chapter's script. From the course folder, run the first command below. Its last line must read `Every number above matches the book.`
   + From the course folder, start Jupyter, open `all_experiments/lab09_learning_from_text/lab09_learning_from_text_worked.ipynb`, and choose #strong[Restart Kernel and Run All Cells]. It takes about a minute.
@@ -56,7 +56,7 @@
 
 #strong[How each answer is laid out.] Under every question you will find the code of that cell, then #strong[Read the code], which explains its lines in the order they run, then the #strong[Reference output], and last #strong[What it means]. Type the code yourself the first time; reading it is not the same as writing it.
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + Three short reviews: "good film", "bad film" and "good good fun". Write down the vocabulary in alphabetical order and the row of counts for each review. Then compute the idf of `film` and of `fun` with $"idf" = ln((1 + n) \/ (1 + "df")) + 1$. Question~7 does the same for four messages.
@@ -769,8 +769,6 @@
   #strong[What it means.] Twelve files: four figures and eight tables. `confused_intent_pairs.csv` and `recall_by_intent.csv` are the two to show to the people who own the intents, and `label_efficiency.csv` is the one to remember the next time someone says that a newer representation is always better.
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(21)[Try it yourself][
   Two checks on decisions this lab made. First, Question~2 removed the repeated messages before splitting. Skip that step: split all 5,572 messages with the same settings, fit the character filter of Question~8, and compute its recall at a threshold of 0.5 on the test spam, separately for the test spam that also occurs among the training messages and for the rest. Second, character pieces beat words on the text messages. Do they also beat words on the 77 intents? Fit the pipeline of Question~11 with the character vectorizer and compare the test accuracy.
 
@@ -807,10 +805,10 @@
   #strong[What it means.] With the repeats left in, 11.5% of the test messages also sit among the training messages, and the filter catches every one of the 30 test spam it has already seen. On the spam it has not seen, its recall is 0.908, the same as the honest figure from Question~10. The overall recall of 0.926 is therefore a blend of a memory test and a real one, and only the second describes tomorrow's messages. Removing repeats before the split costs one line and keeps the test honest. Character pieces help on the intents as well: 0.911 against 0.900, with nine times as many columns. The questions are typed in a hurry and are full of small variations, such as `topup` for `top up`, or `topped` and `topping`, which share their pieces and not their columns.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklist], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the checklist before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklist], [Extend the lab with the exercises, compare with the answers, and check your work against the checklist before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[A looser rule.] The phone company decides that one real message in a hundred may go to the spam folder. Call `strict_threshold(y_train, prob[chosen], allowed=0.01)`. What threshold do you get, and what does it do on the test messages: how many of the 131 spam are caught, and how many of the 903 real messages are flagged?
   + #strong[Remove the placeholders.] Clean the training messages by replacing every placeholder with a space, `text_train.str.replace(r"&lt;.*?&gt;", " ", regex=True)`. Then cross-validate the word filter of Question~9 on the cleaned text and list its six strongest ham words. Did the filter depend on `gt` and `lt`?
@@ -820,7 +818,7 @@
   + #strong[A narrower window.] Put the code of Questions~15 and~16 into a function `word_vectors(window)` and call it with a window of 2. What are the neighbours of `pin` now? Classify with the new averaged vectors as in Question~18.
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] The vocabulary is `bad`, `film`, `fun`, `good`, and the rows are $(0, 1, 0, 1)$, $(1, 1, 0, 0)$ and $(0, 0, 1, 2)$. `film` is in two of the three reviews, so its idf is $ln(4 \/ 3) + 1 = 1.288$, and `fun` is in one: $ln(4 \/ 2) + 1 = 1.693$. The table is $54","735 \/ 31","756","800 = 0.17%$ full, and an average row holds $54","735 \/ 4","135 = 13.2$ numbers. The precision is $122 \/ 125 = 0.976$ and the recall $122 \/ 131 = 0.931$.
 
   + The threshold falls from 0.37 to 0.13. On the test messages the filter now catches 129 of the 131 spam, and flags 9 of the 903 real messages, three times as many as before. Seven more spam messages caught cost six more real messages lost. Whether that is a good trade is a question about the two costs, and the model cannot answer it.
@@ -831,7 +829,7 @@
   + With a window of 2 the neighbours of `pin` are `passcode`, `adress`, `address`, `password` and `how`. A narrow window finds words that can replace `pin` in the same slot of a sentence, where the window of 4 found `locked`, `blocked` and `tries`, the words of the situation around it. The misspelling `adress` sits next to `address`, which no dictionary told the program. The averaged vectors classify at about 0.830, against 0.840 for the wider window.
 ]
 
-#troubleshoot[
+#tip[
   / `FileNotFoundError`: A data file is missing or misnamed. The two files are `all_datasets/supervised/sms_spam/sms_spam.csv` and `all_datasets/advanced/banking77/banking77.csv`.
   / `No module named 'course_setup'` in Question~1: The notebook is not running inside its lab folder, so `".."` is not `all_experiments/`. Open it from `all_experiments/lab09_learning_from_text/` in your copy of the course.
   / `ValueError: Iterable over raw text documents expected, string object received`: A vectorizer was given one string. Wrap it in a list, as in `vectorizer.transform([query])`.
@@ -843,12 +841,12 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The repeated messages were removed before the split, and you can say what the Try-it found when they were left in.
     - You can explain what the default tokenizer deleted from the `WINNER!!` message, and why the test table has the same 7,680 columns as the training table.
     - You computed the tf-idf row of a short message by hand and it matched `TfidfVectorizer`.
     - Every vectorizer was fitted inside a pipeline, and the four filters were compared on the same five folds.
-    - You can say where `gt` and `lt` come from, and what Your-turn task 2 showed about them.
+    - You can say where `gt` and `lt` come from, and what Exercise~2 showed about them.
     - The threshold was chosen on cross-validated probabilities, the test messages were opened once, and you report the 3 flagged real messages together with the 903 they were found among.
     - For the intents you report the accuracy, the top-three accuracy, the weakest intent and the most confused pairs.
     - You can explain why removing stop words cost almost five points on the bank questions.

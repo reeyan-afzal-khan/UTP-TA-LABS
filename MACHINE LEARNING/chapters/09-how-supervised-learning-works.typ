@@ -26,7 +26,7 @@ A #term[loss function] $cal(L)$ charges a penalty for each row. Training finds t
 
 $ hat(R)(bold(theta)) =frac(1, n) sum _(i=1)^n cal(L)(y_i,f_(bold(theta))(bold(x)_i)). $
 
-#workedexample[
+#example[
   This formula is less forbidding than it looks. Take the line $"mark"=2 times "hours"+47$ and the first six students, with squared error as the loss.
 
   #v(6pt)
@@ -48,7 +48,7 @@ $ hat(R)(bold(theta)) =frac(1, n) sum _(i=1)^n cal(L)(y_i,f_(bold(theta))(bold(x
   ]]]
 ]
 
-#keyidea[
+#note[
   Training loss measures fit to known examples; validation and test metrics estimate performance on new ones.
 ]
 
@@ -58,7 +58,7 @@ There are two standard ways to stop misses from canceling: square them, or take 
 
 $ cal(L)_("squared")(e)=e^2, wide cal(L)_("absolute")(e)=|e|. $
 
-#workedexample[
+#example[
   Compare one miss of 8 marks with four misses of 2 marks. Both add to 8 marks of error.
 
   #v(6pt)
@@ -101,11 +101,9 @@ For classification, the natural loss simply counts mistakes, the #term[0--1 loss
   }))
 ]
 
-#intuition[
+#note[
   Doubling an error quadruples squared loss, so large errors pull hard on the fit. Absolute loss grows steadily. Cross-entropy has no upper limit at all: as the probability given to the true class approaches zero, the fee climbs without bound. Being confident and wrong is the most expensive thing a probabilistic model can do.
-]
 
-#keyidea[
   Use squared loss when large errors deserve extra weight; absolute or Huber loss reduces their influence.
 ]
 
@@ -127,9 +125,7 @@ The right parametric form can work well with little data; flexible non-parametri
 
 == Always start with a baseline <sec:baselines>
 
-#analogy[
-  A weather forecaster who says “tomorrow will be like today” is right surprisingly often. A forecasting system that cannot beat that rule has not earned its electricity bill. A #term[baseline] is the rule that costs nothing, evaluated with the same split and the same metric as the models.
-]
+A weather forecaster who says “tomorrow will be like today” is right surprisingly often. A forecasting system that cannot beat that rule has not earned its electricity bill. A #term[baseline] is the rule that costs nothing, evaluated with the same split and the same metric as the models.
 
 - for regression, predict the training-set mean (or median) of the label for every observation;
 - for classification, predict the most common class for every observation;
@@ -150,14 +146,14 @@ Baselines reveal class imbalance, and they show what added complexity actually b
 
 Read the bank row closely. Nearly nine customers in ten say no, so always predicting “no” is already 88.7% accurate, and the logistic model adds only 1.2 points. That modest gain is all that accuracy can show on this task, so Lab~1 scores the same model by ROC AUC, 0.802, which rewards putting the likely yeses first. Without the baseline, 0.899 would sound like an achievement or a failure depending on who was speaking.
 
-#workedexample[
+#example[
   If 950 of 1,000 emails are legitimate, predicting “not spam” gives 95% accuracy and zero spam recall. Report rare-class precision and recall (#chapref(<ch:evaluation>)).
 ]
 
 #utpfig([Climb the ladder one rung at a time: a baseline, a simple model, a stronger model, then a tuned one. Stop at the first rung that is good enough for the task.], label: <fig:model-ladder>)[
   #canvas({
     let bx = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 3.1, min-height: 0.95, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Baseline \
   always guess the average], name: "b0", ..bx, fill: pale-gray, draw: muted)
     node(right-of("b0", 0.6), [Simple model \
@@ -173,11 +169,9 @@ Read the bank row closely. Nearly nine customers in ten say no, so always predic
   })
 ]
 
-#analogy[
-  Climb one rung at a time. Increase complexity only when validation gains justify it, and stop at the simplest model that meets the task’s needs.
-]
+Climb one rung at a time. Increase complexity only when validation gains justify it, and stop at the simplest model that meets the task’s needs.
 
-#pitfall[
+#warning[
   Unexpectedly strong results warrant leakage checks: outcome-revealing identifiers, late-recorded features, or duplicates across splits.
 ]
 
@@ -199,11 +193,11 @@ The next six model chapters apply the workflow of the next two chapters, organiz
   )
 ]
 
-#keyidea[
+#note[
   Supervised models differ in representable functions, assumptions, and data needs. Learn these trade-offs rather than formulas alone.
 ]
 
-#modelcard[Supervised Learning - Project Checklist][
+#checklist(title: [Supervised Learning - Project Checklist])[
   #tabularx(
     columns: (17%, 1fr),
     valign: (top, horizon),
@@ -217,7 +211,7 @@ The next six model chapters apply the workflow of the next two chapters, organiz
   )
 ]
 
-#chapterrecap[
+#summary[
   - The label defines the task: a number means regression, and a category means classification.
   - Training minimizes the average loss on training rows, the empirical risk. Raw errors cancel, so losses square them or take absolute values.
   - Squaring is a decision to punish one large miss far more than several small ones. Cross-entropy punishes confident mistakes without limit.
@@ -225,7 +219,7 @@ The next six model chapters apply the workflow of the next two chapters, organiz
   - A baseline tells you what a model’s score actually means. Always compute one on the same split.
 ]
 
-#quickcheck[
+#questions[
   + How does a regression label differ from a classification label, and what does that change about the kind of prediction produced?
   + For true marks $50,60,70$ and guesses $55,60,65$, what are the average error, the MAE and the MSE? What does the average error hide?
   + Why can the loss used for fitting differ from the metric used to report practical performance?

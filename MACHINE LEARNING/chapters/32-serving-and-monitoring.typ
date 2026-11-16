@@ -35,7 +35,7 @@ The two cost very different amounts. Timings depend on the computer, so the scri
 
 The saved files are small: 12 KB for the champion and 377 KB for the challenger, which keeps its hundred trees. Neither number is a reason to choose one model over the other here, but both matter on a phone or for a service that loads hundreds of models.
 
-#keyidea[
+#note[
   Prefer a batch whenever the decision is made on a schedule. It is simpler to build, to test and to repeat, and when something goes wrong there is a table to inspect. Build a service only for questions that arrive one at a time and need their answer at once.
 ]
 
@@ -79,7 +79,7 @@ unknown fields: ['nights']
 
 Compare that with what would happen without the check. A missing price would be filled with the training median and a misspelled deposit type ignored by the encoder, and the service would return a confident probability for a booking that does not exist.
 
-#pitfall[
+#warning[
   A model in service must never compute its features differently from the model in training. When the two are written separately, they drift apart one small change at a time: a column filled with 0 in one place and with the median in the other, a category spelled two ways. This is called #term[training-serving skew], and its symptom is a model that tests well and serves badly. The cure is the one built into the project: training and serving import the same `bookings.py`, and a test checks that a booking gets the same features alone as inside a table of thousands.
 ]
 
@@ -125,7 +125,7 @@ To say whether a column has changed, compare its distribution now with its distr
 
 $ "PSI" = sum_k (q_k - p_k) ln(q_k / p_k). $
 
-#workedexample[
+#example[
   The deposit type, with the development period as the reference and August 2017 as the current month:
 
   #align(center, table(
@@ -248,7 +248,7 @@ Two different things happened, and they need to be told apart.
 - #strong[The easy cases disappeared.] Non-refundable bookings are almost certain to cancel, and the model ranks them at the top without effort. In summer 2017 they nearly vanished, so the overall AUC lost the easy points they used to contribute. That part of the fall says nothing about the model.
 - #strong[The guests changed.] Among bookings without a deposit, the share that cancelled rose from 28.5% in July 2016 to 35.3% in July 2017, and the model's AUC on those bookings alone fell from 0.826 to 0.780. Something in how these guests behaved had changed, and the model, which learned from earlier years, did not know it.
 
-#keyidea[
+#note[
   Drift in the inputs can be seen on the first day, and it may be harmless: here it was the summer. A change in how the outcome depends on the inputs, which #chapref(<ch:evaluation>) called concept drift, can be seen only when the outcomes arrive. Watch both, compare like with like, and treat every alarm as a question to answer before acting.
 ]
 
@@ -272,7 +272,7 @@ The challenger led in every month, by between 0.006 and 0.024, with its largest 
 
 One caution remains. The AUC judges the order of all the bookings, while the call list uses only the top few hundred of them. Lab~10 measures the two models on the call list itself, and the answer there is different: a reminder to check a model on the measure that each of its uses depends on.
 
-#pitfall[
+#warning[
   Promoting a model because it won the test quarter, or because it won the month just ended, chooses by luck. Write the rule for promotion before the shadow begins, use new data only, and keep the old model where one command can restore it.
 ]
 
@@ -324,11 +324,7 @@ Whichever is chosen, keep every version with its card, and put the version in ev
   + #term[Apply the rules written in advance] for promotion, rollback and investigation, and write down what was done and why.
 ]
 
-#tryit[
-  In `demo_serving.py`, set `CHECK_BOOK_NUMBERS = False`, and in the line that collects the signals above 0.25, change the threshold to 0.1. Run the script. Which months raise alarms now, and on which columns? Compare them with the AUC of those months. Would you want to be woken for these alarms, and what would you change so that only useful ones remain?
-]
-
-#block(breakable: false, width: 100%, chapterrecap[
+#block(breakable: false, width: 100%, summary[
   - Score in a batch when the decision is made on a schedule. Build a service only for questions that arrive one at a time.
   - The service checks every request against the contract, answers with the model version, and logs every answer. A broken booking got a list of its four mistakes, not a confident probability.
   - Training and serving share one module, which prevents training-serving skew.
@@ -339,7 +335,11 @@ Whichever is chosen, keep every version with its card, and put the version in ev
   - Retraining monthly, through a gate, added about 0.01 of AUC and cut the shortfall from 8.2% to 5.1%. Keep every version so that one command can roll back.
 ])
 
-#quickcheck[
+#exercises[
+  In `demo_serving.py`, set `CHECK_BOOK_NUMBERS = False`, and in the line that collects the signals above 0.25, change the threshold to 0.1. Run the script. Which months raise alarms now, and on which columns? Compare them with the AUC of those months. Would you want to be woken for these alarms, and what would you change so that only useful ones remain?
+]
+
+#questions[
   + A bank scores every loan application the moment it is submitted, and also recomputes the risk of all its loans every night. Which of the two jobs is a batch, and which needs a service? What does each fail as?
   + Name the four promises of the booking service, and say for each what would go wrong without it.
   + What is training-serving skew, and which test in the project would catch it?

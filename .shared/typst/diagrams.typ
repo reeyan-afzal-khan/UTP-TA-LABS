@@ -71,7 +71,7 @@
 
 // An arrow tip as a CeTZ mark. TikZ's Stealth: width 3/4 and inset 0.325 of the length.
 // The colour is the line's unless given (resolved when the line is drawn).
-#let tip(kind, length: auto, width: auto, line: 0.4pt, color: auto, fill: auto, open: false) = {
+#let arrow-tip(kind, length: auto, width: auto, line: 0.4pt, color: auto, fill: auto, open: false) = {
   if kind == none { return none }
   let L = if length != auto { length } else if kind == "Stealth" { 3pt + 4.5 * line } else if kind == "Latex" { 3pt + 4.5 * line } else { 2.2pt + 1.6 * line }
   let W = if width != auto { width } else if kind == "Stealth" { 0.75 * L } else if kind == "Latex" { 0.75 * L } else { 1.6 * L }
@@ -513,9 +513,9 @@
 #let utpnodehot = (shape: "circle", draw: orange, fill: pale-orange, line-width: 1pt, min-size: 8mm, font: font("small", weight: "bold", fill: navy), inner-sep: 0.5pt)
 #let utpnodedone = (shape: "circle", draw: green, fill: pale-teal, min-size: 8mm, font: font("small", weight: "bold", fill: navy), inner-sep: 0.5pt)
 #let utpnodedim = (shape: "circle", draw: mix(muted, 45%), fill: pale-gray, min-size: 8mm, font: font("small", fill: muted), inner-sep: 0.5pt)
-#let utparrow = (draw: teal, line-width: widths.thick, end: tip("Stealth", length: 2.2mm, line: widths.thick, color: teal))
-#let utpptr = (draw: blue, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick, color: blue))
-#let utpdash = (draw: red, line-width: widths.semithick, dash: "dashed", end: tip("Stealth", length: 2mm, line: widths.semithick, color: red))
+#let utparrow = (draw: teal, line-width: widths.thick, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick, color: teal))
+#let utpptr = (draw: blue, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick, color: blue))
+#let utpdash = (draw: red, line-width: widths.semithick, dash: "dashed", end: arrow-tip("Stealth", length: 2mm, line: widths.semithick, color: red))
 #let utpedge = (draw: teal, line-width: widths.thick)
 #let utplabel = (font: font("script", fill: muted), inner-sep: 1pt)
 #let utptag = (font: font("script", weight: "bold", fill: orange), inner-sep: 1pt)
@@ -615,7 +615,7 @@
 #let activepath = (draw: green, line-width: widths.very-thick)
 #let backuppath = (draw: orange, line-width: widths.very-thick, dash: "dashed")
 #let deadpath = (draw: red, line-width: widths.very-thick, dash: (2pt, 2pt))
-#let flowarrow = (draw: blue, line-width: widths.thick, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+#let flowarrow = (draw: blue, line-width: widths.thick, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
 #let vlanA = (draw: blue, fill: pale-blue, rounded: 1mm, min-width: 13mm, min-height: 7mm, font: font("script", weight: "bold", fill: navy))
 #let vlanB = (draw: orange, fill: pale-orange, rounded: 1mm, min-width: 13mm, min-height: 7mm, font: font("script", weight: "bold", fill: navy))
 #let netframe = (draw: muted, fill: white, min-height: 6mm, font: font("script", fill: ink))
@@ -654,10 +654,10 @@
 // Sequence diagrams.
 #let seqhead = (draw: navy, fill: white, rounded: 1mm, min-width: 17mm, min-height: 7mm, font: font("script", weight: "bold", fill: navy))
 #let seqline = (draw: mix(muted, 60%), dash: (2pt, 2pt))
-#let seqarrow = (draw: blue, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
-#let seqarrowb = (draw: teal, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
-#let seqdrop = (draw: red, line-width: widths.semithick, dash: (2.5pt, 1.5pt), end: tip("Stealth", length: 2mm, line: widths.semithick))
-#let seqrisk = (draw: red, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
+#let seqarrow = (draw: blue, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
+#let seqarrowb = (draw: teal, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
+#let seqdrop = (draw: red, line-width: widths.semithick, dash: (2.5pt, 1.5pt), end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
+#let seqrisk = (draw: red, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
 #let seqlabel = (font: font("script", fill: ink), fill: white, inner-sep: 1.5pt)
 #let seqnotebox = (font: font("script", fill: muted), align: left, inner-sep: 1pt)
 #let seqspan = (draw: teal, fill: pale-teal, min-width: 2.6mm, inner-sep: 0pt)
@@ -676,7 +676,7 @@
 #let stategood = (..netstate, draw: green, fill: pale-teal, line-width: 1pt)
 #let statebad = (..netstate, draw: red, fill: pale-red)
 #let statewait = (..netstate, draw: orange, fill: pale-orange)
-#let stedge = (draw: muted, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
+#let stedge = (draw: muted, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
 #let stlabel = (font: font("tiny", fill: muted), align: center, inner-sep: 1.5pt)
 // Protocol stacks.
 #let netlayer = (draw: mix(navy, 45%), min-width: 34mm, min-height: 8mm, font: font("small", fill: navy), inner-sep: 2pt)
@@ -705,9 +705,9 @@
 #let proclanehead = (font: font("script", weight: "bold", fill: navy), align: center)
 #let proczone = (draw: mix(blue, 30%), fill: mix(pale-blue, 45%), rounded: 2.5mm, inner-sep: 3mm)
 #let proczonewarn = (draw: mix(orange, 45%), fill: mix(pale-orange, 55%), rounded: 2.5mm, inner-sep: 3mm)
-#let procflow = (draw: teal, line-width: widths.thick, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-#let procback = (draw: orange, line-width: widths.thick, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-#let procslow = (draw: red, line-width: widths.thick, dash: "dashed", end: tip("Stealth", length: 2.2mm, line: widths.thick))
+#let procflow = (draw: teal, line-width: widths.thick, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+#let procback = (draw: orange, line-width: widths.thick, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+#let procslow = (draw: red, line-width: widths.thick, dash: "dashed", end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
 #let proclink = (draw: mix(muted, 60%), line-width: widths.semithick, dash: "dotted")
 #let proccap = (font: font("script", fill: muted), align: center, inner-sep: 1pt)
 #let procnote = (font: font("tiny", fill: muted), align: center, inner-sep: 1pt)
@@ -728,12 +728,12 @@
 #let dshead = (..dscol, fill: pale-blue, font: font("script", weight: "bold", fill: navy))
 #let tag = (font: font("script", fill: muted), inner-sep: 1.5pt)
 #let tagb = (font: font("script", weight: "bold", fill: navy), inner-sep: 1.5pt)
-#let rarrow = (draw: teal, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
-#let rarrowmuted = (draw: muted, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
+#let rarrow = (draw: teal, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
+#let rarrowmuted = (draw: muted, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
 #let fcbox = (draw: blue, fill: pale-blue, rounded: 1mm, min-width: 22mm, min-height: 7mm, font: font("script", fill: navy), align: center)
 #let fcdiamond = (shape: "diamond", aspect: 2.2, draw: orange, fill: pale-orange, inner-sep: 1pt, font: font("script", fill: navy), align: center)
 #let fcstart = (shape: "rounded-rectangle", draw: muted, fill: pale-gray, font: font("script", fill: ink), inner-sep: 2pt)
-#let fcedge = (draw: muted, line-width: widths.semithick, end: tip("Stealth", length: 2mm, line: widths.semithick))
+#let fcedge = (draw: muted, line-width: widths.semithick, end: arrow-tip("Stealth", length: 2mm, line: widths.semithick))
 #let fclabel = (font: font("tiny", fill: muted), inner-sep: 1.5pt)
 
 // ----------------------------------------------- style/course-map.tex
@@ -741,7 +741,7 @@
   inner-xsep: 3.2mm, inner-ysep: 1.6mm, font: font("small", fill: navy))
 #let finalcard = (..card, draw: teal, fill: pale-teal)
 #let arr = (draw: teal, line-width: 0.9pt, shorten-start: 0.8pt, shorten-end: 0.8pt,
-  end: tip("Stealth", length: 2.25mm, width: 1.55mm, line: 0.9pt))
+  end: arrow-tip("Stealth", length: 2.25mm, width: 1.55mm, line: 0.9pt))
 // \utpcoursemapcard{stage}{title}{summary}: the text of one course-map card.
 #let coursemapcard(stage, title, summary) = box(width: 3.35cm, height: 1.52cm, {
   set par(justify: false, leading: 2.4pt)

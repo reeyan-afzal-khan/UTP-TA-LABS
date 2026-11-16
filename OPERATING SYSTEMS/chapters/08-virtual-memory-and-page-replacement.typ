@@ -24,7 +24,7 @@ frame number, while the offset stays unchanged. In compact form:
     let off = (draw: orange, fill: pale-orange, min-width: 1.6, min-height: 0.7, font: font("small", fill: navy), align: center)
     let pte = (draw: teal, fill: pale-teal, min-width: 1.2, min-height: 0.58, font: font("script", fill: navy))
     let lab = (font: font("script", fill: muted), align: center)
-    let ar = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let ar = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 3.5), [#strong[Virtual address] \
    $v = 9 thin 000$,  $P = 4 thin 096$], ..lab)
     node((4.9, 4), [#strong[Page table]], ..lab)
@@ -56,7 +56,7 @@ frame number, while the offset stays unchanged. In compact form:
   ]
 ]
 
-#keyidea[
+#note[
   Translation replaces the page number and copies the offset. If a virtual address is contiguous inside one page, its physical address is contiguous too; across a page boundary it need not be, because the next page may live in any frame.
 ]
 
@@ -91,7 +91,7 @@ LRU approximates the principle of temporal locality: a page used recently is lik
 
 LFU retains frequently referenced pages. Pure cumulative counts can preserve stale historical popularity, so practical frequency-based schemes often age counts or use bounded windows.
 
-#workedexample[
+#example[
   With three frames and reference string 1, 2, 3, 1, 4: the first three references fault and fill the frames. The second reference to 1 is a hit. On reference 4, FIFO evicts 1 if 1 was loaded earliest, whereas LRU evicts 2 because 2 is the least recently used at that moment.
 ]
 
@@ -99,7 +99,7 @@ LFU retains frequently referenced pages. Pure cumulative counts can preserve sta
 
 Programs often reuse recently accessed instructions and data (temporal locality) and access addresses close to one another (spatial locality). Page-replacement policies try to exploit these patterns indirectly. LRU uses recent history; LFU uses frequency history; FIFO deliberately ignores reference history and uses load order only.
 
-#keyidea[
+#note[
   A page-replacement algorithm is a prediction policy: it tries to choose a resident page whose removal will hurt future execution as little as possible. The policy never knows the future perfectly, so the workload matters.
 ]
 
@@ -107,7 +107,7 @@ Programs often reuse recently accessed instructions and data (temporal locality)
 
 A trustworthy trace shows the reference, frame contents after the reference, hit/fault result, and enough policy state to justify a victim. Totals are useful only after individual decisions can be checked.
 
-#quickcheck[
+#questions[
   + Which part of a virtual address remains unchanged during page-table translation?
   + What is the difference between a page hit and a page fault?
   + Why can LRU and LFU choose different victims even on the same reference string?

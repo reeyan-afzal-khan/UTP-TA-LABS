@@ -1,14 +1,20 @@
-// Lab sheets: labs/layout.tex, labs/activities.tex and the lab boxes.
+// Lab sheets: labs/layout.tex and labs/activities.tex. Apart from the banner,
+// nothing here is framed: a lab sheet is headed text, with the Note, Tip and
+// Warning callouts for asides.
 //
-//   #labsection(1, label: <sec:lab01>)[Feature engineering]   the banner
-//   #labquestion(3)[Read the data card][...]                  a question
-//   #labanswer[... #expectedoutput ...]                       its worked answer
-//   #labroadmap([Your map of this lab], ..rows)               the map of the parts
-//   #labpartopen([Part A], [Title], [Questions 2--4], [Goal.]) a part banner
+//   #labsection(1, label: <sec:lab01>)[Feature engineering]    the banner
+//   #labproject[Title][brief or body]                          the lab's title and brief
+//   #labroadmap([Your map of this lab], ..rows)                the map of the parts
+//   #labsetup[...]                                             what to run before the questions
+//   #labpartopen([Part A], [Title], [Questions 2--4], [Goal.]) a part heading
+//   #labquestion(3)[Read the data card][...]                   a question
+//   #labanswer[... #refoutput[...] ...]                        its solution
+//   #labcheckpoint[...]                                        what to have before moving on
 #import "palette.typ": *
 #import "theme.typ": *
 #import "state.typ": *
-#import "boxes.typ": *
+#import "frames.typ": tcb
+#import "elements.typ": element, element-head, element-label
 #import "tables.typ": tabularx, tabcolsep, rule-color, stripe-fill
 
 // \labsection{n}{title}{label}: a new page, the navy banner, a contents entry.
@@ -57,11 +63,28 @@
   v(3pt)
 }
 
-// A question as the student meets it, and its worked answer.
-#let labquestion(number, title, body) = tcb(body, title: [Question #number --- #title],
-  back: mix(pale-orange, 55%), frame: orange, left: 2.6mm, right: 2.6mm)
-#let labanswer(body) = tcb(body, title: [Worked answer], back: white, frame: teal,
-  left: 2.6mm, right: 2.6mm)
+// \begin{labproject}{Title}: the lab's own title under the banner, then its
+// brief (or, in shorter sheets, the whole sheet) as ordinary text.
+#let labproject(title, body) = {
+  block(above: 0pt, below: 0.85em, sticky: true, {
+    set par(justify: false, leading: leading-for("Large"))
+    text(size: sizes.Large, weight: "bold", fill: navy, title)
+  })
+  body
+}
+
+// What to run before the first question.
+#let labsetup(body) = element("setup", body)
+
+// A question as the student meets it, and its solution.
+#let labquestion(number, title, body) = {
+  element-head([Question #number --- #title], color: blue, above: 1.7em, below: 0.55em)
+  body
+}
+#let labanswer(body) = {
+  element-head(context element-label("solution"), size: "normal", color: teal, above: 0.95em, below: 0.4em)
+  body
+}
 
 // \expectedoutput: the label over a printed output, kept with it.
 #let expectedoutput = block(above: 3pt + par-spacing, below: par-spacing, sticky: true,
@@ -73,15 +96,8 @@
   body
 })
 
-// Answers to a quick check, and the findings a lab expects.
-#let checkanswers = callout([Quick-check answers], mix(pale-gray, 72%), mix(muted, 62%),
-  rule: 0.65pt, left: 2.5mm, right: 2.5mm, top: 1.6mm, bottom: 1.6mm, title-back: muted)
-#let expectedfindings = callout([Expected findings], mix(pale-gray, 72%), mix(muted, 62%),
-  rule: 0.65pt, left: 2.5mm, right: 2.5mm, top: 1.6mm, bottom: 1.6mm, title-back: muted)
-#let yourturn = callout([Your turn], white, teal, rule: 0.9pt)
-#let labcheckpoint(body) = tcb(body, title: [Checkpoint: before you move on],
-  back: mix(pale-teal, 65%), frame: green, left: 2.6mm, right: 2.6mm,
-  breakable: false, above: 1.2 * em-normal)
+// What a reader should have found before starting the next part.
+#let labcheckpoint(body) = element("checkpoint", body)
 
 // \labpart{title} and \labsubhead{title}: a blue band inside a lab sheet.
 #let labpart(title) = {
@@ -96,8 +112,9 @@
 }
 
 // \labroadmap{title}{rows}: the map of a lab's parts, before the first question.
-#let labroadmap(title, ..rows) = tcb(title: title, frame: navy, rule: 0.7pt,
-  top: 1.4mm, bottom: 1.4mm, breakable: false, {
+#let labroadmap(title, ..rows) = {
+  element-head(title)
+  block(breakable: false, width: 100%, above: 0pt, below: 1.2em, {
     set text(size: sizes.small)
     set par(leading: leading-for("small"), justify: false)
     let cells = rows.pos()
@@ -120,21 +137,18 @@
       ..cells.enumerate().map(((i, c)) => if calc.rem(i, 3) == 0 { text(weight: "bold", fill: navy, c) } else { c }),
     )
   })
+}
 
-// \labpartopen{Part A}{title}{meta}{goal}: a part banner, on a new page
-// unless most of this one is still free.
+// \labpartopen{Part A}{title}{meta}{goal}: a part heading with its goal and
+// what it covers, on a new page when little of this one is left.
 #let labpartopen(part, title, meta, goal) = {
-  v(12pt)
-  keepspace(0.6 * 722.83pt)
-  tcb(title: [#part#h(0.55em)#text(fill: mix(teal, 45%))[|]#h(0.55em)#title],
-    title-font: (size: sizes.large), back: pale-blue, frame: navy,
-    left: 3mm, right: 3mm, top: 2mm, bottom: 2mm, breakable: false,
-    above: 0pt, below: 1 * em-normal, {
-      [#text(weight: "bold", fill: navy)[Goal.] #goal]
-      parbreak()
-      v(3pt)
-      text(size: sizes.small, fill: muted, meta)
-    })
+  keepspace(12 * skips.normal)
+  block(above: 2em, below: 0.7em, sticky: true, {
+    set par(justify: false, leading: leading-for("Large"))
+    text(size: sizes.Large, weight: "bold", fill: navy)[#part --- #title]
+  })
+  [#text(weight: "bold", fill: navy)[Goal.] #goal]
+  block(above: 0.55em, below: 1em, text(size: sizes.small, fill: muted, meta))
 }
 
 // \begin{labchecklists}: the two checklists stay together on one page.

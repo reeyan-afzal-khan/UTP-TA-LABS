@@ -14,19 +14,19 @@ In the game of Twenty Questions you never ask “is it a giraffe?” first. You 
     let leaf = (draw: auto, align: center, inner-sep: 3.9851pt)
     node((0, 0), [age $<30$?], name: "tree-1", font: font("small"), ..qnode)
     node((rel: (-2.3, -1.35), to: "tree-1"), [income $>= 50$k?], name: "tree-2", font: font("small"), ..qnode)
-    connect("tree-1", "tree-2", draw: auto, end: tip("Stealth", length: 1.8mm, line: 0.4pt))
+    connect("tree-1", "tree-2", draw: auto, end: arrow-tip("Stealth", length: 1.8mm, line: 0.4pt))
     node(along("tree-1", "tree-2", t: 50%), [yes], font: font("small"), xshift: -1.9925pt, anchor: "east")
     node((rel: (-1.2, -1.35), to: "tree-2"), [predict: \
   approve], name: "tree-3", font: font("small"), ..leaf)
-    connect("tree-2", "tree-3", draw: auto, end: tip("Stealth", length: 1.8mm, line: 0.4pt))
+    connect("tree-2", "tree-3", draw: auto, end: arrow-tip("Stealth", length: 1.8mm, line: 0.4pt))
     node(along("tree-2", "tree-3", t: 50%), [yes], font: font("small"), xshift: -0.9963pt, anchor: "east")
     node((rel: (1.2, -1.35), to: "tree-2"), [predict: \
   review], name: "tree-4", font: font("small"), ..leaf)
-    connect("tree-2", "tree-4", draw: auto, end: tip("Stealth", length: 1.8mm, line: 0.4pt))
+    connect("tree-2", "tree-4", draw: auto, end: arrow-tip("Stealth", length: 1.8mm, line: 0.4pt))
     node(along("tree-2", "tree-4", t: 50%), [no], font: font("small"), xshift: 0.9963pt, anchor: "west")
     node((rel: (2.3, -1.35), to: "tree-1"), [predict: \
   approve], name: "tree-5", font: font("small"), ..leaf)
-    connect("tree-1", "tree-5", draw: auto, end: tip("Stealth", length: 1.8mm, line: 0.4pt))
+    connect("tree-1", "tree-5", draw: auto, end: arrow-tip("Stealth", length: 1.8mm, line: 0.4pt))
     node(along("tree-1", "tree-5", t: 50%), [no], font: font("small"), xshift: 1.9925pt, anchor: "west")
   })
 ]
@@ -44,9 +44,7 @@ Greedy means the algorithm never looks ahead or reconsiders: it takes the best i
 
 == Measuring impurity
 
-#analogy[
-  Picture a bag of red and blue marbles. A bag of one color is pure, so you can name the color of the next marble with no doubt. A half-and-half bag is as mixed as it gets. A good question pours one mixed bag into two bags, each purer than the original.
-]
+Picture a bag of red and blue marbles. A bag of one color is pure, so you can name the color of the next marble with no doubt. A half-and-half bag is as mixed as it gets. A good question pours one mixed bag into two bags, each purer than the original.
 
 To pick a split, the algorithm needs a number for “how mixed is this node?” With $p_k$ the fraction of class $k$ in a node, two standard measures are the #term[Gini impurity] and the #term[entropy]:
 
@@ -58,7 +56,7 @@ $ op("Gain") =I("parent") -frac(n_(upright("left")), n)I("left") -frac(n_(uprigh
 
 where $I$ is either measure. Gini and entropy almost always agree on the best split; Gini is slightly cheaper to compute and is the common default.
 
-#workedexample[
+#example[
   A node holds 10 loan applications: 6 approved ($+$) and 4 rejected ($-$). Its Gini impurity is
   $G_("parent")=1-(0.6^2+0.4^2)=0.48$.
 
@@ -77,7 +75,7 @@ Evaluate every candidate question, and keep the one with the largest weighted dr
 
 #keepspace(216.8pt)
 
-#workedexample[
+#example[
   The 7,043 telecom customers of Labs~1 and~2 include 5,174 who stayed and 1,869 who left, so their Gini is $1-(0.735^2+0.265^2)=0.390$. Four candidate first questions:
 
   #v(6pt)
@@ -99,7 +97,7 @@ Evaluate every candidate question, and keep the one with the largest weighted dr
   ]]]
 ]
 
-#libnote[
+#note[
   Observed-value and midpoint thresholds can partition training rows identically despite different printed values.
 ]
 
@@ -127,11 +125,11 @@ Axis-aligned rules fit naturally; diagonal boundaries require staircases of spli
 
 Regression trees choose splits that reduce within-node variance. Each leaf predicts its training-label mean, producing a piecewise-constant function.
 
-#workedexample[
+#example[
   Labels ${ 2,3,10,11 }$ have mean $6.5$ and variance $16.25$. Splitting into ${ 2,3 }$ and ${ 10,11 }$ reduces weighted variance to $0.25$; leaves predict $2.5$ and $10.5$.
 ]
 
-#workedexample[
+#example[
   The best single question for the study log is “hours at most 17?”. Its leaves predict 60.0 for the eight students below and 40.5 for the two above. Ask this tree about someone who studied 100 hours, and it still says 40.5.
 ]
 
@@ -198,13 +196,13 @@ Increasing $alpha$ trades fit for fewer leaves along a nested pruning path. Cros
 - #term[Instability:] small data changes can alter early splits and whole subtrees, motivating the ensembles in #chapref(<ch:ensembles>).
 - #term[Feature importance:] use the interpretation and bias cautions in #secref(<sec:tree-feature-importance>).
 
-#keyidea[
+#note[
   Trees learn readable nonlinear rules through impurity reduction. Their instability also makes them useful base learners for ensembles.
 ]
 
 #recipecard([Decision tree], [A sequence of yes/no questions, each about one feature, ending in leaves that predict a constant.], [Gini impurity or entropy for classes; squared error for numbers.], [Greedy search: at each node, take the best split available now, and never look back.])
 
-#modelcard[Decision Trees - Quick Guide][
+#checklist(title: [Decision Trees - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -222,7 +220,7 @@ Increasing $alpha$ trades fit for fewer leaves along a nested pruning path. Cros
 
 Inspect paths and leaf counts. Lab~3’s loan tree splits first on the interest rate, at 14.0%, then on the rate again and on the term, and its riskiest leaf, a rate above 14.0% on a 60-month loan, holds a 47.5% default rate. The rules are readable, and they show that the tree has largely learned the lender’s own pricing back.
 
-#keyidea[
+#note[
   The printed paths are the model’s actual rules, not a post-hoc approximation. Readability alone does not establish fairness, causality, stability, or safety.
 ]
 
@@ -235,19 +233,11 @@ Inspect paths and leaf counts. Lab~3’s loan tree splits first on the interest 
 
 #term[Permutation importance] is the safer alternative: shuffle one feature’s values in the validation data and measure how much the score drops. A large drop means this fitted model relied on that column. It is computed on held-out rows, so it also reflects generalization rather than training fit.
 
-#keyidea[
+#note[
   Feature importance describes which columns this fitted model used. Apply the general association-versus-causation rule from #secref(<sec:correlation>)\; importance is not causal evidence.
 ]
 
-#debugtask[
-  A depth-20 tree has nearly perfect training accuracy and unstable feature importance across random splits. Diagnose the likely failure mode, then compare depth 2, 5, and 20 using identical validation folds and a sealed test set.
-]
-
-#decisionmemo[
-  Choose between a shallow single tree and a random forest for a decision that must be explained to a nontechnical reviewer. Your memo must separate predictive performance from interpretability and state what level of performance loss, if any, you would accept for the simpler model.
-]
-
-#chapterrecap[
+#summary[
   - A tree asks one question at a time and predicts a constant in each leaf, carving the space into rectangles.
   - Each split is chosen greedily, to reduce impurity the most. Gini and entropy almost always agree.
   - On the telecom customers the first question is the contract, with a gain of 0.064, ahead of tenure, fibre internet and the payment method.
@@ -255,7 +245,13 @@ Inspect paths and leaf counts. Lab~3’s loan tree splits first on the interest 
   - Importance scores describe this fitted model. They are unstable under correlation, and they are not causes.
 ]
 
-#quickcheck[
+#exercises[
+  + A depth-20 tree has nearly perfect training accuracy and unstable feature importance across random splits. Diagnose the likely failure mode, then compare depth 2, 5, and 20 using identical validation folds and a sealed test set.
+
+  + Choose between a shallow single tree and a random forest for a decision that must be explained to a nontechnical reviewer. Your memo must separate predictive performance from interpretability and state what level of performance loss, if any, you would accept for the simpler model.
+]
+
+#questions[
   + What does a decision-tree split try to improve at each node?
   + A node holds 8 positives and 2 negatives. What is its Gini impurity? A split gives children of $[4+,0-]$ and $[4+,2-]$; what is the gain?
   + Why can an unconstrained tree achieve excellent training performance yet generalize poorly?

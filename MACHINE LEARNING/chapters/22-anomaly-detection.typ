@@ -32,13 +32,13 @@ $ z=frac(x-macron(x), s), $
 
 with $|z|>3$ a customary alarm threshold, because under a normal distribution only about $0.3 %$ of values land that far out.
 
-#workedexample[
+#example[
   A temperature sensor averages $macron(x)=50$ with standard deviation $s=5$. A reading of $68$ has $z=(68-50)\/5=3.6$: flagged. A reading of $57$ has $z=1.4$: unremarkable.
 ]
 
 There is a trap in this rule: an outlier can hide itself, because it inflates the very mean and standard deviation that are supposed to expose it.
 
-#workedexample[
+#example[
   A sensor reads $10, space 11, space 9, space 10, space 12, space 11, space 10, space 60$. The 60 is obviously wrong. Yet the mean is 16.62 and the standard deviation 17.55, so its z-score is only $(60-16.62)\/17.55=2.47$, which does not raise the alarm. The outlier has #emph[masked] itself.
 
   Robust statistics resist this. The median is 10.5, and the median absolute deviation (MAD) is 0.5, so the robust z-score of 60 is $0.6745 times (60-10.5)\/0.5=66.8$. The IQR fences agree: with $Q_1=10$ and $Q_3=11.25$, the fences are 8.125 and 13.125, and 60 lies far outside them.
@@ -56,7 +56,7 @@ Per-feature checks can miss unusual combinations of individually plausible value
 
 Distance to the $k$-th nearest neighbor measures isolation, but naturally sparse groups can look anomalous. #term[Local outlier factor (LOF)] instead compares a point’s density with that of its neighbors: near 1 is locally typical, and much larger values indicate local isolation.
 
-#workedexample[
+#example[
   A tight group has points 0.1 apart, a loose group has points 1 apart, and one stranger sits 1.0 away from the tight group.
 
   #v(6pt)
@@ -83,11 +83,9 @@ Fit a Gaussian or mixture to reference data and flag low-likelihood cases (#chap
 
 == Isolation forests <sec:isolation-forest>
 
-#analogy[
-  Play a game of Guess Who with a crowd. To pick out someone with very unusual features takes one or two questions. To pick out one average person from among many similar ones takes a long time. An #term[isolation forest] plays this with random questions: it builds trees of random feature thresholds, and it scores each row by how quickly it becomes isolated.
-]
+Play a game of Guess Who with a crowd. To pick out someone with very unusual features takes one or two questions. To pick out one average person from among many similar ones takes a long time. An #term[isolation forest] plays this with random questions: it builds trees of random feature thresholds, and it scores each row by how quickly it becomes isolated.
 
-#workedexample[
+#example[
   Take 99 ordinary values drawn from a bell curve and one stranger at 8. Cut the range at a random point, keep the side the target is on, and repeat until the target is alone. On average the stranger takes 1.6 cuts and an ordinary value takes 9.6.
 ]
 
@@ -151,7 +149,7 @@ Anomaly detection differs from classification in one important way: you usually 
     draw.scope({
       draw.translate((5.6, 0))
       rectangle((0, 0), (4.6, 2.9), draw: muted, fill: white)
-      connect((0.3, 0.45), (4.35, 0.45), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((0.3, 0.45), (4.35, 0.45), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node((2.3, 0.4), [anomaly score], font: font("script"), anchor: "north", inner-sep: 0.9963pt, text: muted)
       smooth-path(..range(60).map(k => { let x = 0.4 + k * (4.3 - (0.4)) / 59; (x, 0.45 + 2 * calc.exp(-(calc.pow((x - 1.3), 2)) / 0.28)) }), line-width: widths.very-thick, draw: blue)
       connect((2.85, 0.45), (2.85, 2.6), line-width: widths.very-thick, dash: "dashed", draw: red)
@@ -164,7 +162,7 @@ Anomaly detection differs from classification in one important way: you usually 
   })
 ]
 
-#keyidea[
+#note[
   Choose thresholds or review batches for actual capacity and error costs; a high score is not a verdict.
 ]
 
@@ -187,7 +185,7 @@ Define the review process alongside the scoring model.
 
 #recipecard([Isolation forest], [Many trees of random splits. A row’s score comes from how shallow its leaf is on average.], [None in the usual sense: the method has no target and no loss to reduce.], [None. Trees are grown at random, and the only choices are their number and the sample size.])
 
-#modelcard[Anomaly Detection - Quick Guide][
+#checklist(title: [Anomaly Detection - Quick Guide])[
   #tabularx(
     columns: (25%, 1fr),
     valign: (top, horizon),
@@ -201,7 +199,7 @@ Define the review process alongside the scoring model.
   )
 ]
 
-#chapterrecap[
+#summary[
   - An anomaly score ranks departures from a reference pattern. It is not a probability of fraud.
   - The z-score can be masked by the outlier itself, so prefer the median, the MAD and the IQR.
   - Distance alone penalizes naturally sparse groups; LOF judges a point against its own neighborhood.
@@ -209,7 +207,7 @@ Define the review process alongside the scoring model.
   - Evaluate at the real review budget. A ROC AUC of 0.95 and a 39% hit rate in the top 100 describe the same ranking.
 ]
 
-#quickcheck[
+#questions[
   + Why is an anomaly score not automatically a probability of fraud, failure or error?
   + How does a fixed review capacity turn anomaly detection into a ranking problem?
   + What is the difference between detecting outliers in the training sample and novelty detection for future observations?

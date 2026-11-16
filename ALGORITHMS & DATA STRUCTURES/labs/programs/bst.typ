@@ -112,6 +112,6 @@ after insertion
 
 The complete captured run is in `labs/outputs/bst.txt`.
 
-#tryit[
+#exercises[
   Insert a duplicate key and verify that the inorder output is unchanged. Delete the root from a one-node tree; assign the returned pointer and confirm it is null.
 ]

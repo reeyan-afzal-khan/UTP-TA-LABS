@@ -22,6 +22,7 @@ Every TikZ picture and pgfplots chart is CeTZ code in the chapter or lab that sh
 - Maths in a node label is centred on Typst's formula box, which can sit a point or two lower than TeX's.
 - A box that breaks across a page is closed with a border on both parts; LaTeX left the edges at the break open.
 - `Lab~\ref{...}` printed the chapter number in LaTeX; Typst prints the lab's own number.
+- By design, the LaTeX books' many learning boxes are gone. Asides are the three callouts Note, Tip and Warning; examples, exercises, review questions, summaries, lab questions and checklists are ordinary text under a bold label (see [style-guide.md](style-guide.md)). The frame measurements above still hold for figures, tables and device transcripts.
 
 ## Checking changes
 

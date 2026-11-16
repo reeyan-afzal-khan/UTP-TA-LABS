@@ -3,11 +3,11 @@
 
 #labsection(10, label: <sec:lab10>)[Searching and sorting experiments]
 
-#sourcealignment[Official Lab Manual --- Lab X][
-  Descending quick sort, binary search, three-array merge, and heap sort.
-]
-
 #labproject[Trace, implement, and compare algorithms][
+  #note[
+    #strong[Official Lab Manual --- Lab X.] Descending quick sort, binary search, three-array merge, and heap sort.
+  ]
+
   #strong[Goal.] Implement four algorithms and compare results on controlled inputs.
 
   #strong[Recall first.] Review the #link(<ch:search-sort>)[Searching and Sorting] chapter.
@@ -32,7 +32,7 @@
   #include "programs/heap_sort.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

@@ -8,7 +8,7 @@
 
 This chapter holds the mathematics the rest of the book leans on, and nothing more. Part~A is about columns: where they sit, how much they spread, and which ones move together. Part~B is about rows: each row of a table is an arrow in space, and most of machine learning is arithmetic on those arrows. Both parts use the tutor’s study log from #figref(<fig:study-log>) wherever they can.
 
-#secondpass[
+#note[
   #strong[Second pass:] standard errors, confidence intervals, bootstrap, distributions, Bayes’ algebra, inverses, eigenvectors/SVD, and curvature. These need not delay the first models.
 ]
 
@@ -33,7 +33,7 @@ $ mu =frac(1, N) sum _(i=1)^N x_i. $
 
 The symbol $sum$ means summation: add the $N$ values, then divide by $N$. A sample’s mean is usually written $macron(x)$ and is calculated the same way. The #term[median] is the middle value after sorting, or the midpoint of the two middle values, and it is less affected by extreme values.
 
-#workedexample[
+#example[
   For $30,32,35,38,500$, the mean is $127$ and median $35$. The median better describes typical income here because the extreme value pulls the mean upward.
 ]
 
@@ -47,7 +47,7 @@ The result is in squared marks, which nobody can picture, so we take the square 
 
 $ sigma =sqrt(sigma ^2). $
 
-#workedexample[
+#example[
   For $2,4,6$, the mean is $4$. The distances from the mean are $-2,0,2$. Squaring gives $4,0,4$, so the variance is $8\/3 approx 2.67$ and the standard deviation is about $1.63$.
 
   For the two groups above: the steady group has variance 0.89 and standard deviation 0.94, while the study log has variance 133.69 and standard deviation 11.56. So a typical student in the log sits about 12 marks from the average. Same mean, very different groups.
@@ -63,7 +63,7 @@ It measures the width of the middle half of the data and is resistant to extreme
 
 In the study log the sorted marks run 38, 43, 47, 50, 52, 59, 62, 65, 68, 77. The median is 55.5, $Q_1$ is 47.75 and $Q_3$ is 64.25, so the middle half of the group spans 16.5 marks.
 
-#keyidea[
+#note[
   Use the mean and standard deviation for roughly symmetric data without severe outliers. Use the median and IQR when the distribution is skewed or contains extreme values.
 ]
 
@@ -94,7 +94,7 @@ The mean and median agree on symmetric data and disagree sharply on skewed data.
   }))
 ]
 
-#keyidea[
+#note[
   A mean far above the median suggests right skew. Consider a log transform or robust scaler; extreme errors also affect RMSE more than MAE (#chapref(<ch:evaluation>)).
 ]
 
@@ -110,7 +110,7 @@ $ f(x)=frac(1, sigma sqrt(2 pi)) exp[-frac(1, 2)(frac(x- mu, sigma))^2]. $
       addplot(line-width: widths.very-thick, draw: blue, x => calc.exp(-calc.pow(x, 2) / 2) / calc.sqrt(2 * calc.pi)),
       {
         connect((0, 0), (0, 0.399), dash: "dashed", draw: muted)
-        connect((-1, 0.24), (1, 0.24), line-width: widths.thick, draw: teal, start: tip("Stealth", line: widths.thick), end: tip("Stealth", line: widths.thick))
+        connect((-1, 0.24), (1, 0.24), line-width: widths.thick, draw: teal, start: arrow-tip("Stealth", line: widths.thick), end: arrow-tip("Stealth", line: widths.thick))
         node(along((-1, 0.24), (1, 0.24), t: 50%), [about 68%], font: font("small"), anchor: "south")
       },
     )
@@ -119,15 +119,13 @@ $ f(x)=frac(1, sigma sqrt(2 pi)) exp[-frac(1, 2)(frac(x- mu, sigma))^2]. $
 
 Many measurement errors and averages are approximately normal, but real data should not be assumed normal without inspection.
 
-#intuition[
+#note[
   $mu$ sets the bell’s center; $sigma$ sets its width.
 ]
 
 == Population, sample, and sampling bias
 
-#analogy[
-  A spoonful tells a cook how the whole pot tastes, provided the pot was stirred. Tasting ten spoonfuls from the top of an unstirred pot just repeats the mistake with more confidence. That is the difference between a small sample and a biased one.
-]
+A spoonful tells a cook how the whole pot tastes, provided the pot was stirred. Tasting ten spoonfuls from the top of an unstirred pot just repeats the mistake with more confidence. That is the difference between a small sample and a biased one.
 
 A #term[sample] is the observed subset of a #term[population]. Sample statistics estimate population parameters.
 
@@ -137,7 +135,7 @@ $ s^2=frac(1, n-1) sum _(i=1)^n(x_i-macron(x))^2. $
 
 The denominator $n-1$ corrects the tendency to underestimate population variance when deviations are measured around the sample mean.
 
-#pitfall[
+#warning[
   More observations do not correct systematic sampling bias.
 ]
 
@@ -155,7 +153,7 @@ $ macron(x) plus.minus z_(1- alpha \/2)frac(s, sqrt(n)). $
 
 A valid 95% confidence procedure covers the true parameter in about 95% of repeated samples.
 
-#workedexample[
+#example[
   Treat the ten marks in the log as a sample. The sample standard deviation (dividing by $n-1$) is $s=12.19$, so
 
   $ op("SE")(macron(x))=frac(12.19, sqrt(10))=3.85, wide 56.1 plus.minus 1.96 times 3.85 med " gives " med 48.5 " to "63.7. $
@@ -173,7 +171,7 @@ The #term[bootstrap] estimates sampling variability by repeatedly resampling obs
   + Repeat many times and use suitable quantiles as an interval.
 ]
 
-#workedexample[
+#example[
   Five thousand bootstrap resamples of the ten marks give a 95% interval for the median of 46.5 to 65.0. No formula for the standard error of a median was needed, only the ability to resample and recompute.
 ]
 
@@ -198,9 +196,7 @@ $ P(A inter B)=P(A)P(B). $
 
 == Bayes’ theorem
 
-#analogy[
-  A smoke alarm rings. How worried should you be? That depends on how good the alarm is, and also on how often there really is a fire. Most rings are burnt toast, simply because burnt toast is so much more common than fires. Bayes’ theorem is the arithmetic of that reasoning.
-]
+A smoke alarm rings. How worried should you be? That depends on how good the alarm is, and also on how often there really is a fire. Most rings are burnt toast, simply because burnt toast is so much more common than fires. Bayes’ theorem is the arithmetic of that reasoning.
 
 Bayes’ theorem reverses a conditional probability:
 
@@ -214,7 +210,7 @@ $ P(A mid B)=frac(P(B mid A)P(A), P(B)). $
 
 #keepspace(243.9pt)
 
-#workedexample[
+#example[
   A condition affects 1% of people. A test detects 90% of true cases and gives a false positive for 5% of people without the condition. Count people rather than probabilities. In a town of 10,000:
 
   #v(6pt)
@@ -239,7 +235,7 @@ $ P(A mid B)=frac(P(B mid A)P(A), P(B)). $
   ]]]
 ]
 
-#keyidea[
+#note[
   Always consider the base rate. Strong-looking evidence can still lead to a modest posterior probability when the event is rare.
 ]
 
@@ -293,15 +289,15 @@ It lies between $-1$ and $1$ and measures linear association.
   })
 ]
 
-#keyidea[
+#note[
   Correlation near $plus.minus 1$ finds twins: two columns telling one story, so one could nearly be dropped. Correlation near 0 means no #emph[straight-line] connection, and it does not mean no connection. Always plot the pair.
 ]
 
-#pitfall[
+#warning[
   Correlation does not establish causation: confounding, reverse direction, or selection may explain it.
 ]
 
-#optionaltopic[
+#note[
   #strong[Likelihood and maximum likelihood estimation.] Given data $x_1, dots.h ,x_n$, the likelihood treats the probability of the observed data as a function of a parameter $theta$:
 
   $ L( theta )= product _(i=1)^n p(x_i mid theta ). $
@@ -311,13 +307,9 @@ It lies between $-1$ and $1$ and measures linear association.
   $ hat(theta)_(upright("MLE"))=op("arg max", limits: #true)_theta sum _(i=1)^n log p(x_i mid theta ). $
 
   Many familiar machine-learning losses are negative log-likelihoods.
-]
 
-#optionaltopic[
   #strong[Hypothesis tests.] A p-value is the probability, under the null model, of a result at least as extreme as observed---not the probability the null is true. Report effect size and uncertainty too.
-]
 
-#optionaltopic[
   #strong[Entropy] measures uncertainty; #strong[cross-entropy] evaluates predicted probabilities; #strong[KL divergence] compares distributions (#chapref(<ch:classification>), #chapref(<ch:evaluation>)).
 ]
 
@@ -339,15 +331,13 @@ $ X in RR^(n times p). $
 
 The first number is the number of rows; the second is the number of columns.
 
-#workedexample[
+#example[
   The study log is a matrix with 10 rows and 4 columns, $X in RR^(10 times 4)$. Student F is the vector $[12,13,6,77]^(sans(T))$. Lab~1’s bank-call matrix has 41,176 rows and 19 feature columns.
 ]
 
 == Dot products: a shopping receipt
 
-#analogy[
-  You buy 2 coffees at 3.50, 3 buns at 1.20 and 1 juice at 2.00. The bill is $2(3.50)+3(1.20)+1(2.00)=12.60$. Multiply matching entries and add them up: that is a dot product of a price list with a basket. A linear model does exactly this, with weights in place of prices and features in place of quantities.
-]
+You buy 2 coffees at 3.50, 3 buns at 1.20 and 1 juice at 2.00. The bill is $2(3.50)+3(1.20)+1(2.00)=12.60$. Multiply matching entries and add them up: that is a dot product of a price list with a basket. A linear model does exactly this, with weights in place of prices and features in place of quantities.
 
 The dot product of two vectors is
 
@@ -358,7 +348,7 @@ It has two useful interpretations.
 + It creates a weighted sum. Linear models use $bold(w)^(sans(T))bold(x)+b$.
 + It measures alignment. A large positive dot product means the vectors point in similar directions; a negative one means they point in opposing directions.
 
-#workedexample[
+#example[
   For $bold(w)=[2,-1]^(sans(T))$ and $bold(x)=[3,4]^(sans(T))$,
 
   $ bold(w)^(sans(T))bold(x)=2(3)+(-1)(4)=2. $
@@ -370,7 +360,7 @@ It has two useful interpretations.
 
 For matrix multiplication, inner dimensions must match; outer dimensions determine the result.
 
-#workedexample[
+#example[
   A matrix times a vector is one dot product per row. Put the line $"mark"=3 times "hours"+40$ into this form, with a column of ones to carry the 40:
 
   $ mat(delim: "[", 1, 2; 1, 4; 1, 6) mat(delim: "[", 40; 3) = mat(delim: "[", 1(40)+2(3); 1(40)+4(3); 1(40)+6(3)) = mat(delim: "[", 46; 52; 58). $
@@ -391,11 +381,11 @@ For matrix multiplication, inner dimensions must match; outer dimensions determi
     rectangle((5.4, 0), (6.1, 1.9), rounded: 1mm, fill: pale-orange, draw: none)
     node((5.75, 0.95), [$hat(bold(y))$], font: font("normal", weight: "bold", fill: navy))
     node((5.75, -0.35), [$(n times 1)$], font: font("script", fill: muted))
-    connect((1.75, -0.75), (3.35, -0.75), line-width: widths.thick, draw: red, start: tip("Stealth", length: 2mm, line: widths.thick), end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((1.75, -0.75), (3.35, -0.75), line-width: widths.thick, draw: red, start: arrow-tip("Stealth", length: 2mm, line: widths.thick), end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((2.55, -1.05), [these must match], font: font("script", fill: red))
-    connect((0.4, 2.25), (0.4, 2), line-width: widths.thick, draw: green, start: tip("Stealth", length: 2mm, line: widths.thick))
-    connect((0.4, 2.25), (5.6, 2.25), line-width: widths.thick, draw: green, end: tip("Stealth", length: 2mm, line: widths.thick))
-    connect((5.6, 2.25), (5.6, 2), line-width: widths.thick, draw: green, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((0.4, 2.25), (0.4, 2), line-width: widths.thick, draw: green, start: arrow-tip("Stealth", length: 2mm, line: widths.thick))
+    connect((0.4, 2.25), (5.6, 2.25), line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
+    connect((5.6, 2.25), (5.6, 2), line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((3, 2.5), [these survive into the answer], font: font("script", fill: green))
   })
 ]
@@ -424,9 +414,7 @@ These norms appear in distance calculations and regularization.
 
 == Distance and similarity
 
-#analogy[
-  A crow flies straight, and a taxi follows the grid. Between the same two buildings they travel different distances, and each is right for its purpose. “Close” is a choice you make when you pick a measure.
-]
+A crow flies straight, and a taxi follows the grid. Between the same two buildings they travel different distances, and each is right for its purpose. “Close” is a choice you make when you pick a measure.
 
 A model often needs to decide whether two observations are close or similar.
 
@@ -443,7 +431,7 @@ A model often needs to decide whether two observations are close or similar.
   )
 ]
 
-#pitfall[
+#warning[
   Distance-based models can be meaningless when features use very different scales. Standardize or otherwise justify the scale before calculating distances.
 ]
 
@@ -451,7 +439,7 @@ A model often needs to decide whether two observations are close or similar.
 
 Euclidean, Manhattan, Jaccard, Minkowski, and cosine measures encode different meanings of “close”. Choose one for the representation and task.
 
-#workedexample[
+#example[
   For points $P=(1,2)$ and $Q=(4,6)$,
 
   $ d_2(P,Q)=sqrt((4-1)^2+(6-2)^2)=5, $
@@ -469,7 +457,7 @@ $ d_p(bold(x),bold(z))= ( sum _j |x_j-z_j|^p)^(1\/p). $
 
 Minkowski uses Manhattan distance at $p=1$ and Euclidean distance at $p=2$. Choose $p$ to match the task.
 
-#workedexample[
+#example[
   For sets $A= { 0,1,2,5,6 }$ and $B= { 0,2,3,4,5,7,9 }$, the intersection has three elements and the union has nine. Therefore
 
   $ J(A,B)=frac(|A inter B|, |A union B|)=frac(3, 9)=0.33. $
@@ -477,11 +465,11 @@ Minkowski uses Manhattan distance at $p=1$ and Euclidean distance at $p=2$. Choo
   Jaccard measures overlap among present items, ignoring shared absences.
 ]
 
-#workedexample[
+#example[
   Three documents as word counts over the vocabulary (cat, dog, fish): $a=(2,1,0)$, $b=(4,2,0)$ and $c=(0,1,3)$. Document $b$ is $a$ written out twice as long. Euclidean distance says $a$--$b$ is 2.24 and $a$--$c$ is 3.61, so length still counts. Cosine similarity says $a$--$b$ is 1.00, the same direction, and $a$--$c$ is 0.14, nearly unrelated topics. For documents of different lengths, the angle is usually what you want.
 ]
 
-#keyidea[
+#note[
   Choose representation and distance together; a computable distance need not be meaningful.
 ]
 
@@ -493,14 +481,14 @@ $ cos( theta )=frac(bold(x)^(sans(T))bold(z), || bold(x) || _2 || bold(z) || _2)
 
 #utpfig([Cosine similarity depends only on the angle $theta$ between two vectors, not on their lengths.], label: <fig:cosine>)[
   #canvas(scale: 1.05, {
-    connect((0, 0), (4, 1.2), line-width: widths.thick, draw: blue, end: tip("Stealth", length: 2.5mm, line: widths.thick))
+    connect((0, 0), (4, 1.2), line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 2.5mm, line: widths.thick))
     node(along((0, 0), (4, 1.2), t: 100%), [$bold(x)$], anchor: "west")
-    connect((0, 0), (3, 2.7), line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.5mm, line: widths.thick))
+    connect((0, 0), (3, 2.7), line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.5mm, line: widths.thick))
     node(along((0, 0), (3, 2.7), t: 100%), [$bold(z)$], anchor: "south")
     arc-at((1.1, 0.33), 16.7, 42, 1.15, line-width: widths.thick, draw: orange)
     node((1.45, 0.82), [$theta$], text: orange)
-    connect((-0.3, 0), (4.5, 0), draw: muted, end: tip("to", line: 0.4pt))
-    connect((0, -0.3), (0, 3.2), draw: muted, end: tip("to", line: 0.4pt))
+    connect((-0.3, 0), (4.5, 0), draw: muted, end: arrow-tip("to", line: 0.4pt))
+    connect((0, -0.3), (0, 3.2), draw: muted, end: arrow-tip("to", line: 0.4pt))
   })
 ]
 
@@ -516,7 +504,7 @@ Depending on its values, $A$ can rotate, stretch, shrink, reflect, or combine co
 
 $ hat(bold(y))=X bold(beta). $
 
-#intuition[
+#note[
   Matrix multiplication forms weighted combinations; compatible shapes determine which products exist.
 ]
 
@@ -546,7 +534,7 @@ The gradient points toward the fastest increase in $J$. To reduce a loss, gradie
 
 $ bold(theta) arrow.l bold(theta)- alpha nabla _(bold(theta))J. $
 
-#workedexample[
+#example[
   Take guess A from #chapref(<ch:orientation>), $"mark"=2 times "hours"+47$, on the first six students. Its errors are $-4,-5,0,2,1,6$. For mean squared error the two slopes are
 
   $ frac(partial J, partial w)=-frac(2, n) sum _i e_i x_i=-23.33, wide frac(partial J, partial b)=-frac(2, n) sum _i e_i=0. $
@@ -554,19 +542,15 @@ $ bold(theta) arrow.l bold(theta)- alpha nabla _(bold(theta))J. $
   The gradient says: raising $w$ lowers the loss quickly, and $b$ is fine for now. That matches what we know, since the best slope is 3 and this guess is at 2. Gradient descent (#secref(<sec:gradient-descent>)) would step $w$ upward and leave $b$ alone on this step.
 ]
 
-#optionaltopic[
+#note[
   #strong[Eigenvectors and SVD.] An eigenvector is scaled by a square matrix. SVD factors a matrix into rotations/reflections and scaling. Both reveal directions used in PCA (#chapref(<ch:dimred>)).
-]
 
-#optionaltopic[
   #strong[Hessian.] This matrix of second derivatives describes curvature: positive in bowl-like directions, negative in hill-like directions. It supports advanced optimization.
-]
 
-#keyidea[
   Vectors represent observations and parameters; matrices represent datasets and transformations; dot products create weighted sums; distances compare observations; and gradients tell optimization which direction to move.
 ]
 
-#chapterrecap[
+#summary[
   - Report a center and a spread. Mean and standard deviation suit symmetric columns; median and IQR suit skewed ones.
   - A sample estimates a population. More rows shrink random error as $1\/sqrt(n)$, and they do nothing for bias.
   - Rare events stay fairly unlikely even after strong evidence. Count people to check the arithmetic.
@@ -575,7 +559,7 @@ $ bold(theta) arrow.l bold(theta)- alpha nabla _(bold(theta))J. $
   - Distance depends on scale and on your choice of measure. The gradient lists one slope per parameter.
 ]
 
-#quickcheck[
+#questions[
   + When would the median and IQR describe a distribution more faithfully than the mean and standard deviation?
   + The correlation between hours and mark in the study log is $-0.25$. Does that mean study has little to do with the mark? How would you check?
   + A rare-disease test has 99% sensitivity and a 1% false-positive rate, and 1 person in 1,000 has the disease. Out of 100,000 people, about how many test positive, and what fraction of those have it?

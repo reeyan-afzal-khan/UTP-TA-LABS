@@ -7,7 +7,7 @@
       let off = (draw: orange, fill: pale-orange, min-width: 1.6, min-height: 0.7, font: font("small", fill: navy), align: center)
       let pte = (draw: teal, fill: pale-teal, min-width: 1.2, min-height: 0.58, font: font("script", fill: navy))
       let lab = (font: font("script", fill: muted), align: center)
-      let ar = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+      let ar = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
       node((0, 3.5), [#strong[Virtual address] \
      $v = 9 thin 000$,  $P = 4 thin 096$], ..lab)
       node((4.9, 4), [#strong[Page table]], ..lab)

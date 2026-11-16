@@ -7,7 +7,7 @@
 
 The Week 8 lecture introduces a competitor that is fundamentally different from an ordinary FinTech startup. A startup normally has to acquire users before it can monetize them. A large technology platform can begin with hundreds of millions of users, frequent engagement, existing behavioral data, a trusted consumer interface, large capital reserves, and technical talent.
 
-#keyidea[
+#note[
   For Big Tech, financial services may be valuable even when the direct financial margin is not the main prize. Payments, accounts, lending, and wallets can deepen engagement, generate information, reduce friction in the core ecosystem, and increase customer loyalty.
 ]
 
@@ -36,7 +36,7 @@ The Week 8 deck emphasizes several advantages.
   #canvas({
     let core = (draw: navy, fill: navy, text: white, rounded: 2mm, text-width: 3.1, min-height: 1.2, align: center, font: font("small", weight: "bold"))
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.5, min-height: 0.95, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.9mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.9mm, line: widths.thick))
     node((0, 0), [Big Tech \
   platform], name: "p", ..core)
     node((-4, 1.8), [Existing users], name: "u", ..b)
@@ -132,7 +132,7 @@ WeChat began as a messaging platform and evolved toward payments and a broad lif
   #canvas({
     let core = (draw: navy, fill: navy, text: white, shape: "circle", min-size: 2.1, align: center, font: font("small", weight: "bold"))
     let b = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 2.35, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((0, 0), [SUPER \
   APP], name: "s", ..core)
     node((0, 2.6), [Messaging], name: "m", ..b)
@@ -228,11 +228,11 @@ When analyzing a Big Tech move into finance, ask:
   + #term[Incumbent response.] Can banks answer with trust, data, physical service, partnerships, or specialist expertise?
 ]
 
-#tryit[
+#exercises[
   Choose a large e-commerce, messaging, search, or device platform. Design one financial feature it could add. Explain why that feature strengthens the platform’s core business, what financial data it would generate, what a bank could do better, and what new regulatory risk would appear.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between a FinTech and a TechFin framing?
   + Why can Big Tech enter finance with lower customer-acquisition friction than a startup?
   + What motives do the Week 8 slides associate with Google, Amazon, Meta/Facebook, and Apple?

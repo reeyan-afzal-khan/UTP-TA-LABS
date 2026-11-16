@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab02/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that Lab~1 ran on this machine.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
 
@@ -33,7 +33,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] On the rainy maze of Chapter~@ch:informed, work out $g$, $h$ and $f$ for the cells $(6,4)$ and $(3,4)$, using #figref(<fig:rain-routes>) for $g$ and #figref(<fig:manhattan>) for $h$. Which of the two would A$""^(star.op)$ expand first, and why does the second one never get its turn?
 
   #emph[Answer.] $(6,4)$ has $g=4$, $h=9$, $f=13$. $(3,4)$ has $g=13$, $h=6$, $f=19$. A$""^(star.op)$ reaches the charger at $f=13$ long before $f=19$ comes up.
@@ -157,7 +157,7 @@
   #strong[Read the result.] Regenerate this plot rather than copying it. The vertical axis is logarithmic, so equal gaps mean equal ratios.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook for these three tasks. All of them use functions already defined above.
 
   + #strong[Turn the guess off.] Run A$""^(star.op)$ with $h=0$ on the three standard queries and compare with UCS. What do you predict for cost and for expansions?
@@ -171,19 +171,19 @@
   ```
 ]
 
-#expectedfindings[
+#answers[
   + Exactly the UCS results: same cost and same expansions (1,851, 3,002 and 3,042). A$""^(star.op)$ with $h=0$ #emph[is] UCS.
   + Cost stays 11,461~km up to $w=1$, while expansions fall from 1,851 to 1,210, 399 and 69. At $w=1.1$ the cost rises to 11,483~km with 4 expansions, at $w=1.2$ to 11,584~km, at $w=1.5$ and $w=2$ to 12,274~km, and at $w=5$ to 12,500~km with 2 expansions, the same route as GBFS. A larger admissible guess saves work for free; beyond $w=1$ the saving starts to cost quality.
   + Miles keep the guarantee, because $h$ only got smaller (same route, 1,001 expansions). Metres break it, because $h$ is now 1,000 times too large and swamps $g$ (the 12,500~km GBFS route, 2 expansions).
 ]
 
-#troubleshoot[
+#tip[
   / `KeyError` on an airport code: An endpoint was removed during cleaning. Check that the code is in `coords` before searching.
   / A$""^(star.op)$ returns a costlier route than UCS: Check that $h$ is in kilometres and that you did not leave a weight above 1 in `heuristic_to`.
   / Violations in the admissibility check: The reversed graph must reverse every edge. If you edited `reverse`, compare with the listing above.
 ]
 
-#verification[
+#checklist[
   - UCS reproduces the Lab~1 costs for the three standard queries.
   - A$""^(star.op)$ returns the UCS cost on every query (gap 0 %) while expanding far fewer states; GBFS returns at least one longer route.
   - The admissibility check finds no negative slack: the Haversine heuristic never overestimates.
@@ -191,8 +191,8 @@
   - `results/lab02/` holds `metrics.csv`, `heuristic_check.csv` and `expanded_nodes.png`.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab02/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab02/` folder.
   - Add a short conclusion: why A$""^(star.op)$ matches UCS, why GBFS can return a longer route, and what guarantee is lost when the heuristic is multiplied by 1.5.
 ]

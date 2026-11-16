@@ -17,9 +17,9 @@
      link-state DB], name: "d2", ..db)
       node(below-of("r3", 1.15), [identical \
      link-state DB], name: "d3", ..db)
-      connect("d1", "d2", line-width: widths.thick, draw: teal, start: tip("to", line: widths.thick), end: tip("to", line: widths.thick))
+      connect("d1", "d2", line-width: widths.thick, draw: teal, start: arrow-tip("to", line: widths.thick), end: arrow-tip("to", line: widths.thick))
       node(along("d1", "d2", t: 50%), [flood], ..ml, anchor: "south")
-      connect("d2", "d3", line-width: widths.thick, draw: teal, start: tip("to", line: widths.thick), end: tip("to", line: widths.thick))
+      connect("d2", "d3", line-width: widths.thick, draw: teal, start: arrow-tip("to", line: widths.thick), end: arrow-tip("to", line: widths.thick))
       node(along("d2", "d3", t: 50%), [flood], ..ml, anchor: "south")
       node(below-of("d2", 0.45), [Same database everywhere. Each router then runs Dijkstra #strong[from itself], so the routing tables all differ --- and all agree.], ..ml, text-width: 9.5)
     })

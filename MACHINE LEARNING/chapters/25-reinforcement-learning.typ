@@ -8,7 +8,7 @@
 
 Nobody hands a puppy a table of correct actions. It sits, and it gets a treat. It chews a shoe, and it does not. Reinforcement learning (RL) learns the same way: there is no answer column at all, only a score that arrives after the learner acts, sometimes much later. Because actions change what happens next, the goal is not one good move but a good long run.
 
-#coursechoice[
+#note[
   Lab~6 implements tabular RL. Neural function approximation for deep RL lies beyond this course.
 ]
 
@@ -26,7 +26,7 @@ At time $t$:
 #utpfig([The agent-environment loop. The agent chooses an action; the environment changes state and returns a reward and the new state.], label: <fig:agent-environment>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3, min-height: 1.2, align: center, font: font("normal", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.4mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.4mm, line: widths.thick))
     node((0, 0), [Agent \
   chooses an action], name: "agent", ..box-style)
     node(right-of("agent", 3.5), [Environment \
@@ -38,15 +38,13 @@ At time $t$:
   })
 ]
 
-#workedexample[
+#example[
   A warehouse robot tracks location and battery, chooses movement or charging, and balances time and collision costs against delivery rewards.
 ]
 
 == A simpler case: which food stall?
 
-#analogy[
-  Three stalls near campus serve lunch. You have a favorite. Tomorrow you could go back to it, or try the one you have never tried, which might be better or might waste a lunch. Every choice both feeds you and teaches you, and you cannot do both fully at once.
-]
+Three stalls near campus serve lunch. You have a favorite. Tomorrow you could go back to it, or try the one you have never tried, which might be better or might waste a lunch. Every choice both feeds you and teaches you, and you cannot do both fully at once.
 
 This creates the central RL problem:
 
@@ -57,7 +55,7 @@ This creates the central RL problem:
 
 An $epsilon$-greedy strategy explores with probability $epsilon$ and otherwise exploits.
 
-#workedexample[
+#example[
   Three stalls give a good meal with hidden chances 0.2, 0.5 and 0.8. A student keeps a running average for each stall, and eats 1,000 lunches. Averaged over 500 students:
 
   #v(6pt)
@@ -96,7 +94,7 @@ A reward now is worth more than the same reward later, and the #term[discount fa
 
 $ G_t=r_(t+1)+ gamma r_(t+2)+ gamma ^2 r_(t+3)+ dots.c . $
 
-#workedexample[
+#example[
   Future rewards are $5,4,3$. With $gamma =0.9$, $G_t=5+0.9(4)+0.81(3)=11.03$. With $gamma =0.5$ the return is 7.75. With $gamma =0$ only the next reward counts, giving 5, and with $gamma =1$ all count equally, giving 12.
 ]
 
@@ -116,7 +114,7 @@ $ Q^pi(s,a)=bb(E)_pi[G_t mid s_t=s,a_t=a], $
 
 the expected return from taking action $a$ in state $s$ and then following $pi$.
 
-#intuition[
+#note[
   $V(s)$ asks, “How good is this situation?” $Q(s,a)$ asks, “How good is this particular move from this situation?”
 ]
 
@@ -149,7 +147,7 @@ The quantity in brackets is the #term[temporal-difference error]: what just happ
   + Repeat over many episodes, gradually reducing exploration when appropriate.
 ]
 
-#workedexample[
+#example[
   #strong[One update.] With $Q(s,a)=2$, $r=1$, $gamma =0.9$, next-state maximum 4 and $alpha =0.5$: the backup is $1+0.9 times 4=4.6$, the TD error is $2.6$, and $Q(s,a) arrow.l 2+0.5(2.6)=3.3$.
 
   #strong[Value walks backwards.] A corridor of cells 0, 1, 2, then a goal worth $+1$. The agent always walks right, with $alpha =0.5$ and $gamma =0.9$, and all Q-values start at zero. Here is $Q("cell","right")$ after each trip:
@@ -182,7 +180,7 @@ The diagram separates a Q-update into its current estimate, backup value, and st
     let bx = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 2.5, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
     let gd = (draw: green, fill: pale-teal, rounded: 1.5mm, min-width: 2.5, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
     let op = (draw: orange, fill: pale-orange, rounded: 1.5mm, min-width: 3.6, min-height: 0.82, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-2.35, 1.55), [Old estimate \
   $Q(s,a)$], name: "old", ..bx)
     node((2.35, 1.55), [Backup value \
@@ -214,7 +212,7 @@ We can compute the best possible value of every cell directly, by repeating the 
     }
     node((3, -1), [TRAP], ..gv, fill: pale-red, draw: red, font: font("script", weight: "bold", fill: red))
     node((3, -3), [GOAL], ..gv, fill: pale-orange, draw: orange, font: font("script", weight: "bold", fill: navy))
-    connect((-0.4, 0.2), (-0.4, -2.4), (0.6, -2.4), (0.6, -3.4), (2.75, -3.4), line-width: widths.very-thick, draw: orange, end: tip("Stealth", length: 2mm, line: widths.very-thick))
+    connect((-0.4, 0.2), (-0.4, -2.4), (0.6, -2.4), (0.6, -3.4), (2.75, -3.4), line-width: widths.very-thick, draw: orange, end: arrow-tip("Stealth", length: 2mm, line: widths.very-thick))
     node((3.6, -3.4), [the greedy route: six moves], font: font("script", fill: mix(orange, 85%, other: black)), anchor: "west")
   })
 ]
@@ -252,7 +250,7 @@ Important concerns include:
 
 For high-stakes applications, exploration should occur in a safe simulator or under strict constraints before real-world use.
 
-#modelcard[Classical Reinforcement Learning - Quick Guide][
+#checklist(title: [Classical Reinforcement Learning - Quick Guide])[
   #tabularx(
     columns: (14%, 1fr),
     valign: (top, horizon),
@@ -265,7 +263,7 @@ For high-stakes applications, exploration should occur in a safe simulator or un
   )
 ]
 
-#keyidea[
+#note[
   Reinforcement learning does not learn from a correct answer for every action. It learns from consequences, balancing immediate reward, future reward, and the need to explore.
 ]
 
@@ -297,15 +295,15 @@ Lab~6 multiplies $epsilon$ by 0.9985 per episode from a start of 1, so it reache
   )
 ]
 
-#pitfall[
+#warning[
   Continuing tasks generally use $gamma <1$ for a finite discounted return; finite episodes can allow $gamma =1$. Fixed exploration can help in changing environments but costs reward. Evaluate exploratory and greedy policies separately.
 ]
 
-#libnote[
+#note[
   #lib("gymnasium") (the maintained successor to OpenAI Gym) provides ready-made environments with a uniform interface, so you can practice without writing the environment mechanics yourself. For problems beyond small tables --- for example, image observations or continuous state spaces --- #lib("stable-baselines3") provides implementations of standard deep-RL algorithms on top of PyTorch.
 ]
 
-#chapterrecap[
+#summary[
   - RL learns from rewards that arrive after actions. There is no answer column, and actions change the data you see next.
   - Exploring teaches and exploiting earns. On the food stalls, $epsilon =0$ got 0.199 and $epsilon =0.1$ got 0.750 of a possible 0.8.
   - The return discounts future rewards by $gamma$. A value function is an expected return.
@@ -313,7 +311,7 @@ Lab~6 multiplies $epsilon$ by 0.9985 per episode from a start of 1, so it reache
   - Evaluate the greedy policy separately from training. In high-stakes settings, explore in a simulator first.
 ]
 
-#quickcheck[
+#questions[
   + What are the state, action, reward, and transition in a reinforcement-learning formulation?
   + What two pieces of information appear in the tabular Q-learning backup value?
   + With $Q(s,a)=0$, $r=-0.04$, $gamma =0.95$, next-state maximum 0.6 and $alpha =0.15$, what is the new $Q(s,a)$?

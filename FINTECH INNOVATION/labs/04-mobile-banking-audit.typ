@@ -49,7 +49,7 @@ python all_experiments/lab04_mobile_banking_funnel.py
 
 #include "visuals/04-mobile-banking-audit-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Recalculate one stage from the underlying events. Identify the largest absolute drop and propose a measurable change, including the metric and denominator needed to evaluate it.
 
   - The script runs from a fresh process and creates the named CSV or report files.

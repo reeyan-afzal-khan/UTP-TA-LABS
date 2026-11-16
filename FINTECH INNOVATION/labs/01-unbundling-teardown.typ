@@ -10,7 +10,7 @@
 
   #include "visuals/01-flow.typ"
 
-  #labmode[
+  #note[
     This is an analysis lab, not a coding lab. The script exists to keep your scoring arithmetic honest and reproducible; the marks are in the argument you build around its output.
 
     Choose one incumbent retail bank you can research in English. Maybank, CIMB, DBS, HSBC, and Lloyds all publish enough in their annual reports to work with. Use the same bank for the rest of the course where possible, so later labs compound.
@@ -83,13 +83,13 @@
 
   The worked script gives each factor weight 0.25. This is an explicit classroom assumption, not an empirical estimate. Change one weight, rebalance the others so they sum to one, and explain how the ranking changes.
 
-  #tryit[
+  #exercises[
     Payments lands at exactly 3.00 here and is not flagged, yet payments is the most visibly disrupted segment in the real market. Something is wrong with the model.
 
     Work out what. Is the moat score too generous, is capital intensity mis-scored for a payments challenger who never touches a balance sheet, or is the weighting itself at fault? Adjust one input, justify it, and note how much the ranking moves --- a model that is stable under reasonable disagreement is worth more than one that is not.
   ]
 
-  #pitfall[
+  #warning[
     A high score is a hypothesis, not a finding. The scorecard tells you where to look; it cannot tell you whether anyone has actually succeeded there.
 
     Every segment you rank above 3.0 needs a named challenger and evidence they have taken real volume. If you cannot name one, your score is wrong or the moat is stronger than you assessed --- either way, revise it and say why.
@@ -105,7 +105,7 @@
 
   The distinction matters because the defences differ. Unbundling is answered by improving the attacked segment or partnering. Disintermediation is answered by changing what you are for.
 
-  #tryit[
+  #exercises[
     Find one case where a challenger unbundled a segment and then #emph[rebundled] --- added adjacent products until it resembled a bank again. Revolut and Grab are both defensible choices.
 
     Then answer the question that case raises: if challengers converge on the incumbent model, was the original bundle inefficient, or is bundling simply what customers want once trust is established?
@@ -116,7 +116,7 @@
 
 #include "visuals/01-unbundling-teardown-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Change one rating or one weight while keeping weights summing to one. Report any ranking reversal and identify which research evidence would resolve the sensitive assumption.
 
   - Every revenue figure is sourced to a named report, page, and year.

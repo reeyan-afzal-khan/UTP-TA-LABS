@@ -12,7 +12,7 @@ Choose one bundled dataset or an instructor-approved external dataset. The goal 
 #utpfig([A professional analysis keeps a visible line from the original question to the final limitations.], label: <fig:capstone-chain>)[
   #canvas(x: 16.06cm, {
     let stage = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.155 * 16.06, min-height: 1.55, inner-xsep: 1.8mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-    let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     node((0, 0), [#strong[Question] \ #v(3.9851pt)
    Define the goal \
   and population], name: "q", ..stage)
@@ -43,7 +43,7 @@ A capstone becomes easier to follow when every section answers one question. The
   #canvas({
     let stage = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.68 * 16.06, min-height: 0.9, inner-xsep: 3mm, inner-ysep: 1.5mm, align: center, font: font("script", fill: navy))
     let endpoint = (..stage, draw: mix(teal, 80%), fill: pale-teal)
-    let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 1.6mm, width: 1.3mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 1.6mm, width: 1.3mm, line: 0.797pt))
     node((0, 0), [#strong[1\. Question and scope] \ #v(1.9925pt)
    Target population and unit of observation], name: "q", ..endpoint)
     node(below-of("q", 0.24), [#strong[2\. Data audit] \ #v(1.9925pt)
@@ -95,7 +95,7 @@ Every figure should have a title or caption that answers: #emph[what should the 
   )
 ]
 
-#pitfall[
+#warning[
   Do not choose a model first and then invent a question that fits it. The capstone is assessed on coherence of the evidence chain, not algorithm complexity.
 ]
 
@@ -115,6 +115,6 @@ Every figure should have a title or caption that answers: #emph[what should the 
 
 Submit one analysis script, one concise report, and any generated figures or derived data required to reproduce the result. The script should run from a clean session with local relative paths. The report should be readable without executing code.
 
-#keyidea[
+#note[
   A strong capstone makes uncertainty and limitations easy to find. Professional data science is credible because it exposes what could be wrong as clearly as what appears to be true.
 ]

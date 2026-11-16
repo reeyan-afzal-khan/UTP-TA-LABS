@@ -11,15 +11,13 @@ You have now met five searches, and every one of them is the same loop with its 
 
 The graph supplies states and successors, and the query supplies the goal test. The frontier policy alone determines the algorithm (#figref(<fig:pluggable>)).
 
-#analogy[
-  Think of a battery drill. The motor, the handle and the trigger stay the same, and you change what it does by swapping the bit. The search loop is the drill. The frontier policy is the bit.
-]
+Think of a battery drill. The motor, the handle and the trigger stay the same, and you change what it does by swapping the bit. The search loop is the drill. The frontier policy is the bit.
 
 #utpfig([States, successors and the goal test come from the problem. The frontier policy determines the search algorithm.], label: <fig:pluggable>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.7, min-height: 0.9, align: center, font: font("small", weight: "bold", fill: navy))
     let policy = (draw: mix(orange, 70%, other: black), fill: pale-orange, rounded: 1.5mm, min-width: 1.55, min-height: 0.65, align: center, font: font("script", weight: "bold", fill: mix(orange, 85%, other: black)))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [State \
   representation], name: "state", ..box-style)
     node(right-of("state", 0.7), [Successor \
@@ -141,7 +139,7 @@ Python’s `heapq` pops the smallest tuple, comparing element by element from th
   })
 ]
 
-#pitfall[
+#warning[
   Placing a payload directly after the priority makes ties depend on payload comparisons, and possibly on state names. Insert a unique increasing counter to resolve ties by insertion order without comparing payloads.
 ]
 
@@ -171,7 +169,7 @@ One test in full shows the pattern: a tiny graph, an expectation worked out by h
 
 Walk it through. From A, the direct edge reaches B at cost 10, while the route through C reaches B at cost 2, then G at cost 3. UCS first records B at 10, finds the cheaper way, and replaces it. If that update were broken, the test would return a path costing 11 and fail immediately. The tests need no dataset, run in under a second, and work on any machine or continuous-integration server.
 
-#keyidea[
+#note[
   Test the algorithm on the smallest graph that can expose the bug, and test the dataset loader separately. A test that needs real data tests both at once and diagnoses neither.
 ]
 
@@ -234,18 +232,18 @@ The table below collects every route search from these three chapters on one sma
   )
 ]
 
-#tryit[
-  Paste the table above into your notes, then change one thing in a copy of `demo_robot_maze.py`: set `PUDDLE_COST = 2`. Predict which rows change before you run it. With puddles that cheap, the middle corridor costs 13 and ties with the bottom route, so BFS should stop running dry while A$""^(star.op)$ still returns a 13-unit route. Remember to set `CHECK_BOOK_NUMBERS = False`.
-]
-
-#chapterrecap[
+#summary[
   - Five algorithms are one loop with a swappable frontier policy, so write the loop once.
   - A single result type lets one benchmark compare everything; effort counts belong in the result.
   - Keep loaders, search, plotting and the command line apart. A new domain then needs a new loader and nothing else.
   - Test on the smallest graph that can expose the bug, and judge a benchmark by the same graph, the same queries, validated paths and expansion counts.
 ]
 
-#quickcheck[
+#exercises[
+  Paste the table above into your notes, then change one thing in a copy of `demo_robot_maze.py`: set `PUDDLE_COST = 2`. Predict which rows change before you run it. With puddles that cheap, the middle corridor costs 13 and ties with the bottom route, so BFS should stop running dry while A$""^(star.op)$ still returns a 13-unit route. Remember to set `CHECK_BOOK_NUMBERS = False`.
+]
+
+#questions[
   + Which #emph[one] function differs between UCS and A$""^(star.op)$ in `best_first`, and which module would you edit to add a fourth mode?
   + Why is `path_cost_km` recomputed from the returned path instead of taken from the search’s $g$ value?
   + What is the `counter` in the heap tuple for, and what goes wrong without it when states cannot be compared?

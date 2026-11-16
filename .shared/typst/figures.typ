@@ -7,7 +7,7 @@
 //   #labvisual([Title])[drawing]                      the narrower lab frame
 #import "palette.typ": *
 #import "theme.typ": *
-#import "boxes.typ": tcb, box-above, box-below
+#import "frames.typ": tcb, box-above, box-below
 
 // Figure 3.1: the chapter number, then the figure's number in the chapter.
 // As LaTeX's report class: chapter.figure, and the figure alone in chapter 0.

@@ -61,10 +61,10 @@ The table summarizes eight common Big-O classes, their representative growth fun
   #v(1fr)
 
   #resizebox(84%)[#canvas({
-    let curve-style = (line-width: 1.6438pt, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 1.6438pt))
+    let curve-style = (line-width: 1.6438pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 1.6438pt))
     let directlabel = (font: font("footnote", weight: "bold"), inner-sep: 0.797pt)
-    connect((0, 0), (12.1, 0), line-width: 1.0461pt, draw: mix(muted, 88%, other: black), end: tip("Stealth", length: 2.9mm, line: 1.0461pt))
-    connect((0, 0), (0, 8.1), line-width: 1.0461pt, draw: mix(muted, 88%, other: black), end: tip("Stealth", length: 2.9mm, line: 1.0461pt))
+    connect((0, 0), (12.1, 0), line-width: 1.0461pt, draw: mix(muted, 88%, other: black), end: arrow-tip("Stealth", length: 2.9mm, line: 1.0461pt))
+    connect((0, 0), (0, 8.1), line-width: 1.0461pt, draw: mix(muted, 88%, other: black), end: arrow-tip("Stealth", length: 2.9mm, line: 1.0461pt))
     node((6.05, -0.43), [Input Size], font: font("small", weight: "bold", fill: navy), anchor: "north")
     node((-0.64, 4.05), [Computations], font: font("small", weight: "bold", fill: navy), rotate: (90) * 1deg, anchor: "south")
     coordinate("start", (0.38, 0.42))

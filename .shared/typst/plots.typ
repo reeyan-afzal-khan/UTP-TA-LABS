@@ -14,7 +14,7 @@
 #import "/.shared/packages/cetz/0.5.3/src/lib.typ" as cetz
 #import "palette.typ": *
 #import "theme.typ": *
-#import "diagrams.typ": node, connect, font, widths, tip, dash-pattern, _num
+#import "diagrams.typ": node, connect, font, widths, arrow-tip, dash-pattern, _num
 
 // ------------------------------------------------------------ pgfplots' look
 #let _pt = 72 / 72.27                        // one TeX point in Typst points

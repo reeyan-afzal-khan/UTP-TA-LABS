@@ -106,6 +106,6 @@ delete 20 (middle): 15 30 40
 
 The complete captured run is in `labs/outputs/singly_linked_list.txt`.
 
-#tryit[
+#exercises[
   Build 10,20,30; remove the head, tail, and final node in sequence. Confirm head becomes null, a missing value returns false, and no allocated node remains.
 ]

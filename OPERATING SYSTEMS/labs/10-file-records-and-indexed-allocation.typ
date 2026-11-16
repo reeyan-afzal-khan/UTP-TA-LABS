@@ -99,7 +99,7 @@
     )
   ]
 
-  #quickcheck[
+  #questions[
     + Which decisions belong to the application record format rather than the file system?
     + Why is writing a raw C structure not a portable long-term file format?
     + What role does an index block play in indexed allocation?
@@ -109,7 +109,7 @@
 
   #include "visuals/10-file-records-and-indexed-allocation-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Demonstrate a valid access and an out-of-range access. Submit an invalid allocation request and confirm that the allocation bitmap remains unchanged.
 
     - The text and binary record files are compared on readability, size and portability.

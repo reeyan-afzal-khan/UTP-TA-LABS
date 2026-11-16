@@ -27,9 +27,7 @@ Every block of code in this chapter is a piece of one script, `all_experiments/b
 
 == NumPy: one operation, a whole column
 
-#analogy[
-  A shopkeeper who raises every price by 5% does not think about each price tag in turn. The instruction is one sentence about the whole shelf. A Python list makes you visit every tag in a loop. A NumPy array lets you say the sentence.
-]
+A shopkeeper who raises every price by 5% does not think about each price tag in turn. The instruction is one sentence about the whole shelf. A Python list makes you visit every tag in a loop. A NumPy array lets you say the sentence.
 
 A list and an array can hold the same ten marks. The difference shows the moment you compute with them.
 
@@ -136,7 +134,7 @@ A summary of a table needs a direction. `axis=0` runs down the rows and leaves o
     }
     node((1.5 * cellw, -5.75 * cellh), [one mean per column], ..utplabel)
     // axis = 1
-    connect((-0.5, 1.1), (4.1, 1.1), ..utparrow, draw: orange, end: tip("Stealth", length: 2.2mm, line: widths.thick, color: orange))
+    connect((-0.5, 1.1), (4.1, 1.1), ..utparrow, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick, color: orange))
     node((1.8, 1.35), [`axis=1`], font: font("script", fill: orange))
     let sums = ("65", "68", "79")
     for (i, s) in sums.enumerate() {
@@ -169,7 +167,7 @@ every column now has mean [-0.0, -0.0, -0.0, -0.0] and sd [1.0, 1.0, 0.999999999
 
 `LOG` has shape `(10, 4)` and `LOG.mean(axis=0)` has shape `(4,)`. NumPy lines the shapes up from the right, sees that the row of four means fits under every row of the table, and repeats it ten times. That stretching is #term[broadcasting]. Student F reads as 0.17 standard deviations above average for hours and 1.81 above for the mark. The spread printed as 0.9999999999999999 is 1: a computer stores decimals approximately, which is why two decimals are compared with `np.isclose` and never with `==`.
 
-#pitfall[
+#warning[
   Broadcasting never warns you when shapes happen to fit. Subtract a `(10,)` array from a `(10, 1)` array and you get a `(10, 10)` grid, with no error. This is the classic bug when a target column has been reshaped. Print the shapes of both sides whenever a result looks too big.
 ]
 
@@ -249,7 +247,7 @@ One pair of brackets with a name gives one column, a #term[Series]. A list of na
   )
 ]
 
-#pitfall[
+#warning[
   `loc` slices include the last label, so `"A":"F"` is six students, while `iloc` slices stop before the last position, so `0:5` is five. Also, assign through one `loc`, as in `df.loc[mask, "col"] = value`. Chained brackets such as `df[mask]["col"] = value` may write into a temporary copy and change nothing, with only a warning to tell you.
 ]
 
@@ -441,7 +439,7 @@ Real data rarely arrives as one table. Orders sit in one file and customers in a
 
 The first join behaves: 7,043 customers go in, 7,043 come out, and none is left without a match. The second lookup lists `Month-to-month` twice, and every one of the 3,875 month-to-month customers comes back twice, so the table grows to 10,918 rows without a single warning. A model trained on that table would count those customers double.
 
-#keyidea[
+#note[
   Count the rows before and after every join. If the count changed and you did not expect it to, a key is repeated or missing. `how="left"` keeps every row of the left table, `how="inner"` keeps only rows with a match on both sides, and `validate="many_to_one"` makes pandas raise an error if the right table repeats a key.
 ]
 
@@ -525,7 +523,7 @@ Every scikit-learn object answers to the same few verbs, which is why the labs c
 
 Whatever `fit` learned is stored in attributes whose names end in an underscore, such as `coef_` and `intercept_` above. That trailing underscore is scikit-learn's way of saying "this came from the data".
 
-#keyidea[
+#note[
   `fit` is the only verb that learns. Calling it on rows that will later be used for testing is how most leakage happens (#secref(<sec:data-leakage>)), so the question to ask of any line of code is: which rows did `fit` see?
 ]
 
@@ -552,11 +550,7 @@ Three habits prevent most wasted hours.
   )
 ]
 
-#tryit[
-  Run `python all_experiments/book_checks/demo_data_toolkit.py`, then answer these by changing it. Which student has the highest standardized hours? What is the churn rate of customers who pay by electronic check, in the `PaymentMethod` column? Among customers with fiber internet, what share have been with the company more than two years? Each answer is one line.
-]
-
-#chapterrecap[
+#summary[
   - An array does arithmetic on every element at once. A loop over rows is the first place to look when code is slow.
   - A comparison makes a mask; a mask in brackets keeps the rows that pass; the mean of a mask is a share.
   - `axis=0` leaves one answer per column and `axis=1` one per row. Broadcasting stretches a row of four numbers under a table of four columns.
@@ -567,7 +561,11 @@ Three habits prevent most wasted hours.
   - In scikit-learn, `fit` learns and everything else applies. Ask which rows `fit` saw.
 ]
 
-#quickcheck[
+#exercises[
+  Run `python all_experiments/book_checks/demo_data_toolkit.py`, then answer these by changing it. Which student has the highest standardized hours? What is the churn rate of customers who pay by electronic check, in the `PaymentMethod` column? Among customers with fiber internet, what share have been with the company more than two years? Each answer is one line.
+]
+
+#questions[
   + `mark` holds the ten marks of the study log. What does `(mark < 50).mean()` compute, and what is its value?
   + `LOG` has shape `(10, 4)`. What are the shapes of `LOG.mean(axis=0)` and `LOG.mean(axis=1)`, and what does each number in them describe?
   + Why does `log[log["hours"] > 10 & log["mark"] >= 50]` fail, and how do you repair it?

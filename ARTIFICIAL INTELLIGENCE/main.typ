@@ -7,7 +7,6 @@
   lab-total: 8,
   contents: (part: 1.15em, chapter: 0.40em, lab: 0.50em),
   routine-compare: [Check your output against the reference output. Runtimes will differ; counts, costs and routes should not.],
-  titles: (intuition: [Conceptual intuition], firstread: [Core material], optional: [Extension], tryit: [Practice], labmode: [Lab setup], deliverable: [Submission checklist]),
 )
 #cover()
 #contents()

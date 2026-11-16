@@ -97,6 +97,6 @@ g++ -std=c++17 -Wall -Wextra heap.cpp -o heap.exe
 
 The complete captured run is in `labs/outputs/heap.txt`.
 
-#tryit[
+#exercises[
   Drain both heaps completely. Max-heap removals must descend; min-heap removals must ascend. After each removal, check every parent-child pair, then test one more pop on empty.
 ]

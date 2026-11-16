@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas({
       let bx = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.4, min-height: 1.2, align: center, font: font("small", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
       node((-4.3, 0), [Supervised \
     $X+y arrow.r.long$ predict $y$], name: "s", ..bx)
       node((4.3, 0), [Unsupervised \

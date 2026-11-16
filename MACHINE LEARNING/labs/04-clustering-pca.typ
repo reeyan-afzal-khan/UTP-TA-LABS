@@ -29,11 +29,11 @@
   [Save the evidence; then cluster the defect images],
   [12--14],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm the two data files are in `all_datasets/`. Keep the ZIP file as it is: pandas reads the CSV inside it directly.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It takes about two minutes; the pixel models of Questions~8 and~9 take most of it.
   + Part~A is clustering and Part~B is PCA. Neither has an answer key, so each question asks for the evidence a result needs.
@@ -47,7 +47,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + A customer bought on 1 November 2011 and on 2 December 2011, in two orders worth £120 and £80. The data ends on 9 December 2011, and recency is counted from the day after. What are this customer’s recency, frequency and monetary value?
@@ -382,8 +382,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(13)[Try it yourself][
   Cluster images without their labels. Reduce the Question~8 fitting images to 50 PCA components, run K-means with 7 clusters, one per defect type, and only then compare the clusters with the true types, with the adjusted Rand index and a table of what each cluster contains. Attempt it in this empty cell before reading the solution.
 ]
@@ -419,10 +417,10 @@
   #strong[What it means.] The clusters barely match the types: an adjusted Rand index of 0.129, where 1 would be the types exactly and 0 a random split. The purest cluster is only 56% dead knots. The average images show why: K-means grouped the defects by brightness, colour and the direction of the grain, which is what varies most in pixels, not by what a grader calls a defect. Without labels, “similar” means similar pixels.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[One start or many?] Rerun K-means on the customers at $k=4$ with `n_init=1`, for seeds 0 to 7, and record each inertia. Then do the same for the Question~14 images at $k=7$. What does the difference say about `n_init`?
   + #strong[Take the logs away.] Refit K-means at $k=4$ on the scaled but unlogged RFM columns, and compare the labels with Question~4’s using `adjusted_rand_score`. How large are the four clusters?
@@ -430,7 +428,7 @@
   + #strong[How few components?] Score logistic regression on the Question~8 validation rows with 2, 10 and 50 components. What share of the variance do two components keep, and what are they good for?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] Recency 8 days (from 2 December to 10 December), frequency 2, monetary value £200. On raw numbers a gap of £100,000 between two big spenders outweighs every other difference, so the few largest customers decide the clusters; logs measure spend in ratios, so £300 against £3,000 counts as much as £3,000 against £30,000.
 
   + The customers are stable: all eight single starts end between 4,963.7 and 4,964.0. The images are not: eight starts end between 248,598 and 251,895, and only three of them land within a few units of the best. Four well-separated customer groups leave little room for a bad start, while seven overlapping defect groups in 50 dimensions leave plenty. Several starts cost little and protect against the second case.
@@ -439,7 +437,7 @@
   + Validation accuracy is 0.420 with 2 components, 0.538 with 10 and 0.591 with 50, against 0.607 with 248. Two components keep 53.0% of the variance, mostly the light and colour of the wood: good for drawing all the images on one page, not for telling a crack from a knot.
 ]
 
-#troubleshoot[
+#tip[
   / `FileNotFoundError` for the ZIP: Keep `unsupervised/online_retail_ii/online_retail_ii.zip` zipped in `all_datasets/`; pandas reads the CSV inside it.
   / A `KMeans` memory-leak warning on Windows: scikit-learn suggests setting `OMP_NUM_THREADS`; the results are unaffected.
   / Question~2 is slow: Reading a million lines takes a few seconds.
@@ -447,7 +445,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The cleaning rules are fixed and listed, and the RFM columns are logged and scaled before clustering.
     - The choice of $k$ is justified by the silhouette and by what the segments are for.
     - You can say who DBSCAN’s noise customers are, and why they matter.

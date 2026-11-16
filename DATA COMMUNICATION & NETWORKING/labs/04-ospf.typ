@@ -27,7 +27,7 @@
 
   #strong[Expected evidence.] Start a fresh triangle without the static routes from Lab 3. R1 and R3 must learn each other’s LAN through OSPF. Capture neighbours and the route table before and after one link failure.
 
-  #labmode[
+  #note[
     Use the same topology as Lab~#labref(<sec:lab03-static>). Remove every static route first --- leaving them in place means you will not know which mechanism is carrying your traffic, and static routes have a better preference so they will win.
 
     #include "visuals/04-trace.typ"
@@ -48,7 +48,7 @@
 
   Static routing worked in Lab~#labref(<sec:lab03-static>). It also required you to configure every route on every router in both directions, and to predict every failure in advance. Add a fourth router and the work grows faster than the network.
 
-  #keyidea[
+  #note[
     Static routing scales with the number of #emph[paths]. Dynamic routing scales with the number of #emph[routers].
 
     OSPF routers describe their own links to each other, and every router independently computes shortest paths across the resulting map. Add a link and it is advertised automatically; lose a link and the recalculation happens without you.
@@ -67,7 +67,7 @@
   quit
   ```
 
-  #pitfall[
+  #warning[
     Set the router ID explicitly. If you do not, VRP picks one from the interface addresses --- and it may pick a different one after a reboot, which tears down every adjacency and produces a fault that looks random.
 
     A router ID is a 32-bit identifier that merely looks like an IP address. It does not need to be reachable, and by convention it is `1.1.1.1`, `2.2.2.2`, and so on.
@@ -92,7 +92,7 @@
 
   The rule: subtract each octet of the subnet mask from 255. The supplied `wildcard_calc.py` does this and shows the working, but do a few by hand first --- it appears in examinations.
 
-  #keyidea[
+  #note[
     A 0 bit in a wildcard means “this bit must match”; a 1 bit means “do not care”. So `0.0.0.255` means the first three octets must match and the last is free --- exactly a `/24`.
 
     The `network` statement does not advertise a network. It selects which #emph[interfaces] participate in OSPF: any interface whose address falls inside the range is enabled.
@@ -107,7 +107,7 @@
    0.0.0.0         GigabitEthernet0/0/0   2.2.2.2         Full
   ```
 
-  #keyidea[
+  #note[
     `Full` is the only state that means success. Anything else is a diagnosis:
 
     `Init` --- hellos are being sent but the neighbour is not acknowledging them. Usually one-way connectivity. \
@@ -135,7 +135,7 @@
 
   Start a continuous ping, shut down the primary link, and count lost packets --- then compare with the figure from Lab~#labref(<sec:lab03-static>).
 
-  #troubleshoot[
+  #tip[
     #strong[Neighbour never leaves Init.] Traffic flows one way only. Check masks on both ends and any access lists.
 
     #strong[Stuck in ExStart or Exchange.] MTU mismatch. Compare `display interface` on both sides.
@@ -145,7 +145,7 @@
     #strong[Routes appear then vanish repeatedly.] Duplicate router IDs. Every router in the area must be unique.
   ]
 
-  #tryit[
+  #exercises[
     Compare your two failover measurements. OSPF’s default dead interval is 40 seconds, so recovery is not instant --- but it required no backup route from you, and it would have handled a failure you never anticipated.
 
     State the trade-off in one sentence, then say which you would deploy on a three-router branch network and why.
@@ -156,7 +156,7 @@
 
 #include "visuals/04-ospf-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Capture neighbours and the selected route, then change one link’s availability. Compare convergence evidence and the resulting next hop; do not infer the path solely from configuration text.
 
   - All static routes removed before OSPF is configured.

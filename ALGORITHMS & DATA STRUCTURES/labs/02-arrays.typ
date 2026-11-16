@@ -3,11 +3,11 @@
 
 #labsection(2, label: <sec:lab02>)[Arrays, multidimensional storage, and matrices]
 
-#sourcealignment[Official Lab Manual --- Lab II][
-  1D/2D arrays, nested loops, and matrix operations.
-]
-
 #labproject[Process and multiply matrices][
+  #note[
+    #strong[Official Lab Manual --- Lab II.] 1D/2D arrays, nested loops, and matrix operations.
+  ]
+
   #strong[Goal.] Multiply compatible matrices and trace one result cell.
 
   #strong[Recall first.] Review the #link(<ch:arrays>)[Arrays and Two-Dimensional Arrays] chapter.
@@ -24,7 +24,7 @@
   #include "programs/matrix_operations.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

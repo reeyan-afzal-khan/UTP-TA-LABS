@@ -3,11 +3,11 @@
 
 #labsection(9, label: <sec:lab09>)[Graph representation, traversal, and spanning trees]
 
-#sourcealignment[Official Lab Manual --- Lab IX][
-  Adjacency lists, BFS/DFS, exact path length, and a greedy spanning-tree method.
-]
-
 #labproject[Build, traverse, and analyze one graph][
+  #note[
+    #strong[Official Lab Manual --- Lab IX.] Adjacency lists, BFS/DFS, exact path length, and a greedy spanning-tree method.
+  ]
+
   #strong[Goal.] Store, traverse, and find a minimum spanning tree of one graph.
 
   #strong[Recall first.] Review the #link(<ch:graphs>)[Graphs] chapter.
@@ -24,7 +24,7 @@
   #include "programs/minimum_spanning_tree.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

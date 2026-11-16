@@ -13,7 +13,7 @@ Before configuring a network, you need a way to observe its traffic. This chapte
 / Network traffic trace: a time-ordered record of packets seen by an interface.
 / Wireshark: a graphical analyzer for inspecting and troubleshooting packet traffic.
 
-#conceptmap[
+#note[
   #strong[Generate traffic] $arrow.r$ #strong[capture on the correct interface] $arrow.r$ #strong[find the relevant packet] $arrow.r$ #strong[decode protocol fields] $arrow.r$ #strong[relate the packet to the action that produced it].
 ]
 
@@ -57,7 +57,7 @@ switch forwards a frame to one port rather than all of them.
   })
 ]
 
-#keyidea[
+#note[
   In eNSP you start Wireshark by right-clicking a specific device
   interface, which puts you in the first case automatically. On real
   hardware you have to arrange the third case deliberately, with a port
@@ -103,7 +103,7 @@ Wireshark versions differ visually, but the three-pane workflow is consistent.
   + Stop after collecting enough evidence; small traces are easier to analyze.
 ]
 
-#workedexample[
+#example[
   `ping 10.0.13.3` from R1 produces five request/reply pairs. In the
   packet list each pair shares an ICMP identifier and sequence number, and
   the source and destination columns swap between the two rows. Matching
@@ -130,15 +130,15 @@ Wireshark versions differ visually, but the three-pane workflow is consistent.
 
 A useful screenshot shows the selected packet, relevant decoded fields, and filter expression. Explain what the evidence proves.
 
-#verification[
+#checklist[
   For this lab, convincing evidence is a capture in which you can point to a known traffic event and identify at least the source, destination, protocol, and the relevant request/reply relationship.
 ]
 
-#pitfall[
+#warning[
   A capture from the wrong interface, or one buried in unrelated traffic, is poor evidence. Generate controlled traffic and filter by protocol or address.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between the packet list and packet details panes?
   + Why is a traffic trace easier to interpret when you deliberately generate known traffic?
   + Which pane would you use when you need the exact bytes carried in a frame?

@@ -32,9 +32,9 @@ A flexible model can fit patterns specific to the observed sample. To evaluate g
 #utpfig([Model parameters are learned from the training set. The test set is touched only after the model and preprocessing choices are fixed.], label: <fig:train-test-regression>)[
   #canvas(x: 16.06cm, {
     let card = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.27 * 16.06, min-width: 0.34 * 16.06, min-height: 1.18, inner-xsep: 4mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-    let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
-    let testflow = (line-width: 0.8966pt, draw: mix(orange, 85%, other: black), end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
-    let targetflow = (line-width: 0.797pt, draw: mix(orange, 85%, other: black), dash: "dashed", end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.797pt))
+    let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
+    let testflow = (line-width: 0.8966pt, draw: mix(orange, 85%, other: black), end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
+    let targetflow = (line-width: 0.797pt, draw: mix(orange, 85%, other: black), dash: "dashed", end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.797pt))
     let flowlabel = (fill: white, rounded: 1mm, inner-xsep: 2.5mm, inner-ysep: 1mm, font: font("tiny", weight: "bold"))
     node((0.5, 4.2), [#text(fill: teal)[#strong[01 AVAILABLE DATA]] \ #v(3.9851pt)
    Features and target \
@@ -117,7 +117,7 @@ For inference on coefficients, common assumptions include approximate linearity 
 
 Residual plots can expose curvature, non-constant variance, influential observations, or systematic subgroup errors. A single average metric can hide all of these.
 
-#pitfall[
+#warning[
   Evaluating the model on the same rows used for fitting answers “How well did the model remember the training data?” rather than “How well might it generalise?”
 ]
 
@@ -133,15 +133,15 @@ A model that is too rigid can miss genuine structure; a model that is too flexib
 
 Compare the regression against a simple baseline such as predicting the training-set mean for every case. A model that cannot improve on a naive baseline is not useful merely because it produced coefficients.
 
-#workedexample[
+#example[
   In Lab 7, alcohol is predicted from several other chemical measurements. The point is not to claim a production-ready chemistry model; it is to practise the complete supervised workflow: define target and features, split, fit, predict, evaluate, and inspect residuals.
 ]
 
-#keyidea[
+#note[
   A predictive model is an empirical claim about unseen cases. Its credibility comes from validation data and transparent error analysis, not from how impressive the training summary looks.
 ]
 
-#quickcheck[
+#questions[
   + Why can a low training error be misleading?
   + How do MAE and RMSE differ in their treatment of large errors?
   + What can residuals reveal that $R^2$ cannot?
@@ -174,6 +174,6 @@ Ames Housing contains many categorical variables whose levels represent location
 
 A regression model cannot consume neighbourhood names as unordered text. Common approaches create indicator variables, combine rare levels, or use regularised encodings learned only from the training set. Whatever representation is chosen becomes part of the preprocessing pipeline and must therefore be reproduced exactly at prediction time.
 
-#pitfall[
+#warning[
   Encoding a category using the target mean calculated from the full dataset is leakage. If target encoding is used, the encoding itself must be learned inside the training fold and applied to the corresponding validation fold without using its outcomes.
 ]

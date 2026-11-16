@@ -110,6 +110,6 @@ insert 30 at position 2 (middle)
 
 The complete captured run is in `labs/outputs/doubly_linked_list.txt`.
 
-#tryit[
+#exercises[
   Delete the first and last entries from a fresh three-node list. Check head-\>prev and tail-\>next are null, and that backward output is the reverse of forward output.
 ]

@@ -98,13 +98,13 @@
 
   Run `./shm_reader` again after the segment has been removed. The failure is intentional. Explain why a clear error message is better than creating a new empty segment in the reader.
 
-  #quickcheck[
+  #questions[
     + How is a pipe different from shared memory?
     + What makes a section of code a critical section?
     + Why can two correct operations still produce an incorrect result when they race?
   ]
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Annotate ownership of every descriptor after fork. Explain which close allows EOF, then verify that the complete message arrives and the processes exit without leftover IPC resources.
 
     - Each process closes the pipe end it does not use, and the sketch shows which.

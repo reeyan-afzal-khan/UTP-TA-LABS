@@ -29,11 +29,11 @@
   [Save the evidence; then move the trap],
   [8--10],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment. This lab reads no data file.
   + Check the worked numbers of Chapter~@ch:rl, including the grid’s exact values. The last line must read `Every number above matches the book.`
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It takes a few seconds.
@@ -48,7 +48,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook.
 
   + The shortest route takes six moves: five ordinary steps at $-0.04$, and a sixth into the goal for $+1$. What is the plain return? ($0.80$.)
@@ -258,8 +258,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(9)[Try it yourself][
   Change one thing: the step cost, the trap location, the exploration schedule, or the discount factor. Write down what you expect the greedy policy to do differently before retraining, then check with `plot_policy`. Attempt it in this empty cell before reading the solution.
 ]
@@ -291,9 +289,9 @@
   #strong[What it means.] The route is now down, right, down, right, right, down: still six moves, so the return is still 0.8. The cell beside the new trap, (3, 0), points up and away from it. The right-hand column, which the original policy avoided, is now safe, and its arrows point down. The agent was never told the trap had moved; it relearned from the rewards alone.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook for these tasks, using `train_q` as a starting point. Write your prediction first, then run it.
 
   + #strong[No step cost.] Retrain with a step cost of 0. With no charge per move, does the agent still take a short route? Why, or why not?
@@ -302,14 +300,14 @@
   + #strong[Always explore.] Keep $epsilon$ at 1 throughout, so every training move is random. Does the #emph[greedy] policy read from the table still work?
 ]
 
-#expectedfindings[
+#answers[
   + It still takes six moves, with a return of 1.00. With $gamma =0.95$ a goal reached later is worth less, so the discount alone favors the short route.
   + Still six moves, with a return of $5 times (-0.5)+1=-1.50$. Six moves is already the minimum, and the trap costs $-1$ at once, so the costly route is still best from the start.
   + It reaches the goal in six moves with a return of 0.80, which may surprise you. Every tried action soon has a negative Q-value while untried ones stay at 0, so the greedy agent keeps trying whatever it has not tried. Starting at zero with negative step costs is accidental optimistic initialization. The food-stall student in Chapter~@ch:rl had no such luck, because every meal there could pay.
   + Yes: six moves and a return of 0.80. Q-learning’s backup uses the #emph[best] next action, whatever the agent actually did next, so it can learn the greedy policy’s values while behaving randomly. Training returns would look terrible throughout, which is another reason to evaluate separately.
 ]
 
-#troubleshoot[
+#tip[
   / The route differs from the sheet: Check whether you ran cells out of order: `rng` is shared, so rerunning a cell continues the random stream. Restart and run all. Any six-move route with return 0.8 is equally correct.
   / Return far below 0.8 in evaluation: Check that evaluation passes `explore=False`, and that you are not evaluating a half-trained table.
   / Arrows look upside down: `plt.imshow` puts row 0 at the top, so $y$ grows downward on this plot, which is why the code draws $-0.3 thin d y$. Keep that sign.
@@ -317,7 +315,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The greedy policy reaches the goal in six moves, for a return of $0.80$, and you can read that route from the printed policy.
     - The success rate is reported over episodes run without exploration.
     - `models/gridworld_q_table.npy` is saved, and the policy is read from the reloaded table.

@@ -14,7 +14,7 @@ A #term[program] is code stored in a file. A #term[process] is a running instanc
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3.5, min-height: 1, align: center, font: font("small", fill: navy))
     let live = (..box-style, draw: teal, fill: pale-teal)
     let kern = (..box-style, draw: navy, fill: mix(navy, 10%))
-    let ar = (line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let ar = (line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((-4.2, 0), [Executable file \
   `fork_demo`], name: "file", ..box-style)
     node((0, 0), [Running process \
@@ -45,7 +45,7 @@ The exact numbers are temporary. The relationship matters more than the number i
   #canvas({
     let processnode = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.2, min-height: 1.65, inner-sep: 3mm, align: center, font: font("small", fill: navy))
     let childnode = (..processnode, draw: orange, fill: pale-orange)
-    let branch = (line-width: 0.8966pt, draw: teal, rounded: 2mm, end: tip("Stealth", length: 2.3mm, width: 1.8mm, line: 0.8966pt))
+    let branch = (line-width: 0.8966pt, draw: teal, rounded: 2mm, end: arrow-tip("Stealth", length: 2.3mm, width: 1.8mm, line: 0.8966pt))
     let connector = (line-width: 0.8966pt, draw: teal)
     node((0, 2.8), [#strong[Before fork] \ #v(2.9888pt)
    PID 4200 \ #v(1.9925pt)
@@ -64,7 +64,7 @@ The exact numbers are temporary. The relationship matters more than the number i
   })
 ]
 
-#keyidea[
+#note[
   After a successful `fork()`, there are two independently scheduled processes. Output order can change from run to run unless the program adds synchronization.
 ]
 
@@ -88,7 +88,7 @@ A directory is not just a graphical folder. It is a file-system object that maps
   #canvas({
     let d = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3.2, min-height: 0.8, font: font("small", weight: "bold", fill: navy))
     let f = (draw: teal, fill: pale-teal, rounded: 1mm, min-width: 2.6, min-height: 0.65, font: font("script", fill: navy))
-    let ar = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let ar = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((0, 1.5), [Lab01 directory], name: "dir", ..d)
     node((-3.2, -0.2), [`fork_demo.c`], name: "a", ..f)
     node((0, -0.2), [`directory_list.c`], name: "b", ..f)

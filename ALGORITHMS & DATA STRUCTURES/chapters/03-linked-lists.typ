@@ -37,7 +37,7 @@ The Week III slides describe a node as having two conceptual parts: a data field
 
 The #term[head] identifies the first node. From the head, the remaining nodes are reached by repeatedly following the stored links.
 
-#keyidea[
+#note[
   An array answers “where is item $i$?” by index arithmetic. A linked list answers it by following a chain of pointers from the head.
 ]
 
@@ -142,7 +142,7 @@ the steps overwrites the only reference to the rest of the list.
       connect("b0", "b1", ..utparrow)
       connect("b1", "b2", ..utparrow)
       node((rel: (0.15, 0), to: "b2.east"), [#ptrnull], font: font("small"), ..utplabel, anchor: "west")
-      connect("m5", "b0", line-width: 0.9963pt, draw: orange, end: tip("Stealth", length: 2.2mm, line: 0.9963pt))
+      connect("m5", "b0", line-width: 0.9963pt, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: 0.9963pt))
       node((1.35, 0.72), [HEAD], font: font("small"), ..utptag, anchor: "south")
       connect((1.35, 0.68), "b0.north", ..utpptr, draw: orange)
       node((0.5, -0.42), [`n->next = head`], font: font("small"), ..utplabel, anchor: "north", text: orange)
@@ -158,7 +158,7 @@ the steps overwrites the only reference to the rest of the list.
       connect("c0", "c1", ..utparrow)
       connect("c1", "c2", ..utparrow)
       node((rel: (0.15, 0), to: "c2.east"), [#ptrnull], font: font("small"), ..utplabel, anchor: "west")
-      connect("c5", "c0", line-width: 0.9963pt, draw: green, end: tip("Stealth", length: 2.2mm, line: 0.9963pt))
+      connect("c5", "c0", line-width: 0.9963pt, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: 0.9963pt))
       node((-0.35, 0.72), [HEAD], font: font("small"), ..utptag, anchor: "south", text: green)
       connect((-0.35, 0.68), "c5.north", ..utpptr, draw: green)
       node((0.5, -0.42), [`head = n`], font: font("small"), ..utplabel, anchor: "north", text: green)
@@ -259,7 +259,7 @@ A doubly linked list stores two links in every node: `prev` and `next`. This sup
     }
     for i in (1, 2) {
       let j = int(i - 1)
-      connect("pv" + str(i) + ".south", "dt" + str(j) + ".south", bend: 38deg, line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2.2mm, line: widths.thick), name: "curve-2")
+      connect("pv" + str(i) + ".south", "dt" + str(j) + ".south", bend: 38deg, line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick), name: "curve-2")
     }
     node((7.6, 1.05), [forward: `next`], font: font("small"), ..utplabel, anchor: "west", text: teal)
     node((7.6, -1.05), [backward: `prev`], font: font("small"), ..utplabel, anchor: "west", text: orange)
@@ -303,10 +303,10 @@ A doubly linked list stores two links in every node: `prev` and `next`. This sup
   )
 ]
 
-#pitfall[
+#warning[
   “Insertion is easy in a linked list” does not mean “finding the insertion position is always fast.” If the program must first search through $n$ nodes to locate the position, that search still costs traversal time.
 ]
 
-#quickcheck[
+#questions[
   Why can a doubly linked list move backward while a singly linked list cannot? If you already have a pointer to a middle node, which representation stores more information that can help with deletion?
 ]

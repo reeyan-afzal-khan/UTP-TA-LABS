@@ -21,7 +21,7 @@
   listing: "text",                              // \lstset{style=...}, as a fence language
   diagram-size: (1.0, 0.8),                     // \utpdiagramsize, in cm
   keep-headings: none,                          // \utpkeepheadings{section}{subsection}
-  titles: (:),                                  // \def\utptitle...{...}
+  titles: (:),                                  // relabel a callout or element: (note: [Remember])
   routine-intro: [For each question, do four things in order:],
   routine-compare: [Check your output against the reference output.],
 )

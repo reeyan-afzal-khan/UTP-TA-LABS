@@ -90,6 +90,6 @@ Average age: 20.8
 
 The complete captured run is in `labs/outputs/student_records.txt`.
 
-#tryit[
+#exercises[
   Change the target ID to 9999. Predict the failed search and update: both must leave every record unchanged. Then update ID 1004 and calculate the new average, 21.0, from the stored ages.
 ]

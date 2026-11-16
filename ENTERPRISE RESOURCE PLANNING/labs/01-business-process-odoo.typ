@@ -12,7 +12,7 @@
 
   #include "visuals/01-flow.typ"
 
-  #labmode[
+  #note[
     The tutorial asks students to identify business functions, discuss cross-functional Sales teams, describe information flow between Sales and Finance, and draw a purchasing process. The Odoo build makes those abstract boxes concrete: departments become records, employees become owners, and later transactions will be assigned to them.
   ]
 
@@ -28,7 +28,7 @@
   - new records through #strong[New]; existing records are directly editable;
   - cloud/save indicator for unsaved changes, with auto-save when navigating away.
 
-  #pitfall[
+  #warning[
     Older Odoo tutorials may refer to a separate Edit button or the old “Storable Product” type. The supplied Odoo 19 guide states that physical stock items use #strong[Product Type = Goods] plus #strong[Track Inventory].
   ]
 
@@ -91,7 +91,7 @@
   + a description of information flowing between Marketing/Sales and Accounting/Finance;
   + a business-process diagram for ordering 1,000 bicycles from a supplier.
 
-  #tryit[
+  #exercises[
     For Question 3, do not write only “Sales sends order data to Finance.” Include the reverse flow too: customer credit/payment status and invoice/payment information must return to Sales so the customer can receive an accurate answer.
   ]
 
@@ -107,7 +107,7 @@
 
 #include "walkthroughs/01-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Trace one employee to department and user account. Demonstrate the intended user’s access using the permitted classroom account and record which business task the assigned role supports.
 
   - The database runs Odoo 19 Community with the company set to West End Bicycles, Ipoh, Malaysia.

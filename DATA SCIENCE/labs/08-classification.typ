@@ -58,7 +58,7 @@
 
   #include "visuals/08-classification-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Compute two confusion matrices and identify the records that change decision. Explain the false-positive/false-negative trade-off in the task’s context.
 
     #strong[Required evidence.] Submit one holdout confusion matrix, a threshold comparison, one probability-distribution view, and a short decision note explaining which error would be more costly in a stated hypothetical use case.

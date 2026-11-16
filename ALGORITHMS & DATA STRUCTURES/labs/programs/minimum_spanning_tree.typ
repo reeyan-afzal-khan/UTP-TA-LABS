@@ -88,6 +88,6 @@ g++ -std=c++17 -Wall -Wextra minimum_spanning_tree.cpp -o minimum_spanning_tree.
 
 The complete captured run is in `labs/outputs/minimum_spanning_tree.txt`.
 
-#tryit[
+#exercises[
   Remove BE and DE so E is isolated. The returned forest has fewer than V-1 edges and isSpanningTree must report false; do not describe it as a spanning tree.
 ]

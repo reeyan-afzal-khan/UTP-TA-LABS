@@ -78,6 +78,6 @@ g++ -std=c++17 -Wall -Wextra quick_sort_descending.cpp -o quick_sort_descending.
 
 The complete captured run is in `labs/outputs/quick_sort_descending.txt`.
 
-#tryit[
+#exercises[
   Use empty, one-value, all-equal, and reversed arrays. Predict which ranges end immediately, and verify descending order without losing duplicate values.
 ]

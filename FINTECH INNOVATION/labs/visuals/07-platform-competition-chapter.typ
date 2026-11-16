@@ -5,7 +5,7 @@
     #canvas({
       let core = (draw: navy, fill: navy, text: white, rounded: 2mm, text-width: 3.1, min-height: 1.2, align: center, font: font("small", weight: "bold"))
       let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.5, min-height: 0.95, align: center, font: font("script", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.9mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.9mm, line: widths.thick))
       node((0, 0), [Big Tech \
     platform], name: "p", ..core)
       node((-4, 1.8), [Existing users], name: "u", ..b)

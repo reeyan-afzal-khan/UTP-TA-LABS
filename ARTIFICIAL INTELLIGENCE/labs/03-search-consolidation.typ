@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab03/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment.
   + From `all_experiments/`, run the tests and one route search in a terminal. These two commands should work before you open the notebook.
   + Start Jupyter from the same folder, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
@@ -36,7 +36,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] The notebook’s tiny graph is below. Before running anything, write down the path and cost you expect from each of BFS, DFS, UCS, GBFS and A$""^(star.op)$. The heuristic is $h(S)=5$, $h(A)=4$, $h(B)=1$, $h(G)=0$.
 
   ```python
@@ -199,7 +199,7 @@
   #strong[Read the result.] Regenerate this plot rather than copying it. The vertical axis is logarithmic, so the gap between A$""^(star.op)$ and UCS is much larger than it looks.
 ]
 
-#yourturn[
+#exercises[
   + #strong[Add two tests.] Append the two tests below to `utils/test_search.py`, then rerun `python -m pytest utils -q`. The first checks a boundary case for the informed searches. The second pins down what happens when two routes cost the same. Check the result contract, not only the `found` flag.
   + #strong[Use the command line.] Run `ucs`, `gbfs` and `astar` from `DOH` to `LIM`. Record cost, route and expansions for each.
   + #strong[Find the boundary.] Open `demo_robot_maze.py` and answer: which function plays the role that `openflights.py` plays for airports, and which lines of `core.py` had to change for the maze to work?
@@ -218,19 +218,19 @@
   ```
 ]
 
-#expectedfindings[
+#answers[
   + `10 passed`. Question~3’s reference output will now read 10 instead of 8, which is correct. If you remove the tests again, it returns to 8.
   + UCS: 14,856~km via MAD, 3,046 expanded. GBFS: 15,333~km via GRU, 2 expanded. A$""^(star.op)$: 14,856~km via MAD, 112 expanded.
   + `build_graph` is the maze’s loader, and no line of `core.py` changed. That is the domain boundary of #figref(<fig:domains>): a new domain needs a new loader and nothing else.
 ]
 
-#troubleshoot[
+#tip[
   / `No module named pytest`: Your environment is not active, or the requirements were not installed in it. Activate it and run `pip install -r requirements.txt`.
   / `No module named utils`: Run `python -m utils` and `python -m pytest utils` from inside `all_experiments/`.
   / A test fails after you edited `core.py`: Good: that is what the tests are for. Read which test failed; each one names one way a search can break.
 ]
 
-#verification[
+#checklist[
   - All five algorithms return a `SearchResult` with identical fields.
   - All tests pass with `python -m pytest utils -q`, without any dataset.
   - The command line prints the KUL$arrow.r$HKT$arrow.r$LED$arrow.r$HEL$arrow.r$KEF route and 11,461~km, as Lab~2 found.
@@ -238,7 +238,7 @@
   - `results/lab03/` holds `benchmark.csv`, `benchmark_summary.csv` and `benchmark_expansions.png`.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
   - Submit the executed notebook, your edited `test_search.py` and the generated `results/lab03/` folder.
   - Add a short conclusion: recommend a default method for distance-based routing, and explain which module would change for a different graph domain.

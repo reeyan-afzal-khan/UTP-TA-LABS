@@ -124,6 +124,6 @@ g++ -std=c++17 -Wall -Wextra binary_tree.cpp -o binary_tree.exe
 
 The complete captured run is in `labs/outputs/binary_tree.txt`.
 
-#tryit[
+#exercises[
   Delete a missing value and then the only node of a fresh tree in both representations. Compare traversal outputs and shape, and confirm all linked allocations are released.
 ]

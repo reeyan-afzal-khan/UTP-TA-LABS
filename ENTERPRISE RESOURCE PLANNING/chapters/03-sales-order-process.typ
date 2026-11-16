@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand functional integration and the idea of shared transaction data.][describe an end-to-end sales order process, diagnose problems caused by disconnected systems, explain the order-to-cash sequence, and show how sales, inventory, and finance are linked.]
 
-#sourcebasis[
+#note[
   This chapter uses Tutorial 5 and Chapter 3 of #emph[Concepts in Enterprise Resource Planning]. The Fitter Snacker case is retained as the main example of
   an inefficient, unintegrated sales process; the Odoo sections map the same
   concepts onto the West End Bicycles practical.
@@ -23,7 +23,7 @@ next step depends on.
 
 #utpfig([The sales order process with the owner of each step and the record it creates. Reading down the third row shows why no single department can be held responsible for the customer’s experience.], label: <fig:order-to-cash-lanes>)[
   #canvas({
-    let tight = (line-width: widths.semithick, draw: teal, end: tip("Stealth", length: 1.6mm, line: widths.semithick))
+    let tight = (line-width: widths.semithick, draw: teal, end: arrow-tip("Stealth", length: 1.6mm, line: widths.semithick))
     node((1.05, 2.15), [#strong[Step]], ..proccap, anchor: "east", align: right)
     node((1.05, 1.12), [#strong[Owner]], ..proccap, anchor: "east", align: right)
     node((1.05, 0.12), [#strong[Creates]], ..proccap, anchor: "east", align: right)
@@ -123,7 +123,7 @@ waiting for a transfer, not being worked on.
   })
 ]
 
-#pitfall[
+#warning[
   None of this is careless staff; it is process design. A process that requires
   people to copy, fax, re-key, and reconcile the same fact across systems produces
   errors and delays no matter how conscientious they are. Fix the structure.
@@ -200,7 +200,7 @@ profitability analysis all depend on that same source transaction.
 If a customer receives a discount, Sales and Finance need the same final price.
 Re-entering the invoice manually creates an unnecessary opportunity to disagree.
 
-#keyidea[
+#note[
   A reliable sales process preserves document lineage: the quotation explains how
   the order was formed, the delivery explains what was physically fulfilled, the
   invoice explains what was billed, and the payment explains what was settled.
@@ -268,8 +268,8 @@ governance and management expectations support one.
 
 == How the sequence appears in Odoo 19 Community
 
-#applicationbox[
-  For the Road Bike example, the practical sequence is:
+#note[
+  #strong[In Odoo 19 Community.] For the Road Bike example, the practical sequence is:
 
   + create a CRM opportunity for Seri Iskandar Cycling Club;
   + create a quotation for 5 Road Bikes at RM 1,000 each;
@@ -283,14 +283,14 @@ governance and management expectations support one.
   again in Finance.
 ]
 
-#tryit[
+#exercises[
   Take the old Fitter Snacker process and label every point where information is
   copied, delayed, estimated, or re-entered. Map each problem to one ERP
   mechanism: shared master data, automatic document creation, real-time status,
   configured pricing, availability checking, or integrated accounting.
 ]
 
-#quickcheck[
+#questions[
   + Why can a quotation error later become an invoicing problem?
   + What is the difference between a Sales Order and a Delivery in the process model?
   + Why is payment status useful to Sales even though Finance records the payment?

@@ -60,7 +60,7 @@
 
   #include "visuals/10-unsupervised-learning-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Describe one cluster’s size and feature profile. Compare a two-component projection with the full scaled representation and identify distinctions the plot can hide.
 
     #strong[Required evidence.] Submit one cluster-selection diagnostic, one cluster profile, one PCA explained-variance summary, and one score plot. For each task, write a two-sentence interpretation that separates the algorithmic result from the substantive meaning you are assigning to it.

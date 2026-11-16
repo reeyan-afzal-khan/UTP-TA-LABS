@@ -12,7 +12,7 @@
 
   #include "visuals/06-flow.typ"
 
-  #labmode[
+  #note[
     The tutorial explicitly requires the supplied spreadsheet. Odoo remains part of the lab by providing the operational context: Sales generates history, Inventory provides starting stock, and Manufacturing provides actual production. The spreadsheet performs the aggregate planning calculation.
 
     #v(6pt)
@@ -88,7 +88,7 @@
 
   For each report, identify which S&OP input or validation measure it could provide in a larger implementation: sales history, starting inventory, production output, or actual-versus-plan comparison.
 
-  #keyidea[
+  #note[
     Forecasting is not “outside ERP.” Even when the planning calculation is performed in a spreadsheet, the reliability of the model depends on integrated historical sales, inventory, and production data.
   ]
 ]
@@ -99,7 +99,7 @@
 
 #include "walkthroughs/06-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Run the two documented capacity-unit interpretations. Show the first month where feasibility differs and report both stock and utilisation, rather than only a final annual total.
 
   - Every calculated row of the forecast uses formulas, not typed values.

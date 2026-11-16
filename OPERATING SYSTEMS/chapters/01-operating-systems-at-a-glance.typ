@@ -18,7 +18,7 @@ Open a terminal and type `ls`. A list of filenames appears. Nothing about that i
 
 Four different subsystems cooperated, and you typed two letters. The #term[operating system (OS)] is the software that made all four happen.
 
-#keyidea[
+#note[
   An OS does two jobs at once. It is an #emph[abstraction layer], turning awkward hardware into workable objects like processes, files, and memory addresses. It is also a #emph[resource manager], deciding who gets what, for how long, and with what permission.
 
   Nearly every design decision in this course comes from those two jobs pulling in different directions.
@@ -31,7 +31,7 @@ Your program sits at the top. The hardware sits at the bottom. Everything betwee
 #utpfig([The layers of a running system, from applications through the system interface and the kernel down to the hardware. Every downward step goes through the interface directly beneath it.], label: <fig:os-layers>)[
   #canvas({
     let layer-style = (draw: blue, rounded: 2mm, text-width: 12, min-height: 0.85, inner-xsep: 4mm, inner-ysep: 1mm, align: center, font: font("footnote", fill: navy))
-    let flow = (line-width: widths.semithick, draw: muted, end: tip("Stealth", length: 1.6mm, width: 1.3mm, line: widths.semithick))
+    let flow = (line-width: widths.semithick, draw: muted, end: arrow-tip("Stealth", length: 1.6mm, width: 1.3mm, line: widths.semithick))
     node((0, 0), [#strong[Applications] \ #v(0.9963pt)
    shell, editor, browser, compiler, and user programs], name: "apps", ..layer-style, fill: pale-blue)
     node(below-of("apps", 0.25), [#strong[System interface] \ #v(0.9963pt)
@@ -60,7 +60,7 @@ Control crosses that boundary in exactly three ways, and it is worth memorising 
 / Exception: The current instruction #emph[cannot proceed] --- divide by zero, bad memory access, page fault.
 / Interrupt: Hardware #emph[demands attention] --- a timer tick, a keypress, a disk finishing a read.
 
-#intuition[
+#note[
   User mode is a blast wall. A buggy program should be free to crash itself, and unable to take down the machine, corrupt another process’s memory, or reprogram a disk controller on its way out.
 
   This is why an infinite loop in your code does not freeze the whole computer. The timer interrupt fires regardless of what your program is doing, and control returns to the kernel whether your program likes it or not.
@@ -84,7 +84,7 @@ A #term[system call] is a request for a service that needs kernel authority. The
   )
 ]
 
-#pitfall[
+#warning[
   `printf()` is not a system call. It is a C library function that formats your text and then calls `write()`, which is the system call.
 
   The distinction matters more than it sounds. The library buffers output, so `printf()` may return long before anything reaches the screen. In Lab 1 you fork a process, and both parent and child inherit a copy of that buffer --- which is how a single `printf()` can produce output twice. Add `fflush(stdout)` before `fork()` and the duplicate disappears.
@@ -94,7 +94,7 @@ A #term[system call] is a request for a service that needs kernel authority. The
 
 Return to `ls`, and trace it properly. The shell creates a process. The scheduler decides when it runs. Virtual memory hands it an address space that appears to start at zero regardless of where it physically sits. The file system turns the pathname into a location. The storage stack reads blocks. An interrupt announces the read finished. The terminal driver receives the output.
 
-#keyidea[
+#note[
   The topics in this course are not a list of separate features. They are cooperating subsystems, and almost every non-trivial program execution needs all of them at once.
 
   Each later chapter zooms in on one of the steps above.
@@ -106,11 +106,9 @@ These three words get used loosely in conversation and precisely in operating sy
 
 A #term[program] is passive: instructions and data sitting in a file. It does nothing. A #term[process] is a running instance of a program, with state --- registers, program counter, address space, open files, scheduling information, credentials. A #term[thread] is a single flow of execution inside a process.
 
-#analogy[
-  A program is a recipe. A process is one cook actually working from it, with their own bench space, ingredients, and half-finished pan. A thread is a pair of hands.
+A program is a recipe. A process is one cook actually working from it, with their own bench space, ingredients, and half-finished pan. A thread is a pair of hands.
 
-  Two cooks working from the same recipe do not share a bench --- that is two processes. Two pairs of hands belonging to one cook share everything on that bench --- that is two threads, and it is exactly why threads need locks and processes usually do not.
-]
+Two cooks working from the same recipe do not share a bench --- that is two processes. Two pairs of hands belonging to one cook share everything on that bench --- that is two threads, and it is exactly why threads need locks and processes usually do not.
 
 #utptable[
   #tabularx(
@@ -132,7 +130,7 @@ A process is not always running. Most of the time it is waiting for something. T
 #utpfig([The five-state process model. Running to Ready is preemption; Running to Waiting is blocking.], label: <fig:process-states>)[
   #canvas({
     let st = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.1, min-height: 0.8, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (draw: teal, line-width: widths.thick, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (draw: teal, line-width: widths.thick, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [New], name: "new", ..st)
     node((3.6, 0), [Ready], name: "ready", ..st)
     node((7.2, 0), [Running], name: "run", ..st)
@@ -160,19 +158,18 @@ Two arrows deserve attention, because students routinely confuse them.
 
 #emph[Running to Waiting] is #term[blocking]. The process cannot continue --- it asked for data from disk and the data is not there yet. No scheduling policy can help; only the event can.
 
-#pitfall[
+#warning[
   “Ready” does not mean idle. A ready process wants the CPU right now and cannot have it, because another process is using it. On a busy machine, the ready queue is where processes spend most of their existence.
 ]
 
-#quickcheck[
+#questions[
   + Why does an application need a system call to create another process?
   + What do threads in one process share, and what stays private to each?
   + Name one event that moves a running process into the waiting state.
   + A process sits in Ready for 200 ms. Is it blocked? What is it waiting for?
+]
 
-  #v(6pt)
-  #strong[Answers.]
-
+#answers[
   + Creating a process means allocating an address space, a process-table entry, and an identity. All of those are kernel-owned structures, and letting user code write them directly would remove every protection guarantee the OS makes.
   + Shared: address space, open-file table, code, globals, and the heap. Private: registers, program counter, and stack. Sharing the heap is exactly why two threads writing one variable need a lock.
   + A read from disk, waiting on a child with `waitpid()`, or blocking on a semaphore --- anything where the process cannot proceed until an external event occurs.

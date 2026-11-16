@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand end-to-end business processes and the implementation challenges introduced earlier.][draw basic flowcharts and swimlane diagrams, use process models to expose hand-offs and delays, distinguish current-state from future-state design, and explain the main phases and change-management needs of an ERP implementation.]
 
-#sourcebasis[
+#note[
   This chapter follows the process-modelling part of Tutorial 8 and Chapter 7 of the textbook. It also supports Tutorial 2 by expanding the implementation and change-management concepts behind ERP benefits and challenges.
 ]
 
@@ -48,7 +48,7 @@ A #term[swimlane] or deployment flowchart adds lanes for actors, departments, or
 #utpfig([A swimlane diagram for recruitment. Each lane is an actor, so every arrow that crosses a lane boundary is a hand-off of responsibility.], label: <fig:swimlane-recruitment>)[
   #canvas({
     let act = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 3, min-height: 0.72, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     rectangle((0, 0), (14, 5.4), draw: mix(muted, 55%))
     connect((0, 3.6), (14, 3.6), draw: mix(muted, 55%))
     connect((0, 1.8), (14, 1.8), draw: mix(muted, 55%))
@@ -76,7 +76,7 @@ For ERP implementation, teams often need two versions:
 
 The goal is not simply to redraw the same process with Odoo or another ERP logo. The to-be process should remove waste where possible.
 
-#pitfall[
+#warning[
   If an old process requires a clerk to retype a sales order into Finance because the systems are separate, reproducing that same step after ERP implementation defeats the purpose of integration.
 ]
 
@@ -101,7 +101,7 @@ The textbook presents a five-phase implementation roadmap associated with SAP So
 #utpfig([The five-phase ERP implementation roadmap the textbook associates with SAP Solution Manager. The phase names describe general project logic and apply to other ERP products too.], label: <fig:implementation-roadmap>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.55, min-height: 1.05, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [1\. Project \
   Preparation], name: "p1", ..box-style)
     node(right-of("p1", 0.28), [2\. Business \
@@ -157,7 +157,7 @@ Good #term[organisational change management (OCM)] includes:
 - providing support during the transition;
 - measuring adoption rather than assuming it.
 
-#keyidea[
+#note[
   ERP implementation succeeds when the organisation changes how work is done, not when the technical team merely installs software. Process ownership, training, testing, data quality, and executive sponsorship are therefore core implementation work.
 ]
 
@@ -167,11 +167,11 @@ Tutorial 8 is ideal for a swimlane because responsibility moves among the hiring
 
 A future-state information system could reduce waiting by making status, documents, interview feedback, and ownership visible in one workflow.
 
-#tryit[
+#exercises[
   Draw the ABC recruitment process twice: first as a simple flowchart and then as a swimlane. In the swimlane version, mark every arrow that crosses a lane. Those crossings are the hand-offs most likely to suffer from delay or missing information.
 ]
 
-#quickcheck[
+#questions[
   + What extra information does a swimlane provide compared with a basic flowchart?
   + Why is an as-is process model necessary before configuring an ERP workflow?
   + What is scope creep and why can it indirectly reduce testing or training quality?

@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab05/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that the data file is in `all_datasets/`.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
 
@@ -33,7 +33,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Using the first levels of the learned tree in #figref(<fig:tree-rules>), decide what the controller does for these readings: (a) US14 $=0.81$; (b) US14 $=1.94$, US18 $=5.00$, US17 $=1.44$. Say in plain words what is happening around the robot in each case.
 
   #emph[Answer.] (a) Sharp-Right-Turn: the wall is close on the rear left, so steer away. (b) US14 and US18 are both large and US17 is above 0.90, so the tree goes down the branch that mostly says Slight-Left-Turn: the wall has fallen away, so edge back towards it.
@@ -168,7 +168,7 @@
   #strong[What it means.] Macro F1 falls steadily as noise pushes readings across thresholds. Even 5 % of one standard deviation costs about eleven points, because a hard threshold has no margin: a reading on the wrong side by one millimetre gets the other action.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook for these three tasks.
 
   + #strong[Trace one test row.] Row 265 reads US14 $=1.173$, US17 $=0.718$, US18 $=0.686$ and US13 $=5.0$. Follow it through `rule_controller.txt` by hand, then confirm with `rule_model.predict(X.loc[[265], selected])`. Now change US14 to $0.85$ in a copy of the row and predict the new action.
@@ -176,19 +176,19 @@
   + #strong[Respond to a 5 % noise budget.] Try two responses and compare their macro F1 on test readings with 5 % noise: retrain the four-sensor tree on noisy training readings, and fit a tree of depth 8 on the top eight sensors. State the cost of each.
 ]
 
-#expectedfindings[
+#answers[
   + US14 $>0.90$; US18 $<= 1.00$ and $>0.50$; US13 $>0.90$; US17 $>0.49$: #strong[Move-Forward], which is also the true action. With US14 at $0.85$ the very first rule fires: #strong[Sharp-Right-Turn].
   + Validation macro F1 is 0.544, 0.803, 0.887, 0.943 and 0.967. The jump from one to four sensors is large, and after that each gain costs more sensors for less.
   + Retraining the four-sensor tree on noisy readings barely helps (about 0.79 on noisy readings) and costs clean performance (about 0.83 on clean readings). Eight sensors at depth 8 give about 0.82 on noisy readings and 0.94 on clean readings, at the price of 23 leaves instead of 14 and twice the sensors to maintain. Your numbers will vary a little with the random seed for the noise.
 ]
 
-#troubleshoot[
+#tip[
   / Sensor names look wrong: The file has no header, so `header=None` and `names=...` must both be present, as in Question~1.
   / A feature-name warning at `predict`: You passed a NumPy array to a model fitted on a DataFrame. Wrap it in `pd.DataFrame(values, columns=selected)`.
   / Test scores much higher than the reference: You probably selected sensors or depth using test rows. Check that every `fit` before Question~5 uses training rows only.
 ]
 
-#verification[
+#checklist[
   - The 5,456 readings are split 70/30 with stratification, and the split is saved.
   - The four sensors are selected by mutual information on the training rows only.
   - The tree depth is chosen by validation macro F1, and the final tree is exported as readable if--then rules.
@@ -196,8 +196,8 @@
   - Macro F1 is reported at every noise level, and you can explain why it falls.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab05/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab05/` folder.
   - Add a short conclusion: identify the hardest action, and recommend one response to a 5 % sensor-noise budget, including its trade-off.
 ]

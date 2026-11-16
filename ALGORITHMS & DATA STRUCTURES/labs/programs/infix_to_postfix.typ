@@ -88,6 +88,6 @@ result: ABC*+D-
 
 The complete captured run is in `labs/outputs/infix_to_postfix.txt`.
 
-#tryit[
+#exercises[
   Compare A-B-C with A^B^C: expect AB-C- and ABC^^. Test (A+B and A+B) and check that failure is reported; do not use their incomplete outputs.
 ]

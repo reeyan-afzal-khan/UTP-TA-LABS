@@ -13,7 +13,7 @@ Data wrangling prepares the evidence needed for analysis. Common operations are 
   #canvas(x: 16.06cm, {
     let stage = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.14 * 16.06, min-width: 0.18 * 16.06, min-height: 1.7, inner-xsep: 2.5mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
     let endpoint = (..stage, draw: mix(teal, 80%), fill: pale-teal)
-    let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
+    let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
     node((0.1, 0), [#text(fill: teal)[#strong[01 INPUT]] \ #v(4.9813pt)
    #strong[Raw table] \ #v(2.9888pt)
    Original records \
@@ -49,7 +49,7 @@ A readable wrangling pipeline is a sequence of simple verbs: #emph[select], #emp
   #canvas({
     let stage = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.7 * 16.06, min-width: 0.76 * 16.06, min-height: 0.84, inner-xsep: 5mm, inner-ysep: 1.3mm, align: left, font: font("script", fill: navy))
     let endpoint = (..stage, draw: mix(teal, 80%), fill: pale-teal)
-    let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 1.8mm, width: 1.4mm, line: 0.8966pt))
+    let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, width: 1.4mm, line: 0.8966pt))
     let stagejoin = (line-width: 0.7472pt, draw: teal)
     node((0, 0), [#text(fill: teal)[#strong[01 INPUT CONTRACT]] \ #v(2.9888pt)
    One row = one wine sample; 15 variables], name: "a", ..endpoint)
@@ -91,7 +91,7 @@ Filtering defines the population being analysed. That means every filter should 
 high_alcohol <- wine[wine$alcohol >= 13.5, ]
 ```
 
-#pitfall[
+#warning[
   Filtering after looking at the outcome can quietly turn exploration into cherry-picking. Define inclusion rules from the analytical question or domain constraints, and disclose post-hoc filters.
 ]
 
@@ -107,7 +107,7 @@ When rows are grouped and summarised, the output table no longer represents indi
   #image("/DATA SCIENCE/figures/wrangling_transform.pdf", width: 82%)
 ]
 
-#keyidea[
+#note[
   Always ask whether a grouped result is weighted correctly for the question. Averaging three group means is not generally the same as the overall mean when group sizes differ.
 ]
 
@@ -129,7 +129,7 @@ The same information can be represented in different table shapes. #term[Wide] d
   #canvas(x: 16.06cm, {
     let tablecard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.36 * 16.06, min-width: 0.42 * 16.06, min-height: 4.05, inner-sep: 3mm, align: center, font: font("script", fill: navy))
     let reshapebadge = (draw: mix(teal, 80%), fill: pale-teal, rounded: 4mm, line-width: 0.7472pt, text-width: 0.075 * 16.06, min-height: 0.78, inner-xsep: 2mm, inner-ysep: 1.5mm, align: center, font: font("script", weight: "bold", fill: teal))
-    let reshape = (line-width: 0.8468pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
+    let reshape = (line-width: 0.8468pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
     node((0.22, 0), [#box(width: 100%, height: 3.35cm)[
     #align(center)[#text(fill: blue)[#strong[01 WIDE FORMAT]] \ #v(2.9888pt)
 
@@ -204,7 +204,7 @@ A #term[feature] is an input variable used in analysis or modelling. New feature
   )
 ]
 
-#keyidea[
+#note[
   A good engineered feature has a sentence-level interpretation. If you cannot explain what the feature means without referring to the code that produced it, it is hard to defend analytically.
 ]
 
@@ -240,11 +240,11 @@ A join combines rows according to key matches. The expected relationship between
 
 When combining tables, the join key should be unique at the expected level. A many-to-many join can multiply rows and corrupt counts.
 
-#workedexample[
+#example[
   Before joining customer and transaction tables, verify whether customer ID is unique in the customer table and repeated in the transaction table. That expected one-to-many relationship is part of the data model, not an implementation detail.
 ]
 
-#quickcheck[
+#questions[
   + Why can an overall mean be misleading when groups differ strongly?
   + What should be stated whenever rows are filtered out?
   + Give one reason to log-transform a feature.
@@ -265,6 +265,6 @@ $ h_(sin)=sin(2 pi h\/24), wide h_(cos)=cos(2 pi h\/24). $
 
 This representation preserves neighbourhood around midnight and gives models two smooth numeric variables instead of an arbitrary linear scale.
 
-#keyidea[
+#note[
   Every aggregation changes the unit of analysis. Before and after a `group`/`summarise` operation, state what one row represents. Many subtle data errors are actually grain errors.
 ]

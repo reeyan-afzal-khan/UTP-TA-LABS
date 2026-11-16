@@ -9,7 +9,6 @@
   keep-headings: (7 * 13.55pt, 6 * 13.55pt),
   routine-intro: [Question $n$ is the code cell the notebook labels Question $n$; after #strong[Restart Kernel and Run All Cells] its prompt reads #mono[\[$n$\]]. For each question, do four things in order:],
   routine-compare: [Check your output against the reference output. Printed figures come from one CPU run with the package versions on the sheet’s first output. Other versions can move the last digit; a neural network can move the third decimal.],
-  titles: (labmode: [Lab setup], deliverable: [Submission checklist]),
 )
 #cover()
 #contents()

@@ -12,7 +12,7 @@ Use this section after completing all eight chapters. It compresses the course i
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.45, min-height: 1.15, align: center, font: font("script", weight: "bold", fill: navy))
     let g = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 2.45, min-height: 1.15, align: center, font: font("script", weight: "bold", fill: navy))
     let o = (draw: orange, fill: pale-orange, rounded: 2mm, text-width: 2.45, min-height: 1.15, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((-5.2, 1.2), [Traditional \
   intermediation], name: "a", ..b)
     node((-2.6, 1.2), [Customer \
@@ -128,7 +128,7 @@ For an “analyze” or “evaluate” question, use this order:
   + #term[Conclude with the condition under which the innovation creates sustainable value.]
 ]
 
-#quickcheck[
+#questions[
   Without looking back, answer these eight prompts in one or two sentences each:
 
   + Why did the 2008 crisis help create an opening for FinTech?

@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas(x: 15.06cm, {
       let encoding = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.14 * 15.06, min-width: 0.18 * 15.06, min-height: 1.7, inner-xsep: 2.5mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
-      let precision = (line-width: 0.9963pt, draw: teal, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.9963pt))
+      let precision = (line-width: 0.9963pt, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.9963pt))
       node((0.1, 0), [#text(fill: teal)[#strong[01]] \ #v(3.9851pt)
      #strong[POSITION] \ #v(4.9813pt)
      Location on a \

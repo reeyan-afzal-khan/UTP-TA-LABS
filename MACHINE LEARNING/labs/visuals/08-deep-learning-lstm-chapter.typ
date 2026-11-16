@@ -6,7 +6,7 @@
       let cell = (draw: teal, fill: pale-teal, rounded: 1.5mm, min-width: 1.5, min-height: 0.9, font: font("script", weight: "bold", fill: navy))
       let inp = (draw: blue, fill: pale-blue, rounded: 1.2mm, min-width: 1.2, min-height: 0.6, font: font("script", fill: navy))
       let outp = (draw: orange, fill: pale-orange, rounded: 1.2mm, min-width: 1.5, min-height: 0.6, font: font("script", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
       for (t, x) in ((1, 0), (2, 2.4), (3, 4.8), (24, 8.4)) {
         node((x, 0), [LSTM], name: "c" + str(t), ..cell)
         node((x, -1.4), [$x_(#(t))$], name: "i" + str(t), ..inp)

@@ -35,11 +35,11 @@
   [Save the evidence; then try other lookbacks and a wider LSTM],
   [11--13],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm the data file is in `all_datasets/`. Keep it zipped: pandas reads the CSV inside.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It took about four minutes on the laptop CPU behind this sheet, about half of it the Try-it solution. No GPU is needed.
   + A GPU is used when PyTorch can see one. On the laptop GPU tried for this sheet, every number came out the same apart from one digit in Question~9; to match exactly, hide the GPU as Chapter~@ch:toolkit shows.
@@ -53,7 +53,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Take one morning of demand, $60,58,57,70,95,120,125,118$~MWh, and a lookback of 3. Questions~4, 5 and~13 will check you.
 
   + How many windows do you get, and what are the first two with their targets? (Five: $[60,58,57] arrow.r 70$, and $[58,57,70] arrow.r 95$.)
@@ -267,7 +267,7 @@
     - The dictionary `line_colors` gives each baseline a fixed colour: `C1`, `C2` and `C3` are matplotlib's second, third and fourth default colours.
   ]
 
-  #strong[What it means.] The curve crosses below the best dashed line at epoch 5 and stays between 2.16 and 2.29 after epoch 6, apart from one jump at epoch 9. Whether it has really finished is Your-turn task~1. The validation half-year chose the epoch, so its 2.16 is now a little optimistic. That is why the test period stays closed until Question~8.
+  #strong[What it means.] The curve crosses below the best dashed line at epoch 5 and stays between 2.16 and 2.29 after epoch 6, apart from one jump at epoch 9. Whether it has really finished is Exercise~1. The validation half-year chose the epoch, so its 2.16 is now a little optimistic. That is why the test period stays closed until Question~8.
 ]
 
 #labquestion(8)[Open the test period once][
@@ -389,8 +389,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(12)[Try it yourself][
   Train the same LSTM with a lookback of 6 hours and of 48 hours: does the network need a whole day of history, and does it gain from two? Then double `hidden_size` to 64 with the 24-hour lookback, and see whether four times the weights buy a better forecast. Attempt it in this empty cell before reading the solution.
 ]
@@ -420,23 +418,23 @@
   #strong[What it means.] Six hours of history is clearly worse, 3.63~MWh, which is worse even than same hour yesterday: the network can no longer see the value that free forecast uses. Forty-eight hours gives 2.14, no better than 24 within the epoch-to-epoch wobble, because one day already holds the daily shape. The wider LSTM has 17,217 weights, matching your warm-up, almost four times as many, and reaches 2.09: a gain smaller than the wobble of one model between epochs. A whole day of history matters; more of everything else does not, here.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings. Each run of 12 epochs takes about a minute on a laptop CPU, and the 30-epoch run about two and a half.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers. Each run of 12 epochs takes about a minute on a laptop CPU, and the 30-epoch run about two and a half.
 
   + #strong[Train longer.] Train the 24-hour, 32-unit model for 30 epochs, still keeping the best. Which epoch wins, and does the test MAE improve on 2.57?
   + #strong[Give it a clock.] Add a second input channel, the hour of day divided by 23, using `input_size=2`. Does knowing the time help, given that the window already shows the daily shape?
   + #strong[Forecast further ahead.] Change the windows so that they end 2 hours, and then 24 hours, before the hour they predict, and compare each LSTM with the free forecasts at the same distance. Where does the network’s advantage go?
 ]
 
-#expectedfindings[
+#answers[
   + The validation error wobbles between about 2.1 and 2.7 from epoch 7 to epoch 21, then falls again. The best epoch is 29, at 1.56, and the test MAE drops to 1.79, against 2.57 after 12 epochs and 3.69 for same hour yesterday. Twelve epochs stopped on a plateau, not at the bottom. Early stopping can only choose among the epochs you paid for, so give it a generous budget, and stop only when validation has not improved for several epochs in a row.
   + Validation 2.07 against 2.16, and test 2.59 against 2.57: no gain that survives the test period. The 24 values in each window already show where in the day the forecast is, so the clock tells the network nothing new. A feature helps only when it carries information the model cannot already see.
   + Two hours ahead, the LSTM’s test MAE is 2.98 against 3.69 for same hour yesterday: still 19% better, down from 30% at one hour, while last known hour rises to 11.93. At 24 hours ahead the LSTM scores 3.71, no better than same hour yesterday’s 3.69, which at that distance is also the last known hour. The network’s edge comes from the most recent hours; a day-ahead forecast needs other inputs, such as the weather and the calendar.
 ]
 
-#troubleshoot[
+#tip[
   / Validation MAE below 0.1: You are measuring in scaled units, or forgot to multiply back by `scale`. Free forecasts and model must use the same units, MWh.
   / A free forecast looks suspiciously good: Check the alignment: `demand.shift(1)` is the hour before, and `shift(24)` the same hour yesterday. A shift of 0 compares each hour with itself.
   / `Expected 3D input`: An LSTM with `batch_first=True` needs (rows, steps, values per step). `unsqueeze(-1)` adds the last dimension.
@@ -445,7 +443,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The split follows the calendar, the scale comes from the training years only, and you can state which hour each row predicts.
     - All three free forecasts are computed and reported before the LSTM, on the same hours.
     - The kept epoch is chosen on validation, and the test period is opened once, at the end.

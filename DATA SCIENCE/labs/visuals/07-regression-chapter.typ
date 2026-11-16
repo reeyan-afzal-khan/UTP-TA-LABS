@@ -4,9 +4,9 @@
   #labgraphic[
     #canvas(x: 15.06cm, {
       let card = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.27 * 15.06, min-width: 0.34 * 15.06, min-height: 1.18, inner-xsep: 4mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-      let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
-      let testflow = (line-width: 0.8966pt, draw: mix(orange, 85%, other: black), end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
-      let targetflow = (line-width: 0.797pt, draw: mix(orange, 85%, other: black), dash: "dashed", end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.797pt))
+      let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
+      let testflow = (line-width: 0.8966pt, draw: mix(orange, 85%, other: black), end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
+      let targetflow = (line-width: 0.797pt, draw: mix(orange, 85%, other: black), dash: "dashed", end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.797pt))
       let flowlabel = (fill: white, rounded: 1mm, inner-xsep: 2.5mm, inner-ysep: 1mm, font: font("tiny", weight: "bold"))
       node((0.5, 4.2), [#text(fill: teal)[#strong[01 AVAILABLE DATA]] \ #v(3.9851pt)
      Features and target \

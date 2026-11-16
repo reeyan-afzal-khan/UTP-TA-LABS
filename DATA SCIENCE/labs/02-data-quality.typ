@@ -52,7 +52,7 @@
 
   #include "visuals/02-data-quality-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Audit one cleaning decision with before/after values and a reason. Compare the relevant distribution before and after treatment, including the count of observations.
 
     #strong[Required evidence.] Submit a data-quality log with each issue written as #emph[rule $arrow.r$ evidence $arrow.r$ action $arrow.r$ consequence]. Include at least one issue you deliberately leave unchanged because the evidence is insufficient to justify a transformation.

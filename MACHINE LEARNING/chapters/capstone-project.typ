@@ -5,7 +5,7 @@
 
 Build one reproducible project from raw data to validated conclusions and a reusable model. The labs handed you the question, the data and the code. Here you choose all three, and you defend every decision with evidence.
 
-#coursechoice[
+#note[
   Use a public dataset that no lab uses, with a licence that allows it; the Hugging Face dataset hub, the UCI Machine Learning Repository and OpenML are good places to look. Keep raw files in `all_datasets/`, and your notebook in its own folder, `all_experiments/capstone/`, with a README like the labs’ that names the data’s source and licence.
 ]
 
@@ -68,6 +68,6 @@ Add one, and keep it only if the evidence says it helps.
   )
 ]
 
-#pitfall[
+#warning[
   Three mistakes cost the most. Fitting a scaler or selector on all the rows before cross-validating. Reporting the best of many test scores. Claiming a cause from a coefficient or an importance score. The course gave you a tool to avoid each one.
 ]

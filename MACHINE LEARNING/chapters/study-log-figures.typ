@@ -44,11 +44,14 @@
 
 // \recipecard{name}{model}{loss}{optimizer}: the three steps of one method,
 // in the same words every time.
-#let recipecard(name, model, loss, optimizer) = modelcard([The recipe: #name], tabularx(
-  columns: (17%, 1fr),
-  styles: (navy-bold,),
-  rules: "none",
-  [1. Model], model,
-  [2. Loss], loss,
-  [3. Optimizer], optimizer,
-))
+#let recipecard(name, model, loss, optimizer) = {
+  element-head([The recipe: #name])
+  tabularx(
+    columns: (17%, 1fr),
+    styles: (navy-bold,),
+    rules: "none",
+    [1. Model], model,
+    [2. Loss], loss,
+    [3. Optimizer], optimizer,
+  )
+}

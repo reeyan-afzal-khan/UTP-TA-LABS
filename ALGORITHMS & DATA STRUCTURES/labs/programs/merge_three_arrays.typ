@@ -78,6 +78,6 @@ g++ -std=c++17 -Wall -Wextra merge_three_arrays.cpp -o merge_three_arrays.exe
 
 The complete captured run is in `labs/outputs/merge_three_arrays.txt`.
 
-#tryit[
+#exercises[
   Test three empty arrays, one exhausted input beside INT\_MAX, and equal values in all three inputs. Confirm sorted order and exactly the original number of copies of every value.
 ]

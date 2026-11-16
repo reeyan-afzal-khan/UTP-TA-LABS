@@ -12,7 +12,7 @@
 
   #include "visuals/03-flow.typ"
 
-  #labmode[
+  #note[
     Tutorial 3 asks for a production approach, forecast, and S&OP plan. Odoo does not replace those planning calculations in this course. Instead, it demonstrates how an approved plan becomes executable master data and manufacturing transactions.
   ]
 
@@ -86,7 +86,7 @@
 
 #include "walkthroughs/03-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Reconcile one order from BOM demand to stock moves. Introduce a component shortage in a separate exercise record and explain the resulting availability state and corrective receipt.
 
   - The Road Bike and its raw materials exist as Goods with Track Inventory enabled.

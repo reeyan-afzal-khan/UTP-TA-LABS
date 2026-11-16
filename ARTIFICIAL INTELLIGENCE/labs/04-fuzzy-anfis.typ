@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab04/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that the data file is in `all_datasets/`.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. ANFIS training is the slowest step, and the notebook still finishes in a few seconds on a laptop.
 
@@ -33,7 +33,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Using the sets of Chapter~@ch:fuzzy, trace the reading $20^(compose)$C, 50 % through the controller: compute the memberships, then the three rule strengths. Can you say what the centroid will be without any arithmetic?
 
   #emph[Answer.] Mild is $(20-12)\/10=0.8$ and comfortable is 1; all others are 0. Low $=0$, medium $=min(0.8,1)=0.8$, high $=0$. Only the medium output triangle is clipped, and it is symmetric about 50, so the centroid is 50 %.
@@ -160,7 +160,7 @@
   #strong[What it means.] Test RMSE falls from about 0.537 to about 0.467. In `predicted_vs_actual.png` the straight line predicts negative CO at very low concentrations and under-predicts at high ones, while ANFIS stays near the diagonal at both ends. Whether 13 % is worth the extra complexity is your judgement, so state it and give a reason.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook for these three tasks.
 
   + #strong[Trace one more reading.] Work out $28^(compose)$C, 45 % by hand, then run `ventilation(28, 45)`. Which rules fire, and why is the answer above 50 %?
@@ -168,20 +168,20 @@
   + #strong[One more size.] Fit `SugenoANFIS(n_mfs=4)` on the same training rows and compare its validation RMSE with the three-set model. How many rules does it have? Would you switch? Do not look at its test score to decide.
 ]
 
-#expectedfindings[
+#answers[
   + Medium fires at $0.40$ and high at $0.11$, and the answer is $55.5 thin %$. Adding weight on the high side moves the balance point above 50.
   + At $(25,80)$ nothing fires: the reading is mild and humid, and “humid” was the only rule covering it. The output set is empty, so the centroid is $0\/0$ and the function returns `nan` with a warning. 99 of the 1,886 grid points have the same problem, whereas the full rule base has none. Coverage must be tested, not assumed.
   + 16 rules and a validation RMSE of about 0.445, against about 0.448 for 9 rules. The gain is small for nearly twice the rules, so staying with three sets is easy to defend. There is no single right answer here; the reasoning is the point.
 ]
 
-#troubleshoot[
+#tip[
   / All columns are strings or `NaN`: The file uses `;` between fields and `,` for decimals. Keep `sep=";"` and `decimal=","` exactly as in Question~1.
   / `nan` from `ventilation`: No rule fired for that reading. See the debugging task above.
   / Slightly different ANFIS numbers: Expected across SciPy versions. Report your own numbers; the ordering should hold.
   / `LinAlgError: Singular matrix`: You removed the ridge term in `_solve_outputs`. Restore it.
 ]
 
-#verification[
+#checklist[
   - $-200$ values are treated as missing, and 9,357 hourly rows remain after cleaning.
   - The five fixed operating points land in their expected bands, and the control surface rises smoothly towards the hot-and-humid corner.
   - The split has 5,140, 1,102 and 1,102 rows, and the scaler is fitted on the training rows only.
@@ -189,8 +189,8 @@
   - The selected ANFIS lowers test RMSE relative to linear regression (about 0.467 against 0.537).
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab04/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab04/` folder.
   - Add a short conclusion: justify the selected ANFIS size, explain why test data cannot guide model selection, and state one limitation of the random split.
 ]

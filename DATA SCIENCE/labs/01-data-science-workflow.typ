@@ -56,7 +56,7 @@
 
   #include "visuals/01-data-science-workflow-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Choose one descriptive and one association question. State the rows and variables needed, produce the relevant summaries and distinguish the pattern observed from its possible explanation.
 
     #strong[Required evidence.] Submit a one-page analysis note containing: the observational unit; the three questions; a compact data-profile summary; one time-series figure; two numerical findings; and one limitation. Every finding must be written as a complete evidence statement, not as raw console output.

@@ -80,6 +80,6 @@ display() -> 60 50 40 20 10
 
 The complete captured run is in `labs/outputs/array_stack.txt`.
 
-#tryit[
+#exercises[
   Fill the five slots, attempt a sixth push, then pop six times. The failed push and final failed pop must not change stored values or the top index.
 ]

@@ -104,7 +104,7 @@
 
   Record the first response time of each process for each quantum. Explain the trade-off visible in the Gantt output: smaller turns provide earlier rotation but create more slices.
 
-  #quickcheck[
+  #questions[
     + Which scheduling metric measures time spent waiting in the ready queue?
     + Why can Round Robin improve response time while increasing the number of context switches?
     + Why must all policies be compared using the same workload?
@@ -114,7 +114,7 @@
 
   #include "visuals/04-cpu-scheduling-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Check every row of one scheduler trace using these identities. Change the round-robin quantum and explain both the response-time effect and the resulting context switches.
 
     - All four policies run on the same bursts, so only the policy differs.

@@ -34,7 +34,7 @@
 
   There is no MAC addressing and no ARP --- a serial link is point-to-point, so there is only one possible recipient. And one end must supply clocking.
 
-  #keyidea[
+  #note[
     On a serial link, one end is #term[DCE] and provides the clock; the other is #term[DTE] and follows it. In eNSP the DCE end is determined by which side you attached the cable from, and it is not obvious by inspection.
 
     Find it before troubleshooting anything else:
@@ -71,7 +71,7 @@
   quit
   ```
 
-  #pitfall[
+  #warning[
     Both ends must run the same encapsulation. HDLC on one end and PPP on the other gives Physical `up`, Protocol `down` --- the exact pattern from Lab~#labref(<sec:lab02-ensp>), and the reason that lab insisted you learn to read those two columns separately.
 
     Note also that HDLC is vendor-specific in practice. Huawei’s and Cisco’s implementations do not interoperate, which is one reason PPP is the safer default between equipment from different vendors.
@@ -99,7 +99,7 @@
 
   VRP asks for confirmation because changing encapsulation drops the link. Change both ends.
 
-  #keyidea[
+  #note[
     PPP brings up a link in two phases, and knowing which phase failed halves your troubleshooting.
 
     #strong[LCP] negotiates the link itself: MTU, magic numbers, and whether authentication is required. \
@@ -148,7 +148,7 @@
   quit
   ```
 
-  #keyidea[
+  #note[
     PAP sends the password across the link in plaintext, once, at setup. Anyone capturing the link has the credential.
 
     CHAP never sends the password. The authenticator sends a random challenge; the peer replies with a hash of the challenge combined with the secret. The authenticator computes the same hash and compares. A new challenge prevents simple replay; weak shared secrets can still be attacked offline.
@@ -173,7 +173,7 @@
     )
   ]
 
-  #troubleshoot[
+  #tip[
     #strong[Physical down.] Cable not connected in eNSP, or the device is not started.
 
     #strong[Physical up, protocol down.] Encapsulation mismatch, missing clock rate on the DCE end, or failed authentication. Check in that order.
@@ -183,7 +183,7 @@
     #strong[Works with PAP, fails with CHAP.] CHAP matches on the hostname by default. Confirm the `ppp chap user` matches the configured `local-user`.
   ]
 
-  #tryit[
+  #exercises[
     Deliberately misconfigure the CHAP password on one end and capture the exchange. How many messages appear before the link gives up, and does the failure say anything useful?
 
     Then relate the answer to Lab~#labref(<sec:lab05-ftp>): both labs show a credential crossing a link. Explain which design is safer and why, in two sentences.
@@ -194,7 +194,7 @@
 
 #include "visuals/09-wan-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Capture the successful state, introduce one deliberate credential mismatch and record the changed negotiation state. Restore the credential and confirm recovery without changing addressing.
 
   - DCE end identified from `display interface`, with the clock rate set there.

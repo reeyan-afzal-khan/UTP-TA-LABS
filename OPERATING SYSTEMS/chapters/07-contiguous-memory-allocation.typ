@@ -15,7 +15,7 @@ This model is deliberately simpler than modern virtual memory, but it is useful 
 
 #term[Internal fragmentation] is unused space inside an allocated region. #term[External fragmentation] is free memory split into separate holes such that a large request cannot fit even when the total free space is sufficient.
 
-#workedexample[
+#example[
   Suppose the free holes are 70, 40, and 60. Total free memory is 170, but a request for 100 cannot be placed because the largest individual hole is only 70. That is external fragmentation.
 ]
 
@@ -31,7 +31,7 @@ Best fit chooses the smallest hole that can satisfy the current request. This mi
 
 Worst fit chooses the largest available hole, leaving a large remainder. This can preserve medium-size holes but may also consume the largest flexible region too aggressively.
 
-#keyidea[
+#note[
   All three algorithms make an #emph[online] decision. They choose using the requests seen so far; they do not know the complete future workload.
 ]
 
@@ -67,7 +67,7 @@ Keep the initial holes and request order identical. Record after every request:
 
 Useful summary measures include total free memory, the largest remaining hole, number of holes, and whether a request failed.
 
-#pitfall[
+#warning[
   A result from one request sequence is evidence about that workload, not proof that one policy is universally superior.
 ]
 
@@ -75,7 +75,7 @@ Useful summary measures include total free memory, the largest remaining hole, n
 
 The lab intentionally ignores many details of production allocators: metadata overhead, alignment, multiple free lists, coalescing strategies, page-based allocation, and concurrency. Its purpose is to make the placement decision itself easy to see.
 
-#quickcheck[
+#questions[
   + Can total free memory be greater than a request and still fail? Why?
   + How is coalescing different from compaction?
   + Why does “best fit” not mean “best final result”?

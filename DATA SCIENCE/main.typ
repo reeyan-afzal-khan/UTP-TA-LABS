@@ -5,7 +5,6 @@
   outline: [Practical data science in R: from framing questions and preparing data to analysis, modelling, validation, and responsible communication.],
   lab-total: 10,
   contents: (part: 1.40em, chapter: 0.46em, lab: 0.54em),
-  titles: (pitfall: [Analytical pitfall], labmode: [Lab guidance]),
 )
 #cover()
 #contents()

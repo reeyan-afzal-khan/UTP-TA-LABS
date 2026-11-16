@@ -6,7 +6,6 @@
   outline: [Built from the supplied laboratory materials for Wireshark, eNSP/Huawei VRP, \
  routing, FTP, DHCP, LACP, VLANs, and WAN configuration.],
   lab-total: 9,
-  titles: (worked: [Worked configuration], labmode: [How to use this lab], troubleshoot: [When it does not work], verification: [Verification evidence]),
 )
 #cover()
 #contents()

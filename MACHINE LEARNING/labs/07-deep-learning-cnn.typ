@@ -35,11 +35,11 @@
   [Save the evidence; then train longer and try a one-block CNN],
   [12--14],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment. PyTorch comes with `requirements.txt`; if it is missing, the Setup cell installs the CPU build once.
   + Check the small worked numbers of Chapters~@ch:deep and~@ch:cnn, which run on NumPy alone. The last line must read `Every number above matches the book.` The CNN chapter's own experiments are in `demo_cnn.py`, which takes about a minute and a half.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It took under two minutes on the laptop CPU behind this sheet, most of it the 25-epoch run in the solution. No GPU is needed.
@@ -55,7 +55,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; Questions~3 and~6 will check you.
 
   + A colour image of $32 times 32$ pixels holds how many numbers? How many weights has a dense network from those inputs through 128 hidden units to 7 outputs, counting one bias per unit? ($3","072$; $393","344+903=394","247$.)
@@ -405,8 +405,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(13)[Try it yourself][
   Train the CNN for 25 epochs and read the accuracy curves: does the validation curve stop improving, and what is the training curve doing by then? Then build a CNN with only the first convolutional block (delete the second `Conv2d`, `ReLU` and `MaxPool2d`; the flattened size becomes $16 times 16 times 16$), and see whether the second block earns its keep. Attempt it in this empty cell before reading the solution.
 ]
@@ -435,17 +433,17 @@
   #strong[What it means.] Validation keeps climbing to 0.741 at epoch 24, and training, at 0.749, is barely ahead of it: after 25 epochs this small CNN is still learning and has hardly begun to overfit, so more epochs would pay. Early stopping would keep the best epoch, which here is almost the last. The one-block CNN has almost twice the weights, 263,111, because its flattened vector is $16 times 16 times 16=4","096$ long, and it scores lower, 0.681 against 0.700. The second block earns its keep twice: its pooling shrinks the map before the expensive dense layer, and its filters can combine the first layer’s edges into larger shapes, such as the ring of a knot.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings. Each run trains for 10 epochs, a few seconds to a minute on a laptop CPU. Compare the size of each effect with the differences between runs you have already seen.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers. Each run trains for 10 epochs, a few seconds to a minute on a laptop CPU. Compare the size of each effect with the differences between runs you have already seen.
 
   + #strong[Take the ReLU away.] Rebuild the dense network without `nn.ReLU()`, keeping both linear layers. Predict the test accuracy, given what Chapter~@ch:deep says about stacked linear layers.
   + #strong[Move the learning rate.] Train the CNN with learning rates 0.0001, 0.001, 0.01 and 0.1. Which fails, and how?
   + #strong[Drop the dropout.] Rebuild the CNN with `nn.Dropout(0.0)`. Does dropout earn its place after 10 epochs?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] $32 times 32 times 3=3","072$ numbers; $3","072 times 128+128=393","344$ and $128 times 7+7=903$, so 394,247 weights. The first block gives $16 times 16 times 16$, with $3 times 16 times 9+16=448$ weights; after the second, $32 times 8 times 8=2","048$ numbers reach a dense layer of $2","048 times 64+64=131","136$ weights.
 
   + About 0.45 (0.450 in the check script), against 0.557 with ReLU trained the same way, and 0.638 for Lab~4’s logistic regression on all 3,072 pixels. Without an activation the two layers collapse into one linear map, so it is logistic regression with extra steps, and after only 10 epochs it has not even reached what Lab~4’s fully trained version scored.
@@ -453,7 +451,7 @@
   + About 0.699 without dropout, against 0.686 with it in the same script, a difference of about one point. That is smaller than the 1.4 points between this script and the notebook for the very same CNN, so it is no difference you could defend. After 10 epochs training and validation are only about a point apart, so there is little overfitting for dropout to prevent; try it again on a longer run, once the curves start to part.
 ]
 
-#troubleshoot[
+#tip[
   / `No module named 'torch'`: Compare the first line of the Setup output with the environment you installed into. Register the right environment as a kernel, and switch to it.
   / `OMP: Error #15` on Windows: Two OpenMP runtimes are loaded. The Setup cell sets `KMP_DUPLICATE_LIB_OK` before importing NumPy; restart the kernel so it takes effect.
   / `mat1 and mat2 shapes cannot be multiplied`: A `Linear` layer’s input size does not match the flattened tensor. Print the shapes with the loop from Question~6.
@@ -463,7 +461,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The device in use is printed with the PyTorch version.
     - The training and validation curves are both plotted, and you can tell a zigzag from overfitting.
     - The dense network and the CNN are compared with Lab~4’s baseline on the same test boards, and your CNN score is within about 0.02 of 0.70.

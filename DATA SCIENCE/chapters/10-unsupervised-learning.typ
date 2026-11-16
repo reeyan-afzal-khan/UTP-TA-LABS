@@ -16,7 +16,7 @@ K-means chooses $k$ cluster centres and assigns each observation to the nearest 
 #utpfig([K-means alternates between assigning observations and recomputing centres until assignments stabilise or improvement becomes negligible.], label: <fig:kmeans-loop>)[
   #canvas(x: 16.06cm, {
     let stage = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.26 * 16.06, min-height: 1.55, inner-xsep: 2.5mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-    let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     let repeatflow = (..flow, draw: muted, rounded: 2mm)
     node((0, 0), [#strong[1\. Initialise] \ #v(3.9851pt)
    Choose $k$ \
@@ -48,7 +48,7 @@ Standardisation is therefore not a routine cosmetic step: it changes the geometr
 
 If one feature ranges from 0 to 1000 and another from 0 to 1, Euclidean distance is dominated by the larger scale. Standardisation makes distances reflect standard-deviation units rather than raw measurement magnitude.
 
-#pitfall[
+#warning[
   Clusters are not automatically “real” categories. K-means will return $k$ clusters even when the data have no natural grouping. Interpret clusters using stability, separation, domain meaning, and external information when available.
 ]
 
@@ -99,7 +99,7 @@ A principal-component score is difficult to interpret until the corresponding #t
   #image("/DATA SCIENCE/figures/unsupervised_pca_loadings.pdf", width: 70%)
 ]
 
-#pitfall[
+#warning[
   PCA maximises variance, not predictive usefulness or interpretability. A low-variance direction can still be important for a specific target, and a high-variance component can reflect nuisance variation. Dimensionality reduction must be evaluated against the downstream purpose.
 ]
 
@@ -107,11 +107,11 @@ A principal-component score is difficult to interpret until the corresponding #t
 
 In the Iris lab, species labels are excluded from k-means fitting. After the clusters are created, comparing cluster assignment with species can help interpret discovered structure. This is evaluation after fitting, not supervision during fitting.
 
-#keyidea[
+#note[
   Unsupervised methods discover mathematical structure. Human judgment is still required to decide whether that structure is stable, meaningful, actionable, or merely an artefact of scaling and algorithm choices.
 ]
 
-#quickcheck[
+#questions[
   + What information is missing in unsupervised learning compared with supervised learning?
   + Why should numeric features often be standardised before k-means?
   + Why does requesting three clusters not prove that three natural groups exist?

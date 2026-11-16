@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab08/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that the data file is in `all_datasets/`.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
 
@@ -33,7 +33,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Run one generation of a GA by hand, minimising $f(x)=(x-3)^2$, with the population $x= { -4, space 1, space 5, space 8 }$. Compute each fitness and keep one elite. Hold a tournament of two between $x=1$ and $x=8$, and another between $x=-4$ and $x=5$. Blend the two winners with $alpha =0.5$. Is the child better than both parents here?
 
   #emph[Answer.] Fitness: $49$, $4$, $4$, $25$. The elite is $x=1$ or $x=5$ (they tie). The tournaments are won by $x=1$ and $x=5$. The blended child is $0.5 times 1+0.5 times 5=3$, with fitness 0, the exact answer. Blending two points either side of the optimum is why crossover is so strong here, and why real problems are rarely this kind.
@@ -162,7 +162,7 @@
   #strong[What it means.] Forty chromosomes halve the runtime with the same median, and increase the seed-to-seed spread by more than ten times. On this easy problem both are fine. On a problem where a poor run is expensive, the spread is what you would be buying with those extra chromosomes.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook. For every task, hold the split fixed, repeat over seeds 1--10, and report the median and standard deviation of test RMSE beside the OLS result. A helper saves typing:
 
   ```python
@@ -178,20 +178,20 @@
   + #strong[Write down one change] to the problem that would make a GA more appropriate than OLS, and what you would have to change in the fitness function or operators.
 ]
 
-#expectedfindings[
+#answers[
   + With no mutation the median stays at about 6,534 with a spread of about 252: blending can only contract the population, so it collapses before reaching the optimum. Rates 0.05, 0.15 and 0.5 all reach about 5,829, with the tightest spread at 0.15. A scale of 0.01 is too timid (about 6,198); 0.05 and above reach the optimum.
   + Median test RMSE is about 6,317, 5,952, 5,830 and 5,829.38. Almost nothing is gained after 80 generations, and the lab’s 160 is a safe margin.
   + With tournament size 1 the median is about 5,828.9 with a spread of about 11.5. It has not beaten anything. OLS minimises #emph[training] error, and it does so exactly. A run that has not converged can land closer to the test rows by chance, and the large spread is the giveaway. Its training RMSE is worse.
   + Integer coefficients, a penalty on the number of non-zero coefficients, or a black-box cost all fit. Least squares no longer applies, so the fitness function changes, and integer genes would need new crossover and mutation.
 ]
 
-#troubleshoot[
+#tip[
   / The GA never approaches OLS: Check the fitness sign (lower is better here) and that `X_train` is the standardised matrix.
   / Results differ on every run: Pass the seed through to `np.random.default_rng(seed)`. Do not use the global NumPy generator.
   / A shape error in `training_mse`: Keep `individuals[:, [0]]` with the inner brackets, so that the intercept column broadcasts across the rows.
 ]
 
-#verification[
+#checklist[
   - The test GA finds $x approx 3$ for $f(x)=(x-3)^2$ before it is used on real data.
   - The predictors are standardised with training statistics only (1,070 training and 268 test rows).
   - Ten seeds are run, and `ga_10_runs.csv` records train RMSE, test RMSE and runtime for each.
@@ -199,8 +199,8 @@
   - The population-40 sensitivity run is saved and its larger spread across seeds is explained.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab08/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab08/` folder.
   - Add a short conclusion: report the median and spread, explain why matching OLS is not beating it, and name one problem change that would make a GA more appropriate.
 ]

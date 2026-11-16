@@ -5,7 +5,7 @@
 
 The supplied Odoo guide is designed as one connected storyline. The strongest final demonstration is therefore not eight isolated screenshots, but one narrative showing how information and stock move across the company.
 
-#sourcebasis[
+#note[
   This capstone follows the 21-step West End Bicycles Odoo 19 Community build guide supplied with Tutorial 1. It preserves the guide’s company, roles, products, vendors, customer, Road Bike BOM, and RM 5,000 customer order.
 ]
 
@@ -16,7 +16,7 @@ The supplied Odoo guide is designed as one connected storyline. The strongest fi
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.3, min-height: 0.75, align: center, font: font("script", weight: "bold", fill: navy))
     let g = (draw: green, fill: pale-teal, rounded: 2mm, min-width: 2.3, min-height: 0.75, align: center, font: font("script", weight: "bold", fill: navy))
     let m = (draw: orange, fill: pale-orange, rounded: 2mm, min-width: 3, min-height: 0.88, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 2.4), [Need materials], name: "need", ..b)
     node((3, 2.4), [Purchase Order], name: "po", ..b)
     node((6, 2.4), [Receipt], name: "rec", ..b)
@@ -121,7 +121,7 @@ A polished demonstration can use this sequence:
 + #strong[Payment closes the loop.] Sales and management can see settlement status.
 + #strong[Reports aggregate the history.] Graph, list, and pivot views turn transaction records into management information.
 
-#keyidea[
+#note[
   The capstone is successful when you can explain #emph[why] each record exists, what event changes its state, what downstream record it enables, and which department needs the resulting information. A sequence of screenshots without that explanation is not yet an ERP demonstration.
 ]
 
@@ -144,7 +144,7 @@ The supplied guide recommends evidence across the entire process. A compact fina
 + Paid/In Payment invoice;
 + one Graph or Pivot report.
 
-#quickcheck[
+#questions[
   + If Road Bike stock remains zero after the MO, which upstream records should you inspect?
   + If the invoice price is different from the Sales Order, what ERP integration principle has failed?
   + Which capstone steps demonstrate the link between CRM, SCM, and Finance?

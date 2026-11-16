@@ -26,16 +26,16 @@ per transfer.
     node((7, 0), [R1], name: "s", ..server)
     node(below-of("c", 0.1), [client 10.0.12.2], ..netlabel)
     node(below-of("s", 0.1), [server 10.0.12.1], ..netlabel)
-    connect((rel: (0.55, 0.45), to: "c"), (rel: (-0.9, 0.45), to: "s"), ..flowarrow, draw: teal, start: tip("to", line: 0.4pt), end: tip("to", line: 0.4pt))
+    connect((rel: (0.55, 0.45), to: "c"), (rel: (-0.9, 0.45), to: "s"), ..flowarrow, draw: teal, start: arrow-tip("to", line: 0.4pt), end: arrow-tip("to", line: 0.4pt))
     node(along((rel: (0.55, 0.45), to: "c"), (rel: (-0.9, 0.45), to: "s"), t: 50%), [control --- TCP port 21], ..netlabel, text: teal, anchor: "south")
-    connect((rel: (0.55, -0.45), to: "c"), (rel: (-0.9, -0.45), to: "s"), ..flowarrow, draw: orange, dash: "dashed", start: tip("to", line: 0.4pt), end: tip("to", line: 0.4pt))
+    connect((rel: (0.55, -0.45), to: "c"), (rel: (-0.9, -0.45), to: "s"), ..flowarrow, draw: orange, dash: "dashed", start: arrow-tip("to", line: 0.4pt), end: arrow-tip("to", line: 0.4pt))
     node(along((rel: (0.55, -0.45), to: "c"), (rel: (-0.9, -0.45), to: "s"), t: 50%), [data --- TCP port 20, one per transfer], ..netlabel, text: orange, anchor: "north")
     node((-0.4, -1.6), [#strong[Control] carries `USER`, `PASS`, `dir`, `get`, `bye` --- and every reply code.], anchor: "west", font: font("script", fill: muted), text-width: 5.2, align: left)
     node((5.4, -1.6), [#strong[Data] carries the file bytes and the directory listing. It opens and closes around each command.], anchor: "west", font: font("script", fill: muted), text-width: 5.2, align: left)
   })
 ]
 
-#keyidea[
+#note[
   A login that succeeds but a `dir` that hangs is the signature of a
   blocked data channel: the control connection is clearly working, since
   the login was answered.
@@ -60,7 +60,7 @@ per transfer.
 <R1> ping 10.0.12.2
 ```
 
-#keyidea[
+#note[
   Verify IP reachability before troubleshooting FTP.
 ]
 
@@ -103,7 +103,7 @@ Use `display ftp-server` to confirm that the service is running on TCP port 21.
 
 #vrpread[`running` confirms the service started, and `Listening port 21` is the control channel from #figref(<fig:ftp-channels>). `User count 0` is expected before R2 connects.]
 
-#verification[
+#checklist[
   Before login, prove that IP works, the server is running, and the user has the correct service type and directory.
 ]
 
@@ -155,7 +155,7 @@ To upload a file:
 
 Then check the server directory.
 
-#conceptmap[
+#note[
   #strong[dir] = inspect remote files #h(1em)$|$ #h(1em)#strong[get] = server $arrow.r$ client #h(1em)$|$ #h(1em)#strong[put] = client $arrow.r$ server #h(1em)$|$ #h(1em)#strong[bye] = close the FTP session.
 ]
 
@@ -168,7 +168,7 @@ Remove only the test files created by the exercise.
 <R2> delete flash:/vrpnew.zip
 ```
 
-#pitfall[
+#warning[
   Deletion is destructive. Verify the full path and filename; never erase the entire `flash:/` directory.
 ]
 
@@ -183,7 +183,7 @@ Remove only the test files created by the exercise.
   + After `get` or `put`, inspect the destination directory to prove the file arrived.
 ]
 
-#quickcheck[
+#questions[
   + Why does the lab ping R2 before configuring the FTP application?
   + Which command proves that the FTP server is running?
   + What is the direction of a `get` operation?

@@ -120,7 +120,7 @@ Run these commands from the repository root. Local builds go to `.build/`; publi
 ## Lab sheets and what has been checked
 
 Each lab sheet has setup steps, a warm-up on paper, questions numbered to match its notebook with reference outputs,
-your-turn tasks with expected findings, troubleshooting, and verification and submission checklists. Complete notebook
+exercises with answers, troubleshooting tips, a checklist and a submission list. Complete notebook
 code is printed in execution order and exported to `all_experiments/lab*_worked.py`; run those companions from this
 folder, since each sets its own working directory. Lab 3 also prints the shared search-engine implementation.
 

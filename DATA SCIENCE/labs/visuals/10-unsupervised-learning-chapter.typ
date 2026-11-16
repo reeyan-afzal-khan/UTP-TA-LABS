@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas(x: 15.06cm, {
       let stage = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.26 * 15.06, min-height: 1.55, inner-xsep: 2.5mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-      let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+      let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
       let repeatflow = (..flow, draw: muted, rounded: 2mm)
       node((0, 0), [#strong[1\. Initialise] \ #v(3.9851pt)
      Choose $k$ \

@@ -88,17 +88,17 @@
 
   Pick one of the three programs. Open it in Vim and change the final request from 426 to 250. Predict whether that request will now fit and which hole will be selected. Recompile and check your prediction.
 
-  #keyidea[
+  #note[
     “Best Fit” is the name of a rule, not a guarantee of the best final memory layout. Every policy is making a decision without knowing future requests.
   ]
 
-  #quickcheck[
+  #questions[
     + What is external fragmentation?
     + Why can two placement policies leave different hole lists after the same request?
     + Why does a request sometimes fail even when the total free memory is large enough?
   ]
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Trace the first two requests by hand for each policy. Report remaining hole sizes and distinguish failed placement from exhaustion of total free memory.
 
     - The hole list is recorded after every request for each policy, not only the final line.

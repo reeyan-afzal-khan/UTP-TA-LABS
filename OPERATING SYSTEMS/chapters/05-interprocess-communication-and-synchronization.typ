@@ -17,7 +17,7 @@ A #term[race condition] occurs when correctness depends on timing that the progr
 
 The code that must behave as one indivisible logical action is called a #term[critical section]. A synchronization mechanism prevents unsafe overlap.
 
-#keyidea[
+#note[
   Synchronization is not about forcing the whole program to run one step at a time. It protects only the state transition that must not be interleaved incorrectly.
 ]
 
@@ -43,7 +43,7 @@ $ mono("empty") + mono("full") = N. $
 
 A producer requires an empty slot before adding an item. A consumer requires a full slot before removing one. In a real concurrent implementation, checking and changing these synchronization values must itself be performed safely.
 
-#workedexample[
+#example[
   For capacity 3, the initial state may be `empty=3, full=0`. After one successful production it becomes `empty=2, full=1`. A fourth production without any intervening consumption must wait because no empty slot remains.
 ]
 
@@ -69,7 +69,7 @@ With a pipe, one process writes bytes and another reads them. Data conceptually 
 
 With shared memory, processes attach the same kernel-managed memory object into their separate address spaces. The bytes do not need to be copied through a read/write stream each time, but the processes must agree on when data is ready and who may modify it.
 
-#pitfall[
+#warning[
   Shared memory solves the “where can both processes see the data?” problem. It does not by itself solve the “who may update it now?” problem.
 ]
 
@@ -97,7 +97,7 @@ For an introductory problem, ask four questions:
 
 This approach is more reliable than memorising a sequence of `wait()` and `signal()` calls without understanding the state they protect.
 
-#quickcheck[
+#questions[
   + Why can shared memory require synchronization even after both processes attach successfully?
   + What invariant holds for `empty` and `full` in a fixed-capacity buffer?
   + What is one conceptual difference between a pipe and shared memory?

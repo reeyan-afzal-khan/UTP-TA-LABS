@@ -54,9 +54,9 @@ The labs need two tools:
 
 - **Wireshark** for Lab 1's packet captures;
 - **Huawei eNSP** for Labs 2–9, which are all built and verified on simulated routers and switches. eNSP needs
-  VirtualBox; Lab 2's troubleshooting box covers devices that will not start.
+  VirtualBox; Lab 2's troubleshooting tips cover devices that will not start.
 
-Each lab ends with a *Verification evidence* box: the `display` commands and captures to hand in.
+Each lab ends with a *Checklist*: the `display` commands and captures to hand in.
 
 ## Folder map
 

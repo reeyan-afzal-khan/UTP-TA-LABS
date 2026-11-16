@@ -52,7 +52,7 @@
 
   #include "visuals/06-inference-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Repeat with a different seed and compare interval endpoints. Then inspect prior-grade bands and explain why an observational association cannot isolate the causal effect of aspiration.
 
     #strong[Required evidence.] Submit the observed effect, 95% interval, permutation p-value, one bootstrap distribution graphic, and a four-sentence interpretation covering magnitude, uncertainty, null evidence, and design limitation.

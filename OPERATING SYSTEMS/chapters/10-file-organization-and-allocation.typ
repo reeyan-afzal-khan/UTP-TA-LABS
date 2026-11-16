@@ -28,7 +28,7 @@ Text formats convert values into readable characters. Binary formats can store c
   )
 ]
 
-#pitfall[
+#warning[
   “Binary” does not automatically mean “better.” A durable binary format normally defines its byte layout explicitly instead of simply dumping a compiler-dependent in-memory structure.
 ]
 
@@ -58,7 +58,7 @@ A separate index block stores references to the file’s data blocks. Logical bl
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 1mm, min-width: 2.2, min-height: 0.7, font: font("small", weight: "bold", fill: navy))
     let d = (draw: teal, fill: pale-teal, rounded: 1mm, min-width: 1.7, min-height: 0.65, font: font("script", fill: navy))
-    let arr = (draw: muted, line-width: widths.thick, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Index block 7], name: "idx", ..b)
     node(right-of("idx", 2.2), [block 12], name: "d1", ..d, yshift: 1cm)
     node(right-of("idx", 2.2), [block 19], name: "d2", ..d)
@@ -106,7 +106,7 @@ Real file systems must survive interruptions during metadata updates. Techniques
 
 When an application stores a student record, it decides which bytes represent the ID, name, and GPA. When the file system stores the file, it decides how file offsets map to blocks. One file can change its physical allocation without changing its application record format.
 
-#quickcheck[
+#questions[
   + Which layer decides how an employee record is encoded?
   + Which allocation method uses a dedicated block of pointers?
   + Why should a multi-block allocation request be fully checked before state is modified?

@@ -18,7 +18,7 @@ if (err != 0) {
 pthread_join(t, NULL);
 ```
 
-#pitfall[
+#warning[
   Thread identifiers are opaque values. Portable code compares them with `pthread_equal()` rather than assuming they are ordinary integers with a specific representation.
 ]
 
@@ -66,7 +66,7 @@ Breaking any one condition prevents this class of deadlock.
   #canvas({
     let proc = (shape: "circle", draw: blue, fill: pale-blue, min-size: 1.05, font: font("small", weight: "bold", fill: navy))
     let res = (draw: navy, fill: white, min-width: 1.05, min-height: 0.9, font: font("small", weight: "bold", fill: navy))
-    let cyc = (line-width: 0.9963pt, draw: red, end: tip("Stealth", length: 2.3mm, line: 0.9963pt))
+    let cyc = (line-width: 0.9963pt, draw: red, end: arrow-tip("Stealth", length: 2.3mm, line: 0.9963pt))
     let lab = (font: font("script", fill: muted),)
     let note = (font: font("script", fill: ink), align: center)
     node((0, 2.5), [P1], name: "p1", ..proc)
@@ -107,7 +107,7 @@ find a process whose needs fit within Work. Assume it finishes and returns its
 allocation to Work. If every process can finish in some order, the state is
 #term[safe].
 
-#workedexample[
+#example[
   Suppose Available is $(1,1)$, P1 has Need $(1,0)$ and Allocation $(1,1)$, while P2 has Need $(2,1)$ and Allocation $(1,0)$. P1 can finish first because $(1,0) <= (1,1)$. Work becomes $(2,2)$, allowing P2 to finish. Therefore a safe sequence is P1, P2.
 ]
 
@@ -115,7 +115,7 @@ allocation to Work. If every process can finish in some order, the state is
   #canvas({
     let wk = (draw: teal, fill: pale-teal, rounded: 1.5mm, min-width: 1.5, min-height: 0.75, font: font("small", weight: "bold", fill: navy))
     let test = (draw: blue, fill: pale-blue, rounded: 1.5mm, text-width: 3, min-height: 1.15, align: center, font: font("script", fill: navy))
-    let go = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let go = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     let wcap = (font: font("script", weight: "bold", fill: muted),)
     let rel = (font: font("script", fill: green), align: center)
     node((0, 1.15), [Work = Available], ..wcap)
@@ -135,7 +135,7 @@ allocation to Work. If every process can finish in some order, the state is
   })
 ]
 
-#pitfall[
+#warning[
   An #term[unsafe state] is not identical to an already existing deadlock. Unsafe means the OS can no longer guarantee that every future maximum claim can be satisfied in some order. Deadlock is an actual circular waiting condition.
 ]
 

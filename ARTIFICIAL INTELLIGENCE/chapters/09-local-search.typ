@@ -19,9 +19,7 @@ We can run the search loop of #chapref(<ch:uninformed>) on this. The goal test i
 
 Call fewer attacks higher ground, so that every better board is a step uphill. A board’s #term[neighbours] are the boards we get by moving one queen up or down its own column. Eight queens with seven other squares each give $8 times 7=56$ neighbours. #term[Hill climbing] moves to the best neighbour, then looks around and repeats, and it stops when no neighbour is better (#figref(<fig:queens-board>)).
 
-#analogy[
-  Picture yourself on a hillside in thick fog. You can only feel the ground right next to your feet, so you never plan ahead and you never look back. You take the steepest step up and repeat. When every step would go down, you stop and declare that you have reached the top. That may be a small foothill, with a far taller peak hidden across the valley.
-]
+Picture yourself on a hillside in thick fog. You can only feel the ground right next to your feet, so you never plan ahead and you never look back. You take the steepest step up and repeat. When every step would go down, you stop and declare that you have reached the top. That may be a small foothill, with a far taller peak hidden across the valley.
 
 #utpfig([Left: a random board, written below it as the row of each column’s queen, counting rows from zero at the top. Red lines join the 6 attacking pairs. Middle: hill climbing scores all 56 neighbours and moves to the best, which here has 3 attacking pairs. Right: the algorithm in plain words. Between moves it keeps only one board.], label: <fig:queens-board>)[
   #canvas({
@@ -68,7 +66,7 @@ The memory saving is dramatic. Hill climbing holds at most 56 boards at any mome
 
 #lstinput("/ARTIFICIAL INTELLIGENCE/all_experiments/demo_local_search.py", first: 39, last: 49, lang: "python")
 
-#libnote[
+#note[
   You have met this idea already if you have trained a machine learning model. #term[Gradient descent] is hill climbing turned upside down: it walks downhill on the loss, the number that says how wrong the model is. ANFIS in #chapref(<ch:fuzzy>) used exactly this walk for its membership functions.
 ]
 
@@ -88,9 +86,7 @@ The first fix is blunt. When you get stuck, throw the board away and climb again
 
 Restarts throw away a whole board every time you are stuck. Is there a gentler way off a hilltop? What if the robot sometimes took a step downhill on purpose? It sounds like the dumbest idea in this book, and it works.
 
-#analogy[
-  The trick comes from metalworking and crystal growing. Melt a material and then cool it slowly. While it is hot its atoms move around freely, and as it cools they settle into a neat, low-energy crystal. Cool it too fast and the atoms freeze in a disordered jumble. That slow cooling is called #term[annealing].
-]
+The trick comes from metalworking and crystal growing. Melt a material and then cool it slowly. While it is hot its atoms move around freely, and as it cools they settle into a neat, low-energy crystal. Cool it too fast and the atoms freeze in a disordered jumble. That slow cooling is called #term[annealing].
 
 In 1983 Kirkpatrick, Gelatt and Vecchi, then at IBM, turned this into a search and used it to design computer chips. #term[Simulated annealing] picks one random move at each step. If the move is no worse, it always takes it. If the move is worse, it may still take it, with a chance that depends on how much worse the move is and on a #term[temperature] $T$ that falls a little at every step:
 
@@ -117,7 +113,7 @@ $ P("accept a move that adds " Delta " attacks") med = med e^(- Delta \/T). $
 
 Annealing has the restart built in. Instead of throwing the whole board away when stuck, it takes a small random step back, keeps the rest of its board, and climbs on from there. It solves 990 of the same 1,000 boards and looks at about 1,100 boards per puzzle solved, roughly 600 fewer than restarts.
 
-#pitfall[
+#warning[
   Annealing has settings: a starting temperature, a cooling rate and a stopping temperature. Cool too quickly and it behaves like hill climbing and freezes on a local maximum. Cool too slowly and it wastes work. The demo starts at $T=1$, multiplies by 0.999 per step and stops below 0.01. Those values suit eight queens and are not universal.
 ]
 
@@ -191,24 +187,24 @@ Here are the three board searches side by side, on the same 1,000 random boards.
 
 Read the third column with care. It divides all the work done by the boards actually solved, so plain hill climbing looks oddly close to the others. It only looks that way: hill climbing fails 85 % of the time, and one more climb on a failed board is exactly what random restarts adds.
 
-#keyidea[
+#note[
   When only the answer matters, keep one board and keep making it better. When it gets stuck, restart it, or take a worse step on purpose while it is still warm. When one option is too few, keep several.
 ]
 
-#tryit[
-  Run `python all_experiments/demo_local_search.py` from the course folder; it takes about a minute. Then, in a copy of the file, change `cooling=0.999` to `0.99`. The search now cools about ten times faster. Predict what happens to the number of boards solved and to the work per solve before you run it, and explain the result using #figref(<fig:annealing>).
-
-  #emph[What to expect.] Boards solved falls from about 990 to about 490, because the search freezes before it has wandered enough. Work per solved board also falls, from about 1,100 to about 720, because a fast-cooling run gives up early. Speed has been bought with reliability.
-]
-
-#chapterrecap[
+#summary[
   - Local search keeps candidates rather than routes, so it uses very little memory and suits problems judged only by the final answer.
   - Hill climbing always takes the best neighbour and stops when none is better, which traps it on local maxima.
   - Random restarts escape by starting over. Simulated annealing escapes by accepting worse moves with probability $e^(- Delta \/T)$ while it cools.
   - Beam search keeps the best $k$ options at each step, because the option that looks second best now can turn out best later.
 ]
 
-#quickcheck[
+#exercises[
+  Run `python all_experiments/demo_local_search.py` from the course folder; it takes about a minute. Then, in a copy of the file, change `cooling=0.999` to `0.99`. The search now cools about ten times faster. Predict what happens to the number of boards solved and to the work per solve before you run it, and explain the result using #figref(<fig:annealing>).
+
+  #emph[What to expect.] Boards solved falls from about 990 to about 490, because the search freezes before it has wandered enough. Work per solved board also falls, from about 1,100 to about 720, because a fast-cooling run gives up early. Speed has been bought with reliability.
+]
+
+#questions[
   + Why does a Sudoku not need the path-cost piece of a search problem?
   + How many neighbours does an eight-queens board have, and how does hill climbing use them?
   + What is a local maximum on the eight-queens puzzle, in terms of attacking pairs?

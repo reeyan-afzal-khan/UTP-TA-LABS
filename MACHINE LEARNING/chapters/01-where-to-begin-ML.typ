@@ -8,38 +8,6 @@
 
 Linear regression, gradient descent, logistic regression, $K$-means, PCA. Taught one chapter at a time, these names feel like a pile of unrelated tricks, and a chart of them looks like a maze. They are less separate than they look. Almost every method in this book repeats the same three moves: make a guess, score how wrong it is, improve the guess. This chapter sets up that idea on one small notebook that we will keep returning to, small enough to check everything with a pen.
 
-== One tutor, one notebook
-
-A tutor runs a weekly revision group of ten students and wants to plan who needs extra help before the next exam. After the last exam the tutor wrote one line per student: hours studied in the final week, lectures attended out of 14, hours slept the night before, and the mark out of 100.
-
-#utpfig([The study log. Ten rows and four columns are all the data this running example ever uses. A mark of 50 or more is a pass.], label: <fig:study-log>)[
-  #tabularx(
-    columns: (auto, auto, auto, auto, auto, auto),
-    align: (center, center, center, center, center, center),
-    styles: (navy-bold,),
-    header: ([Student], [Hours studied], [Lectures attended], [Hours slept], [Mark], [Passed?]),
-    [A], [2], [8], [8], [47], [no],
-    [B], [4], [6], [8], [50], [yes],
-    [C], [6], [7], [7], [59], [yes],
-    [D], [8], [9], [7], [65], [yes],
-    [E], [10], [11], [7], [68], [yes],
-    [F], [12], [13], [6], [77], [yes],
-    [G], [14], [12], [5], [62], [yes],
-    [H], [16], [10], [4], [52], [yes],
-    [I], [18], [5], [3], [43], [no],
-    [J], [20], [3], [2], [38], [no],
-  )
-]
-
-Read the hours and the mark together. Marks climb with study from student A to student F, then fall away: students I and J studied the most, attended the least, barely slept, and failed. Keep that bend in mind, because it comes back in several chapters.
-
-The tutor can ask four different questions of this one notebook, and each question leads to a different kind of method:
-
-- #emph[What mark should a student expect after nine hours of study?] The answer is a number (#chapref(<ch:regression>)).
-- #emph[Will this student pass?] The answer is yes or no, and it would help to know how sure we are (#chapref(<ch:classification>)).
-- #emph[What kinds of student are in this group?] Nobody wrote the kinds down, so the method has to find them (#chapref(<ch:clustering>)).
-- #emph[Can four columns fit on one chart?] The answer is a smaller set of columns that keeps most of the story (#chapref(<ch:dimred>)).
-
 == The five parts of a machine-learning problem
 
 Machine learning builds systems that learn useful patterns from examples instead of following a rule written by hand for every situation. Any such problem has five parts, and it is worth naming them before touching any code.
@@ -78,7 +46,7 @@ Here is the idea this whole book rests on. Choosing a method means filling in th
   })
 ]
 
-#workedexample[
+#example[
   Take the first six students and the guess $"mark"=2 times "hours"+47$.
 
   / Model.: A straight line with two changeable numbers, the 2 and the 47.
@@ -142,7 +110,7 @@ Two settings sit beside this map, because their feedback is different. In #term[
   #canvas({
     let hd = (draw: navy, fill: navy, text: white, rounded: 1.5mm, min-width: 3.35, min-height: 0.62, align: center, font: font("small", weight: "bold"))
     let bx = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 3.35, min-height: 1.5, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Supervised], name: "h1", ..hd)
     node(right-of("h1", 0.55), [Semi-supervised], name: "h2", ..hd)
     node(right-of("h2", 0.55), [Unsupervised], name: "h3", ..hd)
@@ -166,7 +134,7 @@ Two settings sit beside this map, because their feedback is different. In #term[
   })
 ]
 
-#intuition[
+#note[
   #term[Self-supervised learning] creates targets from the data itself, such as hidden words or image regions, to learn representations. #term[Active learning] chooses which examples to send to a person for labeling. Both change where the feedback comes from, which is why this map is drawn around feedback and not around algorithms.
 ]
 
@@ -177,7 +145,7 @@ The recipe describes how one model learns. A real project wraps it in a longer r
 #utpfig([The complete workflow, from defining the problem to explaining and monitoring the model. The steps are described in the list that follows.], label: <fig:ml-workflow>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3.35, min-height: 0.9, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 0), [1\. Define the problem], name: "a", ..box-style)
     node(right-of("a", 0.55), [2\. Understand the data], name: "b", ..box-style)
     node(right-of("b", 0.55), [3\. Split correctly], name: "c", ..box-style)
@@ -213,7 +181,7 @@ Fit preprocessing on training data only, and never select a model using the test
 
 A student who memorizes last year’s paper can score full marks on last year’s paper and still fail this year. Memorizing is not understanding, and the difference shows only on questions the student has not seen. Models behave the same way. A model #term[generalizes] when it performs well on new examples from the setting where it will be used.
 
-#workedexample[
+#example[
   Fit a curve to all ten students, predicting the mark from hours. A wigglier curve can always match the rows it trains on more closely, so we also hide each student in turn, fit on the other nine, and predict the hidden one.
 
   #v(6pt)
@@ -265,7 +233,7 @@ A smoke alarm can fail in two ways: it can ring when there is no fire, or stay s
 
 Error costs determine which metrics matter. #chapref(<ch:evaluation>) develops precision, recall, ranking and thresholds for exactly these trade-offs.
 
-#tryit[
+#exercises[
   Choose an automated decision you meet every week, such as a spam filter, a ride-hailing price or a playlist. Name its observation, features, target, model and metric, and the cost of each error type. Then say which corner of #figref(<fig:ml-map>) it lives in.
 ]
 
@@ -273,7 +241,7 @@ Error costs determine which metrics matter. #chapref(<ch:evaluation>) develops p
 
 Follow the course map: tools and foundations first, each workflow before its models, then limited labels and rewards, deep learning, text, a model put to work, and the capstone. Chapters that follow the study log (#chapsref(<ch:regression>, <ch:classification>), @ch:clustering and~@ch:dimred) can be read as one connected story. To see every step of it run, use `python all_experiments/book_checks/demo_study_log.py`.
 
-#chapterrecap[
+#summary[
   - A problem has five parts: observation, features, target, model and metric. Name them first.
   - Almost every method is one recipe: a model makes a guess, a loss scores it, an optimizer improves it. A new method usually changes one of the three.
   - One question splits the map: does your log hold the answers? With answers you predict a number or a category; without them you look for groups or for fewer columns.
@@ -281,7 +249,7 @@ Follow the course map: tools and foundations first, each workflow before its mod
   - The goal is generalization. A low score on the rows a model has seen can be memorization.
 ]
 
-#quickcheck[
+#questions[
   + What are the observation, features, target, model and metric in a problem that predicts whether a loan payment will be late?
   + Name which step of the recipe each phrase belongs to: “squared error”, “a straight line with two numbers”, “solve the formula for the best two numbers”.
   + Why is a learned model parameter different from a hyperparameter chosen during model selection?

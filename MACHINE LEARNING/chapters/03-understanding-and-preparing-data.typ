@@ -29,7 +29,7 @@ Some preparation is a fixed rule: a date format, a unit conversion, a typo in a 
 #utpfig([A safe order of operations: define what the data mean, apply fixed rules, split honestly, and only then learn any preparation from the training rows.], label: <fig:safe-order>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.75, min-height: 1.05, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [1\. Define meaning \
   rows, keys, units, timing], name: "meaning", ..box-style)
     node(right-of("meaning", 0.45), [2\. Apply fixed rules \
@@ -55,7 +55,7 @@ Some preparation is a fixed rule: a date format, a unit conversion, a typo in a 
   )
 ]
 
-#keyidea[
+#note[
   Fixed rules, such as unit conversions, may precede splitting. Estimate medians, scales, category mappings, and cutoffs from training rows only.
 ]
 
@@ -143,7 +143,7 @@ An age of $-1$ breaks a rule of the world, so it is an #term[impossible value]. 
   )
 ]
 
-#pitfall[
+#warning[
   Do not remove difficult cases merely to improve scores; they may occur after deployment.
 ]
 
@@ -153,9 +153,7 @@ Log each rule’s reason, columns, affected row count and action: correction, mi
 
 == Training, validation, and test sets <sec:data-splits>
 
-#analogy[
-  Think of how a student prepares for a final. Worked past papers are for learning. A mock exam tells you which study method works best, and you may sit it more than once, which is why it slowly stops being a fair test. The final is sat once, and its score is the one that counts. Those are the training, validation and test sets.
-]
+Think of how a student prepares for a final. Worked past papers are for learning. A mock exam tells you which study method works best, and you may sit it more than once, which is why it slowly stops being a fair test. The final is sat once, and its score is the one that counts. Those are the training, validation and test sets.
 
 #utpfig([The three splits and their jobs: the training set learns parameters, the validation set chooses settings, and the test set gives the final check.], label: <fig:three-splits>)[
   #canvas(x: 1.4936cm, {
@@ -179,7 +177,7 @@ Log each rule’s reason, columns, affected row count and action: correction, mi
 
 Training often uses 60--80% of rows. Choose proportions for dataset size while preserving separate validation and test roles.
 
-#pitfall[
+#warning[
   If you look at the test score and then change anything, the test set has become a second validation set, and its score is no longer a fair estimate. Decide what the test set is for, seal it, and open it once.
 ]
 
@@ -194,21 +192,19 @@ A random split is honest only when future rows are independent of past rows and 
   / Spatial split: Separates locations when nearby observations are strongly related.
 ]
 
-#workedexample[
+#example[
   #strong[Patients.] With five visits per patient, a random row split lets the model meet the same patient in training and in validation. It may then recognize patients rather than learn medicine. Group by patient when the model is meant for new patients.
 
   #strong[Hotel bookings.] Lab~2’s cancellation forest scores ROC AUC 0.841 when it trains on arrivals up to the end of 2016 and predicts 2017, which is how a hotel would really use it. Shuffle the bookings first, and the same model on the same data scores 0.911. It looks better only because it was allowed to train on bookings from the very weeks it predicts: 9,366 of the 29,848 shuffled validation bookings have an exact twin among the training rows.
 ]
 
-#pitfall[
+#warning[
   An unrealistic split gives an unrealistic performance estimate, and nothing downstream can repair that.
 ]
 
 == Data leakage <sec:data-leakage>
 
-#analogy[
-  A class scores 95% on an exam. It later turns out that the paper circulated the night before. The score was real, but it measured the wrong thing, and it predicts nothing about next year. #term[Data leakage] is the same accident: information the model would not have at prediction time, or information from the held-out rows, finds its way into the features, the preprocessing, the choice of model, or the split.
-]
+A class scores 95% on an exam. It later turns out that the paper circulated the night before. The score was real, but it measured the wrong thing, and it predicts nothing about next year. #term[Data leakage] is the same accident: information the model would not have at prediction time, or information from the held-out rows, finds its way into the features, the preprocessing, the choice of model, or the split.
 
 Examples include:
 
@@ -227,8 +223,8 @@ The diagram contrasts fitting the preprocessing before and after the split. Only
   #canvas({
     let ok = (draw: green, fill: pale-teal, rounded: 1.5mm, min-width: 2.85, min-height: 0.78, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
     let bad = (draw: red, fill: pale-red, rounded: 1.5mm, min-width: 2.85, min-height: 0.78, inner-xsep: 2.9888pt, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.9mm, line: widths.thick))
-    let barr = (line-width: widths.thick, draw: red, end: tip("Stealth", length: 1.9mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.9mm, line: widths.thick))
+    let barr = (line-width: widths.thick, draw: red, end: arrow-tip("Stealth", length: 1.9mm, line: widths.thick))
     let tag = (font: font("script", weight: "bold"), align: left)
     node((0, 0), [WRONG], name: "t1", ..tag, text: red)
     node(right-of("t1", 0.35), [Load all data], name: "w1", ..bad)
@@ -250,7 +246,7 @@ The diagram contrasts fitting the preprocessing before and after the split. Only
   })
 ]
 
-#workedexample[
+#example[
   How much can leakage inflate a score? Build a table with no signal in it at all: 100 rows, 1,000 columns of random noise, and labels from coin flips. Honest accuracy has to be near 0.5. The listing below picks the 20 columns that look most related to the labels, then cross-validates. It runs the same experiment twice, and only the place where the columns are picked differs.
 
   #codefrom("/MACHINE LEARNING/all_experiments/book_checks/demo_foundations.py", "# Leakage on pure noise:", "X, y, cv=folds).mean()")
@@ -272,7 +268,7 @@ A blank cell is a fact about how the data was collected. It may mean the value w
   + Check whether the treatment changes important distributions.
 ]
 
-#workedexample[
+#example[
   Training ages are 19, 20, 22, 21, 58, 23 and two blanks. The mean is 27.2, a value no student near the center has, because one mature student pulls it up. The median is 21.5, so a median fill stays with the bulk of the group. The test rows are then filled with that same 21.5, even if their own median differs. If blanks turn out to be informative, add a yes/no column saying the age was missing.
 ]
 
@@ -300,13 +296,11 @@ Define how the pipeline handles unseen categories, because a new programme will 
 
 == Scaling and transforming numerical features <sec:scaling>
 
-#analogy[
-  Ask whether two customers are similar, and measure one column in years and another in dollars. A gap of ten years is 10 and a gap of 500 dollars is 500, so the second gap wins before any judgment has happened. Scaling hands every column the same ruler.
-]
+Ask whether two customers are similar, and measure one column in years and another in dollars. A gap of ten years is 10 and a gap of 500 dollars is 500, so the second gap wins before any judgment has happened. Scaling hands every column the same ruler.
 
 Distances, margins, penalties and gradient steps all let large numerical units dominate smaller ones. The change can alter the answer, not just the arithmetic.
 
-#workedexample[
+#example[
   Three customers, written as (age, income): $A=(30, med 50","000)$, $B=(40, med 90","000)$ and $C=(60, med 52","000)$. Who is nearest to $A$?
 
   $ d(A,B)=sqrt(10^2+40","000^2)=40","000.00, wide d(A,C)=sqrt(30^2+2","000^2)=2","000.22. $
@@ -333,7 +327,7 @@ The three course scalers answer three different questions:
 
 Fit every scaler on training rows only (#secref(<sec:data-leakage>)).
 
-#workedexample[
+#example[
   Take the skewed column $[2400, space 36, space 23075, space 70, space 1, space 905]$.
 
   #strong[Min--max] maps 1 to 0 and 23,075 to 1, which leaves everything else crushed near zero: 905 becomes 0.039 and 2,400 becomes 0.104.
@@ -391,7 +385,7 @@ A $log(1+x)$ or power transform changes the shape of a distribution, while scali
   })
 ]
 
-#keyidea[
+#note[
   Changing units can change neighbors, margins, and clusters without changing observations or labels.
 ]
 
@@ -401,7 +395,7 @@ Outliers may be valid rare events or evidence of mixed populations. Investigate 
 
 Record class counts and retain rare cases. Stratify when random splitting is appropriate.
 
-#keyidea[
+#note[
   Choose evaluation metrics before an imbalance intervention (#chapref(<ch:evaluation>)). #chapref(<ch:training>) covers weights, thresholds, and resampling, including SMOTE; #chapref(<ch:knn-nb>) explains its neighbor geometry.
 ]
 
@@ -420,7 +414,7 @@ A #term[pipeline] joins the preparation steps and the model into one object. Whe
 #utpfig([A preprocessing pipeline. Fixed schema and quality rules come before the honest split; every data-dependent step after it is fitted on the training rows only and then reused unchanged.], label: <fig:prep-pipeline>)[
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-height: 0.76, inner-xsep: 4.9813pt, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Raw data], name: "raw", ..box-style, min-width: 1.8)
     node(right-of("raw", 0.35), [Fixed schema and quality rules], name: "check", ..box-style, min-width: 3.5)
     node(right-of("check", 0.35), [Honest split], name: "split", ..box-style, min-width: 2.1)
@@ -435,15 +429,11 @@ A #term[pipeline] joins the preparation steps and the model into one object. Whe
 
 Document the data source, collection period, row definition, feature units, label timing, inclusion rules, split logic, random seed, known bias and privacy limits.
 
-#keyidea[
+#note[
   Validate the whole pipeline, refitting it inside each cross-validation training fold (#chapref(<ch:evaluation>)).
 ]
 
-#debugtask[
-  A teammate computes median values, standardization statistics, and a label-informed mean encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
-]
-
-#chapterrecap[
+#summary[
   - Before modeling, know what one row is, what each column means, when each value becomes available, which rows are related, and who is missing.
   - Fixed rules may run before the split, and they get logged. Anything learned from data is fitted on training rows only.
   - Training is for learning, validation for choosing, and the test set for one final check. The split must imitate how the model will be used, which is why time series split by date.
@@ -451,7 +441,11 @@ Document the data source, collection period, row definition, feature units, labe
   - Scale for distance-based and penalized models, one-hot encode categories without an order, and put every step in a pipeline.
 ]
 
-#quickcheck[
+#exercises[
+  A teammate computes median values, standardization statistics, and a label-informed mean encoding on the complete labeled table, then creates the train--test split. Identify every quantity that carried information from the future holdout backward. Rewrite the order of operations in six lines of pseudocode.
+]
+
+#questions[
   + Why must train/test splitting happen before any preprocessing step that learns from the data?
   + What is the difference between an identifier, a feature, and a label?
   + Why do you need to know the moment of prediction before you can say whether a feature is leakage?

@@ -80,6 +80,6 @@ enqueue 60 -> refused front=2 rear=4  queue: 30 40 50
 
 The complete captured run is in `labs/outputs/linear_queue.txt`.
 
-#tryit[
+#exercises[
   Fill all five positions and dequeue twice. Predict why another enqueue is refused even though two physical slots are free. Compare the same sequence with the circular program.
 ]

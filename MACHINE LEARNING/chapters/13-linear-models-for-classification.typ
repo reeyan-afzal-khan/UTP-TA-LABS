@@ -19,9 +19,7 @@ The fit runs without complaint until you read what it says. At 13 lectures the a
 
 == The dimmer switch
 
-#analogy[
-  A light switch is off or on, like our labels. A dimmer sweeps smoothly from dark to full brightness, and however far you turn the dial, the light cannot go below off or above fully on. Keep the straight line as the dial, and pass its output through a dimmer. The dial position is the #term[score], and the brightness is the probability.
-]
+A light switch is off or on, like our labels. A dimmer sweeps smoothly from dark to full brightness, and however far you turn the dial, the light cannot go below off or above fully on. Keep the straight line as the dial, and pass its output through a dimmer. The dial position is the #term[score], and the brightness is the probability.
 
 That dimmer is the #term[sigmoid], a name that just means S-shaped:
 
@@ -79,7 +77,7 @@ $ log frac(p, 1-p) = beta _0+bold(beta)^(sans(T))bold(x), wide "equivalently" wi
 
 A unit increase in $x_j$ multiplies the odds by $e^(beta _j)$, holding other features fixed. So $beta _j=0.7$ roughly doubles the odds and $-0.7$ roughly halves them. The effect on the probability depends on where you start, because the curve is steep in the middle and flat at the ends.
 
-#workedexample[
+#example[
   Suppose a pass/fail model based on hours studied has $beta _0=-4$ and $beta _1=0.08$.
   A student with $x=60$ hours has score $z=-4+0.08 times 60=0.8$ and pass probability $sigma (0.8) approx 0.69$.
   A student with $x=30$ hours has $z=-1.6$ and $sigma (-1.6) approx 0.17$.
@@ -90,7 +88,7 @@ A unit increase in $x_j$ multiplies the odds by $e^(beta _j)$, holding other fea
 
 We need to score a probability. Reaching for squared error again seems natural, so try it on a student who failed, with the model giving three different chances of passing.
 
-#workedexample[
+#example[
   #align(center)[#fsize("small")[
 
   #tabularx(
@@ -134,7 +132,7 @@ We center the lectures on 8, because that keeps the numbers small. Nothing else 
 
 #codefrom("/MACHINE LEARNING/all_experiments/book_checks/demo_study_log.py", "def sigmoid(", "return w, b")
 
-#workedexample[
+#example[
   At the start, $w=b=0$, so every $p$ is 0.5. The formula gives a slope of $-1.0000$ for $w$. Nudging $w$ by 0.001 and remeasuring the loss gives $-0.9988$, so the formula checks out. With a learning rate of 0.1:
 
   #v(6pt)
@@ -228,7 +226,7 @@ Exponentiating and normalizing preserves score order and makes probabilities sum
   #canvas({
     let sc = (draw: blue, fill: pale-blue, rounded: 1.2mm, min-width: 1.55, min-height: 0.6, align: center, font: font("script", fill: navy))
     let pr = (draw: green, fill: pale-teal, rounded: 1.2mm, min-width: 1.55, min-height: 0.6, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [cat: $1.2$], name: "s1", ..sc)
     node(below-of("s1", 0.36), [dog: $3.4$], name: "s2", ..sc)
     node(below-of("s2", 0.36), [fox: $2.0$], name: "s3", ..sc)
@@ -249,11 +247,11 @@ Exponentiating and normalizing preserves score order and makes probabilities sum
   })
 ]
 
-#workedexample[
+#example[
   For scores $1.2, space 3.4, space 2.0$, the exponentials are $3.32, space 29.96, space 7.39$, which add to $40.67$. Dividing gives $0.082, space 0.737, space 0.182$.
 ]
 
-#keyidea[
+#note[
   Softmax preserves score order while normalizing exponentials to a probability distribution.
 ]
 
@@ -285,11 +283,11 @@ $ delta _k(bold(x)) =bold(x)^(sans(T)) Sigma ^(-1)bold(mu)_k -inline(frac(1, 2))
 
 Estimate priors from frequencies, means within classes, and covariance from pooled within-class variation. Linear dependence on $bold(x)$ gives flat boundaries.
 
-#workedexample[
+#example[
   On the lectures column of the log, passing students average 9.71 lectures and failing students 5.33, with a pooled variance of 6.51. With equal class sizes the boundary would be the midpoint, 7.52. Passing is more common here (7 of 10), and the prior moves the boundary down to 6.26, close to logistic regression’s 6.30.
 ]
 
-#intuition[
+#note[
   With equal-shaped Gaussian class densities, the tie boundary is linear; class priors shift its position.
 ]
 
@@ -311,7 +309,7 @@ $ bold(w) arrow.l bold(w)+ eta thin y_i thin bold(x)_i, wide b arrow.l b+ eta th
 
 Correct predictions cause no update. Separable data yields convergence; otherwise convergence is not guaranteed. The boundary depends on the training path and supplies no probabilities.
 
-#workedexample[
+#example[
   Four points: $(2,2)$ and $(0,2)$ are $+1$; $(-1,-1)$ and $(1,-1)$ are $-1$. Start with $bold(w)=(0,0)$, $b=0$ and $eta =1$.
 
   / $(2,2)$: The score is 0, which counts as a mistake, so $bold(w)=(2,2)$ and $b=1$.
@@ -336,11 +334,11 @@ Correct predictions cause no update. Separable data yields convergence; otherwis
   )
 ]
 
-#keyidea[
+#note[
   Logistic regression fits conditional probabilities; LDA models class distributions; the perceptron updates after mistakes. All use flat boundaries, while QDA’s separate covariance matrices allow curves.
 ]
 
-#modelcard[Linear Classifiers - Quick Guide][
+#checklist(title: [Linear Classifiers - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -354,23 +352,11 @@ Correct predictions cause no update. Separable data yields convergence; otherwis
   )
 ]
 
-#workedexample[
+#example[
   For an “hours studied” coefficient of $0.62$, each extra hour multiplies passing odds by $e^0.62 approx 1.86$, holding other features fixed. The probability increase depends on the starting probability.
 ]
 
-#tryit[
-  Fit logistic regression and obtain out-of-fold training probabilities. Sweep thresholds from 0.05 to 0.95 in steps of 0.05; plot precision against recall without using test data.
-]
-
-#debugtask[
-  A teammate lowers the probability threshold until test-set recall reaches the desired value, then reports that same test recall as final performance. Explain the leakage in model selection and show where threshold tuning belongs instead.
-]
-
-#decisionmemo[
-  For a rare positive class, choose between an unweighted logistic model, class weighting, and a lower decision threshold. State which quantity each intervention changes, which validation metric you would inspect, and why the three options are not interchangeable.
-]
-
-#chapterrecap[
+#summary[
   - A straight line on 0/1 labels leaves the range of a probability, so logistic regression passes its score through the sigmoid, a dimmer that stops at 0 and 1.
   - The score’s sign picks the side and its size sets the confidence. A unit of a feature multiplies the odds by $e^beta$.
   - Log loss charges minus the log of the probability given to what happened, so confident and wrong is ruinous. Squared error cannot punish it enough.
@@ -378,7 +364,15 @@ Correct predictions cause no update. Separable data yields convergence; otherwis
   - The probability and the threshold are separate. Softmax extends the model to many classes; LDA models each class; the perceptron just corrects its mistakes.
 ]
 
-#quickcheck[
+#exercises[
+  + Fit logistic regression and obtain out-of-fold training probabilities. Sweep thresholds from 0.05 to 0.95 in steps of 0.05; plot precision against recall without using test data.
+
+  + A teammate lowers the probability threshold until test-set recall reaches the desired value, then reports that same test recall as final performance. Explain the leakage in model selection and show where threshold tuning belongs instead.
+
+  + For a rare positive class, choose between an unweighted logistic model, class weighting, and a lower decision threshold. State which quantity each intervention changes, which validation metric you would inspect, and why the three options are not interchangeable.
+]
+
+#questions[
   + A score is exactly 0. What probability does the sigmoid give, and why?
   + With the fitted model, what chance of passing does a student with 7 lectures get, and which side of a 0.5 threshold is that?
   + A model gives 0.95 to a case that turns out negative. What does it pay in log loss? And for a case that turns out positive?

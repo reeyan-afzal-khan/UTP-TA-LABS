@@ -90,7 +90,7 @@ The vocabulary is the eight different tokens, in alphabetical order. Each messag
 
 On the real training messages the table has 4,135 rows and 7,680 columns, which makes 31,756,800 cells. Only 54,735 of them, 0.17%, are not zero, because an average message has 14.3 tokens and the vocabulary has thousands. A table like that is stored as a #term[sparse matrix], which records the non-zero cells and their positions and nothing else. The vectorizers return one, and naive Bayes, logistic regression and linear SVMs all accept it directly.
 
-#pitfall[
+#warning[
   Calling `.toarray()` on a document-term matrix writes out every zero. For these text messages that is 32 million numbers, which still fits in memory. For a hundred thousand documents and a vocabulary of two hundred thousand it would be twenty billion, and the notebook would stop. Keep the matrix sparse, and convert only a few rows when you want to look at them.
 ]
 
@@ -150,7 +150,7 @@ Whether any of them helps is a question for the data. Each row below is a naive 
 
 On these messages, deleting stop words helps a little. Dropping every word that occurs in a single message removes more than half the columns and costs nothing. Stemming makes things very slightly worse.
 
-#keyidea[
+#note[
   Read that table as a result about one dataset and not as a rule. In a review that says "not good", the word `not` carries the meaning, and `not` is on the stop list. Every choice in this section is a setting of the pipeline, to be validated like any other setting (#chapref(<ch:training>)). What works for spam may hurt for sentiment.
 ]
 
@@ -178,7 +178,7 @@ $ "idf"(w) = ln frac(1 + n, 1 + "df"(w)) + 1. $
 
 Each count is multiplied by the idf of its word. Then every row is divided by its own length, so that its squared values add up to 1.
 
-#workedexample[
+#example[
   Take the four made-up messages, so $n = 4$.
 
   `free` is in three of them: $"idf" = ln(5 \/ 4) + 1 = 1.223$. `call` and `prize` are in two: $ln(5 \/ 3) + 1 = 1.511$. `win` is in one: $ln(5 \/ 2) + 1 = 1.916$.
@@ -260,7 +260,7 @@ words that push hardest towards ham:  ['my', 'me', 'gt', 'can', 'lt', 'that']
 
 The spam list is what anyone would expect. The ham list contains two strangers, `gt` and `lt`. They are what the tokenizer leaves of `&gt;` and `&lt;`, the codes that web pages use for the signs > and <. In this collection, numbers in some ham messages were replaced by a placeholder, as in the message `Wait  &lt;#&gt;  min..`, and 179 real training messages contain it against no spam message at all.
 
-#pitfall[
+#warning[
   The model is right to use that pattern on this dataset, and it would be wrong on a real phone, where nobody's messages contain `&lt;`. The pattern describes how the data was collected. Reading the largest weights is the cheapest check for text: a strange token near the top usually means that something other than the task separates the classes.
 ]
 
@@ -499,11 +499,7 @@ A routine that fits most text problems:
   + #term[Only then try something heavier,] on the same split, and ask whether the gain pays for what it costs to run and to explain.
 ]
 
-#tryit[
-  In `demo_text.py`, set `CHECK_BOOK_NUMBERS = False`. Then change the rule in `strict_threshold` from one real message in a thousand to one in a hundred, by calling it with `allowed=0.01`, and run the script. How far does the threshold fall? How many more spam messages are caught in the test, and how many more real messages are lost? Which of the two rules would you choose for a phone, and which for a company's support inbox?
-]
-
-#block(breakable: false, width: 100%, chapterrecap[
+#block(breakable: false, width: 100%, summary[
   - Text becomes a table through three decisions: what a token is, which tokens get a column, and what number goes in each cell. Print the tokens of real documents before trusting the defaults.
   - A bag of words gives every document a row of the same width. The table is almost entirely zeros (0.17% of cells were filled), so it is stored sparse. More than half the vocabulary occurred once.
   - Stop words, rare words and stemming are settings to validate. On the text messages they moved the average precision between 0.952 and 0.965.
@@ -514,7 +510,11 @@ A routine that fits most text problems:
   - A word vector places words used alike close together, and can be learned without labels. Averaged word vectors repaired a search that tf-idf got wrong. For classification they lost to tf-idf with all the labels (0.840 against 0.900) and won with two labels for each intent (0.443 against 0.413).
 ])
 
-#quickcheck[
+#exercises[
+  In `demo_text.py`, set `CHECK_BOOK_NUMBERS = False`. Then change the rule in `strict_threshold` from one real message in a thousand to one in a hundred, by calling it with `allowed=0.01`, and run the script. How far does the threshold fall? How many more spam messages are caught in the test, and how many more real messages are lost? Which of the two rules would you choose for a phone, and which for a company's support inbox?
+]
+
+#questions[
   + Define corpus, document, token and vocabulary, using a collection of customer reviews as the example.
   + A document-term matrix has 20,000 rows and 50,000 columns, and an average document has 40 different words. What share of its cells is not zero, and why does that matter for memory?
   + Three documents: "red apple", "green apple", "red red car". Compute the idf of `red`, `apple` and `car` with scikit-learn's formula, and then the tf-idf row of the third document before it is scaled.

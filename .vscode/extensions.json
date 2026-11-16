@@ -1,6 +1,8 @@
 {
   "recommendations": [
-    "myriad-dreamin.tinymist",
+    "myriad-dreamin.tinymist"
+  ],
+  "unwantedRecommendations": [
     "robertmorelli.megamist-typst"
   ]
 }

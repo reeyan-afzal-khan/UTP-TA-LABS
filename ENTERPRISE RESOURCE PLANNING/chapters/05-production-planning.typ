@@ -5,7 +5,7 @@
 
 #chapterguide[You should know that Sales generates demand information and Supply Chain must turn that demand into physical products.][explain the production-planning hierarchy, distinguish common production approaches, connect forecasts to capacity and inventory decisions, and explain the role of a bill of materials and manufacturing order.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 3 (Production Planning) and Chapter 4 of the
   textbook. The tutorial asks students to select a production-planning approach,
   calculate a sales forecast, and prepare an S&OP plan. The Odoo build guide
@@ -114,7 +114,7 @@ For month $t$, with expected growth rate $g$:
 
 $ "Base"_t = "Prev. sales"_t - "Prev. promo"_t, wide "Forecast"_t = "Base"_t(1+g) + "New promo"_t. $
 
-#keyidea[
+#note[
   Forecasting must separate the underlying demand pattern from one-off causes.
   Multiplying a promotion-inflated total by a growth rate compounds the error every
   year.
@@ -161,7 +161,7 @@ plan into individual products and shorter periods; #term[detailed scheduling]
 then fixes the actual runs. Longer runs reduce changeovers but raise inventory;
 shorter runs cut inventory but spend capacity on setup.
 
-#intuition[
+#note[
   S&OP decides “how much should the factory produce this month?” Detailed
   scheduling decides “which product runs on which day, in what sequence?”
 ]
@@ -214,8 +214,8 @@ the MO is a stock event, not just a status change.
   })
 ]
 
-#applicationbox[
-  In the West End Bicycles guide: create a Road Bike BOM for one unit; create a
+#note[
+  #strong[In Odoo 19 Community.] In the West End Bicycles guide: create a Road Bike BOM for one unit; create a
   Manufacturing Order for 5; assign the Production Planner as responsible; confirm
   and check component availability; produce and mark the MO Done; then verify that
   component stock fell and Road Bike on-hand stock rose to 5.
@@ -246,20 +246,20 @@ Forecast accuracy matters because a worse forecast needs a bigger buffer for the
 same service level. ERP does not remove uncertainty; it improves the information
 used to manage it.
 
-#pitfall[
+#warning[
   High capacity utilisation is not the same as good planning. A factory can keep
   machines busy producing goods nobody ordered. The objective is a sensible balance
   between demand, capacity, setup cost, and inventory cost.
 ]
 
-#tryit[
+#exercises[
   Choose one of the ventures suggested in Tutorial 3 --- furniture, cookies,
   printing, or your own. Decide whether make-to-stock, make-to-order, or a more
   customised approach fits, then explain what would go wrong under one of the
   others. Mark where the decoupling point sits in each case.
 ]
 
-#quickcheck[
+#questions[
   + Why can production differ from the sales forecast in a given month?
   + What information does a BOM provide that a sales forecast does not?
   + What stock changes should occur when a Manufacturing Order for 5 Road Bikes is completed?

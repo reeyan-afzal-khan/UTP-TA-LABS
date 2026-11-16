@@ -17,7 +17,7 @@ A circular linked list changes one crucial link: the last node points back to th
     connect("r0", "r1", bend: 22deg, ..utparrow, name: "curve-1")
     connect("r1", "r2", bend: 22deg, ..utparrow, name: "curve-2")
     connect("r2", "r3", bend: 22deg, ..utparrow, name: "curve-3")
-    connect("r3", "r0", bend: 22deg, line-width: 0.9963pt, draw: orange, end: tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-4")
+    connect("r3", "r0", bend: 22deg, line-width: 0.9963pt, draw: orange, end: arrow-tip("Stealth", length: 2.4mm, line: 0.9963pt), name: "curve-4")
     node((angle: (90) * 1deg, radius: 2.45), [HEAD], font: font("small"), ..utptag, anchor: "south")
     node((angle: (180) * 1deg, radius: 2.5), [LAST \
   `last->next` \
@@ -33,7 +33,7 @@ A circular linked list changes one crucial link: the last node points back to th
         let j = int(i + 1)
         connect("s" + str(i), "s" + str(j), ..utpptr)
       }
-      connect("s3.south", (rel: (0, -0.62), to: "s3.south"), "-|", "s0.south", line-width: 0.9963pt, draw: orange, end: tip("Stealth", length: 2.2mm, line: 0.9963pt))
+      connect("s3.south", (rel: (0, -0.62), to: "s3.south"), "-|", "s0.south", line-width: 0.9963pt, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: 0.9963pt))
       node((2.03, -0.85), [the same list drawn flat: \
   the wrap link is what makes it circular], font: font("small"), ..utplabel, anchor: "north", align: center)
     })
@@ -64,7 +64,7 @@ A normal singly linked list often uses `current != nullptr` as the loop conditio
 }
 ```
 
-#keyidea[
+#note[
   For a non-empty circular list, the natural traversal invariant is “keep moving until the pointer returns to the starting node.”
 ]
 
@@ -234,10 +234,10 @@ The Week IV lab also requires deletion by value. Traversal must both detect the 
 }
 ```
 
-#pitfall[
+#warning[
   The easiest circular-list bug is an infinite traversal. Every loop over the list must make progress and must have a condition tied to returning to the starting node.
 ]
 
-#quickcheck[
+#questions[
   Why does `while (current != nullptr)` fail as a normal stopping condition in a circular list? What special pointer updates are needed when the list contains only one node?
 ]

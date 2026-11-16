@@ -5,7 +5,7 @@
     #canvas(x: 15.06cm, {
       let stage = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.14 * 15.06, min-width: 0.18 * 15.06, min-height: 1.7, inner-xsep: 2.5mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
       let endpoint = (..stage, draw: mix(teal, 80%), fill: pale-teal)
-      let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
+      let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
       node((0.1, 0), [#text(fill: teal)[#strong[01 INPUT]] \ #v(4.9813pt)
      #strong[Raw table] \ #v(2.9888pt)
      Original records \

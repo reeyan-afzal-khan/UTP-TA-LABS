@@ -29,7 +29,7 @@ Every robot runs some version of the same cycle. Sensors measure the world, a co
   })
 ]
 
-#intuition[
+#note[
   Offline control looks like classification: 24 readings in, one of four actions out. On a real robot, however, a wrong action can lead to situations the training data never contained.
 ]
 
@@ -37,9 +37,7 @@ Every robot runs some version of the same cycle. Sensors measure the world, a co
 
 #term[Wall following] keeps a robot moving along a wall at a fixed distance. In this dataset the robot circled the room clockwise, so the wall stayed on its left. Sensors on the wall side read short distances, and the others read open space, corners and doorways (#figref(<fig:sensor-ring>)).
 
-#analogy[
-  Walk down a dark corridor with one hand on the wall. You need no map and no memory of how far you have come. If your hand presses hard, you edge away; if it loses contact, you edge back. That is a #term[reactive] controller: every decision comes from the current reading alone.
-]
+Walk down a dark corridor with one hand on the wall. You need no map and no memory of how far you have come. If your hand presses hard, you edge away; if it loses contact, you edge back. That is a #term[reactive] controller: every decision comes from the current reading alone.
 
 #utpfig([The SCITOS robot from above, moving to the right with the wall on its left. Its 24 sensors are numbered clockwise from US00 at the front. The four that Lab~5 selects (orange) sit on the rear-left arc, where they measure the wall from slightly different angles.], label: <fig:sensor-ring>)[
   #canvas({
@@ -81,9 +79,7 @@ These rules are cheap and auditable, but they need thresholds. What counts as â€
 
 Ask one question of any dataset: #emph[does your log hold the answers?] Here it does. Each row records what the sensors read and what the controller did, so this is #term[supervised] learning. Ask a second question: #emph[is the answer a number or a category?] Here it is one of four actions, so the job is #term[classification] rather than regression. Learning a policy from such demonstrations has a name, #term[behavioural cloning]: supervised classification with 24 features and four classes.
 
-#analogy[
-  Think of learning to drive by watching an instructor. You see thousands of moments of good driving and copy them. That works until you drift a little off-centre, because the instructor never drifted, so you have never seen what to do from there.
-]
+Think of learning to drive by watching an instructor. You see thousands of moments of good driving and copy them. That works until you drift a little off-centre, because the instructor never drifted, so you have never seen what to do from there.
 
 Three properties of the data shape what we do next.
 
@@ -142,7 +138,7 @@ The first split is the wall-following reflex itself: #emph[if the wall-side sens
 
 A deeper tree fits the training rows better and reads worse. The lab treats depth as a hyperparameter and picks it without touching the test rows: it carves a validation set out of the training rows, trains trees of depth 2 to 6 on the remainder, and scores each on the validation set. Macro F1 climbs steeply from depth~2 ($0.46$) to depth~4 ($0.87$), reaches $0.89$ at depth~5 and stops improving. Depth~5 is selected, the tree is refitted on all training rows, and `export_text` writes it out as the rule list saved in `rule_controller.txt`.
 
-#keyidea[
+#note[
   Interpretability is a design constraint, not a by-product. The lab fixes the number of sensors and caps the tree depth #emph[before] training, then measures what those constraints cost. Loosening either would raise the score and lose the ability to read the controller.
 ]
 
@@ -231,7 +227,7 @@ Ultrasonic readings are noisy, and noise can move a reading across a threshold: 
 
 Possible responses all trade simplicity for robustness: more sensors provide redundancy, deeper trees allow finer partitions, and ensembles combine many decisions. For a 5â€‰% noise budget, you should be able to justify one choice and state its cost.
 
-#pitfall[
+#warning[
   Noise added only to #emph[test] readings measures the robustness of a controller trained on clean data. Training on noisy data is a different experiment. State which one you ran.
 ]
 
@@ -250,9 +246,9 @@ Four factors separate evaluation on a fixed table from a running robot:
     node((0.1, 0.72), [states seen in the demonstrations], font: font("small"), ..utplabel, anchor: "west", text: mix(teal, 70%, other: black))
     connect((0, 1.35), (10.5, 1.35), line-width: 2.1918pt, draw: muted)
     node((8.9, 1.52), [wall], font: font("small"), ..utplabel, anchor: "west", text: muted)
-    connect((0, 0), (10.4, 0), draw: green, line-width: 1.2951pt, end: tip("Stealth", length: 2mm, line: 1.2951pt))
+    connect((0, 0), (10.4, 0), draw: green, line-width: 1.2951pt, end: arrow-tip("Stealth", length: 2mm, line: 1.2951pt))
     node((10.4, -0.05), [the demonstrated path], font: font("small"), ..utplabel, anchor: "north-east", text: mix(green, 80%, other: black))
-    smooth-path((0, 0), (2, 0.02), (3.5, 0.14), (5, 0.42), (6.2, 0.72), (7.2, 1.02), (7.9, 1.28), draw: red, line-width: 1.2951pt, end: tip("Stealth", length: 2mm, line: 1.2951pt))
+    smooth-path((0, 0), (2, 0.02), (3.5, 0.14), (5, 0.42), (6.2, 0.72), (7.2, 1.02), (7.9, 1.28), draw: red, line-width: 1.2951pt, end: arrow-tip("Stealth", length: 2mm, line: 1.2951pt))
     node((5.6, -0.6), [learned controller: one small error, then unfamiliar readings], font: font("small"), ..utplabel, anchor: "north", align: center, text: red)
     node((3.5, 0.14), [], font: font("small"), shape: "circle", fill: red, inner-sep: 1.2951pt)
     node((3.25, 0.2), [first error], font: font("small"), ..utplabel, anchor: "south", text: red)
@@ -261,7 +257,7 @@ Four factors separate evaluation on a fixed table from a running robot:
 
 The rule tree is an offline #emph[perception-to-action prototype], not a validated robot controller. Its readability is what supports the closed-loop testing it would need next.
 
-#chapterrecap[
+#summary[
   - Robots repeat sense, think, act, and actions change what is sensed next.
   - Wall following is a reactive policy, and behavioural cloning learns one from logged demonstrations as a classification problem.
   - A shallow decision tree is a readable list of threshold rules; a random forest shows what readability costs.
@@ -269,7 +265,7 @@ The rule tree is an offline #emph[perception-to-action prototype], not a validat
   - Offline accuracy cannot see feedback, delays, sensor failure or safety limits.
 ]
 
-#quickcheck[
+#questions[
   + Why does Lab~5 report macro F1 rather than accuracy, and what accuracy could a controller that never predicts Slight-Left-Turn achieve?
   + Feature selection and depth tuning both use only the training rows. What would be wrong with the test score if the four sensors had been chosen on all rows?
   + Write the first rule of the learned tree in plain English and say what physical situation it responds to.

@@ -38,7 +38,7 @@ stages together.
   )
 ]
 
-#keyidea[
+#note[
   Learn the idea first, then test it. In every lab, keep three questions visible:
   #strong[What state exists? What event changes it? What rule decides the next state?]
 ]

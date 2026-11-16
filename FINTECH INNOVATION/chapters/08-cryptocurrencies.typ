@@ -19,7 +19,7 @@ A #term[cryptocurrency] is presented as a subset of digital currency that uses c
 
 The slides also mention airline miles, game tokens, local currencies, and other closed- or open-system digital values as examples of the wider digital-currency concept.
 
-#libnote[
+#note[
   The Week 9 slides contain historically layered regulatory statements. One early definition says digital currency is not legal tender in any jurisdiction, while a later slide notes El Salvador’s 2021 adoption of Bitcoin as legal tender. These statements reflect different source dates within the lecture deck. For course revision, focus on the conceptual distinction and cite the specific lecture context if a legal-status question is asked.
 ]
 
@@ -71,8 +71,8 @@ Traditional payment systems solve the problem with a central ledger. A bank reco
   #canvas({
     let p = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.5, min-height: 1, align: center, font: font("script", weight: "bold", fill: navy))
     let net = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 3.1, min-height: 1.3, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
-    let bad = (line-width: widths.thick, dash: "dashed", draw: red, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
+    let bad = (line-width: widths.thick, dash: "dashed", draw: red, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.5, 0), [Alice], name: "a", ..p)
     node((0, 0), [Shared network \
   validates spend history], name: "n", ..net)
@@ -95,7 +95,7 @@ The Week 9 slides describe several ways a user could obtain Bitcoin: an exchange
 
 The crucial concept is the #term[wallet].
 
-#keyidea[
+#note[
   A Bitcoin wallet does not literally store coins like a physical wallet. The lecture explains that it stores the private-key material used to control addresses and authorize transactions recorded on the blockchain.
 ]
 
@@ -152,7 +152,7 @@ A miner constructs a candidate block and repeatedly changes a value such as the 
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.7, min-height: 1.1, align: center, font: font("script", weight: "bold", fill: navy))
     let g = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 2.7, min-height: 1.1, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.5, 0), [Candidate block \
   \+ nonce], name: "a", ..b)
     node((-1.5, 0), [Compute \
@@ -187,7 +187,7 @@ The slides list several tasks performed by miners or full nodes:
 
 The lecture states that Bitcoin has a hard maximum supply of 21 million coins and that the block reward falls by 50% every 210,000 blocks, approximately every four years. Historical examples in the deck include reward reductions from 50 to 25 to 12.5 bitcoins.
 
-#libnote[
+#note[
   The supplied Week 9 deck is internally inconsistent about the expected year in which Bitcoin issuance approaches the 21-million limit: several slides say 2140, while other slides say 2040. These notes preserve the consistent course concepts --- fixed maximum supply and periodic reward halving --- and flag the conflicting year rather than silently choosing one of the slide statements.
 ]
 
@@ -212,7 +212,7 @@ The Week 9 deck uses the 2017 Bitcoin Cash split as a hard-fork case. It identif
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 1.8, min-height: 0.7, align: center, font: font("script", weight: "bold", fill: navy))
     let b2 = (draw: orange, fill: pale-orange, rounded: 1.5mm, min-width: 2.2, min-height: 0.7, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((-4.2, 0), [Block n-1], name: "a", ..b)
     node((-2, 0), [Block n], name: "b", ..b)
     node((1, 1), [Rules A], name: "c1", ..b2)
@@ -293,7 +293,7 @@ Because the system broadcasts, validates, and stores structured transactions, th
 
 Direct private-key control is both a benefit and a risk. The user is not dependent on a bank to authorize every transaction, but there may be no administrator who can restore access if the private key is lost.
 
-#keyidea[
+#note[
   Cryptocurrency repeatedly exchanges institutional protection for user sovereignty. The gain is control; the cost is greater responsibility for key security, transaction judgment, and recovery.
 ]
 
@@ -372,11 +372,11 @@ The final point creates an interesting paradox: a decentralized asset can still 
   + #term[Systemic effect.] What happens if adoption becomes large enough to affect banks, payments, monetary policy, or capital flows?
 ]
 
-#tryit[
+#exercises[
   Evaluate Bitcoin using the eight-step framework. Your answer should include at least one genuine benefit, one user-level risk, one protocol-level challenge, and one macroeconomic concern. Avoid answering only with price movements.
 ]
 
-#quickcheck[
+#questions[
   + How is cryptocurrency related to the broader category of digital currency?
   + What is the double-spending problem, and why does a shared ledger help solve it?
   + What does a wallet actually control in the lecture’s explanation?

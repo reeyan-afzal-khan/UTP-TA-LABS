@@ -27,15 +27,13 @@ Put each student on a chart, with hours across the bottom and mark up the side, 
 
 Two facts make this easy, and they point in opposite directions. If someone handed us the landmarks, the groups would be easy: each student joins the nearest one. If someone handed us the groups, the landmarks would be easy: each one is just the average of its members. Each needs the other, and we have neither.
 
-#analogy[
-  The way out is a guess that is almost certainly wrong, made on purpose. Drop the landmarks anywhere, say on $K$ randomly chosen students. Everyone joins their nearest landmark. Those groups are probably bad, but they are groups, so each landmark can move to the center of the people who joined it. Now some students are nearer a different landmark, so they switch. Keep taking turns until nobody switches.
-]
+The way out is a guess that is almost certainly wrong, made on purpose. Drop the landmarks anywhere, say on $K$ randomly chosen students. Everyone joins their nearest landmark. Those groups are probably bad, but they are groups, so each landmark can move to the center of the people who joined it. Now some students are nearer a different landmark, so they switch. Keep taking turns until nobody switches.
 
 That loop is #term[Lloyd’s algorithm], and it is the whole of $K$-means. “Nearest” needs a measure, and Pythagoras supplies one: the squared distance from student A at $(2,47)$ to a landmark at $(8,65)$ is $6^2+18^2=360$. Skipping the square root does not change which landmark is nearest.
 
 #codefrom("/MACHINE LEARNING/all_experiments/book_checks/demo_study_log.py", "def kmeans(", "for g in range(len(centers))])")
 
-#workedexample[
+#example[
   Three groups, starting from students D, F and J, so the landmarks start at $(8,65)$, $(12,77)$ and $(20,38)$.
 
   #v(6pt)
@@ -154,8 +152,8 @@ Initialize centers, assign points, update centers, and repeat.
       for p in ((2.75, 0.7), (3.15, 1), (3.45, 0.62), (3.05, 1.55), (3.62, 1.35)) {
         circle-at(p, 1.6319pt, fill: orange, draw: none)
       }
-      connect((1.9, 0.35), (0.95, 1.02), line-width: widths.thick, draw: blue, end: tip("Stealth", length: 1.7mm, line: widths.thick))
-      connect((2.15, 1.95), (3.2, 1.04), line-width: widths.thick, draw: orange, end: tip("Stealth", length: 1.7mm, line: widths.thick))
+      connect((1.9, 0.35), (0.95, 1.02), line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 1.7mm, line: widths.thick))
+      connect((2.15, 1.95), (3.2, 1.04), line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 1.7mm, line: widths.thick))
       node((0.95, 1.02), [], font: font("script"), shape: "cross-out", draw: blue, line-width: widths.very-thick, min-size: 0.246)
       node((3.2, 1.04), [], font: font("script"), shape: "cross-out", draw: orange, line-width: widths.very-thick, min-size: 0.246)
       node((2.03, 2.58), [3\. Update], font: font("script", weight: "bold", fill: navy))
@@ -176,13 +174,13 @@ Initialize centers, assign points, update centers, and repeat.
       node((2.03, 2.58), [4\. Repeat], font: font("script", weight: "bold", fill: navy))
       node((2.03, -0.35), [stop when nothing changes], font: font("script"), align: center, text: green)
     })
-    connect((4.15, 1.15), (4.62, 1.15), line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
-    connect((8.9, 1.15), (9.37, 1.15), line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
-    curve((11.52, -0.62), (8.85, -2.3), (11.4, -1.9), (10.4, -2.3), line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect((4.15, 1.15), (4.62, 1.15), line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect((8.9, 1.15), (9.37, 1.15), line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
+    curve((11.52, -0.62), (8.85, -2.3), (11.4, -1.9), (10.4, -2.3), line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
   })
 ]
 
-#workedexample[
+#example[
   Cluster the one-dimensional points ${ 1,2,3,10,11,12 }$ with $K=2$, starting from centers $c_1=1$ and $c_2=12$.
   #emph[Assign:] points $1,2,3$ are nearer $c_1$; points $10,11,12$ are nearer $c_2$.
   #emph[Update:] $c_1=(1+2+3)\/3=2$ and $c_2=(10+11+12)\/3=11$.
@@ -195,7 +193,7 @@ $K$-means implicitly assumes clusters are compact, roughly spherical, and simila
 
 The loop never looks ahead and never tries a different start, so it is greedy, and the final groups can depend on where it began.
 
-#workedexample[
+#example[
   The study log has 120 possible starting trios. Trying them all, 25 reach the best score, 340.67. The others stop at eleven worse answers, up to 778.50, where the start from D, G and J gets stuck.
 
   Real data can go either way. Lab~4’s 5,878 customers with $K=4$ and one random start, seeds 0 to 7, all end with inertia between 4,963.7 and 4,964.0: four well-separated groups leave little room for a bad start. Lab~4’s 9,357 wood-defect images, reduced to 50 components, with $K=7$ and one start each, end between 248,598 and 251,895, and only three of the eight land within a few units of the best.
@@ -203,7 +201,7 @@ The loop never looks ahead and never tries a different start, so it is greedy, a
 
 So use a smart start and many restarts. scikit-learn’s `k-means++` spreads the starting landmarks apart, and `n_init` runs several starts and keeps the best; Lab~4 uses 10 or 20. Mini-batches trade some fit quality for speed. Compare restarts and resamples, and treat very different solutions at the same $K$ as ambiguity worth reporting.
 
-#keyidea[
+#note[
   Check multiple initializations and resamples before interpreting clusters.
 ]
 
@@ -211,7 +209,7 @@ So use a smart start and many restarts. scikit-learn’s `k-means++` spreads the
 
 Why three groups and not two or seven? More groups always lower the score, until every row has its own landmark and the score is zero. So the score alone will never say stop. Look at how much each extra group helps.
 
-#workedexample[
+#example[
   Best total for each $K$ on the study log, trying every start:
 
   #v(6pt)
@@ -237,7 +235,7 @@ $ s(i)=frac(b(i)-a(i), max { a(i),b(i) }), $
 
 where $a(i)$ is the mean distance to its own group and $b(i)$ is the smallest mean distance to another group. Near 1 means well placed, near 0 means on a border, and negative means probably in the wrong group.
 
-#workedexample[
+#example[
   For ${ 1,2,3 }$ and ${ 10,11,12 }$, take the point 3. Its mean distance to its own group is $a=(2+1)\/2=1.5$, and to the other group it is $b=(7+8+9)\/3=8$. So $s=(8-1.5)\/8=0.8125$. The mean over all six points is 0.850, which says these groups are very clear.
 ]
 
@@ -254,7 +252,7 @@ where $a(i)$ is the mean distance to its own group and $b(i)$ is the smallest me
   })
 ]
 
-#intuition[
+#note[
   Inertia decreases as $K$ increases, reaching zero with one cluster per point, so look for diminishing gains rather than its minimum. Silhouette favors compact, separated groups. Neither alone establishes that a grouping is useful: in Lab~4 they narrow the choice to two or four, and what the segments are for picks four.
 ]
 
@@ -272,13 +270,13 @@ Instead of hard assignments, each observation receives a #term[responsibility]: 
 
 $ gamma _(i k) =frac(pi _k thin cal(N)(bold(x)_i mid bold(mu)_k, Sigma _k), sum _(j=1)^K pi _j thin cal(N)(bold(x)_i mid bold(mu)_j, Sigma _j)) . $
 
-#workedexample[
+#example[
   Two equally weighted components, $cal(N)(0,1)$ and $cal(N)(4,1)$. A point at 1.5 is much more likely under the first: its responsibility for that component is 0.881. At 2.0, exactly halfway, it is 0.500. At 3.0 it is 0.018. Membership slides smoothly from one component to the other, which a hard assignment cannot express.
 ]
 
 #term[Expectation-maximization (EM)] alternates responsibility estimation (E-step) with weighted updates of $pi _k$, $bold(mu)_k$, and $Sigma _k$ (M-step), improving data log-likelihood until convergence.
 
-#intuition[
+#note[
   EM alternates estimating memberships and component shapes. $K$-means follows a similar cycle with hard assignments.
 ]
 
@@ -299,15 +297,15 @@ The algorithm alternates between two updates:
 
 The iterations stop when memberships or centers change by less than a chosen tolerance.
 
-#intuition[
+#note[
   $K$-means asks, “Which center is closest?” FCM asks, “How strongly does each center describe this point?” A boundary case might be 0.52 in cluster A and 0.45 in cluster B instead of being forced to pretend it is unambiguously A.
 ]
 
-#workedexample[
+#example[
   With $m=2$, memberships come from inverse squared distances. A point at distance 1 from center A and 3 from center B has membership $(1\/1)\/(1\/1+1\/9)=0.90$ in A and 0.10 in B.
 ]
 
-#pitfall[
+#warning[
   FCM memberships are distance-based degrees controlled by scale, cluster count, and fuzziness. Unlike GMM responsibilities, they do not imply a generative probability model.
 ]
 
@@ -327,13 +325,13 @@ The iterations stop when memberships or centers change by less than a chosen tol
 
 Divisive clustering instead recursively splits clusters, sometimes starting from dissimilar seed observations.
 
-#workedexample[
+#example[
   For ${ 1,2,4,8 }$, single linkage merges 1 and 2 at distance 1, adds 4 at distance 2, then adds 8 at distance 4:
 ]
 
 #utpfig([The single-linkage dendrogram for ${ 1,2,4,8 }$. Cutting it at a chosen merge distance gives the clusters; the cut shown gives two.], label: <fig:dendrogram>)[
   #canvas(x: 1.15cm, y: 0.66cm, {
-    connect((-0.7, 0), (-0.7, 4.6), line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((-0.7, 0), (-0.7, 4.6), line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-1.55, 2.3), [Merge distance], rotate: (90) * 1deg, font: font("script", fill: muted))
     for y in (1, 2, 4) {
       connect((-0.78, y), (-0.62, y), draw: muted)
@@ -363,9 +361,7 @@ Pairwise distances can be costly for large datasets; standard hierarchical clust
 
 == DBSCAN: clustering by density <sec:dbscan>
 
-#analogy[
-  Look down at a crowd from a balcony. Groups are wherever people stand close together, and you did not need to decide how many groups to expect in advance. Someone at the edge of a group is still with it. Someone standing alone across the square belongs to nobody. DBSCAN follows the same reasoning.
-]
+Look down at a crowd from a balcony. Groups are wherever people stand close together, and you did not need to decide how many groups to expect in advance. Someone at the edge of a group is still with it. Someone standing alone across the square belongs to nobody. DBSCAN follows the same reasoning.
 
 DBSCAN defines clusters as regions where points are packed densely, using two hyperparameters: a neighborhood radius $epsilon$ and a minimum count #term[minPts]. Every point gets one of three roles:
 
@@ -383,7 +379,7 @@ DBSCAN defines clusters as regions where points are packed densely, using two hy
     circle-at((1.9, 1.5), 2.391pt, fill: auto, draw: none)
     circle-at((3.4, 0.7), 2.391pt, fill: auto, draw: none)
     circle-at((1, 1), 0.55)
-    connect((1, 1), (0.611, 0.611), end: tip("Stealth", length: 1.6mm, line: 0.4pt))
+    connect((1, 1), (0.611, 0.611), end: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt))
     node(along((1, 1), (0.611, 0.611), t: 100%), [$epsilon$], font: font("small"), yshift: 1.9925pt, xshift: 1.9925pt, anchor: "north-east")
     circle-at((1.9, 1.5), 0.55, dash: "dashed")
     circle-at((3.4, 0.7), 0.55, dash: "dashed")
@@ -395,7 +391,7 @@ DBSCAN defines clusters as regions where points are packed densely, using two hy
   })
 ]
 
-#workedexample[
+#example[
   Eight points with $epsilon =1.5$ and minPts $=4$, counting the point itself:
 
   #v(6pt)
@@ -437,11 +433,11 @@ $K$-means and GMM also assign new observations naturally (nearest center; highes
 
 When reference labels happen to exist (for validation only), agreement measures such as the #term[adjusted Rand index] compare the discovered clusters with the labeled groups while correcting for chance.
 
-#keyidea[
+#note[
   Treat clusters as hypotheses. Support interpretation with scores, stability, and domain evidence.
 ]
 
-#modelcard[Clustering - Quick Guide][
+#checklist(title: [Clustering - Quick Guide])[
   #tabularx(
     columns: (20%, 1fr, 1fr),
     styles: (navy-bold,),
@@ -453,7 +449,7 @@ When reference labels happen to exist (for validation only), agreement measures 
   )
 ]
 
-#chapterrecap[
+#summary[
   - $K$-means alternates assign and move, and minimizes total squared distance to the landmarks. The groups and their names are two different things: the method finds the first, and you supply the second.
   - It is greedy, so starts matter. On the study log, 95 of 120 starts ended in a worse answer. Use restarts.
   - Choose $K$ from the bend, the silhouette, stability and usefulness together.
@@ -461,7 +457,7 @@ When reference labels happen to exist (for validation only), agreement measures 
   - A clustering is a hypothesis. Support it with evidence before acting on it.
 ]
 
-#quickcheck[
+#questions[
   + What kind of cluster geometry does $K$-means favor, and why can scaling change the resulting partition?
   + $K$-means never saw a label, yet it separated the crammers. How?
   + Starting landmarks are at 2 and 9, and the points are 1, 3, 8, 10. What are the groups, the new landmarks, and the score after one full round?

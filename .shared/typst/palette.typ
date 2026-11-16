@@ -17,6 +17,14 @@
 #let pale-purple = rgb("F0ECF9")
 #let pale-gray = rgb("F4F6F7")
 
+// The three callouts of callouts.typ. `accent` draws the side bar and the
+// label, `fill` the background. Change a callout's colour here, once.
+#let callout-colors = (
+  note: (accent: rgb("E3A21A"), fill: rgb("FFF7E5")),
+  tip: (accent: rgb("3D9A4C"), fill: rgb("EAF5EB")),
+  warning: (accent: rgb("D0443B"), fill: rgb("FDEEEC")),
+)
+
 // xcolor mixing, so `UTPBlue!28` is `mix(blue, 28%)` and
 // `UTPOrange!90!black` is `mix(orange, 90%, black)`. xcolor mixes the RGB
 // values linearly, which is what `space: rgb` does.

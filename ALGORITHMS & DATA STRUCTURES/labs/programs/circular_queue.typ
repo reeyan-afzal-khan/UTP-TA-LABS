@@ -80,6 +80,6 @@ enqueue 70      front=2 rear=2 count=5   slots: [60 70 30 40 50]  FULL
 
 The complete captured run is in `labs/outputs/circular_queue.txt`.
 
-#tryit[
+#exercises[
   After the printed wrap-around trace, fill all five active slots and refuse one more enqueue. Drain in FIFO order; front and rear may match when count is zero or full.
 ]

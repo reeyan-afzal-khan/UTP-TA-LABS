@@ -12,7 +12,7 @@
 
   #include "visuals/02-flow.typ"
 
-  #labmode[
+  #note[
     Tutorial 2 uses Team Benefit and Team Challenge. Odoo is used here as a concrete reference architecture: each team must point to at least one app-to-app connection or setup choice that demonstrates the selected benefit/challenge.
   ]
 
@@ -51,7 +51,7 @@
 
   Open the app grid and identify which app owns each of these records: customer, opportunity, quotation, purchase order, receipt, BOM, manufacturing order, delivery, invoice, employee. Then draw arrows showing which records create or feed the next record.
 
-  #keyidea[
+  #note[
     The point is to see modularity without silos. The records live in different apps because the workflows differ, but they remain connected through shared master data and document relationships.
   ]
 
@@ -67,7 +67,7 @@
 
 #include "walkthroughs/02-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Choose one process delay and define a baseline measure, data source and proposed improvement. State what observation would support or contradict the claimed ERP benefit.
 
   - The chosen benefit names the old problem, the ERP mechanism, an Odoo record that shows it, and one metric.

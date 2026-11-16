@@ -6,7 +6,7 @@
       let c = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.2, min-height: 0.95, align: center, font: font("script", weight: "bold", fill: navy))
       let auth = (draw: navy, fill: navy, text: white, rounded: 2mm, min-width: 2.7, min-height: 1.15, align: center, font: font("script", weight: "bold"))
       let peer = (draw: teal, fill: pale-teal, shape: "circle", min-size: 1.2, align: center, font: font("script", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
       node((-4.3, 0), [Central \
     authoritative ledger], name: "a", ..auth)
       node((-4.3, 2), [User], name: "u1", ..c)

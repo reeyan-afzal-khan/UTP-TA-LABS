@@ -78,6 +78,6 @@ pop() on an empty stack -> refused: stack is empty
 
 The complete captured run is in `labs/outputs/linked_stack.txt`.
 
-#tryit[
+#exercises[
   Push 10,20,30, then pop all three values. Expect 30,20,10 and a null top. Push once more to confirm reuse after draining.
 ]

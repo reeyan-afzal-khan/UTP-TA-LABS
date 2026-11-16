@@ -78,6 +78,6 @@ Transpose of M
 
 The complete captured run is in `labs/outputs/matrix_operations.txt`.
 
-#tryit[
+#exercises[
   Replace M with the identity matrix. Predict row/column sums of 1, diagonal sum of 3, maximum 1, and a true symmetry result.
 ]

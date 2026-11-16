@@ -38,11 +38,11 @@
   [Save the evidence; then model log prices and write an overbooking memo],
   [17--19],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm the three data files are in `all_datasets/supervised/`.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It takes under a minute.
 
@@ -55,7 +55,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + True values $10,20,30,40$ and predictions $12,18,30,50$. Compute MAE and RMSE. Why is RMSE larger? (MAE 3.5, RMSE about 5.2.)
@@ -87,7 +87,7 @@
 #labpartopen([Part A], [Regression: ordinary least squares versus ridge], [Questions 2--5 • Data: used-car listings from Cars.com], [Tidy real listings, predict used-car prices with a straight-line model, read its coefficients, and see where it fails.])
 
 #labquestion(2)[Read the car listings, tidy them, and split][
-  Each row is one car with a numeric label, `price_usd`, so this is regression. Three fixed rules, chosen before any model, keep used cars with a believable price (\$1,000 to \$200,000) and a real odometer reading. Sellers also type the same thing many ways, so `tidy()` maps the spellings of drivetrain and fuel to a few groups. Two models will share the pipeline and the split; the only difference is ridge’s penalty on large coefficients. The car’s `model` (F-150, Camry and over a thousand others) is kept aside for now, and a Your-turn task brings it in.
+  Each row is one car with a numeric label, `price_usd`, so this is regression. Three fixed rules, chosen before any model, keep used cars with a believable price (\$1,000 to \$200,000) and a real odometer reading. Sellers also type the same thing many ways, so `tidy()` maps the spellings of drivetrain and fuel to a few groups. Two models will share the pipeline and the split; the only difference is ridge’s penalty on large coefficients. The car’s `model` (F-150, Camry and over a thousand others) is kept aside for now, and an exercise brings it in.
 ]
 
 #labanswer[
@@ -207,7 +207,7 @@
     ```
   ]
 
-  #strong[What it means.] The residuals fan out: a typical miss of \$8,000 to \$9,000 on the cheaper half of the predictions grows to \$23,079 on the dearest quarter, and 377 cars get a negative price. One straight surface cannot serve a \$5,000 hatchback and a \$150,000 sports car equally well, because a car loses value in proportions, not in fixed dollars. The Try-it fixes the shape; Your-turn task~1 adds the idea the model is missing.
+  #strong[What it means.] The residuals fan out: a typical miss of \$8,000 to \$9,000 on the cheaper half of the predictions grows to \$23,079 on the dearest quarter, and 377 cars get a negative price. One straight surface cannot serve a \$5,000 hatchback and a \$150,000 sports car equally well, because a car loses value in proportions, not in fixed dollars. The Try-it fixes the shape; Exercise~1 adds the idea the model is missing.
 ]
 
 #labcheckpoint[
@@ -263,7 +263,7 @@
     ```
   ]
 
-  #strong[What it means.] The shuffled split flatters the model by more than three points. It let the model train on bookings from the very weeks it was tested on, which a hotel can never do. Your-turn task~2 finds a second reason: thousands of bookings in this file have exact twins.
+  #strong[What it means.] The shuffled split flatters the model by more than three points. It let the model train on bookings from the very weeks it was tested on, which a hotel can never do. Exercise~2 finds a second reason: thousands of bookings in this file have exact twins.
 ]
 
 #labquestion(8)[Compare the months][
@@ -325,7 +325,7 @@
     ```
   ]
 
-  #strong[What it means.] Both models clear the baseline, and the forest leads by about two points of ROC AUC. With 40,687 validation bookings that gap is real, but both are scored on one period, and Your-turn task~2 shows how much the forest’s lead depends on the split. The threshold table is the same logistic model with three decision rules.
+  #strong[What it means.] Both models clear the baseline, and the forest leads by about two points of ROC AUC. With 40,687 validation bookings that gap is real, but both are scored on one period, and Exercise~2 shows how much the forest’s lead depends on the split. The threshold table is the same logistic model with three decision rules.
 ]
 
 #labquestion(10)[Plot the cancellation probabilities][
@@ -462,7 +462,7 @@
     ```
   ]
 
-  #strong[What it means.] The test score agrees with the cross-validated one, as it should when the test rows were sealed from the start. It is still one draw: 1,761 customers carry an uncertainty of about a point either way, which Your-turn task~4 measures. Report the test number once, and do not tune again after seeing it.
+  #strong[What it means.] The test score agrees with the cross-validated one, as it should when the test rows were sealed from the start. It is still one draw: 1,761 customers carry an uncertainty of about a point either way, which Exercise~4 measures. Report the test number once, and do not tune again after seeing it.
 ]
 
 #include "visuals/02-trace.typ"
@@ -555,8 +555,6 @@
   #strong[What it means.] `results/lab02/` now holds `metrics.csv`, `monthly_cancellations.csv` and the figures, and `models/` holds the churn model with its card and `used_car_prices.joblib`.
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(18)[Try it yourself, and a decision memo][
   The residuals of Question~5 fan out, and 377 cars get a negative price. Refit Part~A’s linear regression on the logarithm of the price, turn its predictions back into dollars with `np.exp`, and compare the MAE, $R^2$ and the residual spread by quarter with Questions~3 and~5. Attempt it in this empty cell before reading the solution.
 
@@ -591,13 +589,13 @@
 
   #strong[What it means.] The log-price model misses by \$7,695 instead of \$9,009, explains 61.1% of the variation in dollars instead of 57.5%, and prices no car below zero. The residuals still widen with price, because a 10% miss on a dear car is more dollars, but the model now treats price as multiplicative: each extra year multiplies it by 0.971 and each extra 10,000 miles by 0.931, whatever the car. A transformed label is often the cheapest fix for a fan of residuals.
 
-  #strong[A model memo.] Threshold 0.65 for the cancellation model. At the default 0.50 the hotel would resell the rooms of 2,479 guests who then arrive, while missing 7,129 cancellations; at 0.70 only 194 guests would be walked, but 11,117 cancelled rooms would stand empty. If walking a guest costs twice an empty room, the cheapest threshold on the 2017 bookings is 0.65, with 10,065 empty rooms and 611 walked guests (Your-turn task~3). It sits close to the break-even probability, $2\/(2+1)=0.67$: resell a room only when the booking is at least twice as likely to cancel as to arrive. Lowering a threshold moves the line left through the histogram: more bookings are flagged, so fewer rooms stand empty but more guests are walked, and recall goes up while precision goes down. Change the cost ratio, and the right threshold changes with it: the threshold is a statement about costs.
+  #strong[A model memo.] Threshold 0.65 for the cancellation model. At the default 0.50 the hotel would resell the rooms of 2,479 guests who then arrive, while missing 7,129 cancellations; at 0.70 only 194 guests would be walked, but 11,117 cancelled rooms would stand empty. If walking a guest costs twice an empty room, the cheapest threshold on the 2017 bookings is 0.65, with 10,065 empty rooms and 611 walked guests (Exercise~3). It sits close to the break-even probability, $2\/(2+1)=0.67$: resell a room only when the booking is at least twice as likely to cancel as to arrive. Lowering a threshold moves the line left through the histogram: more bookings are flagged, so fewer rooms stand empty but more guests are walked, and recall goes up while precision goes down. Change the cost ratio, and the right threshold changes with it: the threshold is a statement about costs.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[Add the missing idea.] Add `model` to the Part~A categorical columns, so each of the car models gets its own one-hot column. What happens to $R^2$ and MAE? Compare with the effect of ridge.
   + #strong[What did the date split hide?] Refit the Question~9 random forest on Question~7’s shuffled split. How does its ROC AUC compare with 0.841 on 2017? Then count how many shuffled validation bookings have an exact twin, every column equal, among the training bookings. Which number would you put in a report to the hotel?
@@ -605,7 +603,7 @@
   + #strong[How sure is a test score?] Repeat Part~D five times with `random_state` 0 to 4 in the train/test split, tuning and testing each time. How far apart are the five test scores, and what does that say about the 0.846 of Question~14?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] MAE 3.5 and RMSE 5.2: the one miss of 10 dominates the squares. Precision $8","616\/11","095=0.777$, recall $8","616\/15","745=0.547$, accuracy $31","079\/40","687=0.764$. Raising the threshold can only remove positive decisions, so $T P$ and $F P$ can only shrink, and $F N$ and $T N$ can only grow.
 
   + $R^2$ rises from 0.575 to 0.792 and MAE falls from \$9,009 to \$5,754, from 1,147 one-hot model columns. Ridge with the model scores 0.772 and \$6,128: the problem was a missing idea, which car it is, not an unstable fit, and the penalty even shrinks the coefficients of rare models that deserved to be large.
@@ -614,7 +612,7 @@
   + The five test scores run from 0.838 to 0.855, and the search picks `C` 1 or 10 without class weights each time. A test set of 1,761 customers pins the score down to about a point either way, so 0.846 is one honest draw from that range, and a gap of a point between two models on such a test set proves nothing.
 ]
 
-#troubleshoot[
+#tip[
   / Every metric differs slightly from the sheet: Check that no earlier cell was edited, and rerun from the top. Running cells out of order reuses variables from the wrong part.
   / `FileNotFoundError` in `predict_churn.py`: Run Question~15 first: the script needs `models/customer_churn.joblib` and its card.
   / Question~2 keeps a different number of listings: The three rules must use the same bounds as the cell: a price from 1,000 to 200,000 dollars, inclusive, and more than 100 miles.
@@ -622,7 +620,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - Every model beats its baseline, and each comparison uses validation data, not the test set.
     - You can explain the car-price residual fan, why ridge did not help, and why Lancia’s coefficient deserves no trust.
     - The hotel split is in date order, and you can explain why the shuffled split scored higher.

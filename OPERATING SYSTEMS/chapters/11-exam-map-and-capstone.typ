@@ -30,29 +30,25 @@ Most Operating Systems questions become manageable if you use a repeatable metho
 
 Build one command-line simulator that lets a user choose between CPU scheduling, memory allocation, or page replacement. Separate #emph[policy] from #emph[state]: for example, one common frame-state representation can be reused with FIFO, LRU, and LFU victim-selection functions.
 
-#miniproject[
-  #strong[Minimum features.]
+#strong[Minimum features.]
 
-  - Scheduling: FCFS, SJF, Priority, RR with a printed Gantt trace and average waiting/turnaround time.
-  - Memory: first, best, worst fit with fragmentation results.
-  - Virtual memory: FIFO, LRU, LFU with per-reference frames, hits, and faults.
-  - Input validation and deterministic tie-breaking rules.
-  - A short README explaining assumptions and how to compile/run the program.
-]
+- Scheduling: FCFS, SJF, Priority, RR with a printed Gantt trace and average waiting/turnaround time.
+- Memory: first, best, worst fit with fragmentation results.
+- Virtual memory: FIFO, LRU, LFU with per-reference frames, hits, and faults.
+- Input validation and deterministic tie-breaking rules.
+- A short README explaining assumptions and how to compile/run the program.
 
-#decisionmemo[
+#tip[
   When two algorithms give different answers, do not ask only “which is better?” Ask which objective matters: responsiveness, throughput, fairness, memory utilization, implementation overhead, locality, or predictable behavior.
 ]
 
 #heading(depth: 2, numbering: none)[Final checklist]
 
-#quickcheck[
-  + Can you explain the parent/child return values of `fork()` without running code?
-  + Can you derive waiting and turnaround time from a Gantt chart?
-  + Can you distinguish a race condition from deadlock?
-  + Can you compute Need and search for a Banker’s safe sequence?
-  + Can you distinguish internal from external fragmentation?
-  + Can you trace FIFO, LRU, and LFU one reference at a time?
-  + Can you explain why directory hierarchy is not the same thing as physical disk layout?
-  + Can you compare text/binary records and contiguous/linked/indexed allocation?
-]
++ Can you explain the parent/child return values of `fork()` without running code?
++ Can you derive waiting and turnaround time from a Gantt chart?
++ Can you distinguish a race condition from deadlock?
++ Can you compute Need and search for a Banker’s safe sequence?
++ Can you distinguish internal from external fragmentation?
++ Can you trace FIFO, LRU, and LFU one reference at a time?
++ Can you explain why directory hierarchy is not the same thing as physical disk layout?
++ Can you compare text/binary records and contiguous/linked/indexed allocation?

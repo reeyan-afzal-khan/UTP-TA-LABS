@@ -80,6 +80,6 @@ dequeued 60  front->null rear->null  queue: (empty)
 
 The complete captured run is in `labs/outputs/linked_queue.txt`.
 
-#tryit[
+#exercises[
   Drain the queue completely, enqueue 70, and dequeue again. Both endpoint pointers must reset after each final removal.
 ]

@@ -122,7 +122,7 @@ Same model, same columns, \$1,300 closer on an average car. Three things changed
 
 scikit-learn wraps the two steps in `TransformedTargetRegressor(regressor, func=np.log, inverse_func=np.exp)`, so that a saved model takes and returns dollars.
 
-#pitfall[
+#warning[
   Compare models in the units people use. A mean squared error on log prices cannot be set beside one on dollars. Turn every prediction back into dollars first, as the listing does, and then score.
 ]
 
@@ -222,7 +222,7 @@ $ "encoded value" = frac(n times "own mean" + m times "overall mean", n + m) $
 
 Here $n$ is the number of training rows with that value and $m$ sets how many rows it takes to be believed.
 
-#workedexample[
+#example[
   The mean price of the training cars is \$32,892, and take $m = 20$.
 
   A model seen #strong[once], listed at \$150,000: $ frac(1 times 150","000 + 20 times 32","892, 21) = \$38","469. $ One listing moved the estimate only a little above the overall mean.
@@ -241,7 +241,7 @@ that built it, -0.00 when each row is encoded from other rows, -0.00 on new rows
 
 A meaningless column has become a feature with a correlation of 0.55 with the price, on the rows that built it. Each car's own price is a third of its group's mean, so the feature is partly the answer. On new cars the same feature has a correlation of zero. A model trained on it would look brilliant in training and fail in use, and the rarer the values, the worse the leak.
 
-#keyidea[
+#note[
   Any feature built from the label must be built for each row from #emph[other] rows. scikit-learn's `TargetEncoder` does this for you: inside `fit_transform` it splits the training rows into folds and encodes each fold from the others. That only happens if the encoder sits inside the pipeline, so that it is refitted within every training fold.
 ]
 
@@ -296,11 +296,7 @@ Engineering adds columns, and more columns are not free. Each one is something t
 
 Lab~1 uses the two simplest pruning tools. `SelectKBest(f_classif, k=10)` scores each prepared column on its own against the target, with the $F$ of #chapref(<ch:inference>), and keeps the ten with the highest scores. An #term[L1 penalty] does the choosing inside the model itself, by pushing the weights of unhelpful columns to exactly zero (#chapref(<ch:regression>) explains how). Both sit inside the pipeline, for the reason the target encoder does: choosing columns by looking at the label is a way of learning from the label. #chapref(<ch:feature-selection>) returns to this with the full set of tools, once the models they rely on have been introduced.
 
-#tryit[
-  In `demo_exploration.py`, give `add_car_features` a fourth column, `high_mileage`: 1 when a car has done more than 15,000 miles for each year of its age, with a line in the ledger. First write down how much you expect the error to fall; then run it and compare.
-]
-
-#chapterrecap[
+#summary[
   - Feature engineering turns what you know into columns. Ask first what this model cannot see.
   - A linear model needs bands for a bend, a square for a curve and a product for an interaction; a tree finds thresholds itself. Nights scored 0.519 as a number, 0.582 in bands, 0.581 in a tree.
   - A logarithm is one of a family of powers. For mileage a fitted power of 0.29 removed the skew where the logarithm overshot.
@@ -310,7 +306,11 @@ Lab~1 uses the two simplest pruning tools. `SelectKBest(f_classif, k=10)` scores
   - Keep a ledger: one change at a time, judged on the same validation rows.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_exploration.py`, give `add_car_features` a fourth column, `high_mileage`: 1 when a car has done more than 15,000 miles for each year of its age, with a line in the ledger. First write down how much you expect the error to fall; then run it and compare.
+]
+
+#questions[
   + The cancellation rate rises from zero nights to two nights and then falls. Why can a logistic regression given the nights as one number not use this, and what are two different remedies?
   + A logistic regression on the lead time alone has the same ROC AUC whether the lead time is logged or not, but a better log loss when it is. Explain both halves.
   + Give one reason why predicting the logarithm of a price cannot produce a negative price, and one reason why it treats a \$5,000 error on a \$10,000 car as worse than on a \$100,000 car.

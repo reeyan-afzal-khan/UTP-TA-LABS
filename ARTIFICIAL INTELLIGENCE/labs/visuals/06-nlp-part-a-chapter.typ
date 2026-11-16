@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas(scale: 0.99, transform-shape: true, {
       let b = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.2, min-height: 1, align: center, font: font("small", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
       node((0, 0), [Acquire \
     #fsize("script")[photo, audio, keyboard]], name: "acq", ..b)
       node(right-of("acq", 0.26), [Normalise \

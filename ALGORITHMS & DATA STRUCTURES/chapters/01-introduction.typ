@@ -5,7 +5,7 @@
 
 #chapterguide[Basic C++ variables and control flow.][classify data structures, explain core operations and efficiency, and model records with a C++ `struct`.]
 
-#keyidea[
+#note[
   The course summarizes the relationship as
 
   $ "Program" = "Algorithm" + "Data Structure". $
@@ -30,7 +30,7 @@ The slides divide data structures into two broad categories: #term[primitive] an
     let category = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.4, min-height: 1.65, align: center, inner-xsep: 3.5mm, inner-ysep: 3mm, font: font("small", fill: navy))
     let branch = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 4, min-height: 1.75, align: center, inner-xsep: 3.5mm, inner-ysep: 3mm, font: font("small", fill: navy))
     let trunk = (line-width: 0.8468pt, draw: teal)
-    let link-style = (..trunk, shorten-end: 0.5978pt, end: tip("Stealth", length: 2.3mm, width: 1.7mm, line: 0.4pt))
+    let link-style = (..trunk, shorten-end: 0.5978pt, end: arrow-tip("Stealth", length: 2.3mm, width: 1.7mm, line: 0.4pt))
     node((0, 0), [Data Structures], name: "ds", ..root)
     node((-3.75, -2.2), [#strong[#text(fill: blue)[Primitive]] \ #v(3.9851pt)
    #fsize("script")[Basic values handled directly \ #v(1.9925pt)
@@ -71,7 +71,7 @@ Typical operations highlighted for primitive structures are:
 - update;
 - destroy or delete.
 
-#clarification[
+#note[
   The Week I classification is the course framing. In modern C++, types such as `std::string` are library classes rather than built-in primitive machine types. Keep the slide classification for this course, but be aware that language-level terminology can be more precise.
 ]
 
@@ -135,7 +135,7 @@ A non-linear structure allows one item to connect to several other items. The sl
   })
 ]
 
-#intuition[
+#note[
   Five student ages are data. Storing them as an array is a structural choice. Storing each student’s ID, name, age, and course together in one record is a different structural choice. The values may be similar, but the relationships you need to preserve are different.
 ]
 
@@ -234,7 +234,7 @@ The Week I slides highlight three characteristics.
   / Space complexity: The memory used by the operations should be as small as possible for the problem.
 ]
 
-#keyidea[
+#note[
   A data structure is useful because of the operations it supports. Saying “a linked list is dynamic” or “an array gives direct access” matters because those properties change the cost and behavior of insertion, deletion, searching, and traversal.
 ]
 
@@ -252,7 +252,7 @@ The slides introduce `struct` as a user-defined C/C++ data type that groups item
 
 Each variable of type `Student` contains all four fields.
 
-#workedexample[
+#example[
   Suppose one student has ID 1001, name “Amina”, age 20, and course “Computer Science”. These values have different primitive or library types, but they belong to one logical record. A `struct` preserves that relationship.
 ]
 
@@ -291,6 +291,6 @@ for (int i = 0; i < N; ++i) {
 }
 ```
 
-#quickcheck[
+#questions[
   Classify each as primitive or non-primitive using the course framing: an integer, a pointer, an array of integers, a linked list, a graph. Then name one operation whose efficiency could depend strongly on the chosen structure.
 ]

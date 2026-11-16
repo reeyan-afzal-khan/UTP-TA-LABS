@@ -73,7 +73,7 @@ After addressing, each router can reach its direct neighbors. R2 cannot reach R3
 
 #vrpread[every `Proto` is `Direct`. R2 knows only the networks attached to its own interfaces. `10.0.3.0/24` and `10.0.13.0/24` appear nowhere, so a ping to R3’s loopback has nothing to match.]
 
-#pitfall[
+#warning[
   Three entries appear per connected network, not one: the network itself
   (`/24`), the router’s own address as a host route (`/32`), and the
   broadcast address. Only the first is a forwarding path. Reading
@@ -81,7 +81,7 @@ After addressing, each router can reach its direct neighbors. R2 cannot reach R3
   correct table look wrong.
 ]
 
-#keyidea[
+#note[
   A router matches the destination IP against its routing table. Without a matching route, it cannot forward the packet.
 ]
 
@@ -135,7 +135,7 @@ The lab directs R2 toward R3 by using next hop `10.0.23.3`.
 
 On the lab’s VRP image, a static route has default preference 60, so the primary route needs no explicit value.
 
-#workedexample[
+#example[
   R2 matches `10.0.3.3` to `10.0.3.0/24` and forwards it to `10.0.23.3`. R3 delivers it locally; the reply still needs a return route.
 ]
 
@@ -156,13 +156,13 @@ The route through R3 (preference 60) wins over the backup through R1 (80) until 
       node((x, 0), [#strong[#p] \
    #name], ..st, min-width: 2, min-height: 1.05, align: center, font: font("script", fill: navy))
     }
-    connect((-1.15, -0.85), (9.75, -0.85), line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2.5mm, line: widths.thick))
+    connect((-1.15, -0.85), (9.75, -0.85), line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2.5mm, line: widths.thick))
     node((-1.1, -1.2), [preferred], font: font("script", fill: green), anchor: "west")
     node((9.7, -1.2), [ignored while a better route exists], font: font("script", fill: muted), anchor: "east")
   })
 ]
 
-#keyidea[
+#note[
   Preference decides which #emph[protocol] to believe when two of them
   offer a route to the same prefix. It is compared only after longest-prefix
   match has already narrowed the field, which is why a `/24` static
@@ -196,11 +196,9 @@ The route through R3 (preference 60) wins over the backup through R1 (80) until 
   })
 ]
 
-#pitfall[
+#warning[
   Failover is not instant. The router must first decide the next hop is unreachable, and only then install the backup. Expect to lose several pings during the switch --- that gap is the cost of detection, and it is why fast-converging protocols like OSPF (Chapter~@ch:ospf) exist.
-]
 
-#pitfall[
   One supplied slide shows `255.255.25.0` while explaining a /24 mask. Elsewhere the same lab consistently uses /24, whose decimal form is `255.255.255.0`. The notes follow the lab’s /24 objective and flag the source typo rather than treating it as a new subnet mask.
 ]
 
@@ -214,11 +212,11 @@ The route through R3 (preference 60) wins over the backup through R1 (80) until 
   + For the backup-route portion, make the primary path unavailable as directed in the lab and confirm the alternate route becomes effective.
 ]
 
-#verification[
+#checklist[
   Use both routing-table and ping evidence: one proves the route is installed; the other proves forwarding works.
 ]
 
-#quickcheck[
+#questions[
   + Why can R2 reach a directly connected network without a static route?
   + What information does the next-hop address provide?
   + Why is the backup route configured with a preference value of 80 rather than 60?

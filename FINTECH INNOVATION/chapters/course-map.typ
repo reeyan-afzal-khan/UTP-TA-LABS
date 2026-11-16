@@ -26,11 +26,9 @@ This course is easiest to understand as one connected story: technology changes 
   )
 ]
 
-#keyidea[
+#note[
   The recurring pattern across the course is #emph[friction $arrow.r$ technology-enabled redesign $arrow.r$ new value proposition $arrow.r$ new risks and regulation]. Use that pattern to connect apparently different topics such as P2P lending, neobanks, blockchain, Big Tech, and cryptocurrency.
-]
 
-#libnote[
   #strong[About dated facts.] The lecture decks contain market statistics, company valuations, product examples, and regulatory statements from several different years. In these notes such figures are labeled as lecture snapshots. They are useful for understanding the argument being taught, but they should not be interpreted as current market data unless separately verified.
 ]
 

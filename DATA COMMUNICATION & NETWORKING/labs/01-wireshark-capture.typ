@@ -26,7 +26,7 @@
 
   #strong[Expected evidence.] The response should contain a directory listing and a successful HTTP status. Save a pcapng containing the exchange. Loopback traffic has no physical Ethernet hop; use the existing LAN exercise for ARP.
 
-  #labmode[
+  #warning[
     Capture on a network you are authorised to observe --- your own machine, your own lab segment, or the eNSP simulation. Capturing on a shared campus or corporate network without permission is a disciplinary matter and in many jurisdictions an offence.
 
     Everything below works on loopback or your own interface, so there is no reason to point Wireshark at anyone else’s traffic.
@@ -43,7 +43,7 @@
   - Did the TCP handshake complete, or was it reset?
   - Which host sent the first packet of this conversation?
 
-  #keyidea[
+  #note[
     A capture filter decides what is #emph[recorded]. A display filter decides what is #emph[shown]. They use different syntaxes, and confusing them is the most common source of an empty result window.
 
     Capture filter (BPF): `tcp port 80` \
@@ -82,7 +82,7 @@
     )
   ]
 
-  #pitfall[
+  #warning[
     `ip.addr != 192.168.1.10` does not mean what it appears to. A packet has both a source and a destination address, so the expression is true whenever #emph[either] differs --- which is nearly always.
 
     Write `!(ip.addr == 192.168.1.10)` instead. The same trap applies to every address and port field.
@@ -110,7 +110,7 @@
 
   Answer from your own capture: which host initiated, what ephemeral port did it choose, and how long elapsed between packets 1 and 3? That last figure is the round-trip time, and it is the number a network engineer actually cares about.
 
-  #troubleshoot[
+  #tip[
     #strong[No packets at all.] Wrong interface, or a capture filter with a typo. Clear the capture filter and try again.
 
     #strong[Traffic appears but not yours.] You are probably on a switched network seeing only broadcast and your own frames --- which is normal and correct.
@@ -118,7 +118,7 @@
     #strong[HTTPS shows no readable content.] That is TLS doing its job. You can still see the handshake, the SNI hostname, and the timing. Analyse those instead.
   ]
 
-  #tryit[
+  #exercises[
     Capture a `ping` to an address that does not exist on your subnet. No reply arrives --- so what #emph[does] the capture contain, and what does that tell you about how the host tried to find the destination? Look for ARP.
   ]
 ]
@@ -127,7 +127,7 @@
 
 #include "visuals/01-wireshark-capture-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Match one client request to its response using endpoints and stream identity. Record the status and explain where the request path and response body appear.
 
   - The raw `.pcapng` is saved and submitted, not only screenshots.

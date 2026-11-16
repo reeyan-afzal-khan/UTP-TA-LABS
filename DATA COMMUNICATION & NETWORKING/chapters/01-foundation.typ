@@ -47,7 +47,7 @@ and TCP/IP behaviour.
   })
 ]
 
-#keyidea[
+#note[
   Bold entries are configured somewhere in this book. The course spends
   almost all of its time at Layers 2 and 3, which is where a switch and a
   router respectively make their forwarding decisions.
@@ -71,7 +71,7 @@ protocols.
     node((6.9, -2.1), [Packet], anchor: "west", font: font("script", weight: "bold", fill: blue))
     protorow(-3.15, u, ((4, [Eth hdr], hdro), (4, [IP hdr], hdrb), (4, [TCP hdr], hdrg), (14, [Application data], hdrpay), (3, [FCS], hdro)))
     node((8.8, -3.15), [Frame], anchor: "west", font: font("script", weight: "bold", fill: orange))
-    connect((-0.75, 0.15), (-0.75, -3.5), line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2.5mm, line: widths.thick))
+    connect((-0.75, 0.15), (-0.75, -3.5), line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2.5mm, line: widths.thick))
     node((-0.95, -1.7), [sending host], rotate: (90) * 1deg, anchor: "south", font: font("script", fill: muted))
   })
 ]
@@ -110,8 +110,8 @@ they change at different rates as a packet crosses a network.
    #fsize("script")[dst MAC #strong[bb] \ #v(0.9963pt)
    #fsize("script")[src IP 10.0.1.10 \
    #fsize("script")[dst IP 10.0.2.20]]]]], ..netframe, text-width: 3, align: center, draw: orange)
-    connect((rel: (0, -0.42), to: "a"), (rel: (0, -0.72), to: "a"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
-    connect((rel: (0, -0.42), to: "b"), (rel: (0, -0.72), to: "b"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
+    connect((rel: (0, -0.42), to: "a"), (rel: (0, -0.72), to: "a"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
+    connect((rel: (0, -0.42), to: "b"), (rel: (0, -0.72), to: "b"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
     node(below-of("r", 2.35), [MAC changed, IP untouched], font: font("script", weight: "bold", fill: red), text-width: 4.4, align: center)
   })
 ]
@@ -134,7 +134,7 @@ inserted into in Lab~8.
   })
 ]
 
-#keyidea[
+#note[
   `Type` tells the receiver which Layer-3 protocol is inside:
   `0x0800` for IPv4, `0x0806` for ARP, `0x8100` for a
   VLAN-tagged frame. Wireshark reads this field to decide which dissector
@@ -195,7 +195,7 @@ cannot be bypassed by changing a PC’s IP address.
   })
 ]
 
-#keyidea[
+#note[
   A switch forwards on MAC addresses and never looks at an IP address.
   Two PCs in different VLANs stay unreachable however you renumber them,
   because the switch stops reading before it reaches the IP header.
@@ -232,7 +232,7 @@ or a VLAN splits the broadcast domain.
   })
 ]
 
-#quickcheck[
+#questions[
   + A packet crosses two routers. How many times is its destination
     MAC address rewritten, and how many times its destination IP?
   + Which header field would you check first to diagnose a routing loop?

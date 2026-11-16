@@ -12,7 +12,7 @@ Back to the map in #figref(<fig:ml-map>). Ask of the study log, “what kinds of
 #utpfig([Supervised learning uses features $X$ and labels $y$ to predict $y$; unsupervised learning has only $X$ and looks for structure in it.], label: <fig:sup-vs-unsup>)[
   #canvas({
     let bx = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.4, min-height: 1.2, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((-4.3, 0), [Supervised \
   $X+y arrow.r.long$ predict $y$], name: "s", ..bx)
     node((4.3, 0), [Unsupervised \
@@ -37,7 +37,7 @@ Back to the map in #figref(<fig:ml-map>). Ask of the study log, “what kinds of
   )
 ]
 
-#keyidea[
+#note[
   Evaluation follows the objective: variance for PCA, separation for clustering, reviewed-alert precision for anomalies.
 ]
 
@@ -74,11 +74,11 @@ Compare with independent reference labels when available, using measures such as
 
 Test usefulness: interpretable clusters, retained downstream signal, or anomalies that merit review.
 
-#workedexample[
+#example[
   Lab~4 groups 5,878 customers of an online shop, built from two years of invoices, with $K$-means and brings all three kinds of evidence. Internal: the silhouette peaks at 0.439 for two groups, and among richer splits four groups (0.365) beat three and five. Stability: every one of eight single random starts reaches the same four groups. Practical: the four groups can be named (lost one-time buyers, lapsing regulars, recent occasional buyers, and best customers, who bring in 72.1% of revenue), and a marketing team could act on those names. DBSCAN adds a fourth kind of evidence, the customers it refuses to place: 91 wholesale buyers who carry 30.8% of revenue. No single score settles it, and the conclusion is stated as “four segments, with the wholesale accounts handled separately”.
 ]
 
-#pitfall[
+#warning[
   Do not invent labels after fitting and treat them as ground truth. Known classes and visual groupings need not match the structure the method preserves.
 ]
 
@@ -87,7 +87,7 @@ Test usefulness: interpretable clusters, retained downstream signal, or anomalie
 #utpfig([The unsupervised workflow, from defining the structure sought to using it on new or downstream data. Checking stability and meaning is the step a label would otherwise have done.], label: <fig:unsup-workflow>)[
   #canvas({
     let bx = (draw: blue, fill: pale-blue, rounded: 1.5mm, text-width: 2, inner-xsep: 1.9925pt, min-height: 0.9, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-6.5, 0), [1\. Define the \
   structure sought], name: "a", ..bx)
     node((-3.9, 0), [2\. Choose the \
@@ -114,22 +114,22 @@ Describing a fixed dataset need not require a split. Claims about new data or do
 
 In supervised learning, a poor representation shows up as a poor validation score. Here nothing protests. Scaling, weighting, encoding and distance simply define what the method can see.
 
-#workedexample[
+#example[
   Take the same 5,878 customers and the same $K$-means with four groups. On logged and standardized columns, and on standardized columns without the logs, the two groupings agree with an adjusted Rand index of only 0.172 (1 is identical, and 0 is chance). Now drop the scaling too. Spend in pounds has a standard deviation of 14,440.9, against 209.4 days of recency and 13.0 orders, and the grouping becomes identical to clustering on spend alone, with an index of 1.000: recency and orders no longer count at all. Each result looks like a tidy clustering, and nothing warns you which one you got.
 ]
 
-#keyidea[
+#note[
   There is no label to reveal a poor representation, so justify the scaling and distance choices before interpreting the result.
 ]
 
-#chapterrecap[
+#summary[
   - Unsupervised learning has no answer column, but it still has a model, a loss and an optimizer.
   - The question picks the family: groups, fewer columns, unusual cases, density, or co-occurrence.
   - No universal accuracy exists. Combine internal evidence, external evidence where it exists, and practical usefulness.
   - Nothing protests when the representation is wrong, so justify scaling before interpreting. Changing one column’s units changed the mall clustering completely.
 ]
 
-#quickcheck[
+#questions[
   + Why is there no universal unsupervised-learning accuracy score?
   + Give one internal, one external, and one downstream form of evidence that could support an unsupervised result.
   + When does an unsupervised project need a held-out split even though no label is used during fitting?

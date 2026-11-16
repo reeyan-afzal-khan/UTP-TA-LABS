@@ -10,7 +10,7 @@ Ask one person to guess how many sweets are in a jar, and they may be far off. A
 
 == Why averaging helps
 
-#workedexample[
+#example[
   A simulated jar holds 200 sweets, and each guesser’s error has a standard deviation of 40. Over 10,000 simulated rooms, one guesser misses by 31.6 sweets on average, while a crowd of 25 misses by 6.4. The standard deviation of the crowd’s average is 8.0, which is $40\/sqrt(25)$.
 
   Now let someone announce a wrong number first, so that the whole room is swayed in the same direction. The guesses are as noisy as before, but they now share part of their error. The swayed crowd’s standard deviation is 30.3, hardly better than one person. A crowd helps only if its members make different mistakes.
@@ -29,7 +29,7 @@ Bagging fits learners to #term[bootstrap samples]: $n$ draws with replacement fr
 #utpfig([Bagging. Each tree is fitted to its own bootstrap sample of the training data, and their predictions are combined by voting or averaging.], label: <fig:bagging>)[
   #canvas({
     let box-style = (draw: auto, rounded: 1.9925pt, align: center, min-height: 0.8461, min-width: 2.4614, inner-sep: 2.9888pt, fill: pale-blue)
-    let arr = (line-width: widths.thick, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [training data \
   ($n$ observations)], name: "data", font: font("small"), ..box-style)
     node(right-of("data", 1.05), [bootstrap \
@@ -63,7 +63,7 @@ Each row can be predicted by the trees that never saw it; the resulting #term[ou
 
 If one feature is very strong, every bagged tree asks about it first, and the trees end up alike, with a high $rho$. A #term[random forest] therefore lets each split consider only a random subset of features, which forces the trees to differ. $sqrt(p)$ features is a common starting point for classification; validate the fraction for regression and other settings.
 
-#workedexample[
+#example[
   On Lab~2’s 7,043 telecom customers, under the same five folds, one unrestricted tree averages 0.731 accuracy. A forest of 300 such trees averages 0.793. The fold spreads are 0.010 and 0.009, so the gain is about six standard deviations: the averaging has removed most of what the single tree memorized. It cost you the readable rules of a single tree, and some prediction time.
 ]
 
@@ -84,9 +84,7 @@ Compare Extra Trees with Random Forest under the same folds and metric. Neither 
 
 == Boosting: learning from mistakes
 
-#analogy[
-  Think of a relay of tutors. The first teaches the whole class and notes which questions students still get wrong. The second concentrates on exactly those. The third concentrates on what is left. No single tutor is impressive, but the class improves at every handover. Boosting adds #term[weak learners], often shallow trees, in sequence, each one correcting the current ensemble.
-]
+Think of a relay of tutors. The first teaches the whole class and notes which questions students still get wrong. The second concentrates on exactly those. The third concentrates on what is left. No single tutor is impressive, but the class improves at every handover. Boosting adds #term[weak learners], often shallow trees, in sequence, each one correcting the current ensemble.
 
 #utptable[
   #tabularx(
@@ -113,7 +111,7 @@ AdaBoost repeatedly increases the weights of misclassified observations:
 + Multiply misclassified weights by $e^(alpha _m)$ and correct weights by $e^(- alpha _m)$, then renormalize.
 + After $M$ rounds, predict with the weighted vote $op("sign")( sum _m alpha _m h_m(bold(x)))$.
 
-#workedexample[
+#example[
   Five rows with equal weights of 0.2. A weak rule gets four right and misclassifies row 5, so its weighted error is $epsilon =0.20$ and its say is $alpha =inline(frac(1, 2))ln(0.8\/0.2)=0.693$. Multiply the four correct weights by $e^(-0.693)=0.5$, giving 0.1 each, and the wrong one by $e^0.693=2$, giving 0.4. They now sum to 0.8, so renormalize: the four correct rows get 0.125 each, and row 5 gets 0.5. Row 5 alone now counts as much as all the others together, so the next learner has to get it right.
 ]
 
@@ -127,7 +125,7 @@ $ F_m(bold(x)) =F_(m-1)(bold(x))+ nu thin h_m(bold(x)), wide 0< nu <= 1. $
 
 The learning rate $nu$ scales each correction. Tune it jointly with tree count, using validation or early stopping.
 
-#workedexample[
+#example[
   For $y=(3,5,8,10)$, start at the mean, $F_0=6.5$, so the residuals are $(-3.5,-1.5,1.5,3.5)$. A one-split stump on those residuals groups the first two rows and the last two, predicting $-2.5$ and $+2.5$. With $nu =0.5$ only half of that is admitted, and the process repeats on what remains:
 
   #v(6pt)
@@ -157,7 +155,7 @@ The learning rate $nu$ scales each correction. Tune it jointly with tree count, 
     let ax = (draw: mix(muted, 55%), line-width: widths.semithick)
     let obs = (shape: "circle", fill: navy, inner-sep: 1.4944pt)
     let fit-style = (draw: blue, line-width: 1.0959pt)
-    let resid = (draw: red, line-width: widths.semithick, end: tip("Stealth", length: 1.7mm, line: widths.semithick))
+    let resid = (draw: red, line-width: widths.semithick, end: arrow-tip("Stealth", length: 1.7mm, line: widths.semithick))
     let rl = (font: font("tiny", fill: red),)
     let hd = (font: font("small", weight: "bold", fill: navy),)
     let yl = (font: font("tiny", fill: muted), anchor: "east")
@@ -208,7 +206,7 @@ The learning rate $nu$ scales each correction. Tune it jointly with tree count, 
   })
 ]
 
-#intuition[
+#note[
   Gradient boosting fits corrections; AdaBoost reweights mistakes. Both train sequentially.
 ]
 
@@ -242,8 +240,8 @@ Bagging fits independently and can run in parallel; boosting fits sequential cor
     let d = (draw: muted, fill: pale-gray, rounded: 1.2mm, min-width: 1.1, min-height: 0.5, align: center, font: font("tiny", fill: navy))
     let agg = (draw: green, fill: pale-teal, rounded: 1.5mm, min-width: 1.5, min-height: 1.9, align: center, font: font("script", weight: "bold", fill: navy))
     let result = (draw: green, fill: pale-teal, rounded: 1.2mm, min-width: 1.15, min-height: 0.55, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
-    let arro = (line-width: widths.thick, draw: orange, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arro = (line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((0, 2.55), [Bagging: parallel and independent], name: "hb", font: font("small", weight: "bold", fill: navy))
     node((-1.3, 1.85), [sample 1], name: "d1", ..d)
     node((-1.3, 1.15), [sample 2], name: "d2", ..d)
@@ -277,7 +275,7 @@ Bagging fits independently and can run in parallel; boosting fits sequential cor
   })
 ]
 
-#keyidea[
+#note[
   Bagging often uses deep trees; boosting often uses shallow trees. Validate depth, leaf size, learning rate, and rounds together.
 ]
 
@@ -294,15 +292,15 @@ Train the meta-model on #term[out-of-fold] base predictions, not predictions fit
 - Noisy labels? Prefer forests over AdaBoost-style boosting, or lower the boosting learning rate and depth.
 - Stack diverse models only when out-of-fold validation justifies the added maintenance.
 
-#workedexample[
+#example[
   Lab~3 compares both families under one protocol. On used-car prices (log price, three folds), boosting has a log-RMSE of 0.1941 and the forest 0.2083, and boosting wins on every fold, by ten times more than the folds differ from each other. On Lab~3’s loans the order flips: the forest ranks defaults a little better, with ROC AUC 0.733 against 0.728 and average precision 0.393 against 0.389, a gap no larger than the noise between runs. No family wins everywhere, and sometimes not even on every metric.
 ]
 
-#keyidea[
+#note[
   Bagging averages varied trees; boosting adds dependent corrections. Judge their gains against latency, interpretability, and maintenance costs.
 ]
 
-#modelcard[Tree Ensembles - Quick Guide][
+#checklist(title: [Tree Ensembles - Quick Guide])[
   #tabularx(
     columns: (22%, 1fr, 1fr),
     styles: (navy-bold,),
@@ -318,7 +316,7 @@ Train the meta-model on #term[out-of-fold] base predictions, not predictions fit
 
 Random forests are usually forgiving: start with enough trees for stable averages, then control individual-tree complexity with depth, leaf size, and the number of features considered at each split. Gradient boosting is more sensitive because learning rate and number of rounds trade off directly. The table below is a practical starting range, not a universal recipe.
 
-#pitfall[
+#warning[
   Early-stopping validation must preserve time or group structure. Supply an appropriately separated validation set or tune rounds with structure-preserving folds.
 ]
 
@@ -338,11 +336,11 @@ Random forests are usually forgiving: start with enough trees for stable average
 
 === When combining model families helps
 
-#intuition[
+#note[
   Stacking can adapt model weights to different cases, but the extra layer needs sufficient data and out-of-fold training.
 ]
 
-#pitfall[
+#warning[
   Combine individually useful, non-redundant models, such as a linear model and a forest. Keep the ensemble only if validation gains justify its complexity.
 ]
 
@@ -378,11 +376,7 @@ Apply the association-versus-causation distinction from #secref(<sec:correlation
   )
 ]
 
-#tryit[
-  Compare a single tree, a random forest and gradient boosting on the same cross-validation splits: mean score, fold spread, fit time and prediction time. Does any gain justify its cost? Then test the locked choice once.
-]
-
-#chapterrecap[
+#summary[
   - Averaging cancels errors only if members disagree. Correlation sets a floor that more models cannot get below.
   - Bagging fits trees on bootstrap samples; each misses about 36.8% of the rows, which gives a free out-of-bag estimate. Forests add random feature subsets for more disagreement.
   - Boosting adds shallow trees in sequence. AdaBoost reweights hard rows; gradient boosting fits residuals with a learning rate.
@@ -390,7 +384,11 @@ Apply the association-versus-causation distinction from #secref(<sec:correlation
   - Keep the ensemble only if a validated gain justifies its cost.
 ]
 
-#quickcheck[
+#exercises[
+  Compare a single tree, a random forest and gradient boosting on the same cross-validation splits: mean score, fold spread, fit time and prediction time. Does any gain justify its cost? Then test the locked choice once.
+]
+
+#questions[
   + How does bagging reduce variance, and how does boosting build its later learners differently?
   + With $rho =0.25$ and $B=100$, what fraction of one model’s variance does the average keep?
   + Why does a random forest consider only a subset of features at many splits?

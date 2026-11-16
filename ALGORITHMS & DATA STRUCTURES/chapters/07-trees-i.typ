@@ -43,7 +43,7 @@ The Trees I slide explicitly identifies the subtree rooted at $B$ as one subtree
 
 An #term[edge] is the connecting link between two nodes.
 
-#clarification[
+#note[
   The slide says that with $N$ nodes there will be a #emph[maximum] of $N-1$ edges. For an ordinary connected tree with $N$ nodes, the standard invariant is stronger: it has #emph[exactly] $N-1$ edges. The slide wording is preserved here and the standard property is supplied as clarification.
 ]
 
@@ -55,7 +55,7 @@ If node $N$ is the immediate predecessor of node $X$, then $N$ is the parent of 
 
 An internal node has at least one child. In the diagram above, examples include $A$, $B$, $C$, $D$, $E$, and $H$.
 
-#clarification[
+#note[
   One slide lists $A,B,C,D,E,F,G,H,I,J$ as internal nodes, but the accompanying diagram shows several of those nodes without children. These notes use the slide’s own definition --- “has at least one child” --- when classifying the drawn example.
 ]
 
@@ -67,7 +67,7 @@ The #term[level] of a node is the number of edges on the path from that node to 
 
 The slides define the height of a node as the number of edges on the longest path from that node down to a leaf. In the example, $H$ has one child $M$, so its height is 1.
 
-#workedexample[
+#example[
   Using the recreated slide tree: $A$ is at level 0, $D$ is at level 1, $H$ is at level 2, and $M$ is at level 3. The height of $H$ is 1 because the longest downward path is $H arrow.r M$.
 ]
 
@@ -190,7 +190,7 @@ void postorder(TreeNode* root) {
 
 The Trees I slide states that if a root is stored at array index $I$, then the left child is at $2 I$ and the right child at $2 I+1$.
 
-#clarification[
+#note[
   Those formulas correspond to a #strong[1-based] array representation. C++ raw arrays are usually indexed from 0. With a zero-based representation, the common formulas are
 
   $ "left"(i)=2 i+1, wide "right"(i)=2 i+2, $
@@ -198,7 +198,7 @@ The Trees I slide states that if a root is stored at array index $I$, then the l
   and the parent of a non-root node is $floor.l (i-1)\/2 floor.r$.
 ]
 
-#workedexample[
+#example[
   Using zero-based indexing, node at index 2 has left child at $2(2)+1=5$ and right child at $2(2)+2=6$. Using the slide’s 1-based convention, a node at index 2 has children at 4 and 5.
 ]
 
@@ -248,7 +248,7 @@ A linked representation stores data plus two pointers: one to the left child and
 #utpfigure[
   #canvas({
     let node-style = (shape: "circle", draw: blue, fill: pale-blue, min-size: 0.8, font: font("small", weight: "bold"))
-    let edge = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let edge = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [8], name: "a", ..node-style)
     node(below-left-of("a", 0.9, 1.2), [4], name: "b", ..node-style)
     node(below-right-of("a", 0.9, 1.2), [12], name: "c", ..node-style)
@@ -261,6 +261,6 @@ A linked representation stores data plus two pointers: one to the left child and
   })
 ]
 
-#quickcheck[
+#questions[
   State the inorder, preorder, and postorder rules without looking back. What indexing assumption is required for the slide formula $2 I$ and $2 I+1$?
 ]

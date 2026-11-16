@@ -3,11 +3,11 @@
 
 #labsection(4, label: <sec:lab04>)[Circular linked-list operations]
 
-#sourcealignment[Official Lab Manual --- Lab IV][
-  Circular linked-list insertion/deletion; compare list representations.
-]
-
 #labproject[Maintain a circular list without breaking the loop][
+  #note[
+    #strong[Official Lab Manual --- Lab IV.] Circular linked-list insertion/deletion; compare list representations.
+  ]
+
   #strong[Goal.] Insert, delete, and traverse without breaking the ring.
 
   #strong[Recall first.] Review the #link(<ch:circular-list>)[Circular Linked Lists] chapter.
@@ -24,7 +24,7 @@
   #include "programs/list_comparison.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

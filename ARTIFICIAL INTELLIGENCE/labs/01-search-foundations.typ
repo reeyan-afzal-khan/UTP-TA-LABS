@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab01/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment (Chapter~@ch:toolkit) and confirm that both data files are in `all_datasets/`.
   + Warm up on the robot’s maze, which needs no data. From the course folder, run the command below. Its last line must read `Every number above matches the book.`
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. Everything runs in a few seconds.
@@ -35,7 +35,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Before touching the airline data, trace BFS and UCS by hand on the seven-node graph of #figref(<fig:ucs-vs-bfs>), writing out the frontier after each expansion. You will check your trace with code at the end of this sheet.
 ]
 
@@ -170,8 +170,8 @@
   #strong[Read the result.] Regenerate this plot rather than copying it. Check the axes and the three routes; this saved figure is a reference, not evidence of your own run.
 ]
 
-#yourturn[
-  Add new cells at the end of the notebook for these three tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these three tasks, and record your numbers before reading the answers.
 
   + #strong[Try a new query.] Run all three algorithms from `JFK` to `SYD` and record hops, kilometres and expansions.
   + #strong[Does direction matter?] Run BFS and UCS from `KEF` back to `KUL` and compare with the outward results. Is the best route back the same route reversed?
@@ -184,19 +184,19 @@
   ```
 ]
 
-#expectedfindings[
+#answers[
   + BFS: 2 hops, 23,093~km via AUH, 537 expanded. DFS: 45 hops, 64,251~km. UCS: 2 hops, 16,035~km via LAX, 3,097 expanded. BFS stops at the first two-leg route it meets, 7,000~km too long.
   + BFS: 2 hops via AMS, 12,274~km. UCS: 4 hops via HEL, LED and TAS, 11,478~km, which is not the outward UCS route reversed. Routes are directed, so a route out does not guarantee the same route back.
   + BFS returns A--B--D--G at cost 8 and UCS returns A--B--E--G at cost 4. With the edge from D to G removed, BFS also returns A--B--E--G, because that is now the first three-edge route it reaches.
 ]
 
-#troubleshoot[
+#tip[
   / `ModuleNotFoundError: utils`: Jupyter was not started from `all_experiments/`. Restart it from there, or run the script from the course folder.
   / `FileNotFoundError`: A data file is missing or misnamed. Match Chapter~@ch:toolkit’s names, capitals too.
   / Different counts from the reference: Use the supplied data files and an unedited `utils/core.py`. Runtimes vary by machine; hops, kilometres and expansions should not.
 ]
 
-#verification[
+#checklist[
   - The cleaned graph has 6,464 usable airports and 37,337 unique directed routes.
   - Every BFS, DFS and UCS path uses real routes, and its cost is the sum of its legs.
   - BFS returns the fewest hops and UCS the shortest distance on every query; UCS finds the 11,461~km KUL$arrow.r$KEF route.
@@ -204,8 +204,8 @@
   - `results/lab01/` holds `metrics.csv` and `route_comparison.png`.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab01/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab01/` folder.
   - Add a short conclusion: which method minimises hops, which minimises distance, why DFS changes with neighbour order, and which effort measure is comparable across computers.
 ]

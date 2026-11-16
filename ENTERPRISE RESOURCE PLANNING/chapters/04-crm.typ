@@ -5,7 +5,7 @@
 
 #chapterguide[You should know the sales-order process and the difference between a potential sale and a confirmed order.][explain the purpose of CRM, distinguish operational CRM activities, connect CRM to ERP data, and evaluate how CRM supports acquisition, retention, sales, marketing, and service.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 4 and the CRM section of Chapter 3 in the
   textbook. Tutorial 4 uses Luna Electronics and asks students to justify CRM,
   propose a CRM system, explain its features, and support the proposal with a case
@@ -38,7 +38,7 @@ must also answer what happens next, and who owns it.
   })
 ]
 
-#intuition[
+#note[
   CRM gives the organisation a “single face to the customer.” The customer should
   not receive three contradictory prices from Sales, Marketing, and an executive
   simply because those people do not share interaction history.
@@ -127,7 +127,7 @@ retain existing customers, and improve service. A convincing answer connects
 each business problem to a mechanism rather than asserting that “CRM improves
 customer relationships.”
 
-#workedexample[
+#example[
   Suppose Luna Electronics loses repeat customers because complaints are handled
   through personal email inboxes. A CRM process logs the interaction against the
   customer, assigns responsibility, stores the response, and makes the history
@@ -169,7 +169,7 @@ when a stage should change, who owns the record, which fields are mandatory, how
 duplicates are prevented, what “won” and “lost” mean, and how lost reasons
 are recorded.
 
-#pitfall[
+#warning[
   A colourful pipeline is not automatically a reliable sales forecast. If users
   move opportunities between stages inconsistently or enter unrealistic expected
   revenue, management gets an attractive but misleading report.
@@ -206,8 +206,8 @@ are recorded.
   })
 ]
 
-#applicationbox[
-  The supplied guide creates an opportunity called #strong[Road Bike Order --- Seri Iskandar Cycling Club] with expected revenue of RM 5,000, assigns the Sales
+#note[
+  #strong[In Odoo 19 Community.] The supplied guide creates an opportunity called #strong[Road Bike Order --- Seri Iskandar Cycling Club] with expected revenue of RM 5,000, assigns the Sales
   Manager, moves it through the pipeline, and then creates the quotation for 5 Road
   Bikes. Three CRM principles are on display: the deal is owned by a named person,
   expected revenue exists before the sale is confirmed, and the opportunity creates
@@ -225,13 +225,13 @@ For the Tutorial 4 proposal, six questions make a strong evaluation framework:
 + #strong[Governance and security:] Can access, ownership, and customer-data handling be controlled?
 + #strong[Cost and scalability:] Is the system affordable and able to grow with the business?
 
-#tryit[
+#exercises[
   For Luna Electronics, choose one customer problem and write a chain in this
   format: #emph[problem $arrow.r$ CRM feature $arrow.r$ changed employee behaviour $arrow.r$ measurable business outcome]. If one link is vague, the
   proposal needs more detail.
 ]
 
-#quickcheck[
+#questions[
   + Why is an opportunity different from a sales order?
   + Give one example of cross-selling and one of up-selling for Luna Electronics.
   + Why does CRM data quality affect sales forecasting?

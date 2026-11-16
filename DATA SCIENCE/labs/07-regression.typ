@@ -52,7 +52,7 @@
 
   #include "visuals/07-regression-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Inspect one large residual in the original record. Compare expensive-home error with overall error, reporting both sample sizes and the baseline on each segment.
 
     #strong[Required evidence.] Submit baseline and model metrics, two diagnostic plots, one subgroup error summary, and a short model card stating intended use, strongest observed limitation, and one next improvement to test.

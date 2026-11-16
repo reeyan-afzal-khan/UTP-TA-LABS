@@ -1,12 +1,18 @@
 {
+  // Tinymist is the only Typst extension for this workspace (see .typst-setup/README.md).
   "tinymist.rootPath": "${workspaceFolder}",
   "tinymist.fontPaths": [
     "${workspaceFolder}/.shared/assets/fonts"
   ],
   "tinymist.systemFonts": false,
   "tinymist.exportPdf": "never",
-  "tinymist.preview.refresh": "onType",
+  // The books run to 500 pages. Redrawing the preview on every keystroke keeps it
+  // busy; redraw it when the file is saved (Ctrl+S) instead.
+  "tinymist.preview.refresh": "onSave",
+  "tinymist.preview.partialRendering": true,
   "tinymist.preview.invertColors": "never",
+  // The compile indicator changes on every keystroke in a large book.
+  "tinymist.compileStatus": "disable",
   "tinymist.formatterMode": "typstyle",
   "[typst]": {
     "editor.wordWrap": "on",
@@ -16,15 +22,19 @@
   "files.watcherExclude": {
     "**/.build/**": true,
     "**/.courses/**": true,
+    "**/.courses-srts/**": true,
+    "**/.typst-setup/.venv-typst/**": true,
     "**/.all-pdfs/**": true,
     "**/all_datasets/**": true
   },
   "search.exclude": {
     "**/.build/**": true,
     "**/.courses/**": true,
+    "**/.courses-srts/**": true,
+    "**/.typst-setup/.venv-typst/**": true,
     "**/.shared/packages/**": true,
     "**/.all-pdfs/**": true
   },
-  "typst.preview.autoRefresh": true,
-  "typst.compile.debounceMs": 100
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda"
 }

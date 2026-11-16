@@ -80,6 +80,6 @@ The complete captured run is in `labs/outputs/list_comparison.txt`.
 
 Reported byte sizes depend on the platform; compare the storage relationships rather than requiring these exact sizes.
 
-#tryit[
+#exercises[
   Repeat with an empty input and then one value. Predict how each loop terminates, including the circular one-node self-link. Check all cleanup paths finish.
 ]

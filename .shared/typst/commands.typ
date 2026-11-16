@@ -2,7 +2,7 @@
 #import "palette.typ": *
 #import "theme.typ": *
 #import "state.typ": cfg
-#import "boxes.typ": tcb
+#import "frames.typ": tcb
 
 #let term(body) = text(weight: "bold", fill: navy, body)          // \term
 #let cmd(body) = raw(body)                                        // \cmd (plain text)
@@ -14,7 +14,9 @@
 // Cross-references, with the word written out as the LaTeX macros did.
 #let chapref(target) = [Chapter~#ref(target)]
 #let secref(target) = [Section~#ref(target)]
-#let figref(target) = [Figure~#ref(target)]
+#let figref(target) = context {
+  if query(target).len() > 0 { [Figure~#ref(target)] } else { [Figure] }
+}
 #let chapsref(a, b) = [Chapters~#ref(a)--#ref(b)]
 
 // Coloured, bold maths: \cxg, \cxo, \cxr.

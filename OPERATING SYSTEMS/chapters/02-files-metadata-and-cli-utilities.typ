@@ -44,7 +44,7 @@ Reliable systems code repeatedly follows the same shape:
 #utpfig([The acquire-use-release pattern. A resource is opened, used, and then closed, and each step has its own failure to check.], label: <fig:acquire-use-release>)[
   #canvas({
     let s = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3, min-height: 0.85, align: center, font: font("small", fill: navy))
-    let ar = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let ar = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4, 0), [Acquire \
   `open`/`fopen`], name: "a", ..s)
     node((0, 0), [Use \
@@ -62,7 +62,7 @@ Every acquire step can fail, every loop needs a clear stopping rule, and every s
 
 `read()` can return fewer bytes than requested. Similarly, `write()` may write fewer bytes than supplied. A robust copy therefore checks return values rather than assuming one call completes the whole job.
 
-#keyidea[
+#note[
   For systems programming, the return value is part of the data. Do not discard it: it tells you whether an operation succeeded, reached end-of-file, or failed.
 ]
 

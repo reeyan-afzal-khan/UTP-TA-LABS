@@ -33,7 +33,7 @@ reached from one of them.
     • #strong[CLI] --- open the VRP console \
     • #strong[Settings] --- add an interface card \
     • #strong[Data Capture] --- start Wireshark on one interface], ..hdro, min-width: 6, min-height: 1.55, anchor: "north-west", align: left, font: font("script", fill: navy))
-    connect((6.1, -0.5), (6.1, 0.1), line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((6.1, -0.5), (6.1, 0.1), line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((9.4, -1.2), [A device must be #strong[started] before its CLI will respond.], font: font("tiny", fill: muted), anchor: "west", text-width: 3.5)
   })
 ]
@@ -57,7 +57,7 @@ are the models the exercises assume.
   )
 ]
 
-#pitfall[
+#warning[
   The AR2220 ships with #emph[no serial interfaces]. Lab~@ch:wan calls
   for `Serial1/0/0`, so before starting that topology you must
   right-click each router, open #strong[Settings], and drag a #strong[2SA]
@@ -83,7 +83,7 @@ everything in this book.
   )
 ]
 
-#keyidea[
+#note[
   A red dot on an interface means the link is down; green means up. After
   pressing start, wait for both ends to turn green before opening a console.
   Half the “the command did not work” reports in these labs are a console
@@ -101,7 +101,7 @@ everything in this book.
   + Generate traffic, such as `ping <IP-address>`, and inspect it.
 ]
 
-#keyidea[
+#note[
   Use this cycle throughout the course: #strong[build $arrow.r$ configure $arrow.r$ inspect $arrow.r$ test $arrow.r$ save].
 ]
 
@@ -151,7 +151,7 @@ level, `return` goes all the way to user view.
   })
 ]
 
-#pitfall[
+#warning[
   A command rejected as unrecognised is usually a command typed in the
   wrong view rather than a command that does not exist. `ip route-static` only works in system view; `ip address` only works in
   interface view. Read the prompt before re-typing.
@@ -248,7 +248,7 @@ and both state columns on one screen.
   )
 ]
 
-#verification[
+#checklist[
   A healthy direct link has compatible addresses and reports both physical and protocol status as #strong[up]. Verify it with ping, then save the configuration.
 ]
 
@@ -269,10 +269,10 @@ Use abbreviations only after learning the full commands.
   )
 ]
 
-#pitfall[
+#warning[
   A failed ping is only a symptom. Check interface state first: physical down indicates a link problem; physical up/protocol down points to configuration or peer state. Investigate routing only after the direct link is healthy.
 ]
 
-#tryit[
+#exercises[
   Build the small switch-and-two-PC topology requested in the Lab 2B material. Assign compatible IPv4 addresses, use `ipconfig` on both PCs, verify connectivity with `ping`, and capture a readable screenshot of the command panel showing the result.
 ]

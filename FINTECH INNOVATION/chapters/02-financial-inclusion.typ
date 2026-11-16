@@ -26,7 +26,7 @@ Five ecosystem components recur throughout the Week 2 material:
   )
 ]
 
-#intuition[
+#note[
   A good FinTech idea is not enough. If customers do not need it, skilled people cannot build it, capital cannot finance it, or regulation does not permit it, the ecosystem cannot turn the idea into a sustainable financial service.
 ]
 
@@ -65,7 +65,7 @@ The lecture presents multiple causes. Some come from the customer side; others c
     let side = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 5.4, min-height: 3, align: left, inner-sep: 3mm, font: font("script", fill: navy))
     let side2 = (draw: orange, fill: pale-orange, rounded: 2mm, text-width: 5.4, min-height: 3, align: left, inner-sep: 3mm, font: font("script", fill: navy))
     let center = (draw: navy, fill: navy, text: white, rounded: 2mm, text-width: 2.4, min-height: 1.2, align: center, font: font("small", weight: "bold"))
-    let arr = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4, 0), [#strong[Demand side] #parbreak() #v(3pt)small/volatile income #parbreak() distance #parbreak() missing documents #parbreak() low literacy #parbreak() distrust #parbreak() negative history], name: "d", ..side)
     node((0, 0), [FINANCIAL \
   EXCLUSION], name: "x", ..center)
@@ -75,7 +75,7 @@ The lecture presents multiple causes. Some come from the customer side; others c
   })
 ]
 
-#keyidea[
+#note[
   Financial exclusion is not explained only by a customer’s income. It can be produced by a mismatch between the customer’s circumstances and the cost structure, documentation requirements, product design, and risk methods of the provider.
 ]
 
@@ -115,7 +115,7 @@ The lecture breaks the concept into five qualities.
   )
 ]
 
-#pitfall[
+#warning[
   Opening an account is not the same as achieving meaningful inclusion. A product can be technically available yet fail if it is too expensive, irrelevant to the user’s cash flow, difficult to understand, or poorly supported.
 ]
 
@@ -147,7 +147,7 @@ Apps can provide visibility, reminders, budgeting tools, and other resources tha
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.6, min-height: 1.15, align: center, font: font("script", weight: "bold", fill: navy))
     let outcome = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 3, min-height: 1.25, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-5, 1.2), [Lower digital \
   cost], name: "c", ..box-style)
     node((-1.8, 1.2), [Remote \
@@ -174,7 +174,7 @@ The lecture cites IMF/ECB research that separates modern financial innovation in
 
 These innovations reinforce each other. A digital channel creates more frequent interactions; interactions create data; data can improve personalization and risk assessment; better decisions make the digital channel more useful.
 
-#intuition[
+#note[
   A branch-era bank may know a customer mainly through account records and formal documents. A digital platform may observe many more interactions. The course treats this additional information as potentially valuable for inclusion, but it also foreshadows later issues of privacy, data protection, and algorithmic risk.
 ]
 
@@ -208,7 +208,7 @@ The Week 2 deck describes Sesame Credit as a consumer-scoring model designed to 
 
 The core lesson is not that any one variable is automatically a good credit signal. It is that a digital ecosystem can create a different information base for assessing a customer whom a traditional bank might treat as a “thin file.”
 
-#workedexample[
+#example[
   A rural customer has no previous bank loan and therefore little conventional credit history. A traditional model may see “insufficient information.” A platform model may observe repeated digital purchases, bill-payment behavior, account tenure, and other activity. If the provider can turn those records into a defensible risk assessment, the customer may become visible to formal credit for the first time.
 ]
 
@@ -235,7 +235,7 @@ The course presents strong potential benefits, but the same mechanisms can intro
   )
 ]
 
-#keyidea[
+#note[
   Digital finance can remove old barriers without automatically removing exclusion. It may replace geographic and paper barriers with new barriers involving devices, digital literacy, data rights, cybersecurity, or algorithmic decisions.
 ]
 
@@ -252,11 +252,11 @@ When evaluating a financial-inclusion initiative, use the following sequence.
   + #term[Identify the new risk.] Privacy, cyber fraud, consumer protection, bias, exclusion by data, or regulatory uncertainty?
 ]
 
-#tryit[
+#exercises[
   Use the framework above for a mobile microloan targeted at a rural worker with irregular income and no conventional credit history. Explain which old barriers the product removes and which new risks it creates.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between an unbanked and an underbanked customer?
   + Name the five FinTech ecosystem components used in the lecture.
   + Give four demand-side and three supply-side constraints to financial inclusion.

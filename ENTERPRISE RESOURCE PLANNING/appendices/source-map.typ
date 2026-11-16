@@ -30,6 +30,6 @@ The materials contain a few inconsistencies that students should recognise rathe
 - Tutorial 6 describes sales in pairs of shoes but production capacity as 40 shoes per hour, creating a unit-of-measure ambiguity.
 - Tutorial numbering in some source documents is inconsistent (for example, a page header may use a different tutorial number from the title). The notes organise topics by subject rather than reproducing those numbering mismatches.
 
-#keyidea[
+#note[
   When a source file and a spreadsheet disagree, do not hide the conflict. State the assumption used, keep units explicit, and confirm assessment expectations with the tutor.
 ]

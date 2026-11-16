@@ -12,7 +12,7 @@
 
   #include "visuals/07-flow.typ"
 
-  #labmode[
+  #note[
     Tutorial 7 asks students to research an SCM implementation and compare CRM with SCM. The Odoo work gives a concrete supply-chain process you can analyse using metrics such as lead time, fill rate, and on-time performance.
   ]
 
@@ -84,7 +84,7 @@
 
 #include "walkthroughs/07-records.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Trace a partial receipt and its remaining quantity. Compare ordered, received and billed quantities and explain any difference without silently forcing them to agree.
 
   - Each vendor is linked to the products it supplies.

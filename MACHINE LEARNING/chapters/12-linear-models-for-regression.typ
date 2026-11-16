@@ -36,9 +36,7 @@ The #term[slope] $w$ is how many marks one extra hour is worth. The #term[interc
 
 #chapref(<ch:supervised>) showed that raw errors cancel. Guess A misses by $-4,-5,0,2,1,6$ and guess B by $11,4,3,-1,-8,-9$. Both lists add to exactly zero, so an average of raw errors would call both lines perfect. Squaring fixes that: the mean squared error is 13.67 for guess A and 48.67 for guess B, so a bad line finally gets a bad score.
 
-#analogy[
-  Picture a rubber band from each dot straight up or down to the line. The further a band stretches, the harder it pulls, so distant dots pull much harder than near ones. Let go, and the line settles where all the pulling balances. That resting place is the line with the smallest total of squared stretches, which is exactly the line #term[ordinary least squares (OLS)] chooses.
-]
+Picture a rubber band from each dot straight up or down to the line. The further a band stretches, the harder it pulls, so distant dots pull much harder than near ones. Let go, and the line settles where all the pulling balances. That resting place is the line with the smallest total of squared stretches, which is exactly the line #term[ordinary least squares (OLS)] chooses.
 
 Ordinary least squares (OLS) chooses coefficients that minimize the residual sum of squares:
 
@@ -87,7 +85,7 @@ $ "mark"=3 times "hours"+40. $
 
 The six errors are $1,-2,1,1,-2,1$. They still add to zero, and their squares average to 2.00, so this line misses by about 1.41 marks on a typical row (the RMSE). No other line does better. A bowl is what makes this dependable: one lowest point means there is nothing to get stuck on.
 
-#keyidea[
+#note[
   Score every line with one number, and the best line is where that number is smallest. Squared error makes that place easy to find.
 ]
 
@@ -105,11 +103,11 @@ $ hat(beta)_1 =frac(sum _(i=1)^n(x_i-macron(x))(y_i-macron(y)), sum _(i=1)^n((x_
 
 Slope is covariance divided by feature variance. The intercept makes the line pass through $(macron(x),macron(y))$.
 
-#workedexample[
+#example[
   For the six students, the deviations from the means are $-5,-3,-1,1,3,5$ for hours and $-14,-11,-2,4,7,16$ for marks. The sum of products is $70+33+2+4+21+80=210$, and the sum of squared hour deviations is $25+9+1+1+9+25=70$. So $w=210\/70=3$ and $b=61-3 times 7=40$, as before.
 ]
 
-#workedexample[
+#example[
   Fit a line to three points by hand: $(1,2)$, $(2,3)$, $(3,5)$.
   The means are $macron(x)=2$ and $macron(y)=10\/3$. The deviations from the means are $(-1,0,1)$ for $x$ and $(-inline(frac(4, 3)),-inline(frac(1, 3)),inline(frac(5, 3)))$ for $y$. Then
 
@@ -126,7 +124,7 @@ $ J(bold(beta))=frac(1, n) || X bold(beta)-bold(y) || _2^2, wide nabla _(bold(be
 
 At the bottom of the bowl the gradient is zero, which gives the #term[normal equations] $X^(sans(T))X bold(beta)=X^(sans(T))bold(y)$.
 
-#workedexample[
+#example[
   For the six students, each entry of these blocks is something you can check by hand: 6 is the row count, 42 the sum of hours, 364 the sum of squared hours, 366 the sum of marks, and 2,772 the sum of hours times marks.
 
   $ mat(delim: "[", 6, 42; 42, 364) mat(delim: "[", b; w) = mat(delim: "[", 366; 2772). $
@@ -175,7 +173,7 @@ A #term[residual] is what the line left unexplained. Plot residuals against pred
   }))
 ]
 
-#workedexample[
+#example[
   In Lab~2, the car-price model’s residuals form a widening funnel instead of a cloud: their spread grows from \$9,172 on the cheapest quarter of predictions to \$23,079 on the dearest. The model knows a car’s age, mileage and make but not which car it is, and two cars of the same make and age can be very different cars. No amount of regularization will fix a missing idea. So add the idea: the car’s `model`, one-hot encoded into one column for each of its 1,147 models.
 
   #v(6pt)
@@ -192,7 +190,7 @@ A #term[residual] is what the line left unexplained. Plot residuals against pred
   ]]
 ]
 
-#keyidea[
+#note[
   Residual patterns suggest missing structure: curvature suggests nonlinear terms; a widening funnel suggests unequal error variance. Lab~2’s car-price funnel points to a missing idea, which car it is.
 ]
 
@@ -212,7 +210,7 @@ $ hat(bold(beta))_(upright("ridge")) =op("arg min", limits: #true)_(bold(beta)) 
 
 The penalty trades fit against coefficient size. At $lambda =0$ ridge is OLS, and increasing $lambda$ shrinks the coefficients. Software usually leaves the intercept unpenalized and recovers it from the means.
 
-#workedexample[
+#example[
   Give the runaway degree-7 curve a ridge penalty, on scaled hours:
 
   #v(6pt)
@@ -252,9 +250,9 @@ Regularization constrains a coefficient budget. Least-squares contours touch an 
 #utpfig([Why the penalties behave differently. The least-squares contours often first touch the $L_1$ diamond at a corner, where a coefficient is exactly zero; the $L_2$ disk has no corners, so ridge shrinks both coefficients without zeroing either.], label: <fig:lasso-ridge>)[
   #canvas(x: 0.92cm, y: 0.92cm, {
     draw.scope({
-      connect((-1.5, 0), (3.6, 0), end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((-1.5, 0), (3.6, 0), end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((-1.5, 0), (3.6, 0), t: 100%), [$beta _1$], font: font("small"), anchor: "north")
-      connect((0, -1.1), (0, 2.2), end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((0, -1.1), (0, 2.2), end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node((0, 1.9), [$beta _2$], font: font("small"), anchor: "east")
       connect((1, 0), (0, 1), (-1, 0), (0, -1), (1, 0), line-width: widths.thick, fill: pale-blue)
       draw.scope({
@@ -277,9 +275,9 @@ Regularization constrains a coefficient budget. Least-squares contours touch an 
     })
     draw.scope({
       draw.translate((6.5217, 0))
-      connect((-1.5, 0), (3.6, 0), end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((-1.5, 0), (3.6, 0), end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((-1.5, 0), (3.6, 0), t: 100%), [$beta _1$], font: font("small"), anchor: "north")
-      connect((0, -1.1), (0, 2.2), end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((0, -1.1), (0, 2.2), end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node((0, 1.9), [$beta _2$], font: font("small"), anchor: "east")
       circle-at((0, 0), 1, line-width: widths.thick, fill: pale-blue)
       draw.scope({
@@ -303,7 +301,7 @@ Regularization constrains a coefficient budget. Least-squares contours touch an 
   })
 ]
 
-#intuition[
+#note[
   Regularization pulls coefficients toward zero: ridge shrinks them smoothly, while lasso can remove them entirely.
 ]
 
@@ -322,13 +320,13 @@ Working habits that apply to every model in this chapter:
 - #term[Starting choices:] ridge for many small effects; lasso for sparsity; elastic net for correlated groups.
 - Consider #term[Huber loss] when extreme residuals dominate squared-error fitting.
 
-#keyidea[
+#note[
   A weighted-sum model, richer features, and a validated complexity penalty form a reusable modeling pattern.
 ]
 
 #recipecard([Linear regression], [A weighted sum of features, $hat(y)=w thin x+b$ in the simplest case.], [Mean squared error, optionally plus a penalty on coefficient size.], [An exact solve of the normal equations, or gradient descent on very large tables. Ridge also has an exact solve; lasso needs an iterative one.])
 
-#modelcard[Linear Regression Family - Quick Guide][
+#checklist(title: [Linear Regression Family - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -359,7 +357,7 @@ Use a different loss or distribution when the label structure or decision warran
 
 Validate specialized losses against the task metric and check prediction plausibility (#chapref(<ch:evaluation>)).
 
-#chapterrecap[
+#summary[
   - A line has two parameters: the slope is a rate, and the intercept is a height.
   - Raw errors cancel, so least squares minimizes squared errors, like rubber bands settling. The best line passes through the average point.
   - Squared error makes a bowl with one bottom, and the normal equations jump straight to it.
@@ -367,7 +365,7 @@ Validate specialized losses against the task metric and check prediction plausib
   - Linear means linear in the parameters, so curves come from added columns. Ridge shrinks and lasso can delete; both are tuned on validation.
 ]
 
-#quickcheck[
+#questions[
   + For $"mark"=3 times "hours"+40$, what does the 3 say, and what does the line predict for 7 hours?
   + Why can the average of raw errors be zero for a line that is wrong on most rows?
   + Why must the best line pass through $(macron(x),macron(y))$?

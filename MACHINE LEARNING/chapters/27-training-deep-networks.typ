@@ -51,7 +51,7 @@ The third row is the second cure. #term[Batch normalization] rescales every unit
 
 The opposite failure, an #term[exploding gradient], happens when the factors are larger than one, as they can be in recurrent networks that apply the same weights at every step. The gradient then grows from layer to layer until a single step throws the weights far away. The standard remedy is #term[gradient clipping]: when the gradient's length exceeds a set limit, scale it down to the limit before the step.
 
-#keyidea[
+#note[
   A deep network trains only if the gradient reaches its early layers at a usable size. Use ReLU or one of its relatives in hidden layers, and add batch normalization when a deep stack still trains slowly. If the training loss sits at the value of predicting the average, the gradient is not getting through.
 ]
 
@@ -176,7 +176,7 @@ test ROC AUC: {'logistic regression': 0.833, 'gradient boosting': 0.816, 'networ
 
 The network ties the logistic regression and beats gradient boosting with its default settings. On a table of a few thousand rows with a few dozen columns, that is the usual outcome: the relationships are simple enough for a linear model, and there are too few rows for a network's extra capacity to find anything more. Networks earn their keep where the inputs are images, sound or text, where the useful features are hard to write down and the data is plentiful. #chapsref(<ch:cnn>, <ch:sequence>) are about those inputs.
 
-#pitfall[
+#warning[
   A network that beats nothing is not a result. Before reporting one, score at least a logistic regression or a boosted model on the same split, and keep the network only if its validated gain pays for its cost to train, run and explain.
 ]
 
@@ -197,11 +197,7 @@ The network ties the logistic regression and beats gradient boosting with its de
   + #term[Compare on the test set once,] against the baseline, with the spread over seeds when the gap is small.
 ]
 
-#tryit[
-  In `demo_deep_training.py`, set `CHECK_BOOK_NUMBERS = False`. In `vanishing()`, change the network from ten hidden layers to three, `[32] * 3`, and run the script. How large is the first layer's gradient compared with the last's for the sigmoid network now, and does it learn in 20 epochs? Then try twenty layers. How deep can a sigmoid network be before it stops learning on this table?
-]
-
-#chapterrecap[
+#summary[
   - In ten sigmoid layers the first layer's gradient was $1.8 times 10^(-9)$ and the network learned only the average. ReLU and batch normalization keep the gradient at a usable size; clipping keeps an exploding one in check.
   - Weights must start random: a constant start left 32 units as copies of one. Xavier and He scale the random start to keep the signal's size steady.
   - SGD steps along the gradient, momentum along its running average, RMSprop scales each weight's step, and Adam does both. Adam was fastest, and it overfitted soonest.
@@ -210,7 +206,11 @@ The network ties the logistic regression and beats gradient boosting with its de
   - On this table the network tied logistic regression on the test set, 0.832 against 0.833. Networks pay off on images, sound and text.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_deep_training.py`, set `CHECK_BOOK_NUMBERS = False`. In `vanishing()`, change the network from ten hidden layers to three, `[32] * 3`, and run the script. How large is the first layer's gradient compared with the last's for the sigmoid network now, and does it learn in 20 epochs? Then try twenty layers. How deep can a sigmoid network be before it stops learning on this table?
+]
+
+#questions[
   + A deep network's training loss sits at the value of predicting the average for every row. Name two likely causes and one check for each.
   + Why does replacing sigmoid with ReLU in the hidden layers help the gradient reach early layers?
   + What does batch normalization do to a unit's sums, and why does that help a sigmoid network?

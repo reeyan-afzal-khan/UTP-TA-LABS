@@ -11,9 +11,7 @@ The tutor wants all four columns of the study log on one chart. A chart has two 
 
 == The idea: find the best shadow
 
-#analogy[
-  Hold a toy horse up to a lamp, and its shadow on the wall flattens three dimensions into two. Turn the horse side-on and the shadow keeps the head, legs and tail, spread out and recognizable. Turn it head-on and the shadow is a narrow blob. Same object, same lamp; the angle is everything. A #term[projection] is that flattening, and #term[principal component analysis (PCA)] finds the angle whose shadow keeps the most.
-]
+Hold a toy horse up to a lamp, and its shadow on the wall flattens three dimensions into two. Turn the horse side-on and the shadow keeps the head, legs and tail, spread out and recognizable. Turn it head-on and the shadow is a narrow blob. Same object, same lamp; the angle is everything. A #term[projection] is that flattening, and #term[principal component analysis (PCA)] finds the angle whose shadow keeps the most.
 
 What does “keeps the most” mean as a number? In the good shadow, parts of the horse land far apart. In the bad one, everything lands on top of everything else. So we score a shadow by how spread out it is, and we already have a number for spread: the variance. PCA turns “keep as much information as possible” into “keep as much variance as possible.”
 
@@ -22,9 +20,9 @@ What does “keeps the most” mean as a number? In the good shadow, parts of th
     axis(width: 12.848cm, height: 6.2cm, axis-lines: "middle", xlabel: [$x_1$], ylabel: [$x_2$], ticks: false, xmin: -2.9, xmax: 2.9, ymin: -2.7, ymax: 2.7, clip: false,
       addplot(only-marks: true, mark: "*", mark-size: 1.594pt, coords: ((-2, -1.6), (-1.4, -1.1), (-0.6, -0.2), (0, 0.3), (0.7, 0.4), (1.3, 1.2), (2, 1.7), (-0.2, -0.5), (1.7, 1.9), (-1.8, -2))),
       {
-        connect((0, 0), (2, 1.6), line-width: widths.very-thick, end: tip("Stealth", length: 2.4mm, line: widths.very-thick))
+        connect((0, 0), (2, 1.6), line-width: widths.very-thick, end: arrow-tip("Stealth", length: 2.4mm, line: widths.very-thick))
         node(along((0, 0), (2, 1.6), t: 100%), [PC1: most variance], font: font("small"), anchor: "west")
-        connect((0, 0), (-0.64, 0.8), line-width: widths.thick, end: tip("Stealth", length: 2.4mm, line: widths.thick))
+        connect((0, 0), (-0.64, 0.8), line-width: widths.thick, end: arrow-tip("Stealth", length: 2.4mm, line: widths.thick))
         node(along((0, 0), (-0.64, 0.8), t: 100%), [PC2], font: font("small"), anchor: "south")
       },
     )
@@ -37,7 +35,7 @@ Start with two columns: hours studied and hours slept. Their correlation is $-0.
 
 Now pick a direction, written as weights whose squares add to 1, so that one step along it has length 1. The direction $(0.71,-0.71)$ means “study up, sleep down.” A student’s shadow on that line is a dot product: J’s is $0.71 times 1.57+(-0.71) times (-1.85) approx 2.4$, far along the line.
 
-#workedexample[
+#example[
   Take the shadow of all ten students on two perpendicular directions, and compute the variance of each set of shadows.
 
   #v(6pt)
@@ -95,7 +93,7 @@ The #term[eigendecomposition] takes that table and returns every direction ranke
 
 #codefrom("/MACHINE LEARNING/all_experiments/book_checks/demo_study_log.py", "def pca(", "return scaled, correlation")
 
-#workedexample[
+#example[
   The four directions have spreads 2.532, 1.330, 0.130 and 0.008, out of 4 units in total. Their shares are 63.3%, 33.2%, 3.3% and 0.2%. So the first two together keep 96.5%, and the other two can go.
 
   #v(6pt)
@@ -151,7 +149,7 @@ $ frac(lambda _j, sum _k lambda _k), $
 
 explaining the variance along each axis, not its predictive value (#secref(<sec:pca-limitations>)). Components are orthogonal and fitted scores uncorrelated. SVD of centered data computes the same directions.
 
-#workedexample[
+#example[
   Take five centered points that lie exactly on a line: $(-2,-2)$, $(-1,-1)$, $(0,0)$, $(1,1)$, $(2,2)$. Each feature has variance $10\/4=2.5$ and their covariance is also $2.5$, so the covariance matrix is
   $inline(mat(delim: "[", 2.5, 2.5; 2.5, 2.5))$
   with $lambda _1=5$, $lambda _2=0$, and $bold(v)_1=(1,1)\/sqrt(2)$. Scores $(-2.83,-1.41,0,1.41,2.83)$ retain 100% of variance in one dimension. Dropping nonzero components instead loses variance.
@@ -180,7 +178,7 @@ Lab~4 applies this to $32 times 32$ colour photos of wood defects, 3,072 pixel v
 
 Choose the count by a variance target, a bend in the curve, or downstream validation on training folds. Discarded eigenvalues add up to the variance you lost: here 1.0% for 253 components.
 
-#workedexample[
+#example[
   How few can you keep? On Lab~4’s validation boards, logistic regression scores 0.420 on 2 components, 0.538 on 10, 0.591 on 50, 0.608 on 248 and 0.618 on all 3,072. Two components make a fine picture and a poor classifier; 248 come within a point of the raw pixels with a twelfth of the inputs.
 ]
 
@@ -191,11 +189,11 @@ Choose the count by a variance target, a bend in the curve, or downstream valida
 - #term[Variance is not predictive importance]: low-variance directions may carry label signal. LDA instead seeks class separation (#chapref(<ch:classification>)).
 - #term[Interpretation]: inspect component weights; each component blends original features.
 
-#workedexample[
+#example[
   #strong[Scale.] Run PCA on the raw study log, without scaling. The first direction then takes 80.2% of the variance with a weight of 0.96 on the mark. It has found “the column with the largest numbers”, since marks vary far more than hours of sleep. On scaled columns the first direction keeps 63.3% and uses all four columns about equally. Neither is wrong; they answer different questions, so choose on purpose.
 ]
 
-#pitfall[
+#warning[
   Projecting a four-feature clustering into two PCA dimensions only visualizes its existing assignments. Clustering the two PCA columns instead is a different model with reduced information.
 ]
 
@@ -226,11 +224,11 @@ Both need cautious reading:
 
 PCA, t-SNE, and UMAP #term[extract] new features; #term[selection] retains original columns (#secref(<sec:feature-selection>)).
 
-#keyidea[
+#note[
   PCA quantifies lost variance; nonlinear maps emphasize neighborhoods and need cautious interpretation. A visualization is evidence to investigate, not a substitute for the original data.
 ]
 
-#modelcard[Dimensionality Reduction - Quick Guide][
+#checklist(title: [Dimensionality Reduction - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -244,7 +242,7 @@ PCA, t-SNE, and UMAP #term[extract] new features; #term[selection] retains origi
   )
 ]
 
-#chapterrecap[
+#summary[
   - PCA is a shadow: it flattens rows onto the directions that keep the most spread.
   - A direction is a list of weights, a shadow is a dot product, and the eigendecomposition of the correlation table ranks every direction at once.
   - On the study log, two directions keep 96.5% of four columns: four columns were really two stories.
@@ -252,7 +250,7 @@ PCA, t-SNE, and UMAP #term[extract] new features; #term[selection] retains origi
   - PCA is linear and sensitive to scale, and variance is not the same as usefulness for a label. t-SNE and UMAP make maps for looking at, not measuring on.
 ]
 
-#quickcheck[
+#questions[
   + What does PCA optimize when it chooses its first principal component?
   + Two scaled columns have a correlation of 0.80. What spread does the direction $(0.71,0.71)$ keep, and what share of the total?
   + PCA’s first direction has weights near $0.25$ on four columns of very different meaning. What does that suggest?

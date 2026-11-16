@@ -22,7 +22,7 @@ R reports storage classes such as numeric or character, but analysis also depend
   )
 ]
 
-#pitfall[
+#warning[
   A number is not automatically quantitative. Student ID 1042 plus Student ID 1043 does not create a meaningful sum. Analytical meaning determines what operations are valid.
 ]
 
@@ -34,7 +34,7 @@ There is no dataset that is simply “clean” in the abstract. Quality means th
   #canvas(x: 16.06cm, {
     let sourcecard = (draw: mix(blue, 75%), fill: pale-blue, rounded: 1.8mm, line-width: 0.7472pt, text-width: 0.15 * 16.06, min-width: 0.19 * 16.06, min-height: 1.15, inner-xsep: 3mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
     let taskcard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.21 * 16.06, min-width: 0.255 * 16.06, min-height: 1.05, inner-xsep: 3.5mm, inner-ysep: 2mm, align: left, font: font("script", fill: navy))
-    let qualityflow = (line-width: 0.8468pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
+    let qualityflow = (line-width: 0.8468pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
     node((0.12, 0), [#text(fill: blue)[#strong[SHARED INPUT]] \ #v(2.9888pt)
    The same dataset], name: "data", ..sourcecard)
     node((0.43, 0.8), [#text(fill: blue)[#strong[QUESTION A]] \ #v(2.9888pt)
@@ -61,7 +61,7 @@ There is no dataset that is simply “clean” in the abstract. Quality means th
   #canvas(x: 16.06cm, {
     let auditroot = (draw: mix(teal, 80%), fill: pale-teal, rounded: 5mm, line-width: 0.7472pt, text-width: 0.17 * 16.06, min-height: 0.9, inner-xsep: 3mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
     let auditcard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.235 * 16.06, min-width: 0.29 * 16.06, min-height: 1.15, inner-xsep: 4mm, inner-ysep: 2.5mm, align: left, font: font("footnote", fill: navy))
-    let auditflow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let auditflow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     node((0.5, 0), [#strong[QUALITY AUDIT] \ #v(2.9888pt)
    #text(fill: muted)[fit for purpose]], name: "audit", ..auditroot)
     node((0.2, 1), [#text(fill: blue)[#strong[01 COMPLETENESS]] \ #v(3.9851pt)
@@ -135,7 +135,7 @@ iris$Id[duplicated(iris$Id)]
 
 Exact duplicates can inflate counts and train/test performance. Inconsistent labels such as `"Iris-setosa"`, `"iris setosa"`, and `"SETOSA"` represent one concept but appear as three categories until standardised.
 
-#workedexample[
+#example[
   A defensible cleaning log records the rule and the evidence:
 
   #utptable[
@@ -161,13 +161,13 @@ For supervised learning, target quality is especially important. If diagnosis la
 
 #term[Data leakage] occurs when information unavailable at prediction time enters model training. Examples include using a final diagnosis to construct an input feature or scaling the entire dataset before the train/test split. Leakage produces optimistic evaluation, even when the code runs correctly.
 
-#keyidea[
+#note[
   Cleaning is an analytical decision. A good report states what changed, why it changed, how many records were affected, and what uncertainty the change creates.
 ]
 
 #utpfig([A modelling feature is legitimate only if it would be available at the moment a real prediction must be made. Post-outcome information can make validation look excellent while making deployment impossible.], label: <fig:leakage-timeline>)[
   #canvas({
-    connect((-5, 0), (5, 0), line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2.5mm, line: widths.thick))
+    connect((-5, 0), (5, 0), line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2.5mm, line: widths.thick))
     node((-4.1, 0.6), [information available], ..tagb)
     node((0, 0.65), [prediction time], ..tagb)
     node((4, 0.6), [outcome known], ..tagb)
@@ -179,7 +179,7 @@ For supervised learning, target quality is especially important. If diagnosis la
   })
 ]
 
-#quickcheck[
+#questions[
   + Why should identifiers usually be excluded from averages and predictive features?
   + What makes a range check different from a missing-value check?
   + Why can median imputation make a distribution look less variable than it really is?
@@ -202,7 +202,7 @@ The 153-row Iris file contains three missing `SepalWidthCm` values, two missing 
 
 Deleting every row with any missing value would discard most passengers because `Cabin` is frequently absent. A professional audit asks what “missing” means: was a cabin never recorded, not applicable, unreadable in the source, or simply lost during data assembly? The answer determines whether missingness is nuisance, information, or both.
 
-#workedexample[
+#example[
   A sensible teaching strategy for `Age` is to preserve the original column and create `Age_imputed`. Group-median imputation by passenger class and sex is transparent and reproducible, but it still shrinks within-group variation. The report should therefore state how many values were imputed and avoid presenting the derived ages as observed facts.
 ]
 
@@ -222,6 +222,6 @@ The Red Wine Quality file illustrates a different issue. It contains exact dupli
   #image("/DATA SCIENCE/figures/quality_wine_duplicates.pdf", width: 72%)
 ]
 
-#keyidea[
+#note[
   Never write `distinct()` or `duplicated()` as a cleaning ritual. First state the expected key and the intended unit of observation, then explain why repeated rows are impossible, possible, or informative under that definition.
 ]

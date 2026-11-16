@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand the production-planning hierarchy and the difference between forecast, production plan, inventory, and capacity.][calculate a simple promotion-adjusted forecast, construct an S&OP table, interpret capacity utilisation and safety stock, and identify unit or data inconsistencies before using a planning model.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 6, the supplied Sales Forecast and S&OP
   spreadsheet, and the forecasting sections of Chapter 4. The tutorial uses
   Footloose Sport Shoes and asks students to automate the calculations with
@@ -53,7 +53,7 @@ The three series are easier to judge as lines than as a grid of numbers.
   })
 ]
 
-#workedexample[
+#example[
   For June, previous-year sales were 5,500 pairs of which 200 were promotional. The
   base is 5,300. Applying 3% growth gives $5(,)300 times 1.03 = 5(,)459$. No new
   promotion is planned for June, so the forecast stays at 5,459 pairs --- below
@@ -85,7 +85,7 @@ wants.
 Tutorial 6 states a maximum of 40 shoes per hour, 8 hours per normal day, and a
 utilisation ceiling of 99%. Before calculating anything, the units must agree.
 
-#pitfall[
+#warning[
   The tutorial describes demand in #emph[pairs] but states production as #emph[40 shoes per hour]. Those are different units. Read literally, capacity is 20
   pairs/hour; read as the classroom shorthand, it is 40 pairs/hour. Confirm the
   intended unit with the tutor before finalising the table.
@@ -200,7 +200,7 @@ reconciled:
 - Tutorial 6 states safety stock of 100, but the spreadsheet pre-fills 500 in the December inventory cell of the S&OP table.
 - Demand is stated in pairs while the production rate is stated in shoes (#figref(<fig:unit-ambiguity>)).
 
-#keyidea[
+#note[
   Planning models are only as reliable as their units and assumptions. Before
   writing formulas, verify time period, unit of measure, starting inventory,
   promotion assumptions, capacity rate, and whether the numbers describe items,
@@ -212,8 +212,8 @@ reconciled:
 The supplied build guide does not implement an S&OP workflow, but it creates the
 operational history that planning depends on.
 
-#applicationbox[
-  Use Odoo’s reporting views to connect the spreadsheet exercise to ERP data:
+#note[
+  #strong[In Odoo 19 Community.] Use Odoo’s reporting views to connect the spreadsheet exercise to ERP data:
 
   - #pathmenu[Sales →Reporting]: confirmed demand and revenue history.
   - #pathmenu[Inventory →Reporting]: on-hand stock and movement history.
@@ -223,14 +223,14 @@ operational history that planning depends on.
   history, not a separate world.
 ]
 
-#tryit[
+#exercises[
   Build one month of S&OP twice: first at 40 #emph[pairs]/hour, then at the literal
   40 #emph[shoes]/hour. Compare capacity and utilisation against
   #figref(<fig:unit-ambiguity>). This is why unit discipline comes before any
   planning discussion.
 ]
 
-#quickcheck[
+#questions[
   + Why should last year’s promotion be removed before applying the 3% growth factor?
   + What does a positive ending inventory mean in the S&OP balance equation?
   + Why might production be deliberately higher than forecast in March if December demand is expected to peak?

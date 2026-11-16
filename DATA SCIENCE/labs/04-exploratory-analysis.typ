@@ -60,7 +60,7 @@
 
   #include "visuals/04-exploratory-analysis-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Inspect one unusually high charge against similar-age records in the same smoking group. Explain what is unusual and what missing information prevents a causal explanation.
 
     #strong[Required evidence.] Submit an EDA brief containing three graphics and no more than six evidence statements. Each statement must include the comparison or relationship, its direction/magnitude, and an appropriate limitation.

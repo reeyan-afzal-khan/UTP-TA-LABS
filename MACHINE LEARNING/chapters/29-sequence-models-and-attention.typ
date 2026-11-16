@@ -17,7 +17,7 @@ The running example is Lab~8’s: forecast the next hour's total electricity dem
 
 A sequence model does not take a table of separate rows; it takes the last few values and predicts the next.
 
-#workedexample[
+#example[
   From series to windows. With lookback 3, the series $16,40,32,13,1,1,2,3$ gives five rows:
 
   #v(6pt)
@@ -44,11 +44,9 @@ Free forecasts like persistence set the bar for any model. On the validation hal
 
 == Recurrent networks
 
-#analogy[
-  A #term[recurrent network] carries a #term[hidden state], like a reader keeping a small notepad. Each step combines the new input with the notes so far and writes new notes: $h_t = tanh(W x_t + U h_(t-1) + b)$. The same weights $W$ and $U$ are used at every step, however long the sequence.
-]
+A #term[recurrent network] carries a #term[hidden state], like a reader keeping a small notepad. Each step combines the new input with the notes so far and writes new notes: $h_t = tanh(W x_t + U h_(t-1) + b)$. The same weights $W$ and $U$ are used at every step, however long the sequence.
 
-#workedexample[
+#example[
   A toy recurrent unit with fixed weights: $"state"=0.5 times "previous state"+"input"$. Inputs $1,2,3$ give states $1, space 2.5, space 4.25$. The final state holds all three inputs, with the oldest counting least.
 
   That fading is also the weakness. At 0.5 per step, an input's weight after 8 steps is 0.0039, and after 24 steps it is about 0.00000006. A plain network has trouble remembering yesterday by the time it reaches today.
@@ -61,7 +59,7 @@ Training a recurrent network unrolls it over the window and runs backpropagation
     let cell = (draw: teal, fill: pale-teal, rounded: 1.5mm, min-width: 1.5, min-height: 0.9, font: font("script", weight: "bold", fill: navy))
     let inp = (draw: blue, fill: pale-blue, rounded: 1.2mm, min-width: 1.2, min-height: 0.6, font: font("script", fill: navy))
     let outp = (draw: orange, fill: pale-orange, rounded: 1.2mm, min-width: 1.5, min-height: 0.6, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     for (t, x) in ((1, 0), (2, 2.4), (3, 4.8), (24, 8.4)) {
       node((x, 0), [LSTM], name: "c" + str(t), ..cell)
       node((x, -1.4), [$x_(#(t))$], name: "i" + str(t), ..inp)
@@ -125,7 +123,7 @@ $ op("Attention")(Q, K, V) = op("softmax")(Q K^T \/ sqrt(d)) thin V, $
 
 a weighted average of the values, weighted by how well each key matches the position's query. Dividing by $sqrt(d)$, where $d$ is the vectors' length, keeps the scores in a range where the softmax still has a slope.
 
-#workedexample[
+#example[
   Three tokens with vectors $(1, 0)$, $(0, 1)$ and $(1, 1)$, and, to keep the arithmetic visible, queries, keys and values equal to the vectors themselves.
 
   #emph[Scores:] each pair's dot product divided by $sqrt(2)$. The first token scores 0.707 with itself, 0 with the second and 0.707 with the third; the third scores 1.414 with itself.
@@ -175,7 +173,7 @@ Four lessons, in order of importance.
 
 The attention model with positions is the most accurate here, on both halves of 2014. On a series this regular, it can also be checked what each model's forecast depends on: nudge each hour of the window and see how much the forecast moves. The GRU puts 58% of its sensitivity on the last hour, the attention model 46%, the LSTM 28%. The attention model also puts 10% on the hour exactly one day before the forecast, against 1% to 4% for the recurrent models: with positions and four heads, it found the daily cycle that the free forecast "same hour yesterday" relies on.
 
-#pitfall[
+#warning[
   A sequence model must beat the free forecasts on a date-ordered split before it means anything. And a transformer must be given positions; without them, it treats a window as a bag of values, however good its training curve looks.
 ]
 
@@ -222,15 +220,11 @@ The names of the last thirty chapters are now a map with a few corners, and ever
   )
 ]
 
-#keyidea[
+#note[
   Machine learning is one recipe with its parts swapped. Pick a formula with numbers you are allowed to change, measure its errors with one number, and find the values that make that number smaller. Then check the result on data it has not seen.
 ]
 
-#tryit[
-  In `demo_sequence.py`, set `CHECK_BOOK_NUMBERS = False`, and change `LOOKBACK` from 24 to 6. Run the script. How do the five models compare when the window no longer contains the same hour yesterday? Which model loses the most, and why might that be?
-]
-
-#chapterrecap[
+#summary[
   - A series becomes overlapping windows; split them by date, and beat the free forecasts first: 3.07 and 3.69~MWh for "same hour yesterday" here.
   - A recurrent network carries a state; its gradient fades through time like a deep sigmoid stack's. The LSTM's memory is updated by adding, guarded by forget, input and output gates; the GRU does it with two gates and a quarter fewer weights.
   - An encoder and decoder pass everything through one final state. Attention lets each output step look at every input step, weighted by relevance.
@@ -238,7 +232,11 @@ The names of the last thirty chapters are now a map with a few corners, and ever
   - Without positions the attention model missed by 21.7~MWh; with them, it was the best of five, 2.08 on validation and 2.44 on the test. The plain recurrent network ranged from 2.57 to 3.76 over three random starts.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_sequence.py`, set `CHECK_BOOK_NUMBERS = False`, and change `LOOKBACK` from 24 to 6. Run the script. How do the five models compare when the window no longer contains the same hour yesterday? Which model loses the most, and why might that be?
+]
+
+#questions[
   + A series has 1,000 hourly values and a lookback of 24. How many windows are there, and why must they be split by date?
   + At 0.5 per step, what weight does an input keep after 10 steps in the toy recurrent unit? What does that mean for learning from yesterday?
   + An LSTM's forget gate is 0.9, its input gate 0.2, its old memory 5 and its candidate 10. What is the new memory?

@@ -12,7 +12,7 @@
 #utpfig([Move from one variable to pairs and then to conditional or multivariate structure.], label: <fig:eda-lenses>)[
   #canvas(x: 16.06cm, {
     let lens = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.235 * 16.06, min-width: 0.29 * 16.06, min-height: 2.2, inner-xsep: 4mm, inner-ysep: 3mm, align: center, font: font("script", fill: navy))
-    let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
+    let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
     node((0.17, 0), [#text(fill: blue)[#strong[01 DESCRIBE]] \ #v(4.9813pt)
    #fsize("footnote")[#strong[UNIVARIATE]] \ #v(3.9851pt)
    #strong[One variable] \ #v(4.9813pt)
@@ -76,7 +76,7 @@ $ [Q_1 - 1.5 thin I Q R, med Q_3 + 1.5 thin I Q R]. $
 
 A flag is not a deletion instruction. An extreme observation may be a data error, a rare but valid case, or the most important record in the dataset.
 
-#pitfall[
+#warning[
   Deleting outliers because they “look wrong” can manufacture a cleaner relationship than the population actually has. Investigate provenance and domain plausibility before removal.
 ]
 
@@ -104,7 +104,7 @@ A relationship in aggregated data can weaken, disappear, or reverse after condit
 
 When an overall scatterplot or mean difference seems surprising, ask whether a grouping variable, time period, geography, or data-collection mechanism could be mixing distinct populations.
 
-#workedexample[
+#example[
   If alcohol and colour intensity are correlated in the wine data, plausible explanations include shared chemistry, cultivar differences, or another measured property. A scatterplot coloured or split by cultivar can reveal whether the overall association is partly a group effect.
 ]
 
@@ -112,7 +112,7 @@ When an overall scatterplot or mean difference seems surprising, ask whether a g
 
 EDA generates hypotheses. Confirmatory analysis evaluates a question that is sufficiently pre-specified to support formal uncertainty statements. Reusing the same dataset to discover and confirm a pattern tends to overstate certainty.
 
-#keyidea[
+#note[
   Write observations in evidence language: “The median is higher in group A” or “the scatterplot shows a curved relationship.” Avoid causal language unless the study design supports it.
 ]
 
@@ -127,7 +127,7 @@ EDA generates hypotheses. Confirmatory analysis evaluates a question that is suf
   + Summarise three to five evidence-backed observations and open questions.
 ]
 
-#quickcheck[
+#questions[
   + When is the median more informative than the mean?
   + Why is an IQR outlier flag not sufficient reason to delete a row?
   + Name two ways a correlation can be misleading.
@@ -144,6 +144,6 @@ The Medical Cost Personal dataset is useful because it contains a strongly right
 
 In the bundled file, mean charges are roughly \$8,434 for non-smokers and \$32,050 for smokers; the corresponding medians are about \$7,345 and \$34,456. The difference between mean and median within each group is itself evidence about shape and tail behaviour. Meanwhile the overall BMI--charges correlation is only about 0.20, which does not imply BMI is unimportant: its association can differ by smoking status and age, and nonlinearities or interactions may matter.
 
-#pitfall[
+#warning[
   A large group difference discovered during EDA should not be promoted directly to a causal story. Smoking status, age, BMI, and other measured or unmeasured factors are not randomly assigned in this observational dataset.
 ]

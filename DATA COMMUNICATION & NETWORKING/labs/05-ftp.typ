@@ -31,7 +31,7 @@
 
   #strong[Expected evidence.] The retrieved file must exist on R2 and have the same byte count as on R1. A ping alone does not prove a successful FTP transfer.
 
-  #labmode[
+  #note[
     This lab is short, and its real lesson is diagnostic order. Every step below verifies the layer beneath it before adding anything. Skip a verification and a later failure becomes ambiguous --- you will not know whether the problem is routing, authentication, or the file system.
   ]
 
@@ -40,7 +40,7 @@
 
   Before touching FTP, ping the server from the client.
 
-  #keyidea[
+  #note[
     FTP is an application-layer service riding on TCP, riding on IP. If IP does not work, FTP cannot, and every FTP symptom you see will be misleading.
 
     Ping first. Always. It costs five seconds and eliminates three layers of possible causes.
@@ -80,7 +80,7 @@
   quit
   ```
 
-  #pitfall[
+  #warning[
     All four `local-user` lines are required, and omitting any one produces a different, confusing failure:
 
     No `service-type ftp` --- login is refused even with the correct password. \
@@ -132,7 +132,7 @@
     )
   ]
 
-  #keyidea[
+  #note[
     Reaching `220` means IP, TCP, and the FTP service are all working. A failure after 220 is authentication or file permissions --- never routing.
 
     That single observation splits your troubleshooting in half.
@@ -149,13 +149,13 @@
   [R2-ftp] quit
   ```
 
-  #pitfall[
+  #warning[
     Set `binary` before transferring anything that is not plain text.
 
     ASCII mode rewrites line endings, which silently corrupts compressed files, images, and firmware. The transfer reports success and the file is unusable --- one of the more frustrating faults to diagnose, because nothing announces it.
   ]
 
-  #troubleshoot[
+  #tip[
     #strong[Connection refused.] `ftp server enable` not applied, or you are pinging a different interface than the one you connected to.
 
     #strong[530 login failed.] Missing `service-type ftp`, or the password was entered in plaintext where cipher was configured.
@@ -165,7 +165,7 @@
     #strong[`put` returns 550.] Privilege level too low, or the flash file system is full. Check with `dir flash:`.
   ]
 
-  #tryit[
+  #exercises[
     Capture the session in Wireshark using the skills from Lab~#labref(<sec:lab01-wireshark>), filtered with `ftp`.
 
     Find your password in the capture. It is there in plaintext, because FTP does not encrypt the control channel. Then state in one sentence why FTP should not cross an untrusted network, and name the protocol you would use instead.
@@ -176,7 +176,7 @@
 
 #include "visuals/05-ftp-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Download the saved demo configuration and compare its byte count and contents with the intended source. Record control-session evidence and transfer evidence separately.
 
   - Ping succeeded before any FTP configuration was attempted.

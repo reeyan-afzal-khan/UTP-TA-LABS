@@ -80,6 +80,6 @@ P[1][0] = A[1][0]*B[0][0] + A[1][1]*B[1][0] + A[1][2]*B[2][0]
 
 The complete captured run is in `labs/outputs/matrix_multiply.txt`.
 
-#tryit[
+#exercises[
   Replace B with a compatible identity matrix in a separate test and predict the unchanged result. Pass incompatible dimensions to multiply and verify that it returns false before writing the output.
 ]

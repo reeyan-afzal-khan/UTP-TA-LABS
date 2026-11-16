@@ -35,11 +35,11 @@
   [Save the evidence; then add the arrival weekday yourself],
   [13--15],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment (Chapter~@ch:toolkit) and confirm that the three data files are in `all_datasets/supervised/`.
   + Warm up on the study log, which needs no data. From the course folder, run the command below. Its last line must read `Every number above matches the book.`
   + From the course folder, start Jupyter, open `all_experiments/lab01_features/lab01_features_worked.ipynb`, and choose #strong[Restart Kernel and Run All Cells]. It takes a few seconds.
@@ -56,7 +56,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + Booking 14876 is for the resort hotel, made 132 days before arrival, for 2 weekend nights and 4 week nights, with 2 adults, no children and 1 baby, by a customer who had cancelled one booking before. Work out `total_nights`, `total_guests`, `with_children`, `log_lead_time`, which is $ln(1+"lead time")$, and `cancelled_before`. Could the hotel compute all five the moment the booking is made? Question~5 prints the numbers.
@@ -188,7 +188,7 @@
     ```
   ]
 
-  #strong[What it means.] `company` is empty for 94.3% of bookings and `agent` for 13.7%, but the data’s authors call these “not applicable”: no company or travel agent was involved, so here a blank is information, not a gap. `country` lacks 0.4% and `children` only 4 values. `reservation_status` is the answer in disguise: every `Canceled` and `No-Show` booking was cancelled, and every `Check-Out` was kept. Its date gives it away too: every kept booking had its status written on or after arrival, and 42,137 of the 44,224 cancelled ones before it. The column comes from the future, so it stays in the table as a record and never enters a model; Your-turn task~1 looks for subtler cases. Regenerate the plot rather than copying it; this saved figure is a reference, not evidence of your own run.
+  #strong[What it means.] `company` is empty for 94.3% of bookings and `agent` for 13.7%, but the data’s authors call these “not applicable”: no company or travel agent was involved, so here a blank is information, not a gap. `country` lacks 0.4% and `children` only 4 values. `reservation_status` is the answer in disguise: every `Canceled` and `No-Show` booking was cancelled, and every `Check-Out` was kept. Its date gives it away too: every kept booking had its status written on or after arrival, and 42,137 of the 44,224 cancelled ones before it. The column comes from the future, so it stays in the table as a record and never enters a model; Exercise~1 looks for subtler cases. Regenerate the plot rather than copying it; this saved figure is a reference, not evidence of your own run.
 ]
 
 #labcheckpoint[
@@ -365,7 +365,7 @@
     #fitted-image("/MACHINE LEARNING/labs/visuals/01-neighbors-reference.png", width: 80%, height: 5.5cm)
   ]
 
-  #strong[What it means.] In raw units the ten neighbors have paid almost exactly the customer’s \$1,841, but they range from 29 to 49 months and from \$39.20 to \$60.20 a month: several are newer customers on dearer plans. After scaling they range from 43 to 47 months and \$38.25 to \$45.55 a month, customers who really do look alike, even though their totals spread wider. Only one customer is in both lists. Nothing about the customers changed, only the measuring stick, so any distance-based model answers differently on the two versions. That is why the scaler sits inside the pipeline; Your-turn task~3 measures the effect on a model.
+  #strong[What it means.] In raw units the ten neighbors have paid almost exactly the customer’s \$1,841, but they range from 29 to 49 months and from \$39.20 to \$60.20 a month: several are newer customers on dearer plans. After scaling they range from 43 to 47 months and \$38.25 to \$45.55 a month, customers who really do look alike, even though their totals spread wider. Only one customer is in both lists. Nothing about the customers changed, only the measuring stick, so any distance-based model answers differently on the two versions. That is why the scaler sits inside the pipeline; Exercise~3 measures the effect on a model.
 ]
 
 #labcheckpoint[
@@ -456,7 +456,7 @@
     ```
   ]
 
-  #strong[What it means.] A third of the encoded columns survive. The strongest are the calendar and the economy. Calls in May did worse and calls in March better, and calls to a landline (`contact_telephone`) did worse than calls to a mobile. A higher employment-variation rate and more people employed (`nr.employed`) went with fewer sign-ups, and customers whose last campaign failed (`poutcome_failure`) said no more often. A manager would believe most of these, but they are associations in this bank’s calls of 2008 to 2010, not causes. The economic columns also stand in for the date, which Your-turn task~4 tests.
+  #strong[What it means.] A third of the encoded columns survive. The strongest are the calendar and the economy. Calls in May did worse and calls in March better, and calls to a landline (`contact_telephone`) did worse than calls to a mobile. A higher employment-variation rate and more people employed (`nr.employed`) went with fewer sign-ups, and customers whose last campaign failed (`poutcome_failure`) said no more often. A manager would believe most of these, but they are associations in this bank’s calls of 2008 to 2010, not causes. The economic columns also stand in for the date, which Exercise~4 tests.
 ]
 
 #labcheckpoint[
@@ -489,8 +489,6 @@
     ```
   ]
 ]
-
-#labsubhead[Try it yourself]
 
 #labquestion(14)[Try it yourself][
   Engineer one more hotel feature, the weekday of arrival (from the `arrival_date` built in Question~3), and check whether the validation ROC AUC in Question~7 improves. Then rerun Question~11’s `SelectKBest` with `k=5` and `k=20` and see whether the score changes. Attempt it in this empty cell before reading the solution.
@@ -525,10 +523,10 @@
   #strong[What it means.] Arrivals on Thursday and Friday were cancelled most often (41.2% and 40.6%) and arrivals on Sunday least (32.3%), so the weekday carries real signal, yet the validation ROC AUC only moves from 0.855 to 0.856. Much of what the weekday says is probably already in the columns the model has, such as the weekend and week nights. A feature can be informative and still add nothing, which is why the test is the model’s validation score, not the group table. Five, ten and twenty selected columns score 0.775, 0.791 and 0.799, against 0.802 for all of them: the score climbs slowly with `k`, and the exact number matters far less than keeping the selector inside the pipeline.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[Two columns to date.] Add `room_changed`, which is 1 when `assigned_room_type` differs from `reserved_room_type`, to the engineered columns of Question~7; then, instead, add `from_portugal`, which is 1 when `country` is `PRT`. What happens to the validation ROC AUC of 0.855 each time? Group the cancellation rate by each new column, read the data card’s note on when the columns were written, and decide whether either could be used the moment a booking is made.
   + #strong[Is this leak harmful here?] Fit the Question~7 preprocessing on #emph[all] the rows, then fit the logistic model on the training rows only. Compare the score with the correct version, and with what happened to pure noise in #secref(<sec:data-leakage>). What do you conclude?
@@ -537,7 +535,7 @@
   + #strong[Turn the L1 dial.] Refit the L1 model with `C` 0.001, 0.01 and 1; a smaller `C` is a stronger penalty. How many of the 62 columns survive, and what happens to the score?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] Booking 14876: `total_nights` 6, `total_guests` 3, `with_children` 1 (the baby counts), `log_lead_time` $ln 133 = 4.89$ and `cancelled_before` 1. All five can be computed the moment the booking is made: they read only this booking’s own fields, and `previous_cancellations` counts cancellations made before it. For the two gaps, 100 beats 12 in raw units; after scaling they are $100\/2266.79=0.04$ and $12\/24.56=0.49$, so the second dominates.
 
   + `room_changed` lifts the score to 0.868, and `from_portugal` to 0.888. Only 5.4% of the 14,917 bookings given a different room were cancelled, against 41.6% of the rest: rooms are mostly changed when the guest arrives, and a cancelled booking never arrives, so the column partly records the outcome. Domestic bookings were cancelled 56.6% of the time against 23.6%, a real pattern, but the data’s authors warn that hotels often learn a guest’s correct nationality only at check-in, so part of that jump may come from the future too. Neither column is safe until you know when the hotel wrote it, and the file cannot tell you: ask the people who keep the data. Any column recorded after the moment of prediction is a leak, however innocent its name.
@@ -547,7 +545,7 @@
   + `C` 0.001 keeps 2 columns, `nr.employed` and `pdays`, with ROC AUC 0.765. `C` 0.01 keeps 12 with 0.794, the lab’s 0.03 keeps 21 with 0.801, and `C` 1 keeps 49 with 0.802. Two columns get most of the way, and a third of the table matches all of it.
 ]
 
-#troubleshoot[
+#tip[
   / `FileNotFoundError`: A data file is missing or misnamed. Match the names in Chapter~@ch:toolkit, capitals too, and keep `hotel_bookings.zip` zipped: `read_csv` reads the CSV inside it.
   / `No module named 'course_setup'` in Question~1: The notebook is not running inside its lab folder, so `".."` is not `all_experiments/`. Open it from `all_experiments/lab01_features/` in your copy of the course; Jupyter and VS Code then run it there.
   / `FileNotFoundError: No all_datasets/ folder above` …: The notebook was copied out of the course folder. Work on it inside your copy of the course, where `all_datasets/` sits above it.
@@ -557,7 +555,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - Package versions are printed, so the run can be reproduced.
     - You read the data card, and you can name the column written after the outcome and say why it never enters a model.
     - Every engineered feature (total nights, total guests, with children, log lead time, cancelled before) exists when the booking is made, and your hand calculation for booking 14876 matches.

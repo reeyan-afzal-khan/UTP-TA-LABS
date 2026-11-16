@@ -59,7 +59,7 @@ Precision is especially sensitive to prevalence. A classifier can have similar s
 
 If 99% of cases are negative, predicting “negative” every time yields 99% accuracy and zero ability to find positives. Metric choice must reflect the operational cost of mistakes.
 
-#pitfall[
+#warning[
   There is no universally correct threshold of 0.5. Lowering the threshold usually catches more positives but also creates more false positives. The right trade-off depends on consequences, prevalence, and downstream capacity.
 ]
 
@@ -70,7 +70,7 @@ If 99% of cases are negative, predicting “negative” every time yields 99% ac
 #utpfig([The probability model and the decision rule are separate. Changing the threshold can change false-negative and false-positive rates without refitting the model.], label: <fig:threshold-tradeoff>)[
   #canvas(x: 16.06cm, {
     let stage = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.14 * 16.06, min-width: 0.19 * 16.06, min-height: 1.7, inner-xsep: 3mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
-    let flow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
+    let flow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, width: 1.6mm, line: 0.8966pt))
     node((0.11, 0), [#text(fill: teal)[#strong[01 SCORE]] \ #v(4.9813pt)
    #strong[Model outputs] \ #v(3.9851pt)
    Scores or probabilities], name: "p", ..stage, draw: mix(teal, 80%), fill: pale-teal)
@@ -103,15 +103,15 @@ No single curve removes the need to choose an operating point when the system mu
 
 A probability output lets analysts rank cases and choose thresholds. It should still be checked for calibration: among cases assigned around 0.8 risk, does the event occur roughly 80% of the time? Calibration is distinct from classification accuracy.
 
-#workedexample[
+#example[
   In Lab 8 the target is `HeartDisease` in the bundled heart-failure dataset. The exercise demonstrates probability estimation and error metrics. It is not a clinical diagnostic system and should not be interpreted as one.
 ]
 
-#keyidea[
+#note[
   Classification performance is multi-dimensional. Always ask which error matters, for whom, and under what prevalence and deployment conditions.
 ]
 
-#quickcheck[
+#questions[
   + Why can accuracy be misleading with rare positive cases?
   + What does sensitivity measure?
   + What happens to false positives and false negatives when a threshold changes?
@@ -150,6 +150,6 @@ This dataset extends binary classification in three important ways. First, the o
 
 Multiclass performance should be reported at more than one level. Overall accuracy answers “how often is the label correct?” while a confusion matrix reveals which digits are confused. Macro-averaged metrics give each digit equal weight; frequency-weighted metrics emphasise common digits. These choices matter whenever class frequencies differ.
 
-#keyidea[
+#note[
   High dimensionality is not only “many columns.” It changes distance, visualisation, model complexity, and validation. The digits data provide a bridge from classification to PCA and representation learning while also showing why the data-generating split matters.
 ]

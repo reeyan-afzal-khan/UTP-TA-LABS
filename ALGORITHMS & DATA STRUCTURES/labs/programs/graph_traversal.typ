@@ -116,6 +116,6 @@ g++ -std=c++17 -Wall -Wextra graph_traversal.cpp -o graph_traversal.exe
 
 The complete captured run is in `labs/outputs/graph_traversal.txt`.
 
-#tryit[
+#exercises[
   Reverse neighbour order and repeat both traversals. For the exact-length path A to E, lengths 1 and 5 must fail; 2 and 4 have simple paths. Reset markers before each new query.
 ]

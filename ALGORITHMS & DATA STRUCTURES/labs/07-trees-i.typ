@@ -3,11 +3,11 @@
 
 #labsection(7, label: <sec:lab07>)[Tree representation and traversal]
 
-#sourcealignment[Official Lab Manual --- Lab VII][
-  Array/linked tree representations; traversal, update, insertion, and deletion.
-]
-
 #labproject[Represent the same binary tree two ways][
+  #note[
+    #strong[Official Lab Manual --- Lab VII.] Array/linked tree representations; traversal, update, insertion, and deletion.
+  ]
+
   #strong[Goal.] Represent one binary tree twice and compare traversal results.
 
   #strong[Recall first.] Review the #link(<ch:trees-i>)[Tree Representation and Traversal] chapter.
@@ -20,7 +20,7 @@
   #include "programs/binary_tree.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

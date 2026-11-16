@@ -27,7 +27,7 @@
       }
       for i in (1, 2) {
         let j = int(i - 1)
-        connect("pv" + str(i) + ".south", "dt" + str(j) + ".south", bend: 38deg, line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2.2mm, line: widths.thick), name: "curve-2")
+        connect("pv" + str(i) + ".south", "dt" + str(j) + ".south", bend: 38deg, line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick), name: "curve-2")
       }
       node((7.6, 1.05), [forward: `next`], font: font("small"), ..utplabel, anchor: "west", text: teal)
       node((7.6, -1.05), [backward: `prev`], font: font("small"), ..utplabel, anchor: "west", text: orange)

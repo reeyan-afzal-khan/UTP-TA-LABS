@@ -7,7 +7,7 @@
 
 An #term[array] stores a collection of similar data items of the same type. The Week II slides emphasize three properties: same-type elements, contiguous memory locations, and random access through index positions.
 
-#firstread[
+#note[
   Remember the sequence #strong[Store $arrow.r$ Access $arrow.r$ Process]. Arrays make the access step simple because an index identifies the position directly.
 ]
 
@@ -44,7 +44,7 @@ The slides state that the address of an array element can be calculated from the
 
 $ op("address")(A[i]) = op("base")(A) + i times op("sizeof")(A[0]). $
 
-#workedexample[
+#example[
   If the base address is 1000 and each integer occupies 4 bytes, then the address of `A[3]` is
 
   $ 1000 + 3(4) = 1012. $
@@ -75,7 +75,7 @@ machine never looks at `A[0]`, `A[1]`, or `A[2]` on the way to
   })
 ]
 
-#clarification[
+#note[
   The formula above is an explanatory expansion of the slide statement about base address and element size. The slides themselves do not provide a numeric address formula.
 ]
 
@@ -109,7 +109,7 @@ A 1D array forms a single indexed sequence. A 2D array stores values in rows and
   })
 ]
 
-#clarification[
+#note[
   A 2D array is a convenient #emph[notation]; memory itself is still one flat sequence of
   bytes. C++ stores the rows one after another, an arrangement called #term[row-major order]
   (#figref(<fig:row-major>)). This is why `matrix[r][c]` can still be resolved with
@@ -172,7 +172,7 @@ The Week II summary explicitly connects 2D arrays with nested loops.
 
 The outer loop changes rows, while the inner loop visits the columns within the current row.
 
-#workedexample[
+#example[
   To compute the sum of every element in a $3 times 3$ matrix, initialize `sum = 0`, visit each pair `[r][c]`, and add the value. The traversal touches each matrix cell once.
 ]
 
@@ -257,14 +257,14 @@ $ C[i][j] = sum _(t=0)^(k-1) A[i][t]B[t][j]. $
 }
 ```
 
-#clarification[
+#note[
   The matrix-multiplication formula and loop structure are an implementation expansion of the Week II lab prompt, which asks for multidimensional-array problems such as matrix multiplication but does not spell out the algorithm.
 ]
 
-#pitfall[
+#warning[
   Do not confuse an index with the stored value. In the array `[12,25,18,30,22]`, index 3 is the position and 30 is the value at that position.
 ]
 
-#quickcheck[
+#questions[
   For a $4 times 5$ integer matrix, what do the two indexes in `A[2][4]` represent? Why can a raw array element be accessed directly without walking through earlier elements?
 ]

@@ -3,11 +3,11 @@
 
 #labsection(3, label: <sec:lab03>)[Singly and doubly linked lists]
 
-#sourcealignment[Official Lab Manual --- Lab III][
-  Create, display, search, insert, and delete in singly and doubly linked lists.
-]
-
 #labproject[Implement both pointer structures][
+  #note[
+    #strong[Official Lab Manual --- Lab III.] Create, display, search, insert, and delete in singly and doubly linked lists.
+  ]
+
   #strong[Goal.] Implement singly and doubly linked lists; preserve links after every change.
 
   #strong[Recall first.] Review the #link(<ch:linked-lists>)[Singly and Doubly Linked Lists] chapter.
@@ -24,7 +24,7 @@
   #include "programs/doubly_linked_list.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

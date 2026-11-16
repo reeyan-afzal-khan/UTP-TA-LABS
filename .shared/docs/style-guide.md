@@ -1,6 +1,6 @@
 # Typst style guide
 
-Content files start with `#import "/.shared/typst/utp.typ": *` and a `#unit(...)` line, so publication can find each chapter or lab. Every LaTeX command and environment of the old books has a Typst counterpart of the same name, so a chapter reads as its LaTeX source did:
+Content files start with `#import "/.shared/typst/utp.typ": *` and a `#unit(...)` line, so publication can find each chapter or lab:
 
 ```typst
 #import "/.shared/typst/utp.typ": *
@@ -12,16 +12,59 @@ Content files start with `#import "/.shared/typst/utp.typ": *` and a `#unit(...)
 
 == The decision the scheduler makes
 
-#keyidea[Explain one central idea.]
-#workedexample[Work one example through.]
+#note[The one idea to carry away from this section.]
+#example[Work one example through.]
 #lstinput("/OPERATING SYSTEMS/all_experiments/fcfs.c", first: 1, last: 20, lang: "c")
 ```
 
-`=` is a chapter, `==` a section and `===` a subsection; `#part[...]` in `main.typ` opens a stage. Give each reference target one unique label and keep it when renaming a heading. Labs open with `#labsection(4, label: <sec:lab04>)[Title]` and use `labproject`, `labpartopen`, `labcheckpoint`, `verification`, `labquestion` and `labanswer` as the LaTeX labs did.
+`=` is a chapter, `==` a section and `===` a subsection; `#part[...]` in `main.typ` opens a stage. Give each reference target one unique label and keep it when renaming a heading.
+
+## Callouts: Note, Tip, Warning
+
+Only three kinds of aside are framed, and every course uses the same three. Each is a tinted panel with a coloured bar down its left side and its label on a tab across the top edge (`typst/callouts.typ`).
+
+| Callout | Colour | Use it for |
+| --- | --- | --- |
+| `#note[...]` | amber | something important to keep in mind: the idea to carry away from a section, a clarification, background, how the notes relate to the course material |
+| `#tip[...]` | green | practical advice: a shortcut, a better way to work, how to fix a problem, the same job in another tool |
+| `#warning[...]` | red | a common mistake, or a step that breaks something, loses work or has consequences |
+
+Keep a callout short and give it one job. If a passage is part of the explanation, write it as ordinary text instead; two callouts of the same kind never sit back to back (merge them). A bold lead-in such as `#strong[Before you begin.]` may open a callout when its subject needs naming.
+
+## Teaching elements without a frame
+
+Everything else is ordinary text, under a short bold label (`typst/elements.typ`):
+
+| Element | Label | Use it for |
+| --- | --- | --- |
+| `#chapterguide[before][after]` | Before you start / By the end, you can | the opening of every chapter |
+| `#example[...]` | Example. (run into the first line) | a calculation or trace to follow with a pen |
+| `#exercises[...]` | Exercises | tasks for the reader; several tasks are one numbered list |
+| `#questions[...]` | Review questions | short questions that check the chapter |
+| `#answers[...]` | Answers | answers to the questions or exercises just above |
+| `#summary[...]` | Summary | what to carry forward from the chapter |
+| `#checklist[...]`, `#checklist(title: [...])[...]` | Checklist, or the title given | points to check finished work against |
+| `#submission[...]` | Submission | what to hand in |
+
+A chapter ends in this order: `summary`, `exercises`, `questions`, `answers`.
+
+Labs open with `#labsection(4, label: <sec:lab04>)[Title]`, then `#labproject[Lab title][brief]`. Inside a lab, `#labroadmap(...)` maps the parts, `#labsetup[...]` lists what to run first, `#labpartopen(...)` opens a part, `#labquestion(n)[Title][prompt]` and `#labanswer[...]` give a question and its solution, and `#labcheckpoint[...]` closes a part. None of these is framed.
+
+## Renaming a label
+
+Labels are defined once: `callout-labels` in `typst/callouts.typ` and `element-labels` in `typst/elements.typ`. A course can rename any of them in its `main.typ`, for example `titles: (questions: [Self-check], solution: [Worked answer])`. Callout colours are `callout-colors` in `typst/palette.typ`.
+
+## From the LaTeX books
 
 | LaTeX | Typst |
 | --- | --- |
-| `\begin{keyidea}`, `pitfall`, `tryit`, ... | `#keyidea[...]`, `#pitfall[...]`, `#tryit[...]` |
+| `\begin{keyidea}`, `intuition`, `clarification`, reference notes | `#note[...]` |
+| `\begin{pitfall}` | `#warning[...]` |
+| `\begin{troubleshoot}`, `recommendedworkflow` | `#tip[...]` |
+| `\begin{workedexample}` | `#example[...]` |
+| `\begin{tryit}`, `yourturn`, `debugtask` | `#exercises[...]` |
+| `\begin{quickcheck}`, `checkanswers`, `chapterrecap` | `#questions[...]`, `#answers[...]`, `#summary[...]` |
+| `\begin{verification}`, `labdeliverable` | `#checklist[...]`, `#submission[...]` |
 | `\begin{utpfig}[short]{caption}{label}` | `#utpfig([caption], label: <label>)[...]` |
 | `tabularx` / `tabular` | `#tabularx(columns: ..., header: (...), ...)` |
 | `\lstinputlisting[firstline=..]{file}` | `#lstinput(path, first: .., last: .., lang: ..)` |

@@ -68,8 +68,13 @@ def main():
         editor = shutil.which('code')
         if editor is None:
             raise SystemExit('Compiler installed. Add VS Code to PATH, then rerun with --editors, or install the recommended extensions in VS Code.')
-        for extension in ('myriad-dreamin.tinymist', 'robertmorelli.megamist-typst'):
-            subprocess.run([editor, '--install-extension', extension], check=True)
+        subprocess.run([editor, '--install-extension', 'myriad-dreamin.tinymist'], check=True)
+        # Earlier versions also installed Megamist. Beside Tinymist it recompiles on every
+        # keystroke and cannot resolve the books' imports, so point it out if it is still there.
+        installed = subprocess.run([editor, '--list-extensions'], capture_output=True, text=True).stdout.lower()
+        if 'robertmorelli.megamist-typst' in installed:
+            print('Megamist Typst is installed; disable it for this workspace or run:')
+            print(f'  "{editor}" --uninstall-extension robertmorelli.megamist-typst')
 
 if __name__ == "__main__":
     main()

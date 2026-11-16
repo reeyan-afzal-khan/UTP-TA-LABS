@@ -28,7 +28,7 @@
 
   Aggregation solves bandwidth and redundancy together. Four gigabit links behave as one four-gigabit link, and losing one degrades capacity instead of connectivity.
 
-  #keyidea[
+  #note[
     Aggregation also solves a problem you would otherwise create. Connect two switches with four parallel cables and no aggregation, and you have built four loops --- spanning tree will block three of them, leaving you exactly where you started with three cables wasted.
 
     An Eth-Trunk presents the bundle to spanning tree as a single logical interface, so all four links forward.
@@ -37,7 +37,7 @@
   #v(6pt)
   #strong[Part B --- Traffic does not split evenly.]
 
-  #pitfall[
+  #warning[
     A four-link trunk does not give one flow four times the bandwidth.
 
     The switch hashes header fields --- source and destination MAC, IP, or port depending on configuration --- and every frame in a given conversation lands on the same physical link. This is deliberate: splitting a flow across links would reorder packets and hurt TCP badly.
@@ -81,7 +81,7 @@
 
   Manual mode forwards on every member port unconditionally. It never checks that the far end agrees.
 
-  #keyidea[
+  #note[
     Miscable one member --- into the wrong switch, or the wrong port --- and manual mode forwards over it anyway. The result is a forwarding loop that spanning tree cannot see, because the trunk hides its members from STP.
 
     That is a broadcast storm, and it takes the segment down. It is the single best argument for LACP.
@@ -115,7 +115,7 @@
   quit
   ```
 
-  #keyidea[
+  #note[
     Two priorities, two different jobs.
 
     #strong[System priority] decides which switch is in charge of selecting active links. Lower wins; ties break on system MAC. Only one end gets to choose, otherwise the two could disagree.
@@ -132,7 +132,7 @@
   <SW1> display lacp statistics eth-trunk 1
   ```
 
-  #troubleshoot[
+  #tip[
     #strong[Trunk stays down.] Member ports differ in speed or duplex. All members must match.
 
     #strong[Members configured but not selected.] Mode mismatch --- one end manual, the other LACP. Both ends must run the same mode.
@@ -142,7 +142,7 @@
     #strong[Port refuses to join.] It probably still carries per-interface configuration. Ports must be cleared before being added to a trunk.
   ]
 
-  #tryit[
+  #exercises[
     With the trunk up, shut down one active member and watch `display eth-trunk 1`. Does a backup take over, and how long does it take?
 
     Then, on the switch that lost the system-priority election, change a port priority and confirm nothing happens. Explain why in one sentence.
@@ -153,7 +153,7 @@
 
 #include "visuals/07-lacp-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Capture active members, remove one member link and repeat connectivity tests. Explain which evidence demonstrates redundancy and which additional traffic test would be needed to study load distribution.
 
   - Both manual and LACP modes configured and captured separately.

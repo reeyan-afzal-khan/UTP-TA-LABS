@@ -13,9 +13,7 @@ Nature does this all the time, with two parents and a child that gets a bit of e
 
 Start with the puzzle from #chapref(<ch:localsearch>). A GA keeps a population of boards, say 50 random ones, and writes each board as eight digits, one per column, each saying which row that column’s queen is in. Each board gets a #term[fitness]: the fewer attacking pairs, the fitter it is.
 
-#analogy[
-  Think of a raffle for the right to breed. Eight queens make 28 pairs, and a board gets one ticket for every pair that does #emph[not] attack. A board with 3 attacking pairs holds 25 tickets, and one with 10 holds 18. Draw two tickets to choose two parents. Fitter boards are likelier to be drawn, but even a poor board has a chance, which keeps variety in the population.
-]
+Think of a raffle for the right to breed. Eight queens make 28 pairs, and a board gets one ticket for every pair that does #emph[not] attack. A board with 3 attacking pairs holds 25 tickets, and one with 10 holds 18. Draw two tickets to choose two parents. Fitter boards are likelier to be drawn, but even a poor board has a chance, which keeps variety in the population.
 
 Two more steps make a child. In #term[crossover] we cut both parents at a random column and join the pieces. In #term[mutation], now and then, one queen in the child jumps to a random row, which can create a row neither parent had (#figref(<fig:breeding>)).
 
@@ -71,7 +69,7 @@ Repeat this to fill a new generation and let the children replace the population
 
 Now the honest part. How well does it work on eight queens? In the demo, 171 of 200 runs find a solution within 1,000 generations, with a median of 328 generations among those that succeed. The work comes to about 27,000 boards per puzzle solved. Simulated annealing needed about 1,100.
 
-#keyidea[
+#note[
   Breeding boards sounds like the coolest idea in this book, and on eight queens the dumbest-sounding idea, annealing, does the job with less than a tenth of the work. When an idea sounds exciting, race it against a simple one first.
 ]
 
@@ -103,7 +101,7 @@ GAs still earn their keep elsewhere. NASA used an evolutionary algorithm, a cous
 #utpfig([Selection favours better solutions, crossover recombines parents, mutation introduces variation, and elitism preserves the best candidates.], label: <fig:ga-loop>)[
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.4, min-height: 0.9, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((0, 0), [Population], name: "p", ..b)
     node(right-of("p", 0.35), [Evaluate \
   fitness], name: "fit", ..b)
@@ -137,7 +135,7 @@ For $hat(y)=p_0+p_1 x_1+ dots.h +p_4 x_4$, encode each chromosome as five real c
 / Initialisation matters.: Charges are in thousands of dollars. Draw coefficients with mean~0 and standard deviation~5000, then shift the intercept towards the mean charge. Starting from $cal(N)(0,1)$ would place the whole population far from useful values.
 / Standardise the inputs.: Age (18--64) and smoker status (0--1) have very different scales. Standardise all four predictors using training statistics so that a mutation step means roughly the same thing for each coefficient.
 
-#intuition[
+#note[
   The chromosome #emph[is] the candidate answer, read by the fitness function. Operators depend on the encoding: blend crossover suits real coefficients, cut-and-join suits eight-queens boards, and neither would make sense on a route that must visit every city exactly once.
 ]
 
@@ -181,7 +179,7 @@ Evaluating 100 five-gene chromosomes on 1,070 training rows produces a $100 time
         let xx = x * L
         node((xx, -0.28), [#vv], font: font("small"), ..utplabel)
       }
-      connect((0.54 * L, 1.5), (0.54 * L, 0.95), line-width: 1.1955pt, draw: navy, end: tip("Stealth", length: 2.4mm, line: 1.1955pt))
+      connect((0.54 * L, 1.5), (0.54 * L, 0.95), line-width: 1.1955pt, draw: navy, end: arrow-tip("Stealth", length: 2.4mm, line: 1.1955pt))
       node((0.54 * L, 1.55), [`rand` $=0.54 space arrow.r.double$ pick A], font: font("small"), ..utplabel, anchor: "south", text: navy)
       node((0.5 * L, -0.75), [The draw $0.54$ falls in A\'s interval, $0.40$ to $0.70$.], font: font("small"), ..utplabel, anchor: "north", align: center, text-width: 6.8)
     })
@@ -196,9 +194,9 @@ Cutting a list of real coefficients and joining the pieces would work poorly, be
   #canvas({
     draw.scope({
       node((2, 2.65), [Blend crossover], font: font("normal", weight: "bold", fill: navy))
-      connect((-0.2, 0), (4.4, 0), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((-0.2, 0), (4.4, 0), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((-0.2, 0), (4.4, 0), t: 100%), [$p_1$], font: font("script"), anchor: "west")
-      connect((0, -0.2), (0, 1.85), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((0, -0.2), (0, 1.85), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((0, -0.2), (0, 1.85), t: 100%), [$p_2$], font: font("script"), anchor: "south")
       node((0.7, 1.35), [], name: "P1", font: font("small"), shape: "circle", fill: blue, inner-sep: 2.1918pt)
       node("P1" + ".north", [parent $a$], font: font("small"), ..utplabel, anchor: "south", text: blue)
@@ -212,9 +210,9 @@ Cutting a list of real coefficients and joining the pieces would work poorly, be
     draw.scope({
       draw.translate((6.6, 0))
       node((2.2, 2.65), [Gaussian mutation], font: font("normal", weight: "bold", fill: navy))
-      connect((-0.2, 0), (4.4, 0), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((-0.2, 0), (4.4, 0), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((-0.2, 0), (4.4, 0), t: 100%), [$p_1$], font: font("script"), anchor: "west")
-      connect((0, -0.2), (0, 1.85), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+      connect((0, -0.2), (0, 1.85), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
       node(along((0, -0.2), (0, 1.85), t: 100%), [$p_2$], font: font("script"), anchor: "south")
       node((1.9, 0.9), [], name: "C", font: font("small"), shape: "circle", fill: orange, inner-sep: 2.1918pt)
       node("C" + ".south", [child], font: font("small"), ..utplabel, anchor: "north", text: orange)
@@ -231,7 +229,7 @@ Cutting a list of real coefficients and joining the pieces would work poorly, be
 
 #term[Elitism] copies the best chromosomes unchanged into the next generation, so that selection or mutation cannot lose them. Think of an athletics squad that always keeps its current record holder. It costs a few population slots and means that the best fitness in the population can never get worse. Without elites, the best member of the population got worse in 54 of 159 generations on one Lab~8 run.
 
-#keyidea[
+#note[
   Selection favours good candidates, crossover recombines, mutation explores and elitism preserves. Tournament size~3, 15 % mutation and four elites are one workable balance, not universal settings.
 ]
 
@@ -261,7 +259,7 @@ Three lessons follow:
 / It did not beat the optimum.: Least squares solves the same problem exactly and faster. Agreement verifies the GA; it shows no advantage over OLS.
 / Population size trades speed for spread.: Forty chromosomes halve the runtime with the same median, but increase seed-to-seed standard deviation by an order of magnitude. Judge that trade against the cost of a poor run.
 
-#pitfall[
+#warning[
   Report the median and spread across independent seeds, not one run or the best run presented as typical. A lucky seed says nothing about the next one. On eight queens the median successful run took 328 generations, and 29 of the 200 runs did not finish at all.
 ]
 
@@ -276,14 +274,14 @@ Least squares suits Lab~8’s smooth, convex, unconstrained objective. Recall th
 
 Integer coefficients, penalties on non-zero coefficients or a plateaued loss would invalidate ordinary least squares. A GA would need a revised fitness function and possibly new operators, and the deliverable asks you to identify one such change.
 
-#chapterrecap[
+#summary[
   - A GA evolves a population: fitter candidates are selected, recombined and mutated, and the best may be kept unchanged.
   - The encoding decides the operators. Eight digits suit cut-and-join; real coefficients suit blending and Gaussian noise.
   - Verify on a problem with a known answer, then report the median and spread over independent seeds.
   - A GA that matches an exact method has been verified, not vindicated. Race it against something simple, and reach for it when the problem has no formula and no gradient.
 ]
 
-#quickcheck[
+#questions[
   + What is the chromosome in Lab~8, and how many genes does it have?
   + Why does the lab standardise the predictors before running the GA, when least squares would give the same fit either way?
   + What can happen to the best fitness in the population without elitism, and why?

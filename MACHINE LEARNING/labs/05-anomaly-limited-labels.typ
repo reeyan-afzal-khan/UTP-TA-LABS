@@ -29,11 +29,11 @@
   [Save the evidence; then size a review budget and read the messages the learner finds hardest],
   [10--12],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm the two data files are in `all_datasets/`. Keep the card-payment file zipped: pandas reads the CSV inside it.
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It takes under a minute.
   + Part~A uses no labels to train; Part~B uses as few as it can. Both keep a labeled test set, because a claim needs evidence.
@@ -47,7 +47,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + 148 of 85,443 test transactions are fraud. What accuracy does “never fraud” score, and what average precision does a random ranking score?
@@ -220,7 +220,7 @@
     ```
   ]
 
-  #strong[What it means.] Self-training did not help: its 486 pseudo-labels were almost all right, yet the score fell slightly. With 77 intents and 13 labels each, the model is confident only about messages it already gets right, so the pseudo-labels teach it nothing new, and they tilt it towards the intents it already knows. The ceiling, 0.882 with every label, shows how much was left on the table. Without the labels-only baseline, “self-training scored 0.632” would have sounded like a result; Your-turn task~3 lowers the threshold to see what more pseudo-labels do.
+  #strong[What it means.] Self-training did not help: its 486 pseudo-labels were almost all right, yet the score fell slightly. With 77 intents and 13 labels each, the model is confident only about messages it already gets right, so the pseudo-labels teach it nothing new, and they tilt it towards the intents it already knows. The ceiling, 0.882 with every label, shows how much was left on the table. Without the labels-only baseline, “self-training scored 0.632” would have sounded like a result; Exercise~3 lowers the threshold to see what more pseudo-labels do.
 ]
 
 #strong[Connect it to the chapter.] A score is only useful with a threshold you chose, and a limited label budget is the same kind of decision.
@@ -314,8 +314,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(11)[Try it yourself][
   A fraud team can review a fixed number of alerts a day. Print the fraud rate and the frauds found in the top 50, 100, 300 and 1,000 alerts. Then look inside the active learner: print the four pool messages its final model is least sure about, with its top two intents and the true one. Attempt it in this empty cell before reading the solution.
 ]
@@ -354,10 +352,10 @@
   #strong[What it means.] A thousand reviews find 99 of the 148 frauds, two in three, at a hit rate that has fallen to one in ten. The messages the active learner would buy next are genuinely ambiguous: a payment that “hasn’t gone through yet” could be a pending card payment or a transfer the recipient has not received, and “I had a problem with my card payment” fits two intents equally well. Those are the cases where a human label teaches the model the most. One intent’s name, `reverted_card_payment?`, ends in a question mark in the source, hence the double mark.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[What would labels buy?] Fit a plain logistic regression on the fraud training rows, this time using the labels. Compare its ROC AUC, average precision and frauds in the top 100 with the Isolation Forest’s.
   + #strong[Split by time.] Refit both models on the first 70% of the two days and score them on the rest. What happens to the Isolation Forest’s top 100, and why might unusual behavior in the later hours not be fraud?
@@ -365,7 +363,7 @@
   + #strong[Choose a budget.] Suppose reviewing an alert costs \$5 and catching a fraud saves \$200. Compute the net saving at budgets of 50, 100, 300, 1,000, 2,000 and 5,000 reviews. Which budget would you choose?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] “Never fraud” is $1-148\/85","443=99.83 %$ accurate and catches nothing. A random ranking’s average precision equals the prevalence, 0.0017. A random 100 would hold $100 times 0.00173 approx 0.17$ frauds, so 39 is about 225 times better.
 
   + Logistic regression with labels: ROC AUC 0.956, average precision 0.711, 86 frauds in the top 100. The Isolation Forest without labels: 0.950, 0.219 and 39. ROC AUC barely moves, but labels more than double the frauds at the top of the list. When labels exist, use them; the anomaly detector is for when they do not, or for kinds of fraud no label describes yet.
@@ -374,14 +372,14 @@
   + The frauds found are 25, 39, 63, 99, 116 and 123, so the net savings are \$4,750, \$7,300, \$11,100, \$14,800, \$13,200 and $- \$ 400$. A budget of about 1,000 reviews is best at these costs: beyond it, each extra review finds too little fraud to pay for itself. Change the costs, and the answer moves.
 ]
 
-#troubleshoot[
+#tip[
   / `FileNotFoundError` for a data file: Keep the card-payment ZIP zipped in `all_datasets/unsupervised/`, and the Banking77 CSV in `all_datasets/advanced/`; match the names in Chapter~#ref(<ch:toolkit>).
   / Self-training is slow or warns about convergence: Each round refits a logistic regression with 77 classes on up to 8,003 messages. A run of under a minute is normal; the warning does not change the result.
   / Your active-learning curve differs: The policies depend on the random starting set; keep the seeds in Questions~6 and~7 to reproduce the sheet.
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - The Isolation Forest is fitted without the fraud column, and the ranking is judged by average precision and frauds found, not by accuracy.
     - You can explain why the top alerts include genuine transactions.
     - Every semi-supervised and active result is compared with a labels-only baseline on the same validation rows.

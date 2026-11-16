@@ -22,7 +22,7 @@ A useful analysis begins before code. A data scientist translates a broad concer
   )
 ]
 
-#pitfall[
+#warning[
   A dataset does not automatically define the question. Starting with “What can I do with these columns?” often creates technically correct but irrelevant analysis. State the question first, then identify the evidence needed to answer it.
 ]
 
@@ -36,7 +36,7 @@ For example, “Are flowers different?” is too vague. “How much does mean pe
   #canvas({
     let laddercard = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.6974pt, text-width: 0.78 * 16.06, min-height: 1.1, inner-xsep: 9mm, inner-ysep: 2.5mm, align: left, font: font("footnote", fill: navy))
     let badge = (shape: "circle", fill: blue, draw: white, line-width: 0.6974pt, min-size: 0.65, inner-sep: 0pt, font: font("script", weight: "bold", fill: white))
-    let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     node((0, 0), [#strong[Context and purpose] \ #v(1.9925pt)
    Identify the decision, scientific concern, or operational need.], name: "context", ..laddercard)
     node(below-of("context", 0.28), [#strong[Answerable question] \ #v(1.9925pt)
@@ -60,7 +60,7 @@ For example, “Are flowers different?” is too vague. “How much does mean pe
   })
 ]
 
-#keyidea[
+#note[
   The unit of observation is one of the most important pieces of metadata in a dataset. If a row represents a patient visit rather than a patient, then row counts, train/test splitting, and uncertainty calculations may need to account for repeated observations from the same person.
 ]
 
@@ -70,7 +70,7 @@ For example, “Are flowers different?” is too vague. “How much does mean pe
   #canvas(x: 16.06cm, {
     let stagecard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.19 * 16.06, min-height: 1.25, inner-xsep: 4mm, inner-ysep: 2.5mm, align: left, font: font("script", fill: navy))
     let hub = (draw: mix(muted, 65%), fill: pale-gray, rounded: 5mm, line-width: 0.6974pt, text-width: 0.13 * 16.06, min-height: 0.85, inner-xsep: 3mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-    let mainflow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
+    let mainflow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
     node((0.5, 1.85), [#text(fill: blue)[#strong[01]]#h(1em)#strong[Frame the question] \ #v(3.9851pt)
    Purpose, scope, and intended claim], name: "q", ..stagecard)
     node((0.79, 0.95), [#text(fill: blue)[#strong[02]]#h(1em)#strong[Inspect the data] \ #v(3.9851pt)
@@ -102,7 +102,7 @@ The question determines the role of each column. In the Iris data, `Species` is 
   #canvas(x: 16.06cm, {
     let sourcecard = (draw: mix(blue, 75%), fill: pale-blue, rounded: 1.8mm, line-width: 0.7472pt, text-width: 0.46 * 16.06, min-height: 1.2, inner-xsep: 4mm, inner-ysep: 2.5mm, align: center, font: font("footnote", fill: navy))
     let rolecard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.235 * 16.06, min-height: 2.05, inner-xsep: 3.5mm, inner-ysep: 3mm, align: left, font: font("script", fill: navy))
-    let roleflow = (line-width: 0.8468pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
+    let roleflow = (line-width: 0.8468pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
     node((0.5, 2.35), [#text(fill: blue)[#strong[SHARED INPUT]] \ #v(2.9888pt)
    #strong[The same Iris dataset] \ #v(2.9888pt)
    Four measurements and a species label], name: "data", ..sourcecard)
@@ -147,7 +147,7 @@ A script that runs but silently drops rows is computationally reproducible yet a
 #utpfig([A professional workflow records enough information to reproduce both the computation and the reasoning, while recognising that new data provide the strongest test of generalisation.], label: <fig:repro-layers>)[
   #canvas(x: 16.06cm, {
     let layercard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.235 * 16.06, min-width: 0.285 * 16.06, min-height: 1.85, inner-xsep: 3.5mm, inner-ysep: 3mm, align: left, font: font("footnote", fill: navy))
-    let layerflow = (line-width: 0.8966pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
+    let layerflow = (line-width: 0.8966pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8966pt))
     node((0.17, 0), [#text(fill: blue)[#strong[01 COMPUTATIONAL]] \ #v(4.9813pt)
    #strong[Does the code rerun?] \ #v(3.9851pt)
    Same files + software $arrow.r$ same output], name: "comp", ..layercard)
@@ -166,7 +166,7 @@ A script that runs but silently drops rows is computationally reproducible yet a
 
 The course assumes only a small R core: assignment with `<-`, functions such as `mean()`, indexing with brackets, data frames, and saved scripts. The important habit is not memorising syntax but reading code as a sequence of data transformations.
 
-#workedexample[
+#example[
   The question “Which Iris species has the largest average petal length?” maps directly to grouped evidence:
 
   ```r
@@ -194,7 +194,7 @@ A useful habit is to end every script with three comments:
 
 These comments force the analyst to move from “the code ran” to “the evidence means something.
 
-#quickcheck[
+#questions[
   + Why is a predictive question different from a descriptive question?
   + What five checks should happen immediately after loading a new table?
   + Why should derived files not overwrite raw data?
@@ -222,6 +222,6 @@ The bundled daily Bike Sharing data contain 731 days. A broad topic such as “b
 
 In this file, mean demand is about 4,504 rentals per day and normalized temperature has a correlation of about 0.63 with total demand. Neither number is a complete answer. Temperature changes with season, demand changes over calendar time, and working-day status changes the mix of casual and registered users. The workflow therefore moves from a first summary to progressively more careful questions rather than treating the first coefficient as the conclusion.
 
-#keyidea[
+#note[
   The first professional judgment is often not which model to fit, but which comparisons are legitimate given the unit of observation, time ordering, sampling process, and intended claim.
 ]

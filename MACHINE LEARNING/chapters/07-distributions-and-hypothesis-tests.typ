@@ -30,7 +30,7 @@ That small calculation is a complete #term[hypothesis test], and every test in t
   + #term[Decide.] If the p-value is small, the dull explanation is hard to keep. If it is not, you have learned only that the data cannot rule luck out.
 ]
 
-#keyidea[
+#note[
   A p-value is the answer to one question: if nothing were going on, how often would data like mine turn up? A small p-value means the dull explanation fits the data badly. It does not say how large the effect is, how important it is, or how likely your own explanation is to be true.
 ]
 
@@ -177,7 +177,7 @@ Lead times of hotel bookings, the number of days between booking and arrival, ar
 
 Two things happened, and together they are the #term[central limit theorem]. The histogram of averages lost the skew of the original column and moved towards a bell: skew 1.37 for single bookings, 0.42 for means of 10, 0.23 for means of 50. And its spread shrank exactly as the standard error formula of #chapref(<ch:foundations>) predicts, $sigma \/ sqrt(n)$: 106.86 divided by $sqrt(50)$ is 15.11, and the simulation gave 15.13.
 
-#keyidea[
+#note[
   Averages of many independent values are close to normally distributed, whatever the shape of the values themselves, and their spread is $sigma \/ sqrt(n)$. This is why the normal curve appears everywhere, and why a formula can stand in for ten thousand shuffles: a gap between two means is itself an average.
 ]
 
@@ -193,7 +193,7 @@ where $s_1$ and $s_0$ are the standard deviations of the two groups and $n_1$ an
 
 #codefrom(explore, "def welch_by_hand(values, labels):", "return gap, standard_error, gap / standard_error")
 
-#workedexample[
+#example[
   #strong[Highest heart rate.] The gap is $-21.14$ beats and its standard error is 1.745, so $t = -21.14 \/ 1.745 = -12.12$. A gap twelve standard errors from zero has a p-value of $7 times 10^(-31)$. Shuffling could only say "fewer than one in ten thousand"; the formula says how many fewer.
 
   #strong[Cholesterol.] The gap is 9.70 mg/dl and its standard error is 4.858, so $t = 2.00$ and the p-value is 0.046. The shuffle test said 0.0455. Two quite different procedures agree to three decimals, which is the central limit theorem at work.
@@ -207,7 +207,7 @@ This version, which lets the two groups have different spreads, is #term[Welch's
 
 A t-test compares means, so it needs a number. To ask whether two #emph[categories] are related, such as sex and heart disease, compare counts. Start from the table of #term[observed] counts, then work out the counts you would #term[expect] if the two columns had nothing to do with each other.
 
-#workedexample[
+#example[
   Among the 734 training patients, 155 are women and 579 are men, and 328 are healthy and 406 have heart disease. If sex and disease were unrelated, women would be healthy in the same proportion as everyone, so the expected number of healthy women is
 
   $ frac(155 times 328, 734) = 69.3. $
@@ -258,7 +258,7 @@ The test trusts its formula only when the expected count in every cell is about 
 
 Does the highest heart rate differ across the #emph[four] chest pain types? Running a t-test on each of the six pairs would be six chances of a false alarm. #term[Analysis of variance], ANOVA, asks one question instead: are the group means further apart than the scatter inside the groups can explain?
 
-#workedexample[
+#example[
   The four groups and their mean heart rates are: no chest pain, 403 patients, 128.5; atypical angina, 136 patients, 150.6; non-anginal pain, 155 patients, 141.9; typical angina, 40 patients, 145.8. The mean of all 734 is 136.4.
 
   / Between the groups.: For each group, take the squared distance of its mean from the overall mean, times its size, and add: 60,466. Divide by the number of groups minus one, 3: #strong[20,155.2].
@@ -305,7 +305,7 @@ With enough rows, any difference becomes significant. Among Lab~1’s 119,390 ho
 
 The arrival's day of the month is better still. Cancelled bookings arrived on day 15.73 on average and kept ones on day 15.84, a gap of 0.013 standard deviations, and the p-value is 0.034: "significant". No hotel should plan around it.
 
-#keyidea[
+#note[
   A p-value mixes two things: how large the effect is and how many rows you have. Always report the size of the effect beside it, in the column's own units and in standard deviations. On a large table, ask "how big?" and almost never "is it significant?".
 ]
 
@@ -321,7 +321,7 @@ Forty-three columns are "significant" at 0.05, and the best has a p-value of 0.0
 
 The simplest defence is the #term[Bonferroni correction]: when you run $m$ tests, require $p < alpha \/ m$ of each. Here that is $0.05 \/ 1000 = 0.00005$, and no noise column passes. The stronger defence is the one this book uses everywhere: an idea found by looking at the data is a hypothesis, and it is confirmed only on rows that played no part in finding it. That is what a validation set is.
 
-#pitfall[
+#warning[
   Trying twenty features, six transformations and five models, and reporting the one comparison that came out significant, is the same mistake as testing a thousand noise columns, spread over an afternoon. Decide what you will test before you look, or count everything you tried.
 ]
 
@@ -332,11 +332,7 @@ The simplest defence is the #term[Bonferroni correction]: when you run $m$ tests
 - #term[Judging a change in production.] An A/B test gives half the customers the old model and half the new one, and tests the difference in the outcome that matters (#chapref(<ch:serving>)).
 - #term[Noticing that the world has moved.] A test that compares this month's incoming data with the training data is an early warning that a model is being asked about customers it never saw (#chapref(<ch:serving>)).
 
-#tryit[
-  In `demo_exploration.py`, call `shuffle_test` on `Age` and on `Oldpeak` against the diagnosis, and compare the p-values with `scipy.stats.ttest_ind`. Then cut the training patients down to a random 60 with `train.sample(60, random_state=1)` and repeat the test on cholesterol. What happens to the p-value, and what does that say about the sentence "we found no significant difference"?
-]
-
-#chapterrecap[
+#summary[
   - A test grants the sceptic's world, the null hypothesis, and asks how often it would produce data at least as extreme as yours. That frequency is the p-value.
   - Shuffling the labels builds the sceptic's world directly. In ten thousand shuffles no gap in heart rate came near the real 21 beats, while 455 matched the real gap in cholesterol.
   - A false alarm is a Type I error and its rate is $alpha$. A miss is a Type II error. More rows reduce both.
@@ -345,7 +341,11 @@ The simplest defence is the #term[Bonferroni correction]: when you run $m$ tests
   - A p-value is not the chance you are wrong, says nothing about the size of an effect, and stops meaning much when many things were tried. Report the effect size and the interval.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_exploration.py`, call `shuffle_test` on `Age` and on `Oldpeak` against the diagnosis, and compare the p-values with `scipy.stats.ttest_ind`. Then cut the training patients down to a random 60 with `train.sample(60, random_state=1)` and repeat the test on cholesterol. What happens to the p-value, and what does that say about the sentence "we found no significant difference"?
+]
+
+#questions[
   + A coin gives 9 heads in 10 flips. In a fair-coin world, 9 or 10 heads have probability $11\/1024$. What is the two-sided p-value, and what would you conclude at $alpha = 0.05$?
   + In the shuffle test for resting blood pressure, 61 of 10,000 shuffles gave a gap at least as large as the real one. State the p-value, and say in one sentence what it does and does not tell you.
   + A study of 30 patients reports "no significant difference" between two treatments. Give two different states of the world that would produce that sentence.

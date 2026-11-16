@@ -112,6 +112,6 @@ delete from the beginning: 10 20 30 40
 
 The complete captured run is in `labs/outputs/circular_linked_list.txt`.
 
-#tryit[
+#exercises[
   Build a one-node ring, delete that node, then insert again. Check the singleton self-link and the empty last pointer before attempting another traversal.
 ]

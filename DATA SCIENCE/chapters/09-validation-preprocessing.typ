@@ -61,7 +61,7 @@ Correct order:
   #canvas(x: 16.06cm, {
     let card = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.5978pt, text-width: 0.26 * 16.06, min-height: 1.45, inner-xsep: 2.5mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
     let warning = (..card, draw: mix(red, 80%), fill: pale-red)
-    let flow = (line-width: 0.797pt, draw: teal, rounded: 1.5mm, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, rounded: 1.5mm, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     let heading-style = (font: font("script", weight: "bold", fill: navy), anchor: "west")
     node((-0.145, 1.1), [Correct: learn preprocessing from training rows only], ..heading-style, text: mix(teal, 85%, other: black))
     node((0, 0), [#strong[Training fold] \ #v(3.9851pt)
@@ -95,7 +95,7 @@ Correct order:
   })
 ]
 
-#pitfall[
+#warning[
   Scaling the full dataset before cross-validation lets each validation fold influence its own preprocessing. The leakage may be small in some datasets, but the evaluation principle is still broken.
 ]
 
@@ -141,15 +141,15 @@ When performance is compared across groups, show group sample sizes and uncertai
 
 Check performance by meaningful subgroups when appropriate, report data provenance and exclusions, disclose uncertainty, and distinguish a teaching exercise from a deployable system. Protected or sensitive attributes require particularly careful governance and fairness analysis.
 
-#keyidea[
+#note[
   A model report should make failure visible: where the data came from, what preprocessing was learned, how validation was performed, which errors remain, and where the model should not be used.
 ]
 
-#workedexample[
+#example[
   Lab 9 estimates scaling parameters separately inside each fold before fitting logistic regression. This small implementation detail is a core scientific principle: held-out data must remain genuinely held out.
 ]
 
-#quickcheck[
+#questions[
   + What does cross-validation improve compared with one random split?
   + Which data should determine the scaling mean and standard deviation?
   + Name one symptom of overfitting.

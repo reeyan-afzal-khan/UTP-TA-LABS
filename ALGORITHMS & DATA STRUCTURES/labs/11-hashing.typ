@@ -3,11 +3,11 @@
 
 #labsection(11, label: <sec:lab11>)[Hashing and collision resolution]
 
-#sourcealignment[Official Lab Manual --- Lab XI][
-  Linear, quadratic, and double-hash collision resolution.
-]
-
 #labproject[Resolve the same collision three ways][
+  #note[
+    #strong[Official Lab Manual --- Lab XI.] Linear, quadratic, and double-hash collision resolution.
+  ]
+
   #strong[Goal.] Resolve identical collisions using three probe rules.
 
   #strong[Recall first.] Review the #link(<ch:hashing>)[Hashing] chapter.
@@ -20,7 +20,7 @@
   #include "programs/hashing_collisions.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

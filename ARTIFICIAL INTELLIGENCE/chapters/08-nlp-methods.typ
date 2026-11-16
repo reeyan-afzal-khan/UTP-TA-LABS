@@ -11,9 +11,7 @@ Lab~7 classifies airline tweets as negative, neutral or positive using Multinomi
 
 A classifier needs numbers, and a tweet is a string. The simplest bridge is a #term[bag of words]: represent each document by how many times each vocabulary term occurs in it, and throw away the word order.
 
-#analogy[
-  Tip a tweet’s words into a bag and shake it. You can still count them, and “cancelled” appearing three times tells you a good deal about the mood. You can no longer tell “not good, very bad” from “not bad, very good”. That lost order is the price of this representation, and it is why this chapter ends by asking what to try next.
-]
+Tip a tweet’s words into a bag and shake it. You can still count them, and “cancelled” appearing three times tells you a good deal about the mood. You can no longer tell “not good, very bad” from “not bad, very good”. That lost order is the price of this representation, and it is why this chapter ends by asking what to try next.
 
 #utpfig([One tweet through Lab~7’s preprocessing. Placeholders stand in for the handle and the link, and then the tokeniser and the stop-word list do their work. “Again” is on scikit-learn’s English stop list, so it disappears, as do “not”, “no” and “never” in other tweets.], label: <fig:preprocess>)[
   #canvas({
@@ -56,7 +54,7 @@ $ hat(c)=op("arg max", limits: #true)_c med P(c) product _(w in d)P(w divides c)
 
 where $n_w$ counts term $w$ in the document, $P(c)$ is the class’s share of the training set, and $P(w divides c)$ is how often term $w$ appears among that class’s words. The “naive” part is the assumption that terms are independent once the class is known. That is plainly false for language, and the model works usefully anyway.
 
-#intuition[
+#note[
   Think of every word as a witness giving evidence. “Delayed” testifies strongly for negative, “thanks” testifies for positive, and “flight” says about the same to everyone, so it barely matters. Naive Bayes multiplies the testimony together, starting from how common each class is, and the largest product wins.
 ]
 
@@ -169,7 +167,7 @@ Tweets are 63 % negative, 21 % neutral and 16 % positive. A model that alw
   })
 ]
 
-#pitfall[
+#warning[
   Compute the majority baseline first. Accuracy rises from 63 % to 77 %, which sounds modest, while macro F1 rises from $0.26$ to $0.70$. Together they show what the model adds.
 ]
 
@@ -208,7 +206,7 @@ Tweets are 63 % negative, 21 % neutral and 16 % positive. A model that alw
 / Vocabulary from training text only.: Fit `CountVectorizer` on training tweets, then transform validation and test tweets. Words seen only in the test set stay unknown, exactly as they would for a deployed model.
 / Selection on validation, one look at test.: Compare eight settings on validation data, refit the winner, then evaluate once on test data.
 
-#keyidea[
+#note[
   Deduplicate, split, fit, tune, test. Respecting these boundaries keeps the final score separate from model development.
 ]
 
@@ -221,7 +219,7 @@ The lab produces four kinds of evidence, each answering a question the headline 
 / Per-group scores.: Airline macro F1 ranges from $0.66$ to $0.78$, with 63--594 test tweets per airline. Different sample sizes, class mixes and topics make this a diagnostic, not an airline ranking.
 / An error sample.: Tag the four most confident mistakes per true class, twelve tweets in all. The reproducible sample reveals missed negation, low-sentiment questions, short texts and a repeatedly retweeted joke with inconsistent labels. The last is a data-quality issue, not just a model error.
 
-#pitfall[
+#warning[
   Every sampled error has posterior above $0.999$. Being confident and wrong is the most damaging kind of mistake, and Naive Bayes does it often because its independence assumption multiplies correlated evidence as if it were new each time. Use these scores for ranking, not as reliable probabilities of being right.
 ]
 
@@ -229,7 +227,7 @@ The lab produces four kinds of evidence, each answering a question the headline 
 
 Bag-of-words Naive Bayes struggles with negation, sarcasm and word order, and one choice in this pipeline makes that worse. The English stop list removes `not`, `no` and `never`, so “not good” and “good” look identical. Keeping stop words raises validation macro F1 from $0.697$ to $0.720$ with the same model. That is a real finding, and it came from questioning a default rather than from a more complicated model. The deliverable asks what representation to try next: weighted counts, embeddings or contextual models. Whatever you try, keep the deduplicated split, validation-based selection and single final test evaluation unchanged.
 
-#chapterrecap[
+#summary[
   - A bag of words counts terms and discards order; bigrams recover a little of it.
   - Naive Bayes multiplies a class’s share by one probability per word, and smoothing stops one unseen word from zeroing a class.
   - On imbalanced classes, compare macro F1 against a majority baseline and read the confusion matrix.
@@ -237,7 +235,7 @@ Bag-of-words Naive Bayes struggles with negation, sarcasm and word order, and on
   - Confidence is not correctness, and defaults such as the stop list deserve testing too.
 ]
 
-#quickcheck[
+#questions[
   + Why are URLs and `@handles` replaced by placeholder tokens rather than deleted or kept?
   + A term appears 0 times in the positive training tweets. What happens to a tweet containing it under Naive Bayes without smoothing, and with $alpha =1$?
   + The majority baseline scores 63 % accuracy and 0.26 macro F1. Explain both numbers from the class shares alone.

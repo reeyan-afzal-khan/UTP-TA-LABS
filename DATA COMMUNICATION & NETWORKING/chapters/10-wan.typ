@@ -123,7 +123,7 @@ rejected or ignored on that side.
     connect((0.55, 0), (6.45, 0), line-width: 1.594pt, draw: muted)
     node(below-of(("r1", 50%, "r2"), 0.1), [S1/0/0 #h(1em)10.0.12.0/24], ..netlabel)
     connect((1.3, 0.55), (1.3, 0.85), (1.7, 0.85), (1.7, 0.55), (2.1, 0.55), (2.1, 0.85), (2.5, 0.85), (2.5, 0.55), (2.9, 0.55), (2.9, 0.85), (3.3, 0.85), (3.3, 0.55), draw: teal, line-width: widths.thick)
-    connect((3.45, 0.7), (5.6, 0.7), draw: teal, line-width: widths.thick, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    connect((3.45, 0.7), (5.6, 0.7), draw: teal, line-width: widths.thick, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((1.3, 1.15), [clock generated here], font: font("script", fill: teal), anchor: "west")
     node((4.6, 1.15), [and followed here], font: font("script", fill: muted), anchor: "west")
     node((-0.6, -1.15), [`baudrate 128000` is set on #strong[R1 only]. Setting it on the DTE changes nothing.], anchor: "west", font: font("script", fill: ink), align: left, text-width: 5)
@@ -136,7 +136,7 @@ rejected or ignored on that side.
 [R1-Serial1/0/0] baudrate 128000
 ```
 
-#keyidea[
+#note[
   Set the baud rate only on the DCE side, identified from the interface output.
 ]
 
@@ -254,7 +254,7 @@ shows a Challenge/Response/Success triple rather than a single request.
   })
 ]
 
-#keyidea[
+#note[
   The direction of the first message tells you which router is the
   authenticator. In PAP the peer speaks first; in CHAP the authenticator
   does. Reading that from a debug trace identifies immediately which end
@@ -285,13 +285,13 @@ Cycle the serial interface and enable PPP CHAP debugging to regenerate negotiati
 
 #vrpread[the three CHAP codes appear in order --- `Challenge(01)` inbound, `Response(02)` outbound, `Success(03)` inbound --- which is #figref(<fig:pap-chap>) playing out on the wire. A failure stops after the response, with `Failure(04)` instead of `Success(03)`, and that single code tells you the password is wrong rather than the link.]
 
-#pitfall[
+#warning[
   Run `terminal debugging` first, or the messages are generated and never
   displayed. Turn it off with `undo terminal debugging` when finished ---
   debug output on a busy interface makes the console unusable.
 ]
 
-#verification[
+#checklist[
   Verify in order: #strong[physical state $arrow.r$ DCE clocking $arrow.r$ encapsulation $arrow.r$ IP $arrow.r$ OSPF $arrow.r$ authentication $arrow.r$ ping].
 ]
 
@@ -310,15 +310,15 @@ Cycle the serial interface and enable PPP CHAP debugging to regenerate negotiati
   )
 ]
 
-#pitfall[
+#warning[
   An authentication problem can make the link protocol fail even when the cable and IP address appear correct. Once PAP or CHAP is enabled, the username/password/AAA configuration becomes part of Layer-2 link establishment and must be checked alongside encapsulation.
 ]
 
-#tryit[
+#exercises[
   Complete the source assignment: create a three-router WAN using PPP, configure PAP and CHAP authentication on the required links, verify connectivity, and capture command-prompt evidence that demonstrates the working links.
 ]
 
-#quickcheck[
+#questions[
   + Why must both ends of a serial link agree on HDLC or PPP encapsulation?
   + What is the purpose of the DCE side in the supplied serial exercise?
   + Which link uses PAP and which uses CHAP in the lab?

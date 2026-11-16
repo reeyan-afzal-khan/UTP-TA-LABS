@@ -49,7 +49,7 @@ python all_experiments/lab03_p2p_loan_book.py
 
 #include "visuals/03-p2p-loan-book-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Compare portfolio sizes using mean return and downside quantiles. Explain why a narrower simulated distribution is conditional on the independence assumption.
 
   - The script runs from a fresh process and creates the named CSV or report files.

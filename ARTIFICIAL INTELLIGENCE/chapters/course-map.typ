@@ -55,30 +55,28 @@ Stages 1 to 4 work on public Kaggle datasets, listed with download links in Chap
 Every chapter builds one idea, starting from a small example you can check by hand and ending on the real data of the lab that follows it. A good route through one lab session looks like this:
 
 #utpsteps[
-  + #strong[Read the chapter with a pen.] Work the worked examples yourself instead of only reading them, and try the practice boxes.
-  + #strong[Answer the check.] Write down your answers to #emph[Check your understanding] before you read the answers below it.
+  + #strong[Read the chapter with a pen.] Work each example yourself instead of only reading it, and do the exercises.
+  + #strong[Answer the review questions.] Write your answers down before you start the lab; each one is a calculation or an argument the lab relies on.
   + #strong[Do the lab sheet.] Each question has the same number in the sheet and in its notebook. Predict, run, compare with the reference output, and explain.
-  + #strong[Finish with #emph[Your turn].] These tasks go beyond the worked answers. Record your own numbers first, then read the expected findings.
-  + #strong[Hand in.] Work through the verification and submission checklists at the end of the sheet.
+  + #strong[Finish with the exercises.] They go beyond the solutions in the sheet. Record your own numbers first, then read the answers.
+  + #strong[Hand in.] Work through the checklist and the submission list at the end of the sheet.
 ]
 
-The coloured boxes each have one job:
+Three kinds of framed note appear throughout the book, each with one job:
 
 #utptable[
   #tabularx(
-    columns: (32%, 1fr),
+    columns: (18%, 1fr),
     styles: (navy-bold,),
-    header: ([Box], [What it is for]),
-    [Analogy, Conceptual intuition], [The everyday picture, before the formal version. Every analogy breaks down somewhere, so use it to get started and then trust the definition.],
-    [Key idea], [The one sentence to carry away from a section.],
-    [Worked example], [A calculation or trace to follow with a pen.],
-    [Common mistake], [What reliably goes wrong here, and why.],
-    [Practice, Your turn], [Something for you to do. Predict first, then run it.],
-    [Chapter recap], [What a reader should carry forward from the chapter.],
-    [Reference note], [History or background you can read past without losing the thread.],
+    header: ([Callout], [What it is for]),
+    [Note], [Something important to keep in mind: the idea to carry away from a section, a clarification, or background you can read past without losing the thread.],
+    [Tip], [Practical advice: a shortcut, a better way to work, or how to fix a problem.],
+    [Warning], [What reliably goes wrong here, and why.],
   )
 ]
 
-#sourcebasis[
+Everything else is ordinary text under a short bold label: #strong[Example] for a calculation or trace to follow with a pen, #strong[Exercises] for something to do, and #strong[Summary] and #strong[Review questions] at the end of each chapter.
+
+#note[
   The robot-and-maze storyline of the search chapters, and several analogies across the book (the ripple, the line at a shop, the pile of plates, the foggy hillside, the dimmer switch, breeding boards), are adapted from two video lectures: #link("https://www.youtube.com/watch?v=fCEvvkAbJOs")[an hour on search] and #link("https://www.youtube.com/watch?v=42IVf4m-5fk")[an hour on machine learning]. The maze, puzzles, game positions, code and all numbers in this book are our own, and every one can be reproduced by running the programs in `all_experiments/`.
 ]

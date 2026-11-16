@@ -5,7 +5,7 @@
     #canvas(x: 15.06cm, {
       let sourcecard = (draw: mix(blue, 75%), fill: pale-blue, rounded: 1.8mm, line-width: 0.7472pt, text-width: 0.15 * 15.06, min-width: 0.19 * 15.06, min-height: 1.15, inner-xsep: 3mm, inner-ysep: 2.5mm, align: center, font: font("script", fill: navy))
       let taskcard = (draw: mix(blue, 65%), fill: pale-blue, rounded: 1.8mm, line-width: 0.6974pt, text-width: 0.21 * 15.06, min-width: 0.255 * 15.06, min-height: 1.05, inner-xsep: 3.5mm, inner-ysep: 2mm, align: left, font: font("script", fill: navy))
-      let qualityflow = (line-width: 0.8468pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
+      let qualityflow = (line-width: 0.8468pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.8468pt))
       node((0.12, 0), [#text(fill: blue)[#strong[SHARED INPUT]] \ #v(2.9888pt)
      The same dataset], name: "data", ..sourcecard)
       node((0.43, 0.8), [#text(fill: blue)[#strong[QUESTION A]] \ #v(2.9888pt)

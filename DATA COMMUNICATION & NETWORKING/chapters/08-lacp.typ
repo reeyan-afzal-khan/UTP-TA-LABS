@@ -17,7 +17,7 @@ Link aggregation combines physical Ethernet links into one logical connection. L
   #fitted-image("/DATA COMMUNICATION & NETWORKING/figures/lacp-switch-switch.png", width: 82%, height: 303.5886pt)
 ]
 
-#keyidea[
+#note[
   An Eth-Trunk is the logical bundle; its physical interfaces are members. LACP coordinates the active set between peers.
 ]
 
@@ -182,7 +182,7 @@ Eth-Trunk output confirms the mode, member state, and actor/partner information.
 
 #vrpread[`WorkingMode: STATIC` proves LACP is running rather than manual aggregation. `Selected` is the word that matters for each member --- `Unselect` means the port joined the trunk but is not carrying traffic. The `Partner` block shows S2 still at the default 32768, which is why S1 won the election in #figref(<fig:lacp-election>).]
 
-#verification[
+#checklist[
   Confirm that Eth-Trunk 1 exists on both switches, uses LACP, contains G0/0/9 and G0/0/10, and shows the expected selected members.
 ]
 
@@ -196,11 +196,11 @@ Eth-Trunk output confirms the mode, member state, and actor/partner information.
   + Use Eth-Trunk display output rather than checking only individual interfaces.
 ]
 
-#pitfall[
+#warning[
   A physical link may be up but excluded from the bundle when membership or LACP mode differs across peers. Verify the logical trunk on both ends.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between a physical member interface and an Eth-Trunk?
   + Why does the source disable auto-negotiation before forcing 100 Mbit/s?
   + Which numerical priority is higher: 100 or 32768, according to the lab’s rule?

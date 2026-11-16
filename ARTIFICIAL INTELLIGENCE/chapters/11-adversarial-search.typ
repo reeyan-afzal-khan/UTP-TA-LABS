@@ -76,9 +76,7 @@ That is #term[minimax]: score every move by what happens after your opponent’s
 
 Like DFS, this plays one line all the way to the end of the game before backing up to try the next, so it needs little memory: only the moves along the game it is currently imagining. And how good is the robot? Against an opponent moving at random, over 2,000 games it wins 1,746, draws 254 and loses none. When two minimax robots play each other the game is always drawn. From the empty board, minimax visits 549,946 positions and returns 0, which proves that with perfect play noughts and crosses is a draw.
 
-#analogy[
-  A careful chess player thinks “if I do this, the best they can do is that, and then the best I can do is this”. Minimax is that sentence as an algorithm. Hoping your opponent will blunder is the beginner’s version, and it is the error the top-left move in #figref(<fig:game-tree>) tempts you into.
-]
+A careful chess player thinks “if I do this, the best they can do is that, and then the best I can do is this”. Minimax is that sentence as an algorithm. Hoping your opponent will blunder is the beginner’s version, and it is the error the top-left move in #figref(<fig:game-tree>) tempts you into.
 
 === Alpha-beta: skipping futures that cannot matter
 
@@ -90,11 +88,11 @@ Chess is far bigger. In 1950 Claude Shannon, the father of information theory, e
 
 What does trusting a guess cost? Test it on our small game. A second robot gets a simple guess, the lines X could still finish minus the lines O could still finish, and looks only two moves ahead. It looks at about 142 positions per game, whereas full search visits 549,945 positions for its opening move alone. Over 200 games the full-search robot wins 34, draws 166 and loses none. The guess is far cheaper, and it costs games.
 
-#pitfall[
+#warning[
   A robot that stops early is only as smart as its guess, exactly as A$""^(star.op)$ with a bad heuristic can only do so much. A good evaluation function took chess programmers decades to develop, and building one requires knowing the game.
 ]
 
-#libnote[
+#note[
   Deep Blue beat Garry Kasparov in 1997 by doing exactly this: a fast version of minimax with pruning, a rich evaluation function, and special hardware examining around 200 million positions a second. Its strength came largely from raw search rather than from human-style understanding of chess, a point that Rich Sutton draws out in his 2019 essay #emph[The Bitter Lesson].
 ]
 
@@ -172,9 +170,9 @@ Spending the same number of games on every move is wasteful, though, and with 25
       connect("c", "d", ..l)
       node((-0.25, -2.55), [], name: "e", font: font("small"), ..new)
       connect("d", "e", ..l)
-      connect((-0.05, -2.3), (0.08, -1.97), draw: green, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
-      connect((0.28, -1.47), (0.53, -1.09), draw: green, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
-      connect((0.5, -0.63), (0.13, -0.25), draw: green, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+      connect((-0.05, -2.3), (0.08, -1.97), draw: green, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
+      connect((0.28, -1.47), (0.53, -1.09), draw: green, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
+      connect((0.5, -0.63), (0.13, -0.25), draw: green, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
       node((0.55, -1.65), [+1 win], font: font("script", fill: mix(green, 80%, other: black)), anchor: "west")
     })
   })
@@ -182,13 +180,11 @@ Spending the same number of games on every move is wasteful, though, and with 25
 
 Each game starts at the top and walks down. Mostly it heads for the moves that have won the most so far for whoever’s turn it is, which is called #term[exploitation]. On the opponent’s turns that means the opponent’s best replies, so the more it plays, the less it counts on mistakes. Now and then it tries a move it has barely tried, which is called #term[exploration]. When the walk reaches a move never tried, MCTS adds it to the tree, plays one random game from there, and adds the result to every move on the way back up.
 
-#analogy[
-  Think of choosing a restaurant in a new town. You mostly return to the places that have been good, but you try somewhere new now and then in case it is better. Too much of the first and you may never find the best place. Too much of the second and you keep eating badly.
-]
+Think of choosing a restaurant in a new town. You mostly return to the places that have been good, but you try somewhere new now and then in case it is better. Too much of the first and you may never find the best place. Too much of the second and you keep eating badly.
 
 On our halfway board, 300 games of MCTS give the top right 284 visits and the other two moves 8 each, instead of 100 each as before. MCTS then plays the move it visited most.
 
-#libnote[
+#note[
   AlphaGo beat Lee Sedol four games to one in 2016 using this kind of search, steered by neural networks that had learned where to look: a policy network suggested promising moves and a value network guessed who was winning. It was still a search. Sutton’s essay argues that search and learning are the two methods that keep getting better the more computing power you give them.
 ]
 
@@ -217,11 +213,7 @@ These searches began as separate names with no lines between them. Here is the s
   )
 ]
 
-#tryit[
-  Run `python all_experiments/demo_game_search.py` from the course folder and find each number from this chapter. Then choose a different halfway board by editing `HALFWAY`, keeping X to move, and draw its game tree by hand before running the code. Do your minimax values match? Remove the final `assert` first, because it checks the book’s board.
-]
-
-#chapterrecap[
+#summary[
   - With an opponent, a found route is not enough, because the opponent gets to move too. Assume the best reply.
   - Minimax passes scores up the game tree, taking the smallest on the opponent’s level and the largest on yours. Alpha-beta skips moves that cannot change the answer.
   - When the tree is too large, stop early and trust an evaluation function. The robot is then only as good as its guess.
@@ -229,7 +221,11 @@ These searches began as separate names with no lines between them. Here is the s
   - Every search in this book is one loop with its own answer to one question: what do we look at next?
 ]
 
-#quickcheck[
+#exercises[
+  Run `python all_experiments/demo_game_search.py` from the course folder and find each number from this chapter. Then choose a different halfway board by editing `HALFWAY`, keeping X to move, and draw its game tree by hand before running the code. Do your minimax values match? Remove the final `assert` first, because it checks the book’s board.
+]
+
+#questions[
   + In #figref(<fig:game-tree>), why is the top-left move worth 0 even though a $+1$ sits below it?
   + What does alpha-beta pruning change about minimax’s answer, and what does it change about its work?
   + Which earlier idea in this book is an evaluation function closest to?

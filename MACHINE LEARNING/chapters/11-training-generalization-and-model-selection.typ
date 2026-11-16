@@ -9,7 +9,7 @@
 
 Training lowers the error on the data the model sees. That is easy, and it can be made as low as you like by giving the model enough freedom. The hard part is choosing how much freedom to allow, without being fooled by luck and without looking at the test set. Every decision in this chapter is made before the test set is opened.
 
-#coursechoice[
+#note[
   This chapter sets workflow rules for tuning, feature selection and imbalance. #chapsref(<ch:regression>, <ch:svm>) explain the model families; revisit these rules when lasso, trees and nearest neighbors make them concrete.
 ]
 
@@ -23,9 +23,7 @@ The first term fits the observed rows, and $Omega$ discourages unnecessary compl
 
 == Underfitting and overfitting
 
-#analogy[
-  Three students prepare from past papers. One learns only “answer C when unsure” and does badly on everything. One learns the methods and does well on old and new papers alike. One memorizes every past answer, scores full marks on the past papers, and falls apart on new questions. They have underfitted, fitted well, and overfitted.
-]
+Three students prepare from past papers. One learns only “answer C when unsure” and does badly on everything. One learns the methods and does well on old and new papers alike. One memorizes every past answer, scores full marks on the past papers, and falls apart on new questions. They have underfitted, fitted well, and overfitted.
 
 #describe-nextline(1.15in)[
   / Underfitting: The model is too simple to capture important patterns and performs poorly even on training data.
@@ -74,11 +72,9 @@ Here is the same thing on the study log. Fit polynomials of growing degree to pr
 
 Real curves are not the smooth U of textbooks. With ten rows the left-out error zigzags, and degrees 2 and 4 both look reasonable. The large shape is what to read: both errors are high at the left, training error keeps falling to the right, and the gap between them eventually dominates.
 
-#intuition[
+#note[
   For nested model classes with successful optimization, added flexibility cannot worsen the best training fit. So training error can never tell you when to stop. Only validation can, and it does not promise you a smooth curve.
-]
 
-#keyidea[
   Overfitting means following sample-specific noise, not merely fitting a curve. The degree-2 curve is curved, and it generalizes.
 ]
 
@@ -92,7 +88,7 @@ $ bb(E)[((y-hat(f)(bold(x))))^2] =underbrace(((bb(E)[hat(f)(bold(x))]-f(bold(x))
 
 Bias is systematic error; variance is sensitivity to training samples; irreducible noise remains. Regularization trades some bias for lower variance.
 
-#workedexample[
+#example[
   At a fixed test point, let $f(bold(x))=2$ and $sigma ^2=1$. Compare predictions from three model families, each trained on three random datasets.
 
   #utptable[
@@ -122,9 +118,7 @@ Bias is systematic error; variance is sensitivity to training samples; irreducib
   Every row includes irreducible noise $sigma ^2=1$, so no model can reduce expected error below~$1$.
 ]
 
-#analogy[
-  Picture darts. #term[Bias] is a tight group landing away from the bullseye, a systematic error. #term[Variance] is a wide scatter around it, a different result on every throw. #term[Irreducible noise] is a board that wobbles, which no player can fix.
-]
+Picture darts. #term[Bias] is a tight group landing away from the bullseye, a systematic error. #term[Variance] is a wide scatter around it, a different result on every throw. #term[Irreducible noise] is a board that wobbles, which no player can fix.
 
 More data often reduces variance; stronger assumptions may trade bias for lower variance. Choose the capacity with reliable validation performance, not by how impressive the model sounds.
 
@@ -138,7 +132,7 @@ $ J_(L_2)(bold(theta))=J(bold(theta)) + lambda sum _(j=1)^p theta _j^2. $
 
 $L_1$ regularization can make some parameters exactly zero. $L_2$ regularization smoothly shrinks large parameters. The strength $lambda$ is normally selected with validation data.
 
-#workedexample[
+#example[
   For the one-parameter objective $inline(frac(1, 2))( beta -hat(beta)_("OLS"))^2$ with $hat(beta)_("OLS")=4$, ridge adds $lambda beta ^2\/2$ and lasso adds $lambda | beta |$. Their solutions are
 
   $ hat(beta)_("ridge")=frac(hat(beta)_("OLS"), 1+ lambda), wide hat(beta)_("lasso")=op("sign")(hat(beta)_("OLS"))max(|hat(beta)_("OLS")|- lambda , med 0). $
@@ -199,7 +193,7 @@ A #term[learning curve] plots training and validation error against the number o
   })
 ]
 
-#keyidea[
+#note[
   A persistent gap suggests variance: try more representative data or stronger regularization. Both curves poor suggest limited signal, underfitting, or optimization failure; investigate features and fitting.
 ]
 
@@ -224,11 +218,11 @@ Use identical validation across candidates. Repeated tuning can overfit validati
 
 === Tuning without fooling yourself
 
-#intuition[
+#note[
   Random search explores more distinct values when few hyperparameters matter. Small grids suit one or two controls; neither fixes invalid validation.
 ]
 
-#pitfall[
+#warning[
   Trying many settings and reporting the best is a selection. Its score is a little optimistic, for the same reason the tallest of ten people is taller than average. In Lab~2 the winning churn model’s cross-validated ROC AUC is 0.844 and its one test score 0.846. Here the selection effect is smaller than the noise of a 1,761-row test set, so the test score happened to come out a little higher; on another split it could as easily come out lower.
 ]
 
@@ -252,7 +246,7 @@ Imbalance can make majority predictions look accurate while missing every rare c
   )
 ]
 
-#workedexample[
+#example[
   Fraud makes up 0.17% of Lab~5’s card transactions. Saying “never fraud” is 99.83% accurate and catches nothing. A logistic regression on 85,443 held-out transactions, 148 of them fraud, under three policies:
 
   #v(6pt)
@@ -273,11 +267,11 @@ Imbalance can make majority predictions look accurate while missing every rare c
   ]]]
 ]
 
-#coursechoice[
+#note[
   SMOTE’s geometry is developed in #chapref(<ch:knn-nb>). Its rule applies now: split first and synthesize only within training folds, never from held-out observations.
 ]
 
-#pitfall[
+#warning[
   Resampling changes training prevalence, not the target evaluation population. Keep validation and test distributions realistic.
 ]
 
@@ -298,19 +292,19 @@ Selection retains original columns; extraction creates new ones, as in PCA (#cha
   )
 ]
 
-#secondpass[
+#note[
   Revisit lasso in #chapref(<ch:regression>), tree importances in #chapsref(<ch:decision-trees>, <ch:ensembles>), and irrelevant dimensions in #chapref(<ch:knn-nb>). The validation rules stay the same.
 ]
 
-#pitfall[
+#warning[
   Fit supervised selectors inside the validated pipeline, separately in each training fold. #secref(<sec:data-leakage>) showed the price of doing otherwise: selecting columns on all the rows made pure noise score 0.80. The number of retained features is also a hyperparameter.
 ]
 
-#keyidea[
+#note[
   Before selecting features, specify the goal: accuracy, collection cost, or interpretability. Validate selection together with the model, without using the test set.
 ]
 
-#debugtask[
+#exercises[
   A researcher selects the top 20 features using all labeled rows, applies SMOTE to the full table, then runs cross-validation and reports the best result. Redesign the experiment so that nothing from the held-out rows can influence selection, resampling, or tuning.
 ]
 
@@ -327,11 +321,11 @@ A reproducible experiment records:
 
 Report variation across reruns, not one favorable seed. Neither the split seed nor the training seed is innocent: Lab~2’s churn model scored test AUC from 0.838 to 0.855 across five split seeds, and Lab~7’s CNN scores 0.700 in its notebook and 0.686 in the book’s check script, which trains the same network from the same seed in a different order and on a single thread. Parallel hardware may prevent bit-for-bit reproduction.
 
-#keyidea[
+#note[
   Training fit and generalization are distinct requirements.
 ]
 
-#modelcard[Training and Tuning - Practical Checklist][
+#checklist(title: [Training and Tuning - Practical Checklist])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -362,7 +356,7 @@ Report variation across reruns, not one favorable seed. Neither the split seed n
   )
 ]
 
-#keyidea[
+#note[
   Record weakly represented populations and known subgroup failures. These limits guide responsible use, not a judgment that the project failed.
 ]
 
@@ -378,23 +372,7 @@ Verify the saved artifact:
 - #strong[Check that the file reproduces the test predictions.] Load it back and compare with the in-memory model before calling it done. Lab~3 runs this check on its SVM.
 - #strong[Include a model card:] features, threshold, test score, and library version. Lab~2 saves and reloads its churn model, and `predict_churn.py` uses it from the terminal.
 
-#tryit[
-  Repeat training and validation across prespecified seeds and splits. Report variation, lock the seed policy and model, refit, then test once.
-]
-
-#debugtask[
-  A hyperparameter search reports its best configuration, then the researcher reruns the search with a narrower grid chosen after inspecting the test score. Explain how the test set entered training decisions and redesign the selection/final-evaluation boundary.
-]
-
-#decisionmemo[
-  Two models have nearly equal mean validation performance. One has lower fold-to-fold variation, half the inference latency, and simpler monitoring. Decide which to keep and state why a tiny mean-score advantage is not automatically decisive.
-]
-
-#tryit[
-  Using fixed validation folds, compare training and validation performance across capacities. Tune on development data, lock the procedure, and list the refitting steps before one final test.
-]
-
-#chapterrecap[
+#summary[
   - Both errors high means underfitting; a low training error with a much higher validation error means overfitting. Training error can never tell you when to stop.
   - Expected squared error splits into bias$""^2$, variance and noise. Minimize the total.
   - Regularization charges for complexity. Ridge shrinks every coefficient; lasso can delete some.
@@ -403,7 +381,17 @@ Verify the saved artifact:
   - Save the whole pipeline with a card, and report variation rather than one lucky seed.
 ]
 
-#quickcheck[
+#exercises[
+  + Repeat training and validation across prespecified seeds and splits. Report variation, lock the seed policy and model, refit, then test once.
+
+  + A hyperparameter search reports its best configuration, then the researcher reruns the search with a narrower grid chosen after inspecting the test score. Explain how the test set entered training decisions and redesign the selection/final-evaluation boundary.
+
+  + Two models have nearly equal mean validation performance. One has lower fold-to-fold variation, half the inference latency, and simpler monitoring. Decide which to keep and state why a tiny mean-score advantage is not automatically decisive.
+
+  + Using fixed validation folds, compare training and validation performance across capacities. Tune on development data, lock the procedure, and list the refitting steps before one final test.
+]
+
+#questions[
   + What train-versus-validation pattern suggests underfitting, and what pattern suggests overfitting?
   + From #figref(<fig:capacity-curve>), why would choosing the degree by training error always pick the largest degree available?
   + How can regularization improve validation performance even while making the training fit worse?

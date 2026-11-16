@@ -7,7 +7,7 @@
 
 == Two ways to set up: plain Python or Anaconda
 
-#keyidea[
+#note[
   Choose one installation route and keep the FinTech lab packages in its course environment.
 ]
 
@@ -125,7 +125,7 @@ python unbundling_scorecard.py value_chain.csv
     let pyevery = (..pystep, fill: pale-teal, draw: teal)
     let pycap = (font: font("script", weight: "bold", fill: muted),)
     let pynote = (font: font("script", fill: muted), align: center)
-    let pygo = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let pygo = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 0), [create .venv], name: "venv", font: font("small"), ..pyonce)
     node((4.05, 0), [activate], name: "act", font: font("small"), ..pyevery)
     node((8.1, 0), [install pandas \
@@ -144,7 +144,7 @@ python unbundling_scorecard.py value_chain.csv
   })
 ]
 
-#keyidea[
+#note[
   #strong[Activate first, then install.] Run the course scripts with the same
   Python environment that contains `pandas` and `NumPy`.
 ]
@@ -155,7 +155,7 @@ python unbundling_scorecard.py value_chain.csv
     let sysbox = (draw: muted, fill: pale-gray, rounded: 1.9925pt, align: center, inner-sep: 3.9851pt, min-width: 4.3)
     let pkg = (font: font("script", family: "mono"), align: center)
     let lbl = (font: font("script", fill: muted), align: center)
-    let hit = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let hit = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((0, 2.45), [system Python], name: "sys", font: font("small"), ..sysbox)
     node((2.35, 2.45), [leave this alone], font: font("small"), ..pkg, text: muted, anchor: "west")
     node((-2.8, 0), [`FinTech labs/.venv`], name: "a", font: font("small"), ..envbox)
@@ -205,14 +205,14 @@ python -c "import sys; print(sys.executable)"
 python -c "import pandas, numpy; print('Packages ready')"
 ```
 
-#pitfall[
+#warning[
   Install packages into the `fintech` environment, not `(base)`.
   For this route, use `conda install` rather than mixing package
   managers. If the environment is unusable, remove `fintech` with
   `conda env remove -n fintech` and recreate it.
 ]
 
-#troubleshoot[
+#tip[
   #strong[Conda not found on Windows:] open Anaconda Prompt and check the
   installation there. #strong[A lab cannot import pandas or NumPy:] activate
   `fintech`, check that the active Python belongs to that environment, then install the packages there.

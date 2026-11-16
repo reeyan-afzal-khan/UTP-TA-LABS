@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand the idea of functional silos from Chapter 1.][explain how MRP evolved into ERP, describe ERP modularity and shared data, evaluate major benefits and implementation challenges, and identify conditions that make an ERP project more likely to succeed.]
 
-#sourcebasis[
+#note[
   This chapter is based on Tutorial 2 and Chapter 2 of #emph[Concepts in Enterprise Resource Planning], with implementation ideas reinforced by Chapter 7.
   Tutorial 2 asks students to investigate one ERP benefit and one ERP challenge,
   support each with evidence, and teach the result to peers.
@@ -49,7 +49,7 @@ and logistics.
     connect("c", "d", ..procflow)
     node((-0.2, 3.05), [#strong[scope: one store room #h(1em)$arrow.r.long$#h(1em)one factory]], ..proccap, anchor: "west", text-width: 7, align: left)
     node((15.2, 3.05), [#strong[$arrow.r.long$#h(1em)one enterprise]], ..proccap, anchor: "east", text-width: 5, align: right)
-    connect((-0.2, 2.6), (15.2, 2.6), draw: mix(blue, 35%), line-width: 1.9925pt, end: tip("Stealth", length: 3mm, line: 1.9925pt))
+    connect((-0.2, 2.6), (15.2, 2.6), draw: mix(blue, 35%), line-width: 1.9925pt, end: arrow-tip("Stealth", length: 3mm, line: 1.9925pt))
   })
 ]
 
@@ -103,7 +103,7 @@ differently.
       node((8.6, y), [#t], name: "t" + str(i), ..procdoc, anchor: "west", min-width: 6, text-width: 5.6, align: left, min-height: 0.62, draw: green)
     }
     for i in range(0, 4) {
-      connect("t" + str(i) + ".west", "m" + str(i) + ".east", ..proclink, end: tip("Stealth", length: 1.8mm, line: 0.4pt))
+      connect("t" + str(i) + ".west", "m" + str(i) + ".east", ..proclink, end: arrow-tip("Stealth", length: 1.8mm, line: 0.4pt))
     }
     node((7.3, 3.35), [each transaction #emph[points at] a master record], ..procnote, anchor: "center", text-width: 3.1)
     node((0, -0.75), [change a price here $dots.h$], ..procchipwarn, anchor: "west")
@@ -111,7 +111,7 @@ differently.
   })
 ]
 
-#keyidea[
+#note[
   ERP integration is not achieved by putting every task on one giant screen. It is
   achieved by letting specialised modules share master data and create linked
   transaction records from the same business events.
@@ -151,7 +151,7 @@ Naming the mechanism is what turns “ERP improves efficiency” into an argumen
 Better customer service, lower inventory, shorter cycle times, and stronger
 control are downstream consequences of these four.
 
-#workedexample[
+#example[
   Suppose West End Bicycles keeps the Road Bike price in a salesperson’s
   spreadsheet and again in Finance’s invoice system. A price change must be made
   twice and may be missed once. With one integrated product record, the quotation
@@ -196,7 +196,7 @@ inadequate training, treating the work as IT-only, weak executive sponsorship,
 poor change management, uncontrolled scope or customisation, and difficult
 migration of legacy data.
 
-#pitfall[
+#warning[
   “Install ERP” is not a business objective. A project needs a process objective
   --- reduce order cycle time, improve inventory accuracy, shorten the financial
   close --- or the organisation can spend heavily and reproduce its old problems
@@ -270,8 +270,8 @@ the capacity to support growth may still be strategically decisive.
 The West End Bicycles guide uses eight Odoo 19 Community applications. Each has
 a distinct job; the records are connected.
 
-#applicationbox[
-  Read the Odoo app grid as a modular ERP architecture:
+#note[
+  #strong[In Odoo 19 Community.] Read the Odoo app grid as a modular ERP architecture:
 
   - #utpapp[Contacts]: shared customer and vendor identities.
   - #utpapp[CRM] and #utpapp[Sales]: demand, opportunities, quotations, orders.
@@ -283,14 +283,14 @@ a distinct job; the records are connected.
   in each app.
 ]
 
-#tryit[
+#exercises[
   Choose one ERP benefit and one implementation challenge from this chapter. For
   each write: (1) the mechanism, (2) one operational example at West End Bicycles,
   and (3) one metric that would show whether it improved. This mirrors Tutorial 2
   while forcing the argument to be measurable.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between master data and transaction data? Give two Odoo examples of each.
   + Why is top-management support important in a cross-functional ERP implementation?
   + Why can copying an inefficient legacy process exactly into an ERP system reduce the expected benefit?

@@ -17,7 +17,7 @@
   #strong[Hand in.] The executed notebook, the `results/lab06/` folder and a short conclusion, as listed in the checklist at the end of this sheet.
 ]
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm that the zip is in `all_datasets/`. Do not extract it yourself; the notebook does that.
   + #strong[Install the Tesseract OCR engine.] This is the one lab that needs software beyond Python. The `pytesseract` package in `requirements.txt` is only a wrapper around it. Use the line for your system, then reopen the terminal and check the version.
   + Start Jupyter from `all_experiments/`, open the notebook, and choose #strong[Restart Kernel and Run All Cells].
@@ -41,7 +41,7 @@
   On Windows the notebook also looks in `C:\Program Files\Tesseract-OCR`, so it finds a default install even if the terminal does not.
 ]
 
-#pitfall[
+#warning[
   #strong[Live or cached?] With Tesseract and its Python wrapper installed, this lab performs live recognition, and the first printed line says `OCR mode: live`. Otherwise it analyses the supplied predictions in `results/lab06/predictions.csv` and says `OCR mode: cached`. A cached run can reproduce the saved comparison and every metric, but it cannot test a new preprocessing choice. Never describe a cached run as new OCR inference. Keep `predictions.csv` in place, because cached mode reads it.
 ]
 
@@ -49,7 +49,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] The raw baseline reads `dicloran` as `diclerew`. Work out the Levenshtein distance by hand, using the table method of #figref(<fig:levenshtein>), and then the normalised distance.
 
   #emph[Answer.] Substitute `o`$arrow.r$`e`, `a`$arrow.r$`e` and `n`$arrow.r$`w`: distance 3. Both strings have 8 characters, so the normalised distance is $3\/8=0.375$.
@@ -186,7 +186,7 @@
   #strong[What it means.] Of the eight worst cases, seven are #emph[no text detected] and one is #emph[character confusion]. An engine error is a recorded runtime failure, no text detected is a segmentation failure, and character confusion is a recognition failure, and each needs a different fix. This is a benchmark of how well a model fits a domain, not evidence that generic OCR suits clinical transcription.
 ]
 
-#yourturn[
+#exercises[
   Add new cells at the end of the notebook. Tasks 1 and 2 work in live and cached mode, because they recompute from the saved predictions. Task 3 needs live OCR.
 
   + #strong[Look past the totals.] Using `baseline` and `preprocessed`, count the images whose edits improved, worsened or stayed the same, and how many went from blank to text and from text to blank.
@@ -201,20 +201,20 @@
   ```
 ]
 
-#expectedfindings[
+#answers[
   + On the saved predictions: 43 improved, 18 worse and 28 the same; 34 went from blank to text and 5 from text to blank. `tab mesulid`, for example, was read as `wos Mesulia` on the raw image and not at all after preprocessing. The aggregate improvement hides real losses.
   + Keeping spaces gives CER 0.884 (baseline) and 0.783 (preprocessed). No normalisation gives 0.928 and 0.858. The ordering of the pipelines survives, and the gap between them does not stay the same, so always state the rule.
   + This depends on your Tesseract version and your choice of step, so there is no fixed answer. Your report should give the numbers for all three pipelines on the same 89 images.
 ]
 
-#troubleshoot[
+#tip[
   / `tesseract is not recognized`: Close and reopen the terminal after installing, or add the install folder to `PATH`. The notebook will still find the default Windows location.
   / The first line says `cached` after installing: Restart the Jupyter kernel so it sees the new program, and check that `pytesseract` is installed in the active environment.
   / `predictions.csv is missing` in cached mode: Restore `results/lab06/predictions.csv` from the course package, or install Tesseract.
   / Slightly different numbers in live mode: Expected: Tesseract versions differ. Report your version with your numbers.
 ]
 
-#verification[
+#checklist[
   - All 89 labelled images are present exactly once.
   - Both pipelines are scored on the same 89 images with the identical OCR configuration, and engine failures are counted, not dropped.
   - Exact match, normalised edit distance, character error rate and blank predictions are reported for both pipelines.
@@ -222,9 +222,9 @@
   - `results/lab06/` holds `predictions.csv`, `metrics.csv`, `error_analysis.csv`, `sample_grid.png` and `ocr_failures.png`.
 ]
 
-#labdeliverable[
+#submission[
   - Restart the kernel and run all cells without errors.
-  - Submit the executed notebook, including your #emph[Your turn] cells, and the generated `results/lab06/` folder.
+  - Submit the executed notebook, including the cells you added for the exercises, and the generated `results/lab06/` folder.
   - Report the OCR mode and, for a live run, the Tesseract version.
   - State which OCR stage improved, which failure remained, and why this pipeline is not suitable for autonomous clinical transcription.
 ]

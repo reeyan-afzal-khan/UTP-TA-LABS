@@ -35,11 +35,11 @@
   [Save the evidence; then classify text messages as spam],
   [14--16],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the two checklists],
+  [Exercises, answers, troubleshooting tips and the two checklists],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment and confirm the three data files are in `all_datasets/supervised/`.
   + Check the small worked numbers of the model chapters. The last line must read `Every number above matches the book.`
   + From the course folder, start Jupyter, open the notebook, and choose #strong[Restart Kernel and Run All Cells]. It takes about two minutes; the neighbor search in Question~3 and the SVMs in Questions~11 and~12 take most of it.
@@ -54,7 +54,7 @@
 
 #labroutine
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + 959 of the 5,000 validation loans default. What accuracy does a model that always says “repaid” score, and why does that make accuracy a poor way to compare the models below?
@@ -203,7 +203,7 @@
     ```
   ]
 
-  #strong[What it means.] Three shapes, one score. Defaults are scattered through every region of the plane, and the risk rises smoothly with the interest rate, so any reasonable boundary does as well as any other. On two columns the families score within 0.02 of the thirteen-column models of Question~4: the interest rate carries most of the signal, a point Your-turn task~4 measures. On noisy credit data the data, not the algorithm, sets the ceiling.
+  #strong[What it means.] Three shapes, one score. Defaults are scattered through every region of the plane, and the risk rises smoothly with the interest rate, so any reasonable boundary does as well as any other. On two columns the families score within 0.02 of the thirteen-column models of Question~4: the interest rate carries most of the signal, a point Exercise~4 measures. On noisy credit data the data, not the algorithm, sets the ceiling.
 ]
 
 #labcheckpoint[
@@ -464,7 +464,7 @@
     ```
   ]
 
-  #strong[What it means.] The file is large for a model of thirteen inputs, because an SVM keeps its support vectors, the training loans that define its boundary, and on noisy data that is most of them; Your-turn task~3 counts them.
+  #strong[What it means.] The file is large for a model of thirteen inputs, because an SVM keeps its support vectors, the training loans that define its boundary, and on noisy data that is most of them; Exercise~3 counts them.
 ]
 
 #labcheckpoint[
@@ -499,8 +499,6 @@
   ]
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(15)[Try it yourself][
   Naive Bayes is famous for text. Load `supervised/sms_spam/sms_spam.csv`, turn each message into word counts with `CountVectorizer`, and compare `MultinomialNB` with a nearest-neighbor classifier on tf-idf vectors. Report ROC AUC, precision and recall, and list the words that most raise the spam odds. Attempt it in this empty cell before reading the solution.
 ]
@@ -533,10 +531,10 @@
   #strong[What it means.] 403 messages are exact repeats, which a careful project would drop before splitting. Naive Bayes wins on text, and it trains in an instant: its #emph[naive] assumption that words are independent is false, but it is a good enough approximation when there are thousands of weak clues. The words that most raise the spam odds are the vocabulary of a premium-rate scam. Unlike the loans, text gives every family a clear signal to find.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklists], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the two checklists before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklists], [Extend the lab with the exercises, compare with the answers, and check your work against the two checklists before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[Take the scaler away.] Refit the Question~3 pipeline at $k=801$ without `StandardScaler`, keeping the imputer. What happens to cross-validated and validation ROC AUC? Print the training columns’ standard deviations: which column now decides the neighbors?
   + #strong[How many trees are enough?] On the Question~10 split, fit the car-price forest of Question~9 with 1, 10, 50, 150 and 400 trees, and score the log-RMSE. Where does it stop improving? Compare with always guessing the training mean.
@@ -544,7 +542,7 @@
   + #strong[Whose model is it?] Refit Question~4’s logistic regression without `int_rate`, then without `int_rate` and `term_months`, then on `int_rate` alone. How much of the model’s skill is the lender’s own pricing?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] Always saying “repaid” scores $4","041\/5","000=80.8 %$, and the models below differ far more in how they rank risky loans than in accuracy. In raw units the amounts differ by 5,000 and the scores by 20, so the loan amount decides the distance alone; after scaling the gaps are $5","000\/8","487=0.59$ and $20\/30.3=0.66$, and the credit score counts slightly more.
 
   + Cross-validated ROC AUC falls from 0.719 to 0.571, and validation ROC AUC from 0.723 to 0.586. The loan amount has a standard deviation of \$8,487, against 30.3 for the FICO score, 23.7 for revolving utilization and 4.3 for the interest rate, so in raw units the neighbors are simply loans of a similar size, and the size of a loan says little about its risk.
@@ -553,7 +551,7 @@
   + The score falls from 0.731 to 0.708 without the interest rate, and to 0.669 without the rate and the term; the rate alone scores 0.707. One column, set by the lender from its own grade, carries almost all of the skill. A model trained on it mostly reproduces the lender’s assessment, which is useful, but it is no independent second opinion.
 ]
 
-#troubleshoot[
+#tip[
   / The SVM cells take a minute: Question~11 fits eleven settings three times each on 10,000 loans, and an SVM’s training time grows faster than its rows. That is expected on a laptop CPU.
   / Accuracy looks fine for every model: It is: always saying “repaid” is 80.8% accurate. Judge the models by ROC AUC and average precision, as the sheet does.
   / `ValueError: Input X contains NaN`: A tree, a plot or a model was given loans with gaps. Keep the imputer in every pipeline, and use the filled copies `Xt_train` and `Xt_valid` for the trees.
@@ -561,7 +559,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - Every comparison in a part uses the same split and the same metric, and the eight columns written after the loan stay out of every model.
     - $k$ and the SVM settings are chosen by cross-validation on training rows, and the test loans, which no part had seen, are scored once.
     - You can read the depth-3 tree’s riskiest rule, and say why the tree flags no loan at 0.5.

@@ -104,6 +104,6 @@ quadratic probing:
 
 The complete captured run is in `labs/outputs/hashing_collisions.txt`.
 
-#tryit[
+#exercises[
   Use a fresh size-5 table with quadratic inserts 0,5,10,15. The final route 0,1,4,4,1 fails despite free slots. Record failure separately from the five probes and confirm the table is unchanged.
 ]

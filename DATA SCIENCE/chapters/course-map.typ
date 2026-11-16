@@ -39,7 +39,7 @@ Every lab follows the same workflow, revisited at increasing depth, and works on
 #utpfig([The course revisits the same workflow at increasing depth. Each lab sits immediately after the chapter that supplies its concepts.], label: <fig:course-workflow>)[
   #canvas(x: 16.06cm, {
     let stage = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.6974pt, text-width: 0.155 * 16.06, min-height: 1.65, inner-xsep: 1.8mm, inner-ysep: 2mm, align: center, font: font("script", fill: navy))
-    let arr = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let arr = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     let feedback = (..arr, draw: muted, rounded: 2mm)
     node((0, 0), [#strong[1\. Frame] \ #v(3.9851pt)
    Define the question \
@@ -84,6 +84,6 @@ Every lab follows the same workflow, revisited at increasing depth, and works on
   )
 ]
 
-#keyidea[
+#note[
   Every practical submission should answer four questions: #emph[What was the question? What data were used? What evidence was produced? What are the limitations?]
 ]

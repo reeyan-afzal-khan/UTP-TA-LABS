@@ -44,13 +44,13 @@ VLANs create separate Layer-2 broadcast domains on shared switches. Hosts in dif
    #fsize("tiny")[added on entry, so the far switch knows]], ..netframe, text-width: 2.5, align: center, draw: blue, fill: pale-blue)
     node(below-of("pc3", 0.8), [#strong[no tag] \
    #fsize("tiny")[stripped again on the way out]], ..netframe, text-width: 1.9, align: center)
-    connect((rel: (0, -0.35), to: "pc1"), (rel: (0, -0.75), to: "pc1"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
-    connect((rel: (0, -0.2), to: ("sw1", 50%, "sw2")), (rel: (0, -0.68), to: ("sw1", 50%, "sw2")), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
-    connect((rel: (0, -0.35), to: "pc3"), (rel: (0, -0.75), to: "pc3"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
+    connect((rel: (0, -0.35), to: "pc1"), (rel: (0, -0.75), to: "pc1"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
+    connect((rel: (0, -0.2), to: ("sw1", 50%, "sw2")), (rel: (0, -0.68), to: ("sw1", 50%, "sw2")), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
+    connect((rel: (0, -0.35), to: "pc3"), (rel: (0, -0.75), to: "pc3"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
   })
 ]
 
-#keyidea[
+#note[
   A VLAN is enforced by the switch, not by the host’s IP address. Two PCs can share a subnet and still be unable to reach each other if they sit in different VLANs --- changing the PC’s address cannot bypass the separation.
 ]
 
@@ -67,7 +67,7 @@ is why the usable range stops at 4094.
     protorow(0, u, ((6, [Destination MAC], hdrb), (6, [Source MAC], hdrb), (2, [Type], hdro), (8, [Payload], hdrpay), (4, [FCS], hdrg)))
     node((-0.15, -1.35), [tagged], anchor: "east", font: font("script", weight: "bold", fill: navy))
     protorow(-1.35, u, ((6, [Destination MAC], hdrb), (6, [Source MAC], hdrb), (4, [802.1Q tag], hdrr), (2, [Type], hdro), (8, [Payload], hdrpay), (4, [FCS], hdrg)))
-    connect((4.85, -0.42), (4.85, -0.95), draw: red, line-width: widths.thick, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((4.85, -0.42), (4.85, -0.95), draw: red, line-width: widths.thick, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((5, -0.68), [4 bytes inserted here], font: font("tiny", fill: red), anchor: "west")
     let vv = 1.05
     protorow(-3, vv, ((2, [TPID 0x8100], hdrr), (0.35, [PCP], hdrm), (0.15, [D], hdrm), (1.4, [VLAN ID], hdrb)))
@@ -110,7 +110,7 @@ Build static-LACP Eth-Trunk 1 with G0/0/9 and G0/0/10. The source shows both phy
 [S2-Eth-Trunk1] port trunk allow-pass vlan all
 ```
 
-#keyidea[
+#note[
   Eth-Trunk aggregates links; trunk mode carries VLANs. These are separate functions on the same logical interface.
 ]
 
@@ -193,7 +193,7 @@ across two.
 
 #vrpread[the second result is a pass, not a failure. A VLAN lab needs both transcripts, because only the failing one proves the isolation works.]
 
-#verification[
+#checklist[
   Test both outcomes: same-VLAN connectivity and different-VLAN isolation before adding hybrid behavior.
 ]
 
@@ -243,7 +243,7 @@ Retest reachability: the selected VLAN-2 and VLAN-4 hosts should communicate, wh
   })
 ]
 
-#keyidea[
+#note[
   The two hybrid commands answer the two different questions above.
   `port hybrid pvid vlan <id>` answers the ingress question; `port hybrid untagged vlan 2 4` answers the egress one. Setting one without
   the other is the usual cause of a hybrid port that half works.
@@ -260,7 +260,7 @@ A trunk sends exactly one VLAN #emph[untagged] --- the native VLAN, taken from t
     node(left-of("s1", 1.3), [VLAN 10], name: "h1", ..vlanA)
     node(right-of("s2", 1.3), [VLAN 20], name: "h2", ..vlanB)
     connect("h1", "s1", ..flowarrow)
-    connect("s1", "s2", line-width: widths.very-thick, draw: red, end: tip("Stealth", length: 2.2mm, line: widths.very-thick))
+    connect("s1", "s2", line-width: widths.very-thick, draw: red, end: arrow-tip("Stealth", length: 2.2mm, line: widths.very-thick))
     node(along("s1", "s2", t: 50%), [frame crosses with #strong[no tag]], ..netlabel, text-width: 3.2, align: center, anchor: "south")
     connect("s2", "h2", ..flowarrow)
     node(below-of("s1", 0.2), [PVID 10 \
@@ -272,7 +272,7 @@ A trunk sends exactly one VLAN #emph[untagged] --- the native VLAN, taken from t
   })
 ]
 
-#pitfall[
+#warning[
   If a cross-VLAN ping unexpectedly #emph[succeeds], that is not a success --- it is this bug. Set the native VLAN explicitly, to an unused VLAN carrying no user data (999 in the lab files), on #emph[both] ends. Confirm with `display port vlan` rather than assuming, because nothing else will tell you.
 ]
 
@@ -287,11 +287,11 @@ A trunk sends exactly one VLAN #emph[untagged] --- the native VLAN, taken from t
   + Use ping results as evidence only after the switch configuration matches the intended VLAN path.
 ]
 
-#tryit[
+#exercises[
   Complete the source assignment: build a topology with two switches, two routers, and two PCs. Put the routers in VLAN 2 and the PCs in VLAN 3. Verify same-VLAN and different-VLAN connectivity and capture the command-prompt evidence.
 ]
 
-#quickcheck[
+#questions[
   + Why is the inter-switch Eth-Trunk configured as a trunk rather than an access port?
   + What does an access port simplify for a non-VLAN-aware host?
   + In the source exercise, what does the hybrid PVID control?

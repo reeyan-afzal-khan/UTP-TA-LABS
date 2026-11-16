@@ -13,9 +13,7 @@ Lab~4 uses one air-quality dataset for two tasks. A hand-written #term[fuzzy con
 
 Classical logic has two answers, true and false. Fuzzy logic allows a #term[degree of membership] $0 <= mu (x) <= 1$. Suppose a ventilation fan follows the rule “if it is hot, run at full speed” and “hot” means above $30^(compose)$C. At $29.9^(compose)$C the fan is idle, and at $30.1^(compose)$C it is at full speed. A change you could not feel on your skin flips the whole system.
 
-#analogy[
-  An ordinary light switch is either off or on. A dimmer sweeps smoothly from dark to full brightness and cannot go past either end. Crisp logic is the switch. Fuzzy logic is the dimmer: “hot” can be 0.47 on, and the fan responds in proportion.
-]
+An ordinary light switch is either off or on. A dimmer sweeps smoothly from dark to full brightness and cannot go past either end. Crisp logic is the switch. Fuzzy logic is the dimmer: “hot” can be 0.47 on, and the fan responds in proportion.
 
 #utpfig([“Hot” as a crisp set and as a fuzzy set, the second using the set from Lab~4. The crisp version forces a decision at one point. The fuzzy version reports a degree, so $35^(compose)$C is hot to degree $0.47$.], label: <fig:crisp-fuzzy>)[
   #canvas({
@@ -38,11 +36,11 @@ Classical logic has two answers, true and false. Fuzzy logic allows a #term[degr
   })
 ]
 
-#pitfall[
+#warning[
   A membership of 0.47 is not a 47 % chance that it is hot. The temperature is known exactly, and nothing about it is uncertain. The word “hot” is what has edges that fade. Fuzzy logic models vague words; probability models unknown facts.
 ]
 
-#intuition[
+#note[
   Fuzzy logic attaches numbers to graded words such as “cold”, “humid” and “fast”, which makes verbal rules executable. You already adjust a shower this way: nobody solves an equation, you just think “a bit too cold, so a little hotter”.
 ]
 
@@ -75,7 +73,7 @@ The lab implements the triangle in a few lines, with the shoulder cases written 
 
 #lstinput("/ARTIFICIAL INTELLIGENCE/all_experiments/lab04_fuzzy_anfis_worked.py", first: 38, last: 43, lang: "python")
 
-#pitfall[
+#warning[
   A `trimf` that assumes $a<b<c$ divides by zero for shoulders or returns incorrect zero memberships. This can disable the “cold” and “dry” rules, leaving only a fallback output. Question~3 of the lab catches this by checking five points with known answers.
 ]
 
@@ -169,7 +167,7 @@ The rules produce a fuzzy output set, but the fan needs a number. At $15^(compos
   })
 ]
 
-#workedexample[
+#example[
   At $15^(compose)$C and 45 % relative humidity the memberships are cold $0.17$, mild $0.30$, comfortable $(45-30)\/20=0.75$, and all others~$0$. The rule strengths follow:
 
   $ "low"=min(0.17,0.75)=0.17, wide "medium"=min(0.30,0.75)=0.30, wide "high"=0. $
@@ -177,7 +175,7 @@ The rules produce a fuzzy output set, but the fan needs a number. At $15^(compos
   Clipping the low and medium output sets at those strengths and taking the centroid of their union gives a ventilation demand of $40.4 thin %$: a little below “medium”, pulled down by the cold rule.
 ]
 
-#tryit[
+#exercises[
   Trace $28^(compose)$C and 45 % by hand before reading on. Which temperature sets are non-zero, which rules fire, and with what strength? Then run `ventilation(28, 45)` in the Lab~4 notebook.
 
   #emph[Answer.] Mild is $(32-28)\/10=0.40$ and hot is $(28-26)\/19=0.11$; comfortable is still $0.75$. So low $=0$, medium $=min(0.40,0.75)=0.40$ and high $=0.11$. The output set now has weight on the high side, and the code returns $55.5 thin %$.
@@ -192,7 +190,7 @@ Check the controller against expectations written down #emph[before] viewing its
 
 A surface also exposes gaps in coverage. Every reading must fire at least one rule. If you delete “humid” from the `high` rule, then at $(25^(compose), 80 thin % )$ no rule fires, the output set is empty, and the centroid becomes a division by zero. That happens on 99 of the 1,886 grid points. The full rule base has no such gap.
 
-#keyidea[
+#note[
   Check known inputs and the full control surface. One plausible output can hide inactive rules.
 ]
 
@@ -209,8 +207,8 @@ The controller above is a #term[Mamdani] system: each rule outputs a fuzzy #emph
       draw.scope({
         draw.translate((1.35, 0))
         draw.translate((0, -0.55))
-        connect((-0.2, 0), (4, 0), draw: mix(muted, 60%), end: tip("Stealth", length: 1.6mm, line: 0.4pt))
-        connect((0, -0.2), (0, 1.35), draw: mix(muted, 60%), end: tip("Stealth", length: 1.6mm, line: 0.4pt))
+        connect((-0.2, 0), (4, 0), draw: mix(muted, 60%), end: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt))
+        connect((0, -0.2), (0, 1.35), draw: mix(muted, 60%), end: arrow-tip("Stealth", length: 1.6mm, line: 0.4pt))
         connect((0.4, 0), (1.8, 1.1), (3.2, 0), line-width: widths.very-thick, draw: orange)
         connect((0.4, 0), (1.8, 1.1), (3.2, 0), (0.4, 0), opacity: 20%, fill: orange, draw: none)
       })
@@ -341,13 +339,11 @@ Most of machine learning follows one recipe: make a guess, score how wrong it is
 / Consequents by least squares.: With the premises fixed, the loss is shaped like a smooth bowl in $p$, and a bowl has exactly one lowest point. There is no need to walk to the bottom, because a formula jumps straight there. `_solve_outputs` solves that linear system, with a small ridge term for numerical stability.
 / Premises by numerical optimisation.: Centres and widths have no such formula. SciPy’s L-BFGS-B walks downhill on training MSE, re-solving the consequents at every evaluation and keeping the widths inside fixed bounds.
 
-#analogy[
-  Picture standing on a hillside in thick fog. Your position is the set of centres and widths, your height is the loss, and the fog hides the valley. Your feet can feel which way the ground slopes, though, and that is enough to keep walking downhill. At every step you check your altitude by solving the bowl exactly, which is cheap. Chapter~@ch:localsearch returns to this picture and to what can go wrong on it.
-]
+Picture standing on a hillside in thick fog. Your position is the set of centres and widths, your height is the loss, and the fog hides the valley. Your feet can feel which way the ground slopes, though, and that is enough to keep walking downhill. At every step you check your altitude by solving the bowl exactly, which is cheap. Chapter~@ch:localsearch returns to this picture and to what can go wrong on it.
 
 Re-solving the consequents leaves only $2 m$ centres and $2 m$ widths to walk over, rather than an additional $3 m^2$ coefficients. With $m=3$ that is 12 parameters to search and 27 solved exactly.
 
-#keyidea[
+#note[
   Use a hand-written fuzzy system when the rules are the knowledge you want to encode and audit. Use ANFIS when data should decide the numbers and the rule structure is only a flexible, interpretable family of functions.
 ]
 
@@ -373,13 +369,13 @@ ANFIS is a regressor, and it is judged like one: by its error on data it never s
 
 The selected ANFIS lowers test RMSE by 13 % relative to the linear baseline. The predicted-versus-actual plot shows where the gain comes from: the straight line predicts negative CO at very low concentrations and under-predicts at high ones, whereas the blend of local linear rules stays near the diagonal at both ends. Because L-BFGS-B differs slightly between SciPy versions, your third decimal may not match this table, but the ordering of the models should.
 
-#pitfall[
+#warning[
   #strong[Do not select on test RMSE.] Choosing the better of two test results makes the reported score a selected best result, not an unbiased estimate on new data. Seeing the final exam early does not make you better at the subject.
 ]
 
 A random split of hourly readings ignores time order and sensor drift, so it may overstate long-term performance. Note too that the controller encodes a policy while the regressor fits measurements, so a lower RMSE would not make one a substitute for the other.
 
-#chapterrecap[
+#summary[
   - Fuzzy logic replaces true/false with a degree between 0 and 1: a dimmer rather than a switch. It models vague words, not unknown facts.
   - A FIS fuzzifies its inputs, applies rules with `min` and `max`, combines the clipped outputs and defuzzifies to one number.
   - Mamdani conclusions are readable fuzzy sets. Sugeno conclusions are formulas, which makes them trainable.
@@ -387,7 +383,7 @@ A random split of hourly readings ignores time order and sensor drift, so it may
   - Fit everything on training rows, choose on validation rows, and read the test rows once.
 ]
 
-#quickcheck[
+#questions[
   + A temperature of $28^(compose)$C: which of the lab’s three temperature sets have non-zero membership, and roughly what are the degrees?
   + Why is AND implemented with `min` and the joining of rules with `max`?
   + Which single change turns the Mamdani controller into a Sugeno one, and why does that change make least-squares training possible?

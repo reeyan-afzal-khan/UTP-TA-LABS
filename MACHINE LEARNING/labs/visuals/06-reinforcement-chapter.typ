@@ -4,7 +4,7 @@
   #labgraphic[
     #canvas({
       let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3, min-height: 1.2, align: center, font: font("normal", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.4mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.4mm, line: widths.thick))
       node((0, 0), [Agent \
     chooses an action], name: "agent", ..box-style)
       node(right-of("agent", 3.5), [Environment \

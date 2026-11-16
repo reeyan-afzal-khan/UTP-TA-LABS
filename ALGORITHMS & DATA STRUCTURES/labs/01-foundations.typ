@@ -3,11 +3,11 @@
 
 #labsection(1, label: <sec:lab01>)[Programming foundations and structured records]
 
-#sourcealignment[Official Lab Manual --- Lab I][
-  Structures, unions, pointers, and 1D arrays; build a small record application.
-]
-
 #labproject[Build a small record-based application][
+  #note[
+    #strong[Official Lab Manual --- Lab I.] Structures, unions, pointers, and 1D arrays; build a small record application.
+  ]
+
   #strong[Goal.] Store, search, and update five student records.
 
   #strong[Recall first.] Review the #link(<ch:introduction>)[Introduction to Data Structures] chapter.
@@ -24,7 +24,7 @@
   #include "programs/union_review.typ"
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

@@ -37,14 +37,15 @@ The VS Code Typst tasks use these same numbered scripts, including environment c
 
 ## Live preview
 
-The workspace recommends **Tinymist Typst** and **Megamist Typst**.
+The workspace uses one Typst extension, **Tinymist Typst**. Open the course's `main.typ`, pin it as the main file, and start its editor-tab preview. Pinning keeps the complete book selected while you edit included chapters or labs.
 
-- **Megamist:** open a course's `main.typ`, press **Ctrl+Shift+P** (Cmd+Shift+P on macOS), and choose **Typst: Open Preview**. Automatic refresh is enabled with a 100 ms debounce. This is the Command Palette, not the terminal.
-- **Tinymist:** open the course's `main.typ`, pin it as the main file, and start its editor-tab preview. Pinning keeps the complete book selected while you edit included chapters or labs. Preview refreshes on typing, including unsaved edits.
+**The preview refreshes when you save (Ctrl+S, Cmd+S on macOS), not on every keystroke.** A book here runs to 500 pages: each refresh of the Machine Learning preview keeps the preview busy for one to seven seconds, so refreshing on every keystroke kept it permanently busy and slow to respond. Errors and warnings in the editor still update as you type. For a short document you can switch to live refresh in your own settings with `"tinymist.preview.refresh": "onType"`.
 
-[Megamist's published limitations](https://marketplace.visualstudio.com/items?itemName=robertmorelli.megamist-typst) currently include first-page-only preview and no PDF export. Its browser compiler has embedded fonts; it does not inherit Tinymist's font/root settings. Use Tinymist for checking every book page and the pinned official CLI for publication. This repository does not assume that both extensions use the same embedded compiler version. If diagnostics are duplicated, disable one extension for the workspace.
+**If the whole VS Code window flashes blank** (it shows only its background colour for a fraction of a second, over and over, usually once a large preview is open), the cause is VS Code's GPU rendering, not Typst. It is common on computers whose monitors are connected to two different graphics cards. Run **Preferences: Configure Runtime Arguments** from the Command Palette, set `"disable-hardware-acceleration": true`, and quit and reopen VS Code. To keep hardware acceleration instead, use Windows **Settings → System → Display → Graphics** to run VS Code on the graphics card that drives the monitor it is on.
 
-Tinymist is configured with the repository root, bundled fonts, original preview colours, and no automatic PDF exports. The editor preview is independent of the numbered PDF build scripts. See the [Tinymist preview guide](https://myriad-dreamin.github.io/tinymist/feature/preview.html).
+Do not run **Megamist Typst** next to Tinymist. It compiles the open file 100 ms after every keystroke, cannot read the files a book imports (so every compile fails), and flashes its status and error marks each time. Earlier versions of this guide recommended it; disable it for this workspace (Extensions view → Megamist Typst → Disable (Workspace)) or uninstall it.
+
+Tinymist is configured with the repository root, bundled fonts, original preview colours, partial rendering (only the pages on screen are drawn), no compile-status indicator, and no automatic PDF exports. The editor preview is independent of the numbered PDF build scripts. See the [Tinymist preview guide](https://myriad-dreamin.github.io/tinymist/feature/preview.html).
 
 ## Portable toolchain
 

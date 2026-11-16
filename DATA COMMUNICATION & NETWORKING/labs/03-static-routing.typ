@@ -44,7 +44,7 @@
 
   Configure the interfaces, then ping from R1’s LAN to R3’s LAN before adding any routes. It will fail, and understanding exactly why is the point of the lab.
 
-  #keyidea[
+  #note[
     A router forwards only to networks in its routing table. Directly connected networks appear automatically; everything else must be learned --- statically here, dynamically in Lab~#labref(<sec:lab04-ospf>).
 
     R1 has no entry for R3’s LAN, so it drops the packet and reports #emph[Destination host unreachable]. The packet never reaches R2. Nothing is broken; the router is doing exactly what it was told.
@@ -75,7 +75,7 @@
 
   The next hop must be an address R1 can already reach --- normally the neighbouring router’s interface on the shared link. A next hop R1 cannot resolve produces a route that looks correct in the table and silently discards traffic.
 
-  #pitfall[
+  #warning[
     The destination is a #emph[network] address, not a host address.
 
     `ip route-static 192.168.3.0 24 10.0.12.2` is a route to a network. \
@@ -90,7 +90,7 @@
 
   Add routes on R1 so it can reach R3’s LAN. Ping again. It still fails.
 
-  #keyidea[
+  #note[
     This is the single most common static-routing error, and it is worth meeting deliberately.
 
     Your ping now reaches R3. R3 has no route back to R1’s LAN, so the #emph[reply] is dropped. From R1 the symptom looks identical to the original failure, which is why students often conclude their route did not work.
@@ -110,7 +110,7 @@
   ip route-static 192.168.3.0 24 10.0.13.3 preference 100  # backup
   ```
 
-  #keyidea[
+  #note[
     #term[Preference] (Huawei’s term for administrative distance) ranks #emph[sources] of routing information. Lower wins. Static routes default to 60; OSPF internal routes are 10.
 
     Only the preferred route is installed in the forwarding table. The backup sits inactive until the primary’s next hop becomes unreachable, at which point it is installed automatically.
@@ -132,7 +132,7 @@
 
   That lost-ping count is the real result of this lab. Static failover is not instant: the router must first decide the next hop is unreachable.
 
-  #troubleshoot[
+  #tip[
     #strong[Route shows in the table but traffic fails.] The next hop is probably unreachable. Ping the next hop itself from the same router.
 
     #strong[Backup never activates.] Shutting an interface on the far end may leave the local interface up, so the next hop still appears valid. Shut the local interface, or verify with `display ip routing-table protocol static`.
@@ -140,7 +140,7 @@
     #strong[Both routes appear active.] They have equal preference, so you have configured load sharing rather than failover.
   ]
 
-  #tryit[
+  #exercises[
     Replace both static routes with one default route, `ip route-static 0.0.0.0 0 10.0.12.2`. Does connectivity still work? What have you given up, and in what topology would that choice be dangerous?
   ]
 ]
@@ -149,7 +149,7 @@
 
 #include "visuals/03-static-routing-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Record the route and ping before, during and after the specified shutdown. Explain why return routing must still work and why a failed ping alone does not identify the failed hop.
 
   - Routing tables captured before routes, after routes, and after the failover.

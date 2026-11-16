@@ -17,7 +17,7 @@ where $m$ is the number of table slots.
 
 The slide’s hashing example uses $H(x)=x mod 5$ for keys 10, 12, and 14.
 
-#workedexample[
+#example[
   $ 10 mod 5=0, wide 12 mod 5=2, wide 14 mod 5=4. $
 
   So the keys occupy indices 0, 2, and 4.
@@ -52,7 +52,7 @@ The slide’s hashing example uses $H(x)=x mod 5$ for keys 10, 12, and 14.
 
 The slides state that a simple modular hash calculation can be $O(1)$ and therefore supports very efficient storage and access in the intended hashing model.
 
-#clarification[
+#note[
   The slide’s $O(1)$ statement describes the intended constant-time hash calculation and typical fast table access. Actual access time depends on collision handling and table load; heavy collisions can require multiple probes.
 ]
 
@@ -107,7 +107,7 @@ A probe sequence can be written as
 
 $ (h(k)+i) mod m, wide i=0,1,2, dots.h $
 
-#workedexample[
+#example[
   With $m=5$, key 15 hashes to 0. If index 0 is occupied, linear probing tries 1, then 2, then 3, then 4 until an empty slot is found.
 ]
 
@@ -177,7 +177,7 @@ $ (h(k)+i^2) mod m. $
 }
 ```
 
-#clarification[
+#note[
   The slide calls the technique “quadratic hashing.” In common data-structures terminology, the collision-resolution method is usually called #emph[quadratic probing]. The notes keep both labels visible.
 ]
 
@@ -205,7 +205,7 @@ $ op("index")_i=(h_1(k)+i thin h_2(k)) mod m. $
 }
 ```
 
-#clarification[
+#note[
   The hashing deck names double hashing but does not specify a second hash function. The formula above is an implementation example for the lab, not a formula taken from the slide.
 ]
 
@@ -213,7 +213,7 @@ $ op("index")_i=(h_1(k)+i thin h_2(k)) mod m. $
 
 The probe rule used for insertion must also be used for searching. Otherwise the program may stop before reaching the slot where a collided key was placed.
 
-#keyidea[
+#note[
   A hash table does not eliminate the need for searching logic; it changes the search space from “scan the whole collection” to “calculate an index, then follow the collision-resolution probe sequence if necessary.”
 ]
 
@@ -260,7 +260,7 @@ compete for others (#figref(<fig:chaining>)).
   })
 ]
 
-#clarification[
+#note[
   Separate chaining is not named in the supplied hashing slides, which cover linear probing,
   quadratic hashing, and double hashing. It is included here because it is the standard
   alternative and because it explains the deletion problem described in the next section: a
@@ -272,10 +272,10 @@ compete for others (#figref(<fig:chaining>)).
 
 With open addressing, simply marking a deleted slot as never-used can incorrectly terminate a later search whose probe sequence must pass through that slot.
 
-#clarification[
+#note[
   Deletion behavior and tombstone markers are not covered in the supplied hashing slides. This caution is included only to explain why a complete open-addressing implementation needs more than insertion logic.
 ]
 
-#quickcheck[
+#questions[
   Using $H(x)=x mod 5$, where do keys 10, 12, 14, and 15 initially hash? Which pair collides? How does linear probing react?
 ]

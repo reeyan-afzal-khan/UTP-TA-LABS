@@ -12,7 +12,7 @@ The course uses #strong[R] as the statistical computing engine and #strong[RStud
 #utpfig([R computes, RStudio provides the working environment, and the operating system supports both. Git records changes to course code; pushing shares committed changes with the GitHub repository.], label: <fig:r-stack>)[
   #canvas({
     let layer-style = (draw: mix(blue, 70%), fill: pale-blue, rounded: 1.5mm, line-width: 0.6974pt, text-width: 0.9 * 16.06, min-height: 1.4, inner-xsep: 3.5mm, inner-ysep: 3mm, align: left, font: font("normal", fill: navy))
-    let flow = (line-width: 0.797pt, draw: teal, end: tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
+    let flow = (line-width: 0.797pt, draw: teal, end: arrow-tip("Stealth", length: 2mm, width: 1.5mm, line: 0.797pt))
     node((0, 0), [#strong[Course project --- files and evidence] \ #v(2.9888pt)
    `all_datasets/`, and `all_experiments/`], name: "project", ..layer-style)
     node(below-of("project", 0.35), [#strong[RStudio Desktop --- working environment] \ #v(2.9888pt)
@@ -30,7 +30,7 @@ The course uses #strong[R] as the statistical computing engine and #strong[RStud
   })
 ]
 
-#keyidea[
+#note[
   Install #strong[R first], then install #strong[RStudio]. RStudio does not replace R; it discovers and launches an installed R version.
 ]
 
@@ -193,7 +193,7 @@ Some students already work in environments managed by `conda`. This is a valid o
 
 Download #link("https://www.anaconda.com/download")[#strong[Anaconda Distribution]] or follow the #link("https://docs.conda.io/projects/conda/en/stable/user-guide/install/")[#strong[conda installation guide]] for Miniconda.
 
-#referencebox[
+#note[
   #strong[Current R channel note.] Anaconda announced that it no longer maintains its own R channel. For current R packages inside conda environments, Anaconda directs users toward #strong[conda-forge] or a native CRAN installation. For this reason, the commands below request R explicitly from conda-forge rather than relying on Anaconda’s legacy R packages.
 ]
 
@@ -221,7 +221,7 @@ conda activate ds-r
 R
 ```
 
-#pitfall[
+#warning[
   Do not mix several installation strategies casually. A machine can contain a native CRAN R, a conda R, and multiple package libraries at the same time. When troubleshooting, first determine which executable is active with `where R` on Windows or `which -a R` on macOS/Linux, then check `R.home()` inside R.
 ]
 

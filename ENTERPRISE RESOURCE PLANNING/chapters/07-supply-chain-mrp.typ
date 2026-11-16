@@ -5,7 +5,7 @@
 
 #chapterguide[You should understand forecasts, production plans, and bills of materials.][explain supply-chain integration, calculate basic material requirements, distinguish gross from net requirements, connect lead time and lot sizing to purchasing, and evaluate supply-chain performance with operational metrics.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 7 and Chapter 4 of the textbook. Tutorial 7 asks
   students to research a manufacturing company that implemented SCM and to compare
   CRM with SCM. The textbook adds MRP, supplier integration, and performance
@@ -32,10 +32,10 @@ chain, and they do not all flow the same way.
     }
     for i in range(0, 5) {
       let j = int(i + 1)
-      connect("n" + str(i), "n" + str(j), line-width: widths.semithick, draw: teal, end: tip("Stealth", length: 1.8mm, line: widths.semithick))
+      connect("n" + str(i), "n" + str(j), line-width: widths.semithick, draw: teal, end: arrow-tip("Stealth", length: 1.8mm, line: widths.semithick))
     }
     node((6.8, -0.6), [#strong[materials --- physical goods, one direction only]], ..proccap, anchor: "north", text: teal)
-    connect((13.4, -1.6), (0.2, -1.6), draw: green, line-width: 1.0959pt, end: tip("Stealth", length: 2.2mm, line: 1.0959pt))
+    connect((13.4, -1.6), (0.2, -1.6), draw: green, line-width: 1.0959pt, end: arrow-tip("Stealth", length: 2.2mm, line: 1.0959pt))
     node((6.8, -1.76), [#strong[money --- payment, back up the chain]], ..proccap, anchor: "north", text: green)
     connect((0.2, -0.5), (0.2, -1.6), ..proclink)
     connect((13.4, -0.5), (13.4, -1.6), ..proclink)
@@ -106,7 +106,7 @@ therefore a grid: rows for each quantity, columns for each period.
         node((x, y), [#vv], draw: mix(clr, 55%), fill: mix(clr, 8%), rounded: 1mm, min-width: 1.55, min-height: 0.54, font: font("script", fill: navy))
       }
     }
-    connect((9.4, -3.4), (11.9, -2.98), out-angle: -25deg, in-angle: -155deg, ..procback, line-width: 0.9963pt, end: tip("Stealth", length: 2mm, line: 0.9963pt), name: "curve-1")
+    connect((9.4, -3.4), (11.9, -2.98), out-angle: -25deg, in-angle: -155deg, ..procback, line-width: 0.9963pt, end: arrow-tip("Stealth", length: 2mm, line: 0.9963pt), name: "curve-1")
     node((7, -3.95), [Week 5 is short by 18, but tyres come in boxes of 10, so the planned receipt is 20. The two-week lead time then places the order release in Week 3.], ..procnote, anchor: "north", text-width: 13.6)
   })
 ]
@@ -122,7 +122,7 @@ Suppliers sell in fixed packs, pallets, minimum quantities, or economic batches.
 A net requirement of 28 tyres bought in boxes of 10 becomes a purchase of 30. The
 ordered quantity is a step function of the requirement, not a copy of it.
 
-#workedexample[
+#example[
   West End Bicycles plans 20 Road Bikes. The BOM needs 1 Aluminium Frame and 2
   Rubber Tires per bike. On hand: 7 frames, 12 tyres. Ignoring safety stock and
   scheduled receipts,
@@ -245,8 +245,8 @@ poor fill rate by delivering punctually but short every time.
 
 == SCM in Odoo 19 Community
 
-#applicationbox[
-  The West End Bicycles guide uses this procure-and-receive sequence:
+#note[
+  #strong[In Odoo 19 Community.] The West End Bicycles guide uses this procure-and-receive sequence:
 
   + create vendors and raw-material products;
   + link each vendor to the material it supplies and the vendor price;
@@ -258,20 +258,20 @@ poor fill rate by delivering punctually but short every time.
   + validate the customer delivery, reducing finished-goods stock.
 ]
 
-#pitfall[
+#warning[
   An open Purchase Order is not available inventory. A planner who treats ordered
   material as on hand releases production that cannot start
   (#figref(<fig:po-vs-receipt>)).
 ]
 
-#tryit[
+#exercises[
   For the Road Bike BOM, take a production plan of 50 bikes with on-hand inventory
   of 12 frames, 70 tyres, 18 brake sets, 20 gear sets, and 15 chains. Calculate the
   net requirement for each component, then add one realistic lot-size rule and
   recalculate the purchase quantity.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between gross and net material requirements?
   + Why must lead time appear in MRP rather than only the required quantity?
   + How do CRM and SCM interact in a customer-order process?

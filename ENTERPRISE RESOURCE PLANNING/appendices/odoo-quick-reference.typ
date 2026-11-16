@@ -73,6 +73,6 @@ If Track Inventory is not enabled, Odoo will not maintain the stock count expect
   )
 ]
 
-#keyidea[
+#note[
   When troubleshooting, follow the process backwards. A downstream action is usually unavailable because an upstream business event has not been confirmed or completed.
 ]

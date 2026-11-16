@@ -16,7 +16,7 @@
       • #strong[CLI] --- open the VRP console \
       • #strong[Settings] --- add an interface card \
       • #strong[Data Capture] --- start Wireshark on one interface], ..hdro, min-width: 6, min-height: 1.55, anchor: "north-west", align: left, font: font("script", fill: navy))
-      connect((6.1, -0.5), (6.1, 0.1), line-width: widths.thick, draw: orange, end: tip("Stealth", length: 2mm, line: widths.thick))
+      connect((6.1, -0.5), (6.1, 0.1), line-width: widths.thick, draw: orange, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
       node((9.4, -1.2), [A device must be #strong[started] before its CLI will respond.], font: font("tiny", fill: muted), anchor: "west", text-width: 3.5)
     })
   ]

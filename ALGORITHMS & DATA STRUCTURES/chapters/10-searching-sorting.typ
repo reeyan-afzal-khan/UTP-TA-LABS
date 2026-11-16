@@ -21,7 +21,7 @@ Linear search checks elements one by one until the target is found or the sequen
 
 The slides give linear search time complexity as $O(n)$ because the whole array may need to be traversed.
 
-#workedexample[
+#example[
   Search for 30 in $[12,25,18,30,22]$. Compare with 12, 25, 18, then 30. The target is found at index 3 after four comparisons.
 ]
 
@@ -45,7 +45,7 @@ Binary search requires the array to be sorted. It compares the target with the m
 
 The slides give binary search time complexity as $O(log n)$.
 
-#keyidea[
+#note[
   Binary search gains speed by using sorted order. Without sorted order, the “discard half” decision is not valid.
 ]
 
@@ -302,21 +302,21 @@ Merge sort follows divide and conquer. The slide description repeatedly divides 
       node((2.3, 2), [1 4 5 7], name: "m1b", font: font("small"), ..msg)
       node((0, 3), [1 2 3 4 5 6 7 8], name: "m0", font: font("small"), ..msg)
       for (p, x) in (("m2a", -4.02), ("m2a", -2.88), ("m2b", -1.72), ("m2b", -0.58), ("m2c", 0.58), ("m2c", 1.72), ("m2d", 2.88), ("m2d", 4.02)) {
-        connect((x, 0.28), p, line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+        connect((x, 0.28), p, line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
       }
-      connect("m2a", "m1a", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-      connect("m2b", "m1a", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-      connect("m2c", "m1b", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-      connect("m2d", "m1b", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-      connect("m1a", "m0", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
-      connect("m1b", "m0", line-width: widths.thick, draw: green, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m2a", "m1a", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m2b", "m1a", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m2c", "m1b", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m2d", "m1b", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m1a", "m0", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
+      connect("m1b", "m0", line-width: widths.thick, draw: green, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
       node((0, 3.95), [MERGE], font: font("small"), ..utptag, align: center, text: green)
       node((0, 3.58), [$O(n)$ work per level], font: font("small"), ..utplabel, align: center, text: green)
     })
   })
 ]
 
-#clarification[
+#note[
   The supplied merge-sort slide explains the divide-and-conquer process but does not state a time complexity. Standard analysis gives $O(n log n)$ time; that value is additional context rather than text copied from the slide.
 ]
 
@@ -376,7 +376,7 @@ placed correctly and never moves again. Quick sort then recurses on the two side
   })
 ]
 
-#clarification[
+#note[
   The quick-sort slide says its “average and worst-case complexities are $O(n^2)$, respectively,” and gives best-case $O(n log n)$. Standard algorithm analysis is: best $O(n log n)$, average $O(n log n)$, and worst $O(n^2)$. The discrepancy is surfaced explicitly here rather than silently changing the source.
 ]
 
@@ -432,7 +432,7 @@ separate violently.
   })
 ]
 
-#keyidea[
+#note[
   Constant factors and hardware speed shift these curves up or down; they do not change their
   shape. A faster computer running an $O(n^2)$ sort still loses to a slower computer running an
   $O(n log n)$ sort once $n$ is large enough --- and “large enough” arrives sooner than most
@@ -480,20 +480,18 @@ relative order, which matters when sorting records by a secondary key.
   )
 ]
 
-#clarification[
+#note[
   This table is standard algorithm analysis, not slide content. It is included because the
   slide deck states complexities inconsistently for quick sort and omits merge sort entirely.
   Where the two tables disagree, the discrepancy is the point: check which convention your
   assessment expects.
-]
 
-#intuition[
   Bubble and insertion sort reach $O(n)$ in the best case only because they can detect that
   the data is already ordered and stop early. Selection sort cannot: it must scan the entire
   unsorted region to be sure it has found the minimum, so its best case is no better than its
   worst.
 ]
 
-#quickcheck[
+#questions[
   Why does binary search require sorted data? Explain in one sentence how insertion sort and selection sort differ in the way they grow the sorted portion.
 ]

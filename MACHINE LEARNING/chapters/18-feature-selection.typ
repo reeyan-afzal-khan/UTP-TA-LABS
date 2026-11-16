@@ -43,7 +43,7 @@ columns written after the loan was issued, each alone: {'last_fico_range_high': 
 
 The borrower's #emph[latest] credit score reaches a ROC AUC of 0.933 on its own, and the money recovered after a default reaches 0.859. The best column a lender actually has at approval reaches 0.703.
 
-#keyidea[
+#note[
   Every selection method in this chapter would put those columns at the top of its list. None of them can tell you that a column comes from the future. Only the data card and the question "when is this value known?" can do that (#secref(<sec:data-leakage>)). Selection methods rank what you give them, so decide first what they are allowed to see.
 ]
 
@@ -77,7 +77,7 @@ Selection methods differ in one thing: where the model sits (#figref(<fig:select
     connect("w1", "w2", ..utparrow)
     connect("w2", "w3", ..utparrow)
     connect("w3", "w4", ..utparrow)
-    connect("w3.south", (rel: (0, -0.42), to: "w3.south"), "-|", "w2.south", ..utparrow, draw: orange, end: tip("Stealth", length: 2.2mm, line: widths.thick, color: orange))
+    connect("w3.south", (rel: (0, -0.42), to: "w3.south"), "-|", "w2.south", ..utparrow, draw: orange, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick, color: orange))
     node((5.7, -0.36), [next subset], font: font("tiny", fill: orange), fill: white, inner-sep: 1.5pt)
     // embedded
     lane(-1.5, [Embedded], [one fit])
@@ -295,11 +295,7 @@ A workable routine joins them in the order of their cost.
   + #term[Ask whether the result makes sense] to someone who knows the domain. A selected column nobody can explain deserves a second look at when it was recorded.
 ]
 
-#tryit[
-  In `demo_selection.py`, the table has three noise columns. Raise that to thirty, by changing `(1, 2, 3)` to `range(1, 31)`, and run the script again with `CHECK_BOOK_NUMBERS = False`. How many noise columns does forward selection pick in twelve steps now? How many survive the L1 penalty at `C = 0.01`? Which method would you trust on a table with a thousand candidate columns?
-]
-
-#chapterrecap[
+#summary[
   - An extra column costs noise, work at prediction time, speed, explanation and monitoring. Selection usually buys the same score from far fewer columns.
   - No method can detect a leak. Decide what the model is allowed to see before selecting anything: the leaked columns scored up to 0.933 alone, against 0.703 for the best honest one.
   - Remove constants and twins first. Then filters score columns one at a time: fast, but blind to redundancy and to columns that help only together.
@@ -309,7 +305,11 @@ A workable routine joins them in the order of their cost.
   - A selection is an estimate. Check it on resamples, keep it inside the pipeline, and report the stable core.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_selection.py`, the table has three noise columns. Raise that to thirty, by changing `(1, 2, 3)` to `range(1, 31)`, and run the script again with `CHECK_BOOK_NUMBERS = False`. How many noise columns does forward selection pick in twelve steps now? How many survive the L1 penalty at `C = 0.01`? Which method would you trust on a table with a thousand candidate columns?
+]
+
+#questions[
   + Name three costs of an extra feature other than its effect on the score.
   + A column scores a ROC AUC of 0.93 on its own, far above every other column. What do you check before celebrating, and where do you look?
   + Two columns have a correlation of 0.99. A filter gives both a high score. Why is that not a reason to keep both, and how would you choose between them?

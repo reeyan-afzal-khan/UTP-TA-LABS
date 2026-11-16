@@ -86,7 +86,7 @@
     )
   ]
 
-  #quickcheck[
+  #questions[
     + What memory do threads in one process share?
     + What does a mutex guarantee when used correctly around a critical section?
     + What is the difference between a deadlocked state and an unsafe state?
@@ -96,7 +96,7 @@
 
   #include "visuals/06-threads-and-deadlocks-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Trace one safe sequence and one unsafe case. For the counter, repeat locked and unlocked runs and explain the critical section rather than relying on one observed wrong total.
 
     - Five unlocked runs are recorded, not one.

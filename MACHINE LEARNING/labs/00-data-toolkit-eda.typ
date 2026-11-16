@@ -38,11 +38,11 @@
   [Save the evidence; then examine women and men separately yourself],
   [18--20],
   [After],
-  [Your-turn tasks, expected findings, troubleshooting and the checklist],
+  [Exercises, answers, troubleshooting tips and the checklist],
   [---],
 )
 
-#labmode[
+#labsetup[
   + Activate your course environment (Chapter~@ch:toolkit) and confirm that `heart_disease.csv` is in `all_datasets/supervised/heart_disease/`.
   + Warm up on the chapter's toolkit script. From the course folder, run the first command below. Its last line must read `Every number above matches the book.`
   + From the course folder, start Jupyter, open `all_experiments/lab00_data_toolkit_eda/lab00_data_toolkit_eda_worked.ipynb`, and choose #strong[Restart Kernel and Run All Cells]. It takes about ten seconds.
@@ -59,7 +59,7 @@
 
 #strong[How each answer is laid out.] Under every question you will find the code of that cell, then #strong[Read the code], which explains its lines in the order they run, then the #strong[Reference output], and last #strong[What it means]. Type the code yourself the first time; reading it is not the same as writing it.
 
-#yourturn[
+#exercises[
   #strong[Warm-up on paper.] Do these before opening the notebook; the code will check you.
 
   + Seven cholesterol readings are 0, 180, 200, 220, 240, 260 and 300, and the 0 means "not measured". Work out the mean and the median with the zero, and again without it. Which of the two summaries moved more? Question~7 shows the same effect on 734 patients.
@@ -705,8 +705,6 @@
   #strong[What it means.] Sixteen files: eight figures and eight tables. Open `exploration_log.csv`: it is the examination of this table on one page, and the pipeline of Question~16 does exactly what it says.
 ]
 
-#labsubhead[Try it yourself]
-
 #labquestion(19)[Try it yourself][
   The exploration found that men are four patients in five, so every rate so far is mostly a rate for men. First, compute the disease rate by chest pain type separately for women and for men, with the number of patients in each group. Second, `Oldpeak` is exactly 0 for 41.4% of the training patients: add a column `any_drop`, which is 1 when `Oldpeak` is above 0, and check whether it improves the cross-validated accuracy of Question~16.
 
@@ -753,10 +751,10 @@
   #strong[What it means.] Women have a much lower disease rate than men, 28.4% against 62.5%, and the order of the chest pain types is the same for both: no chest pain is the worst sign. But the women's table rests on small groups. Nine women have typical angina and one of them has the disease, so the 11.1% printed there means almost nothing. The new column carries real signal, a disease rate of 69.9% with a drop against 36.1% without, yet the cross-validated accuracy only moves from 0.857 to 0.858. The model already had `Oldpeak` itself and the ST slope, which say much the same thing. A feature can be informative and still add nothing, which is why the test is always the model's validation score.
 ]
 
-#labpartopen([After the lab], [Your turn, troubleshooting and hand-in], [Your-turn tasks • Expected findings • Troubleshooting • Checklist], [Extend the lab with the Your-turn tasks, compare with the expected findings, and check your work against the checklist before you hand it in.])
+#labpartopen([After the lab], [Exercises, troubleshooting and hand-in], [Exercises • Answers • Troubleshooting • Checklist], [Extend the lab with the exercises, compare with the answers, and check your work against the checklist before you hand it in.])
 
-#yourturn[
-  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the expected findings.
+#exercises[
+  Add new cells at the end of the notebook for these tasks, and record your numbers before reading the answers.
 
   + #strong[Drop instead of flag.] A teammate proposes dropping the 129 training patients with no cholesterol reading, to "keep the data clean". Do it with `train.dropna(subset=["Cholesterol"])`. How many patients remain, what is their disease rate, and how many of the 406 training patients with heart disease did you discard? Score the Question~16 pipeline on what is left by cross-validation, then fit it and score it on the full test set and on the test patients who have no cholesterol reading.
   + #strong[Cap the extremes.] Clip cholesterol to its fences with `clip(109.5, 377.5)` and blood pressure to `clip(88.5, 172.5)`. What happens to the skew of each column, and to the cross-validated accuracy of the flag pipeline?
@@ -765,7 +763,7 @@
   + #strong[One split is one draw.] Repeat the split, the fit and the test score of Questions~6 and~17 with `random_state` set to 0, 1, ..., 9. What are the lowest, highest and mean test accuracy? Where does this sheet's 0.897 fall?
 ]
 
-#expectedfindings[
+#answers[
   #strong[Warm-up.] With the zero the mean is 200 and the median 220; without it the mean is 233.3 and the median 230. The mean moved 33 and the median 10: the mean is the one a hidden zero damages most. The fences are $210 - 1.5 times 67 = 109.5$ and $277 + 1.5 times 67 = 377.5$, so 380 lies beyond the high fence. Two standard errors are $1.96 sqrt(0.45 times 0.55 \/ 40) = 0.15$, so the true rate could plausibly lie anywhere from 30% to 60%.
 
   + 605 patients remain, with a disease rate of 47.9% instead of 55.3%, and 116 of the 406 patients with heart disease are gone: more than a quarter of the cases the model exists to find. Cross-validation on what is left reports 0.853, which looks as good as before. The test set tells the truth: 0.864 against 0.897 for the flag pipeline, and on the 43 test patients with no cholesterol reading, 0.721 against 0.860. Cross-validation could not see the damage, because the patients it would have been wrong about had been removed from it too. A score measured on a filtered table describes a filtered world.
@@ -775,7 +773,7 @@
   + The ten test accuracies run from 0.842 to 0.886, with a mean of 0.866. The sheet's 0.897 is above all ten: the split with `random_state=42` happened to be a kind one. A single test score on 184 patients is good to about five points either way, so report it with that margin, and prefer the cross-validated 0.857 as the estimate.
 ]
 
-#troubleshoot[
+#tip[
   / `FileNotFoundError`: The data file is missing or misnamed. It must be `all_datasets/supervised/heart_disease/heart_disease.csv`, capitals included.
   / `No module named 'course_setup'` in Question~1: The notebook is not running inside its lab folder, so `".."` is not `all_experiments/`. Open it from `all_experiments/lab00_data_toolkit_eda/` in your copy of the course.
   / `KeyError: 'Cholesterol '` or a similar name: A column name is misspelled or has a stray space. Print `heart.columns.tolist()` and copy the name from there.
@@ -787,7 +785,7 @@
 ]
 
 #labchecklists[
-  #verification[
+  #checklist[
     - You read the data card, and you can say what a 0 means in `RestingBP` and in `Cholesterol`.
     - The 173 impossible zeros are marked as missing by a fixed rule before the split, and no row was dropped.
     - The test set was sealed in Question~6 and opened once, in Question~17.

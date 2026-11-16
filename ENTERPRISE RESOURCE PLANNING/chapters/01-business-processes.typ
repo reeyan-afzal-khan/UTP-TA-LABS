@@ -5,7 +5,7 @@
 
 #chapterguide[You only need a basic idea of what departments such as Sales, Finance, Supply Chain, and HR do.][distinguish a functional area from a business function and a business process, trace cross-functional information flows, and explain why a shared ERP database improves coordination.]
 
-#sourcebasis[
+#note[
   This chapter follows Tutorial 1 on Business Process / Business Functions and
   Chapter 1 of #emph[Concepts in Enterprise Resource Planning]. The West End
   Bicycles scenario and the four functional areas are preserved from the course
@@ -62,7 +62,7 @@ The three are often confused because they sit at different levels.
   )
 ]
 
-#intuition[
+#note[
   A department is an organisational box. A process is a journey. The customer sees
   one experience; the company sees several departments.
 ]
@@ -130,7 +130,7 @@ the others’ data.
   })
 ]
 
-#keyidea[
+#note[
   The quality of a decision is limited by the quality, timeliness, and consistency
   of the data available when the decision is made. ERP integration is valuable
   because it removes the delay and disagreement created by several disconnected
@@ -271,21 +271,21 @@ fastest way to see where each chapter lands.
   })
 ]
 
-#applicationbox[
-  Three ideas recur throughout the practicals:
+#note[
+  #strong[In Odoo 19 Community.] Three ideas recur throughout the practicals:
 
   - Records are linked. A purchase order leads to a receipt; a sales order leads to a delivery and an invoice.
   - Documents move through states such as draft, confirmed/posted, and done/paid.
   - Smart buttons expose those relationships, making the information flow visible instead of requiring manual reconciliation.
 ]
 
-#pitfall[
+#warning[
   Do not define ERP as “software that combines departments.” The point is
   process integration: one business event should be visible consistently to the
   functions that need it, when they need it.
 ]
 
-#quickcheck[
+#questions[
   + Explain the difference between a functional area, a business function, and a business process using West End Bicycles.
   + Why can a weekly printed credit report cause a sales-order problem even if the Accounting data was correct when it was printed?
   + Name three pieces of information that must move between Sales and Supply Chain when fulfilling a bicycle order.

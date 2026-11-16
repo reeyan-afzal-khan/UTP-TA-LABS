@@ -127,6 +127,6 @@ This appendix is a lookup aid. Confirm the required VRP view before entering a c
   )
 ]
 
-#pitfall[
+#warning[
   If a command is rejected, check the prompt and required view before changing its syntax.
 ]

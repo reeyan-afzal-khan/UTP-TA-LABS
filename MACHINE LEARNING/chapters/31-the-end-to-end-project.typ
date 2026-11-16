@@ -79,7 +79,7 @@ new problems in a damaged export: ['lead_time: 78,666 values outside 0 to 800',
 
 Without the check, the first of these would not raise any error at all. The model would read a lead time of 1,200 as 1,200 days and return confident nonsense.
 
-#keyidea[
+#note[
   A model fails loudly when a column is missing and silently when a column changes meaning. A contract turns the silent failures into loud ones. Write it when the project starts, and run it on every file and every request for as long as the model lives.
 ]
 
@@ -132,7 +132,7 @@ In the development period, 27,419 bookings repeat an earlier booking in every co
 
 The evidence is one more run. Remove the repeats, which leaves 51,284 rows, and the forest scores 0.838 on random folds: the same as its forward score. Lab~4 met this trap with photographs cut from the same board, and the cure is the same. Rows that belong together must stay on one side of every split. A forward fold does that here, because the rooms of a block arrive on the same day.
 
-#pitfall[
+#warning[
   The validation scheme is part of the specification of a project, as much as the metric is. Ask how the model will meet new data, and split in that way: by time when it predicts the future, by group when rows come in families, at random only when rows are truly separate. A score from the wrong scheme is not a rough estimate of the right one. Here it ranked the models wrongly as well.
 ]
 
@@ -219,7 +219,7 @@ That leaves two finalists, and a choice to make.
 
 The rule for this choice was written down before the search ran, as it was for stopping a forward selection in #chapref(<ch:feature-selection>):
 
-#keyidea[
+#note[
   The simpler model wins unless the other one beats it by more than its own spread between folds.
 ]
 
@@ -347,11 +347,7 @@ The five warnings are the findings of the contract check, repeated on every run 
   + #term[One command reproduces the model] from the raw file, with pinned versions and a log.
 ]
 
-#tryit[
-  In `demo_project.py`, set `CHECK_BOOK_NUMBERS = False`, then change the adults entry of `CONTRACT` in `booking_project/bookings.py` to `(1, 10)`, so that a booking needs at least one adult. How many bookings break the contract now? Would you repair them, remove them, or ask the hotel? Put the entry back afterwards.
-]
-
-#block(breakable: false, width: 100%, chapterrecap[
+#block(breakable: false, width: 100%, summary[
   - A project starts as a dated decision: each month, how many bookings will cancel, and which.
   - A data contract turned a missing column and a change of units into errors that stop the run.
   - The validation scheme must imitate use. Random folds scored a forest at 0.927, forward folds at 0.844: blocks of identical bookings sat on both sides of the random splits.
@@ -362,7 +358,11 @@ The five warnings are the findings of the contract check, repeated on every run 
   - The model ships with a card, and the project is a folder in which one command rebuilds everything.
 ])
 
-#quickcheck[
+#exercises[
+  In `demo_project.py`, set `CHECK_BOOK_NUMBERS = False`, then change the adults entry of `CONTRACT` in `booking_project/bookings.py` to `(1, 10)`, so that a booking needs at least one adult. How many bookings break the contract now? Would you repair them, remove them, or ask the hotel? Put the entry back afterwards.
+]
+
+#questions[
   + Write the five framing questions for a model that predicts which library books will be returned late.
   + Prices arrive in cents, not euros. Which contract entry catches it, and what happens without one?
   + Random folds gave a forest 0.927 and forward folds gave it 0.844. Explain where the difference came from, and name the earlier lab that met the same problem.

@@ -29,14 +29,14 @@ Two neighborhoods sit on either side of open ground, and the council wants to bu
     node(along((4.6, 0.4), (5.45, -0.35), t: 100%), [$bold(w)^(sans(T))bold(x)+b=0$], font: font("small"), xshift: -0.9963pt, anchor: "west")
     connect((0, 4), (4, 0), dash: "dashed")
     connect((0, 6), (6, 0), dash: "dashed")
-    connect((3.6, 0.4), (4.6, 1.4), line-width: widths.thick, start: tip("Stealth", length: 2mm, line: widths.thick), end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((3.6, 0.4), (4.6, 1.4), line-width: widths.thick, start: arrow-tip("Stealth", length: 2mm, line: widths.thick), end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node(along((3.6, 0.4), (4.6, 1.4), t: 100%), [margin], font: font("small"), yshift: 0pt, xshift: 0.9963pt, anchor: "south-west")
     node((6, 5.35), [circled points = \
   support vectors], font: font("small"), align: left)
   })
 ]
 
-#workedexample[
+#example[
   Six points: $(1,1)$, $(2,1)$, $(1,2)$ are class $-1$, and $(3,3)$, $(4,3)$, $(3,4)$ are class $+1$ (#figref(<fig:svm-toy>)). The SVM’s answer is $bold(w)=(inline(frac(2, 3)),inline(frac(2, 3)))$ and $b=-3$. Check the score $y(bold(w)^(sans(T))bold(x)+b)$ at each point: for $(2,1)$ it is $-1 times (inline(frac(2, 3)) dot.op 3-3)=1$, and for $(1,2)$ and $(3,3)$ it is also exactly 1. These three are the #term[support vectors]. The other three score 1.67, so they sit beyond the curb and do not affect the street at all. Delete them and the answer stays the same.
 
   The street’s width is $2\/ || bold(w) || _2=2\/(inline(frac(2, 3))sqrt(2))=2.12$.
@@ -75,7 +75,7 @@ $ min_(bold(w),b) space frac(1, 2) || bold(w) || _2^2 +C sum _(i=1)^n max(0, thi
 
 #term[Hinge loss] is zero beyond the margin and linear within it or on the wrong side. $C$ balances margin width against violations:
 
-#workedexample[
+#example[
   The hinge loss is $max(0, thin 1-m)$, where $m=y(bold(w)^(sans(T))bold(x)+b)$ measures how far a point is on the right side, in margin units.
 
   #v(6pt)
@@ -106,7 +106,7 @@ Both SVMs and regularized logistic regression combine loss with an $L_2$ penalty
 
 Some datasets cannot be separated by any straight line --- but they can be after the features are transformed.
 
-#workedexample[
+#example[
   Let $x in { -2,2 }$ be class A and $x in { -1,0,1 }$ class B. No single threshold separates them. Map to $phi.alt (x)=(x,x^2)$:
 
   #utptable[
@@ -122,9 +122,7 @@ Some datasets cannot be separated by any straight line --- but they can be after
   Class A has height 4 and class B at most 1. The line $x^2=2.5$ separates them, corresponding to two thresholds $|x|=sqrt(2.5)$ in the original space.
 ]
 
-#analogy[
-  Marbles of two colors lie on a table, with one color in a ring around the other. No straight stick can separate them. Give the table a sharp tap from below so the central marbles fly up, and a flat sheet of card can slide between the two groups. A new feature gives you the extra height.
-]
+Marbles of two colors lie on a table, with one color in a ring around the other. No straight stick can separate them. Give the table a sharp tap from below so the central marbles fly up, and a flat sheet of card can slide between the two groups. A new feature gives you the extra height.
 
 == The kernel trick
 
@@ -134,7 +132,7 @@ $ k(bold(x),bold(x)')= phi.alt (bold(x))^(sans(T)) phi.alt (bold(x)'), $
 
 so the mapped features never need to be constructed at all. That shortcut is the #term[kernel trick].
 
-#workedexample[
+#example[
   Let $phi.alt (bold(v))=(v_1^2, space sqrt(2) thin v_1 v_2, space v_2^2)$, and take $bold(x)=(1,2)$ and $bold(z)=(3,1)$. The long way: $phi.alt (bold(x))=(1, space 2.83, space 4)$ and $phi.alt (bold(z))=(9, space 4.24, space 1)$, whose dot product is $9+12+4=25$. The short way: $(bold(x)^(sans(T))bold(z))^2=(3+2)^2=25$. Same answer, with no need to visit the larger space.
 ]
 
@@ -152,7 +150,7 @@ Standard choices:
 
 The #term[RBF kernel] measures similarity that decays with distance. Small $gamma$ gives broad influence and smooth boundaries; large $gamma$ gives local, flexible boundaries. Tune $C$ and $gamma$ together on logarithmic grids.
 
-#workedexample[
+#example[
   RBF similarity $exp(- gamma d^2)$ between two points at distance $d$:
 
   #v(6pt)
@@ -173,7 +171,7 @@ The #term[RBF kernel] measures similarity that decays with distance. Small $gamm
   ]]]
 ]
 
-#intuition[
+#note[
   RBF support vectors act as landmarks with distance-decaying influence. The kernel evaluates their similarity without explicitly constructing the feature map.
 ]
 
@@ -215,7 +213,7 @@ A feature map can make a nonlinear separation linear in the transformed space.
   })
 ]
 
-#keyidea[
+#note[
   A kernel changes the representation during fitting; it does not bend an already-trained line afterward.
 ]
 
@@ -273,13 +271,11 @@ A feature map can make a nonlinear separation linear in the transformed space.
   )
 ]
 
-#analogy[
-  $C$ is a strictness setting for a teacher marking homework. A low $C$ teacher accepts that a few students will get things wrong and teaches a general rule. A high $C$ teacher insists that every single student’s answer be accommodated, and ends up teaching a rule so contorted that nobody can apply it to a new question.
+$C$ is a strictness setting for a teacher marking homework. A low $C$ teacher accepts that a few students will get things wrong and teaches a general rule. A high $C$ teacher insists that every single student’s answer be accommodated, and ends up teaching a rule so contorted that nobody can apply it to a new question.
 
-  $gamma$ is the radius of each training point’s voice. Low $gamma$ means every point is heard across the whole room, producing a smooth global boundary. High $gamma$ means each point is only heard by its immediate neighbors, producing islands around individual examples.
-]
+$gamma$ is the radius of each training point’s voice. Low $gamma$ means every point is heard across the whole room, producing a smooth global boundary. High $gamma$ means each point is only heard by its immediate neighbors, producing islands around individual examples.
 
-#workedexample[
+#example[
   Lab~3’s grid search on 15,000 personal loans, RBF kernel with balanced class weights, three-fold cross-validated ROC AUC on the training rows (`scale` means $gamma =1\/p$ on standardized data, here about 0.077 for thirteen columns):
 
   #v(6pt)
@@ -337,7 +333,7 @@ Multiclass reductions include #term[one-vs-rest] ($K$ classifiers) and #term[one
 
 Start with regularized linear models, and add complexity only for validated gains. In Lab~3 a tuned RBF SVM reaches a test ROC AUC of 0.716 on fresh loans, where $k$-NN scored 0.723, naive Bayes 0.716 and plain logistic regression 0.731 on validation. A linear SVM reaches 0.713. Here the extra complexity is not earned: the SVM is slower, its saved file holds 11,478 support vectors, and it ranks loans no better than a straight line. On data with a curved boundary the RBF kernel can win clearly; on noisy data like this, the simpler model is the one to keep.
 
-#modelcard[Support Vector Machines - Quick Guide][
+#checklist(title: [Support Vector Machines - Quick Guide])[
   #tabularx(
     columns: (24%, 1fr),
     valign: (top, horizon),
@@ -350,7 +346,7 @@ Start with regularized linear models, and add complexity only for validated gain
   )
 ]
 
-#chapterrecap[
+#summary[
   - An SVM chooses the widest street between the classes. Only the support vectors, the points on or inside its curbs, affect it.
   - Soft margins charge hinge loss for violations, and $C$ sets how expensive those are.
   - Mapping to richer features can make curved boundaries straight, and a kernel computes the needed dot products without visiting that space.
@@ -358,7 +354,7 @@ Start with regularized linear models, and add complexity only for validated gain
   - Across the supervised families, start simple and keep complexity only when validation pays for it.
 ]
 
-#quickcheck[
+#questions[
   + What is the geometric meaning of a larger separating margin in an SVM?
   + In the six-point example, what happens to the fitted line if you delete the point $(4,3)$? Why?
   + A point has $y(bold(w)^(sans(T))bold(x)+b)=0.7$. What is its hinge loss, and where is it?

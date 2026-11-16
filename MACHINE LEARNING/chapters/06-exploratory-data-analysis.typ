@@ -78,7 +78,7 @@ The repair is a fixed rule that comes from the meaning of the column, not from a
 
 #codefrom(explore, "def mark_missing(heart):", "return cleaned")
 
-#keyidea[
+#note[
   A value that cannot be true is a missing value in disguise. Find it with the minimum and the maximum, mark it as missing, and let the pipeline fill it later, where the fill is learned from training rows only.
 ]
 
@@ -131,7 +131,7 @@ $ "low fence" = Q_1 - 1.5 times op("IQR"), wide "high fence" = Q_3 + 1.5 times o
 
 The whiskers reach out to the last real value inside each fence, and every value beyond a fence is drawn as its own dot.
 
-#workedexample[
+#example[
   For the 605 measured cholesterol values, $Q_1 = 210$, the median is 238 and $Q_3 = 277$, so $op("IQR") = 67$.
 
   $ "low fence" = 210 - 1.5 times 67 = 109.5, wide "high fence" = 277 + 1.5 times 67 = 377.5. $
@@ -194,7 +194,7 @@ A rival rule flags any value more than three standard deviations from the mean. 
   )
 ]
 
-#pitfall[
+#warning[
   A point beyond a fence is a point to look at, not a point to delete. The 17 high cholesterol readings are real patients, and several of them are exactly the people a heart-disease model exists for. Remove a value only when it is impossible, as the zeros were. For a value that is merely extreme, the gentler tools are a transform that pulls the tail in (#chapref(<ch:feature-engineering>)), a robust scaler (#secref(<sec:scaling>)), or a cap at a percentile learned from the training rows.
 ]
 
@@ -234,7 +234,7 @@ Patients with heart disease are older by about five years, reach a top heart rat
   })
 ]
 
-#intuition[
+#note[
   Two humps that sit apart mean the column carries signal. Two humps on top of each other mean it carries little on its own. Most real columns look like #figref(<fig:maxhr-groups>): shifted but overlapping. That is why models combine many weak columns instead of waiting for one strong one.
 ]
 
@@ -266,7 +266,7 @@ For a category, compute the share of each group that has the disease, and always
 
 These categories separate the patients far better than any of the numbers did. A patient whose ST slope is `Up` has a 17.9% chance of disease, and one whose slope is `Flat` has 83.2%. One finding looks backwards: patients with #emph[no] chest pain have the highest rate, 78.7%. That is not a mistake in the data. People are sent for a heart examination for a reason, and those who arrive without chest pain were usually sent because of something more serious. A table records who was measured, and how they came to be measured shapes every rate in it.
 
-#workedexample[
+#example[
   How far can the 45.0% for typical angina be trusted? It rests on 40 patients. A rate is the mean of a column of zeros and ones, so the standard error of #chapref(<ch:foundations>) applies to it, and for a rate $p$ measured on $n$ rows it works out to $sqrt(p(1-p)\/n)$. Two standard errors either way is
 
   $ 1.96 times sqrt(frac(0.45 times 0.55, 40)) = 0.15. $
@@ -303,7 +303,7 @@ With the zeros left in, cholesterol has a correlation of $-0.24$ with heart dise
 
 Among the columns that survive, the strongest pair is age and highest heart rate at $-0.40$: older patients reach lower heart rates, which is ordinary physiology. Nothing here is near $plus.minus 0.9$, so no column simply repeats another.
 
-#pitfall[
+#warning[
   Do not drop a column because its correlation with the target is small. Correlation measures straight-line association between two number columns, and nothing else. It misses a column whose effect bends, as hours and marks did in the study log at $-0.25$. It misses a column that only matters in combination with another. It is meaningless for a category coded as arbitrary numbers. And as cholesterol just showed, it can be created or destroyed by a handful of bad values. Screen features with a model that is validated honestly (#chapref(<ch:feature-selection>)), and use correlation to find questions, not answers.
 ]
 
@@ -342,7 +342,7 @@ One sentence read off the rate table, "disease unless the ST slope is `Up`", is 
 
 Now compare the three logistic rows. Their accuracies differ by one point, well inside the spread of four points between folds, so the score cannot tell them apart. The weights can. With the zeros left in, the model gives cholesterol a weight of $-0.49$: it has learned that low cholesterol predicts heart disease, because zero is the lowest value there is. The model scores well and has learned something false. With the zeros marked as missing and a flag added, the weight on cholesterol itself is 0.04, and the flag carries 0.71: the model now says, correctly, that #emph[not having been measured] is what goes with the disease.
 
-#keyidea[
+#note[
   A validation score tells you how well a model predicts on data like the training data. It does not tell you whether the model has learned something true. The first model above would fail at any hospital that measures every patient's cholesterol, and only looking at the column revealed why.
 ]
 
@@ -371,11 +371,7 @@ Of the 184 test patients it calls 165 correctly. It raises 11 false alarms and m
   )
 ]
 
-#tryit[
-  Run `python all_experiments/book_checks/demo_exploration.py` and read its output beside this chapter. Then pick one decision from the log and argue the opposite. For example: what would you lose, and what would you gain, by dropping the 129 patients with no cholesterol reading instead of flagging them? Use the disease rates of the two groups in your answer.
-]
-
-#chapterrecap[
+#summary[
   - EDA is a loop: ask, look, note, decide. Its product is a written list of decisions for the pipeline.
   - Work inwards: the table, each column alone, each column against the target, columns against each other.
   - Read the minimum and maximum of every number column. A value that cannot be true is a missing value in disguise; the heart table hides 172 of them as zeros.
@@ -386,7 +382,11 @@ Of the 184 test patients it calls 165 correctly. It raises 11 false alarms and m
   - A good score does not prove the model learned something true. Look at what it learned.
 ]
 
-#quickcheck[
+#exercises[
+  Run `python all_experiments/book_checks/demo_exploration.py` and read its output beside this chapter. Then pick one decision from the log and argue the opposite. For example: what would you lose, and what would you gain, by dropping the 129 patients with no cholesterol reading instead of flagging them? Use the disease rates of the two groups in your answer.
+]
+
+#questions[
   + A column of ages has a minimum of 0 and a maximum of 120 in a table of adult bank customers. What do you check, and what are two different things the zeros might mean?
   + For a column with $Q_1 = 20$ and $Q_3 = 30$, where are the fences? A value of 44 is in the column: where does the box plot draw it?
   + Why is the test set sealed before comparing features with the target, but not before checking column types and impossible values?

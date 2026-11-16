@@ -37,15 +37,15 @@ In the static lab you wrote a route on R1 and a mirror route on R3, then a backu
    link-state DB], name: "d2", ..db)
     node(below-of("r3", 1.15), [identical \
    link-state DB], name: "d3", ..db)
-    connect("d1", "d2", line-width: widths.thick, draw: teal, start: tip("to", line: widths.thick), end: tip("to", line: widths.thick))
+    connect("d1", "d2", line-width: widths.thick, draw: teal, start: arrow-tip("to", line: widths.thick), end: arrow-tip("to", line: widths.thick))
     node(along("d1", "d2", t: 50%), [flood], ..ml, anchor: "south")
-    connect("d2", "d3", line-width: widths.thick, draw: teal, start: tip("to", line: widths.thick), end: tip("to", line: widths.thick))
+    connect("d2", "d3", line-width: widths.thick, draw: teal, start: arrow-tip("to", line: widths.thick), end: arrow-tip("to", line: widths.thick))
     node(along("d2", "d3", t: 50%), [flood], ..ml, anchor: "south")
     node(below-of("d2", 0.45), [Same database everywhere. Each router then runs Dijkstra #strong[from itself], so the routing tables all differ --- and all agree.], ..ml, text-width: 9.5)
   })
 ]
 
-#keyidea[
+#note[
   A static route states a #emph[conclusion] (“send this network that way”). OSPF distributes the #emph[evidence] --- which links exist and what they cost --- and lets each router reach its own conclusion. That is why a failed link needs no new configuration: the evidence changes, and every router recomputes.
 ]
 
@@ -76,7 +76,7 @@ Each OSPF process receives a unique router ID matching the router’s loopback a
 
 R3 follows the same pattern for the networks connected to it.
 
-#keyidea[
+#note[
   The `network` statements select local interfaces for OSPF. An unmatched interface does not participate or advertise its connected network through that process.
 ]
 
@@ -159,7 +159,7 @@ useful single command in this chapter.
   })
 ]
 
-#pitfall[
+#warning[
   Neighbours also refuse to form when the hello or dead intervals differ,
   when the area IDs differ, or when authentication is set on one side
   only. None of these produce an error message; they produce a neighbour
@@ -191,7 +191,7 @@ link costs 1562, so OSPF prefers the fast path without being told to.
   })
 ]
 
-#verification[
+#checklist[
   Require three checks: the expected neighbor is #strong[Full], remote networks appear as OSPF routes, and ping succeeds.
 ]
 
@@ -209,11 +209,11 @@ The lab pings from R2 to R1 and R3’s loopback `10.0.3.3`, confirming that OSPF
   + Only then use ping to verify the data path.
 ]
 
-#pitfall[
+#warning[
   A missing route may reflect a failed adjacency. Do not mask the fault with a static route; inspect the interface and OSPF configuration.
 ]
 
-#quickcheck[
+#questions[
   + Why does the lab explicitly configure a router ID?
   + What is the role of area 0 in the source material?
   + Which command gives the compact neighbor summary?

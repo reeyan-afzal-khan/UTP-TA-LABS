@@ -7,7 +7,7 @@
 
 The lecture defines blockchain as a #term[peer-to-peer system for transacting value without a trusted third party sitting between every transaction]. The record of transactions is maintained as a shared ledger replicated across many nodes.
 
-#keyidea[
+#note[
   Blockchain moves trust away from a single authoritative database and toward a combination of replicated records, cryptography, network rules, and a consensus process.
 ]
 
@@ -26,7 +26,7 @@ The lecture emphasizes three properties:
     let c = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 2.2, min-height: 0.95, align: center, font: font("script", weight: "bold", fill: navy))
     let auth = (draw: navy, fill: navy, text: white, rounded: 2mm, min-width: 2.7, min-height: 1.15, align: center, font: font("script", weight: "bold"))
     let peer = (draw: teal, fill: pale-teal, shape: "circle", min-size: 1.2, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((-4.3, 0), [Central \
   authoritative ledger], name: "a", ..auth)
     node((-4.3, 2), [User], name: "u1", ..c)
@@ -95,7 +95,7 @@ A #term[smart contract] can trigger an action when specified conditions are sati
   )
 ]
 
-#pitfall[
+#warning[
   The five benefits are not automatic properties of every blockchain implementation. The lecture presents them as potential advantages when the architecture, permissions, data, governance, and use case are designed appropriately.
 ]
 
@@ -121,7 +121,7 @@ The lecture uses asymmetric cryptography for two broad goals:
 + identifying or addressing accounts;
 + authorizing transactions.
 
-#libnote[
+#note[
   The slides explain signatures using a simplified “encrypt the transaction hash with the private key, verify with the public key” mental model. This is useful for the course concept: the private key creates an authorization that others can verify with public information. Real signature algorithms are implemented according to their specific mathematical rules rather than as generic public-key encryption.
 ]
 
@@ -159,7 +159,7 @@ A verifying node:
 
 If verification succeeds, the node has evidence that the transaction was authorized by the private-key holder and that the signed content was not changed after signing.
 
-#intuition[
+#note[
   A digital signature is like a tamper-sensitive approval stamp. It does not hide the transaction; it proves that the holder of the private key approved a particular version of it.
 ]
 
@@ -186,7 +186,7 @@ A #term[Merkle tree] combines hashes of individual transactions into higher-leve
   #canvas({
     let t = (draw: blue, fill: pale-blue, rounded: 1.5mm, min-width: 2.2, min-height: 0.7, align: center, font: font("script", fill: navy))
     let h-style = (draw: teal, fill: pale-teal, rounded: 1.5mm, min-width: 2.2, min-height: 0.7, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (draw: muted, end: tip("Stealth", length: 1.7mm, line: 0.4pt))
+    let arr = (draw: muted, end: arrow-tip("Stealth", length: 1.7mm, line: 0.4pt))
     node((-4.2, -2.2), [Transaction 1], name: "t1", ..t)
     node((-1.4, -2.2), [Transaction 2], name: "t2", ..t)
     node((1.4, -2.2), [Transaction 3], name: "t3", ..t)
@@ -225,7 +225,7 @@ Each block header contains the hash of the previous block header. This creates a
 #utpfig([How blocks form a chain. Each block header holds the hash of the previous header, so changing an old block breaks every link after it.], label: <fig:block-chain>)[
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3.1, min-height: 1.55, align: center, font: font("script", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.3, 0), [#strong[Block 1] #parbreak() prev: genesis #parbreak() Merkle root 1], name: "b1", ..b)
     node((0, 0), [#strong[Block 2] #parbreak() prev: hash(Block 1) #parbreak() Merkle root 2], name: "b2", ..b)
     node((4.3, 0), [#strong[Block 3] #parbreak() prev: hash(Block 2) #parbreak() Merkle root 3], name: "b3", ..b)
@@ -268,7 +268,7 @@ A #term[miner] is a specialized node participating in a proof-of-work block-vali
 
 The lecture describes blockchain modification as an “all-or-nothing” problem. If historical data change, the hash dependencies from that point to the current head also change. Partial modification leaves an easily detectable inconsistency.
 
-#keyidea[
+#note[
   Immutability in the course is best understood as #emph[tamper evidence plus the cost and consensus difficulty of rewriting accepted history], not as a magical physical impossibility of changing bytes on a computer.
 ]
 
@@ -292,7 +292,7 @@ A conventional relational database commonly organizes information into tables an
   )
 ]
 
-#pitfall[
+#warning[
   Blockchain is not automatically a better database. If one trusted organization can manage the data efficiently and participants do not need a shared tamper-evident ledger, a conventional database may be simpler and faster.
 ]
 
@@ -335,11 +335,11 @@ Smart contracts and shared records can automate underwriting and claims processe
 
 If the answer to most of these questions is “no,” the added complexity of distributed consensus may not be justified.
 
-#tryit[
+#exercises[
   Analyze a pharmaceutical supply chain. Identify the participants, the shared facts they need to agree on, the provenance problem, one smart-contract opportunity, and one reason a conventional shared database might still be preferable.
 ]
 
-#quickcheck[
+#questions[
   + What changes when a ledger moves from one authoritative copy to replicated peer copies?
   + Name the five blockchain benefits emphasized in the lecture.
   + What roles do a private key, public key, hash, and digital signature play?

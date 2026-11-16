@@ -19,9 +19,9 @@
      #fsize("tiny")[added on entry, so the far switch knows]], ..netframe, text-width: 2.5, align: center, draw: blue, fill: pale-blue)
       node(below-of("pc3", 0.8), [#strong[no tag] \
      #fsize("tiny")[stripped again on the way out]], ..netframe, text-width: 1.9, align: center)
-      connect((rel: (0, -0.35), to: "pc1"), (rel: (0, -0.75), to: "pc1"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
-      connect((rel: (0, -0.2), to: ("sw1", 50%, "sw2")), (rel: (0, -0.68), to: ("sw1", 50%, "sw2")), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
-      connect((rel: (0, -0.35), to: "pc3"), (rel: (0, -0.75), to: "pc3"), draw: muted, dash: "dotted", end: tip("to", line: 0.4pt))
+      connect((rel: (0, -0.35), to: "pc1"), (rel: (0, -0.75), to: "pc1"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
+      connect((rel: (0, -0.2), to: ("sw1", 50%, "sw2")), (rel: (0, -0.68), to: ("sw1", 50%, "sw2")), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
+      connect((rel: (0, -0.35), to: "pc3"), (rel: (0, -0.75), to: "pc3"), draw: muted, dash: "dotted", end: arrow-tip("to", line: 0.4pt))
     })
   ]
 ]

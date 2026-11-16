@@ -18,7 +18,7 @@
       draw.scope({
         draw.translate((5.6, 0))
         rectangle((0, 0), (4.6, 2.9), draw: muted, fill: white)
-        connect((0.3, 0.45), (4.35, 0.45), draw: muted, end: tip("Stealth", length: 2mm, line: 0.4pt))
+        connect((0.3, 0.45), (4.35, 0.45), draw: muted, end: arrow-tip("Stealth", length: 2mm, line: 0.4pt))
         node((2.3, 0.4), [anomaly score], font: font("script"), anchor: "north", inner-sep: 0.9963pt, text: muted)
         smooth-path(..range(60).map(k => { let x = 0.4 + k * (4.3 - (0.4)) / 59; (x, 0.45 + 2 * calc.exp(-(calc.pow((x - 1.3), 2)) / 0.28)) }), line-width: widths.very-thick, draw: blue)
         connect((2.85, 0.45), (2.85, 2.6), line-width: widths.very-thick, dash: "dashed", draw: red)

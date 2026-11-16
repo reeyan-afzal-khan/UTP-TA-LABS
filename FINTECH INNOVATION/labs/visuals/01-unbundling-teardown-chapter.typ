@@ -5,7 +5,7 @@
     #canvas({
       let p = (draw: blue, fill: pale-blue, rounded: 2mm, min-width: 3.2, min-height: 1.25, align: center, font: font("small", weight: "bold", fill: navy))
       let bank = (draw: navy, fill: navy, text: white, rounded: 2mm, min-width: 3.5, min-height: 1.55, align: center, font: font("small", weight: "bold"))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
       node((0, 0), [Savers \
     deposits], name: "s", ..p)
       node(right-of("s", 1.1), [Traditional bank \

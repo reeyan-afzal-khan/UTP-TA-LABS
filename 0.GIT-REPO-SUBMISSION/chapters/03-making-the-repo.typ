@@ -33,8 +33,10 @@ git remote -v
 git push -u origin main
 ```
 
-#pitfall[
+#warning[
   Always read `git status` before committing. If a dataset, password,
   token, `.env` file, or virtual environment appears, stop and update
   `.gitignore` before running `git commit`.
 ]
+
+Your first submission is now on GitHub. Submit every later update with the short loop in #secref(<sec:submit-updates>), and see #secref(<sec:gitignore>) for a starter `.gitignore`.

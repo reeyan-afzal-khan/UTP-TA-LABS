@@ -35,7 +35,7 @@ A client with no address cannot yet be addressed, so the conversation begins as 
   #fignote[The #strong[Request] is broadcast rather than sent to the chosen server. That is deliberate: if two servers made offers, the broadcast tells the one that was #emph[not] chosen to release the address it had reserved.]
 ]
 
-#keyidea[
+#note[
   Discover and Request are broadcasts. Routers do not forward broadcasts, so a client and its DHCP server must share a broadcast domain --- or something must carry the request across. That “something” is the relay, in Section~#ref(<sec:dhcp-relay>).
 ]
 
@@ -136,7 +136,7 @@ Next, configure DHCP directly under the active routed interfaces.
 [R3-GigabitEthernet0/0/1] dhcp server lease day 1 hour 12
 ```
 
-#keyidea[
+#note[
   `excluded-ip-address` prevents the DNS server address from being leased to a client.
 ]
 
@@ -166,7 +166,7 @@ brief server outage is invisible.
   })
 ]
 
-#keyidea[
+#note[
   `display ip pool` shows how many addresses are used and how many are
   idle. An exhausted pool and a pool full of stale leases look identical in
   that output, which is why the lease time is a design decision rather than
@@ -188,7 +188,7 @@ Cycle Vlanif1 to force a fresh request from the interface-based pool.
 
 Repeat for S1 and R3 on the other subnet.
 
-#verification[
+#checklist[
   Success requires a client address from the expected subnet and a matching used lease in the server pool.
 ]
 
@@ -224,7 +224,7 @@ A #term[relay agent] solves this by translating the conversation. The router rec
 [R1-GigabitEthernet0/0/2] dhcp relay server-ip 10.0.12.1
 ```
 
-#pitfall[
+#warning[
   The relay must still be able to reach the server by ordinary routing, and the server needs a #emph[return] route to the client subnet. A relay that is configured correctly but has no return path produces the same silent symptom as no relay at all: the client waits and eventually gives up.
 ]
 
@@ -239,7 +239,7 @@ A #term[relay agent] solves this by translating the conversation. The router rec
   + Cycle the client interface if the exercise requires a new lease, then inspect the client and pool state again.
 ]
 
-#quickcheck[
+#questions[
   + What is the difference between a named global pool and an interface-based pool in this lab?
   + Why does the source exclude `10.0.23.254` and `10.0.12.254` from allocation?
   + Which command proves that a pool has allocated an address?

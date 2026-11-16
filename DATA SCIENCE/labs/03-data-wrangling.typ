@@ -60,7 +60,7 @@
 
   #include "visuals/03-data-wrangling-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Reproduce one group summary directly from its raw rows. Shift a peak-hour boundary by one hour and identify the exact records whose category changes.
 
     #strong[Required evidence.] Submit the final analysis-ready column definitions, one grouped demand profile, and three validation checks. For every engineered variable, include a one-sentence definition precise enough for another analyst to reproduce it independently.

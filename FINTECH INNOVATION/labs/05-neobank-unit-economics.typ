@@ -49,7 +49,7 @@ python all_experiments/lab05_neobank_unit_economics.py
 
 #include "visuals/05-neobank-unit-economics-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Change churn while holding other assumptions fixed. Compare LTV/CAC and the lowest monthly cash balance; explain why they answer different business questions.
 
   - The script runs from a fresh process and creates the named CSV or report files.

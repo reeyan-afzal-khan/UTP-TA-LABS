@@ -9,7 +9,7 @@
 
 #chapref(<ch:orientation>) gave the recipe in three words: model, loss, optimizer. This chapter looks at what fills each blank. The feedback in your data decides the first two. The third is, more often than not, a walk down a hill in thick fog.
 
-#keyidea[
+#note[
   Labels guide prediction; unlabeled data supports structure discovery; rewards guide actions. Whichever you have, you still write down a number to make small, and you still search for the settings that make it small.
 ]
 
@@ -46,7 +46,7 @@ Every setting follows the workflow of #figref(<fig:ml-workflow>): define the que
   )
 ]
 
-#pitfall[
+#warning[
   A cluster need not be a class, a PCA component is not a prediction, and an anomaly score is not a fraud probability. Choose evaluation to match the objective.
 ]
 
@@ -70,9 +70,7 @@ The optimizer column shows two kinds of answer. Sometimes mathematics hands you 
 
 == A first look at optimization: walking down a hill in fog <sec:gradient-descent>
 
-#analogy[
-  You are standing on a hillside in fog so thick you cannot see the valley. You can, however, feel the slope under your feet. So you do the only sensible thing: take a small step in the direction that goes downhill, feel the slope again, and repeat. Where you stand is the model’s numbers, your height is the loss, and the slope under your feet is the gradient.
-]
+You are standing on a hillside in fog so thick you cannot see the valley. You can, however, feel the slope under your feet. So you do the only sensible thing: take a small step in the direction that goes downhill, feel the slope again, and repeat. Where you stand is the model’s numbers, your height is the loss, and the slope under your feet is the gradient.
 
 Practice on the simplest hill there is. Let $J(v)=(v-4)^2$. Its graph is a bowl with one lowest point, at $v=4$, but pretend you do not know that, and start at $v=0$.
 
@@ -84,7 +82,7 @@ $ v arrow.l v- alpha thin J'(v). $
 
 The multiplier $alpha$ is the #term[learning rate]. With $alpha =0.1$ the first step is $v arrow.l 0-0.1 times (-8)=0.8$. Here are five steps, printed by the code below.
 
-#workedexample[
+#example[
   #align(center)[#fsize("small")[
 
   #tabularx(
@@ -138,7 +136,7 @@ The learning rate is a hyperparameter: nothing in the data sets it, and it decid
 
 #keepspace(176.15pt)
 
-#workedexample[
+#example[
   Five steps from $v=0$ with three learning rates:
 
   #v(6pt)
@@ -159,7 +157,7 @@ The learning rate is a hyperparameter: nothing in the data sets it, and it decid
   ]]]
 ]
 
-#intuition[
+#note[
   The gradient sets the direction and the learning rate sets the stride. Small strides are safe and slow; large strides are fast until they are not.
 ]
 
@@ -167,7 +165,7 @@ The learning rate is a hyperparameter: nothing in the data sets it, and it decid
 
 The bowl above has exactly one lowest point, so any sensible walk ends in the same place. The losses of linear regression and logistic regression have that shape too, which makes them dependable. Losses of $K$-means and neural networks do not: they have many dips, so a walk can stop in a local one, and where you start matters. #chapref(<ch:clustering>) shows this on the study log, where one starting choice ends with a score of 340.67 and another with 778.50.
 
-#keyidea[
+#note[
   Reducing training loss does not establish generalization. An optimizer’s job is to make one number small on the rows it can see, and it will memorize those rows if the model allows. Evaluate on unseen data.
 ]
 
@@ -175,7 +173,7 @@ The bowl above has exactly one lowest point, so any sensible walk ends in the sa
 
 #chapref(<ch:foundations>) collects the mathematics this workflow leans on: center, spread, probability, vectors, matrix shapes, dot products, distances and gradients. Learn those first, and revisit deeper results when a model needs them.
 
-#chapterrecap[
+#summary[
   - The available feedback picks the setting: labels, some labels, no labels, or rewards.
   - Every method fills in the same three blanks. Some optimizers are exact formulas, and others are searches.
   - Gradient descent walks downhill: measure the slope, step against it, repeat. You can measure a slope by nudging, with no calculus.
@@ -183,7 +181,7 @@ The bowl above has exactly one lowest point, so any sensible walk ends in the sa
   - A low training loss is not the goal. Generalization is.
 ]
 
-#quickcheck[
+#questions[
   + What feedback signal separates supervised, unsupervised, limited-label and reinforcement-learning problems?
   + On the bowl $J(v)=(v-4)^2$, standing at $v=6$ with $alpha =0.1$, what is the next value of $v$?
   + Why does the size of each step shrink on a bowl, even though $alpha$ stays the same?

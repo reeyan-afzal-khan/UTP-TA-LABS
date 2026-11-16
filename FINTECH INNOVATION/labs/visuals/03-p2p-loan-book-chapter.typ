@@ -5,7 +5,7 @@
     #canvas({
       let p = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.6, min-height: 1.15, align: center, font: font("small", weight: "bold", fill: navy))
       let mid = (draw: navy, fill: white, rounded: 2mm, text-width: 3.4, min-height: 1.4, align: center, font: font("small", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.1mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.1mm, line: widths.thick))
       let head = (font: font("small", weight: "bold", fill: navy),)
       let risk = (font: font("script", fill: red), align: center, text-width: 4.4)
       let ring = (draw: red, dash: "dashed", rounded: 2.5mm, line-width: 0.797pt)

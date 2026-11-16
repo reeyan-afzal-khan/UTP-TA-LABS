@@ -53,7 +53,7 @@ python all_experiments/lab08_crypto_as_money.py
 
 #include "visuals/08-crypto-as-money-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Identify the largest synthetic drawdown and calculate the recovery needed. Compare each fee with a small purchase amount and state which assumption most affects payment practicality.
 
   - The script runs from a fresh process and creates the named CSV or report files.

@@ -11,7 +11,7 @@ A shell such as Bash is an ordinary user-space program, but it is unusually usef
 
 This makes the shell a convenient bridge between theory and experiment. Instead of writing C code every time we want to inspect a process or count log messages, we can combine existing tools such as `ps`, `grep`, `wc`, `df`, and `uname`.
 
-#keyidea[
+#note[
   A good shell script is usually not doing everything itself. It coordinates small programs and lets the operating system connect them through processes, files, and standard streams.
 ]
 
@@ -39,7 +39,7 @@ df -h . > "$file"
 
 The double quotes around `"$file"` preserve a filename containing spaces as one argument.
 
-#pitfall[
+#warning[
   Unquoted variables are a common source of scripting errors. If `file="OS Lab.txt"`, then `cat $file` can be interpreted as two filenames. Prefer `cat "$file"`.
 ]
 
@@ -76,7 +76,7 @@ ps -eo pid,ppid,stat,comm | grep bash
 
 The first process produces text. The shell connects that output to a pipe. The second process reads from the pipe and keeps selected lines. The programs do not need to know each other’s implementation.
 
-#intuition[
+#note[
   A pipeline is like an assembly line for bytes. Each program performs one small job, while the shell and operating system arrange the connections.
 ]
 
@@ -91,7 +91,7 @@ echo $?
 
 This is why commands can be composed inside `if`, `&&`, and `||` expressions.
 
-#workedexample[
+#example[
   A search tool can use status 0 for “match found”, 1 for “no match”, and 2 for “could not read the file”. A script can then react to the condition without trying to interpret printed sentences.
 ]
 
@@ -131,11 +131,11 @@ For a student lab script, a reliable workflow is:
 + return a meaningful exit status;
 + add a short usage message if another person will run the script.
 
-#keyidea[
+#note[
   The goal of Bash in this course is not to memorise syntax. It is to make OS observations reproducible: the same commands, in the same order, with failures handled clearly.
 ]
 
-#quickcheck[
+#questions[
   + Why should a filename variable usually be quoted?
   + What OS idea is visible in a pipeline such as `ps | grep bash`?
   + Why is exit status more useful to another program than a human-readable sentence alone?

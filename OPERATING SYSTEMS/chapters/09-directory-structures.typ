@@ -28,17 +28,17 @@ Modern general-purpose systems use hierarchical trees with linking mechanisms.
     let file = (draw: teal, fill: pale-teal, rounded: 1mm, min-width: 1.9, min-height: 0.65, font: font("script", fill: navy))
     node((0, 0), [root], name: "tree-1", ..dir)
     node((rel: (-4.2, -1.55), to: "tree-1"), [home], name: "tree-2", ..dir)
-    connect("tree-1", "tree-2", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-1", "tree-2", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((rel: (-1.175, -1.55), to: "tree-2"), [notes.txt], name: "tree-3", ..file)
-    connect("tree-2", "tree-3", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-2", "tree-3", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((rel: (1.175, -1.55), to: "tree-2"), [code.c], name: "tree-4", ..file)
-    connect("tree-2", "tree-4", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-2", "tree-4", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((rel: (0, -1.55), to: "tree-1"), [etc], name: "tree-5", ..dir)
-    connect("tree-1", "tree-5", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-1", "tree-5", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((rel: (0, -1.55), to: "tree-5"), [config], name: "tree-6", ..file)
-    connect("tree-5", "tree-6", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-5", "tree-6", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
     node((rel: (4.2, -1.55), to: "tree-1"), [tmp], name: "tree-7", ..dir)
-    connect("tree-1", "tree-7", draw: muted, line-width: widths.thick, end: tip("Stealth", length: 1.8mm, line: widths.thick))
+    connect("tree-1", "tree-7", draw: muted, line-width: widths.thick, end: arrow-tip("Stealth", length: 1.8mm, line: widths.thick))
   })
 ]
 
@@ -63,7 +63,7 @@ This is why permissions on intermediate directories matter: reaching a file requ
 
 A filename is not the complete file. Metadata can include object type, owner, permissions, timestamps, size, link count, and pointers or mappings to data blocks.
 
-#keyidea[
+#note[
   The namespace tells us #emph[how an object is named]. Metadata tells us #emph[what the object is and its properties]. Storage allocation tells us #emph[where its bytes are represented on storage].
 ]
 
@@ -104,7 +104,7 @@ Common namespace operations include create, list, rename, link, unlink, and trav
 
 The lab stays at an observable introductory level: you create a small tree, inspect inode identity and links, and compare the shell’s view with a recursive C walker.
 
-#quickcheck[
+#questions[
   + What is the starting point of an absolute path? A relative path?
   + Why can two different names report the same inode number?
   + Why might a directory walker choose not to follow symbolic links?

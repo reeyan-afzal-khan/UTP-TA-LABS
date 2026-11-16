@@ -53,7 +53,7 @@ python all_experiments/lab02_measuring_inclusion.py
 
 #include "visuals/02-measuring-inclusion-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Select two groups and report counts beside rates. Recalculate one measure with a different denominator and explain why the interpretation changes.
 
   - The script runs from a fresh process and creates the named CSV or report files.

@@ -33,11 +33,9 @@ A defect that the network classified correctly is, four pixels later, often a de
 
 == Convolution: one small filter, slid everywhere
 
-#analogy[
-  Lay a small stencil on a photo and slide it across, recording at each position how well the patch beneath matches the stencil. Wherever the pattern appears, the score is high. A #term[convolutional layer] does exactly this, except that it learns its own stencils, called #term[filters]. Each filter's scores form a #term[feature map].
-]
+Lay a small stencil on a photo and slide it across, recording at each position how well the patch beneath matches the stencil. Wherever the pattern appears, the score is high. A #term[convolutional layer] does exactly this, except that it learns its own stencils, called #term[filters]. Each filter's scores form a #term[feature map].
 
-#workedexample[
+#example[
   A $5 times 5$ image, dark on the left and bright on the right, and a $3 times 3$ vertical-edge filter. Each output is the sum of the filter times the patch beneath it.
 
   #v(6pt)
@@ -122,8 +120,8 @@ A defect that the network classified correctly is, four pixels later, often a de
       rectangle((0.8, -1.2), (rel: (0.4, -0.4), to: (0.8, -1.2)), line-width: widths.very-thick, draw: blue)
       node((1.6, 0.3), [feature map], font: font("small", weight: "bold", fill: navy))
     })
-    connect((3.3, -1.6), (4.2, -1.6), line-width: widths.thick, draw: blue, end: tip("Stealth", length: 2mm, line: widths.thick))
-    connect((5.9, -1.6), (7.2, -1.6), line-width: widths.thick, draw: blue, end: tip("Stealth", length: 2mm, line: widths.thick))
+    connect((3.3, -1.6), (4.2, -1.6), line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
+    connect((5.9, -1.6), (7.2, -1.6), line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
   })
 ]
 
@@ -165,7 +163,7 @@ Early layers see edges and small textures; later layers see whole parts of the p
 
 A small CNN repeats convolution, ReLU and pooling, then turns its last maps into a dense classifier. Lab~7’s network, with its weights counted layer by layer:
 
-#block(breakable: false, width: 100%)[#workedexample[
+#block(breakable: false, width: 100%)[#example[
   A filter layer has (input channels $times$ filters $times$ $3 times 3$) weights plus one bias per filter. The two filter layers need 5,088 weights between them, the first dense layer 131,136, which is why the pooling before it matters.
 
   #v(6pt)
@@ -206,7 +204,7 @@ The second row is a surprise worth understanding. Lab~7’s CNN is better everyw
 
 The third row removes that memory. After three blocks of filters, it averages each of its 64 maps over the whole photo, which is called #term[global average pooling], and classifies the 64 averages. Where a pattern appeared no longer matters, only how strongly. That network is less accurate on photos that have not moved, because position carried some information, but an eight-pixel move costs it only 0.044. And it has 24,039 weights, a sixth of Lab~7’s.
 
-#keyidea[
+#note[
   Convolution makes a layer respond the same way to a pattern wherever it is. Whether the whole network ignores where the pattern is depends on its end: flattening keeps positions, and global average pooling throws them away. Choose by asking whether position matters for the label.
 ]
 
@@ -228,7 +226,7 @@ A network learns only the variation its training photos show it. #term[Data augm
 
 Before reading the rows, look at how much the result moves on its own. The same CNN, trained from three other random starts, reaches 0.708, 0.673 and 0.701 on the unmoved photos: a spread of 0.035 from nothing but luck. Against that spread, flipping did not change the accuracy on unmoved photos, and neither did moving: their 0.715 and 0.695 are inside the luck. What moving did change is the network's behaviour on moved photos. At four pixels it keeps 0.674 instead of 0.588, a gain more than twice the spread. Augmentation taught the network the one thing the moves were about.
 
-#pitfall[
+#warning[
   Augment only with changes that cannot change the label. Flipping a photo of wood is safe; flipping a photo of the digit 6 can make a 9, and flipping a road sign that points left makes one that points right. And judge every gain against the spread between random starts: a difference smaller than that spread is not yet a result.
 ]
 
@@ -254,11 +252,7 @@ A CNN can be inspected more directly than most models. Lab~7 draws the 16 filter
   )
 ]
 
-#tryit[
-  In `demo_cnn.py`, set `CHECK_BOOK_NUMBERS = False`. In `nudges`, change `most=4` to `most=8` and run the script. Does the CNN trained on moved photos now keep its accuracy at an eight-pixel move? What does it cost on photos that have not moved? Compare the change with the spread between random starts before you draw a conclusion.
-]
-
-#chapterrecap[
+#summary[
   - A dense layer gives every pixel its own weights: 393,344 in Lab~7’s first layer. A convolutional layer slides a few shared filters: 448 weights for 16 filters.
   - The output width is $floor((n + 2p - k) \/ s) + 1$; padding keeps the size, stride and pooling shrink it.
   - Each layer sees further than the one below: after conv, pool, conv, pool, conv, one unit sees 18 pixels across.
@@ -267,7 +261,11 @@ A CNN can be inspected more directly than most models. Lab~7 draws the 16 filter
   - Transfer learning reuses networks trained on millions of photos and is the usual choice when labeled photos are few.
 ]
 
-#quickcheck[
+#exercises[
+  In `demo_cnn.py`, set `CHECK_BOOK_NUMBERS = False`. In `nudges`, change `most=4` to `most=8` and run the script. Does the CNN trained on moved photos now keep its accuracy at an eight-pixel move? What does it cost on photos that have not moved? Compare the change with the spread between random starts before you draw a conclusion.
+]
+
+#questions[
   + Why does a dense layer need so many weights for a photo, and what does it fail to learn that a convolutional layer learns for free?
   + Slide the vertical-edge filter of this chapter over a $5 times 5$ image whose left three columns are 9 and right two are 0. What is the top row of the feature map?
   + A layer applies 32 filters of $3 times 3$ to an input with 16 channels. How many weights does it have?

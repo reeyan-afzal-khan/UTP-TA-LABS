@@ -3,11 +3,11 @@
 
 #labsection(8, label: <sec:lab08>)[BSTs, heaps, and balancing structures]
 
-#sourcealignment[Official Lab Manual --- Lab VIII][
-  BST operations, min/max heaps, height balancing, and instructor-led B-tree practice.
-]
-
 #labproject[Compare ordering rules across specialized trees][
+  #note[
+    #strong[Official Lab Manual --- Lab VIII.] BST operations, min/max heaps, height balancing, and instructor-led B-tree practice.
+  ]
+
   #strong[Goal.] Compare BST ordering, heap ordering, and the effect of tree height.
 
   #strong[Recall first.] Review the #link(<ch:trees-ii>)[BSTs, Heaps, and Height Balancing] chapter.
@@ -26,7 +26,7 @@
   #strong[Instructor-led B-tree extension.] Use the degree and occupancy rules specified in class to draw split, borrow, and merge. The complete programs here cover BSTs, height checks, and min/max heaps; B-tree implementation is outside these supplied program files.
 ]
 
-#verification[
+#checklist[
   $square$ Every listed program compiles independently with its own `main()`. \
 
   $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \

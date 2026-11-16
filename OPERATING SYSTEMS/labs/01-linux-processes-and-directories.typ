@@ -94,7 +94,7 @@
 
   Before running, answer: #emph[Will the parent print the new child message too?] Then explain the observed result using the idea of two processes, not only the `if` statement.
 
-  #quickcheck[
+  #questions[
     + Why does `fork()` produce two different return-value cases from one call?
     + How can a child process identify its parent?
     + Why can creating or renaming a file change a directory listing without changing the directory program itself?
@@ -104,7 +104,7 @@
 
   #include "visuals/01-linux-processes-and-directories-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Start a harmless long-running command, record its PID and parent, terminate only that process and confirm its exit. Explain why a second process with the same command name must remain unaffected.
 
     - Both programs compile with `-Wall -Wextra` and run from the unchanged source first.
@@ -113,7 +113,7 @@
     - Your prediction for the Vim edit is written down before you run it, and the result is explained with two processes.
   ]
 
-  #troubleshoot[
+  #tip[
     If `ps -C` shows nothing, rerun `./fork_demo 10 &` and issue `ps` before the child exits. Different PID numbers are expected on every run.
   ]
 ]

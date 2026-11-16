@@ -78,6 +78,6 @@ enqueue F (priority 3)
 
 The complete captured run is in `labs/outputs/priority_queue.txt`.
 
-#tryit[
+#exercises[
   Add a third item with priority 5 after B and D. It must leave after B and D but before priority 3. Then test refusal when the fixed array is full.
 ]

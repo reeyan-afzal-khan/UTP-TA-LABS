@@ -91,7 +91,7 @@ wsl --list --verbose
   #canvas({
     let box-style = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.25, min-height: 1.55, inner-sep: 3mm, align: center, font: font("small", fill: navy))
     let linux = (..box-style, draw: teal, fill: pale-teal)
-    let a = (line-width: widths.thick, draw: muted, end: tip("Stealth", length: 2.2mm, line: widths.thick))
+    let a = (line-width: widths.thick, draw: muted, end: arrow-tip("Stealth", length: 2.2mm, line: widths.thick))
     node((-4, 0), [#strong[Windows PowerShell] \ #v(1.9925pt)
    install and check WSL \
   `wsl --status`], name: "win", ..box-style)
@@ -104,7 +104,7 @@ wsl --list --verbose
   })
 ]
 
-#pitfall[
+#warning[
   Do not type Linux package, compiler, or lab commands into PowerShell. After WSL is installed, run the practical work inside Ubuntu/WSL unless the guide explicitly says #strong[PowerShell].
 ]
 
@@ -160,8 +160,8 @@ Vim is a terminal editor. You do not need advanced Vim knowledge; the course use
     let n = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 4.25, min-height: 1.55, inner-sep: 3.5mm, align: center, font: font("small", fill: navy))
     let i = (..n, draw: teal, fill: pale-teal, min-height: 2.05)
     let c = (..n, draw: orange, fill: pale-orange, min-height: 2.05)
-    let bileft = (line-width: 1.0461pt, draw: mix(teal, 85%, other: black), shorten-start: 1.9925pt, shorten-end: 1.9925pt, start: tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt), end: tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt))
-    let biright = (line-width: 1.0461pt, draw: mix(orange, 90%, other: black), shorten-start: 1.9925pt, shorten-end: 1.9925pt, start: tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt), end: tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt))
+    let bileft = (line-width: 1.0461pt, draw: mix(teal, 85%, other: black), shorten-start: 1.9925pt, shorten-end: 1.9925pt, start: arrow-tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt), end: arrow-tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt))
+    let biright = (line-width: 1.0461pt, draw: mix(orange, 90%, other: black), shorten-start: 1.9925pt, shorten-end: 1.9925pt, start: arrow-tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt), end: arrow-tip("Stealth", length: 2.5mm, width: 2mm, line: 1.0461pt))
     node((0, 2.65), [#strong[NORMAL MODE] \ #v(2.9888pt)
    navigate, edit, search, and issue commands], name: "normal", ..n)
     node((-4.25, -0.75), [#strong[INSERT MODE] \ #v(2.9888pt)
@@ -224,8 +224,8 @@ gcc -Wall -Wextra -std=c11 hello.c -o hello
 #utpfig([The edit-compile-run cycle: edit the source, save, compile, then run and inspect the result. Revise one thing at a time and repeat.], label: <fig:edit-compile-run>)[
   #canvas({
     let flowcard = (draw: mix(blue, 65%), fill: white, rounded: 1.5mm, text-width: 2.45, min-height: 1.35, inner-xsep: 2mm, inner-ysep: 2.5mm, align: center, font: font("small", fill: navy))
-    let forward = (line-width: 0.8966pt, draw: teal, shorten-start: 1.9925pt, shorten-end: 1.9925pt, end: tip("Stealth", length: 2.3mm, width: 1.8mm, line: 0.8966pt))
-    let feedback = (line-width: widths.semithick, dash: "dashed", draw: muted, rounded: 3.9851pt, shorten-start: 1.9925pt, shorten-end: 1.9925pt, end: tip("Stealth", length: 2.2mm, width: 1.7mm, line: widths.semithick))
+    let forward = (line-width: 0.8966pt, draw: teal, shorten-start: 1.9925pt, shorten-end: 1.9925pt, end: arrow-tip("Stealth", length: 2.3mm, width: 1.8mm, line: 0.8966pt))
+    let feedback = (line-width: widths.semithick, dash: "dashed", draw: muted, rounded: 3.9851pt, shorten-start: 1.9925pt, shorten-end: 1.9925pt, end: arrow-tip("Stealth", length: 2.2mm, width: 1.7mm, line: widths.semithick))
     let feedbacklabel = (fill: white, inner-xsep: 2mm, inner-ysep: 0.9963pt, font: font("script", fill: muted))
     node((-5.2, 0), [#text(fill: blue)[#strong[01]] \ #v(1.9925pt)
    #strong[EDIT SOURCE] \ #v(2.9888pt)

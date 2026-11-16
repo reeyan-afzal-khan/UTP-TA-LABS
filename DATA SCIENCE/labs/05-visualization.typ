@@ -56,7 +56,7 @@
 
   #include "visuals/05-visualization-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Revise one chart for one explicit audience question. Keep the data unchanged and explain how the axis, ordering or annotation improves the comparison.
 
     #strong[Required evidence.] Submit a three-figure mini-report. Each figure must have a one-sentence question above it and a two-to-three sentence evidence caption below it. A reader should understand the analytical claim without seeing the R code.

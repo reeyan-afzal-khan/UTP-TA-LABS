@@ -15,7 +15,7 @@
     let other = (..stage, draw: orange, fill: pale-orange)
     let finish = (..stage, draw: green, fill: pale-teal)
     let branchlabel = (fill: white, inner-xsep: 1.9925pt, inner-ysep: 0.9963pt, font: font("script", weight: "bold", fill: muted))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     let flow = (line-width: widths.thick, draw: teal)
     let junction = (shape: "circle", fill: teal, inner-sep: 1.1955pt)
     node((0, 9.0), [#stagehead([Stage 1: Orientation and tools], blue, [Chapters #ref(<ch:toolkit>)--@ch:pydata]) \

@@ -27,7 +27,7 @@
 
   #strong[Expected evidence.] R1 must reach R2 directly; no static route is needed for their shared subnet.
 
-  #labmode[
+  #note[
     This lab has almost no networking content, and it is the most important one in the course. Every configuration you write for the next seven labs assumes you can move between VRP views without thinking about it.
 
     Do it until it is boring. Then do the troubleshooting section, which is where the actual learning is.
@@ -57,7 +57,7 @@
   <Huawei>
   ```
 
-  #keyidea[
+  #note[
     The prompt tells you where you are, and it is the only reliable indicator:
 
     `<angle brackets>` --- user view. Read-only commands: `display`, `ping`, `save`. \
@@ -87,7 +87,7 @@
   <R1> ping 192.168.1.2
   ```
 
-  #pitfall[
+  #warning[
     `ip address 192.168.1.1 24` uses a prefix length. `ip address 192.168.1.1 255.255.255.0` uses a mask. Both are accepted and mean the same thing --- but mixing the two styles across a lab report makes it hard to spot a genuine mismatch.
 
     Pick one and use it everywhere. This course uses prefix length.
@@ -120,7 +120,7 @@
   GigabitEthernet0/0/1   unassigned           down      down
   ```
 
-  #keyidea[
+  #note[
     Two status columns, two different failures.
 
     #strong[Physical down] means the cable, the port, or `shutdown`. It is a layer-1 problem and no amount of IP configuration will fix it.
@@ -138,7 +138,7 @@
   The current configuration will be written to the device. Continue? [Y/N] y
   ```
 
-  #troubleshoot[
+  #tip[
     #strong[Ping fails but both interfaces are up/up.] Check the addresses are in the same subnet. `192.168.1.1/24` and `192.168.2.2/24` are two different networks and will never ping directly.
 
     #strong[Device will not start in eNSP.] eNSP needs VirtualBox. If routers stay red, VirtualBox is missing, the wrong version, or virtualisation is disabled in BIOS.
@@ -148,7 +148,7 @@
     #strong[Command rejected in the right view.] Check the abbreviation is unambiguous --- `dis` works, `d` does not.
   ]
 
-  #tryit[
+  #exercises[
     Run `shutdown` on R1’s `GE0/0/0`, then check `display ip interface brief` on #emph[both] routers. Which columns change on R1, and which on R2? Explain why the far end can tell.
   ]
 ]
@@ -157,7 +157,7 @@
 
 #include "visuals/02-ensp-vrp-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Save the working configuration and capture the interface summary. Temporarily shut the lab link, observe the state change, then restore it and repeat the direct ping.
 
   - `display ip interface brief` shows up/up on both routers.

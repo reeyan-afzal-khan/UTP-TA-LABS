@@ -5,8 +5,8 @@
     #canvas({
       let p = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.5, min-height: 1, align: center, font: font("script", weight: "bold", fill: navy))
       let net = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 3.1, min-height: 1.3, align: center, font: font("script", weight: "bold", fill: navy))
-      let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
-      let bad = (line-width: widths.thick, dash: "dashed", draw: red, end: tip("Stealth", length: 2mm, line: widths.thick))
+      let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
+      let bad = (line-width: widths.thick, dash: "dashed", draw: red, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
       node((-4.5, 0), [Alice], name: "a", ..p)
       node((0, 0), [Shared network \
     validates spend history], name: "n", ..net)

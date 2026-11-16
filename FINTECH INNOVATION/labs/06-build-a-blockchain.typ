@@ -53,7 +53,7 @@ python all_experiments/lab06_build_a_blockchain.py
 
 #include "visuals/06-build-a-blockchain-chapter.typ"
 
-#verification[
+#checklist[
   #strong[Explain and extend your result.] Tamper with one transaction and report the first failed validation check. Explain the downstream work required to rebuild the local chain and why that alone does not model a real consensus attack.
 
   - The script runs from a fresh process and creates the named CSV or report files.

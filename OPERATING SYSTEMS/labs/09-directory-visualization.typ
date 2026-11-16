@@ -83,7 +83,7 @@
 
   Create a new subdirectory and file under `demo_tree/tmp`, rerun both `find` and `directory_walk`, then remove your additions. No source-code change is required for the traversal to discover the new names.
 
-  #quickcheck[
+  #questions[
     + What is the difference between a pathname and an inode?
     + Why do two hard-link names show the same inode number?
     + Why can recursively following symbolic links create a traversal problem?
@@ -93,7 +93,7 @@
 
   #include "visuals/09-directory-visualization-chapter.typ"
 
-  #verification[
+  #checklist[
     #strong[Explain and extend your result.] Create both link types to a scratch file. Rename or remove the target name and record which accesses still work, together with inode and link-count evidence.
 
     - The tree sketch matches what `find` reports.

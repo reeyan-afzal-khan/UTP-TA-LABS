@@ -21,7 +21,7 @@ The lecture identifies several characteristics of traditional bank lending that 
 
 These features are not presented as evidence that banks serve no useful purpose. Rather, they explain why the bank model can become uneconomic for some customers. If the fixed cost of assessing and servicing a loan is high, a small loan may cost almost as much to process as a large one while generating much less revenue.
 
-#intuition[
+#note[
   If a loan application requires many manual steps, the process contains a high fixed cost. That fixed cost is easier to absorb on a large corporate loan than on a small business or personal loan. Automation changes this cost equation and therefore changes which customers can be served profitably.
 ]
 
@@ -46,7 +46,7 @@ However, lenders have little flexibility to choose their own desired risk/return
   #canvas({
     let p = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.6, min-height: 1.15, align: center, font: font("small", weight: "bold", fill: navy))
     let mid = (draw: navy, fill: white, rounded: 2mm, text-width: 3.4, min-height: 1.4, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.1mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.1mm, line: widths.thick))
     let head = (font: font("small", weight: "bold", fill: navy),)
     let risk = (font: font("script", fill: red), align: center, text-width: 4.4)
     let ring = (draw: red, dash: "dashed", rounded: 2.5mm, line-width: 0.797pt)
@@ -105,7 +105,7 @@ Alternative platforms seek to reduce transaction costs and give underserved borr
   #canvas({
     let p = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.8, min-height: 1.25, align: center, font: font("small", weight: "bold", fill: navy))
     let plat = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 3.5, min-height: 1.55, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2.1mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2.1mm, line: widths.thick))
     node((-4.5, 0), [Lenders / \
   investors], name: "l", ..p)
     node((0, 0), [P2P platform \
@@ -151,7 +151,7 @@ Alternative lenders may assess borrowers with information beyond conventional cr
 
 Borrower assessment is often at least partly automated against predefined rules. This reduces manual work, speeds onboarding, and can make the decision process more transparent to users.
 
-#keyidea[
+#note[
   The central P2P advantage is not simply “the internet.” It is the combination of a marketplace funding model, a lower operating structure, automated workflow, and alternative credit information.
 ]
 
@@ -210,7 +210,7 @@ The crowd supplies debt funding. The borrower repays the loan with interest, so 
 
 Investors buy stakes in a company. Returns may come from dividends or capital gains, and voting rights may or may not be included. The lecture notes P2B equity crowdfunding, in which individuals fund businesses, and B2B equity crowdfunding, in which firms form part of the investor crowd.
 
-#pitfall[
+#warning[
   Do not confuse reward crowdfunding with equity crowdfunding. A reward can be valuable, but it is explicitly non-financial. Equity crowdfunding gives the investor a financial ownership claim.
 ]
 
@@ -246,7 +246,7 @@ Proximity relationships, communities, platform data, and screening can reduce th
 
 P2P platforms use scoring models to estimate creditworthiness. The lecture suggests that a competitive advantage may come from combining conventional credit logic with “soft” information and big data. However, this advantage may be temporary because incumbent banks can also adopt similar data and analytics.
 
-#intuition[
+#note[
   Alternative data is an advantage only while it improves decisions better or faster than competitors can. Once every major lender can use similar data, the durable advantage shifts to execution quality: data governance, model design, speed of learning, customer experience, and cost.
 ]
 
@@ -256,7 +256,7 @@ Some platforms reduce lender exposure by limiting the amount invested in one pro
 
 Suppose an investor has a fixed amount of capital. Putting everything into one borrower makes the outcome depend heavily on that one borrower’s repayment. Splitting the amount across many independent borrowers reduces the damage caused by any one default.
 
-#workedexample[
+#example[
   An investor has RM1,000. If all RM1,000 is placed into one unsecured loan and that borrower defaults, the loss can be severe. If the platform allocates RM50 across 20 different loans, one default affects only part of the portfolio. Diversification does not eliminate correlated or systemic defaults, but it reduces concentration in a single borrower.
 ]
 
@@ -304,7 +304,7 @@ This connects directly back to Chapter~#ref(<ch:financial-inclusion>): better in
 
 P2P platforms can replace some personnel, building, and equipment costs with cheaper digital distribution and communication. The lecture also contrasts their lighter historical regulatory cost with the financial and operational compliance burden of banks.
 
-#pitfall[
+#warning[
   The claim that P2P regulatory costs are “extremely low” is a statement from the lecture’s comparative framing, not a timeless rule. Regulation varies by jurisdiction and can evolve substantially. The structural idea to remember is that regulatory perimeter and balance-sheet requirements affect business-model economics.
 ]
 
@@ -343,11 +343,11 @@ When asked to compare a bank loan with P2P lending, do not stop at “P2P is che
   + #term[Sustainability.] Can the platform maintain risk controls and economics as it scales?
 ]
 
-#tryit[
+#exercises[
   A micro-business needs RM20,000 but has limited collateral and a short operating history. Compare how a traditional bank and a P2P platform might assess the application. Identify one advantage and one risk for the borrower, the fund provider, and the intermediary in each model.
 ]
 
-#quickcheck[
+#questions[
   + Define crowdfunding and P2P lending.
   + What four crowdfunding models are used in the lecture, and what does the contributor receive in each?
   + Why are small loans expensive for a high-fixed-cost bank to underwrite?

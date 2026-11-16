@@ -19,7 +19,7 @@ The deck also discusses #term[video banking]: customers can speak with experts t
 
 A banking interface has little value if the customer cannot reliably complete the intended transaction. The lecture therefore begins with a simple rule: users should reach the desired information or task quickly without excessive screens, keys, or navigation.
 
-#keyidea[
+#note[
   In mobile banking, usability is not cosmetic. Confusing navigation can create transaction errors, abandoned journeys, support costs, and loss of trust. A clear interface is part of operational quality.
 ]
 
@@ -35,9 +35,7 @@ A mobile app should perform enough useful tasks to reduce dependence on branches
 
 A bank wants its mobile channel to do more than shift existing customers from one channel to another. The lecture argues that rich, convenient functionality can help the institution sell additional services, attract users, and create new relationships. But the richness must remain simple enough to use.
 
-#analogy[
-  A pocket multi-tool is valuable because many functions are available when needed, but it fails if the user cannot find the right tool quickly. Mobile banking has the same design problem: breadth is useful only when the interface preserves clarity.
-]
+A pocket multi-tool is valuable because many functions are available when needed, but it fails if the user cannot find the right tool quickly. Mobile banking has the same design problem: breadth is useful only when the interface preserves clarity.
 
 == Usability principle 3: branding and channel consistency
 
@@ -73,7 +71,7 @@ The progression can be understood as:
 #utpfig([The progression of personalization, from a reactive app that shows a balance to an assistive one that helps the customer act.], label: <fig:personalization>)[
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 2.6, min-height: 1.1, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.5, 0), [Reactive \
   “show my balance”], name: "a", ..b)
     node((-1.5, 0), [Contextual \
@@ -99,7 +97,7 @@ The lecture distinguishes the front-end experience from the customer’s total r
 
 A visually excellent app can therefore have poor CX if transfers fail, money is delayed, support is unavailable, or the customer does not trust security.
 
-#workedexample[
+#example[
   Imagine two banking apps. App A has beautiful navigation but a transfer frequently remains pending for hours and support is difficult to reach. App B looks simpler but transactions are predictable, alerts are clear, and a customer can quickly reach a human when something fails. The lecture’s CX framing would often rate App B as the stronger overall proposition.
 ]
 
@@ -116,7 +114,7 @@ The lecture specifically mentions:
 
 Mobile security is difficult because the bank does not control the customer’s device or the network through which the device connects.
 
-#pitfall[
+#warning[
   Convenience and security are not separate design projects. Every security control changes the customer journey, and every reduction in friction changes the attack surface. A strong mobile product must manage both at once.
 ]
 
@@ -141,7 +139,7 @@ The deck gives a striking historical comparison: approximately \$4.25 for a bran
   #canvas({
     let b = (draw: blue, fill: pale-blue, rounded: 2mm, text-width: 3.4, min-height: 1.25, align: center, font: font("small", weight: "bold", fill: navy))
     let low = (draw: green, fill: pale-teal, rounded: 2mm, text-width: 3.4, min-height: 1.25, align: center, font: font("small", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: teal, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: teal, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-3.1, 0), [Physical service \
   staff + premises + time], name: "a", ..b)
     node((3.1, 0), [Digital self-service \
@@ -177,7 +175,7 @@ A new app running on modern infrastructure does not automatically modernize the 
   #canvas({
     let front = (draw: teal, fill: pale-teal, rounded: 2mm, text-width: 3, min-height: 1.1, align: center, font: font("small", weight: "bold", fill: navy))
     let core = (draw: muted, fill: pale-gray, rounded: 2mm, text-width: 2.5, min-height: 0.85, align: center, font: font("script", weight: "bold", fill: navy))
-    let arr = (line-width: widths.thick, draw: blue, end: tip("Stealth", length: 2mm, line: widths.thick))
+    let arr = (line-width: widths.thick, draw: blue, end: arrow-tip("Stealth", length: 2mm, line: widths.thick))
     node((-4.2, 0), [Mobile app], name: "m", ..front)
     node((0, 1.8), [Core banking], name: "c1", ..core)
     node((0, 0.6), [Payments], name: "c2", ..core)
@@ -209,7 +207,7 @@ An #term[API] is a software interface that lets one program request defined func
 
 Regulatory pressure can reinforce this shift. The slides use PSD2 in Europe as an example of rules that require banks to share data or access through open APIs under appropriate conditions, giving customers greater control over third-party access to their accounts.
 
-#keyidea[
+#note[
   Open banking weakens the idea that the bank must control every layer of the customer relationship. A customer may keep funds with one institution while using a different provider’s interface, analytics, or financial product.
 ]
 
@@ -254,11 +252,11 @@ The challenge is organizational and architectural: a fast follower must connect 
   + #term[Platform readiness.] Can APIs and partners extend the service without tightly coupling every new feature to the legacy core?
 ]
 
-#tryit[
+#exercises[
   Audit a mobile banking app using the seven steps above. For each step, identify one strong design choice and one potential failure point. Separate UX problems from broader CX problems.
 ]
 
-#quickcheck[
+#questions[
   + Why is “more functionality” not always better in a mobile banking app?
   + What is the difference between UX and CX?
   + Why are alerts especially powerful on mobile devices?

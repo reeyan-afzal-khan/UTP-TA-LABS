@@ -7,16 +7,18 @@ Reusable presentation belongs here; course content and course-specific figures s
   README.md
   typst/                 reusable book design
     utp.typ              the public import: everything below
-    palette.typ          colours (theme.tex)
+    palette.typ          colours (theme.tex), including the callout colours
     theme.typ            sizes, baselineskips and line metrics
     state.typ            book settings (configuration.tex)
     layout.typ           pages, headings, contents, parts
-    boxes.typ            the learning boxes (boxes.tex)
+    callouts.typ         Note, Tip and Warning: the only framed asides
+    elements.typ         unframed teaching elements: example, exercises, questions, answers, summary, checklist
+    frames.typ           the frame behind figures, tables and device transcripts
     figures.typ          figure and table frames, images (figures.tex)
     tables.typ           the tabularx house style
     listings.typ         code and terminal listings (listings.tex)
     listings.tmTheme     listing syntax colours
-    labs.typ             lab banners, cards and checklists (labs/*.tex)
+    labs.typ             lab banner and lab-sheet structure (labs/*.tex)
     commands.typ         inline commands (commands.tex)
     cover.typ            the cover (cover.tex)
     diagrams.typ         TikZ in CeTZ: node, connect, the house drawing styles
@@ -37,11 +39,15 @@ Reusable presentation belongs here; course content and course-specific figures s
 | Colours across every book | [typst/palette.typ](typst/palette.typ) |
 | Font sizes, line spacing | [typst/theme.typ](typst/theme.typ) |
 | Page layout, headings, contents | [typst/layout.typ](typst/layout.typ) |
-| A learning box | [typst/boxes.typ](typst/boxes.typ) |
+| Note, Tip and Warning: look and spacing | [typst/callouts.typ](typst/callouts.typ) |
+| Callout colours | `callout-colors` in [typst/palette.typ](typst/palette.typ) |
+| Example, exercises, questions, answers, summary, checklist | [typst/elements.typ](typst/elements.typ) |
+| A label's wording, in every book | `callout-labels` or `element-labels` in the two files above |
+| A label's wording, in one book | `titles:` in that course's `main.typ` |
 | Figure frames and captions | [typst/figures.typ](typst/figures.typ) |
 | Tables | [typst/tables.typ](typst/tables.typ) |
 | Code and terminal listings | [typst/listings.typ](typst/listings.typ) |
-| Lab banners and lab components | [typst/labs.typ](typst/labs.typ) |
+| Lab banners and lab-sheet structure | [typst/labs.typ](typst/labs.typ) |
 | Drawings: node and path styles | [typst/diagrams.typ](typst/diagrams.typ) |
 | Charts | [typst/plots.typ](typst/plots.typ) |
 | Cover geometry or the cover diagram | [typst/cover.typ](typst/cover.typ) |
