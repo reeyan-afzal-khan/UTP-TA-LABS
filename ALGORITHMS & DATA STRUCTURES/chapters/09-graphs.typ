@@ -176,7 +176,6 @@ scanning A’s neighbours.
 An adjacency list stores, for each vertex, the vertices connected to it. The slides emphasize that it is storage-efficient because values are stored for edges rather than allocating a full matrix.
 
 ```cpp
-
 // A=0, B=1, C=2, D=3, E=4
 adj[0] = {1, 2, 3};
 adj[1] = {0, 3, 4};

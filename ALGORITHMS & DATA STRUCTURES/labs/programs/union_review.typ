@@ -1,6 +1,7 @@
 #import "/.shared/typst/utp.typ": *
 
-#strong[Program 2: Structure and union storage.]
+#keepspace(10 * skips.normal)
+#element-head([Program 2: Structure and union storage])
 
 #strong[File:] `union_review.cpp`.
 
@@ -10,51 +11,36 @@ A structure retains all fields; a union shares storage. Write and read the same 
 
 #include "../visuals/program-union_review.typ"
 
-#utpsteps[
-  1. #strong[Headers and initial definitions.]
-]
+#block(sticky: true)[
+  #utpsteps[
+    1. #strong[Headers and initial definitions.]
+  ]
 
-`union_review.cpp` --- lines 13--26.
+  `union_review.cpp` --- lines 13--26.
+]
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab01/union_review.cpp", first: 13, last: 26, lang: "cpp")
 
-#colbreak()
+#block(sticky: true)[
+  #utpsteps[
+    2. #strong[Connect the test cases in main.]
+  ]
 
-#utpsteps[
-  2. #strong[Connect the test cases in main.]
+  `union_review.cpp` --- lines 27--55.
 ]
-
-`union_review.cpp` --- lines 27--55.
 
 #include "../visuals/complete-union.typ"
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab01/union_review.cpp", first: 27, last: 55, lang: "cpp")
 
-#colbreak()
-
-#strong[Build, run, and inspect union\_review.]
-
-From this program\'s folder, run these commands in PowerShell:
+#strong[Two sizes, one shared slot.] The first two lines of the run carry the lesson: the structure keeps all three members side by side, while the union keeps one at a time.
 
 ```terminal
-
-g++ -std=c++17 -Wall -Wextra union_review.cpp -o union_review.exe
-
-.\union_review.exe
-
-```
-
-#strong[Expected output excerpt.] Compare values, order, and pass/fail messages; spacing need not match.
-
-```terminal
-
 == Structure versus union ==
 sizeof(MeasurementStruct) = 24 bytes
 sizeof(MeasurementUnion)  = 8 bytes (the size of its largest member, double = 8)
-
 After u.count = 42:     u.count   = 42
 After u.reading = 3.75: u.reading = 3.75  (count was overwritten; read only the member written last)
-
 == A 1D array: daily temperatures ==
 day 1: 31
 day 2: 33
@@ -63,13 +49,9 @@ day 4: 29
 day 5: 34
 day 6: 32
 day 7: 31
-
+highest: 34, average: 31.4286
 ```
 
-The complete captured run is in `labs/outputs/union_review.txt`.
+The members add up to 4~+~8~+~1~=~13 bytes, yet the structure takes 24. The compiler pads it so that the `double` starts on an 8-byte boundary and the whole structure is a multiple of 8; padding depends on the platform, so your figure may differ. The union needs room only for its largest member. Writing `u.reading` reuses the bytes that held `count`, which is why the program reads back only the member it wrote last. The final line divides the seven temperatures, 220 in total, by 7.
 
-Reported byte sizes depend on the platform; compare the storage relationships rather than requiring these exact sizes.
-
-#exercises[
-  Change the last temperature to 28 and recompute the maximum and average by hand. For the union, write grade last and read grade; do not read the older inactive members.
-]
+#strong[Change one temperature.] Set the last temperature to 28 and work out the new highest and average by hand before you run it: still 34, and 217~/~7~=~31. Then assign `u.grade = 'A'` and print `u.grade`. After that assignment `grade` is the only member worth reading; printing `count` or `reading` shows whatever bytes happen to be left over, and C++ does not define the result.

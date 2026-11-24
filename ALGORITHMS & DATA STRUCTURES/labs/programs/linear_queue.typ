@@ -1,6 +1,7 @@
 #import "/.shared/typst/utp.typ": *
 
-#strong[Program 1: Linear array queue.]
+#keepspace(10 * skips.normal)
+#element-head([Program 1: Linear array queue])
 
 #strong[File:] `linear_queue.cpp`.
 
@@ -10,21 +11,23 @@ front advances on removal and rear advances on insertion. This deliberately simp
 
 #include "../visuals/program-linear_queue.typ"
 
-#utpsteps[
-  1. #strong[Headers and initial definitions.]
-]
+#block(sticky: true)[
+  #utpsteps[
+    1. #strong[Headers and initial definitions.]
+  ]
 
-`linear_queue.cpp` --- lines 10--24.
+  `linear_queue.cpp` --- lines 10--24.
+]
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab06/linear_queue.cpp", first: 10, last: 24, lang: "cpp")
 
-#colbreak()
+#block(sticky: true)[
+  #utpsteps[
+    2. #strong[Connect the test cases in main.]
+  ]
 
-#utpsteps[
-  2. #strong[Connect the test cases in main.]
+  `linear_queue.cpp` --- lines 25--61.
 ]
-
-`linear_queue.cpp` --- lines 25--61.
 
 #strong[Read the chapter visual with the code.] The diagram illustrates the storage rule; the program tests the values and cases stated in `main`.
 
@@ -32,54 +35,38 @@ front advances on removal and rear advances on insertion. This deliberately simp
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab06/linear_queue.cpp", first: 25, last: 61, lang: "cpp")
 
-#colbreak()
+#block(sticky: true)[
+  #utpsteps[
+    3. #strong[Connect the test cases in main.]
+  ]
 
-#utpsteps[
-  3. #strong[Connect the test cases in main.]
+  `linear_queue.cpp` --- lines 62--77. Continue in the same file; do not add another header or opening brace.
 ]
-
-`linear_queue.cpp` --- lines 62--77. Continue in the same file; do not add another header or opening brace.
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab06/linear_queue.cpp", first: 62, last: 77, lang: "cpp")
 
-#colbreak()
-
-#strong[Build, run, and inspect linear\_queue.]
-
-From this program\'s folder, run these commands in PowerShell:
+#strong[Full with two slots free.] Follow `front` and `rear` rather than the values: both only ever move to the right.
 
 ```terminal
-
-g++ -std=c++17 -Wall -Wextra linear_queue.cpp -o linear_queue.exe
-
-.\linear_queue.exe
-
-```
-
-#strong[Expected output excerpt.] Compare values, order, and pass/fail messages; spacing need not match.
-
-```terminal
-
 == Enqueue 10, 20, 30 ==
 front=0 rear=0  queue: 10
 front=0 rear=1  queue: 10 20
 front=0 rear=2  queue: 10 20 30
-
 == Dequeue twice ==
 dequeued 10  front=1 rear=2  queue: 20 30
 dequeued 20  front=2 rear=2  queue: 30
   [ok]   FIFO: values leave in the order they arrived (10 then 20)
-
 == Enqueue 40, 50, 60 ==
 enqueue 40 -> ok      front=2 rear=3  queue: 30 40
 enqueue 50 -> ok      front=2 rear=4  queue: 30 40 50
 enqueue 60 -> refused front=2 rear=4  queue: 30 40 50
   [ok]   the queue reports full with only three items: slots 0 and 1 are wasted
-
+== Dequeue until empty ==
+front=5 rear=4  queue: (empty)
+  [ok]   every value left in arrival order
+  [ok]   dequeue on an empty queue is refused
 ```
 
-The complete captured run is in `labs/outputs/linear_queue.txt`.
+Two dequeues move `front` to index 2 and leave slots 0 and 1 empty, yet `enqueue 60` is refused: `rear` has reached index 4, the end of the array, and a linear queue never returns to a slot it has passed. The final line, `front=5 rear=4`, is how this queue says empty: `front` has overtaken `rear`.
 
-#exercises[
-  Fill all five positions and dequeue twice. Predict why another enqueue is refused even though two physical slots are free. Compare the same sequence with the circular program.
-]
+#strong[Count the wasted slots.] Enqueue five values into an empty queue, dequeue two, and try a sixth enqueue. Write down `front`, `rear` and the number of free slots before you run it: 2, 4 and two free slots, and the enqueue is still refused. Run the same eight operations with the circular queue in Program 3. There the last enqueue succeeds and lands in slot 0.

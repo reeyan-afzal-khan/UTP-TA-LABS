@@ -1,6 +1,7 @@
 #import "/.shared/typst/utp.typ": *
 
-#strong[Program 4: Heap sort with an active prefix.]
+#keepspace(10 * skips.normal)
+#element-head([Program 4: Heap sort with an active prefix])
 
 #strong[File:] `heap_sort.cpp`.
 
@@ -10,54 +11,41 @@ Build a max-heap, swap its root into the sorted suffix, and repair only the rema
 
 #include "../visuals/program-heap_sort.typ"
 
-#utpsteps[
-  1. #strong[Headers and initial definitions.]
-]
+#block(sticky: true)[
+  #utpsteps[
+    1. #strong[Headers and initial definitions.]
+  ]
 
-`heap_sort.cpp` --- lines 14--29.
+  `heap_sort.cpp` --- lines 14--29.
+]
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab10/heap_sort.cpp", first: 14, last: 29, lang: "cpp")
 
-#colbreak()
+#block(sticky: true)[
+  #utpsteps[
+    2. #strong[Implement isMaxHeap, show, heapSort.]
+  ]
 
-#utpsteps[
-  2. #strong[Implement isMaxHeap, show, heapSort.]
+  `heap_sort.cpp` --- lines 30--58.
 ]
-
-`heap_sort.cpp` --- lines 30--58.
 
 #include "../visuals/complete-heapsort.typ"
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab10/heap_sort.cpp", first: 30, last: 58, lang: "cpp")
 
-#colbreak()
+#block(sticky: true)[
+  #utpsteps[
+    3. #strong[Connect the test cases in main.]
+  ]
 
-#utpsteps[
-  3. #strong[Connect the test cases in main.]
+  `heap_sort.cpp` --- lines 59--97.
 ]
-
-`heap_sort.cpp` --- lines 59--97.
 
 #lstinput("/ALGORITHMS & DATA STRUCTURES/all_experiments/Lab10/heap_sort.cpp", first: 59, last: 97, lang: "cpp")
 
-#colbreak()
-
-#strong[Build, run, and inspect heap\_sort.]
-
-From this program\'s folder, run these commands in PowerShell:
+#strong[The heap shrinks, the sorted tail grows.] Everything left of the bar is still a max-heap; everything right of it is already in its final place.
 
 ```terminal
-
-g++ -std=c++17 -Wall -Wextra heap_sort.cpp -o heap_sort.exe
-
-.\heap_sort.exe
-
-```
-
-#strong[Expected output excerpt.] Compare values, order, and pass/fail messages; spacing need not match.
-
-```terminal
-
 == Heap sort on the common dataset (heap | sorted tail) ==
   start: 29 10 14 37 13
   after building the max-heap: 37 29 14 10 13
@@ -69,15 +57,13 @@ g++ -std=c++17 -Wall -Wextra heap_sort.cpp -o heap_sort.exe
   comparisons: 12, swaps: 9
   [ok]   the result is in ascending order
   [ok]   the heap property held in the unsorted region after every extraction
-
 == More inputs ==
   [ok]   duplicates: 5 3 5 1 5 9 3
   [ok]   already sorted: 1 2 3 4 5 6
-
+  [ok]   reverse sorted: 6 5 4 3 2 1
+  [ok]   one element and empty input
 ```
 
-The complete captured run is in `labs/outputs/heap_sort.txt`.
+Building the heap brings 37 to the front. Each extraction swaps the root with the last value in the heap and sifts the new root down, so the largest remaining value joins the tail; heap and tail share the one array, and nothing is copied. On these five values heap sort used 12 comparisons to quick sort's 6. The real difference lies in the guarantee: heap sort is O(n log n) on every input, while quick sort is faster on average but can degrade to O(n²).
 
-#exercises[
-  Run the same fresh input through heap sort and descending quick sort. Reverse one result before comparing equality. Exclude printing and setup if you measure execution time.
-]
+#strong[Trace it by hand first.] Sort `9 4 7 1 8 2` with heap sort on paper, writing the array the way the program prints it. After the heap is built it must read `9 8 7 1 4 2`, and after the first extraction `8 4 7 1 2 | 9`. Finish the trace, then add the input to `main` and compare line by line.

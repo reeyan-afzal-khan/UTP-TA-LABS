@@ -15,27 +15,17 @@
   #strong[Complete source files.] Each program below is a separate C++17 file.
   Copy its code blocks in printed order, including headers, definitions, helpers, and `main()`.
   The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
-  Build one program at a time from its `all_experiments/Lab10` folder.
+  Save each one in your `Lab10` folder and build it on its own with #strong[Ctrl+Shift+B] (#secref(<sec:build-run>)); the supplied copies are in `all_experiments/Lab10`.
 
   #include "programs/quick_sort_descending.typ"
 
-  #colbreak()
-
   #include "programs/binary_search.typ"
 
-  #colbreak()
-
   #include "programs/merge_three_arrays.typ"
-
-  #colbreak()
 
   #include "programs/heap_sort.typ"
 ]
 
-#checklist[
-  $square$ Every listed program compiles independently with its own `main()`. \
+#element-head([One dataset through all four programs])
 
-  $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \
-
-  $square$ Explain one code-to-diagram state change and demonstrate one additional test.
-]
+Run the lab's four programs as one pipeline on the common dataset, 29 10 14 37 13. Sort it in ascending order with heap sort and in descending order with quick sort; reverse the quick-sort result and check that the two arrays are equal. Binary search the ascending array for 13, which must be at index 1, and for 30, which must not be found. Merge it with `5 15` and an empty third array: the result is `5 10 13 14 15 29 37`. Finally, look again at the counts the two sorts printed, 6 comparisons for quick sort and 12 for heap sort, and explain why such counts cannot tell you which algorithm is faster on a million values.

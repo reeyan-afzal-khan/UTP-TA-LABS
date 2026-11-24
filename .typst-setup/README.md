@@ -9,7 +9,7 @@ Run the Windows `.bat` files from `windows/`, or the matching `.sh` files from `
 | Step | Windows | macOS / Linux | Purpose |
 | --- | --- | --- | --- |
 | 01 | `windows/step01-install.bat --editors --publishing` | `sh unix/step01-install.sh --editors --publishing` | Create the local Conda environment and install the compiler, editor extensions, and optional PDF splitter |
-| 02 | `windows/step02-check.bat` | `sh unix/step02-check.sh` | Check the pinned compiler and course entry points |
+| 02 | `windows/step02-check.bat` | `sh unix/step02-check.sh` | Check the pinned compiler and course entry points; on Windows, also check that the editor preview can start |
 | 03 | `windows/step03-build.bat DS` | `sh unix/step03-build.sh DS` | Build one course; add `--watch` for disk-change watching |
 | 04 | `windows/step04-build-all.bat` | `sh unix/step04-build-all.sh` | Compile all nine books |
 | 05 | `windows/step05-publish.bat DS` | `sh unix/step05-publish.sh DS` | Publish a course and its lab PDFs; use `--all` for every course |
@@ -42,6 +42,8 @@ The workspace uses one Typst extension, **Tinymist Typst**. Open the course's `m
 **The preview refreshes when you save (Ctrl+S, Cmd+S on macOS), not on every keystroke.** A book here runs to 500 pages: each refresh of the Machine Learning preview keeps the preview busy for one to seven seconds, so refreshing on every keystroke kept it permanently busy and slow to respond. Errors and warnings in the editor still update as you type. For a short document you can switch to live refresh in your own settings with `"tinymist.preview.refresh": "onType"`.
 
 **If the whole VS Code window flashes blank** (it shows only its background colour for a fraction of a second, over and over, usually once a large preview is open), the cause is VS Code's GPU rendering, not Typst. It is common on computers whose monitors are connected to two different graphics cards. Run **Preferences: Configure Runtime Arguments** from the Command Palette, set `"disable-hardware-acceleration": true`, and quit and reopen VS Code. To keep hardware acceleration instead, use Windows **Settings → System → Display → Graphics** to run VS Code on the graphics card that drives the monitor it is on.
+
+**If the preview does not start on Windows and the Tinymist Typst output panel is empty**, Windows Smart App Control is blocking Tinymist's language server, `tinymist.exe`, because the file is not digitally signed. Smart App Control can turn itself on after an evaluation period, so a preview that worked last week can stop with no change to VS Code or this repository. Step 02 tests this: it starts `tinymist.exe`, reports the Smart App Control state, and says what to do if Windows blocks it. Each block is also recorded in Event Viewer under **Applications and Services Logs → Microsoft → Windows → CodeIntegrity → Operational**. Smart App Control cannot make an exception for one program: turn it off in **Windows Security → App & browser control → Smart App Control settings**, then run **Developer: Reload Window**. If you keep it on, use step 03 with `--watch` and open the PDF it writes under `.all-pdfs/`.
 
 Do not run **Megamist Typst** next to Tinymist. It compiles the open file 100 ms after every keystroke, cannot read the files a book imports (so every compile fails), and flashes its status and error marks each time. Earlier versions of this guide recommended it; disable it for this workspace (Extensions view → Megamist Typst → Disable (Workspace)) or uninstall it.
 

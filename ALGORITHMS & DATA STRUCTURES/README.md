@@ -35,7 +35,9 @@ operations, helper functions, and `main()`. Each file is printed once in consecu
 order; each program is a separate executable.
 
 The program pages connect to the preceding chapter, show a visual execution roadmap and operation diagrams,
-and end with a build command, a captured output excerpt, and a specific follow-up case. Full captured outputs
+and end with the program's run, what that run shows, and one change to try. Each lab then closes with a task of its
+own that uses the lab's programs together, such as the Josephus circle in Lab 4 or round-robin scheduling in Lab 6.
+The steps flow on from page to page; only a new lab starts a new page. Full captured outputs
 are in [`labs/outputs/`](labs/outputs); byte sizes in the structure/union and list comparisons depend on the
 platform. Program-page source lives in [`labs/programs/`](labs/programs). If a C++ file changes length, update
 its consecutive line ranges so every source line from the first include through the final brace remains covered.
@@ -69,9 +71,15 @@ The final-project brief from the lecturer is
 
 ## Running the labs
 
-The programs are standard C++17, one self-contained `.cpp` file each, and need only a C++ compiler: g++ (MinGW
-or WinLibs on Windows, the system compiler on Linux and macOS) or the compiler of your IDE. Build and run one
-from its lab folder:
+The programs are standard C++17, one self-contained `.cpp` file each. [`setup_lab/`](setup_lab) sets up a computer
+for them in one step: double-click `setup.bat` on Windows, or run `sh setup.sh` on Linux and macOS. The script
+installs only what is missing (GCC and GDB through MSYS2 on Windows, the Command Line Tools on macOS, `g++` and
+`gdb` on Linux, plus VS Code and its C/C++ extension), creates a `UTP-ADS` project folder with Lab01 to Lab11 and
+the VS Code settings from [`setup_lab/vscode`](setup_lab/vscode), and builds a test program to prove it all works.
+In VS Code, **Ctrl+Shift+B** then builds and runs the open file and **F5** debugs it. Chapter 1 of the book covers
+the same setup by hand; [`setup_lab/README.md`](setup_lab/README.md) lists the script's options and fixes.
+
+Any C++17 compiler works without the script. Build and run a program from its lab folder:
 
 ```bash
 cd all_experiments/Lab03
@@ -91,6 +99,7 @@ ALGORITHMS & DATA STRUCTURES/
   chapters/           12 chapters and the course map
   labs/               11 lab sheets, each input at the end of its chapter
   all_experiments/    Lab01-Lab11, the C++ programs for each lab
+  setup_lab/          one-step setup scripts (.bat, .sh) and the VS Code settings for students
   0.from_lecturer/    the lecturer's final-project guidelines
 ```
 

@@ -1,0 +1,4 @@
+{
+  // VS Code offers to install these when the project folder is opened.
+  "recommendations": ["ms-vscode.cpptools"]
+}

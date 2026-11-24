@@ -1,0 +1,88 @@
+// Build and run the C++ file that is open in the editor.
+//   Ctrl+Shift+B (Cmd+Shift+B on macOS)    build the open file, then run it
+//   Terminal > Run Task... > C++: build    build only (F5 builds first too; see launch.json)
+// The program is built next to its source: Lab03/singly_linked_list.cpp becomes
+// Lab03/singly_linked_list.exe on Windows and Lab03/singly_linked_list on Linux and macOS.
+// The setup scripts copy this file from setup_lab/vscode into your project's .vscode folder.
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "C++: build",
+      "detail": "g++ -std=c++17 -Wall -Wextra -pedantic -g on the open file",
+      "type": "process",
+      "command": "g++",
+      "args": [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-pedantic",
+        "-g",
+        "${file}",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "windows": {
+        "args": [
+          "-std=c++17",
+          "-Wall",
+          "-Wextra",
+          "-pedantic",
+          "-g",
+          "${file}",
+          "-o",
+          "${fileDirname}\\${fileBasenameNoExtension}.exe"
+        ],
+        "options": {
+          "cwd": "${fileDirname}",
+          "env": {
+            "PATH": "C:\\msys64\\ucrt64\\bin;${env:PATH}"
+          }
+        }
+      },
+      "osx": {
+        "command": "clang++"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true,
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "C++: build and run",
+      "detail": "Build the open file, then run it in the terminal",
+      "dependsOn": "C++: build",
+      "type": "process",
+      "command": "${fileDirname}/${fileBasenameNoExtension}",
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "windows": {
+        "command": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+        "options": {
+          "cwd": "${fileDirname}",
+          "env": {
+            "PATH": "C:\\msys64\\ucrt64\\bin;${env:PATH}"
+          }
+        }
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      }
+    }
+  ]
+}

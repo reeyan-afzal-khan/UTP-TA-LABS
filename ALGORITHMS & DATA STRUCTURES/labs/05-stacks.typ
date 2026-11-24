@@ -15,23 +15,15 @@
   #strong[Complete source files.] Each program below is a separate C++17 file.
   Copy its code blocks in printed order, including headers, definitions, helpers, and `main()`.
   The line ranges refer to the supplied file; continued blocks preserve its braces and scope.
-  Build one program at a time from its `all_experiments/Lab05` folder.
+  Save each one in your `Lab05` folder and build it on its own with #strong[Ctrl+Shift+B] (#secref(<sec:build-run>)); the supplied copies are in `all_experiments/Lab05`.
 
   #include "programs/array_stack.typ"
 
-  #colbreak()
-
   #include "programs/linked_stack.typ"
-
-  #colbreak()
 
   #include "programs/infix_to_postfix.typ"
 ]
 
-#checklist[
-  $square$ Every listed program compiles independently with its own `main()`. \
+#element-head([Evaluate what you converted])
 
-  $square$ Recorded outputs match the traces; no built-in check prints `[FAIL]`. \
-
-  $square$ Explain one code-to-diagram state change and demonstrate one additional test.
-]
+A postfix expression needs no parentheses and no precedence rules, only a stack. Write `evaluatePostfix` for single-digit operands: push each digit; for an operator, pop the right operand first, then the left one, and push the result. Convert `2+3*4-5` with Program 3, which gives `234*+5-`, and evaluate that: the answer must be 9, the same as working out the infix expression by hand. Then do `(8-2)/3`, whose postfix form is `82-3/` and whose value is 2. Use either of your stacks, and say why the order of the two pops matters for `-` and `/` but not for `+`.

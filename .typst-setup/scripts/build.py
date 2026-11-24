@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -22,6 +23,62 @@ def compiler():
     if actual != expected:
         raise RuntimeError(f"Expected Typst {expected}, found {actual}. Rerun step01-install in .typst-setup/windows or .typst-setup/unix.")
     return found
+
+# Windows refuses to start a program blocked by Smart App Control or another App Control
+# policy with error 4551, and one blocked by AppLocker or a software restriction policy with 1260.
+SMART_APP_CONTROL_BLOCK = 4551
+POLICY_BLOCKS = {SMART_APP_CONTROL_BLOCK, 1260}
+PREVIEW_GUIDE = 'See "Live preview" in .typst-setup/README.md.'
+
+def smart_app_control():
+    import winreg
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\CI\Policy") as key:
+            state = winreg.QueryValueEx(key, "VerifiedAndReputablePolicyState")[0]
+    except OSError:
+        return None  # Windows 10, or a state this account cannot read
+    return {0: "Off", 1: "On", 2: "Evaluation"}.get(state)
+
+def tinymist():
+    """Newest Tinymist language server installed in VS Code, as (version, path)."""
+    roots = [os.environ.get("VSCODE_EXTENSIONS"), Path.home() / ".vscode/extensions", Path.home() / ".vscode-insiders/extensions"]
+    found = []
+    for root in filter(None, roots):
+        for server in Path(root).glob("myriad-dreamin.tinymist-*/out/tinymist.exe"):
+            version = re.match(r"myriad-dreamin\.tinymist-(\d+(?:\.\d+)*)", server.parents[1].name)
+            if version:
+                found.append((tuple(map(int, version[1].split("."))), version[1], server))
+    return max(found, default=(None, None, None))[1:]
+
+def check_preview():
+    """On Windows, report whether Tinymist, the server behind the VS Code preview, can start."""
+    if os.name != "nt":
+        return
+    state = smart_app_control()
+    version, server = tinymist()
+    shown = f"; Smart App Control: {state}" if state else ""
+    if server is None:
+        print(f"Editor preview: Tinymist Typst is not installed in VS Code{shown}")
+    else:
+        try:
+            subprocess.run([str(server), "--version"], capture_output=True, timeout=30, check=True)
+        except (OSError, subprocess.SubprocessError) as error:
+            code = getattr(error, "winerror", None)
+            if code not in POLICY_BLOCKS:
+                print(f"WARNING: Tinymist {version} did not start, so the editor preview will not work: {error}")
+            elif state == "On" and code == SMART_APP_CONTROL_BLOCK:
+                print(f"WARNING: Smart App Control blocks Tinymist {version}, so the editor preview cannot start.")
+                print("Turn it off in Windows Security > App & browser control > Smart App Control settings,")
+                print("then run Developer: Reload Window in VS Code. Course builds are not affected. " + PREVIEW_GUIDE)
+            else:
+                print(f"WARNING: A policy on this PC blocks Tinymist {version}, so the editor preview cannot start{shown}.")
+                print("Ask the PC's administrator to allow it, or build with step 03 and --watch. " + PREVIEW_GUIDE)
+            return
+        print(f"Editor preview: Tinymist {version} starts{shown}")
+    if state == "On":
+        print("Tinymist is unsigned, so Smart App Control can block it after any install or update. " + PREVIEW_GUIDE)
+    elif state == "Evaluation":
+        print("If Windows switches Smart App Control on, it can block Tinymist and the editor preview. " + PREVIEW_GUIDE)
 
 def courses():
     return sorted(p for p in ROOT.glob("*/main.typ") if not p.parent.name.startswith("."))
@@ -65,6 +122,7 @@ def main():
         if args.check:
             print(subprocess.check_output([compiler(), "--version"], text=True).strip())
             print(f"{len(courses())} course entry points; bundled fonts and packages: {ROOT / '.shared'}")
+            check_preview()
             return
         if args.watch and args.all:
             parser.error("Use --watch with one course.")

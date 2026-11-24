@@ -1,0 +1,27 @@
+// Workspace settings for the Algorithms & Data Structures labs.
+// The setup scripts copy this file from setup_lab/vscode into your project's .vscode folder.
+{
+  // Check code as C++17, the standard the labs use.
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.default.cStandard": "c17",
+
+  // Save every open file before a build, so you never run an old version.
+  "task.saveBeforeRun": "always",
+
+  // When the build before debugging (F5) fails, show the errors instead of debugging the old program.
+  "debug.onTaskErrors": "showErrors",
+
+  // Four spaces per indent, as in the lab listings.
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+
+  // Keep compiled programs out of the Explorer view.
+  "files.exclude": {
+    "**/*.exe": true,
+    "**/*.o": true,
+    "**/*.dSYM": true
+  }
+}

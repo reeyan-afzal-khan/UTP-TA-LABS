@@ -1,0 +1,20 @@
+# Programs built from the lab sources: keep the .cpp files, not the programs.
+*.exe
+*.o
+*.obj
+*.out
+*.dSYM/
+
+# On Linux and macOS a built program has no extension, so inside the Lab folders
+# ignore every file without a dot in its name (folders are still tracked).
+Lab*/*
+!Lab*/*/
+!Lab*/*.*
+
+# Backups the setup scripts make when they replace a changed VS Code setting.
+.vscode/*.bak
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
